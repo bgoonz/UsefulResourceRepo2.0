@@ -122,7 +122,7 @@ lazy val utilDependencies = Seq(
     exclude("com.google.guava", "guava")
     exclude("org.apache.commons", "commons-lang3"),
   "com.navigamez" % "greex" % "1.0",
-  "org.json4s" %% "json4s-ext" % "3.5.3"
+  "org.json4s" %% "json4s-ext" % "3.6.11"
 
 )
 
