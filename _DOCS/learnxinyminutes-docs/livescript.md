@@ -2,7 +2,7 @@
 language: LiveScript
 filename: learnLivescript.ls
 contributors:
-    - ["Christina Whyte", "http://github.com/kurisuwhyte/"]
+  - ["Christina Whyte", "http://github.com/kurisuwhyte/"]
 ---
 
 LiveScript is a functional compile-to-JavaScript language which shares
@@ -15,12 +15,11 @@ LiveScript is a fork of [Coco][], which is itself a fork of
 [CoffeeScript][]. The language is stable, and a new version is in active
 development to bring a plethora of new niceties!
 
-[Coco]: http://satyr.github.io/coco/
-[CoffeeScript]: http://coffeescript.org/
+[coco]: http://satyr.github.io/coco/
+[coffeescript]: http://coffeescript.org/
 
 Feedback is always welcome, so feel free to reach me over at
 [@kurisuwhyte](https://twitter.com/kurisuwhyte) :)
-
 
 ```coffeescript
 # Just like its CoffeeScript cousin, LiveScript uses number symbols for
@@ -31,6 +30,7 @@ Feedback is always welcome, so feel free to reach me over at
  to be preserved in the JavaScript output.
  */
 ```
+
 ```coffeescript
 # As far as syntax goes, LiveScript uses indentation to delimit blocks,
 # rather than curly braces, and whitespace to apply functions, rather

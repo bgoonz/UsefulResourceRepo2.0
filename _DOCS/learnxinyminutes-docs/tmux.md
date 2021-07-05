@@ -2,17 +2,15 @@
 category: tool
 tool: tmux
 contributors:
-    - ["mdln", "https://github.com/mdln"]
+  - ["mdln", "https://github.com/mdln"]
 filename: LearnTmux.txt
 ---
-
 
 [tmux](http://tmux.github.io)
 is a terminal multiplexer: it enables a number of terminals
 to be created, accessed, and controlled from a single screen. tmux
 may be detached from a screen and continue running in the background
 then later reattached.
-
 
 ```
 
@@ -51,7 +49,6 @@ then later reattached.
      -a -t "#"       # Kill all sessions but the target
 
 ```
-
 
 ### Key Bindings
 
@@ -108,7 +105,6 @@ combinations called 'Prefix' keys.
   M-Left, M-Right
 
 ```
-
 
 ### Configuring ~/.tmux.conf
 
@@ -231,7 +227,6 @@ set -g status-interval 4
 set -g status-right "#[fg=green] | #[fg=white]#(tmux-mem-cpu-load)#[fg=green] | #[fg=cyan]%H:%M #[default]"
 
 ```
-
 
 ### References
 

@@ -6,8 +6,8 @@ contributors:
 ---
 
 The MIPS (Microprocessor without Interlocked Pipeline Stages) Assembly language
-is designed to work with the MIPS microprocessor paradigm designed by J. L. 
-Hennessy in 1981. These RISC processors are used in embedded systems such as 
+is designed to work with the MIPS microprocessor paradigm designed by J. L.
+Hennessy in 1981. These RISC processors are used in embedded systems such as
 gateways and routers.
 
 [Read More](https://en.wikipedia.org/wiki/MIPS_architecture)
@@ -29,7 +29,7 @@ gateways and routers.
 
   arr1: .word 1, 2, 3, 4, 5                 # Array of words
   arr2: .byte 'a', 'b'                      # Array of chars (1 byte each)
-  buffer: .space 60                         # Allocates space in the RAM 
+  buffer: .space 60                         # Allocates space in the RAM
                                             # (not cleared to 0)
 
   # Datatype sizes
@@ -45,14 +45,14 @@ gateways and routers.
                                             # represents word alignment since
                                             # 2^2 = 4 bytes)
 
-.text                                       # Section that contains 
+.text                                       # Section that contains
                                             # instructions and program logic
 .globl _main                                # Declares an instruction label as
                                             # global, making it accessible to
                                             # other files
 
-  _main:                                    # MIPS programs execute 
-                                            # instructions sequentially, where 
+  _main:                                    # MIPS programs execute
+                                            # instructions sequentially, where
                                             # the code under this label will be
                                             # executed first
 
@@ -65,18 +65,18 @@ gateways and routers.
                                             # with the given argument ($a0)
 
     # Registers (used to hold data during program execution)
-    # $t0 - $t9                             # Temporary registers used for 
-                                            # intermediate calculations inside 
-                                            # subroutines (not saved across 
+    # $t0 - $t9                             # Temporary registers used for
+                                            # intermediate calculations inside
+                                            # subroutines (not saved across
                                             # function calls)
 
-    # $s0 - $s7                             # Saved registers where values are 
-                                            # saved across subroutine calls. 
+    # $s0 - $s7                             # Saved registers where values are
+                                            # saved across subroutine calls.
                                             # Typically saved in stack
 
-    # $a0 - $a3                             # Argument registers for passing in 
+    # $a0 - $a3                             # Argument registers for passing in
                                             # arguments for subroutines
-    # $v0 - $v1                             # Return registers for returning 
+    # $v0 - $v1                             # Return registers for returning
                                             # values to caller function
 
     # Types of load/store instructions
@@ -87,8 +87,8 @@ gateways and routers.
     lw $t1, 4($s0)                          # Copy a word value from an address
                                             # stored in a register with an
                                             # offset of 4 bytes (addr + 4)
-    lb $t2, label                           # Copy a byte value to the 
-                                            # lower order portion of 
+    lb $t2, label                           # Copy a byte value to the
+                                            # lower order portion of
                                             # the register $t2
     lb $t2, 0($s0)                          # Copy a byte value from the source
                                             # address in $s0 with offset 0
@@ -96,7 +96,7 @@ gateways and routers.
 
     sw $t0, label                           # Store word value into
                                             # memory address mapped by label
-    sw $t0, 8($s0)                          # Store word value into address 
+    sw $t0, 8($s0)                          # Store word value into address
                                             # specified in $s0 and offset of
                                             # 8 bytes
     # Same idea using 'sb' and 'sh' for bytes and halfwords. 'sa' does not exist
@@ -110,25 +110,25 @@ gateways and routers.
     add $t2, $t0, $t1                       # $t2 = $t0 + $t1
     sub $t2, $t0, $t1                       # $t2 = $t0 - $t1
     mul $t2, $t0, $t1                       # $t2 = $t0 * $t1
-    div $t2, $t0, $t1                       # $t2 = $t0 / $t1 (Might not be 
+    div $t2, $t0, $t1                       # $t2 = $t0 / $t1 (Might not be
                                             # supported in some versons of MARS)
-    div $t0, $t1                            # Performs $t0 / $t1. Get the 
-                                            # quotient using 'mflo' and 
+    div $t0, $t1                            # Performs $t0 / $t1. Get the
+                                            # quotient using 'mflo' and
                                             # remainder using 'mfhi'
 
     # Bitwise Shifting
-    sll $t0, $t0, 2                         # Bitwise shift to the left with 
+    sll $t0, $t0, 2                         # Bitwise shift to the left with
                                             # immediate (constant value) of 2
     sllv $t0, $t1, $t2                      # Shift left by a variable amount
                                             # in register
-    srl $t0, $t0, 5                         # Bitwise shift to the right (does 
-                                            # not sign preserve, sign-extends 
+    srl $t0, $t0, 5                         # Bitwise shift to the right (does
+                                            # not sign preserve, sign-extends
                                             # with 0)
-    srlv $t0, $t1, $t2                      # Shift right by a variable amount 
+    srlv $t0, $t1, $t2                      # Shift right by a variable amount
                                             # in a register
-    sra $t0, $t0, 7                         # Bitwise arithmetic shift to  
+    sra $t0, $t0, 7                         # Bitwise arithmetic shift to
                                             # the right (preserves sign)
-    srav $t0, $t1, $t2                      # Shift right by a variable amount 
+    srav $t0, $t1, $t2                      # Shift right by a variable amount
                                             # in a register
 
     # Bitwise operators
@@ -152,7 +152,7 @@ gateways and routers.
                                             # $t0 == $t1, otherwise
                                             # execute the next line
     bne $t0, $t1, reg_neq                   # Branches when $t0 != $t1
-    b branch_target                         # Unconditional branch, will 
+    b branch_target                         # Unconditional branch, will
                                             # always execute
     beqz $t0, req_eq_zero                   # Branches when $t0 == 0
     bnez $t0, req_neq_zero                  # Branches when $t0 != 0
@@ -162,8 +162,8 @@ gateways and routers.
     blt $t0, $t1, t0_gt_t1                  # Branches when $t0 < $t1
     ble $t0, $t1, t0_gte_t1                 # Branches when $t0 <= $t1
     bltz $t0, t0_lt0                        # Branches when $t0 < 0
-    slt $s0, $t0, $t1                       # Instruction that sends a signal 
-                                            # when $t0 < $t1 with result in $s0 
+    slt $s0, $t0, $t1                       # Instruction that sends a signal
+                                            # when $t0 < $t1 with result in $s0
                                             # (1 for true)
 
     # Simple if statement
@@ -177,7 +177,7 @@ gateways and routers.
 
     L1:
       sub $s0, $s0, $s3 # f = f - i
-    
+
     # Below is an example of finding the max of 3 numbers
     # A direct translation in Java from MIPS logic:
     # if (a > b)
@@ -208,14 +208,14 @@ gateways and routers.
 
 ## LOOPS ##
   _loops:
-    # The basic structure of loops is having an exit condition and a jump 
+    # The basic structure of loops is having an exit condition and a jump
     # instruction to continue its execution
     li $t0, 0
     while:
-      bgt $t0, 10, end_while                # While $t0 is less than 10, 
+      bgt $t0, 10, end_while                # While $t0 is less than 10,
                                             # keep iterating
       addi $t0, $t0, 1                      # Increment the value
-      j while                               # Jump back to the beginning of 
+      j while                               # Jump back to the beginning of
                                             # the loop
     end_while:
 
@@ -241,7 +241,7 @@ gateways and routers.
 
 ## FUNCTIONS ##
   _functions:
-    # Functions are callable procedures that can accept arguments and return 
+    # Functions are callable procedures that can accept arguments and return
     values all denoted with labels, like above
 
     main:                                 # Programs begin with main func
@@ -256,14 +256,14 @@ gateways and routers.
 
       # How about recursion?
       # This is a bit more work since we need to make sure we save and restore
-      # the previous PC in $ra since jal will automatically overwrite 
+      # the previous PC in $ra since jal will automatically overwrite
       # on each call
       li $a0, 3
       jal fact
 
       li $v0, 10
       syscall
-    
+
     # This function returns 1
     return_1:
       li $v0, 1                           # Load val in return register $v0
@@ -322,10 +322,10 @@ gateways and routers.
       lw $a0, %num
       syscall
     .end_macro
-    
+
     li $t0, 1
     print_int($t0)
-    
+
     # We can also pass in immediates for macros
     .macro immediates(%a, %b)
       add $t0, %a, %b
@@ -369,7 +369,7 @@ gateways and routers.
   end_loop:
 
 ## INCLUDE ##
-# You do this to import external files into your program (behind the scenes, 
+# You do this to import external files into your program (behind the scenes,
 # it really just takes whatever code that is in that file and places it where
 # the include statement is)
 .include "somefile.asm"

@@ -1,7 +1,7 @@
 ---
 language: neat
 contributors:
-    - ["Feep", "https://github.com/FeepingCreature"]
+  - ["Feep", "https://github.com/FeepingCreature"]
 filename: LearnNeat.nt
 ---
 
@@ -291,7 +291,7 @@ void main(string[] args) {
 
 ## Topics Not Covered
 
- * Extended iterator types and expressions
- * Standard library
- * Conditions (error handling)
- * Macros
+- Extended iterator types and expressions
+- Standard library
+- Conditions (error handling)
+- Macros

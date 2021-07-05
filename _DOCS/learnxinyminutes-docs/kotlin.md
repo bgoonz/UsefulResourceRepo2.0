@@ -1,7 +1,7 @@
 ---
 language: kotlin
 contributors:
-    - ["S Webber", "https://github.com/s-webber"]
+  - ["S Webber", "https://github.com/s-webber"]
 filename: LearnKotlin.kt
 ---
 
@@ -449,6 +449,6 @@ fun operatorOverloadingDemo() {
 
 ### Further Reading
 
-* [Kotlin tutorials](https://kotlinlang.org/docs/tutorials/)
-* [Try Kotlin in your browser](https://play.kotlinlang.org/)
-* [A list of Kotlin resources](http://kotlin.link/)
+- [Kotlin tutorials](https://kotlinlang.org/docs/tutorials/)
+- [Try Kotlin in your browser](https://play.kotlinlang.org/)
+- [A list of Kotlin resources](http://kotlin.link/)

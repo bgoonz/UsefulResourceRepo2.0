@@ -1,14 +1,13 @@
 ---
 language: markdown
 contributors:
-    - ["Dan Turkel", "http://danturkel.com/"]
-    - ["Jacob Ward", "http://github.com/JacobCWard/"]
+  - ["Dan Turkel", "http://danturkel.com/"]
+  - ["Jacob Ward", "http://github.com/JacobCWard/"]
 filename: markdown.md
 ---
 
-
-Markdown was created by John Gruber in 2004. It's meant to be an easy to read 
-and write syntax which converts easily to HTML (and now many other formats as 
+Markdown was created by John Gruber in 2004. It's meant to be an easy to read
+and write syntax which converts easily to HTML (and now many other formats as
 well).
 
 Markdown also varies in implementation from one parser to a next. This
@@ -27,12 +26,13 @@ specific to a certain parser.
 - [Miscellany](#miscellany)
 
 ## HTML Elements
+
 Markdown is a superset of HTML, so any HTML file is valid Markdown.
 
 ```md
-<!--This means we can use HTML elements in Markdown, such as the comment 
-element, and they won't be affected by a markdown parser. However, if you 
-create an HTML element in your markdown file, you cannot use markdown syntax 
+<!--This means we can use HTML elements in Markdown, such as the comment
+element, and they won't be affected by a markdown parser. However, if you
+create an HTML element in your markdown file, you cannot use markdown syntax
 within that element's contents.-->
 ```
 
@@ -43,20 +43,24 @@ text you want to be in that element by a number of hashes (#).
 
 ```md
 # This is an <h1>
+
 ## This is an <h2>
+
 ### This is an <h3>
+
 #### This is an <h4>
+
 ##### This is an <h5>
+
 ###### This is an <h6>
 ```
+
 Markdown also provides us with two alternative ways of indicating h1 and h2.
 
 ```md
-This is an h1
-=============
+# This is an h1
 
-This is an h2
--------------
+## This is an h2
 ```
 
 ## Simple text styles
@@ -64,15 +68,15 @@ This is an h2
 Text can be easily styled as italic or bold using markdown.
 
 ```md
-*This text is in italics.*
+_This text is in italics._
 _And so is this text._
 
 **This text is in bold.**
-__And so is this text.__
+**And so is this text.**
 
-***This text is in both.***
+**_This text is in both._**
 **_As is this!_**
-*__And this!__*
+_**And this!**_
 ```
 
 In GitHub Flavored Markdown, which is used to render markdown files on
@@ -81,6 +85,7 @@ GitHub, we also have strikethrough:
 ```md
 ~~This text is rendered with strikethrough.~~
 ```
+
 ## Paragraphs
 
 Paragraphs are a one or multiple adjacent lines of text separated by one or
@@ -91,7 +96,6 @@ This is a paragraph. I'm typing in a paragraph isn't this fun?
 
 Now I'm in paragraph 2.
 I'm still in paragraph 2 too!
-
 
 I'm in paragraph three!
 ```
@@ -113,24 +117,25 @@ Block quotes are easy and done with the > character.
 > It doesn't make a difference so long as they start with a `>`.
 
 > You can also use more than one level
->> of indentation?
-> How neat is that?
-
+>
+> > of indentation?
+> > How neat is that?
 ```
 
 ## Lists
+
 Unordered lists can be made using asterisks, pluses, or hyphens.
 
 ```md
-* Item
-* Item
-* Another item
+- Item
+- Item
+- Another item
 
 or
 
-+ Item
-+ Item
-+ One more item
+- Item
+- Item
+- One more item
 
 or
 
@@ -155,6 +160,7 @@ render the numbers in order, but this may not be a good idea.
 1. Item two
 1. Item three
 ```
+
 (This renders the same as the above example)
 
 You can also use sublists
@@ -163,8 +169,8 @@ You can also use sublists
 1. Item one
 2. Item two
 3. Item three
-    * Sub-item
-    * Sub-item
+   - Sub-item
+   - Sub-item
 4. Item four
 ```
 
@@ -172,9 +178,10 @@ There are even task lists. This creates HTML checkboxes.
 
 ```md
 Boxes below without the 'x' are unchecked HTML checkboxes.
+
 - [ ] First task to complete.
 - [ ] Second task that needs done
-This checkbox below will be a checked HTML checkbox.
+      This checkbox below will be a checked HTML checkbox.
 - [x] This task has been completed
 ```
 
@@ -217,14 +224,16 @@ highlighting of the language you specify after the \`\`\`
 
 ## Horizontal rule
 
-Horizontal rules (`<hr/>`) are easily added with three or more asterisks or 
+Horizontal rules (`<hr/>`) are easily added with three or more asterisks or
 hyphens, with or without spaces.
 
 ```md
-***
 ---
-- - -
-****************
+---
+
+---
+
+---
 ```
 
 ## Links
@@ -235,11 +244,13 @@ the text to display in hard brackets [] followed by the url in parentheses ()
 ```md
 [Click me!](http://test.com/)
 ```
+
 You can also add a link title using quotes inside the parentheses.
 
 ```md
 [Click me!](http://test.com/ "Link to Test.com")
 ```
+
 Relative paths work too.
 
 ```md
@@ -267,6 +278,7 @@ There is also "implicit naming" which lets you use the link text as the id.
 But it's not that commonly used.
 
 ## Images
+
 Images are done the same way as links but with an exclamation point in front!
 
 ```md
@@ -278,7 +290,9 @@ And reference style works as expected.
 <pre><code class="highlight">!&#x5b;<span class="nv">This is the alt-attribute.</span>][<span class="ss">myimage</span>]
 
 &#x5b;<span class="nv">myimage</span>]: <span class="sx">relative/urls/cool/image.jpg</span> <span class="nn">"if you need a title, it's here"</span></code></pre>
+
 ## Miscellany
+
 ### Auto-links
 
 ```md
@@ -295,37 +309,40 @@ And reference style works as expected.
 ### Escaping characters
 
 ```md
-I want to type *this text surrounded by asterisks* but I don't want it to be
+I want to type _this text surrounded by asterisks_ but I don't want it to be
 in italics, so I do this: \*this text surrounded by asterisks\*.
 ```
 
 ### Keyboard keys
 
-In GitHub Flavored Markdown, you can use a `<kbd>` tag to represent keyboard 
+In GitHub Flavored Markdown, you can use a `<kbd>` tag to represent keyboard
 keys.
 
 ```md
 Your computer crashed? Try sending a
 <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Del</kbd>
 ```
+
 ### Tables
 
 Tables are only available in GitHub Flavored Markdown and are slightly
 cumbersome, but if you really want it:
 
 ```md
-| Col1         | Col2     | Col3          |
+| Col1         |   Col2   |          Col3 |
 | :----------- | :------: | ------------: |
 | Left-aligned | Centered | Right-aligned |
-| blah         | blah     | blah          |
+| blah         |   blah   |          blah |
 ```
+
 or, for the same results
 
 ```md
-Col 1 | Col2 | Col3
-:-- | :-: | --:
-Ugh this is so ugly | make it | stop
+| Col 1               |  Col2   | Col3 |
+| :------------------ | :-----: | ---: |
+| Ugh this is so ugly | make it | stop |
 ```
 
 ---
+
 For more info, check out John Gruber's official post of syntax [here](http://daringfireball.net/projects/markdown/syntax) and Adam Pritchard's great cheatsheet [here](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet).

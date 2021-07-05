@@ -2,8 +2,7 @@
 
 > Learn how to use Iframes with React following the best practices for Security and Performance
 
-Learn how to use Iframes with React following the best practices for Security and Performance
----------------------------------------------------------------------------------------------
+## Learn how to use Iframes with React following the best practices for Security and Performance
 
 [![Andrea Perera](https://miro.medium.com/fit/c/96/96/1*gzBO95eXbO4dNkKa2sjang@2x.jpeg)](https://andriperera.medium.com/?source=post_page-----6193feaa1e08--------------------------------)
 
@@ -31,17 +30,16 @@ Similarly, as you can see in the below code snippet, embedding a YouTube Iframe 
 
 import React from "react";  
 import ReactDOM from "react-dom";class App extends React.Component {  
-  render() {  
-    return <iframe src="[https://www.youtube.com/embed/cWDJoK8zw58](https://www.youtube.com/embed/cWDJoK8zw58)" />;  
-  }  
+ render() {  
+ return <iframe src="[https://www.youtube.com/embed/cWDJoK8zw58](https://www.youtube.com/embed/cWDJoK8zw58)" />;  
+ }  
 }ReactDOM.render(<App />, document.getElementById("container"));
 
 However, though it’s easy to embed an Iframe into your React app, making it secure, fast, and reliable requires specific expertise. Therefore, it’s essential to understand the best practices around using Iframes with React.
 
 As an experiment, I’ve used YouTube to embed a video into a React app. When I copy-paste a YouTube video link directly into the Iframe, it threw an error saying **“www.youtube.com refused to connect.”** To embed a YouTube video to an Iframe, I had to use their embed URLs.
 
-Verify the X-Frame-Options
---------------------------
+## Verify the X-Frame-Options
 
 Suppose you closely observe the error in Chrome Dev Tools. In that case, you can find that YouTube prevents the loading of their direct URLs (Not the embeddable one) by using [X-Frame-Options](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options) set to “same-origin” returning in the HTTP Header from YouTube servers.
 
@@ -57,8 +55,7 @@ And I hope it’s clear that adding any URL into an Iframe doesn’t work with R
 
 Embedding an Iframe inside a React app comes with some risks where Iframe will load content outside your control unless you take the necessary measures.
 
-Using Sandbox Attribute
------------------------
+## Using Sandbox Attribute
 
 You can use the [sandbox](https://html.spec.whatwg.org/multipage/iframe-embed-object.html#attr-iframe-sandbox) attribute, which will ensure the content within the Iframe cannot change the parent(Host) web URL, access browser storage, cookies, or run plugins. If you add sandbox without any value document will be fully sandboxed.
 
@@ -78,8 +75,7 @@ The error is self-explanatory, and for YouTube embedded video to work, you need 
 
 Therefore, using `sandbox` is the best fit for HTML content embedding, which doesn’t depend on JavaScript for rendering HTML.
 
-Can We Use Content Security Policies (CSP)?
--------------------------------------------
+## Can We Use Content Security Policies (CSP)?
 
 Having a CSP is a great defense for your React app against cross-site scripting attacks. Unfortunately, there aren’t any restrictions we can enforce using CSP for the content loaded inside Iframes.
 
@@ -101,9 +97,9 @@ Besides, if you trust the Iframe source, you could also embed it using dangerous
 
 import React from "react";  
 import ReactDOM from "react-dom";class App extends React.Component {  
-  render() {  
-    return <div dangerouslySetInnerHTML={{ \_\_html: "<iframe src='[https://www.youtube.com/embed/cWDJoK8zw58'](https://www.youtube.com/embed/cWDJoK8zw58') />"}} />;  
-  }  
+ render() {  
+ return <div dangerouslySetInnerHTML={{ \_\_html: "<iframe src='[https://www.youtube.com/embed/cWDJoK8zw58'](https://www.youtube.com/embed/cWDJoK8zw58') />"}} />;  
+ }  
 }ReactDOM.render(<App />, document.getElementById("container"));
 
 However, as the name implies, it is dangerous to use the attribute unless you trust the Iframe source or take care of the sanitization of content passed to \_\_html.
@@ -117,6 +113,5 @@ Besides, if you allow dynamic additions of Iframes, you should trust these embed
 I hope this article has provided awareness for you to use Iframes properly in React apps.
 
 Thanks for Reading!
-
 
 [Source](https://blog.bitsrc.io/best-practices-in-using-iframes-with-react-6193feaa1e08)

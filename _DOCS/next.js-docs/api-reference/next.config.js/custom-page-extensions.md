@@ -10,8 +10,8 @@ Open `next.config.js` and add the `pageExtensions` config:
 
 ```js
 module.exports = {
-  pageExtensions: ['mdx', 'jsx', 'js', 'ts', 'tsx'],
-}
+  pageExtensions: ["mdx", "jsx", "js", "ts", "tsx"],
+};
 ```
 
 > **Note**: configuring `pageExtensions` also affects `_document.js`, `_app.js` as well as files under `pages/api/`. For example, setting `pageExtensions: ['page.tsx', 'page.ts']` means the following files: `_document.tsx`, `_app.tsx`, `pages/users.tsx` and `pages/api/users.ts` will have to be renamed to `_document.page.tsx`, `_app.page.tsx`, `pages/users.page.tsx` and `pages/api/users.page.ts` respectively.

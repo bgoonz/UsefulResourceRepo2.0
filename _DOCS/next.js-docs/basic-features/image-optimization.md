@@ -30,7 +30,7 @@ Images are always rendered in such a way as to avoid [Cumulative Layout Shift](h
 To add an image to your application, import the [`next/image`](/docs/api-reference/next/image.md) component:
 
 ```jsx
-import Image from 'next/image'
+import Image from "next/image";
 
 function Home() {
   return (
@@ -44,10 +44,10 @@ function Home() {
       />
       <p>Welcome to my homepage!</p>
     </>
-  )
+  );
 }
 
-export default Home
+export default Home;
 ```
 
 ## Image Imports
@@ -57,8 +57,8 @@ You can `import` images that live in your project. (Note that `require` is not s
 With direct `import`s, `width`, `height`, and `blurDataURL` will be automatically provided to the image component. Alt text is still needed separately.
 
 ```js
-import Image from 'next/image'
-import profilePic from '../public/me.png'
+import Image from "next/image";
+import profilePic from "../public/me.png";
 
 function Home() {
   return (
@@ -75,7 +75,7 @@ function Home() {
       />
       <p>Welcome to my homepage!</p>
     </>
-  )
+  );
 }
 ```
 
@@ -97,9 +97,9 @@ To enable Image Optimization for images hosted on an external website, use an ab
 ```js
 module.exports = {
   images: {
-    domains: ['example.com'],
+    domains: ["example.com"],
   },
-}
+};
 ```
 
 ### Loader
@@ -109,10 +109,10 @@ If you want to use a cloud provider to optimize images instead of using the Next
 ```js
 module.exports = {
   images: {
-    loader: 'imgix',
-    path: 'https://example.com/myaccount/',
+    loader: "imgix",
+    path: "https://example.com/myaccount/",
   },
-}
+};
 ```
 
 The following Image Optimization cloud providers are included:
@@ -154,7 +154,7 @@ module.exports = {
   images: {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
   },
-}
+};
 ```
 
 ### Image Sizes
@@ -168,7 +168,7 @@ module.exports = {
   images: {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
-}
+};
 ```
 
 ### Disable Static Imports
@@ -184,7 +184,7 @@ module.exports = {
   images: {
     disableStaticImages: true,
   },
-}
+};
 ```
 
 ## Related

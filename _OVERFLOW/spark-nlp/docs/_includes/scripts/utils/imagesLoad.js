@@ -1,12 +1,19 @@
-(function() {
-  window.imagesLoad = function(images) {
-    images = images || document.getElementsByTagName('img');
-    var imagesCount = images.length, loadedCount = 0, image;
-    var i, j, loaded = false, cbs = [];
+(function () {
+  window.imagesLoad = function (images) {
+    images = images || document.getElementsByTagName("img");
+    var imagesCount = images.length,
+      loadedCount = 0,
+      image;
+    var i,
+      j,
+      loaded = false,
+      cbs = [];
     imagesCount < 1 && (loaded = true);
     for (i = 0; i < imagesCount; i++) {
       image = images[i];
-      image.complete ? handleImageLoad() : image.addEventListener('load', handleImageLoad);
+      image.complete
+        ? handleImageLoad()
+        : image.addEventListener("load", handleImageLoad);
     }
     function handleImageLoad() {
       loadedCount++;
@@ -20,9 +27,9 @@
       }
     }
     return {
-      then: function(cb) {
-        cb && (loaded ? cb() : (cbs.push(cb)));
-      }
+      then: function (cb) {
+        cb && (loaded ? cb() : cbs.push(cb));
+      },
     };
   };
 })();

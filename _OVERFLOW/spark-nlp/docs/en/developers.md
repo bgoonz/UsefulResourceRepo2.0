@@ -44,7 +44,7 @@ Log in into your github account in pop up. After select from a list Spark NLP re
 https://github.com/JohnSnowLabs/spark-nlp
 ```
 
-and press *clone* button. If you don't see url in the list, clone or fork repo first to your Github account and try again.
+and press _clone_ button. If you don't see url in the list, clone or fork repo first to your Github account and try again.
 
 ![Idea choose repo](../assets/images/idea_choose_repo.png)
 
@@ -52,7 +52,7 @@ When the repo cloned IDE will detect SBT file with dependencies. Click **Yes** t
 
 ![Pop up build](../assets/images/pop_up_build.png)
 
-In the **Import from sbt** pop up make sure you have JDK 8 detected. Click **Ok** to proceed and download required resources. 
+In the **Import from sbt** pop up make sure you have JDK 8 detected. Click **Ok** to proceed and download required resources.
 
 ![Pop up settings build](../assets/images/settings_build.png)
 
@@ -66,11 +66,11 @@ Next step is to install Python plugin to the IntelliJ IDEA. To do this, open `Fi
 
 ![Python plugin](../assets/images/python_plugin.png)
 
-After this steps you can check project structure in the `File -> Project Structure -> Modules`. 
+After this steps you can check project structure in the `File -> Project Structure -> Modules`.
 
 ![Project structure](../assets/images/project_structure.png)
 
-Make sure what you have `spark-nlp` and `spark-nlp-build` folders and no errors in the exported dependencies. 
+Make sure what you have `spark-nlp` and `spark-nlp-build` folders and no errors in the exported dependencies.
 
 In the `Project` settings check what project SDK is set to 1.8 and in `Platform Settings -> SDK's` you have Java installation as well as Python installation.
 
@@ -86,11 +86,11 @@ If you don't see Python installed in the `SDK's` tab click **+** button, add **P
 
 #### Run tests in Scala
 
-Click **Add configuration** in the Top right corner. In the pop up click on the **+** and look for **sbt task**. 
+Click **Add configuration** in the Top right corner. In the pop up click on the **+** and look for **sbt task**.
 
 ![Add config](../assets/images/add_config.png)
 
-In the **Name** field put `Test`. In the **Tasks** field write down `test`. After you can disable checkbox in **Use sbt shell** to have more custom configurations.  In the **VM parameters** increase the memory by changing `-Xmx1024M` to `-Xmx10G` and click **Ok**.
+In the **Name** field put `Test`. In the **Tasks** field write down `test`. After you can disable checkbox in **Use sbt shell** to have more custom configurations. In the **VM parameters** increase the memory by changing `-Xmx1024M` to `-Xmx10G` and click **Ok**.
 
 ![sbt task](../assets/images/sbt_task.png)
 
@@ -98,7 +98,7 @@ If everything was set up correctly you suhould see unabled green button **Run 'T
 
 ![sbt task](../assets/images/sbt_task_run.png)
 
-This algorithm will Run all tests under ``spark-nlp/src/test/scala/com.johnsnowlabs/``
+This algorithm will Run all tests under `spark-nlp/src/test/scala/com.johnsnowlabs/`
 
 ##### Copy tasks
 
@@ -106,7 +106,7 @@ After you created task, click **Edit configuration**. Select target task and ins
 
 ##### Run individual tests
 
-Open test file you want to run. For example, ``spark-nlp/src/test/scala/com.johnsnowlabs/nlp/FinisherTestSpec.scala``. Right click on the class name and select **Copy reference**. It will copy to you buffer classpath - ``com.johnsnowlabs.nlp.FinisherTestSpec``. Copy existing Scala task and Name it as ``FinisherTest``.
+Open test file you want to run. For example, `spark-nlp/src/test/scala/com.johnsnowlabs/nlp/FinisherTestSpec.scala`. Right click on the class name and select **Copy reference**. It will copy to you buffer classpath - `com.johnsnowlabs.nlp.FinisherTestSpec`. Copy existing Scala task and Name it as `FinisherTest`.
 
 In the **Tasks** field write down `"testOnly *classpath*"` -> `"testOnly com.johnsnowlabs.nlp.FinisherTestSpec"` and click **Ok** to save individual scala test run configuration.
 
@@ -120,30 +120,30 @@ To run tests in debug mode click **Debug** button (next to **play** button). In 
 
 #### Run tests in Python
 
-To run Python test, first you need to configure project structure. Go to `File -> Project Settings -> Modules`, click on the **+** button and select **New Module**. 
+To run Python test, first you need to configure project structure. Go to `File -> Project Settings -> Modules`, click on the **+** button and select **New Module**.
 
 ![python module add](../assets/images/python_module_add.png)
 
-In the pop up choose Python on left menu, select Python SDK from created virtual environment and click **Next**. 
+In the pop up choose Python on left menu, select Python SDK from created virtual environment and click **Next**.
 
 ![python module pop up](../assets/images/python_module_pop_up.png)
 
 Enter `python` in the Module name and click **Finish**.
 
-After you need to add Spark dependencies. Select created Python module and click on the **+** button in the Dependencies part. 
+After you need to add Spark dependencies. Select created Python module and click on the **+** button in the Dependencies part.
 
 ![python libs add](../assets/images/python_libs_add.png)
 
-Choose **Jars or directories...** and find the find installation path of spark (usually the folder name is ``spark-2.4.4-bin-hadoop2.7``). In the Spark folder go to the ``python/libs`` and select ``pyspark.zip`` to the project. Do the same for another file in the same folder - ``py4j-0.10.7-src.zip``.
+Choose **Jars or directories...** and find the find installation path of spark (usually the folder name is `spark-2.4.4-bin-hadoop2.7`). In the Spark folder go to the `python/libs` and select `pyspark.zip` to the project. Do the same for another file in the same folder - `py4j-0.10.7-src.zip`.
 
 ![python libs select](../assets/images/python_libs_select.png)
 ![python libs attached](../assets/images/python_libs_attached.png)
 
-All available tests are in ``spark-nlp/python/run-tests.py``. Click **Add configuration** or **Edit configuration** in the Top right corner. In the pop up click on the **+** and look for **Python**.
+All available tests are in `spark-nlp/python/run-tests.py`. Click **Add configuration** or **Edit configuration** in the Top right corner. In the pop up click on the **+** and look for **Python**.
 
 ![python test add](../assets/images/python_test_add.png)
- 
-In the **Script path** locate file ``spark-nlp/python/run-tests.py``. Also you need to add **SPARK_HOME** environment variable to the project. Choose **Environment variables** and add new variable **SPARK_HOME**. Insert installation path of spark to the Value field. 
+
+In the **Script path** locate file `spark-nlp/python/run-tests.py`. Also you need to add **SPARK_HOME** environment variable to the project. Choose **Environment variables** and add new variable **SPARK_HOME**. Insert installation path of spark to the Value field.
 
 ![python spark home](../assets/images/python_spark_home.png)
 
@@ -167,15 +167,15 @@ pip install pyspark numpy
 
 #### Compiling jar
 
-Click **Add configuration** or **Edit configuration** in the Top right corner. In the pop up click on the **+** and select **sbt task**. 
+Click **Add configuration** or **Edit configuration** in the Top right corner. In the pop up click on the **+** and select **sbt task**.
 
-In the **Name** field put `AssemblyCopy`. In the **Tasks** field write down `assemblyAndCopy`. After you can disable checkbox in **Use sbt shell** to have more custom configurations.  In the **VM parameters** increase the memory by changing `-Xmx1024M` to `-Xmx6G` and click **Ok**.
+In the **Name** field put `AssemblyCopy`. In the **Tasks** field write down `assemblyAndCopy`. After you can disable checkbox in **Use sbt shell** to have more custom configurations. In the **VM parameters** increase the memory by changing `-Xmx1024M` to `-Xmx6G` and click **Ok**.
 
 ![compile jar](../assets/images/compile_jar.png)
 
-You can find created jar in the folder ``spark-nlp/python/lib/sparknlp.jar``
+You can find created jar in the folder `spark-nlp/python/lib/sparknlp.jar`
 
-*Note: Assembly command creates a fat jars, that includes all dependencies within* 
+_Note: Assembly command creates a fat jars, that includes all dependencies within_
 
 ### Basic Annotator API
 

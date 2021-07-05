@@ -14,5 +14,6 @@ rtl: true
 You can also set the option using `data-rtl`.
 
 {% highlight html %}
+
 <div id="tree1" data-url="/data" data-rtl></div>
 {% endhighlight %}

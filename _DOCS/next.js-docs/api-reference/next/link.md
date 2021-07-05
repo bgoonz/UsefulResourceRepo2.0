@@ -25,7 +25,7 @@ For an example, consider a `pages` directory with the following files:
 We can have a link to each of these pages like so:
 
 ```jsx
-import Link from 'next/link'
+import Link from "next/link";
 
 function Home() {
   return (
@@ -46,10 +46,10 @@ function Home() {
         </Link>
       </li>
     </ul>
-  )
+  );
 }
 
-export default Home
+export default Home;
 ```
 
 `Link` accepts the following props:
@@ -70,7 +70,7 @@ There is nothing to do when linking to a [dynamic route](/docs/routing/dynamic-r
 For example, the dynamic route `pages/blog/[slug].js` will match the following link:
 
 ```jsx
-import Link from 'next/link'
+import Link from "next/link";
 
 function Posts({ posts }) {
   return (
@@ -83,10 +83,10 @@ function Posts({ posts }) {
         </li>
       ))}
     </ul>
-  )
+  );
 }
 
-export default Posts
+export default Posts;
 ```
 
 ## If the child is a custom component that wraps an `<a>` tag
@@ -94,13 +94,13 @@ export default Posts
 If the child of `Link` is a custom component that wraps an `<a>` tag, you must add `passHref` to `Link`. This is necessary if you’re using libraries like [styled-components](https://styled-components.com/). Without this, the `<a>` tag will not have the `href` attribute, which might hurt your site’s SEO.
 
 ```jsx
-import Link from 'next/link'
-import styled from 'styled-components'
+import Link from "next/link";
+import styled from "styled-components";
 
 // This creates a custom component that wraps an <a> tag
 const RedLink = styled.a`
   color: red;
-`
+`;
 
 function NavLink({ href, name }) {
   // Must add passHref to Link
@@ -108,10 +108,10 @@ function NavLink({ href, name }) {
     <Link href={href} passHref>
       <RedLink>{name}</RedLink>
     </Link>
-  )
+  );
 }
 
-export default NavLink
+export default NavLink;
 ```
 
 - If you’re using [emotion](https://emotion.sh/)’s JSX pragma feature (`@jsx jsx`), you must use `passHref` even if you use an `<a>` tag directly.
@@ -122,7 +122,7 @@ export default NavLink
 If the child of `Link` is a function component, in addition to using `passHref`, you must wrap the component in [`React.forwardRef`](https://reactjs.org/docs/react-api.html#reactforwardref):
 
 ```jsx
-import Link from 'next/link'
+import Link from "next/link";
 
 // `onClick`, `href`, and `ref` need to be passed to the DOM element
 // for proper handling
@@ -131,18 +131,18 @@ const MyButton = React.forwardRef(({ onClick, href }, ref) => {
     <a href={href} onClick={onClick} ref={ref}>
       Click Me
     </a>
-  )
-})
+  );
+});
 
 function Home() {
   return (
     <Link href="/about" passHref>
       <MyButton />
     </Link>
-  )
+  );
 }
 
-export default Home
+export default Home;
 ```
 
 ## With URL Object
@@ -150,7 +150,7 @@ export default Home
 `Link` can also receive a URL object and it will automatically format it to create the URL string. Here's how to do it:
 
 ```jsx
-import Link from 'next/link'
+import Link from "next/link";
 
 function Home() {
   return (
@@ -158,8 +158,8 @@ function Home() {
       <li>
         <Link
           href={{
-            pathname: '/about',
-            query: { name: 'test' },
+            pathname: "/about",
+            query: { name: "test" },
           }}
         >
           <a>About us</a>
@@ -168,18 +168,18 @@ function Home() {
       <li>
         <Link
           href={{
-            pathname: '/blog/[slug]',
-            query: { slug: 'my-post' },
+            pathname: "/blog/[slug]",
+            query: { slug: "my-post" },
           }}
         >
           <a>Blog Post</a>
         </Link>
       </li>
     </ul>
-  )
+  );
 }
 
-export default Home
+export default Home;
 ```
 
 The above example has a link to:

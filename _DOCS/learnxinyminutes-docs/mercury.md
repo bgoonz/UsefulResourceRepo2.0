@@ -1,7 +1,7 @@
 ---
 language: mercury
 contributors:
-    - ["Julian Fondren", "https://mercury-in.space/"]
+  - ["Julian Fondren", "https://mercury-in.space/"]
 ---
 
 Mercury is a strict, pure functional/logic programming language, with
@@ -252,12 +252,12 @@ received(crypto(Type, _Wallet, Amount)) = S :-  % _Wallet is named throwaway
 
 ### More Tutorials
 
-* [Mercury Tutorial](https://mercurylang.org/documentation/papers/book.pdf) (pdf link) - a more traditional tutorial with a more relaxed pace
-* [Mercury Crash Course](https://mercury-in.space/crash.html) - a dense example-driven tutorial with Q&A format
-* [Github Wiki Tutorial](https://github.com/Mercury-Language/mercury/wiki/Tutorial)
-* [Getting Started with Mercury](https://bluishcoder.co.nz/2019/06/23/getting-started-with-mercury.html) - installation and your first steps
-  
+- [Mercury Tutorial](https://mercurylang.org/documentation/papers/book.pdf) (pdf link) - a more traditional tutorial with a more relaxed pace
+- [Mercury Crash Course](https://mercury-in.space/crash.html) - a dense example-driven tutorial with Q&A format
+- [Github Wiki Tutorial](https://github.com/Mercury-Language/mercury/wiki/Tutorial)
+- [Getting Started with Mercury](https://bluishcoder.co.nz/2019/06/23/getting-started-with-mercury.html) - installation and your first steps
+
 ### Documentation
 
-* Language manual, user's guide, and library reference are all at
+- Language manual, user's guide, and library reference are all at
   [mercurylang.org](https://mercurylang.org/documentation/documentation.html)

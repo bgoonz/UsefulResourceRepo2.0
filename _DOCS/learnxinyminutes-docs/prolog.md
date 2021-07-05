@@ -2,7 +2,7 @@
 language: prolog
 filename: learnprolog.pl
 contributors:
-    - ["hyphz", "http://github.com/hyphz/"]
+  - ["hyphz", "http://github.com/hyphz/"]
 ---
 
 Prolog is a logic programming language first specified in 1972, and refined into multiple modern implementations.
@@ -336,4 +336,4 @@ safe(Group) :- memberchk(joker, Group) -> memberchk(batman, Group) ; true.
 
 ##Ready For More?
 
-* [SWI-Prolog](http://www.swi-prolog.org/)
+- [SWI-Prolog](http://www.swi-prolog.org/)

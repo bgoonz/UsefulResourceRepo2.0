@@ -1,11 +1,11 @@
 ---
 language: Objective-C
 contributors:
-    - ["Eugene Yagrushkin", "www.about.me/yagrushkin"]
-    - ["Yannick Loriot", "https://github.com/YannickL"]
-    - ["Levi Bostian", "https://github.com/levibostian"]
-    - ["Clayton Walker", "https://github.com/cwalk"]
-    - ["Fernando Valverde", "http://visualcosita.xyz"]
+  - ["Eugene Yagrushkin", "www.about.me/yagrushkin"]
+  - ["Yannick Loriot", "https://github.com/YannickL"]
+  - ["Levi Bostian", "https://github.com/levibostian"]
+  - ["Clayton Walker", "https://github.com/cwalk"]
+  - ["Fernando Valverde", "http://visualcosita.xyz"]
 filename: LearnObjectiveC.m
 ---
 
@@ -806,6 +806,7 @@ __weak NSSet *weakSet; // Weak reference to existing object. When existing objec
 __unsafe_unretained NSArray *unsafeArray; // Like __weak, but unsafeArray not set to nil when existing object is released
 
 ```
+
 ## Further Reading
 
 [Wikipedia Objective-C](http://en.wikipedia.org/wiki/Objective-C)

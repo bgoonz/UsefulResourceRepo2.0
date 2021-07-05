@@ -1,15 +1,14 @@
 ---
 language: restructured text (RST)
 contributors:
-    - ["DamienVGN", "https://github.com/martin-damien"]
-    - ["Andre Polykanine", "https://github.com/Oire"]
+  - ["DamienVGN", "https://github.com/martin-damien"]
+  - ["Andre Polykanine", "https://github.com/Oire"]
 filename: restructuredtext.rst
 ---
 
 RST, Restructured Text, is a file format created by the Python community to write documentation. It is part of [Docutils](https://docutils.sourceforge.io/rst.html).
 
 RST is a markdown language like HTML but is much more lightweight and easier to read.
-
 
 ## Installation
 
@@ -26,7 +25,6 @@ If your system has `pip`, you can use it too:
 ```bash
 $ pip install docutils
 ```
-
 
 ## File syntax
 
@@ -53,20 +51,20 @@ Special characters can be escaped using a backslash, e.g. \\ or \*.
 
 Lists are similar to Markdown, but a little more involved.
 
-Remember to line up list symbols (like - or \*) with the left edge of the previous text block, and remember to use blank lines to separate new lists from parent lists:    
+Remember to line up list symbols (like - or \*) with the left edge of the previous text block, and remember to use blank lines to separate new lists from parent lists:
 
 - First item
 - Second item
 
   - Sub item
-    
+
 - Third item
 
 or
 
 * First item
 * Second item
-    
+
   * Sub item
 
 * Third item
@@ -92,7 +90,6 @@ There are multiple ways to make links:
 
 ```
 
-
 ## How to Use It
 
 RST comes with docutils where you have `rst2html`, for example:
@@ -101,14 +98,13 @@ RST comes with docutils where you have `rst2html`, for example:
 $ rst2html myfile.rst output.html
 ```
 
-*Note : On some systems the command could be rst2html.py*
+_Note : On some systems the command could be rst2html.py_
 
 But there are more complex applications that use the RST format:
 
 - [Pelican](http://blog.getpelican.com/), a static site generator
 - [Sphinx](http://sphinx-doc.org/), a documentation generator
 - and many others
-
 
 ## Readings
 

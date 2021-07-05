@@ -1,7 +1,7 @@
 ---
 language: Rust
 contributors:
-    - ["P1start", "http://p1start.github.io/"]
+  - ["P1start", "http://p1start.github.io/"]
 filename: learnrust.rs
 ---
 
@@ -26,7 +26,7 @@ Although Rust is a relatively low-level language, it has some functional
 concepts that are generally found in higher-level languages. This makes
 Rust not only fast, but also easy and efficient to code in.
 
-```rust
+````rust
 // This is a comment. Line comments look like this...
 // and extend multiple lines like this.
 
@@ -317,7 +317,7 @@ fn main() {
     // var2 = 2; // this would not compile because `var2` is borrowed.
     ref_var2; // no-op, but counts as a use and keeps the borrow active until here
 }
-```
+````
 
 ## Further reading
 

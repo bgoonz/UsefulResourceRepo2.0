@@ -32,12 +32,12 @@ module.exports = {
   async rewrites() {
     return [
       {
-        source: '/about',
-        destination: '/',
+        source: "/about",
+        destination: "/",
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 Rewrites are applied to client-side routing, a `<Link href="/about">` will have the rewrite applied in the above example.
@@ -61,30 +61,30 @@ module.exports = {
         // and before all files including _next/public files which
         // allows overriding page files
         {
-          source: '/some-page',
-          destination: '/somewhere-else',
-          has: [{ type: 'query', key: 'overrideMe' }],
+          source: "/some-page",
+          destination: "/somewhere-else",
+          has: [{ type: "query", key: "overrideMe" }],
         },
       ],
       afterFiles: [
         // These rewrites are checked after pages/public files
         // are checked but before dynamic routes
         {
-          source: '/non-existent',
-          destination: '/somewhere-else',
+          source: "/non-existent",
+          destination: "/somewhere-else",
         },
       ],
       fallback: [
         // These rewrites are checked after both pages/public files
         // and dynamic routes are checked
         {
-          source: '/:path*',
+          source: "/:path*",
           destination: `https://my-old-site.com/:path*`,
         },
       ],
-    }
+    };
   },
-}
+};
 ```
 
 ## Rewrite parameters
@@ -96,12 +96,12 @@ module.exports = {
   async rewrites() {
     return [
       {
-        source: '/old-about/:path*',
-        destination: '/about', // The :path parameter isn't used here so will be automatically passed in the query
+        source: "/old-about/:path*",
+        destination: "/about", // The :path parameter isn't used here so will be automatically passed in the query
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 If a parameter is used in the destination none of the parameters will be automatically passed in the query.
@@ -111,12 +111,12 @@ module.exports = {
   async rewrites() {
     return [
       {
-        source: '/docs/:path*',
-        destination: '/:path*', // The :path parameter is used here so will not be automatically passed in the query
+        source: "/docs/:path*",
+        destination: "/:path*", // The :path parameter is used here so will not be automatically passed in the query
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 You can still pass the parameters manually in the query if one is already used in the destination by specifying the query in the `destination`.
@@ -126,15 +126,15 @@ module.exports = {
   async rewrites() {
     return [
       {
-        source: '/:first/:second',
-        destination: '/:first?second=:second',
+        source: "/:first/:second",
+        destination: "/:first?second=:second",
         // Since the :first parameter is used in the destination the :second parameter
         // will not automatically be added in the query although we can manually add it
         // as shown above
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 ## Path Matching
@@ -146,12 +146,12 @@ module.exports = {
   async rewrites() {
     return [
       {
-        source: '/blog/:slug',
-        destination: '/news/:slug', // Matched parameters can be used in the destination
+        source: "/blog/:slug",
+        destination: "/news/:slug", // Matched parameters can be used in the destination
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 ### Wildcard Path Matching
@@ -163,12 +163,12 @@ module.exports = {
   async rewrites() {
     return [
       {
-        source: '/blog/:slug*',
-        destination: '/news/:slug*', // Matched parameters can be used in the destination
+        source: "/blog/:slug*",
+        destination: "/news/:slug*", // Matched parameters can be used in the destination
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 ### Regex Path Matching
@@ -180,12 +180,12 @@ module.exports = {
   async rewrites() {
     return [
       {
-        source: '/old-blog/:post(\\d{1,})',
-        destination: '/blog/:post', // Matched parameters can be used in the destination
+        source: "/old-blog/:post(\\d{1,})",
+        destination: "/blog/:post", // Matched parameters can be used in the destination
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 The following characters `(`, `)`, `{`, `}`, `:`, `*`, `+`, `?` are used for regex path matching, so when used in the `source` as non-special values they must be escaped by adding `\\` before them:
@@ -196,13 +196,13 @@ module.exports = {
     return [
       {
         // this will match `/english(default)/something` being requested
-        source: '/english\\(default\\)/:slug',
-        destination: '/en-us/:slug',
+        source: "/english\\(default\\)/:slug",
+        destination: "/en-us/:slug",
         permanent: false,
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 ## Header, Cookie, and Query Matching
@@ -222,64 +222,64 @@ module.exports = {
       // if the header `x-rewrite-me` is present,
       // this rewrite will be applied
       {
-        source: '/:path*',
+        source: "/:path*",
         has: [
           {
-            type: 'header',
-            key: 'x-rewrite-me',
+            type: "header",
+            key: "x-rewrite-me",
           },
         ],
-        destination: '/another-page',
+        destination: "/another-page",
       },
       // if the source, query, and cookie are matched,
       // this rewrite will be applied
       {
-        source: '/specific/:path*',
+        source: "/specific/:path*",
         has: [
           {
-            type: 'query',
-            key: 'page',
+            type: "query",
+            key: "page",
             // the page value will not be available in the
             // destination since value is provided and doesn't
             // use a named capture group e.g. (?<page>home)
-            value: 'home',
+            value: "home",
           },
           {
-            type: 'cookie',
-            key: 'authorized',
-            value: 'true',
+            type: "cookie",
+            key: "authorized",
+            value: "true",
           },
         ],
-        destination: '/:path*/home',
+        destination: "/:path*/home",
       },
       // if the header `x-authorized` is present and
       // contains a matching value, this rewrite will be applied
       {
-        source: '/:path*',
+        source: "/:path*",
         has: [
           {
-            type: 'header',
-            key: 'x-authorized',
-            value: '(?<authorized>yes|true)',
+            type: "header",
+            key: "x-authorized",
+            value: "(?<authorized>yes|true)",
           },
         ],
-        destination: '/home?authorized=:authorized',
+        destination: "/home?authorized=:authorized",
       },
       // if the host is `example.com`,
       // this rewrite will be applied
       {
-        source: '/:path*',
+        source: "/:path*",
         has: [
           {
-            type: 'host',
-            value: 'example.com',
+            type: "host",
+            value: "example.com",
           },
         ],
-        destination: '/another-page',
+        destination: "/another-page",
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 ## Rewriting to an external URL
@@ -298,12 +298,12 @@ module.exports = {
   async rewrites() {
     return [
       {
-        source: '/blog/:slug',
-        destination: 'https://example.com/blog/:slug', // Matched parameters can be used in the destination
+        source: "/blog/:slug",
+        destination: "https://example.com/blog/:slug", // Matched parameters can be used in the destination
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 ### Incremental adoption of Next.js
@@ -318,13 +318,13 @@ module.exports = {
     return {
       fallback: [
         {
-          source: '/:path*',
+          source: "/:path*",
           destination: `https://custom-routes-proxying-endpoint.vercel.app/:path*`,
         },
       ],
-    }
+    };
   },
-}
+};
 ```
 
 See additional information on incremental adoption [in the docs here](/docs/migrating/incremental-adoption.md).
@@ -335,24 +335,24 @@ When leveraging [`basePath` support](/docs/api-reference/next.config.js/basepath
 
 ```js
 module.exports = {
-  basePath: '/docs',
+  basePath: "/docs",
 
   async rewrites() {
     return [
       {
-        source: '/with-basePath', // automatically becomes /docs/with-basePath
-        destination: '/another', // automatically becomes /docs/another
+        source: "/with-basePath", // automatically becomes /docs/with-basePath
+        destination: "/another", // automatically becomes /docs/another
       },
       {
         // does not add /docs to /without-basePath since basePath: false is set
         // Note: this can not be used for internal rewrites e.g. `destination: '/another'`
-        source: '/without-basePath',
-        destination: 'https://example.com',
+        source: "/without-basePath",
+        destination: "https://example.com",
         basePath: false,
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 ### Rewrites with i18n support
@@ -362,35 +362,35 @@ When leveraging [`i18n` support](/docs/advanced-features/i18n-routing.md) with r
 ```js
 module.exports = {
   i18n: {
-    locales: ['en', 'fr', 'de'],
-    defaultLocale: 'en',
+    locales: ["en", "fr", "de"],
+    defaultLocale: "en",
   },
 
   async rewrites() {
     return [
       {
-        source: '/with-locale', // automatically handles all locales
-        destination: '/another', // automatically passes the locale on
+        source: "/with-locale", // automatically handles all locales
+        destination: "/another", // automatically passes the locale on
       },
       {
         // does not handle locales automatically since locale: false is set
-        source: '/nl/with-locale-manual',
-        destination: '/nl/another',
+        source: "/nl/with-locale-manual",
+        destination: "/nl/another",
         locale: false,
       },
       {
         // this matches '/' since `en` is the defaultLocale
-        source: '/en',
-        destination: '/en/another',
+        source: "/en",
+        destination: "/en/another",
         locale: false,
       },
       {
         // this gets converted to /(en|fr|de)/(.*) so will not match the top-level
         // `/` or `/fr` routes like /:path* would
-        source: '/(.*)',
-        destination: '/another',
+        source: "/(.*)",
+        destination: "/another",
       },
-    ]
+    ];
   },
-}
+};
 ```

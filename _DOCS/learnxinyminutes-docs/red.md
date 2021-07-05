@@ -4,9 +4,8 @@ category: language
 language: Red
 filename: learnred.red
 contributors:
-    - ["Arnold van Hofwegen", "https://github.com/iArnold"]
+  - ["Arnold van Hofwegen", "https://github.com/iArnold"]
 ---
-
 
 Red was created out of the need to get work done, and the tool the author wanted to use, the language of REBOL, had a couple of drawbacks.
 It was not Open Sourced at that time and it is an interpreted language, what means that it is on average slow compared to a compiled language.
@@ -35,6 +34,7 @@ the author's name, the filename, the version, the license, a summary of what
 the program does or any other files it needs. The red/System header is just
 like the red header, only saying "red/System" and not "red".
 ```
+
 ```red
 Red []
 

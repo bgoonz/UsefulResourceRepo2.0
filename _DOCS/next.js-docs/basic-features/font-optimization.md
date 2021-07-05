@@ -28,7 +28,7 @@ To add a web font to your Next.js application, override `next/head`. For example
 ```js
 // pages/index.js
 
-import Head from 'next/head'
+import Head from "next/head";
 
 export default function IndexPage() {
   return (
@@ -41,7 +41,7 @@ export default function IndexPage() {
       </Head>
       <p>Hello world!</p>
     </div>
-  )
+  );
 }
 ```
 
@@ -50,7 +50,7 @@ or to your entire application with a [Custom `Document`](/docs/advanced-features
 ```js
 // pages/_document.js
 
-import Document, { Html, Head, Main, NextScript } from 'next/document'
+import Document, { Html, Head, Main, NextScript } from "next/document";
 
 class MyDocument extends Document {
   render() {
@@ -67,11 +67,11 @@ class MyDocument extends Document {
           <NextScript />
         </body>
       </Html>
-    )
+    );
   }
 }
 
-export default MyDocument
+export default MyDocument;
 ```
 
 Automatic Webfont Optimization currently supports Google Fonts and Typekit with support for other font providers coming soon. We're also planning to add control over [loading strategies](https://github.com/vercel/next.js/issues/21555) and `font-display` values.
@@ -85,7 +85,7 @@ If you do not want Next.js to optimize your fonts, you can opt-out.
 
 module.exports = {
   optimizeFonts: false,
-}
+};
 ```
 
 ## Related

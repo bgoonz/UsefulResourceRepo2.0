@@ -68,19 +68,19 @@ If you want to silence the error reports, refer to the documentation for [Ignori
 For `getStaticProps`, `getStaticPaths`, and `getServerSideProps`, you can use the `GetStaticProps`, `GetStaticPaths`, and `GetServerSideProps` types respectively:
 
 ```ts
-import { GetStaticProps, GetStaticPaths, GetServerSideProps } from 'next'
+import { GetStaticProps, GetStaticPaths, GetServerSideProps } from "next";
 
 export const getStaticProps: GetStaticProps = async (context) => {
   // ...
-}
+};
 
 export const getStaticPaths: GetStaticPaths = async () => {
   // ...
-}
+};
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   // ...
-}
+};
 ```
 
 > If you're using `getInitialProps`, you can [follow the directions on this page](/docs/api-reference/data-fetching/getInitialProps.md#typescript).
@@ -90,25 +90,25 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 The following is an example of how to use the built-in types for API routes:
 
 ```ts
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from "next";
 
 export default (req: NextApiRequest, res: NextApiResponse) => {
-  res.status(200).json({ name: 'John Doe' })
-}
+  res.status(200).json({ name: "John Doe" });
+};
 ```
 
 You can also type the response data:
 
 ```ts
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from "next";
 
 type Data = {
-  name: string
-}
+  name: string;
+};
 
 export default (req: NextApiRequest, res: NextApiResponse<Data>) => {
-  res.status(200).json({ name: 'John Doe' })
-}
+  res.status(200).json({ name: "John Doe" });
+};
 ```
 
 ## Custom `App`
@@ -117,10 +117,10 @@ If you have a [custom `App`](/docs/advanced-features/custom-app.md), you can use
 
 ```ts
 // import App from "next/app";
-import type { AppProps /*, AppContext */ } from 'next/app'
+import type { AppProps /*, AppContext */ } from "next/app";
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+  return <Component {...pageProps} />;
 }
 
 // Only uncomment this method if you have blocking data requirements for
@@ -135,7 +135,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 //   return { ...appProps }
 // }
 
-export default MyApp
+export default MyApp;
 ```
 
 ## Path aliases and baseUrl
@@ -156,9 +156,9 @@ The `next.config.js` file must be a JavaScript file as it does not get parsed by
  **/
 const nextConfig = {
   /* config options here */
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
 ```
 
 ## Incremental type checking

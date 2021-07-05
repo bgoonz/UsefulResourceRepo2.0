@@ -1,10 +1,23 @@
-(function() {
+(function () {
   var SOURCES = window.TEXT_VARIABLES.sources;
-  window.Lazyload.js(SOURCES.jquery, function() {
+  window.Lazyload.js(SOURCES.jquery, function () {
     function swiper(options) {
-      var $window = $(window), $root = this, $swiperWrapper, $swiperSlides, $swiperButtonPrev, $swiperButtonNext,
-        initialSlide, animation, onChange, onChangeEnd,
-        rootWidth, count, preIndex, curIndex, translateX, CRITICAL_ANGLE = Math.PI / 3;
+      var $window = $(window),
+        $root = this,
+        $swiperWrapper,
+        $swiperSlides,
+        $swiperButtonPrev,
+        $swiperButtonNext,
+        initialSlide,
+        animation,
+        onChange,
+        onChangeEnd,
+        rootWidth,
+        count,
+        preIndex,
+        curIndex,
+        translateX,
+        CRITICAL_ANGLE = Math.PI / 3;
 
       function setOptions(options) {
         var _options = options || {};
@@ -15,70 +28,92 @@
       }
 
       function init() {
-        $swiperWrapper = $root.find('.swiper__wrapper');
-        $swiperSlides = $root.find('.swiper__slide');
-        $swiperButtonPrev = $root.find('.swiper__button--prev');
-        $swiperButtonNext = $root.find('.swiper__button--next');
-        animation && $swiperWrapper.addClass('swiper__wrapper--animation');
+        $swiperWrapper = $root.find(".swiper__wrapper");
+        $swiperSlides = $root.find(".swiper__slide");
+        $swiperButtonPrev = $root.find(".swiper__button--prev");
+        $swiperButtonNext = $root.find(".swiper__button--next");
+        animation && $swiperWrapper.addClass("swiper__wrapper--animation");
         calc(true);
       }
 
       function preCalc() {
         rootWidth = $root.width();
-        count = $swiperWrapper.children('.swiper__slide').length;
+        count = $swiperWrapper.children(".swiper__slide").length;
         if (count < 2) {
-          $swiperButtonPrev.addClass('d-none');
-          $swiperButtonNext.addClass('d-none');
+          $swiperButtonPrev.addClass("d-none");
+          $swiperButtonNext.addClass("d-none");
         }
         curIndex = initialSlide || 0;
         translateX = getTranslateXFromCurIndex();
       }
 
-      var calc = (function() {
+      var calc = (function () {
         var preAnimation, $swiperSlide, $preSwiperSlide;
         return function (needPreCalc, params) {
           needPreCalc && preCalc();
-          var _animation = (params && params.animation !== undefined) ? params.animation : animation;
+          var _animation =
+            params && params.animation !== undefined
+              ? params.animation
+              : animation;
           if (preAnimation === undefined || preAnimation !== _animation) {
-            preAnimation = _animation ? $swiperWrapper.addClass('swiper__wrapper--animation') :
-              $swiperWrapper.removeClass('swiper__wrapper--animation');
+            preAnimation = _animation
+              ? $swiperWrapper.addClass("swiper__wrapper--animation")
+              : $swiperWrapper.removeClass("swiper__wrapper--animation");
           }
           if (preIndex !== curIndex) {
-            ($preSwiperSlide = $swiperSlides.eq(preIndex)).removeClass('active');
-            ($swiperSlide = $swiperSlides.eq(curIndex)).addClass('active');
-            onChange && onChange(curIndex, $swiperSlides.eq(curIndex), $swiperSlide, $preSwiperSlide);
+            ($preSwiperSlide = $swiperSlides.eq(preIndex)).removeClass(
+              "active"
+            );
+            ($swiperSlide = $swiperSlides.eq(curIndex)).addClass("active");
+            onChange &&
+              onChange(
+                curIndex,
+                $swiperSlides.eq(curIndex),
+                $swiperSlide,
+                $preSwiperSlide
+              );
             if (onChangeEnd) {
               if (_animation) {
-                setTimeout(function() {
-                  onChangeEnd(curIndex, $swiperSlides.eq(curIndex), $swiperSlide, $preSwiperSlide);
+                setTimeout(function () {
+                  onChangeEnd(
+                    curIndex,
+                    $swiperSlides.eq(curIndex),
+                    $swiperSlide,
+                    $preSwiperSlide
+                  );
                 }, 400);
               } else {
-                onChangeEnd(curIndex, $swiperSlides.eq(curIndex), $swiperSlide, $preSwiperSlide);
+                onChangeEnd(
+                  curIndex,
+                  $swiperSlides.eq(curIndex),
+                  $swiperSlide,
+                  $preSwiperSlide
+                );
               }
             }
             preIndex = curIndex;
           }
-          $swiperWrapper.css('transform', 'translate(' + translateX + 'px, 0)');
+          $swiperWrapper.css("transform", "translate(" + translateX + "px, 0)");
           if (count > 1) {
             if (curIndex <= 0) {
-              $swiperButtonPrev.addClass('disabled');
+              $swiperButtonPrev.addClass("disabled");
             } else {
-              $swiperButtonPrev.removeClass('disabled');
+              $swiperButtonPrev.removeClass("disabled");
             }
             if (curIndex >= count - 1) {
-              $swiperButtonNext.addClass('disabled');
+              $swiperButtonNext.addClass("disabled");
             } else {
-              $swiperButtonNext.removeClass('disabled');
+              $swiperButtonNext.removeClass("disabled");
             }
           }
         };
       })();
 
       function getTranslateXFromCurIndex() {
-        return curIndex <= 0 ? 0 : - rootWidth * curIndex;
+        return curIndex <= 0 ? 0 : -rootWidth * curIndex;
       }
 
-      function moveToIndex(index ,params) {
+      function moveToIndex(index, params) {
         preIndex = curIndex;
         curIndex = index;
         translateX = getTranslateXFromCurIndex();
@@ -86,19 +121,22 @@
       }
 
       function move(type) {
-        var nextIndex = curIndex, unstableTranslateX;
-        if (type === 'prev') {
+        var nextIndex = curIndex,
+          unstableTranslateX;
+        if (type === "prev") {
           nextIndex > 0 && nextIndex--;
-        } else if (type === 'next') {
+        } else if (type === "next") {
           nextIndex < count - 1 && nextIndex++;
         }
-        if (type === 'cur') {
+        if (type === "cur") {
           moveToIndex(curIndex, { animation: true });
           return;
         }
         unstableTranslateX = translateX % rootWidth !== 0;
         if (nextIndex !== curIndex || unstableTranslateX) {
-          unstableTranslateX ? moveToIndex(nextIndex, { animation: true }) : moveToIndex(nextIndex);
+          unstableTranslateX
+            ? moveToIndex(nextIndex, { animation: true })
+            : moveToIndex(nextIndex);
         }
       }
 
@@ -106,20 +144,25 @@
       init();
       preIndex = curIndex;
 
-      $swiperButtonPrev.on('click', function(e) {
+      $swiperButtonPrev.on("click", function (e) {
         e.stopPropagation();
-        move('prev');
+        move("prev");
       });
-      $swiperButtonNext.on('click', function(e) {
+      $swiperButtonNext.on("click", function (e) {
         e.stopPropagation();
-        move('next');
+        move("next");
       });
-      $window.on('resize', function() {
+      $window.on("resize", function () {
         calc(true, { animation: false });
       });
 
-      (function() {
-        var pageX, pageY, velocityX, preTranslateX = translateX, timeStamp, touching;
+      (function () {
+        var pageX,
+          pageY,
+          velocityX,
+          preTranslateX = translateX,
+          timeStamp,
+          touching;
         function handleTouchstart(e) {
           var point = e.touches ? e.touches[0] : e;
           pageX = point.pageX;
@@ -136,7 +179,10 @@
           var deltaY = point.pageY - pageY;
           velocityX = deltaX / (e.timeStamp - timeStamp);
           timeStamp = e.timeStamp;
-          if (e.cancelable && Math.abs(Math.atan(deltaY / deltaX)) < CRITICAL_ANGLE) {
+          if (
+            e.cancelable &&
+            Math.abs(Math.atan(deltaY / deltaX)) < CRITICAL_ANGLE
+          ) {
             touching = true;
             translateX += deltaX;
             calc(false, { animation: false });
@@ -149,36 +195,39 @@
           var deltaX = translateX - preTranslateX;
           var distance = deltaX + velocityX * rootWidth;
           if (Math.abs(distance) > rootWidth / 2) {
-            distance > 0 ? move('prev') : move('next');
+            distance > 0 ? move("prev") : move("next");
           } else {
-            move('cur');
+            move("cur");
           }
         }
-        $swiperWrapper.on('touchstart', handleTouchstart);
-        $swiperWrapper.on('touchmove', handleTouchmove);
-        $swiperWrapper.on('touchend', handleTouchend);
-        $swiperWrapper.on('touchcancel', handleTouchend);
+        $swiperWrapper.on("touchstart", handleTouchstart);
+        $swiperWrapper.on("touchmove", handleTouchmove);
+        $swiperWrapper.on("touchend", handleTouchend);
+        $swiperWrapper.on("touchcancel", handleTouchend);
 
-        (function() {
-          var pressing = false, moved = false;
-          $swiperWrapper.on('mousedown', function(e) {
-            pressing = true; handleTouchstart(e);
+        (function () {
+          var pressing = false,
+            moved = false;
+          $swiperWrapper.on("mousedown", function (e) {
+            pressing = true;
+            handleTouchstart(e);
           });
-          $swiperWrapper.on('mousemove', function(e) {
-            pressing && (e.preventDefault(), moved = true, handleTouchmove(e));
+          $swiperWrapper.on("mousemove", function (e) {
+            pressing &&
+              (e.preventDefault(), (moved = true), handleTouchmove(e));
           });
-          $swiperWrapper.on('mouseup', function(e) {
-            pressing && (pressing = false, handleTouchend(e));
+          $swiperWrapper.on("mouseup", function (e) {
+            pressing && ((pressing = false), handleTouchend(e));
           });
-          $swiperWrapper.on('mouseleave', function(e) {
-            pressing && (pressing = false, handleTouchend(e));
+          $swiperWrapper.on("mouseleave", function (e) {
+            pressing && ((pressing = false), handleTouchend(e));
           });
-          $swiperWrapper.on('click', function(e) {
-            moved && (e.stopPropagation(), moved = false);
+          $swiperWrapper.on("click", function (e) {
+            moved && (e.stopPropagation(), (moved = false));
           });
         })();
 
-        $root.on('touchmove', function(e) {
+        $root.on("touchmove", function (e) {
           if (e.cancelable & touching) {
             e.preventDefault();
           }
@@ -187,15 +236,15 @@
 
       return {
         setOptions: setOptions,
-        previous: function(){
-          move('prev');
+        previous: function () {
+          move("prev");
         },
-        next: function(){
-          move('next');
+        next: function () {
+          move("next");
         },
-        refresh: function() {
+        refresh: function () {
           calc(true, { animation: false });
-        }
+        },
       };
     }
     $.fn.swiper = swiper;

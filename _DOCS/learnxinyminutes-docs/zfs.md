@@ -2,37 +2,35 @@
 category: tool
 tool: zfs
 contributors:
-    - ["sarlalian", "http://github.com/sarlalian"]
+  - ["sarlalian", "http://github.com/sarlalian"]
 filename: LearnZfs.txt
 ---
 
-
 [ZFS](http://open-zfs.org/wiki/Main_Page)
 is a rethinking of the storage stack, combining traditional file systems as well as volume
-managers into one cohesive tool.  ZFS has some specific terminology that sets it apart from
+managers into one cohesive tool. ZFS has some specific terminology that sets it apart from
 more traditional storage systems, however it has a great set of features with a focus on
 usability for systems administrators.
-
 
 ## ZFS Concepts
 
 ### Virtual Devices
 
 A VDEV is similar to a raid device presented by a RAID card, there are several different
-types of VDEV's that offer various advantages, including redundancy and speed.  In general
-VDEV's offer better reliability and safety than a RAID card.  It is discouraged to use a
+types of VDEV's that offer various advantages, including redundancy and speed. In general
+VDEV's offer better reliability and safety than a RAID card. It is discouraged to use a
 RAID setup with ZFS, as ZFS expects to directly manage the underlying disks.
 
 Types of VDEV's
 
-* stripe (a single disk, no redundancy)
-* mirror (n-way mirrors supported)
-* raidz
-	* raidz1 (1-disk parity, similar to RAID 5)
-	* raidz2 (2-disk parity, similar to RAID 6)
-	* raidz3 (3-disk parity, no RAID analog)
-* disk
-* file (not recommended for production due to another filesystem adding unnecessary layering)
+- stripe (a single disk, no redundancy)
+- mirror (n-way mirrors supported)
+- raidz
+  - raidz1 (1-disk parity, similar to RAID 5)
+  - raidz2 (2-disk parity, similar to RAID 6)
+  - raidz3 (3-disk parity, no RAID analog)
+- disk
+- file (not recommended for production due to another filesystem adding unnecessary layering)
 
 Your data is striped across all the VDEV's present in your Storage Pool, so more VDEV's will
 increase your IOPS.
@@ -44,17 +42,15 @@ you to separate the user visible file system from the physical layout.
 
 ### ZFS Dataset
 
-ZFS datasets are analogous to traditional filesystems but with many more features.  They
-provide many of ZFS's advantages.  Datasets support [Copy on Write](https://en.wikipedia.org/wiki/Copy-on-write)
+ZFS datasets are analogous to traditional filesystems but with many more features. They
+provide many of ZFS's advantages. Datasets support [Copy on Write](https://en.wikipedia.org/wiki/Copy-on-write)
 snapshots, quota's, compression and de-duplication.
-
 
 ### Limits
 
-One directory may contain up to 2^48 files, up to 16 exabytes each.  A single storage pool
-can contain up to 256 zettabytes (2^78) of space, and can be striped across 2^64 devices.  A
-single host can have 2^64 storage pools.  The limits are huge.
-
+One directory may contain up to 2^48 files, up to 16 exabytes each. A single storage pool
+can contain up to 256 zettabytes (2^78) of space, and can be striped across 2^64 devices. A
+single host can have 2^64 storage pools. The limits are huge.
 
 ## Commands
 
@@ -62,10 +58,10 @@ single host can have 2^64 storage pools.  The limits are huge.
 
 Actions:
 
-* List
-* Status
-* Destroy
-* Get/Set properties
+- List
+- Status
+- Destroy
+- Get/Set properties
 
 List zpools
 
@@ -145,16 +141,15 @@ Remove zpool
 $ zpool destroy test
 ```
 
-
 ### Datasets
 
 Actions:
 
-* Create
-* List
-* Rename
-* Delete
-* Get/Set properties
+- Create
+- List
+- Rename
+- Delete
+- Get/Set properties
 
 Create datasets
 
@@ -226,7 +221,7 @@ $ zfs destroy tank/root/home
 
 Get / set properties of a dataset
 
-```bash
+````bash
 # Get all properties
 $ zfs get all  zroot/usr/home                                                                                              │157 # Create Volume
 NAME            PROPERTY              VALUE                  SOURCE                                                                          │158 $ zfs create -V zroot/win_vm
@@ -257,27 +252,25 @@ zroot/usr                                                           none    none
 zroot/home                                                          none    none
 zroot/var                                                           none    none
 ...
-```
-
+````
 
 ### Snapshots
 
 ZFS snapshots are one of the things about zfs that are a really big deal
 
-* The space they take up is equal to the difference in data between the filesystem and its snapshot
-* Creation time is only seconds
-* Recovery is as fast as you can write data.
-* They are easy to automate.
+- The space they take up is equal to the difference in data between the filesystem and its snapshot
+- Creation time is only seconds
+- Recovery is as fast as you can write data.
+- They are easy to automate.
 
 Actions:
 
-* Create
-* Delete
-* Rename
-* Access snapshots
-* Send / Receive
-* Clone
-
+- Create
+- Delete
+- Rename
+- Access snapshots
+- Send / Receive
+- Clone
 
 Create snapshots
 
@@ -394,12 +387,11 @@ echo "STOP SLAVE;" | /usr/local/bin/mysql -u root -pmyrootpassword -h staging
 echo "RESET SLAVE;" | /usr/local/bin/mysql -u root -pmyrootpassword -h staging
 ```
 
-
 ### Additional Reading
 
-* [BSDNow's Crash Course on ZFS](http://www.bsdnow.tv/tutorials/zfs)
-* [FreeBSD Handbook on ZFS](https://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/zfs.html)
-* [BSDNow's Crash Course on ZFS](http://www.bsdnow.tv/tutorials/zfs)
-* [Oracle's Tuning Guide](http://www.oracle.com/technetwork/articles/servers-storage-admin/sto-recommended-zfs-settings-1951715.html)
-* [OpenZFS Tuning Guide](http://open-zfs.org/wiki/Performance_tuning)
-* [FreeBSD ZFS Tuning Guide](https://wiki.freebsd.org/ZFSTuningGuide)
+- [BSDNow's Crash Course on ZFS](http://www.bsdnow.tv/tutorials/zfs)
+- [FreeBSD Handbook on ZFS](https://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/zfs.html)
+- [BSDNow's Crash Course on ZFS](http://www.bsdnow.tv/tutorials/zfs)
+- [Oracle's Tuning Guide](http://www.oracle.com/technetwork/articles/servers-storage-admin/sto-recommended-zfs-settings-1951715.html)
+- [OpenZFS Tuning Guide](http://open-zfs.org/wiki/Performance_tuning)
+- [FreeBSD ZFS Tuning Guide](https://wiki.freebsd.org/ZFSTuningGuide)

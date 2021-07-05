@@ -1,16 +1,17 @@
 ---
 language: wolfram
 contributors:
-    - ["hyphz", "http://github.com/hyphz/"]
+  - ["hyphz", "http://github.com/hyphz/"]
 filename: learnwolfram.nb
 ---
 
 The Wolfram Language is the underlying language originally used in Mathematica, but now available for use in multiple contexts.
 
 Wolfram Language has several interfaces:
-* The command line kernel interface on Raspberry Pi (just called _The Wolfram Language_) which runs interactively and can't produce graphical input.
-* _Mathematica_ which is a rich text/maths editor with interactive Wolfram built in: pressing shift+Return on a "code cell" creates an output cell with the result, which is not dynamic
-* _Wolfram Workbench_ which is Eclipse interfaced to the Wolfram Language backend
+
+- The command line kernel interface on Raspberry Pi (just called _The Wolfram Language_) which runs interactively and can't produce graphical input.
+- _Mathematica_ which is a rich text/maths editor with interactive Wolfram built in: pressing shift+Return on a "code cell" creates an output cell with the result, which is not dynamic
+- _Wolfram Workbench_ which is Eclipse interfaced to the Wolfram Language backend
 
 The code in this example can be typed in to any interface and edited with Wolfram Workbench. Loading directly into Mathematica may be awkward because the file contains no cell formatting information (which would make the file a huge mess to read as text) - it can be viewed/edited but may require some setting up.
 
@@ -134,4 +135,4 @@ Manipulate[y^2, {y, 0, 20}] (* Return a reactive user interface that displays y^
 
 ##Ready For More?
 
-* [Wolfram Language Documentation Center](http://reference.wolfram.com/language/)
+- [Wolfram Language Documentation Center](http://reference.wolfram.com/language/)

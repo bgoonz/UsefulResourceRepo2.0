@@ -2,8 +2,9 @@
 language: protocol-buffers
 filename: protocol-buffers.proto
 contributors:
-    - ["Shankar Shastri", "https://github.com/shankarshastri"]
+  - ["Shankar Shastri", "https://github.com/shankarshastri"]
 ---
+
 # Protocol Buffers
 
 ## Why Protocol Buffers

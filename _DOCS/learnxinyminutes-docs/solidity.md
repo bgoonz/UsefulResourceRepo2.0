@@ -37,10 +37,10 @@ features are typically marked, and subject to change. Pull requests welcome.
 
 One of the easiest ways to build, deploy, and test solidity code is by using the:
 
-1. [Remix Web IDE](https://remix.ethereum.org/) 
+1. [Remix Web IDE](https://remix.ethereum.org/)
 2. [Metamask wallet](https://metamask.io/).
 
-To get started, [download the Metamask Browser Extension](https://metamask.io/). 
+To get started, [download the Metamask Browser Extension](https://metamask.io/).
 
 Once installed, we will be working with Remix. The below code will be pre-loaded, but before we head over there, let's look at a few tips to get started with remix. Load it all by [hitting this link](https://remix.ethereum.org/#version=soljson-v0.6.6+commit.6c089d02.js&optimize=false&evmVersion=null&gist=f490c0d51141dd0515244db40bbd0c17&runs=200).
 
@@ -56,7 +56,7 @@ Once installed, we will be working with Remix. The below code will be pre-loaded
 
 ![Solidity-compile](images/solidity/remix-compile.png)
 
-4. Deploy 
+4. Deploy
 
 ![Solidity-deploy](images/solidity/remix-deploy.png)
 
@@ -66,32 +66,30 @@ Once installed, we will be working with Remix. The below code will be pre-loaded
 
 You've deployed your first contract! Congrats!
 
-You can test out and play with the functions defined. Check out the comments to learn about what each does. 
-
+You can test out and play with the functions defined. Check out the comments to learn about what each does.
 
 ## Working on a testnet
 
-Deploying and testing on a testnet is the most accurate way to test your smart contracts in solidity. 
-To do this let's first get some testnet ETH from the Kovan testnet. 
+Deploying and testing on a testnet is the most accurate way to test your smart contracts in solidity.
+To do this let's first get some testnet ETH from the Kovan testnet.
 
 [Pop into this Gitter Channel](https://gitter.im/kovan-testnet/faucet) and drop your metamask address in.
 
-In your metamask, you'll want to change to the `Kovan` testnet. 
+In your metamask, you'll want to change to the `Kovan` testnet.
 
 ![Solidity-in-remix](images/solidity/metamask-kovan.png)
 
-You'll be given some free test Ethereum. Ethereum is needed to deploy smart contracts when working with a testnet. 
+You'll be given some free test Ethereum. Ethereum is needed to deploy smart contracts when working with a testnet.
 
-In the previous example, we didn't use a testnet, we deployed to a fake virtual environment. 
-When working with a testnet, we can actually see and interact with our contracts in a persistent manner. 
+In the previous example, we didn't use a testnet, we deployed to a fake virtual environment.
+When working with a testnet, we can actually see and interact with our contracts in a persistent manner.
 
 To deploy to a testnet, on the `#4 Deploy` step, change your `environment` to `injected web3`.
-This will use whatever network is currently selected in your metamask as the network to deploy to. 
+This will use whatever network is currently selected in your metamask as the network to deploy to.
 
 ![Solidity-in-remix](images/solidity/remix-testnet.png)
 
-For now, please continue to use the `Javascript VM` unless instructed otherwise. When you deploy to a testnet, metamask will pop up to ask you to "confirm" the transaction. Hit yes, and after a delay, you'll get the same contract interface at the bottom of your screen. 
-
+For now, please continue to use the `Javascript VM` unless instructed otherwise. When you deploy to a testnet, metamask will pop up to ask you to "confirm" the transaction. Hit yes, and after a delay, you'll get the same contract interface at the bottom of your screen.
 
 ```javascript
 // First, a simple Bank contract
@@ -214,7 +212,7 @@ assert(c >= a); // assert tests for internal invariants; require is used for use
 // https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/contracts/math/SafeMath.sol
 
 
-// No random functions built in, you can get a pseduo-random number by hashing the current blockhash, or get a truely random number using something like Chainlink VRF. 
+// No random functions built in, you can get a pseduo-random number by hashing the current blockhash, or get a truely random number using something like Chainlink VRF.
 // https://docs.chain.link/docs/get-a-random-number
 
 // Type casting
@@ -647,27 +645,27 @@ reveal(100, "mySecret");
 // anyone can observe all previous data and changes
 
 // E. Oracles and External Data
-// Oracles are ways to interact with your smart contracts outside the blockchain. 
+// Oracles are ways to interact with your smart contracts outside the blockchain.
 // They are used to get data from the real world, send post requests, to the real world
 // or vise versa.
 
-// Time-based implementations of contracts are also done through oracles, as 
-// contracts need to be directly called and can not "subscribe" to a time. 
+// Time-based implementations of contracts are also done through oracles, as
+// contracts need to be directly called and can not "subscribe" to a time.
 // Due to smart contracts being decentralized, you also want to get your data
-// in a decentralized manner, other your run into the centralized risk that 
-// smart contract design matter prevents. 
+// in a decentralized manner, other your run into the centralized risk that
+// smart contract design matter prevents.
 
 // To easiest way get and use pre-boxed decentralized data is with Chainlink Data Feeds
 // https://docs.chain.link/docs/get-the-latest-price
-// We can reference on-chain reference points that have already been aggregated by 
-// multiple sources and delivered on-chain, and we can use it as a "data bank" 
-// of sources. 
+// We can reference on-chain reference points that have already been aggregated by
+// multiple sources and delivered on-chain, and we can use it as a "data bank"
+// of sources.
 
 // You can see other examples making API calls here:
 // https://docs.chain.link/docs/make-a-http-get-request
 
-// And you can of course build your own oracle network, just be sure to know 
-// how centralized vs decentralized your application is. 
+// And you can of course build your own oracle network, just be sure to know
+// how centralized vs decentralized your application is.
 
 // Setting up oracle networks yourself
 
@@ -859,7 +857,7 @@ contract CrowdFunder {
 
 ```
 
-Some more functions. 
+Some more functions.
 
 ```javascript
 // 10. OTHER NATIVE FUNCTIONS
@@ -932,6 +930,7 @@ someContractAddress.callcode('function_name');
 ```
 
 ## Additional resources
+
 - [Solidity Docs](https://solidity.readthedocs.org/en/latest/)
 - [Chainlink Beginner Tutorials](https://docs.chain.link/docs/beginners-tutorial)
 - [Smart Contract Best Practices](https://github.com/ConsenSys/smart-contract-best-practices)
@@ -943,15 +942,18 @@ someContractAddress.callcode('function_name');
 - [Chainlink Documentation](https://docs.chain.link/docs/getting-started)
 
 ## Smart Contract Development Frameworks
+
 - [Hardhat](https://hardhat.org/)
 - [Brownie](https://github.com/eth-brownie/brownie)
 - [Truffle](https://www.trufflesuite.com/)
 
 ## Important libraries
+
 - [Zeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts): Libraries that provide common contract patterns (crowdfuding, safemath, etc)
 - [Chainlink](https://github.com/smartcontractkit/chainlink): Code that allows you to interact with external data
 
 ## Sample contracts
+
 - [Dapp Bin](https://github.com/ethereum/dapp-bin)
 - [Defi Example](https://github.com/PatrickAlphaC/chainlink_defi)
 - [Solidity Baby Step Contracts](https://github.com/fivedogit/solidity-baby-steps/tree/master/contracts)
@@ -959,20 +961,24 @@ someContractAddress.callcode('function_name');
 - [State of Dapps](http://dapps.ethercasts.com/)
 
 ## Security
+
 - [Thinking About Smart Contract Security](https://blog.ethereum.org/2016/06/19/thinking-smart-contract-security/)
 - [Smart Contract Security](https://blog.ethereum.org/2016/06/10/smart-contract-security/)
 - [Hacking Distributed Blog](http://hackingdistributed.com/)
 
 ## Style
+
 - [Solidity Style Guide](http://solidity.readthedocs.io/en/latest/style-guide.html): Ethereum's style guide is heavily derived from Python's [PEP 8](https://www.python.org/dev/peps/pep-0008/) style guide.
 
 ## Editors
+
 - [Remix](https://remix.ethereum.org/)
 - [Emacs Solidity Mode](https://github.com/ethereum/emacs-solidity)
 - [Vim Solidity](https://github.com/tomlion/vim-solidity)
 - Editor Snippets ([Ultisnips format](https://gist.github.com/nemild/98343ce6b16b747788bc))
 
 ## Future To Dos
+
 - New keywords: protected, inheritable
 - List of common design patterns (throttling, RNG, version upgrade)
 - Common security anti patterns

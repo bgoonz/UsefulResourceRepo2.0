@@ -1,10 +1,9 @@
 ---
 language: textile
 contributors:
-    - ["Keith Miyake", "https://github.com/kaymmm"]
+  - ["Keith Miyake", "https://github.com/kaymmm"]
 filename: learn-textile.textile
 ---
-
 
 Textile is a lightweight markup language that uses a text formatting syntax to
 convert plain text into structured HTML markup. The syntax is a shorthand
@@ -125,7 +124,6 @@ You can create HTML elements `<h1>` through `<h6>` easily by prepending the
 text you want to be in that element by 'h#.' where # is the level 1-6.
 A blank line is required after headings.
 
-
 ```
 h1. This is an <h1>
 
@@ -140,7 +138,6 @@ h5. This is an <h5>
 h6. This is an <h6>
 
 ```
-
 
 ## Simple text styles
 
@@ -324,12 +321,11 @@ notelist^.   Notes with one backlink to the first citation made to each note.
 notelist^+.  Notes with one backlink to the first citation made to each note,
                followed by unreferenced notes.
 notelist!.   Notes with no backlinks to the citations.
-notelist!+.  Notes with no backlinks to the citations, followed by 
+notelist!+.  Notes with no backlinks to the citations, followed by
                unreferenced notes.
 ```
 
 ## Tables
-
 
 ```
 ###. Tables are simple to define using the pipe '|' symbol
@@ -401,6 +397,7 @@ A backslash \ is used for a column span:
 |>. right alignment |
 
 ```
+
 or, for the same results
 
 ```
@@ -408,7 +405,6 @@ Col 1 | Col2 | Col3
 :-- | :-: | --:
 Ugh this is so ugly | make it | stop
 ```
-
 
 ## Character Conversions
 
@@ -464,6 +460,7 @@ Three quarters: (3/4) => ¾
 Degree: (o) => °
 Plus/minus: (+/-) => ±
 ```
+
 ### Multiplication/Dimension
 
 ```
@@ -496,10 +493,11 @@ p(#my-id). IDs are enclosed in parentheses and prefaced with a pound '#'.
 %spans% are enclosed in percent symbols
 div. Divs are indicated by the 'div.' shorthand
 ```
+
 ---
 
 ## For More Info
 
-* TxStyle Textile Documentation: [https://txstyle.org/](https://txstyle.org/)
-* promptworks Textile Reference Manual: [https://www.promptworks.com/textile](https://www.promptworks.com/textile)
-* Redmine Textile Formatting: [http://www.redmine.org/projects/redmine/wiki/RedmineTextFormattingTextile](http://www.redmine.org/projects/redmine/wiki/RedmineTextFormattingTextile)
+- TxStyle Textile Documentation: [https://txstyle.org/](https://txstyle.org/)
+- promptworks Textile Reference Manual: [https://www.promptworks.com/textile](https://www.promptworks.com/textile)
+- Redmine Textile Formatting: [http://www.redmine.org/projects/redmine/wiki/RedmineTextFormattingTextile](http://www.redmine.org/projects/redmine/wiki/RedmineTextFormattingTextile)

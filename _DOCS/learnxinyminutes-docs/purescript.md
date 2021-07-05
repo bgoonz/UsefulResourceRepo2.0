@@ -2,15 +2,15 @@
 language: purescript
 filename: purescript.purs
 contributors:
-    - ["Fredrik Dyrkell", "http://www.lexicallyscoped.com"]
-    - ["Thimoteus", "https://github.com/Thimoteus"]
+  - ["Fredrik Dyrkell", "http://www.lexicallyscoped.com"]
+  - ["Thimoteus", "https://github.com/Thimoteus"]
 ---
 
 PureScript is a small strongly, statically typed language compiling to Javascript.
 
-* Learn more at [http://www.purescript.org/](http://www.purescript.org/)
-* Documentation: [http://pursuit.purescript.org/](http://pursuit.purescript.org/)
-* Book: Purescript by Example, [https://leanpub.com/purescript/](https://leanpub.com/purescript/)
+- Learn more at [http://www.purescript.org/](http://www.purescript.org/)
+- Documentation: [http://pursuit.purescript.org/](http://pursuit.purescript.org/)
+- Book: Purescript by Example, [https://leanpub.com/purescript/](https://leanpub.com/purescript/)
 
 All the noncommented lines of code can be run in the PSCI REPL, though some will
 require the `--multi-line-mode` flag.

@@ -1,7 +1,7 @@
 ---
 language: Lua
 contributors:
-    - ["Tyler Neylon", "http://tylerneylon.com/"]
+  - ["Tyler Neylon", "http://tylerneylon.com/"]
 filename: learnlua.lua
 ---
 
@@ -390,6 +390,7 @@ g()  -- Prints out 343; nothing printed before now.
 --]]
 
 ```
+
 ## References
 
 I was excited to learn Lua so I could make games
@@ -404,11 +405,11 @@ reference</a> on lua-users.org.
 
 The main topics not covered are standard libraries:
 
-* <a href="http://lua-users.org/wiki/StringLibraryTutorial">string library</a>
-* <a href="http://lua-users.org/wiki/TableLibraryTutorial">table library</a>
-* <a href="http://lua-users.org/wiki/MathLibraryTutorial">math library</a>
-* <a href="http://lua-users.org/wiki/IoLibraryTutorial">io library</a>
-* <a href="http://lua-users.org/wiki/OsLibraryTutorial">os library</a>
+- <a href="http://lua-users.org/wiki/StringLibraryTutorial">string library</a>
+- <a href="http://lua-users.org/wiki/TableLibraryTutorial">table library</a>
+- <a href="http://lua-users.org/wiki/MathLibraryTutorial">math library</a>
+- <a href="http://lua-users.org/wiki/IoLibraryTutorial">io library</a>
+- <a href="http://lua-users.org/wiki/OsLibraryTutorial">os library</a>
 
 By the way, the entire file is valid Lua; save it
 as learn.lua and run it with "lua learn.lua" !

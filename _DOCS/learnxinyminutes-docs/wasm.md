@@ -2,7 +2,7 @@
 language: WebAssembly
 filename: learn-wasm.wast
 contributors:
-    - ["Dean Shaff", "http://dean-shaff.github.io"]
+  - ["Dean Shaff", "http://dean-shaff.github.io"]
 ---
 
 ```
@@ -248,9 +248,9 @@ contributors:
   (global $memstack_ptr (mut i32) (i32.const 65536))
 
   ;; Structs can only be returned by reference
-  (func $sum_struct_create 
-        (param $sum_struct_ptr i32) 
-        (param $var$a i32) 
+  (func $sum_struct_create
+        (param $sum_struct_ptr i32)
+        (param $var$a i32)
         (param $var$b i32)
     ;; c// sum_struct_ptr->a = a;
     (i32.store

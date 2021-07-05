@@ -33,7 +33,7 @@ Previously, you needed to define `script` tags inside the `Head` of your Next.js
 // Before
 
 // pages/index.js
-import Head from 'next/head'
+import Head from "next/head";
 
 export default function Home() {
   return (
@@ -42,7 +42,7 @@ export default function Home() {
         <script async src="https://www.google-analytics.com/analytics.js" />
       </Head>
     </>
-  )
+  );
 }
 ```
 
@@ -52,14 +52,14 @@ With `next/script`, you no longer need to wrap scripts in `next/head`. Further, 
 // After
 
 // pages/index.js
-import Script from 'next/script'
+import Script from "next/script";
 
 export default function Home() {
   return (
     <>
       <Script src="https://www.google-analytics.com/analytics.js" />
     </>
-  )
+  );
 }
 ```
 
@@ -68,7 +68,7 @@ export default function Home() {
 ### Loading Polyfills
 
 ```js
-import Script from 'next/script'
+import Script from "next/script";
 
 export default function Home() {
   return (
@@ -78,14 +78,14 @@ export default function Home() {
         strategy="beforeInteractive"
       />
     </>
-  )
+  );
 }
 ```
 
 ### Lazy-Loading
 
 ```js
-import Script from 'next/script'
+import Script from "next/script";
 
 export default function Home() {
   return (
@@ -95,14 +95,14 @@ export default function Home() {
         strategy="lazyOnload"
       />
     </>
-  )
+  );
 }
 ```
 
 ### Executing Code After Loading (`onLoad`)
 
 ```js
-import Script from 'next/script'
+import Script from "next/script";
 
 export default function Home() {
   return (
@@ -111,11 +111,11 @@ export default function Home() {
         id="stripe-js"
         src="https://js.stripe.com/v3/"
         onLoad={() => {
-          this.setState({ stripe: window.Stripe('pk_test_12345') })
+          this.setState({ stripe: window.Stripe("pk_test_12345") });
         }}
       />
     </>
-  )
+  );
 }
 ```
 
@@ -140,7 +140,7 @@ import Script from 'next/script'
 ### Forwarding Attributes
 
 ```js
-import Script from 'next/script'
+import Script from "next/script";
 
 export default function Home() {
   return (
@@ -152,6 +152,6 @@ export default function Home() {
         data-test="analytics"
       />
     </>
-  )
+  );
 }
 ```

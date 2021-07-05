@@ -5,7 +5,7 @@
  * @link http://trackingjs.com
  * @license BSD
  */
-(function(window, undefined) {
+(function (window, undefined) {
   window.tracking = window.tracking || {};
 
   /**
@@ -28,9 +28,8 @@
    * @param {Function} childCtor Child class.
    * @param {Function} parentCtor Parent class.
    */
-  tracking.inherits = function(childCtor, parentCtor) {
-    function TempCtor() {
-    }
+  tracking.inherits = function (childCtor, parentCtor) {
+    function TempCtor() {}
     TempCtor.prototype = parentCtor.prototype;
     childCtor.superClass_ = parentCtor.prototype;
     childCtor.prototype = new TempCtor();
@@ -49,7 +48,7 @@
      *     method/constructor.
      * @return {*} The return value of the superclass method/constructor.
      */
-    childCtor.base = function(me, methodName) {
+    childCtor.base = function (me, methodName) {
       var args = Array.prototype.slice.call(arguments, 2);
       return parentCtor.prototype[methodName].apply(me, args);
     };
@@ -61,16 +60,19 @@
    * @param {HTMLVideoElement} element Canvas element to track.
    * @param {object} opt_options Optional configuration to the tracker.
    */
-  tracking.initUserMedia_ = function(element, opt_options) {
-    window.navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: (opt_options && opt_options.audio) ? true : false,
-    }).then(function(stream) {
-      element.srcObject = stream;
-    }).catch(function(err) {
-      console.log("err!!", err)
-      throw Error('Cannot capture user camera.');
-    });
+  tracking.initUserMedia_ = function (element, opt_options) {
+    window.navigator.mediaDevices
+      .getUserMedia({
+        video: true,
+        audio: opt_options && opt_options.audio ? true : false,
+      })
+      .then(function (stream) {
+        element.srcObject = stream;
+      })
+      .catch(function (err) {
+        console.log("err!!", err);
+        throw Error("Cannot capture user camera.");
+      });
   };
 
   /**
@@ -78,7 +80,7 @@
    * @param {object} o Object to be tested.
    * @return {boolean} True if the object is a dom node.
    */
-  tracking.isNode = function(o) {
+  tracking.isNode = function (o) {
     return o.nodeType || this.isWindow(o);
   };
 
@@ -87,7 +89,7 @@
    * @param {object} o Object to be tested.
    * @return {boolean} True if the object is the `window` object.
    */
-  tracking.isWindow = function(o) {
+  tracking.isWindow = function (o) {
     return !!(o && o.alert && o.document);
   };
 
@@ -99,7 +101,7 @@
    * @return {HTMLElement} The first dom element that matches to the selector.
    *     If not found, returns `null`.
    */
-  tracking.one = function(selector, opt_element) {
+  tracking.one = function (selector, opt_element) {
     if (this.isNode(selector)) {
       return selector;
     }
@@ -130,21 +132,25 @@
    *     element.
    * @param {object} opt_options Optional configuration to the tracker.
    */
-  tracking.track = function(element, tracker, opt_options) {
+  tracking.track = function (element, tracker, opt_options) {
     element = tracking.one(element);
     if (!element) {
-      throw new Error('Element not found, try a different element or selector.');
+      throw new Error(
+        "Element not found, try a different element or selector."
+      );
     }
     if (!tracker) {
-      throw new Error('Tracker not specified, try `tracking.track(element, new tracking.FaceTracker())`.');
+      throw new Error(
+        "Tracker not specified, try `tracking.track(element, new tracking.FaceTracker())`."
+      );
     }
 
     switch (element.nodeName.toLowerCase()) {
-      case 'canvas':
+      case "canvas":
         return this.trackCanvas_(element, tracker, opt_options);
-      case 'img':
+      case "img":
         return this.trackImg_(element, tracker, opt_options);
-      case 'video':
+      case "video":
         if (opt_options) {
           if (opt_options.camera) {
             this.initUserMedia_(element, opt_options);
@@ -152,7 +158,9 @@
         }
         return this.trackVideo_(element, tracker, opt_options);
       default:
-        throw new Error('Element not supported, try in a canvas, img, or video.');
+        throw new Error(
+          "Element not supported, try in a canvas, img, or video."
+        );
     }
   };
 
@@ -166,10 +174,10 @@
    * @return {tracking.TrackerTask}
    * @private
    */
-  tracking.trackCanvas_ = function(element, tracker) {
+  tracking.trackCanvas_ = function (element, tracker) {
     var self = this;
     var task = new tracking.TrackerTask(tracker);
-    task.on('run', function() {
+    task.on("run", function () {
       self.trackCanvasInternal_(element, tracker);
     });
     return task.run();
@@ -185,10 +193,10 @@
    * @param {object} opt_options Optional configuration to the tracker.
    * @private
    */
-  tracking.trackCanvasInternal_ = function(element, tracker) {
+  tracking.trackCanvasInternal_ = function (element, tracker) {
     var width = element.width;
     var height = element.height;
-    var context = element.getContext('2d');
+    var context = element.getContext("2d");
     var imageData = context.getImageData(0, 0, width, height);
     tracker.track(imageData.data, width, height);
   };
@@ -203,19 +211,27 @@
    * @param {object} opt_options Optional configuration to the tracker.
    * @private
    */
-  tracking.trackImg_ = function(element, tracker) {
+  tracking.trackImg_ = function (element, tracker) {
     var width = element.width;
     var height = element.height;
-    var canvas = document.createElement('canvas');
+    var canvas = document.createElement("canvas");
 
     canvas.width = width;
     canvas.height = height;
 
     var task = new tracking.TrackerTask(tracker);
-    task.on('run', function() {
-      tracking.Canvas.loadImage(canvas, element.src, 0, 0, width, height, function() {
-        tracking.trackCanvasInternal_(canvas, tracker);
-      });
+    task.on("run", function () {
+      tracking.Canvas.loadImage(
+        canvas,
+        element.src,
+        0,
+        0,
+        width,
+        height,
+        function () {
+          tracking.trackCanvasInternal_(canvas, tracker);
+        }
+      );
     });
     return task.run();
   };
@@ -231,24 +247,24 @@
    * @param {object} opt_options Optional configuration to the tracker.
    * @private
    */
-  tracking.trackVideo_ = function(element, tracker) {
-    var canvas = document.createElement('canvas');
-    var context = canvas.getContext('2d');
+  tracking.trackVideo_ = function (element, tracker) {
+    var canvas = document.createElement("canvas");
+    var context = canvas.getContext("2d");
     var width;
     var height;
 
-    var resizeCanvas_ = function() {
+    var resizeCanvas_ = function () {
       width = element.offsetWidth;
       height = element.offsetHeight;
       canvas.width = width;
       canvas.height = height;
     };
     resizeCanvas_();
-    element.addEventListener('resize', resizeCanvas_);
+    element.addEventListener("resize", resizeCanvas_);
 
     var requestId;
-    var requestAnimationFrame_ = function() {
-      requestId = window.requestAnimationFrame(function() {
+    var requestAnimationFrame_ = function () {
+      requestId = window.requestAnimationFrame(function () {
         if (element.readyState === element.HAVE_ENOUGH_DATA) {
           try {
             // Firefox v~30.0 gets confused with the video readyState firing an
@@ -263,10 +279,10 @@
     };
 
     var task = new tracking.TrackerTask(tracker);
-    task.on('stop', function() {
+    task.on("stop", function () {
       window.cancelAnimationFrame(requestId);
     });
-    task.on('run', function() {
+    task.on("run", function () {
       requestAnimationFrame_();
     });
     return task.run();
@@ -280,17 +296,20 @@
   }
 
   if (!navigator.getUserMedia) {
-    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
-    navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    navigator.getUserMedia =
+      navigator.getUserMedia ||
+      navigator.webkitGetUserMedia ||
+      navigator.mozGetUserMedia ||
+      navigator.msGetUserMedia;
   }
-}(window));
+})(window);
 
-(function() {
+(function () {
   /**
    * EventEmitter utility.
    * @constructor
    */
-  tracking.EventEmitter = function() {};
+  tracking.EventEmitter = function () {};
 
   /**
    * Holds event listeners scoped by event type.
@@ -305,15 +324,15 @@
    * @param {function} listener
    * @return {object} Returns emitter, so calls can be chained.
    */
-  tracking.EventEmitter.prototype.addListener = function(event, listener) {
-    if (typeof listener !== 'function') {
-      throw new TypeError('Listener must be a function');
+  tracking.EventEmitter.prototype.addListener = function (event, listener) {
+    if (typeof listener !== "function") {
+      throw new TypeError("Listener must be a function");
     }
     if (!this.events_) {
       this.events_ = {};
     }
 
-    this.emit('newListener', event, listener);
+    this.emit("newListener", event, listener);
 
     if (!this.events_[event]) {
       this.events_[event] = [];
@@ -329,7 +348,7 @@
    * @param {string} event
    * @return {array} Array of listeners.
    */
-  tracking.EventEmitter.prototype.listeners = function(event) {
+  tracking.EventEmitter.prototype.listeners = function (event) {
     return this.events_ && this.events_[event];
   };
 
@@ -339,7 +358,7 @@
    * @param {*} opt_args [arg1], [arg2], [...]
    * @return {boolean} Returns true if event had listeners, false otherwise.
    */
-  tracking.EventEmitter.prototype.emit = function(event) {
+  tracking.EventEmitter.prototype.emit = function (event) {
     var listeners = this.listeners(event);
     if (listeners) {
       var args = Array.prototype.slice.call(arguments, 1);
@@ -359,7 +378,8 @@
    * @param {function} listener
    * @return {object} Returns emitter, so calls can be chained.
    */
-  tracking.EventEmitter.prototype.on = tracking.EventEmitter.prototype.addListener;
+  tracking.EventEmitter.prototype.on =
+    tracking.EventEmitter.prototype.addListener;
 
   /**
    * Adds a one time listener for the event. This listener is invoked only the
@@ -368,7 +388,7 @@
    * @param {function} listener
    * @return {object} Returns emitter, so calls can be chained.
    */
-  tracking.EventEmitter.prototype.once = function(event, listener) {
+  tracking.EventEmitter.prototype.once = function (event, listener) {
     var self = this;
     self.on(event, function handlerInternal() {
       self.removeListener(event, handlerInternal);
@@ -383,7 +403,7 @@
    * @param {string} event
    * @return {object} Returns emitter, so calls can be chained.
    */
-  tracking.EventEmitter.prototype.removeAllListeners = function(opt_event) {
+  tracking.EventEmitter.prototype.removeAllListeners = function (opt_event) {
     if (!this.events_) {
       return this;
     }
@@ -402,9 +422,9 @@
    * @param {function} listener
    * @return {object} Returns emitter, so calls can be chained.
    */
-  tracking.EventEmitter.prototype.removeListener = function(event, listener) {
-    if (typeof listener !== 'function') {
-      throw new TypeError('Listener must be a function');
+  tracking.EventEmitter.prototype.removeListener = function (event, listener) {
+    if (typeof listener !== "function") {
+      throw new TypeError("Listener must be a function");
     }
     if (!this.events_) {
       return this;
@@ -429,13 +449,12 @@
    * This function allows that to be increased. Set to zero for unlimited.
    * @param {number} n The maximum number of listeners.
    */
-  tracking.EventEmitter.prototype.setMaxListeners = function() {
-    throw new Error('Not implemented');
+  tracking.EventEmitter.prototype.setMaxListeners = function () {
+    throw new Error("Not implemented");
   };
+})();
 
-}());
-
-(function() {
+(function () {
   /**
    * Canvas utility.
    * @static
@@ -455,12 +474,20 @@
    *     into the canvas.
    * @static
    */
-  tracking.Canvas.loadImage = function(canvas, src, x, y, width, height, opt_callback) {
+  tracking.Canvas.loadImage = function (
+    canvas,
+    src,
+    x,
+    y,
+    width,
+    height,
+    opt_callback
+  ) {
     var instance = this;
     var img = new window.Image();
-    img.crossOrigin = '*';
-    img.onload = function() {
-      var context = canvas.getContext('2d');
+    img.crossOrigin = "*";
+    img.onload = function () {
+      var context = canvas.getContext("2d");
       canvas.width = width;
       canvas.height = height;
       context.drawImage(img, x, y, width, height);
@@ -471,9 +498,9 @@
     };
     img.src = src;
   };
-}());
+})();
 
-(function() {
+(function () {
   /**
    * DisjointSet utility with path compression. Some applications involve
    * grouping n distinct objects into a collection of disjoint sets. Two
@@ -484,9 +511,9 @@
    * @static
    * @constructor
    */
-  tracking.DisjointSet = function(length) {
+  tracking.DisjointSet = function (length) {
     if (length === undefined) {
-      throw new Error('DisjointSet length not specified.');
+      throw new Error("DisjointSet length not specified.");
     }
     this.length = length;
     this.parent = new Uint32Array(length);
@@ -512,7 +539,7 @@
    * @param {number} i
    * @return {number} The representative set of i.
    */
-  tracking.DisjointSet.prototype.find = function(i) {
+  tracking.DisjointSet.prototype.find = function (i) {
     if (this.parent[i] === i) {
       return i;
     } else {
@@ -526,15 +553,14 @@
    * @param {number} i
    * @param {number} j
    */
-  tracking.DisjointSet.prototype.union = function(i, j) {
+  tracking.DisjointSet.prototype.union = function (i, j) {
     var iRepresentative = this.find(i);
     var jRepresentative = this.find(j);
     this.parent[iRepresentative] = jRepresentative;
   };
+})();
 
-}());
-
-(function() {
+(function () {
   /**
    * Image utility.
    * @static
@@ -551,10 +577,10 @@
    * @param {number} diameter Gaussian blur diameter, must be greater than 1.
    * @return {array} The edge pixels in a linear [r,g,b,a,...] array.
    */
-  tracking.Image.blur = function(pixels, width, height, diameter) {
+  tracking.Image.blur = function (pixels, width, height, diameter) {
     diameter = Math.abs(diameter);
     if (diameter <= 1) {
-      throw new Error('Diameter should be greater than 1.');
+      throw new Error("Diameter should be greater than 1.");
     }
     var radius = diameter / 2;
     var len = Math.ceil(diameter) + (1 - (Math.ceil(diameter) % 2));
@@ -574,7 +600,14 @@
     for (var j = 0; j < weights.length; j++) {
       weights[j] /= wsum;
     }
-    return this.separableConvolve(pixels, width, height, weights, weights, false);
+    return this.separableConvolve(
+      pixels,
+      width,
+      height,
+      weights,
+      weights,
+      false
+    );
   };
 
   /**
@@ -597,9 +630,19 @@
    *     specified compute sobel filtering will be skipped.
    * @static
    */
-  tracking.Image.computeIntegralImage = function(pixels, width, height, opt_integralImage, opt_integralImageSquare, opt_tiltedIntegralImage, opt_integralImageSobel) {
+  tracking.Image.computeIntegralImage = function (
+    pixels,
+    width,
+    height,
+    opt_integralImage,
+    opt_integralImageSquare,
+    opt_tiltedIntegralImage,
+    opt_integralImageSobel
+  ) {
     if (arguments.length < 4) {
-      throw new Error('You should specify at least one output array in the order: sum, square, tilted, sobel.');
+      throw new Error(
+        "You should specify at least one output array in the order: sum, square, tilted, sobel."
+      );
     }
     var pixelsSobel;
     if (opt_integralImageSobel) {
@@ -608,20 +651,47 @@
     for (var i = 0; i < height; i++) {
       for (var j = 0; j < width; j++) {
         var w = i * width * 4 + j * 4;
-        var pixel = ~~(pixels[w] * 0.299 + pixels[w + 1] * 0.587 + pixels[w + 2] * 0.114);
+        var pixel = ~~(
+          pixels[w] * 0.299 +
+          pixels[w + 1] * 0.587 +
+          pixels[w + 2] * 0.114
+        );
         if (opt_integralImage) {
           this.computePixelValueSAT_(opt_integralImage, width, i, j, pixel);
         }
         if (opt_integralImageSquare) {
-          this.computePixelValueSAT_(opt_integralImageSquare, width, i, j, pixel * pixel);
+          this.computePixelValueSAT_(
+            opt_integralImageSquare,
+            width,
+            i,
+            j,
+            pixel * pixel
+          );
         }
         if (opt_tiltedIntegralImage) {
           var w1 = w - width * 4;
-          var pixelAbove = ~~(pixels[w1] * 0.299 + pixels[w1 + 1] * 0.587 + pixels[w1 + 2] * 0.114);
-          this.computePixelValueRSAT_(opt_tiltedIntegralImage, width, i, j, pixel, pixelAbove || 0);
+          var pixelAbove = ~~(
+            pixels[w1] * 0.299 +
+            pixels[w1 + 1] * 0.587 +
+            pixels[w1 + 2] * 0.114
+          );
+          this.computePixelValueRSAT_(
+            opt_tiltedIntegralImage,
+            width,
+            i,
+            j,
+            pixel,
+            pixelAbove || 0
+          );
         }
         if (opt_integralImageSobel) {
-          this.computePixelValueSAT_(opt_integralImageSobel, width, i, j, pixelsSobel[w]);
+          this.computePixelValueSAT_(
+            opt_integralImageSobel,
+            width,
+            i,
+            j,
+            pixelsSobel[w]
+          );
         }
       }
     }
@@ -643,9 +713,21 @@
    * @static
    * @private
    */
-  tracking.Image.computePixelValueRSAT_ = function(RSAT, width, i, j, pixel, pixelAbove) {
+  tracking.Image.computePixelValueRSAT_ = function (
+    RSAT,
+    width,
+    i,
+    j,
+    pixel,
+    pixelAbove
+  ) {
     var w = i * width + j;
-    RSAT[w] = (RSAT[w - width - 1] || 0) + (RSAT[w - width + 1] || 0) - (RSAT[w - width - width] || 0) + pixel + pixelAbove;
+    RSAT[w] =
+      (RSAT[w - width - 1] || 0) +
+      (RSAT[w - width + 1] || 0) -
+      (RSAT[w - width - width] || 0) +
+      pixel +
+      pixelAbove;
   };
 
   /**
@@ -663,9 +745,13 @@
    * @static
    * @private
    */
-  tracking.Image.computePixelValueSAT_ = function(SAT, width, i, j, pixel) {
+  tracking.Image.computePixelValueSAT_ = function (SAT, width, i, j, pixel) {
     var w = i * width + j;
-    SAT[w] = (SAT[w - width] || 0) + (SAT[w - 1] || 0) + pixel - (SAT[w - width - 1] || 0);
+    SAT[w] =
+      (SAT[w - width] || 0) +
+      (SAT[w - 1] || 0) +
+      pixel -
+      (SAT[w - width - 1] || 0);
   };
 
   /**
@@ -683,13 +769,16 @@
    *  is true and [p1, p2, p3, ...] if fillRGBA is false).
    * @static
    */
-  tracking.Image.grayscale = function(pixels, width, height, fillRGBA) {
-    var gray = new Uint8ClampedArray(fillRGBA ? pixels.length : pixels.length >> 2);
+  tracking.Image.grayscale = function (pixels, width, height, fillRGBA) {
+    var gray = new Uint8ClampedArray(
+      fillRGBA ? pixels.length : pixels.length >> 2
+    );
     var p = 0;
     var w = 0;
     for (var i = 0; i < height; i++) {
       for (var j = 0; j < width; j++) {
-        var value = pixels[w] * 0.299 + pixels[w + 1] * 0.587 + pixels[w + 2] * 0.114;
+        var value =
+          pixels[w] * 0.299 + pixels[w + 1] * 0.587 + pixels[w + 2] * 0.114;
         gray[p++] = value;
 
         if (fillRGBA) {
@@ -719,7 +808,13 @@
    * @param {number} opaque
    * @return {array} The convoluted pixels in a linear [r,g,b,a,...] array.
    */
-  tracking.Image.horizontalConvolve = function(pixels, width, height, weightsVector, opaque) {
+  tracking.Image.horizontalConvolve = function (
+    pixels,
+    width,
+    height,
+    weightsVector,
+    opaque
+  ) {
     var side = weightsVector.length;
     var halfSide = Math.floor(side / 2);
     var output = new Float32Array(width * height * 4);
@@ -768,7 +863,13 @@
    * @param {number} opaque
    * @return {array} The convoluted pixels in a linear [r,g,b,a,...] array.
    */
-  tracking.Image.verticalConvolve = function(pixels, width, height, weightsVector, opaque) {
+  tracking.Image.verticalConvolve = function (
+    pixels,
+    width,
+    height,
+    weightsVector,
+    opaque
+  ) {
     var side = weightsVector.length;
     var halfSide = Math.floor(side / 2);
     var output = new Float32Array(width * height * 4);
@@ -818,9 +919,28 @@
    * @param {number} opaque
    * @return {array} The convoluted pixels in a linear [r,g,b,a,...] array.
    */
-  tracking.Image.separableConvolve = function(pixels, width, height, horizWeights, vertWeights, opaque) {
-    var vertical = this.verticalConvolve(pixels, width, height, vertWeights, opaque);
-    return this.horizontalConvolve(vertical, width, height, horizWeights, opaque);
+  tracking.Image.separableConvolve = function (
+    pixels,
+    width,
+    height,
+    horizWeights,
+    vertWeights,
+    opaque
+  ) {
+    var vertical = this.verticalConvolve(
+      pixels,
+      width,
+      height,
+      vertWeights,
+      opaque
+    );
+    return this.horizontalConvolve(
+      vertical,
+      width,
+      height,
+      horizWeights,
+      opaque
+    );
   };
 
   /**
@@ -835,13 +955,25 @@
    * @param {number} height The image height.
    * @return {array} The edge pixels in a linear [r,g,b,a,...] array.
    */
-  tracking.Image.sobel = function(pixels, width, height) {
+  tracking.Image.sobel = function (pixels, width, height) {
     pixels = this.grayscale(pixels, width, height, true);
     var output = new Float32Array(width * height * 4);
     var sobelSignVector = new Float32Array([-1, 0, 1]);
     var sobelScaleVector = new Float32Array([1, 2, 1]);
-    var vertical = this.separableConvolve(pixels, width, height, sobelSignVector, sobelScaleVector);
-    var horizontal = this.separableConvolve(pixels, width, height, sobelScaleVector, sobelSignVector);
+    var vertical = this.separableConvolve(
+      pixels,
+      width,
+      height,
+      sobelSignVector,
+      sobelScaleVector
+    );
+    var horizontal = this.separableConvolve(
+      pixels,
+      width,
+      height,
+      sobelScaleVector,
+      sobelSignVector
+    );
 
     for (var i = 0; i < output.length; i += 4) {
       var v = vertical[i];
@@ -864,33 +996,32 @@
    * @param {number} height The image height.
    * @return {array} The equalized grayscale pixels in a linear array.
    */
-  tracking.Image.equalizeHist = function(pixels, width, height){
+  tracking.Image.equalizeHist = function (pixels, width, height) {
     var equalized = new Uint8ClampedArray(pixels.length);
 
     var histogram = new Array(256);
-    for(var i=0; i < 256; i++) histogram[i] = 0;
+    for (var i = 0; i < 256; i++) histogram[i] = 0;
 
-    for(var i=0; i < pixels.length; i++){
+    for (var i = 0; i < pixels.length; i++) {
       equalized[i] = pixels[i];
       histogram[pixels[i]]++;
     }
 
     var prev = histogram[0];
-    for(var i=0; i < 256; i++){
+    for (var i = 0; i < 256; i++) {
       histogram[i] += prev;
       prev = histogram[i];
     }
 
     var norm = 255 / pixels.length;
-    for(var i=0; i < pixels.length; i++)
+    for (var i = 0; i < pixels.length; i++)
       equalized[i] = (histogram[pixels[i]] * norm + 0.5) | 0;
 
     return equalized;
-  }
+  };
+})();
 
-}());
-
-(function() {
+(function () {
   /**
    * ViolaJones utility.
    * @static
@@ -933,7 +1064,16 @@
    * @return {array} Found rectangles.
    * @static
    */
-  tracking.ViolaJones.detect = function(pixels, width, height, initialScale, scaleFactor, stepSize, edgesDensity, data) {
+  tracking.ViolaJones.detect = function (
+    pixels,
+    width,
+    height,
+    initialScale,
+    scaleFactor,
+    stepSize,
+    edgesDensity,
+    data
+  ) {
     var total = 0;
     var rects = [];
     var integralImage = new Int32Array(width * height);
@@ -945,7 +1085,15 @@
       integralImageSobel = new Int32Array(width * height);
     }
 
-    tracking.Image.computeIntegralImage(pixels, width, height, integralImage, integralImageSquare, tiltedIntegralImage, integralImageSobel);
+    tracking.Image.computeIntegralImage(
+      pixels,
+      width,
+      height,
+      integralImage,
+      integralImageSquare,
+      tiltedIntegralImage,
+      integralImageSobel
+    );
 
     var minWidth = data[0];
     var minHeight = data[1];
@@ -955,21 +1103,43 @@
 
     while (blockWidth < width && blockHeight < height) {
       var step = (scale * stepSize + 0.5) | 0;
-      for (var i = 0; i < (height - blockHeight); i += step) {
-        for (var j = 0; j < (width - blockWidth); j += step) {
-
+      for (var i = 0; i < height - blockHeight; i += step) {
+        for (var j = 0; j < width - blockWidth; j += step) {
           if (edgesDensity > 0) {
-            if (this.isTriviallyExcluded(edgesDensity, integralImageSobel, i, j, width, blockWidth, blockHeight)) {
+            if (
+              this.isTriviallyExcluded(
+                edgesDensity,
+                integralImageSobel,
+                i,
+                j,
+                width,
+                blockWidth,
+                blockHeight
+              )
+            ) {
               continue;
             }
           }
 
-          if (this.evalStages_(data, integralImage, integralImageSquare, tiltedIntegralImage, i, j, width, blockWidth, blockHeight, scale)) {
+          if (
+            this.evalStages_(
+              data,
+              integralImage,
+              integralImageSquare,
+              tiltedIntegralImage,
+              i,
+              j,
+              width,
+              blockWidth,
+              blockHeight,
+              scale
+            )
+          ) {
             rects[total++] = {
               width: blockWidth,
               height: blockHeight,
               x: j,
-              y: i
+              y: i,
             };
           }
         }
@@ -997,12 +1167,25 @@
    * @static
    * @protected
    */
-  tracking.ViolaJones.isTriviallyExcluded = function(edgesDensity, integralImageSobel, i, j, width, blockWidth, blockHeight) {
+  tracking.ViolaJones.isTriviallyExcluded = function (
+    edgesDensity,
+    integralImageSobel,
+    i,
+    j,
+    width,
+    blockWidth,
+    blockHeight
+  ) {
     var wbA = i * width + j;
     var wbB = wbA + blockWidth;
     var wbD = wbA + blockHeight * width;
     var wbC = wbD + blockWidth;
-    var blockEdgesDensity = (integralImageSobel[wbA] - integralImageSobel[wbB] - integralImageSobel[wbD] + integralImageSobel[wbC]) / (blockWidth * blockHeight * 255);
+    var blockEdgesDensity =
+      (integralImageSobel[wbA] -
+        integralImageSobel[wbB] -
+        integralImageSobel[wbD] +
+        integralImageSobel[wbC]) /
+      (blockWidth * blockHeight * 255);
     if (blockEdgesDensity < edgesDensity) {
       return true;
     }
@@ -1024,14 +1207,36 @@
    * @private
    * @static
    */
-  tracking.ViolaJones.evalStages_ = function(data, integralImage, integralImageSquare, tiltedIntegralImage, i, j, width, blockWidth, blockHeight, scale) {
+  tracking.ViolaJones.evalStages_ = function (
+    data,
+    integralImage,
+    integralImageSquare,
+    tiltedIntegralImage,
+    i,
+    j,
+    width,
+    blockWidth,
+    blockHeight,
+    scale
+  ) {
     var inverseArea = 1.0 / (blockWidth * blockHeight);
     var wbA = i * width + j;
     var wbB = wbA + blockWidth;
     var wbD = wbA + blockHeight * width;
     var wbC = wbD + blockWidth;
-    var mean = (integralImage[wbA] - integralImage[wbB] - integralImage[wbD] + integralImage[wbC]) * inverseArea;
-    var variance = (integralImageSquare[wbA] - integralImageSquare[wbB] - integralImageSquare[wbD] + integralImageSquare[wbC]) * inverseArea - mean * mean;
+    var mean =
+      (integralImage[wbA] -
+        integralImage[wbB] -
+        integralImage[wbD] +
+        integralImage[wbC]) *
+      inverseArea;
+    var variance =
+      (integralImageSquare[wbA] -
+        integralImageSquare[wbB] -
+        integralImageSquare[wbD] +
+        integralImageSquare[wbC]) *
+        inverseArea -
+      mean * mean;
 
     var standardDeviation = 1;
     if (variance > 0) {
@@ -1063,18 +1268,32 @@
           var w4;
           if (tilted) {
             // RectSum(r) = RSAT(x-h+w, y+w+h-1) + RSAT(x, y-1) - RSAT(x-h, y+h-1) - RSAT(x+w, y+w-1)
-            w1 = (rectLeft - rectHeight + rectWidth) + (rectTop + rectWidth + rectHeight - 1) * width;
+            w1 =
+              rectLeft -
+              rectHeight +
+              rectWidth +
+              (rectTop + rectWidth + rectHeight - 1) * width;
             w2 = rectLeft + (rectTop - 1) * width;
-            w3 = (rectLeft - rectHeight) + (rectTop + rectHeight - 1) * width;
-            w4 = (rectLeft + rectWidth) + (rectTop + rectWidth - 1) * width;
-            rectsSum += (tiltedIntegralImage[w1] + tiltedIntegralImage[w2] - tiltedIntegralImage[w3] - tiltedIntegralImage[w4]) * rectWeight;
+            w3 = rectLeft - rectHeight + (rectTop + rectHeight - 1) * width;
+            w4 = rectLeft + rectWidth + (rectTop + rectWidth - 1) * width;
+            rectsSum +=
+              (tiltedIntegralImage[w1] +
+                tiltedIntegralImage[w2] -
+                tiltedIntegralImage[w3] -
+                tiltedIntegralImage[w4]) *
+              rectWeight;
           } else {
             // RectSum(r) = SAT(x-1, y-1) + SAT(x+w-1, y+h-1) - SAT(x-1, y+h-1) - SAT(x+w-1, y-1)
             w1 = rectTop * width + rectLeft;
             w2 = w1 + rectWidth;
             w3 = w1 + rectHeight * width;
             w4 = w3 + rectWidth;
-            rectsSum += (integralImage[w1] - integralImage[w2] - integralImage[w3] + integralImage[w4]) * rectWeight;
+            rectsSum +=
+              (integralImage[w1] -
+                integralImage[w2] -
+                integralImage[w3] +
+                integralImage[w4]) *
+              rectWeight;
             // TODO: Review the code below to analyze performance when using it instead.
             // w1 = (rectLeft - 1) + (rectTop - 1) * width;
             // w2 = (rectLeft + rectWidth - 1) + (rectTop + rectHeight - 1) * width;
@@ -1110,24 +1329,37 @@
    * @private
    * @static
    */
-  tracking.ViolaJones.mergeRectangles_ = function(rects) {
+  tracking.ViolaJones.mergeRectangles_ = function (rects) {
     var disjointSet = new tracking.DisjointSet(rects.length);
 
     for (var i = 0; i < rects.length; i++) {
       var r1 = rects[i];
       for (var j = 0; j < rects.length; j++) {
         var r2 = rects[j];
-        if (tracking.Math.intersectRect(r1.x, r1.y, r1.x + r1.width, r1.y + r1.height, r2.x, r2.y, r2.x + r2.width, r2.y + r2.height)) {
+        if (
+          tracking.Math.intersectRect(
+            r1.x,
+            r1.y,
+            r1.x + r1.width,
+            r1.y + r1.height,
+            r2.x,
+            r2.y,
+            r2.x + r2.width,
+            r2.y + r2.height
+          )
+        ) {
           var x1 = Math.max(r1.x, r2.x);
           var y1 = Math.max(r1.y, r2.y);
           var x2 = Math.min(r1.x + r1.width, r2.x + r2.width);
           var y2 = Math.min(r1.y + r1.height, r2.y + r2.height);
           var overlap = (x1 - x2) * (y1 - y2);
-          var area1 = (r1.width * r1.height);
-          var area2 = (r2.width * r2.height);
+          var area1 = r1.width * r1.height;
+          var area2 = r2.width * r2.height;
 
-          if ((overlap / (area1 * (area1 / area2)) >= this.REGIONS_OVERLAP) &&
-            (overlap / (area2 * (area1 / area2)) >= this.REGIONS_OVERLAP)) {
+          if (
+            overlap / (area1 * (area1 / area2)) >= this.REGIONS_OVERLAP &&
+            overlap / (area2 * (area1 / area2)) >= this.REGIONS_OVERLAP
+          ) {
             disjointSet.union(i, j);
           }
         }
@@ -1143,7 +1375,7 @@
           width: rects[k].width,
           height: rects[k].height,
           x: rects[k].x,
-          y: rects[k].y
+          y: rects[k].y,
         };
         continue;
       }
@@ -1155,23 +1387,22 @@
     }
 
     var result = [];
-    Object.keys(map).forEach(function(key) {
+    Object.keys(map).forEach(function (key) {
       var rect = map[key];
       result.push({
         total: rect.total,
         width: (rect.width / rect.total + 0.5) | 0,
         height: (rect.height / rect.total + 0.5) | 0,
         x: (rect.x / rect.total + 0.5) | 0,
-        y: (rect.y / rect.total + 0.5) | 0
+        y: (rect.y / rect.total + 0.5) | 0,
       });
     });
 
     return result;
   };
+})();
 
-}());
-
-(function() {
+(function () {
   /**
    * Brief intends for "Binary Robust Independent Elementary Features".This
    * method generates a binary string for each keypoint found by an extractor
@@ -1219,7 +1450,7 @@
    *     to describe the corner, e.g. [0,0,0,0, 0,0,0,0, ...].
    * @static
    */
-  tracking.Brief.getDescriptors = function(pixels, width, keypoints) {
+  tracking.Brief.getDescriptors = function (pixels, width, keypoints) {
     // Optimizing divide by 32 operation using binary shift
     // (this.N >> 5) === this.N/32.
     var descriptors = new Int32Array((keypoints.length >> 1) * (this.N >> 5));
@@ -1232,7 +1463,10 @@
 
       var offsetsPosition = 0;
       for (var j = 0, n = this.N; j < n; j++) {
-        if (pixels[offsets[offsetsPosition++] + w] < pixels[offsets[offsetsPosition++] + w]) {
+        if (
+          pixels[offsets[offsetsPosition++] + w] <
+          pixels[offsets[offsetsPosition++] + w]
+        ) {
           // The bit in the position `j % 32` of descriptorWord should be set to 1. We do
           // this by making an OR operation with a binary number that only has the bit
           // in that position set to 1. That binary number is obtained by shifting 1 left by
@@ -1276,7 +1510,12 @@
    *     the return array would be [3,0].
    * @static
    */
-  tracking.Brief.match = function(keypoints1, descriptors1, keypoints2, descriptors2) {
+  tracking.Brief.match = function (
+    keypoints1,
+    descriptors1,
+    keypoints2,
+    descriptors2
+  ) {
     var len1 = keypoints1.length >> 1;
     var len2 = keypoints2.length >> 1;
     var matches = new Array(len1);
@@ -1289,7 +1528,9 @@
         // Optimizing divide by 32 operation using binary shift
         // (this.N >> 5) === this.N/32.
         for (var k = 0, n = this.N >> 5; k < n; k++) {
-          dist += tracking.Math.hammingWeight(descriptors1[i * n + k] ^ descriptors2[j * n + k]);
+          dist += tracking.Math.hammingWeight(
+            descriptors1[i * n + k] ^ descriptors2[j * n + k]
+          );
         }
         if (dist < min) {
           min = dist;
@@ -1301,7 +1542,7 @@
         index2: minj,
         keypoint1: [keypoints1[2 * i], keypoints1[2 * i + 1]],
         keypoint2: [keypoints2[2 * minj], keypoints2[2 * minj + 1]],
-        confidence: 1 - min / this.N
+        confidence: 1 - min / this.N,
       };
     }
 
@@ -1321,14 +1562,29 @@
    *     the return array would be [3,0].
    * @static
    */
-  tracking.Brief.reciprocalMatch = function(keypoints1, descriptors1, keypoints2, descriptors2) {
+  tracking.Brief.reciprocalMatch = function (
+    keypoints1,
+    descriptors1,
+    keypoints2,
+    descriptors2
+  ) {
     var matches = [];
     if (keypoints1.length === 0 || keypoints2.length === 0) {
       return matches;
     }
 
-    var matches1 = tracking.Brief.match(keypoints1, descriptors1, keypoints2, descriptors2);
-    var matches2 = tracking.Brief.match(keypoints2, descriptors2, keypoints1, descriptors1);
+    var matches1 = tracking.Brief.match(
+      keypoints1,
+      descriptors1,
+      keypoints2,
+      descriptors2
+    );
+    var matches2 = tracking.Brief.match(
+      keypoints2,
+      descriptors2,
+      keypoints1,
+      descriptors1
+    );
     for (var i = 0; i < matches1.length; i++) {
       if (matches2[matches1[i].index2].index2 === i) {
         matches.push(matches1[i]);
@@ -1343,15 +1599,23 @@
    * @return {array} Array with the random offset values.
    * @private
    */
-  tracking.Brief.getRandomOffsets_ = function(width) {
+  tracking.Brief.getRandomOffsets_ = function (width) {
     if (!this.randomWindowOffsets_) {
       var windowPosition = 0;
       var windowOffsets = new Int32Array(4 * this.N);
       for (var i = 0; i < this.N; i++) {
-        windowOffsets[windowPosition++] = Math.round(tracking.Math.uniformRandom(-15, 16));
-        windowOffsets[windowPosition++] = Math.round(tracking.Math.uniformRandom(-15, 16));
-        windowOffsets[windowPosition++] = Math.round(tracking.Math.uniformRandom(-15, 16));
-        windowOffsets[windowPosition++] = Math.round(tracking.Math.uniformRandom(-15, 16));
+        windowOffsets[windowPosition++] = Math.round(
+          tracking.Math.uniformRandom(-15, 16)
+        );
+        windowOffsets[windowPosition++] = Math.round(
+          tracking.Math.uniformRandom(-15, 16)
+        );
+        windowOffsets[windowPosition++] = Math.round(
+          tracking.Math.uniformRandom(-15, 16)
+        );
+        windowOffsets[windowPosition++] = Math.round(
+          tracking.Math.uniformRandom(-15, 16)
+        );
       }
       this.randomWindowOffsets_ = windowOffsets;
     }
@@ -1360,17 +1624,21 @@
       var imagePosition = 0;
       var imageOffsets = new Int32Array(2 * this.N);
       for (var j = 0; j < this.N; j++) {
-        imageOffsets[imagePosition++] = this.randomWindowOffsets_[4 * j] * width + this.randomWindowOffsets_[4 * j + 1];
-        imageOffsets[imagePosition++] = this.randomWindowOffsets_[4 * j + 2] * width + this.randomWindowOffsets_[4 * j + 3];
+        imageOffsets[imagePosition++] =
+          this.randomWindowOffsets_[4 * j] * width +
+          this.randomWindowOffsets_[4 * j + 1];
+        imageOffsets[imagePosition++] =
+          this.randomWindowOffsets_[4 * j + 2] * width +
+          this.randomWindowOffsets_[4 * j + 3];
       }
       this.randomImageOffsets_[width] = imageOffsets;
     }
 
     return this.randomImageOffsets_[width];
   };
-}());
+})();
 
-(function() {
+(function () {
   /**
    * FAST intends for "Features from Accelerated Segment Test". This method
    * performs a point segment test corner detection. The segment test
@@ -1423,7 +1691,7 @@
    *     e.g. [x0,y0,x1,y1,...], where P(x0,y0) represents a corner coordinate.
    * @static
    */
-  tracking.Fast.findCorners = function(pixels, width, height, opt_threshold) {
+  tracking.Fast.findCorners = function (pixels, width, height, opt_threshold) {
     var circleOffsets = this.getCircleOffsets_(width);
     var circlePixels = new Int32Array(16);
     var corners = [];
@@ -1469,7 +1737,7 @@
    * @return {Boolean}
    * @static
    */
-  tracking.Fast.isBrighter = function(circlePixel, p, threshold) {
+  tracking.Fast.isBrighter = function (circlePixel, p, threshold) {
     return circlePixel - p > threshold;
   };
 
@@ -1482,7 +1750,7 @@
    * @return {Boolean}
    * @static
    */
-  tracking.Fast.isCorner = function(p, circlePixels, threshold) {
+  tracking.Fast.isCorner = function (p, circlePixels, threshold) {
     if (this.isTriviallyExcluded(circlePixels, p, threshold)) {
       return false;
     }
@@ -1526,7 +1794,7 @@
    * @return {Boolean}
    * @static
    */
-  tracking.Fast.isDarker = function(circlePixel, p, threshold) {
+  tracking.Fast.isDarker = function (circlePixel, p, threshold) {
     return p - circlePixel > threshold;
   };
 
@@ -1543,7 +1811,7 @@
    * @static
    * @protected
    */
-  tracking.Fast.isTriviallyExcluded = function(circlePixels, p, threshold) {
+  tracking.Fast.isTriviallyExcluded = function (circlePixels, p, threshold) {
     var count = 0;
     var circleBottom = circlePixels[8];
     var circleLeft = circlePixels[12];
@@ -1592,7 +1860,7 @@
    *     surrounding pixel.
    * @private
    */
-  tracking.Fast.getCircleOffsets_ = function(width) {
+  tracking.Fast.getCircleOffsets_ = function (width) {
     if (this.circles_[width]) {
       return this.circles_[width];
     }
@@ -1619,9 +1887,9 @@
     this.circles_[width] = circle;
     return circle;
   };
-}());
+})();
 
-(function() {
+(function () {
   /**
    * Math utility.
    * @static
@@ -1637,7 +1905,7 @@
    * @param {number} y1 Vertical coordinate of P1.
    * @return {number} The euclidean distance.
    */
-  tracking.Math.distance = function(x0, y0, x1, y1) {
+  tracking.Math.distance = function (x0, y0, x1, y1) {
     var dx = x1 - x0;
     var dy = y1 - y0;
 
@@ -1662,11 +1930,11 @@
    * @param {number} i Number that holds the binary string to extract the hamming weight.
    * @return {number} The hamming weight.
    */
-  tracking.Math.hammingWeight = function(i) {
+  tracking.Math.hammingWeight = function (i) {
     i = i - ((i >> 1) & 0x55555555);
     i = (i & 0x33333333) + ((i >> 2) & 0x33333333);
 
-    return ((i + (i >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
+    return (((i + (i >> 4)) & 0xf0f0f0f) * 0x1010101) >> 24;
   };
 
   /**
@@ -1675,7 +1943,7 @@
    * @param {number} b
    * @return {number}
    */
-  tracking.Math.uniformRandom = function(a, b) {
+  tracking.Math.uniformRandom = function (a, b) {
     return a + Math.random() * (b - a);
   };
 
@@ -1698,13 +1966,12 @@
    * @param {number} y3 Vertical coordinate of P3.
    * @return {boolean}
    */
-  tracking.Math.intersectRect = function(x0, y0, x1, y1, x2, y2, x3, y3) {
+  tracking.Math.intersectRect = function (x0, y0, x1, y1, x2, y2, x3, y3) {
     return !(x2 > x1 || x3 < x0 || y2 > y1 || y3 < y0);
   };
+})();
 
-}());
-
-(function() {
+(function () {
   /**
    * Matrix utility.
    * @static
@@ -1727,32 +1994,41 @@
    *     is 1, hence loops all the pixels of the array.
    * @static
    */
-  tracking.Matrix.forEach = function(pixels, width, height, fn, opt_jump) {
+  tracking.Matrix.forEach = function (pixels, width, height, fn, opt_jump) {
     opt_jump = opt_jump || 1;
     for (var i = 0; i < height; i += opt_jump) {
       for (var j = 0; j < width; j += opt_jump) {
         var w = i * width * 4 + j * 4;
-        fn.call(this, pixels[w], pixels[w + 1], pixels[w + 2], pixels[w + 3], w, i, j);
+        fn.call(
+          this,
+          pixels[w],
+          pixels[w + 1],
+          pixels[w + 2],
+          pixels[w + 3],
+          w,
+          i,
+          j
+        );
       }
     }
   };
 
   /**
-   * Calculates the per-element subtraction of two NxM matrices and returns a 
+   * Calculates the per-element subtraction of two NxM matrices and returns a
    * new NxM matrix as the result.
    * @param {matrix} a The first matrix.
    * @param {matrix} a The second matrix.
    * @static
    */
-  tracking.Matrix.sub = function(a, b){
+  tracking.Matrix.sub = function (a, b) {
     var res = tracking.Matrix.clone(a);
-    for(var i=0; i < res.length; i++){
-      for(var j=0; j < res[i].length; j++){
-        res[i][j] -= b[i][j]; 
+    for (var i = 0; i < res.length; i++) {
+      for (var j = 0; j < res[i].length; j++) {
+        res[i][j] -= b[i][j];
       }
     }
     return res;
-  }
+  };
 
   /**
    * Calculates the per-element sum of two NxM matrices and returns a new NxM
@@ -1761,15 +2037,15 @@
    * @param {matrix} a The second matrix.
    * @static
    */
-  tracking.Matrix.add = function(a, b){
+  tracking.Matrix.add = function (a, b) {
     var res = tracking.Matrix.clone(a);
-    for(var i=0; i < res.length; i++){
-      for(var j=0; j < res[i].length; j++){
-        res[i][j] += b[i][j]; 
+    for (var i = 0; i < res.length; i++) {
+      for (var j = 0; j < res[i].length; j++) {
+        res[i][j] += b[i][j];
       }
     }
     return res;
-  }
+  };
 
   /**
    * Clones a matrix (or part of it) and returns a new matrix as the result.
@@ -1777,18 +2053,18 @@
    * @param {number} width The second matrix.
    * @static
    */
-  tracking.Matrix.clone = function(src, width, height){
+  tracking.Matrix.clone = function (src, width, height) {
     width = width || src[0].length;
     height = height || src.length;
     var temp = new Array(height);
     var i = height;
-    while(i--){
+    while (i--) {
       temp[i] = new Array(width);
       var j = width;
-      while(j--) temp[i][j] = src[i][j];
-    } 
+      while (j--) temp[i][j] = src[i][j];
+    }
     return temp;
-  }
+  };
 
   /**
    * Multiply a matrix by a scalar and returns a new matrix as the result.
@@ -1796,31 +2072,31 @@
    * @param {matrix} src The matrix to be multiplied.
    * @static
    */
-  tracking.Matrix.mulScalar = function(scalar, src){
+  tracking.Matrix.mulScalar = function (scalar, src) {
     var res = tracking.Matrix.clone(src);
-    for(var i=0; i < src.length; i++){
-      for(var j=0; j < src[i].length; j++){
+    for (var i = 0; i < src.length; i++) {
+      for (var j = 0; j < src[i].length; j++) {
         res[i][j] *= scalar;
       }
     }
     return res;
-  }
+  };
 
   /**
    * Transpose a matrix and returns a new matrix as the result.
    * @param {matrix} src The matrix to be transposed.
    * @static
    */
-  tracking.Matrix.transpose = function(src){
+  tracking.Matrix.transpose = function (src) {
     var transpose = new Array(src[0].length);
-    for(var i=0; i < src[0].length; i++){
+    for (var i = 0; i < src[0].length; i++) {
       transpose[i] = new Array(src.length);
-      for(var j=0; j < src.length; j++){
+      for (var j = 0; j < src.length; j++) {
         transpose[i][j] = src[j][i];
       }
     }
     return transpose;
-  }
+  };
 
   /**
    * Multiply an MxN matrix with an NxP matrix and returns a new MxP matrix
@@ -1829,34 +2105,34 @@
    * @param {matrix} b The second matrix.
    * @static
    */
-  tracking.Matrix.mul = function(a, b) {
+  tracking.Matrix.mul = function (a, b) {
     var res = new Array(a.length);
     for (var i = 0; i < a.length; i++) {
       res[i] = new Array(b[0].length);
       for (var j = 0; j < b[0].length; j++) {
-        res[i][j] = 0;            
+        res[i][j] = 0;
         for (var k = 0; k < a[0].length; k++) {
           res[i][j] += a[i][k] * b[k][j];
         }
       }
     }
     return res;
-  }
+  };
 
   /**
    * Calculates the absolute norm of a matrix.
    * @param {matrix} src The matrix which norm will be calculated.
    * @static
    */
-  tracking.Matrix.norm = function(src){
+  tracking.Matrix.norm = function (src) {
     var res = 0;
-    for(var i=0; i < src.length; i++){
-      for(var j=0; j < src[i].length; j++){
-        res += src[i][j]*src[i][j];
+    for (var i = 0; i < src.length; i++) {
+      for (var j = 0; j < src[i].length; j++) {
+        res += src[i][j] * src[i][j];
       }
     }
     return Math.sqrt(res);
-  }
+  };
 
   /**
    * Calculates and returns the covariance matrix of a set of vectors as well
@@ -1864,32 +2140,29 @@
    * @param {matrix} src The matrix which covariance matrix will be calculated.
    * @static
    */
-  tracking.Matrix.calcCovarMatrix = function(src){
-
+  tracking.Matrix.calcCovarMatrix = function (src) {
     var mean = new Array(src.length);
-    for(var i=0; i < src.length; i++){
+    for (var i = 0; i < src.length; i++) {
       mean[i] = [0.0];
-      for(var j=0; j < src[i].length; j++){
-        mean[i][0] += src[i][j]/src[i].length;
+      for (var j = 0; j < src[i].length; j++) {
+        mean[i][0] += src[i][j] / src[i].length;
       }
     }
 
     var deltaFull = tracking.Matrix.clone(mean);
-    for(var i=0; i < deltaFull.length; i++){
-      for(var j=0; j < src[0].length - 1; j++){
+    for (var i = 0; i < deltaFull.length; i++) {
+      for (var j = 0; j < src[0].length - 1; j++) {
         deltaFull[i].push(deltaFull[i][0]);
       }
     }
 
     var a = tracking.Matrix.sub(src, deltaFull);
     var b = tracking.Matrix.transpose(a);
-    var covar = tracking.Matrix.mul(b,a); 
+    var covar = tracking.Matrix.mul(b, a);
     return [covar, mean];
-
-  }
-
-}());
-(function() {
+  };
+})();
+(function () {
   /**
    * EPnp utility.
    * @static
@@ -1897,17 +2170,17 @@
    */
   tracking.EPnP = {};
 
-  tracking.EPnP.solve = function(objectPoints, imagePoints, cameraMatrix) {};
-}());
+  tracking.EPnP.solve = function (objectPoints, imagePoints, cameraMatrix) {};
+})();
 
-(function() {
+(function () {
   /**
    * Tracker utility.
    * @constructor
    * @extends {tracking.EventEmitter}
    */
-  tracking.Tracker = function() {
-    tracking.Tracker.base(this, 'constructor');
+  tracking.Tracker = function () {
+    tracking.Tracker.base(this, "constructor");
   };
 
   tracking.inherits(tracking.Tracker, tracking.EventEmitter);
@@ -1919,20 +2192,20 @@
    * @param {number} width The pixels canvas width.
    * @param {number} height The pixels canvas height.
    */
-  tracking.Tracker.prototype.track = function() {};
-}());
+  tracking.Tracker.prototype.track = function () {};
+})();
 
-(function() {
+(function () {
   /**
    * TrackerTask utility.
    * @constructor
    * @extends {tracking.EventEmitter}
    */
-  tracking.TrackerTask = function(tracker) {
-    tracking.TrackerTask.base(this, 'constructor');
+  tracking.TrackerTask = function (tracker) {
+    tracking.TrackerTask.base(this, "constructor");
 
     if (!tracker) {
-      throw new Error('Tracker instance not specified.');
+      throw new Error("Tracker instance not specified.");
     }
 
     this.setTracker(tracker);
@@ -1958,7 +2231,7 @@
    * Gets the tracker instance managed by this task.
    * @return {tracking.Tracker}
    */
-  tracking.TrackerTask.prototype.getTracker = function() {
+  tracking.TrackerTask.prototype.getTracker = function () {
     return this.tracker_;
   };
 
@@ -1967,7 +2240,7 @@
    * @return {boolean}
    * @private
    */
-  tracking.TrackerTask.prototype.inRunning = function() {
+  tracking.TrackerTask.prototype.inRunning = function () {
     return this.running_;
   };
 
@@ -1976,7 +2249,7 @@
    * @param {boolean} running
    * @private
    */
-  tracking.TrackerTask.prototype.setRunning = function(running) {
+  tracking.TrackerTask.prototype.setRunning = function (running) {
     this.running_ = running;
   };
 
@@ -1984,7 +2257,7 @@
    * Sets the tracker instance managed by this task.
    * @return {tracking.Tracker}
    */
-  tracking.TrackerTask.prototype.setTracker = function(tracker) {
+  tracking.TrackerTask.prototype.setTracker = function (tracker) {
     this.tracker_ = tracker;
   };
 
@@ -1993,7 +2266,7 @@
    * child action, e.g. `requestAnimationFrame`.
    * @return {object} Returns itself, so calls can be chained.
    */
-  tracking.TrackerTask.prototype.run = function() {
+  tracking.TrackerTask.prototype.run = function () {
     var self = this;
 
     if (this.inRunning()) {
@@ -2001,11 +2274,11 @@
     }
 
     this.setRunning(true);
-    this.reemitTrackEvent_ = function(event) {
-      self.emit('track', event);
+    this.reemitTrackEvent_ = function (event) {
+      self.emit("track", event);
     };
-    this.tracker_.on('track', this.reemitTrackEvent_);
-    this.emit('run');
+    this.tracker_.on("track", this.reemitTrackEvent_);
+    this.emit("run");
     return this;
   };
 
@@ -2014,19 +2287,19 @@
    * child action being done, e.g. `requestAnimationFrame`.
    * @return {object} Returns itself, so calls can be chained.
    */
-  tracking.TrackerTask.prototype.stop = function() {
+  tracking.TrackerTask.prototype.stop = function () {
     if (!this.inRunning()) {
       return;
     }
 
     this.setRunning(false);
-    this.emit('stop');
-    this.tracker_.removeListener('track', this.reemitTrackEvent_);
+    this.emit("stop");
+    this.tracker_.removeListener("track", this.reemitTrackEvent_);
     return this;
   };
-}());
+})();
 
-(function() {
+(function () {
   /**
    * ColorTracker utility to track colored blobs in a frame using color
    * difference evaluation.
@@ -2034,17 +2307,19 @@
    * @param {string|Array.<string>} opt_colors Optional colors to track.
    * @extends {tracking.Tracker}
    */
-  tracking.ColorTracker = function(opt_colors) {
-    tracking.ColorTracker.base(this, 'constructor');
+  tracking.ColorTracker = function (opt_colors) {
+    tracking.ColorTracker.base(this, "constructor");
 
-    if (typeof opt_colors === 'string') {
+    if (typeof opt_colors === "string") {
       opt_colors = [opt_colors];
     }
 
     if (opt_colors) {
-      opt_colors.forEach(function(color) {
+      opt_colors.forEach(function (color) {
         if (!tracking.ColorTracker.getColor(color)) {
-          throw new Error('Color not valid, try `new tracking.ColorTracker("magenta")`.');
+          throw new Error(
+            'Color not valid, try `new tracking.ColorTracker("magenta")`.'
+          );
         }
       });
       this.setColors(opt_colors);
@@ -2076,7 +2351,7 @@
    *     the desired color.
    * @static
    */
-  tracking.ColorTracker.registerColor = function(name, fn) {
+  tracking.ColorTracker.registerColor = function (name, fn) {
     tracking.ColorTracker.knownColors_[name] = fn;
   };
 
@@ -2087,7 +2362,7 @@
    * @return {function} The known color test function.
    * @static
    */
-  tracking.ColorTracker.getColor = function(name) {
+  tracking.ColorTracker.getColor = function (name) {
     return tracking.ColorTracker.knownColors_[name];
   };
 
@@ -2096,7 +2371,7 @@
    * @default ['magenta']
    * @type {Array.<string>}
    */
-  tracking.ColorTracker.prototype.colors = ['magenta'];
+  tracking.ColorTracker.prototype.colors = ["magenta"];
 
   /**
    * Holds the minimum dimension to classify a rectangle.
@@ -2111,7 +2386,6 @@
    * @type {number}
    */
   tracking.ColorTracker.prototype.maxDimension = Infinity;
-
 
   /**
    * Holds the minimum group size to be classified as a rectangle.
@@ -2130,7 +2404,10 @@
    *     the blog extracted from the cloud points.
    * @private
    */
-  tracking.ColorTracker.prototype.calculateDimensions_ = function(cloud, total) {
+  tracking.ColorTracker.prototype.calculateDimensions_ = function (
+    cloud,
+    total
+  ) {
     var maxx = -1;
     var maxy = -1;
     var minx = Infinity;
@@ -2158,7 +2435,7 @@
       width: maxx - minx,
       height: maxy - miny,
       x: minx,
-      y: miny
+      y: miny,
     };
   };
 
@@ -2166,7 +2443,7 @@
    * Gets the colors being tracked by the `ColorTracker` instance.
    * @return {Array.<string>}
    */
-  tracking.ColorTracker.prototype.getColors = function() {
+  tracking.ColorTracker.prototype.getColors = function () {
     return this.colors;
   };
 
@@ -2174,7 +2451,7 @@
    * Gets the minimum dimension to classify a rectangle.
    * @return {number}
    */
-  tracking.ColorTracker.prototype.getMinDimension = function() {
+  tracking.ColorTracker.prototype.getMinDimension = function () {
     return this.minDimension;
   };
 
@@ -2182,7 +2459,7 @@
    * Gets the maximum dimension to classify a rectangle.
    * @return {number}
    */
-  tracking.ColorTracker.prototype.getMaxDimension = function() {
+  tracking.ColorTracker.prototype.getMaxDimension = function () {
     return this.maxDimension;
   };
 
@@ -2190,7 +2467,7 @@
    * Gets the minimum group size to be classified as a rectangle.
    * @return {number}
    */
-  tracking.ColorTracker.prototype.getMinGroupSize = function() {
+  tracking.ColorTracker.prototype.getMinGroupSize = function () {
     return this.minGroupSize;
   };
 
@@ -2201,7 +2478,7 @@
    *     surrounding a pixel.
    * @private
    */
-  tracking.ColorTracker.prototype.getNeighboursForWidth_ = function(width) {
+  tracking.ColorTracker.prototype.getNeighboursForWidth_ = function (width) {
     if (tracking.ColorTracker.neighbours_[width]) {
       return tracking.ColorTracker.neighbours_[width];
     }
@@ -2227,7 +2504,7 @@
    * @param {Array.<Object>} rects
    * @private
    */
-  tracking.ColorTracker.prototype.mergeRectangles_ = function(rects) {
+  tracking.ColorTracker.prototype.mergeRectangles_ = function (rects) {
     var intersects;
     var results = [];
     var minDimension = this.getMinDimension();
@@ -2238,7 +2515,18 @@
       intersects = true;
       for (var s = r + 1; s < rects.length; s++) {
         var r2 = rects[s];
-        if (tracking.Math.intersectRect(r1.x, r1.y, r1.x + r1.width, r1.y + r1.height, r2.x, r2.y, r2.x + r2.width, r2.y + r2.height)) {
+        if (
+          tracking.Math.intersectRect(
+            r1.x,
+            r1.y,
+            r1.x + r1.width,
+            r1.y + r1.height,
+            r2.x,
+            r2.y,
+            r2.x + r2.width,
+            r2.y + r2.height
+          )
+        ) {
           intersects = false;
           var x1 = Math.min(r1.x, r2.x);
           var y1 = Math.min(r1.y, r2.y);
@@ -2268,7 +2556,7 @@
    * Sets the colors to be tracked by the `ColorTracker` instance.
    * @param {Array.<string>} colors
    */
-  tracking.ColorTracker.prototype.setColors = function(colors) {
+  tracking.ColorTracker.prototype.setColors = function (colors) {
     this.colors = colors;
   };
 
@@ -2276,7 +2564,7 @@
    * Sets the minimum dimension to classify a rectangle.
    * @param {number} minDimension
    */
-  tracking.ColorTracker.prototype.setMinDimension = function(minDimension) {
+  tracking.ColorTracker.prototype.setMinDimension = function (minDimension) {
     this.minDimension = minDimension;
   };
 
@@ -2284,7 +2572,7 @@
    * Sets the maximum dimension to classify a rectangle.
    * @param {number} maxDimension
    */
-  tracking.ColorTracker.prototype.setMaxDimension = function(maxDimension) {
+  tracking.ColorTracker.prototype.setMaxDimension = function (maxDimension) {
     this.maxDimension = maxDimension;
   };
 
@@ -2292,7 +2580,7 @@
    * Sets the minimum group size to be classified as a rectangle.
    * @param {number} minGroupSize
    */
-  tracking.ColorTracker.prototype.setMinGroupSize = function(minGroupSize) {
+  tracking.ColorTracker.prototype.setMinGroupSize = function (minGroupSize) {
     this.minGroupSize = minGroupSize;
   };
 
@@ -2303,22 +2591,24 @@
    * @param {number} width The pixels canvas width.
    * @param {number} height The pixels canvas height.
    */
-  tracking.ColorTracker.prototype.track = function(pixels, width, height) {
+  tracking.ColorTracker.prototype.track = function (pixels, width, height) {
     var self = this;
     var colors = this.getColors();
 
     if (!colors) {
-      throw new Error('Colors not specified, try `new tracking.ColorTracker("magenta")`.');
+      throw new Error(
+        'Colors not specified, try `new tracking.ColorTracker("magenta")`.'
+      );
     }
 
     var results = [];
 
-    colors.forEach(function(color) {
+    colors.forEach(function (color) {
       results = results.concat(self.trackColor_(pixels, width, height, color));
     });
 
-    this.emit('track', {
-      data: results
+    this.emit("track", {
+      data: results,
     });
   };
 
@@ -2332,7 +2622,12 @@
    * @param {string} color The color to be found
    * @private
    */
-  tracking.ColorTracker.prototype.trackColor_ = function(pixels, width, height, color) {
+  tracking.ColorTracker.prototype.trackColor_ = function (
+    pixels,
+    width,
+    height,
+    color
+  ) {
     var colorFn = tracking.ColorTracker.knownColors_[color];
     var currGroup = new Int32Array(pixels.length >> 2);
     var currGroupSize;
@@ -2373,7 +2668,17 @@
           currI = queue[queuePosition--];
           currW = queue[queuePosition--];
 
-          if (colorFn(pixels[currW], pixels[currW + 1], pixels[currW + 2], pixels[currW + 3], currW, currI, currJ)) {
+          if (
+            colorFn(
+              pixels[currW],
+              pixels[currW + 1],
+              pixels[currW + 2],
+              pixels[currW + 3],
+              currW,
+              currI,
+              currJ
+            )
+          ) {
             currGroup[currGroupSize++] = currJ;
             currGroup[currGroupSize++] = currI;
 
@@ -2381,7 +2686,13 @@
               var otherW = currW + neighboursW[k];
               var otherI = currI + neighboursI[k];
               var otherJ = currJ + neighboursJ[k];
-              if (!marked[otherW] && otherI >= 0 && otherI < height && otherJ >= 0 && otherJ < width) {
+              if (
+                !marked[otherW] &&
+                otherI >= 0 &&
+                otherI < height &&
+                otherJ >= 0 &&
+                otherJ < width
+              ) {
                 queue[++queuePosition] = otherW;
                 queue[++queuePosition] = otherI;
                 queue[++queuePosition] = otherJ;
@@ -2408,51 +2719,50 @@
   // Default colors
   //===================
 
-  tracking.ColorTracker.registerColor('cyan', function(r, g, b) {
+  tracking.ColorTracker.registerColor("cyan", function (r, g, b) {
     var thresholdGreen = 50,
       thresholdBlue = 70,
       dx = r - 0,
       dy = g - 255,
       dz = b - 255;
 
-    if ((g - r) >= thresholdGreen && (b - r) >= thresholdBlue) {
+    if (g - r >= thresholdGreen && b - r >= thresholdBlue) {
       return true;
     }
     return dx * dx + dy * dy + dz * dz < 6400;
   });
 
-  tracking.ColorTracker.registerColor('magenta', function(r, g, b) {
+  tracking.ColorTracker.registerColor("magenta", function (r, g, b) {
     var threshold = 50,
       dx = r - 255,
       dy = g - 0,
       dz = b - 255;
 
-    if ((r - g) >= threshold && (b - g) >= threshold) {
+    if (r - g >= threshold && b - g >= threshold) {
       return true;
     }
     return dx * dx + dy * dy + dz * dz < 19600;
   });
 
-  tracking.ColorTracker.registerColor('yellow', function(r, g, b) {
+  tracking.ColorTracker.registerColor("yellow", function (r, g, b) {
     var threshold = 50,
       dx = r - 255,
       dy = g - 255,
       dz = b - 0;
 
-    if ((r - b) >= threshold && (g - b) >= threshold) {
+    if (r - b >= threshold && g - b >= threshold) {
       return true;
     }
     return dx * dx + dy * dy + dz * dz < 10000;
   });
 
-
   // Caching neighbour i/j offset values.
   //=====================================
   var neighboursI = new Int32Array([-1, -1, 0, 1, 1, 1, 0, -1]);
   var neighboursJ = new Int32Array([0, 1, 1, 1, 0, -1, -1, -1]);
-}());
+})();
 
-(function() {
+(function () {
   /**
    * ObjectTracker utility.
    * @constructor
@@ -2460,8 +2770,8 @@
    *     object classifiers to track.
    * @extends {tracking.Tracker}
    */
-  tracking.ObjectTracker = function(opt_classifiers) {
-    tracking.ObjectTracker.base(this, 'constructor');
+  tracking.ObjectTracker = function (opt_classifiers) {
+    tracking.ObjectTracker.base(this, "constructor");
 
     if (opt_classifiers) {
       if (!Array.isArray(opt_classifiers)) {
@@ -2469,12 +2779,14 @@
       }
 
       if (Array.isArray(opt_classifiers)) {
-        opt_classifiers.forEach(function(classifier, i) {
-          if (typeof classifier === 'string') {
+        opt_classifiers.forEach(function (classifier, i) {
+          if (typeof classifier === "string") {
             opt_classifiers[i] = tracking.ViolaJones.classifiers[classifier];
           }
           if (!opt_classifiers[i]) {
-            throw new Error('Object classifier not valid, try `new tracking.ObjectTracker("face")`.');
+            throw new Error(
+              'Object classifier not valid, try `new tracking.ObjectTracker("face")`.'
+            );
           }
         });
       }
@@ -2518,7 +2830,7 @@
    * Gets the tracker HAAR classifiers.
    * @return {TypedArray.<number>}
    */
-  tracking.ObjectTracker.prototype.getClassifiers = function() {
+  tracking.ObjectTracker.prototype.getClassifiers = function () {
     return this.classifiers;
   };
 
@@ -2526,7 +2838,7 @@
    * Gets the edges density value.
    * @return {number}
    */
-  tracking.ObjectTracker.prototype.getEdgesDensity = function() {
+  tracking.ObjectTracker.prototype.getEdgesDensity = function () {
     return this.edgesDensity;
   };
 
@@ -2534,7 +2846,7 @@
    * Gets the initial scale to start the feature block scaling.
    * @return {number}
    */
-  tracking.ObjectTracker.prototype.getInitialScale = function() {
+  tracking.ObjectTracker.prototype.getInitialScale = function () {
     return this.initialScale;
   };
 
@@ -2542,7 +2854,7 @@
    * Gets the scale factor to scale the feature block.
    * @return {number}
    */
-  tracking.ObjectTracker.prototype.getScaleFactor = function() {
+  tracking.ObjectTracker.prototype.getScaleFactor = function () {
     return this.scaleFactor;
   };
 
@@ -2550,7 +2862,7 @@
    * Gets the block step size.
    * @return {number}
    */
-  tracking.ObjectTracker.prototype.getStepSize = function() {
+  tracking.ObjectTracker.prototype.getStepSize = function () {
     return this.stepSize;
   };
 
@@ -2561,22 +2873,35 @@
    * @param {number} width The pixels canvas width.
    * @param {number} height The pixels canvas height.
    */
-  tracking.ObjectTracker.prototype.track = function(pixels, width, height) {
+  tracking.ObjectTracker.prototype.track = function (pixels, width, height) {
     var self = this;
     var classifiers = this.getClassifiers();
 
     if (!classifiers) {
-      throw new Error('Object classifier not specified, try `new tracking.ObjectTracker("face")`.');
+      throw new Error(
+        'Object classifier not specified, try `new tracking.ObjectTracker("face")`.'
+      );
     }
 
     var results = [];
 
-    classifiers.forEach(function(classifier) {
-      results = results.concat(tracking.ViolaJones.detect(pixels, width, height, self.getInitialScale(), self.getScaleFactor(), self.getStepSize(), self.getEdgesDensity(), classifier));
+    classifiers.forEach(function (classifier) {
+      results = results.concat(
+        tracking.ViolaJones.detect(
+          pixels,
+          width,
+          height,
+          self.getInitialScale(),
+          self.getScaleFactor(),
+          self.getStepSize(),
+          self.getEdgesDensity(),
+          classifier
+        )
+      );
     });
 
-    this.emit('track', {
-      data: results
+    this.emit("track", {
+      data: results,
     });
   };
 
@@ -2584,7 +2909,7 @@
    * Sets the tracker HAAR classifiers.
    * @param {TypedArray.<number>} classifiers
    */
-  tracking.ObjectTracker.prototype.setClassifiers = function(classifiers) {
+  tracking.ObjectTracker.prototype.setClassifiers = function (classifiers) {
     this.classifiers = classifiers;
   };
 
@@ -2592,7 +2917,7 @@
    * Sets the edges density.
    * @param {number} edgesDensity
    */
-  tracking.ObjectTracker.prototype.setEdgesDensity = function(edgesDensity) {
+  tracking.ObjectTracker.prototype.setEdgesDensity = function (edgesDensity) {
     this.edgesDensity = edgesDensity;
   };
 
@@ -2600,7 +2925,7 @@
    * Sets the initial scale to start the block scaling.
    * @param {number} initialScale
    */
-  tracking.ObjectTracker.prototype.setInitialScale = function(initialScale) {
+  tracking.ObjectTracker.prototype.setInitialScale = function (initialScale) {
     this.initialScale = initialScale;
   };
 
@@ -2608,7 +2933,7 @@
    * Sets the scale factor to scale the feature block.
    * @param {number} scaleFactor
    */
-  tracking.ObjectTracker.prototype.setScaleFactor = function(scaleFactor) {
+  tracking.ObjectTracker.prototype.setScaleFactor = function (scaleFactor) {
     this.scaleFactor = scaleFactor;
   };
 
@@ -2616,68 +2941,68 @@
    * Sets the block step size.
    * @param {number} stepSize
    */
-  tracking.ObjectTracker.prototype.setStepSize = function(stepSize) {
+  tracking.ObjectTracker.prototype.setStepSize = function (stepSize) {
     this.stepSize = stepSize;
   };
+})();
 
-}());
-
-(function() {
-
-
-  tracking.LandmarksTracker = function() {
-    tracking.LandmarksTracker.base(this, 'constructor');
-  }
+(function () {
+  tracking.LandmarksTracker = function () {
+    tracking.LandmarksTracker.base(this, "constructor");
+  };
 
   tracking.inherits(tracking.LandmarksTracker, tracking.ObjectTracker);
 
-  tracking.LandmarksTracker.prototype.track = function(pixels, width, height) {
-	 
+  tracking.LandmarksTracker.prototype.track = function (pixels, width, height) {
     var image = {
-      'data': pixels,
-      'width': width,
-      'height': height
+      data: pixels,
+      width: width,
+      height: height,
     };
 
-    var classifier = tracking.ViolaJones.classifiers['face'];
+    var classifier = tracking.ViolaJones.classifiers["face"];
 
-    var faces = tracking.ViolaJones.detect(pixels, width, height, 
-      this.getInitialScale(), this.getScaleFactor(), this.getStepSize(), 
-      this.getEdgesDensity(), classifier);
+    var faces = tracking.ViolaJones.detect(
+      pixels,
+      width,
+      height,
+      this.getInitialScale(),
+      this.getScaleFactor(),
+      this.getStepSize(),
+      this.getEdgesDensity(),
+      classifier
+    );
 
     var landmarks = tracking.LBF.align(pixels, width, height, faces);
 
-    this.emit('track', {
-      'data': {
-        'faces' : faces,
-        'landmarks' : landmarks
-      }
+    this.emit("track", {
+      data: {
+        faces: faces,
+        landmarks: landmarks,
+      },
     });
+  };
+})();
 
-  }
-
-}());
-
-(function() {
-
+(function () {
   tracking.LBF = {};
 
   /**
    * LBF Regressor utility.
    * @constructor
    */
-  tracking.LBF.Regressor = function(maxNumStages){
+  tracking.LBF.Regressor = function (maxNumStages) {
     this.maxNumStages = maxNumStages;
 
     this.rfs = new Array(maxNumStages);
     this.models = new Array(maxNumStages);
-    for(var i=0; i < maxNumStages; i++){
+    for (var i = 0; i < maxNumStages; i++) {
       this.rfs[i] = new tracking.LBF.RandomForest(i);
       this.models[i] = tracking.LBF.RegressorData[i].models;
     }
 
     this.meanShape = tracking.LBF.LandmarksData;
-  }
+  };
 
   /**
    * Predicts the position of the landmarks based on the bounding box of the face.
@@ -2687,8 +3012,12 @@
    * @param {object} boudingBox Bounding box of the face to be aligned.
    * @return {matrix} A matrix with each landmark position in a row [x,y].
    */
-  tracking.LBF.Regressor.prototype.predict = function(pixels, width, height, boundingBox) {
-
+  tracking.LBF.Regressor.prototype.predict = function (
+    pixels,
+    width,
+    height,
+    boundingBox
+  ) {
     var images = [];
     var currentShapes = [];
     var boundingBoxes = [];
@@ -2696,17 +3025,30 @@
     var meanShapeClone = tracking.Matrix.clone(this.meanShape);
 
     images.push({
-      'data': pixels,
-      'width': width,
-      'height': height
+      data: pixels,
+      width: width,
+      height: height,
     });
     boundingBoxes.push(boundingBox);
 
-    currentShapes.push(tracking.LBF.projectShapeToBoundingBox_(meanShapeClone, boundingBox));
+    currentShapes.push(
+      tracking.LBF.projectShapeToBoundingBox_(meanShapeClone, boundingBox)
+    );
 
-    for(var stage = 0; stage < this.maxNumStages; stage++){
-      var binaryFeatures = tracking.LBF.Regressor.deriveBinaryFeat(this.rfs[stage], images, currentShapes, boundingBoxes, meanShapeClone);
-      this.applyGlobalPrediction(binaryFeatures, this.models[stage], currentShapes, boundingBoxes);
+    for (var stage = 0; stage < this.maxNumStages; stage++) {
+      var binaryFeatures = tracking.LBF.Regressor.deriveBinaryFeat(
+        this.rfs[stage],
+        images,
+        currentShapes,
+        boundingBoxes,
+        meanShapeClone
+      );
+      this.applyGlobalPrediction(
+        binaryFeatures,
+        this.models[stage],
+        currentShapes,
+        boundingBoxes
+      );
     }
 
     return currentShapes[0];
@@ -2721,45 +3063,63 @@
    * @param {matrix} currentShapes The landmarks shapes.
    * @param {array} boudingBoxes The bounding boxes of the faces.
    */
-  tracking.LBF.Regressor.prototype.applyGlobalPrediction = function(binaryFeatures, models, currentShapes, 
-    boundingBoxes){
-
+  tracking.LBF.Regressor.prototype.applyGlobalPrediction = function (
+    binaryFeatures,
+    models,
+    currentShapes,
+    boundingBoxes
+  ) {
     var residual = currentShapes[0].length * 2;
 
     var rotation = [];
-    var deltashape = new Array(residual/2);
-    for(var i=0; i < residual/2; i++){
+    var deltashape = new Array(residual / 2);
+    for (var i = 0; i < residual / 2; i++) {
       deltashape[i] = [0.0, 0.0];
     }
 
-    for(var i=0; i < currentShapes.length; i++){
-      for(var j=0; j < residual; j++){
+    for (var i = 0; i < currentShapes.length; i++) {
+      for (var j = 0; j < residual; j++) {
         var tmp = 0;
-        for(var lx=0, idx=0; (idx = binaryFeatures[i][lx].index) != -1; lx++){
-          if(idx <= models[j].nr_feature){
-            tmp += models[j].data[(idx - 1)] * binaryFeatures[i][lx].value;
+        for (
+          var lx = 0, idx = 0;
+          (idx = binaryFeatures[i][lx].index) != -1;
+          lx++
+        ) {
+          if (idx <= models[j].nr_feature) {
+            tmp += models[j].data[idx - 1] * binaryFeatures[i][lx].value;
           }
         }
-        if(j < residual/2){
+        if (j < residual / 2) {
           deltashape[j][0] = tmp;
-        }else{
-          deltashape[j - residual/2][1] = tmp;
+        } else {
+          deltashape[j - residual / 2][1] = tmp;
         }
       }
 
-      var res = tracking.LBF.similarityTransform_(tracking.LBF.unprojectShapeToBoundingBox_(currentShapes[i], boundingBoxes[i]), this.meanShape);
+      var res = tracking.LBF.similarityTransform_(
+        tracking.LBF.unprojectShapeToBoundingBox_(
+          currentShapes[i],
+          boundingBoxes[i]
+        ),
+        this.meanShape
+      );
       var rotation = tracking.Matrix.transpose(res[0]);
 
-      var s = tracking.LBF.unprojectShapeToBoundingBox_(currentShapes[i], boundingBoxes[i]);
+      var s = tracking.LBF.unprojectShapeToBoundingBox_(
+        currentShapes[i],
+        boundingBoxes[i]
+      );
       s = tracking.Matrix.add(s, deltashape);
 
-      currentShapes[i] = tracking.LBF.projectShapeToBoundingBox_(s, boundingBoxes[i]);
-
+      currentShapes[i] = tracking.LBF.projectShapeToBoundingBox_(
+        s,
+        boundingBoxes[i]
+      );
     }
   };
 
   /**
-   * Derives the binary features from the image for each landmark. 
+   * Derives the binary features from the image for each landmark.
    * @param {object} forest The random forest to search for the best binary feature match.
    * @param {array} images The images with pixels in a grayscale linear array.
    * @param {array} currentShapes The current landmarks shape.
@@ -2769,51 +3129,65 @@
    *     training data.
    * @static
    */
-  tracking.LBF.Regressor.deriveBinaryFeat = function(forest, images, currentShapes, boundingBoxes, meanShape){
-
+  tracking.LBF.Regressor.deriveBinaryFeat = function (
+    forest,
+    images,
+    currentShapes,
+    boundingBoxes,
+    meanShape
+  ) {
     var binaryFeatures = new Array(images.length);
-    for(var i=0; i < images.length; i++){
+    for (var i = 0; i < images.length; i++) {
       var t = forest.maxNumTrees * forest.landmarkNum + 1;
       binaryFeatures[i] = new Array(t);
-      for(var j=0; j < t; j++){
+      for (var j = 0; j < t; j++) {
         binaryFeatures[i][j] = {};
       }
     }
 
     var leafnodesPerTree = 1 << (forest.maxDepth - 1);
 
-    for(var i=0; i < images.length; i++){
+    for (var i = 0; i < images.length; i++) {
+      var projectedShape = tracking.LBF.unprojectShapeToBoundingBox_(
+        currentShapes[i],
+        boundingBoxes[i]
+      );
+      var transform = tracking.LBF.similarityTransform_(
+        projectedShape,
+        meanShape
+      );
 
-      var projectedShape = tracking.LBF.unprojectShapeToBoundingBox_(currentShapes[i], boundingBoxes[i]);
-      var transform = tracking.LBF.similarityTransform_(projectedShape, meanShape);
-      
-      for(var j=0; j < forest.landmarkNum; j++){
-        for(var k=0; k < forest.maxNumTrees; k++){
+      for (var j = 0; j < forest.landmarkNum; j++) {
+        for (var k = 0; k < forest.maxNumTrees; k++) {
+          var binaryCode = tracking.LBF.Regressor.getCodeFromTree(
+            forest.rfs[j][k],
+            images[i],
+            currentShapes[i],
+            boundingBoxes[i],
+            transform[0],
+            transform[1]
+          );
 
-          var binaryCode = tracking.LBF.Regressor.getCodeFromTree(forest.rfs[j][k], images[i], 
-                              currentShapes[i], boundingBoxes[i], transform[0], transform[1]);
-
-          var index = j*forest.maxNumTrees + k;
-          binaryFeatures[i][index].index = leafnodesPerTree * index + binaryCode;
+          var index = j * forest.maxNumTrees + k;
+          binaryFeatures[i][index].index =
+            leafnodesPerTree * index + binaryCode;
           binaryFeatures[i][index].value = 1;
-
         }
       }
       binaryFeatures[i][forest.landmarkNum * forest.maxNumTrees].index = -1;
       binaryFeatures[i][forest.landmarkNum * forest.maxNumTrees].value = -1;
     }
     return binaryFeatures;
-
-  }
+  };
 
   /**
    * Gets the binary code for a specific tree in a random forest. For each landmark,
    * the position from two pre-defined points are recovered from the training data
-   * and then the intensity of the pixels corresponding to these points is extracted 
+   * and then the intensity of the pixels corresponding to these points is extracted
    * from the image and used to traverse the trees in the random forest. At the end,
    * the ending nodes will be represented by 1, and the remaining nodes by 0.
-   * 
-   * +--------------------------- Random Forest -----------------------------+ 
+   *
+   * +--------------------------- Random Forest -----------------------------+
    * | Ø = Ending leaf                                                       |
    * |                                                                       |
    * |       O             O             O             O             O       |
@@ -2836,16 +3210,38 @@
    * @return {number} The binary code extracted from the tree.
    * @static
    */
-  tracking.LBF.Regressor.getCodeFromTree = function(tree, image, shape, boundingBox, rotation, scale){
+  tracking.LBF.Regressor.getCodeFromTree = function (
+    tree,
+    image,
+    shape,
+    boundingBox,
+    rotation,
+    scale
+  ) {
     var current = 0;
     var bincode = 0;
 
-    while(true){
-      
-      var x1 = Math.cos(tree.nodes[current].feats[0]) * tree.nodes[current].feats[2] * tree.maxRadioRadius * boundingBox.width;
-      var y1 = Math.sin(tree.nodes[current].feats[0]) * tree.nodes[current].feats[2] * tree.maxRadioRadius * boundingBox.height;
-      var x2 = Math.cos(tree.nodes[current].feats[1]) * tree.nodes[current].feats[3] * tree.maxRadioRadius * boundingBox.width;
-      var y2 = Math.sin(tree.nodes[current].feats[1]) * tree.nodes[current].feats[3] * tree.maxRadioRadius * boundingBox.height;
+    while (true) {
+      var x1 =
+        Math.cos(tree.nodes[current].feats[0]) *
+        tree.nodes[current].feats[2] *
+        tree.maxRadioRadius *
+        boundingBox.width;
+      var y1 =
+        Math.sin(tree.nodes[current].feats[0]) *
+        tree.nodes[current].feats[2] *
+        tree.maxRadioRadius *
+        boundingBox.height;
+      var x2 =
+        Math.cos(tree.nodes[current].feats[1]) *
+        tree.nodes[current].feats[3] *
+        tree.maxRadioRadius *
+        boundingBox.width;
+      var y2 =
+        Math.sin(tree.nodes[current].feats[1]) *
+        tree.nodes[current].feats[3] *
+        tree.maxRadioRadius *
+        boundingBox.height;
 
       var project_x1 = rotation[0][0] * x1 + rotation[0][1] * y1;
       var project_y1 = rotation[1][0] * x1 + rotation[1][1] * y1;
@@ -2862,18 +3258,19 @@
       var real_y2 = Math.floor(project_y2 + shape[tree.landmarkID][1]);
       real_x2 = Math.max(0.0, Math.min(real_x2, image.height - 1.0));
       real_y2 = Math.max(0.0, Math.min(real_y2, image.width - 1.0));
-      var pdf = Math.floor(image.data[real_y1*image.width + real_x1]) - 
-          Math.floor(image.data[real_y2 * image.width +real_x2]);
+      var pdf =
+        Math.floor(image.data[real_y1 * image.width + real_x1]) -
+        Math.floor(image.data[real_y2 * image.width + real_x2]);
 
-      if(pdf < tree.nodes[current].thresh){
+      if (pdf < tree.nodes[current].thresh) {
         current = tree.nodes[current].cnodes[0];
-      }else{
+      } else {
         current = tree.nodes[current].cnodes[1];
       }
 
       if (tree.nodes[current].is_leafnode == 1) {
         bincode = 1;
-        for (var i=0; i < tree.leafnodes.length; i++) {
+        for (var i = 0; i < tree.leafnodes.length; i++) {
           if (tree.leafnodes[i] == current) {
             return bincode;
           }
@@ -2881,14 +3278,12 @@
         }
         return bincode;
       }
-
     }
 
     return bincode;
-  }
-
-}());
-(function() {
+  };
+})();
+(function () {
   /**
    * Face Alignment via Regressing Local Binary Features (LBF)
    * This approach has two components: a set of local binary features and
@@ -2897,14 +3292,14 @@
    * discriminative local binary features for each landmark independently.
    * The obtained local binary features are used to learn a linear regression
    * that later will be used to guide the landmarks in the alignment phase.
-   * 
+   *
    * @authors: VoxarLabs Team (http://cin.ufpe.br/~voxarlabs)
    *           Lucas Figueiredo <lsf@cin.ufpe.br>, Thiago Menezes <tmc2@cin.ufpe.br>,
    *           Thiago Domingues <tald@cin.ufpe.br>, Rafael Roberto <rar3@cin.ufpe.br>,
    *           Thulio Araujo <tlsa@cin.ufpe.br>, Joao Victor <jvfl@cin.ufpe.br>,
    *           Tomer Simis <tls@cin.ufpe.br>)
    */
-  
+
   /**
    * Holds the maximum number of stages that will be used in the alignment algorithm.
    * Each stage contains a different set of random forests and retrieves the binary
@@ -2915,14 +3310,14 @@
   tracking.LBF.maxNumStages = 4;
 
   /**
-   * Holds the regressor that will be responsible for extracting the local features from 
+   * Holds the regressor that will be responsible for extracting the local features from
    * the image and guide the landmarks using the training data.
    * @type {object}
    * @protected
    * @static
    */
-  tracking.LBF.regressor_ = null; 
-  
+  tracking.LBF.regressor_ = null;
+
   /**
    * Generates a set of landmarks for a set of faces
    * @param {pixels} pixels The pixels in a linear [r,g,b,a,...] array.
@@ -2933,9 +3328,8 @@
    *     to a specific face.
    * @static
    */
-  tracking.LBF.align = function(pixels, width, height, faces){
-
-    if(tracking.LBF.regressor_ == null){
+  tracking.LBF.align = function (pixels, width, height, faces) {
+    if (tracking.LBF.regressor_ == null) {
       tracking.LBF.regressor_ = new tracking.LBF.Regressor(
         tracking.LBF.maxNumStages
       );
@@ -2947,8 +3341,7 @@
 
     var shapes = new Array(faces.length);
 
-    for(var i in faces){
-
+    for (var i in faces) {
       faces[i].height = faces[i].width;
 
       var boundingBox = {};
@@ -2957,11 +3350,16 @@
       boundingBox.width = faces[i].width;
       boundingBox.height = faces[i].height;
 
-      shapes[i] = tracking.LBF.regressor_.predict(pixels, width, height, boundingBox);
+      shapes[i] = tracking.LBF.regressor_.predict(
+        pixels,
+        width,
+        height,
+        boundingBox
+      );
     }
 
     return shapes;
-  }
+  };
 
   /**
    * Unprojects the landmarks shape from the bounding box.
@@ -2971,16 +3369,16 @@
    * @static
    * @protected
    */
-  tracking.LBF.unprojectShapeToBoundingBox_ = function(shape, boundingBox){
+  tracking.LBF.unprojectShapeToBoundingBox_ = function (shape, boundingBox) {
     var temp = new Array(shape.length);
-    for(var i=0; i < shape.length; i++){
+    for (var i = 0; i < shape.length; i++) {
       temp[i] = [
         (shape[i][0] - boundingBox.startX) / boundingBox.width,
-        (shape[i][1] - boundingBox.startY) / boundingBox.height
+        (shape[i][1] - boundingBox.startY) / boundingBox.height,
       ];
     }
     return temp;
-  }
+  };
 
   /**
    * Projects the landmarks shape into the bounding box. The landmarks shape has
@@ -2992,16 +3390,16 @@
    * @static
    * @protected
    */
-  tracking.LBF.projectShapeToBoundingBox_ = function(shape, boundingBox){
+  tracking.LBF.projectShapeToBoundingBox_ = function (shape, boundingBox) {
     var temp = new Array(shape.length);
-    for(var i=0; i < shape.length; i++){
+    for (var i = 0; i < shape.length; i++) {
       temp[i] = [
         shape[i][0] * boundingBox.width + boundingBox.startX,
-        shape[i][1] * boundingBox.height + boundingBox.startY
+        shape[i][1] * boundingBox.height + boundingBox.startY,
       ];
     }
     return temp;
-  }
+  };
 
   /**
    * Calculates the rotation and scale necessary to transform shape1 into shape2.
@@ -3012,10 +3410,9 @@
    * @static
    * @protected
    */
-  tracking.LBF.similarityTransform_ = function(shape1, shape2){
-
-    var center1 = [0,0];
-    var center2 = [0,0];
+  tracking.LBF.similarityTransform_ = function (shape1, shape2) {
+    var center1 = [0, 0];
+    var center2 = [0, 0];
     for (var i = 0; i < shape1.length; i++) {
       center1[0] += shape1[i][0];
       center1[1] += shape1[i][1];
@@ -3029,7 +3426,7 @@
 
     var temp1 = tracking.Matrix.clone(shape1);
     var temp2 = tracking.Matrix.clone(shape2);
-    for(var i=0; i < shape1.length; i++){
+    for (var i = 0; i < shape1.length; i++) {
       temp1[i][0] -= center1[0];
       temp1[i][1] -= center1[1];
       temp2[i][0] -= center2[0];
@@ -3050,54 +3447,58 @@
     var s1 = Math.sqrt(tracking.Matrix.norm(covariance1));
     var s2 = Math.sqrt(tracking.Matrix.norm(covariance2));
 
-    var scale = s1/s2;
-    temp1 = tracking.Matrix.mulScalar(1.0/s1, temp1);
-    temp2 = tracking.Matrix.mulScalar(1.0/s2, temp2);
+    var scale = s1 / s2;
+    temp1 = tracking.Matrix.mulScalar(1.0 / s1, temp1);
+    temp2 = tracking.Matrix.mulScalar(1.0 / s2, temp2);
 
-    var num = 0, den = 0;
+    var num = 0,
+      den = 0;
     for (var i = 0; i < shape1.length; i++) {
       num = num + temp1[i][1] * temp2[i][0] - temp1[i][0] * temp2[i][1];
       den = den + temp1[i][0] * temp2[i][0] + temp1[i][1] * temp2[i][1];
     }
 
-    var norm = Math.sqrt(num*num + den*den);
-    var sin_theta = num/norm;
-    var cos_theta = den/norm;
+    var norm = Math.sqrt(num * num + den * den);
+    var sin_theta = num / norm;
+    var cos_theta = den / norm;
     var rotation = [
       [cos_theta, -sin_theta],
-      [sin_theta, cos_theta]
+      [sin_theta, cos_theta],
     ];
 
     return [rotation, scale];
-  }
+  };
 
   /**
    * LBF Random Forest data structure.
    * @static
    * @constructor
    */
-  tracking.LBF.RandomForest = function(forestIndex){
+  tracking.LBF.RandomForest = function (forestIndex) {
     this.maxNumTrees = tracking.LBF.RegressorData[forestIndex].max_numtrees;
     this.landmarkNum = tracking.LBF.RegressorData[forestIndex].num_landmark;
     this.maxDepth = tracking.LBF.RegressorData[forestIndex].max_depth;
-    this.stages = tracking.LBF.RegressorData[forestIndex].stages; 
+    this.stages = tracking.LBF.RegressorData[forestIndex].stages;
 
     this.rfs = new Array(this.landmarkNum);
-    for(var i=0; i < this.landmarkNum; i++){
+    for (var i = 0; i < this.landmarkNum; i++) {
       this.rfs[i] = new Array(this.maxNumTrees);
-      for(var j=0; j < this.maxNumTrees; j++){
+      for (var j = 0; j < this.maxNumTrees; j++) {
         this.rfs[i][j] = new tracking.LBF.Tree(forestIndex, i, j);
       }
     }
-  }
+  };
 
   /**
    * LBF Tree data structure.
    * @static
    * @constructor
    */
-  tracking.LBF.Tree = function(forestIndex, landmarkIndex, treeIndex){
-    var data = tracking.LBF.RegressorData[forestIndex].landmarks[landmarkIndex][treeIndex];
+  tracking.LBF.Tree = function (forestIndex, landmarkIndex, treeIndex) {
+    var data =
+      tracking.LBF.RegressorData[forestIndex].landmarks[landmarkIndex][
+        treeIndex
+      ];
     this.maxDepth = data.max_depth;
     this.maxNumNodes = data.max_numnodes;
     this.nodes = data.nodes;
@@ -3107,6 +3508,5 @@
     this.maxNumFeats = data.max_numfeats;
     this.maxRadioRadius = data.max_radio_radius;
     this.leafnodes = data.id_leafnodes;
-  }
-
-}());
+  };
+})();

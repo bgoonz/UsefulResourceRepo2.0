@@ -1,7 +1,7 @@
 ---
 language: Logtalk
 contributors:
-    - ["Paulo Moura", "http://github.com/pmoura"]
+  - ["Paulo Moura", "http://github.com/pmoura"]
 filename: learnlogtalk.lgt
 ---
 
@@ -15,9 +15,9 @@ Logtalk uses standard Prolog syntax with the addition of a few operators and dir
 
 The main operators are:
 
-* `::/2` - sending a message to an object
-* `::/1` - sending a message to _self_ (i.e. to the object that received the message being processed)
-* `^^/1` - _super_ call (of an inherited or imported predicate)
+- `::/2` - sending a message to an object
+- `::/1` - sending a message to _self_ (i.e. to the object that received the message being processed)
+- `^^/1` - _super_ call (of an inherited or imported predicate)
 
 Some of the most important entity and predicate directives will be introduced in the next sections.
 
@@ -49,7 +49,7 @@ Assuming that the code above for the `list` object is saved in a `list.lgt` file
 yes
 ```
 
-In general, entities may have dependencies on entities defined in other source files (e.g. library entities). To load a file and all its dependencies, the advised solution is to define a 
+In general, entities may have dependencies on entities defined in other source files (e.g. library entities). To load a file and all its dependencies, the advised solution is to define a
 _loader_ file that loads all the necessary files for an application. A loader file is simply a source file, typically named `loader.lgt`, that makes calls to the `logtalk_load/1-2`
 built-in predicates, usually from an `initialization/1` directive for portability and
 standards compliance. Loader files are provided for all libraries, tools, and examples.
@@ -111,7 +111,7 @@ Error = error(
 yes
 ```
 
-A subtle point is that predicate scope directives specify predicate _calling_ semantics, not _definition_ semantics. For example, if an object playing the role of a class declares a predicate private, the predicate can be defined in subclasses and instances *but* can only be called in its instances _from_ the class.
+A subtle point is that predicate scope directives specify predicate _calling_ semantics, not _definition_ semantics. For example, if an object playing the role of a class declares a predicate private, the predicate can be defined in subclasses and instances _but_ can only be called in its instances _from_ the class.
 
 # Defining and implementing a protocol
 

@@ -4,13 +4,12 @@ tool: Qt Framework
 language: c++
 filename: learnqt.cpp
 contributors:
-    - ["Aleksey Kholovchuk", "https://github.com/vortexxx192"]
-    
+  - ["Aleksey Kholovchuk", "https://github.com/vortexxx192"]
 ---
 
-**Qt** is a widely-known framework for developing cross-platform software that can be run on various software and hardware platforms with little or no change in the code, while having the power and speed of native applications. Though **Qt** was originally written in *C++*, there are its ports to other languages: *[PyQt](https://learnxinyminutes.com/docs/pyqt/)*, *QtRuby*, *PHP-Qt*, etc.
+**Qt** is a widely-known framework for developing cross-platform software that can be run on various software and hardware platforms with little or no change in the code, while having the power and speed of native applications. Though **Qt** was originally written in _C++_, there are its ports to other languages: _[PyQt](https://learnxinyminutes.com/docs/pyqt/)_, _QtRuby_, _PHP-Qt_, etc.
 
-**Qt** is great for creating applications with graphical user interface (GUI). This tutorial is how to do it in *C++*.
+**Qt** is great for creating applications with graphical user interface (GUI). This tutorial is how to do it in _C++_.
 
 ```c++
 /*
@@ -34,7 +33,7 @@ int main(int argc, char *argv[]) {
 }
 ```
 
-GUI-related part of **Qt** is all about *widgets* and *connections* between them.
+GUI-related part of **Qt** is all about _widgets_ and _connections_ between them.
 
 [READ MORE ABOUT WIDGETS](http://doc.qt.io/qt-5/qtwidgets-index.html)
 
@@ -42,10 +41,10 @@ GUI-related part of **Qt** is all about *widgets* and *connections* between them
 /*
  * Let's create a label and a button.
  * A label should appear when a button is pressed.
- * 
+ *
  * Qt code is speaking for itself.
  */
- 
+
 #include <QApplication>
 #include <QDialog>
 #include <QVBoxLayout>
@@ -57,10 +56,10 @@ int main(int argc, char *argv[]) {
 
     QDialog dialogWindow;
     dialogWindow.show();
-    
-    // add vertical layout 
+
+    // add vertical layout
     QVBoxLayout layout;
-    dialogWindow.setLayout(&layout);  
+    dialogWindow.setLayout(&layout);
 
     QLabel textLabel("Thanks for pressing that button");
     layout.addWidget(&textLabel);
@@ -68,7 +67,7 @@ int main(int argc, char *argv[]) {
 
     QPushButton button("Press me");
     layout.addWidget(&button);
-    
+
     // show hidden label when the button is pressed
     QObject::connect(&button, &QPushButton::pressed,
                      &textLabel, &QLabel::show);
@@ -77,16 +76,15 @@ int main(int argc, char *argv[]) {
 }
 ```
 
-Notice that *QObject::connect* part. This method is used to connect *SIGNALS* of one objects to *SLOTS* of another.
+Notice that _QObject::connect_ part. This method is used to connect _SIGNALS_ of one objects to _SLOTS_ of another.
 
-**Signals** are being emitted when certain things happen with objects, like *pressed* signal is emitted when user presses on QPushButton object.
+**Signals** are being emitted when certain things happen with objects, like _pressed_ signal is emitted when user presses on QPushButton object.
 
-**Slots** are *actions* that might be performed in response to received signals.
+**Slots** are _actions_ that might be performed in response to received signals.
 
 [READ MORE ABOUT SLOTS AND SIGNALS](http://doc.qt.io/qt-5/signalsandslots.html)
 
-
-Next, let's learn that we can not only use standard widgets but also extend their behaviour using inheritance. Let's create a button and count how many times it was pressed. For this purpose we define our own class *CounterLabel*.  It must be declared in separate file because of specific Qt architecture.
+Next, let's learn that we can not only use standard widgets but also extend their behaviour using inheritance. Let's create a button and count how many times it was pressed. For this purpose we define our own class _CounterLabel_. It must be declared in separate file because of specific Qt architecture.
 
 ```c++
 // counterlabel.hpp

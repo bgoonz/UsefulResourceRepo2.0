@@ -77,10 +77,10 @@ Populate `./pages/index.js` with the following contents:
 
 ```jsx
 function HomePage() {
-  return <div>Welcome to Next.js!</div>
+  return <div>Welcome to Next.js!</div>;
 }
 
-export default HomePage
+export default HomePage;
 ```
 
 To start developing your application run `npm run dev` or `yarn dev`. This starts the development server on `http://localhost:3000`.

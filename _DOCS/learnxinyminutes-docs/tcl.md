@@ -1,57 +1,54 @@
 ---
 language: Tcl
 contributors:
-    - ["Poor Yorick", "https://pooryorick.com/"]
+  - ["Poor Yorick", "https://pooryorick.com/"]
 filename: learntcl.tcl
 ---
 
 Tcl was created by [John Ousterhout](https://wiki.tcl-lang.org/page/John+Ousterhout) as a
-reusable scripting language for circuit design tools that he authored.  In 1997 he
+reusable scripting language for circuit design tools that he authored. In 1997 he
 was awarded the [ACM Software System
-Award](https://en.wikipedia.org/wiki/ACM_Software_System_Award) for Tcl.   Tcl
+Award](https://en.wikipedia.org/wiki/ACM_Software_System_Award) for Tcl. Tcl
 can be used both as an embeddable scripting language and as a general
-programming language.  It can also be used as a portable C library, even in
+programming language. It can also be used as a portable C library, even in
 cases where no scripting capability is needed, as it provides data structures
-such as dynamic strings, lists, and hash tables.  The C library also provides
+such as dynamic strings, lists, and hash tables. The C library also provides
 portable functionality for loading dynamic libraries, string formatting and
-code conversion, filesystem operations, network operations, and more.  Various
+code conversion, filesystem operations, network operations, and more. Various
 features of Tcl stand out:
 
-* Convenient cross-platform networking API
+- Convenient cross-platform networking API
 
-* Fully virtualized filesystem
+- Fully virtualized filesystem
 
-* Stackable I/O channels
+- Stackable I/O channels
 
-* Asynchronous to the core
+- Asynchronous to the core
 
-* Full coroutines
+- Full coroutines
 
-* A threading model recognized as robust and easy to use
-
+- A threading model recognized as robust and easy to use
 
 Tcl has much in common with Lisp, but instead of lists, Tcl uses strings as the
-currency of the language.  All values are strings.  A list is a string with a
+currency of the language. All values are strings. A list is a string with a
 defined format, and the body of a procedure (a script) is also a string rather
-than a block.  To achieve performance, Tcl internally caches structured
-representations of these values.  list routines, for example, operate on
+than a block. To achieve performance, Tcl internally caches structured
+representations of these values. list routines, for example, operate on
 the internal cached representation, and Tcl takes care of updating the string
-representation if it is ever actually needed in the script.  The copy-on-write
+representation if it is ever actually needed in the script. The copy-on-write
 design of Tcl allows script authors to pass around large data values without
-actually incurring additional memory overhead.  Procedures are automatically
+actually incurring additional memory overhead. Procedures are automatically
 byte-compiled unless they use the more dynamic routines such as "uplevel",
 "upvar", and "trace".
 
-Tcl is a pleasure to program in.  It will appeal to hacker types who find Lisp,
+Tcl is a pleasure to program in. It will appeal to hacker types who find Lisp,
 Forth, or Smalltalk interesting, as well as to engineers and scientists who
-just want to get down to business with a tool that bends to their will.  Its
+just want to get down to business with a tool that bends to their will. Its
 discipline of exposing all programmatic functionality as routines, including
 things like looping and mathematical operations that are usually baked into the
 syntax of other languages, allows it to fade into the background of whatever
 domain-specific functionality a project needs. Its syntax, which is even
 lighter than that of Lisp, just gets out of the way.
-
-
 
 ```tcl
 #! /bin/env tclsh
@@ -114,7 +111,7 @@ set action pu
 
 # , the following three commands are equivalent:
 puts $greeting
-${action}ts $greeting 
+${action}ts $greeting
 [set action]ts $greeting
 
 
@@ -353,7 +350,7 @@ if {3 > 4} {
 }
 
 
-# Loops are implemented as routines.  The first and third arguments to 
+# Loops are implemented as routines.  The first and third arguments to
 # "for" are treated as scripts, while the second argument is treated as
 # an expression:
 set res 0
@@ -443,7 +440,7 @@ try {
 
 set replacement {Archibald Sorbisol}
 set command {set name $replacement}
-set command [subst $command] 
+set command [subst $command]
 try {
     eval $command ;# The same error as before:  too many arguments to "set" in \
         {set name Archibald Sorbisol}
@@ -528,15 +525,15 @@ proc countdown count {
 }
 coroutine countdown1 countdown 3
 coroutine countdown2 countdown 5
-puts [countdown1] ;# -> 2 
-puts [countdown2] ;# -> 4 
-puts [countdown1] ;# -> 1 
-puts [countdown1] ;# -> 0 
+puts [countdown1] ;# -> 2
+puts [countdown2] ;# -> 4
+puts [countdown1] ;# -> 1
+puts [countdown1] ;# -> 0
 catch {
     puts [coundown1] ;# -> invalid command name "countdown1"
-} cres copts 
+} cres copts
 puts $cres
-puts [countdown2] ;# -> 3 
+puts [countdown2] ;# -> 3
 
 
 # Coroutine stacks can yield control to each other:

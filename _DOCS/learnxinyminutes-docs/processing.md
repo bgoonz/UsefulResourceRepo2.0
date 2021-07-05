@@ -2,8 +2,8 @@
 language: processing
 filename: learnprocessing.pde
 contributors:
-    - ["Phone Thant Ko", "http://github.com/phonethantko"]
-    - ["Divay Prakash", "https://github.com/divayprakash"]
+  - ["Phone Thant Ko", "http://github.com/phonethantko"]
+  - ["Divay Prakash", "https://github.com/divayprakash"]
 ---
 
 ## Introduction
@@ -191,7 +191,7 @@ int i = 3;
 String value = (i > 5) ? "Big" : "Small"; // "Small"
 
 // Switch-case structure can be used to check multiple conditions concisely.
-// It is important to use the break statement. If the `break`-statement does 
+// It is important to use the break statement. If the `break`-statement does
 // not exist the program executes all the following cases after a case was true.
 int value = 2;
 switch(value) {
@@ -465,5 +465,5 @@ and even your own classes. (Trust me! Processing projects can get real humongous
 
 ## Some useful resources
 
- - [Processing Website](http://processing.org)
- - [Processing Sketches](http://openprocessing.org)
+- [Processing Website](http://processing.org)
+- [Processing Sketches](http://openprocessing.org)

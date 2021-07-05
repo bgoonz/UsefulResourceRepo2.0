@@ -2,7 +2,7 @@
 language: OCaml
 filename: learnocaml.ml
 contributors:
-    - ["Daniil Baturin", "http://baturin.org/"]
+  - ["Daniil Baturin", "http://baturin.org/"]
 ---
 
 OCaml is a strictly evaluated functional language with some imperative
@@ -53,7 +53,6 @@ represented as a composition of functions that take only one argument.
 The "f(x,y) = x + y" function from the example above applied to
 arguments 2 and 3 is equivalent to the "f0(y) = 2 + y" function applied to 3.
 Hence the "int -> int -> int" signature.
-
 
 ```ocaml
 (*** Comments ***)
@@ -373,5 +372,5 @@ sum_int_list t ;;
 
 ## Further reading
 
-* Visit the official website to get the compiler and read the docs: <http://ocaml.org/>
-* Try interactive tutorials and a web-based interpreter by OCaml Pro: <http://try.ocamlpro.com/>
+- Visit the official website to get the compiler and read the docs: <http://ocaml.org/>
+- Try interactive tutorials and a web-based interpreter by OCaml Pro: <http://try.ocamlpro.com/>

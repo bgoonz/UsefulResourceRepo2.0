@@ -2,8 +2,8 @@
 language: Nim
 filename: learnNim.nim
 contributors:
-    - ["Jason J. Ayala P.", "http://JasonAyala.com"]
-    - ["Dennis Felsing", "http://felsin9.de/nnis/"]
+  - ["Jason J. Ayala P.", "http://JasonAyala.com"]
+  - ["Dennis Felsing", "http://felsin9.de/nnis/"]
 ---
 
 Nim (formerly Nimrod) is a statically typed, imperative programming language
@@ -272,11 +272,11 @@ performance, and compile-time features.
 
 ## Further Reading
 
-* [Home Page](http://nim-lang.org)
-* [Download](http://nim-lang.org/download.html)
-* [Community](http://nim-lang.org/community.html)
-* [FAQ](http://nim-lang.org/question.html)
-* [Documentation](http://nim-lang.org/documentation.html)
-* [Manual](http://nim-lang.org/docs/manual.html)
-* [Standard Library](http://nim-lang.org/docs/lib.html)
-* [Rosetta Code](http://rosettacode.org/wiki/Category:Nim)
+- [Home Page](http://nim-lang.org)
+- [Download](http://nim-lang.org/download.html)
+- [Community](http://nim-lang.org/community.html)
+- [FAQ](http://nim-lang.org/question.html)
+- [Documentation](http://nim-lang.org/documentation.html)
+- [Manual](http://nim-lang.org/docs/manual.html)
+- [Standard Library](http://nim-lang.org/docs/lib.html)
+- [Rosetta Code](http://rosettacode.org/wiki/Category:Nim)

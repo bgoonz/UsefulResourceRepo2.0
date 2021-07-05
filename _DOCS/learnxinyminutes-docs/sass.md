@@ -17,46 +17,38 @@ This tutorial is written using SCSS.
 If you're already familiar with CSS3, you'll be able to pick up Sass relatively quickly. It does not provide any new styling properties but rather the tools to write your CSS more efficiently and make maintenance much easier.
 
 ```scss
-
-
 //Single line comments are removed when Sass is compiled to CSS.
 
 /* Multi line comments are preserved. */
 
-
-
 /* Variables
 ============================== */
-
-
 
 /* You can store a CSS value (such as a color) in a variable.
 Use the '$' symbol to create a variable. */
 
-$primary-color: #A3A4FF;
-$secondary-color: #51527F;
-$body-font: 'Roboto', sans-serif;
+$primary-color: #a3a4ff;
+$secondary-color: #51527f;
+$body-font: "Roboto", sans-serif;
 
 /* You can use the variables throughout your stylesheet.
 Now if you want to change a color, you only have to make the change once. */
 
 body {
-	background-color: $primary-color;
-	color: $secondary-color;
-	font-family: $body-font;
+  background-color: $primary-color;
+  color: $secondary-color;
+  font-family: $body-font;
 }
 
 /* This would compile to: */
 body {
-	background-color: #A3A4FF;
-	color: #51527F;
-	font-family: 'Roboto', sans-serif;
+  background-color: #a3a4ff;
+  color: #51527f;
+  font-family: "Roboto", sans-serif;
 }
 
 /* This is much more maintainable than having to change the color
 each time it appears throughout your stylesheet. */
-
-
 
 /* Control Directives
 ============================== */
@@ -69,18 +61,17 @@ each time it appears throughout your stylesheet. */
 $debug: true !default;
 
 @mixin debugmode {
-	@if $debug {
-		@debug "Debug mode enabled";
+  @if $debug {
+    @debug "Debug mode enabled";
 
-		display: inline-block;
-	}
-	@else {
-		display: none;
-	}
+    display: inline-block;
+  } @else {
+    display: none;
+  }
 }
 
 .info {
-	@include debugmode;
+  @include debugmode;
 }
 
 /* If $debug is set to true, .info is displayed; if it's set to false then
@@ -90,7 +81,7 @@ Note: @debug will output debugging information to the command line.
 Useful for checking variables while debugging your SCSS. */
 
 .info {
-	display: inline-block;
+  display: inline-block;
 }
 
 /* @for is a control loop that iterates through a range of values.
@@ -99,42 +90,42 @@ There are two forms, "through" and "to". The former includes the last value,
 the latter stops at the last value. */
 
 @for $c from 1 to 4 {
-	div:nth-of-type(#{$c}) {
-		left: ($c - 1) * 900 / 3;
-	}
+  div:nth-of-type(#{$c}) {
+    left: ($c - 1) * 900 / 3;
+  }
 }
 
 @for $c from 1 through 3 {
-	.myclass-#{$c} {
-		color: rgb($c * 255 / 3, $c * 255 / 3, $c * 255 / 3);
-	}
+  .myclass-#{$c} {
+    color: rgb($c * 255 / 3, $c * 255 / 3, $c * 255 / 3);
+  }
 }
 
 /* Will compile to: */
 
 div:nth-of-type(1) {
-	left: 0;
+  left: 0;
 }
 
 div:nth-of-type(2) {
-	left: 300;
+  left: 300;
 }
 
 div:nth-of-type(3) {
-	left: 600;
+  left: 600;
 }
 
 .myclass-1 {
-	color: #555555;
+  color: #555555;
 }
 
 .myclass-2 {
-	color: #aaaaaa;
+  color: #aaaaaa;
 }
 
 .myclass-3 {
-	color: white;
-// SASS automatically converts #FFFFFF to white
+  color: white;
+  // SASS automatically converts #FFFFFF to white
 }
 
 /* @while is very straightforward: */
@@ -143,34 +134,34 @@ $columns: 4;
 $column-width: 80px;
 
 @while $columns > 0 {
-	.col-#{$columns} {
-		width: $column-width;
-		left: $column-width * ($columns - 1);
-	}
+  .col-#{$columns} {
+    width: $column-width;
+    left: $column-width * ($columns - 1);
+  }
 
-	$columns: $columns - 1;
+  $columns: $columns - 1;
 }
 
 /* Will output the following CSS: */
 
 .col-4 {
-	width: 80px;
-	left: 240px;
+  width: 80px;
+  left: 240px;
 }
 
 .col-3 {
-	width: 80px;
-	left: 160px;
+  width: 80px;
+  left: 160px;
 }
 
 .col-2 {
-	width: 80px;
-	left: 80px;
+  width: 80px;
+  left: 80px;
 }
 
 .col-1 {
-	width: 80px;
-	left: 0px;
+  width: 80px;
+  left: 0px;
 }
 
 /* @each functions like @for, except using a list instead of ordinal values
@@ -180,31 +171,30 @@ delimiters. */
 $social-links: facebook twitter linkedin reddit;
 
 .social-links {
-	@each $sm in $social-links {
-		.icon-#{$sm} {
-			background-image: url("images/#{$sm}.png");
-		}
-	}
+  @each $sm in $social-links {
+    .icon-#{$sm} {
+      background-image: url("images/#{$sm}.png");
+    }
+  }
 }
 
 /* Which will output: */
 
 .social-links .icon-facebook {
-	background-image: url("images/facebook.png");
+  background-image: url("images/facebook.png");
 }
 
 .social-links .icon-twitter {
-	background-image: url("images/twitter.png");
+  background-image: url("images/twitter.png");
 }
 
 .social-links .icon-linkedin {
-	background-image: url("images/linkedin.png");
+  background-image: url("images/linkedin.png");
 }
 
 .social-links .icon-reddit {
-	background-image: url("images/reddit.png");
+  background-image: url("images/reddit.png");
 }
-
 
 /* Mixins
 ==============================*/
@@ -215,45 +205,45 @@ element, you might want to store that code in a mixin.
 Use the '@mixin' directive, plus a name for your mixin. */
 
 @mixin center {
-	display: block;
-	margin-left: auto;
-	margin-right: auto;
-	left: 0;
-	right: 0;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
 }
 
 /* You can use the mixin with '@include' and the mixin name. */
 
 div {
-	@include center;
-	background-color: $primary-color;
+  @include center;
+  background-color: $primary-color;
 }
 
 /* Which would compile to: */
 div {
-	display: block;
-	margin-left: auto;
-	margin-right: auto;
-	left: 0;
-	right: 0;
-	background-color: #A3A4FF;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  background-color: #a3a4ff;
 }
 
 /* You can use mixins to create a shorthand property. */
 
 @mixin size($width, $height) {
-	width: $width;
-	height: $height;
+  width: $width;
+  height: $height;
 }
 
 /* Which you can invoke by passing width and height arguments. */
 
 .rectangle {
-	@include size(100px, 60px);
+  @include size(100px, 60px);
 }
 
 .square {
-	@include size(40px, 40px);
+  @include size(40px, 40px);
 }
 
 /* Compiles to: */
@@ -267,12 +257,8 @@ div {
   height: 40px;
 }
 
-
-
 /* Functions
 ============================== */
-
-
 
 /* Sass provides functions that can be used to accomplish a variety of
    tasks. Consider the following */
@@ -331,30 +317,27 @@ $main-content: calculate-percentage(600px, 960px);
   width: 31.25%;
 }
 
-
-
 /* Extend (Inheritance)
 ============================== */
-
-
 
 /* Extend is a way to share the properties of one selector with another. */
 
 .display {
-	@include size(5em, 5em);
-	border: 5px solid $secondary-color;
+  @include size(5em, 5em);
+  border: 5px solid $secondary-color;
 }
 
 .display-success {
-	@extend .display;
-	border-color: #22df56;
+  @extend .display;
+  border-color: #22df56;
 }
 
 /* Compiles to: */
-.display, .display-success {
+.display,
+.display-success {
   width: 5em;
   height: 5em;
-  border: 5px solid #51527F;
+  border: 5px solid #51527f;
 }
 
 .display-success {
@@ -368,22 +351,18 @@ $main-content: calculate-percentage(600px, 960px);
    called the mixin. While it won't affect your workflow, it will
    add unnecessary bloat to the files created by the Sass compiler. */
 
-
-
 /* Nesting
 ============================== */
-
-
 
 /* Sass allows you to nest selectors within selectors */
 
 ul {
-	list-style-type: none;
-	margin-top: 2em;
+  list-style-type: none;
+  margin-top: 2em;
 
-	li {
-		background-color: #FF0000;
-	}
+  li {
+    background-color: #ff0000;
+  }
 }
 
 /* '&' will be replaced by the parent selector. */
@@ -393,20 +372,20 @@ Best practices recommend going no more than 3 levels deep when nesting.
 For example: */
 
 ul {
-	list-style-type: none;
-	margin-top: 2em;
+  list-style-type: none;
+  margin-top: 2em;
 
-	li {
-		background-color: red;
+  li {
+    background-color: red;
 
-		&:hover {
-		  background-color: blue;
-		}
+    &:hover {
+      background-color: blue;
+    }
 
-		a {
-		  color: white;
-		}
-	}
+    a {
+      color: white;
+    }
+  }
 }
 
 /* Compiles to: */
@@ -428,12 +407,8 @@ ul li a {
   color: white;
 }
 
-
-
 /* Partials and Imports
 ============================== */
-
-
 
 /* Sass allows you to create partial files. This can help keep your Sass
    code modularized. Partial files should begin with an '_', e.g. _reset.css.
@@ -454,7 +429,7 @@ ol {
    another HTTP request to fetch the imported file. Sass takes the
    imported file and combines it with the compiled code. */
 
-@import 'reset';
+@import "reset";
 
 body {
   font-size: 16px;
@@ -463,7 +438,10 @@ body {
 
 /* Compiles to: */
 
-html, body, ul, ol {
+html,
+body,
+ul,
+ol {
   margin: 0;
   padding: 0;
 }
@@ -473,12 +451,8 @@ body {
   font-family: Helvetica, Arial, Sans-serif;
 }
 
-
-
 /* Placeholder Selectors
 ============================== */
-
-
 
 /* Placeholders are useful when creating a CSS statement to extend. If you
    wanted to create a CSS statement that was exclusively used with @extend,
@@ -510,12 +484,8 @@ body {
   background-color: #0000ff;
 }
 
-
-
 /* Math Operations
 ============================== */
-
-
 
 /* Sass provides the following operators: +, -, *, /, and %. These can
    be useful for calculating values directly in your Sass files instead
@@ -563,25 +533,25 @@ body {
 .gutter {
   width: 6.25%;
 }
-
 ```
 
 ## SASS or Sass?
+
 Have you ever wondered whether Sass is an acronym or not? You probably haven't, but I'll tell you anyway. The name of the language is a word, "Sass", and not an acronym.
 Because people were constantly writing it as "SASS", the creator of the language jokingly called it "Syntactically Awesome StyleSheets".
 
-
 ## Practice Sass
+
 If you want to play with Sass in your browser, check out [SassMeister](http://sassmeister.com/).
 You can use either syntax, just go into the settings and select either Sass or SCSS.
 
-
 ## Compatibility
+
 Sass can be used in any project as long as you have a program to compile it into CSS. You'll want to verify that the CSS you're using is compatible with your target browsers.
 
 [QuirksMode CSS](http://www.quirksmode.org/css/) and [CanIUse](http://caniuse.com) are great resources for checking compatibility.
 
-
 ## Further reading
-* [Official Documentation](http://sass-lang.com/documentation/file.SASS_REFERENCE.html)
-* [The Sass Way](http://thesassway.com/) provides tutorials (beginner-advanced) and articles.
+
+- [Official Documentation](http://sass-lang.com/documentation/file.SASS_REFERENCE.html)
+- [The Sass Way](http://thesassway.com/) provides tutorials (beginner-advanced) and articles.

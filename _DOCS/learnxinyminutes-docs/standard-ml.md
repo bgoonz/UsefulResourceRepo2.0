@@ -2,15 +2,15 @@
 language: "Standard ML"
 filename: standardml.sml
 contributors:
-    - ["Simon Shine", "https://simonshine.dk/"]
-    - ["David Pedersen", "https://github.com/davidpdrsn"]
-    - ["James Baker", "http://www.jbaker.io/"]
-    - ["Leo Zovic", "http://langnostic.inaimathi.ca/"]
-    - ["Chris Wilson", "http://sencjw.com/"]
+  - ["Simon Shine", "https://simonshine.dk/"]
+  - ["David Pedersen", "https://github.com/davidpdrsn"]
+  - ["James Baker", "http://www.jbaker.io/"]
+  - ["Leo Zovic", "http://langnostic.inaimathi.ca/"]
+  - ["Chris Wilson", "http://sencjw.com/"]
 ---
 
 Standard ML is a functional programming language with type inference and some
-side-effects.  Some of the hard parts of learning Standard ML are: Recursion,
+side-effects. Some of the hard parts of learning Standard ML are: Recursion,
 pattern matching, type inference (guessing the right types but never allowing
 implicit type conversion). Standard ML is distinguished from Haskell by including
 references, allowing variables to be updated.
@@ -267,12 +267,12 @@ fun second_elem (x::y::xs) = y
 fun evenly_positioned_elems (odd::even::xs) = even::evenly_positioned_elems xs
   | evenly_positioned_elems [odd] = []  (* Base case: throw away *)
   | evenly_positioned_elems []    = []  (* Base case *)
-  
+
 (* The case expression can also be used to pattern match and return a value *)
 datatype temp =
       C of real
     | F of real
-    
+
 (*  Declaring a new C temp value...
     val t: temp = C 45.0  *)
 
@@ -309,7 +309,7 @@ val some_result = (fn x => thermometer (x - 5) ^ thermometer (x + 5)) 37
 
 (* Here is a higher-order function that works on lists (a list combinator) *)
 (* map f l
-       applies f to each element of l from left to right, 
+       applies f to each element of l from left to right,
        returning the list of results. *)
 val readings = [ 34, 39, 37, 38, 35, 36, 37, 37, 37 ]  (* first an int list *)
 val opinions = List.map thermometer readings (* gives [ "Cold", "Warm", ... ] *)
@@ -472,11 +472,11 @@ fun decrement_ret x y = (x := !x - 1; y)
 
 ## Further learning
 
-* Install an interactive compiler (REPL), for example
+- Install an interactive compiler (REPL), for example
   [Poly/ML](http://www.polyml.org/),
   [Moscow ML](http://mosml.org),
   [SML/NJ](http://smlnj.org/).
-* Follow the Coursera course [Programming Languages](https://www.coursera.org/course/proglang).
-* Read *[ML for the Working Programmer](https://www.cl.cam.ac.uk/~lp15/MLbook/pub-details.html)* by Larry C. Paulson.
-* Use [StackOverflow's sml tag](http://stackoverflow.com/questions/tagged/sml).
-* Solve exercises on [Exercism.io's Standard ML track](https://exercism.io/tracks/sml).
+- Follow the Coursera course [Programming Languages](https://www.coursera.org/course/proglang).
+- Read _[ML for the Working Programmer](https://www.cl.cam.ac.uk/~lp15/MLbook/pub-details.html)_ by Larry C. Paulson.
+- Use [StackOverflow's sml tag](http://stackoverflow.com/questions/tagged/sml).
+- Solve exercises on [Exercism.io's Standard ML track](https://exercism.io/tracks/sml).

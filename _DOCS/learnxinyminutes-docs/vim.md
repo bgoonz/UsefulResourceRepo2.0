@@ -2,10 +2,9 @@
 category: tool
 tool: vim
 contributors:
-    - ["RadhikaG", "https://github.com/RadhikaG"]
+  - ["RadhikaG", "https://github.com/RadhikaG"]
 filename: LearnVim.txt
 ---
-
 
 [Vim](http://www.vim.org)
 (Vi IMproved) is a clone of the popular vi editor for Unix. It is a text
@@ -14,7 +13,6 @@ unix-based systems. It has numerous keybindings for speedy navigation to
 specific points in the file, and for fast editing.
 
 `vimtutor` is a an excellent application that teaches you how to use `Vim`. It comes with the vim package during installation. You should be able to just run "vimtutor" on the command line to open this tutor. It will guide you through all the major features in `vim`.
-
 
 ## Basics of navigating Vim
 
@@ -99,9 +97,9 @@ that aims to make getting started with vim more approachable!
 Vim is based on the concept on **modes**.
 
 - Command Mode - vim starts up in this mode, used to navigate and write commands
-- Insert Mode  - used to make changes in your file
-- Visual Mode  - used to highlight text and do operations to them
-- Ex Mode      - used to drop down to the bottom with the ':' prompt to enter commands
+- Insert Mode - used to make changes in your file
+- Visual Mode - used to highlight text and do operations to them
+- Ex Mode - used to drop down to the bottom with the ':' prompt to enter commands
 
 ```
     i                # Puts vim into insert mode, before the cursor position
@@ -126,9 +124,9 @@ Vim is based on the concept on **modes**.
 Vim can be thought of as a set of commands in a
 'Verb-Modifier-Noun' format, where:
 
-- Verb     - your action
+- Verb - your action
 - Modifier - how you're doing your action
-- Noun     - the object on which your action acts on
+- Noun - the object on which your action acts on
 
 A few important examples of 'Verbs', 'Modifiers', and 'Nouns':
 
@@ -170,6 +168,7 @@ A few important examples of 'Verbs', 'Modifiers', and 'Nouns':
 ## Some shortcuts and tricks
 
         <!--TODO: Add more!-->
+
 ```
     >                # Indent selection by one block
     <                # Dedent selection by one block
@@ -186,7 +185,7 @@ A few important examples of 'Verbs', 'Modifiers', and 'Nouns':
     u                # Selected text to lower case
     U                # Selected text to upper case
     J                # Join the current line with the next line
-    
+
     # Fold text
     zf               # Create fold from selected text
     zo               # Open current fold

@@ -18,24 +18,24 @@ You'll receive the updated `pathname` and the `query` via the [`router` object](
 To enable shallow routing, set the `shallow` option to `true`. Consider the following example:
 
 ```jsx
-import { useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 // Current URL is '/'
 function Page() {
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     // Always do navigations after the first render
-    router.push('/?counter=10', undefined, { shallow: true })
-  }, [])
+    router.push("/?counter=10", undefined, { shallow: true });
+  }, []);
 
   useEffect(() => {
     // The counter changed!
-  }, [router.query.counter])
+  }, [router.query.counter]);
 }
 
-export default Page
+export default Page;
 ```
 
 The URL will get updated to `/?counter=10`. and the page won't get replaced, only the state of the route is changed.
@@ -57,7 +57,7 @@ componentDidUpdate(prevProps) {
 Shallow routing **only** works for same page URL changes. For example, let's assume we have another page called `pages/about.js`, and you run this:
 
 ```jsx
-router.push('/?counter=10', '/about?counter=10', { shallow: true })
+router.push("/?counter=10", "/about?counter=10", { shallow: true });
 ```
 
 Since that's a new page, it'll unload the current page, load the new one and wait for data fetching even though we asked to do shallow routing.

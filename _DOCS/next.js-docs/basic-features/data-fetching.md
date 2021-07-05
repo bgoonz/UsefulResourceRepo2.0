@@ -1,5 +1,5 @@
 ---
-description: 'Next.js has 2 pre-rendering modes: Static Generation and Server-side rendering. Learn how they work here.'
+description: "Next.js has 2 pre-rendering modes: Static Generation and Server-side rendering. Learn how they work here."
 ---
 
 # Data Fetching
@@ -57,7 +57,7 @@ If you export an `async` function called `getStaticProps` from a page, Next.js w
 export async function getStaticProps(context) {
   return {
     props: {}, // will be passed to the page component as props
-  }
+  };
 }
 ```
 
@@ -78,18 +78,18 @@ The `context` parameter is an object containing the following keys:
 
   ```js
   export async function getStaticProps(context) {
-    const res = await fetch(`https://.../data`)
-    const data = await res.json()
+    const res = await fetch(`https://.../data`);
+    const data = await res.json();
 
     if (!data) {
       return {
         notFound: true,
-      }
+      };
     }
 
     return {
       props: { data }, // will be passed to the page component as props
-    }
+    };
   }
   ```
 
@@ -101,21 +101,21 @@ The `context` parameter is an object containing the following keys:
 
   ```js
   export async function getStaticProps(context) {
-    const res = await fetch(`https://...`)
-    const data = await res.json()
+    const res = await fetch(`https://...`);
+    const data = await res.json();
 
     if (!data) {
       return {
         redirect: {
-          destination: '/',
+          destination: "/",
           permanent: false,
         },
-      }
+      };
     }
 
     return {
       props: { data }, // will be passed to the page component as props
-    }
+    };
   }
   ```
 
@@ -147,7 +147,7 @@ function Blog({ posts }) {
         <li>{post.title}</li>
       ))}
     </ul>
-  )
+  );
 }
 
 // This function gets called at build time on server-side.
@@ -156,8 +156,8 @@ function Blog({ posts }) {
 export async function getStaticProps() {
   // Call an external API endpoint to get posts.
   // You can use any data fetching library
-  const res = await fetch('https://.../posts')
-  const posts = await res.json()
+  const res = await fetch("https://.../posts");
+  const posts = await res.json();
 
   // By returning { props: { posts } }, the Blog component
   // will receive `posts` as a prop at build time
@@ -165,10 +165,10 @@ export async function getStaticProps() {
     props: {
       posts,
     },
-  }
+  };
 }
 
-export default Blog
+export default Blog;
 ```
 
 ### When should I use `getStaticProps`?
@@ -185,39 +185,39 @@ You should use `getStaticProps` if:
 For TypeScript, you can use the `GetStaticProps` type from `next`:
 
 ```ts
-import { GetStaticProps } from 'next'
+import { GetStaticProps } from "next";
 
 export const getStaticProps: GetStaticProps = async (context) => {
   // ...
-}
+};
 ```
 
 If you want to get inferred typings for your props, you can use `InferGetStaticPropsType<typeof getStaticProps>`, like this:
 
 ```tsx
-import { InferGetStaticPropsType } from 'next'
+import { InferGetStaticPropsType } from "next";
 
 type Post = {
-  author: string
-  content: string
-}
+  author: string;
+  content: string;
+};
 
 export const getStaticProps = async () => {
-  const res = await fetch('https://.../posts')
-  const posts: Post[] = await res.json()
+  const res = await fetch("https://.../posts");
+  const posts: Post[] = await res.json();
 
   return {
     props: {
       posts,
     },
-  }
-}
+  };
+};
 
 function Blog({ posts }: InferGetStaticPropsType<typeof getStaticProps>) {
   // will resolve posts to type Post[]
 }
 
-export default Blog
+export default Blog;
 ```
 
 ### Incremental Static Regeneration
@@ -252,15 +252,15 @@ function Blog({ posts }) {
         <li>{post.title}</li>
       ))}
     </ul>
-  )
+  );
 }
 
 // This function gets called at build time on server-side.
 // It may be called again, on a serverless function, if
 // revalidation is enabled and a new request comes in
 export async function getStaticProps() {
-  const res = await fetch('https://.../posts')
-  const posts = await res.json()
+  const res = await fetch("https://.../posts");
+  const posts = await res.json();
 
   return {
     props: {
@@ -270,28 +270,28 @@ export async function getStaticProps() {
     // - When a request comes in
     // - At most once every 10 seconds
     revalidate: 10, // In seconds
-  }
+  };
 }
 
 // This function gets called at build time on server-side.
 // It may be called again, on a serverless function, if
 // the path has not been generated.
 export async function getStaticPaths() {
-  const res = await fetch('https://.../posts')
-  const posts = await res.json()
+  const res = await fetch("https://.../posts");
+  const posts = await res.json();
 
   // Get the paths we want to pre-render based on posts
   const paths = posts.map((post) => ({
     params: { id: post.id },
-  }))
+  }));
 
   // We'll pre-render only these paths at build time.
   // { fallback: blocking } will server-render pages
   // on-demand if the path doesn't exist.
-  return { paths, fallback: 'blocking' }
+  return { paths, fallback: "blocking" };
 }
 
-export default Blog
+export default Blog;
 ```
 
 When a request is made to a page that was pre-rendered at build time, it will initially show the cached page.
@@ -316,8 +316,8 @@ Since Next.js compiles your code into a separate directory you can't use `__dirn
 Instead you can use `process.cwd()` which gives you the directory where Next.js is being executed.
 
 ```jsx
-import { promises as fs } from 'fs'
-import path from 'path'
+import { promises as fs } from "fs";
+import path from "path";
 
 // posts will be populated at build time by getStaticProps()
 function Blog({ posts }) {
@@ -330,19 +330,19 @@ function Blog({ posts }) {
         </li>
       ))}
     </ul>
-  )
+  );
 }
 
 // This function gets called at build time on server-side.
 // It won't be called on client-side, so you can even do
 // direct database queries. See the "Technical details" section.
 export async function getStaticProps() {
-  const postsDirectory = path.join(process.cwd(), 'posts')
-  const filenames = await fs.readdir(postsDirectory)
+  const postsDirectory = path.join(process.cwd(), "posts");
+  const filenames = await fs.readdir(postsDirectory);
 
   const posts = filenames.map(async (filename) => {
-    const filePath = path.join(postsDirectory, filename)
-    const fileContents = await fs.readFile(filePath, 'utf8')
+    const filePath = path.join(postsDirectory, filename);
+    const fileContents = await fs.readFile(filePath, "utf8");
 
     // Generally you would parse/transform the contents
     // For example you can transform markdown to HTML here
@@ -350,18 +350,18 @@ export async function getStaticProps() {
     return {
       filename,
       content: fileContents,
-    }
-  })
+    };
+  });
   // By returning { props: { posts } }, the Blog component
   // will receive `posts` as a prop at build time
   return {
     props: {
       posts: await Promise.all(posts),
     },
-  }
+  };
 }
 
-export default Blog
+export default Blog;
 ```
 
 ### Technical details
@@ -471,31 +471,31 @@ function Post({ post }) {
 // This function gets called at build time
 export async function getStaticPaths() {
   // Call an external API endpoint to get posts
-  const res = await fetch('https://.../posts')
-  const posts = await res.json()
+  const res = await fetch("https://.../posts");
+  const posts = await res.json();
 
   // Get the paths we want to pre-render based on posts
   const paths = posts.map((post) => ({
     params: { id: post.id },
-  }))
+  }));
 
   // We'll pre-render only these paths at build time.
   // { fallback: false } means other routes should 404.
-  return { paths, fallback: false }
+  return { paths, fallback: false };
 }
 
 // This also gets called at build time
 export async function getStaticProps({ params }) {
   // params contains the post `id`.
   // If the route is like /posts/1, then params.id is 1
-  const res = await fetch(`https://.../posts/${params.id}`)
-  const post = await res.json()
+  const res = await fetch(`https://.../posts/${params.id}`);
+  const post = await res.json();
 
   // Pass post data to the page via props
-  return { props: { post } }
+  return { props: { post } };
 }
 
-export default Post
+export default Post;
 ```
 
 #### `fallback: true`
@@ -528,15 +528,15 @@ Here’s an example that uses `isFallback`:
 
 ```jsx
 // pages/posts/[id].js
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 
 function Post({ post }) {
-  const router = useRouter()
+  const router = useRouter();
 
   // If the page is not yet generated, this will be displayed
   // initially until getStaticProps() finishes running
   if (router.isFallback) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
   // Render post...
@@ -546,19 +546,19 @@ function Post({ post }) {
 export async function getStaticPaths() {
   return {
     // Only `/posts/1` and `/posts/2` are generated at build time
-    paths: [{ params: { id: '1' } }, { params: { id: '2' } }],
+    paths: [{ params: { id: "1" } }, { params: { id: "2" } }],
     // Enable statically generating additional pages
     // For example: `/posts/3`
     fallback: true,
-  }
+  };
 }
 
 // This also gets called at build time
 export async function getStaticProps({ params }) {
   // params contains the post `id`.
   // If the route is like /posts/1, then params.id is 1
-  const res = await fetch(`https://.../posts/${params.id}`)
-  const post = await res.json()
+  const res = await fetch(`https://.../posts/${params.id}`);
+  const post = await res.json();
 
   // Pass post data to the page via props
   return {
@@ -566,10 +566,10 @@ export async function getStaticProps({ params }) {
     // Re-generate the post at most once per second
     // if a request comes in
     revalidate: 1,
-  }
+  };
 }
 
-export default Post
+export default Post;
 ```
 
 #### When is `fallback: true` useful?
@@ -606,11 +606,11 @@ You should use `getStaticPaths` if you’re statically pre-rendering pages that 
 For TypeScript, you can use the `GetStaticPaths` type from `next`:
 
 ```ts
-import { GetStaticPaths } from 'next'
+import { GetStaticPaths } from "next";
 
 export const getStaticPaths: GetStaticPaths = async () => {
   // ...
-}
+};
 ```
 
 ### Technical details
@@ -653,7 +653,7 @@ If you export an `async` function called `getServerSideProps` from a page, Next.
 export async function getServerSideProps(context) {
   return {
     props: {}, // will be passed to the page component as props
-  }
+  };
 }
 ```
 
@@ -677,18 +677,18 @@ The `context` parameter is an object containing the following keys:
 
   ```js
   export async function getServerSideProps(context) {
-    const res = await fetch(`https://...`)
-    const data = await res.json()
+    const res = await fetch(`https://...`);
+    const data = await res.json();
 
     if (!data) {
       return {
         notFound: true,
-      }
+      };
     }
 
     return {
       props: {}, // will be passed to the page component as props
-    }
+    };
   }
   ```
 
@@ -696,21 +696,21 @@ The `context` parameter is an object containing the following keys:
 
   ```js
   export async function getServerSideProps(context) {
-    const res = await fetch(`https://.../data`)
-    const data = await res.json()
+    const res = await fetch(`https://.../data`);
+    const data = await res.json();
 
     if (!data) {
       return {
         redirect: {
-          destination: '/',
+          destination: "/",
           permanent: false,
         },
-      }
+      };
     }
 
     return {
       props: {}, // will be passed to the page component as props
-    }
+    };
   }
   ```
 
@@ -739,14 +739,14 @@ function Page({ data }) {
 // This gets called on every request
 export async function getServerSideProps() {
   // Fetch data from external API
-  const res = await fetch(`https://.../data`)
-  const data = await res.json()
+  const res = await fetch(`https://.../data`);
+  const data = await res.json();
 
   // Pass data to the page via props
-  return { props: { data } }
+  return { props: { data } };
 }
 
-export default Page
+export default Page;
 ```
 
 ### When should I use `getServerSideProps`?
@@ -760,11 +760,11 @@ If you don’t need to pre-render the data, then you should consider fetching da
 For TypeScript, you can use the `GetServerSideProps` type from `next`:
 
 ```ts
-import { GetServerSideProps } from 'next'
+import { GetServerSideProps } from "next";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   // ...
-}
+};
 ```
 
 If you want to get inferred typings for your props, you can use `InferGetServerSidePropsType<typeof getServerSideProps>`, like this:
@@ -823,16 +823,16 @@ This approach works well for user dashboard pages, for example. Because a dashbo
 The team behind Next.js has created a React hook for data fetching called [**SWR**](https://swr.vercel.app/). We highly recommend it if you’re fetching data on the client side. It handles caching, revalidation, focus tracking, refetching on interval, and more. And you can use it like so:
 
 ```jsx
-import useSWR from 'swr'
+import useSWR from "swr";
 
-const fetcher = (url) => fetch(url).then((res) => res.json())
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 function Profile() {
-  const { data, error } = useSWR('/api/user', fetcher)
+  const { data, error } = useSWR("/api/user", fetcher);
 
-  if (error) return <div>failed to load</div>
-  if (!data) return <div>loading...</div>
-  return <div>hello {data.name}!</div>
+  if (error) return <div>failed to load</div>;
+  if (!data) return <div>loading...</div>;
+  return <div>hello {data.name}!</div>;
 }
 ```
 

@@ -2,7 +2,7 @@
 language: SmallBASIC
 filename: learnsmallbasic.bas
 contributors:
-    - ["Chris Warren-Smith", "http://smallbasic.sourceforge.net"]
+  - ["Chris Warren-Smith", "http://smallbasic.sourceforge.net"]
 ---
 
 ## About
@@ -121,11 +121,10 @@ PAUSE
 
 ## Articles
 
-* [Getting started](http://smallbasic.sourceforge.net/?q=node/1573)
-* [Welcome to SmallBASIC](http://smallbasic.sourceforge.net/?q=node/838)
+- [Getting started](http://smallbasic.sourceforge.net/?q=node/1573)
+- [Welcome to SmallBASIC](http://smallbasic.sourceforge.net/?q=node/838)
 
 ## GitHub
 
-* [Source code](https://github.com/smallbasic/SmallBASIC)
-* [Reference snapshot](http://smallbasic.github.io/)
-
+- [Source code](https://github.com/smallbasic/SmallBASIC)
+- [Reference snapshot](http://smallbasic.github.io/)

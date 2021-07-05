@@ -1,14 +1,14 @@
 ---
 language: TypeScript
 contributors:
-    - ["Philippe Vlérick", "https://github.com/pvlerick"]
+  - ["Philippe Vlérick", "https://github.com/pvlerick"]
 filename: learntypescript.ts
 ---
 
 TypeScript is a language that aims at easing development of large scale
-applications written in JavaScript.  TypeScript adds common concepts such as
+applications written in JavaScript. TypeScript adds common concepts such as
 classes, modules, interfaces, generics and (optional) static typing to
-JavaScript.  It is a superset of JavaScript: all JavaScript code is valid
+JavaScript. It is a superset of JavaScript: all JavaScript code is valid
 TypeScript code so it can be added seamlessly to any project. The TypeScript
 compiler emits JavaScript.
 
@@ -46,7 +46,11 @@ let list: number[] = [1, 2, 3];
 let list: Array<number> = [1, 2, 3];
 
 // For enumerations:
-enum Color { Red, Green, Blue };
+enum Color {
+  Red,
+  Green,
+  Blue,
+}
 let c: Color = Color.Green;
 
 // Lastly, "void" is used in the special case of a function returning nothing
@@ -59,13 +63,21 @@ function bigHorribleAlert(): void {
 
 // The following are equivalent, the same signature will be inferred by the
 // compiler, and same JavaScript will be emitted
-let f1 = function (i: number): number { return i * i; }
+let f1 = function (i: number): number {
+  return i * i;
+};
 // Return type inferred
-let f2 = function (i: number) { return i * i; }
+let f2 = function (i: number) {
+  return i * i;
+};
 // "Fat arrow" syntax
-let f3 = (i: number): number => { return i * i; }
+let f3 = (i: number): number => {
+  return i * i;
+};
 // "Fat arrow" syntax with return type inferred
-let f4 = (i: number) => { return i * i; }
+let f4 = (i: number) => {
+  return i * i;
+};
 // "Fat arrow" syntax with return type inferred, braceless means no return
 // keyword needed
 let f5 = (i: number) => i * i;
@@ -82,9 +94,9 @@ interface Person {
 
 // Object that implements the "Person" interface
 // Can be treated as a Person since it has the name and move properties
-let p: Person = { name: "Bobby", move: () => { } };
+let p: Person = { name: "Bobby", move: () => {} };
 // Objects that have the optional property:
-let validPerson: Person = { name: "Bobby", age: 42, move: () => { } };
+let validPerson: Person = { name: "Bobby", age: 42, move: () => {} };
 // Is not a person because age is not a number
 let invalidPerson: Person = { name: "Bobby", age: true };
 
@@ -96,7 +108,7 @@ interface SearchFunc {
 let mySearch: SearchFunc;
 mySearch = function (src: string, sub: string) {
   return src.search(sub) != -1;
-}
+};
 
 // Classes - members are public by default
 class Point {
@@ -114,7 +126,9 @@ class Point {
   }
 
   // Functions
-  dist(): number { return Math.sqrt(this.x * this.x + this.y * this.y); }
+  dist(): number {
+    return Math.sqrt(this.x * this.x + this.y * this.y);
+  }
 
   // Static members
   static origin = new Point(0, 0);
@@ -123,8 +137,8 @@ class Point {
 // Classes can be explicitly marked as implementing an interface.
 // Any missing properties will then cause an error at compile-time.
 class PointPerson implements Person {
-    name: string
-    move() {}
+  name: string;
+  move() {}
 }
 
 let p1 = new Point(10, 20);
@@ -146,8 +160,7 @@ class Point3D extends Point {
 // Modules, "." can be used as separator for sub modules
 module Geometry {
   export class Square {
-    constructor(public sideLength: number = 0) {
-    }
+    constructor(public sideLength: number = 0) {}
     area() {
       return Math.pow(this.sideLength, 2);
     }
@@ -164,8 +177,7 @@ let s2 = new G.Square(10);
 // Generics
 // Classes
 class Tuple<T1, T2> {
-  constructor(public item1: T1, public item2: T2) {
-  }
+  constructor(public item1: T1, public item2: T2) {}
 }
 
 // Interfaces
@@ -186,8 +198,8 @@ let tuple = pairToTuple({ item1: "hello", item2: "world" });
 
 // Template Strings (strings that use backticks)
 // String Interpolation with Template Strings
-let name = 'Tyrone';
-let greeting = `Hi ${name}, how are you?`
+let name = "Tyrone";
+let greeting = `Hi ${name}, how are you?`;
 // Multiline Strings with Template Strings
 let multiline = `This is an example
 of a multiline string`;
@@ -225,10 +237,10 @@ moreNumbers.length = 3; // Error, length is read-only
 numbers = moreNumbers; // Error, mutating methods are missing
 
 // Tagged Union Types for modelling state that can be in one of many shapes
-type State = 
+type State =
   | { type: "loading" }
-  | { type: "success", value: number }
-  | { type: "error", message: string };
+  | { type: "success"; value: number }
+  | { type: "error"; message: string };
 
 declare const state: State;
 if (state.type === "success") {
@@ -243,44 +255,44 @@ if (state.type === "success") {
 // iterate over the list of values on the object being iterated
 let arrayOfAnyType = [1, "string", false];
 for (const val of arrayOfAnyType) {
-    console.log(val); // 1, "string", false
+  console.log(val); // 1, "string", false
 }
 
 let list = [4, 5, 6];
 for (const i of list) {
-   console.log(i); // 4, 5, 6
+  console.log(i); // 4, 5, 6
 }
 
 // for..in statement
 // iterate over the list of keys on the object being iterated
 for (const i in list) {
-   console.log(i); // 0, 1, 2
+  console.log(i); // 0, 1, 2
 }
 
 // Type Assertion
 
-let foo = {} // Creating foo as an empty object
-foo.bar = 123 // Error: property 'bar' does not exist on `{}`
-foo.baz = 'hello world' // Error: property 'baz' does not exist on `{}`
+let foo = {}; // Creating foo as an empty object
+foo.bar = 123; // Error: property 'bar' does not exist on `{}`
+foo.baz = "hello world"; // Error: property 'baz' does not exist on `{}`
 
-// Because the inferred type of foo is `{}` (an object with 0 properties), you 
+// Because the inferred type of foo is `{}` (an object with 0 properties), you
 // are not allowed to add bar and baz to it. However with type assertion,
 // the following will pass:
 
-interface Foo { 
+interface Foo {
   bar: number;
   baz: string;
 }
 
 let foo = {} as Foo; // Type assertion here
 foo.bar = 123;
-foo.baz = 'hello world'
-
+foo.baz = "hello world";
 ```
 
 ## Further Reading
- * [TypeScript Official website] (http://www.typescriptlang.org/)
- * [TypeScript language specifications] (https://github.com/Microsoft/TypeScript/blob/master/doc/spec.md)
- * [Anders Hejlsberg - Introducing TypeScript on Channel 9] (http://channel9.msdn.com/posts/Anders-Hejlsberg-Introducing-TypeScript)
- * [Source Code on GitHub] (https://github.com/Microsoft/TypeScript)
- * [Definitely Typed - repository for type definitions] (http://definitelytyped.org/)
+
+- [TypeScript Official website] (http://www.typescriptlang.org/)
+- [TypeScript language specifications] (https://github.com/Microsoft/TypeScript/blob/master/doc/spec.md)
+- [Anders Hejlsberg - Introducing TypeScript on Channel 9] (http://channel9.msdn.com/posts/Anders-Hejlsberg-Introducing-TypeScript)
+- [Source Code on GitHub] (https://github.com/Microsoft/TypeScript)
+- [Definitely Typed - repository for type definitions] (http://definitelytyped.org/)

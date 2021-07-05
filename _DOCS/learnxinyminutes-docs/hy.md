@@ -2,8 +2,8 @@
 language: hy
 filename: learnhy.hy
 contributors:
-    - ["Abhishek L", "http://twitter.com/abhishekl"]
-    - ["Zirak", "http://zirak.me"]
+  - ["Abhishek L", "http://twitter.com/abhishekl"]
+  - ["Zirak", "http://zirak.me"]
 ---
 
 Hy is a lisp dialect built on top of python. This is achieved by
@@ -97,7 +97,7 @@ True ; => True
   (print "And it also has:" props))
 
 (something-fancy "My horse" "amazing" :mane "spectacular")
-  
+
 ; you use apply instead of the splat operators:
 (apply something-fancy ["My horse" "amazing"] { "mane" "spectacular" })
 

@@ -2,8 +2,8 @@
 category: tool
 tool: powershell
 contributors:
-    - ["Wouter Van Schandevijl", "https://github.com/laoujin"]
-    - ["Andrew Ryan Davis", "https://github.com/AndrewDavis1191"]
+  - ["Wouter Van Schandevijl", "https://github.com/laoujin"]
+  - ["Andrew Ryan Davis", "https://github.com/AndrewDavis1191"]
 filename: LearnPowershell.ps1
 ---
 
@@ -45,13 +45,13 @@ Powershell as a Language:
 
 # Powershell uses banker's rounding,
 # meaning [int]1.5 would round to 2 but so would [int]2.5
-# Division always returns a float. 
+# Division always returns a float.
 # You must cast result to [int] to round.
 [int]5 / [int]3       # => 1.66666666666667
 [int]-5 / [int]3      # => -1.66666666666667
 5.0 / 3.0   # => 1.66666666666667
 -5.0 / 3.0  # => -1.66666666666667
-[int]$result = 5 / 3 
+[int]$result = 5 / 3
 $result # => 2
 
 # Modulo operation
@@ -127,7 +127,7 @@ $b = $a                                 # => Point b at what a is pointing to
 $b -is $a.GetType()                     # => True, a and b equal same type
 $b -eq $a                               # => True, a and b values are equal
 [System.Collections.Hashtable]$b = @{}  # => Point a at a new hash table
-$b = @{'one' = 1 
+$b = @{'one' = 1
        'two' = 2}
 $b -is $a.GetType()                     # => False, a and b types not equal
 
@@ -147,15 +147,15 @@ $b -is $a.GetType()                     # => False, a and b types not equal
 # You can also format using f-strings or formatted string literals.
 $name = "Steve"
 $age = 22
-"He said his name is $name." 
+"He said his name is $name."
 # => "He said his name is Steve"
-"{0} said he is {1} years old." -f $name, $age 
+"{0} said he is {1} years old." -f $name, $age
 # => "Steve said he is 22 years old"
-"$name's name is $($name.Length) characters long." 
+"$name's name is $($name.Length) characters long."
 # => "Steve's name is 5 characters long."
 
 # Escape Characters in Powershell
-# Many languages use the '\', but Windows uses this character for 
+# Many languages use the '\', but Windows uses this character for
 # file paths. Powershell thus uses '`' to escape characters
 # Take caution when working with files, as '`' is a
 # valid character in NTFS filenames.
@@ -183,7 +183,7 @@ function Test-Value ($value) {
 Test-Value ($null) # => False
 Test-Value (0)     # => False
 Test-Value ("")    # => False
-Test-Value []      # => True 
+Test-Value []      # => True
 # *[] calls .NET class; creates '[]' string when passed to function
 Test-Value ({})    # => True
 Test-Value @()     # => False
@@ -259,7 +259,7 @@ $array.Insert(1, 2)  # $array is now [1, 2, 3] again
 
 # Get the index of the first item found matching the argument
 $array.IndexOf(2)  # => 1
-$array.IndexOf(6)  # Returns -1 as "outside array" 
+$array.IndexOf(6)  # Returns -1 as "outside array"
 
 # You can add arrays
 # Note: values for $array and for $otherArray are not modified.
@@ -291,8 +291,8 @@ $tuple[0..2]        # => $null
 # Hashtables store mappings from keys to values, similar to Dictionaries.
 $emptyHash = @{}
 # Here is a prefilled dictionary
-$filledHash = @{"one"= 1 
-                "two"= 2 
+$filledHash = @{"one"= 1
+                "two"= 2
                 "three"= 3}
 
 # Look up values with []
@@ -409,7 +409,7 @@ finally {
 
 
 # Writing to a file
-$contents = @{"aa"= 12 
+$contents = @{"aa"= 12
              "bb"= 21}
 $contents | Export-CSV "$env:HOMEDRIVE\file.csv" # writes to a file
 
@@ -438,7 +438,7 @@ function Add-ParamNumbers {
  $firstNumber + $secondNumber
 }
 
-Add-ParamNumbers -FirstNumber 1 -SecondNumber 2 # => 3 
+Add-ParamNumbers -FirstNumber 1 -SecondNumber 2 # => 3
 
 # Functions with named parameters, parameter attributes, parsable documentation
 <#
@@ -517,8 +517,8 @@ $instrument.Family = "Plucked String"
 $instrument
 
 <# Output:
-Type              Family        
-----              ------        
+Type              Family
+----              ------
 String Instrument Plucked String
 #>
 
@@ -527,7 +527,7 @@ String Instrument Plucked String
 ## 6.1 Inheritance
 ####################################################
 
-# Inheritance allows new child classes to be defined that inherit 
+# Inheritance allows new child classes to be defined that inherit
 # methods and variables from their parent class.
 
 class Guitar : Instrument
@@ -547,9 +547,9 @@ $myGuitar.ModelNumber = "PS14ce Blackwood"
 $myGuitar.GetType()
 
 <#
-IsPublic IsSerial Name                                     BaseType                                               
--------- -------- ----                                     --------                                               
-True     False    Guitar                                   Instrument  
+IsPublic IsSerial Name                                     BaseType
+-------- -------- ----                                     --------
+True     False    Guitar                                   Instrument
 #>
 
 
@@ -639,7 +639,7 @@ function Format-Range ($start, $end, $array) {
     return $finalArray
 }
 
-Format-Range 2 6 $targetArray 
+Format-Range 2 6 $targetArray
 # => 'a','b','g','f','e','d','c','h','i','j','k','l','m'
 
 # The previous method works, but uses extra memory by allocating new arrays.
@@ -661,6 +661,7 @@ function Format-Range ($start, $end) {
 
 Format-Range 2 6 # => 'a','b','g','f','e','d','c','h','i','j','k','l','m'
 ```
+
 Powershell as a Tool:
 
 Getting Help:
@@ -687,7 +688,7 @@ Get-ExecutionPolicy -List
 Set-ExecutionPolicy AllSigned
 # Execution policies include:
 # - Restricted: Scripts won't run.
-# - RemoteSigned: Downloaded scripts run only if signed by a trusted publisher. 
+# - RemoteSigned: Downloaded scripts run only if signed by a trusted publisher.
 # - AllSigned: Scripts need to be signed by a trusted publisher.
 # - Unrestricted: Run all scripts.
 help about_Execution_Policies # for more info
@@ -697,13 +698,13 @@ $PSVersionTable
 ```
 
 ```Powershell
-# Calling external commands, executables, 
+# Calling external commands, executables,
 # and functions with the call operator.
 # Exe paths with arguments passed or containing spaces can create issues.
 C:\Program Files\dotnet\dotnet.exe
 # The term 'C:\Program' is not recognized as a name of a cmdlet,
 # function, script file, or executable program.
-# Check the spelling of the name, or if a path was included, 
+# Check the spelling of the name, or if a path was included,
 # verify that the path is correct and try again
 
 "C:\Program Files\dotnet\dotnet.exe"
@@ -714,7 +715,7 @@ C:\Program Files\dotnet\dotnet.exe    # returns string rather than execute
 # Alternatively, you can use dot-sourcing here
 ."C:\Program Files\dotnet\dotnet.exe" --help   # success
 
-# the call operator (&) is similar to Invoke-Expression, 
+# the call operator (&) is similar to Invoke-Expression,
 # but IEX runs in current scope.
 # One usage of '&' would be to invoke a scriptblock inside of your script.
 # Notice the variables are scoped
@@ -741,10 +742,10 @@ Enter-PSSession -ComputerName RemoteComputer
 RemoteComputer\PS> Get-Process powershell
 
 <#
-Handles  NPM(K)    PM(K)      WS(K)     CPU(s)     Id  SI ProcessName                                             
--------  ------    -----      -----     ------     --  -- -----------                                             
-   1096      44   156324     179068      29.92  11772   1 powershell                                              
-    545      25    49512      49852             25348   0 powershell 
+Handles  NPM(K)    PM(K)      WS(K)     CPU(s)     Id  SI ProcessName
+-------  ------    -----      -----     ------     --  -- -----------
+   1096      44   156324     179068      29.92  11772   1 powershell
+    545      25    49512      49852             25348   0 powershell
 #>
 RemoteComputer\PS> Exit-PSSession
 
@@ -792,16 +793,16 @@ foreach ($server in $serverList) {
 #>
 ```
 
-Interesting Projects  
+Interesting Projects
 
-* [Channel9](https://channel9.msdn.com/Search?term=powershell%20pipeline#ch9Search&lang-en=en) PowerShell tutorials
-* [KevinMarquette's Powershell Blog](https://powershellexplained.com/) Excellent blog that goes into great detail on Powershell
-* [PSGet](https://github.com/psget/psget) NuGet for PowerShell
-* [PSReadLine](https://github.com/lzybkr/PSReadLine/) A bash inspired readline implementation for PowerShell (So good that it now ships with Windows10 by default!)
-* [Posh-Git](https://github.com/dahlbyk/posh-git/) Fancy Git Prompt (Recommended!)
-* [Oh-My-Posh](https://github.com/JanDeDobbeleer/oh-my-posh) Shell customization similar to the popular Oh-My-Zsh on Mac
-* [PSake](https://github.com/psake/psake) Build automation tool
-* [Pester](https://github.com/pester/Pester) BDD Testing Framework
-* [Jump-Location](https://github.com/tkellogg/Jump-Location) Powershell `cd` that reads your mind
-* [PowerShell Community Extensions](https://github.com/Pscx/Pscx)
-* [More on the Powershell Pipeline Issue](https://github.com/PowerShell/PowerShell/issues/1908)
+- [Channel9](https://channel9.msdn.com/Search?term=powershell%20pipeline#ch9Search&lang-en=en) PowerShell tutorials
+- [KevinMarquette's Powershell Blog](https://powershellexplained.com/) Excellent blog that goes into great detail on Powershell
+- [PSGet](https://github.com/psget/psget) NuGet for PowerShell
+- [PSReadLine](https://github.com/lzybkr/PSReadLine/) A bash inspired readline implementation for PowerShell (So good that it now ships with Windows10 by default!)
+- [Posh-Git](https://github.com/dahlbyk/posh-git/) Fancy Git Prompt (Recommended!)
+- [Oh-My-Posh](https://github.com/JanDeDobbeleer/oh-my-posh) Shell customization similar to the popular Oh-My-Zsh on Mac
+- [PSake](https://github.com/psake/psake) Build automation tool
+- [Pester](https://github.com/pester/Pester) BDD Testing Framework
+- [Jump-Location](https://github.com/tkellogg/Jump-Location) Powershell `cd` that reads your mind
+- [PowerShell Community Extensions](https://github.com/Pscx/Pscx)
+- [More on the Powershell Pipeline Issue](https://github.com/PowerShell/PowerShell/issues/1908)

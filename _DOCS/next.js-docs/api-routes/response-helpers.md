@@ -16,7 +16,7 @@ The response (`res`) includes a set of Express.js-like methods to improve the de
 
 ```js
 export default function handler(req, res) {
-  res.status(200).json({ name: 'Next.js' })
+  res.status(200).json({ name: "Next.js" });
 }
 ```
 

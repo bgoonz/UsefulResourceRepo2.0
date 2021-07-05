@@ -30,14 +30,14 @@ module.exports = {
     { dev, dir, outDir, distDir, buildId }
   ) {
     return {
-      '/': { page: '/' },
-      '/about': { page: '/about' },
-      '/p/hello-nextjs': { page: '/post', query: { title: 'hello-nextjs' } },
-      '/p/learn-nextjs': { page: '/post', query: { title: 'learn-nextjs' } },
-      '/p/deploy-nextjs': { page: '/post', query: { title: 'deploy-nextjs' } },
-    }
+      "/": { page: "/" },
+      "/about": { page: "/about" },
+      "/p/hello-nextjs": { page: "/post", query: { title: "hello-nextjs" } },
+      "/p/learn-nextjs": { page: "/post", query: { title: "learn-nextjs" } },
+      "/p/deploy-nextjs": { page: "/post", query: { title: "deploy-nextjs" } },
+    };
   },
-}
+};
 ```
 
 Note: the `query` field in `exportPathMap` can not be used with [automatically statically optimized pages](/docs/advanced-features/automatic-static-optimization) or [`getStaticProps` pages](https://nextjs.org/docs/basic-features/data-fetching#getstaticprops-static-generation) as they are rendered to HTML files at build-time and additional query information can not be provided during `next export`.
@@ -68,7 +68,7 @@ To switch back and add a trailing slash, open `next.config.js` and enable the `t
 ```js
 module.exports = {
   trailingSlash: true,
-}
+};
 ```
 
 ## Customizing the output directory

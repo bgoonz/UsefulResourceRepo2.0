@@ -5,22 +5,24 @@ permalink: /docs/en/ocr
 key: docs-ocr
 modify_date: "2020-02-11"
 ---
+
 Spark OCR provides set of Spark ML transformers/estimators that help users create and use OCR pipelines.
 It built on top of Apache Spark and Tesseract OCR.
 
 # OCR Pipelines
 
 Using Spark OCR it possible to build pipelines for recognition text from:
- - scanned image(s) (png, tiff, jpeg ...)
- - selectable PDF (that contains text layout)
- - not selectable PDF (that contains scanned text as an image)
- 
+
+- scanned image(s) (png, tiff, jpeg ...)
+- selectable PDF (that contains text layout)
+- not selectable PDF (that contains scanned text as an image)
+
 It contains set of tools for
 
- - PDF processing transformers which extract text and images from PDF files
- - Image pre-processing (scaling, binarization, skew correction, etc.) transformers
- - Splitting image to regions analyzers and transformers
- - Characters recognition using TesseractOCR estimator
+- PDF processing transformers which extract text and images from PDF files
+- Image pre-processing (scaling, binarization, skew correction, etc.) transformers
+- Splitting image to regions analyzers and transformers
+- Characters recognition using TesseractOCR estimator
 
 More details on transformers/estimators could be found in further section [OCR Pipeline Components](#ocr-pipeline-components)
 
@@ -137,12 +139,11 @@ It is full of fresh examples.
 
 Below, you can follow into a more theoretical and thorough quick start guide.
 
-
 # Quickstart Examples
 
 ## Images
 
-In the following code example we will create OCR Pipeline for processing image(s). 
+In the following code example we will create OCR Pipeline for processing image(s).
 The image file(s) can contain complex layout like columns, tables, images inside.
 
 ```scala
@@ -224,18 +225,19 @@ val data = pipeline.transform(df)
 data.show()
 ```
 
-## PDF files (scanned or text) 
+## PDF files (scanned or text)
 
-In the following code example we will create OCR Pipeline for processing 
+In the following code example we will create OCR Pipeline for processing
 PDF files containing text or image data.
 
 While running pipeline for each PDF file, it will:
- * extract the text from document and save it to the `text` column
- * if `text` contains less than 10 characters (so the document isn't PDF with text layout), 
- process PDF file as an scanned document:
-    - convert PDF file to an image
-    - detect and split image to regions
-    - run OCR and save output to the `text` column
+
+- extract the text from document and save it to the `text` column
+- if `text` contains less than 10 characters (so the document isn't PDF with text layout),
+  process PDF file as an scanned document:
+  - convert PDF file to an image
+  - detect and split image to regions
+  - run OCR and save output to the `text` column
 
 ```scala
 import org.apache.spark.ml.Pipeline
@@ -295,7 +297,7 @@ It processes images and stores results to memory table.
 val imagePath = "path folder with images"
 
 val batchDataFrame = spark.read.format("binaryFile").load(imagePath).limit(1)
-    
+
 val pipeline = new Pipeline()
 pipeline.setStages(Array(
   binaryToImage,
@@ -326,7 +328,7 @@ For getting results from memory table following code could be used:
 spark.table("results").select("path", "text").show()
 ```
 
-More details about Spark Structured Streaming could be found in 
+More details about Spark Structured Streaming could be found in
 [spark documentation](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html).
 {:.info}
 
@@ -343,25 +345,23 @@ files.
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | text | binary representation of the PDF document |
-| originCol | string | path | path to the original file |
+| Param name | Type   | Default | Column Data Description                   |
+| ---------- | ------ | ------- | ----------------------------------------- |
+| inputCol   | string | text    | binary representation of the PDF document |
+| originCol  | string | path    | path to the original file                 |
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| splitPage | bool | true | whether it needed to split document to pages |
-
+| Param name | Type | Default | Description                                  |
+| ---------- | ---- | ------- | -------------------------------------------- |
+| splitPage  | bool | true    | whether it needed to split document to pages |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | text | extracted text |
+| Param name | Type   | Default | Column Data Description                   |
+| ---------- | ------ | ------- | ----------------------------------------- |
+| outputCol  | string | text    | extracted text                            |
 | pageNumCol | string | pagenum | page number or 0 when `splitPage = false` |
-
 
 NOTE: For setting parameters use `setParamName` method.
 {:.info}
@@ -405,31 +405,29 @@ data.select("pagenum", "text").show()
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | content | binary representation of the PDF document |
-| originCol | string | path | path to the original file |
-| fallBackCol | string | text | extracted text from previous method for detect if need to run transformer as fallBack |
-
+| Param name  | Type   | Default | Column Data Description                                                               |
+| ----------- | ------ | ------- | ------------------------------------------------------------------------------------- |
+| inputCol    | string | content | binary representation of the PDF document                                             |
+| originCol   | string | path    | path to the original file                                                             |
+| fallBackCol | string | text    | extracted text from previous method for detect if need to run transformer as fallBack |
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| splitPage | bool | true | whether it needed to split document to pages |
-| minSizeBeforeFallback | int | 10 | minimal count of characters to extract to decide, that the document is the PDF with text layout |
-| imageType | [ImageType](#imagetype) | `ImageType.TYPE_BYTE_GRAY` | type of the image |
-| resolution | int | 300 | Output image resolution in dpi |
-| keepInput | boolean | false | Keep input column in dataframe. By default it is dropping. |
-| partitionNum | int | 0 | Number of partitions (0 value - without repartition) |
+| Param name            | Type                    | Default                    | Description                                                                                     |
+| --------------------- | ----------------------- | -------------------------- | ----------------------------------------------------------------------------------------------- |
+| splitPage             | bool                    | true                       | whether it needed to split document to pages                                                    |
+| minSizeBeforeFallback | int                     | 10                         | minimal count of characters to extract to decide, that the document is the PDF with text layout |
+| imageType             | [ImageType](#imagetype) | `ImageType.TYPE_BYTE_GRAY` | type of the image                                                                               |
+| resolution            | int                     | 300                        | Output image resolution in dpi                                                                  |
+| keepInput             | boolean                 | false                      | Keep input column in dataframe. By default it is dropping.                                      |
+| partitionNum          | int                     | 0                          | Number of partitions (0 value - without repartition)                                            |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | image | extracted image struct ([Image schema](#image-schema)) |
-| pageNumCol | string | pagenum | page number or 0 when `splitPage = false` |
-
+| Param name | Type   | Default | Column Data Description                                |
+| ---------- | ------ | ------- | ------------------------------------------------------ |
+| outputCol  | string | image   | extracted image struct ([Image schema](#image-schema)) |
+| pageNumCol | string | pagenum | page number or 0 when `splitPage = false`              |
 
 **Example:**
 
@@ -460,18 +458,16 @@ column and create multipage PDF document.
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | image | image struct ([Image schema](#image-schema))  |
-| originCol | string | path | path to the original file |
-
+| Param name | Type   | Default | Column Data Description                      |
+| ---------- | ------ | ------- | -------------------------------------------- |
+| inputCol   | string | image   | image struct ([Image schema](#image-schema)) |
+| originCol  | string | path    | path to the original file                    |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | content | binary representation of the PDF document |
-
+| Param name | Type   | Default | Column Data Description                   |
+| ---------- | ------ | ------- | ----------------------------------------- |
+| outputCol  | string | content | binary representation of the PDF document |
 
 **Example:**
 
@@ -509,26 +505,23 @@ pdf_df.select("content").show()
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | content | binary representation of the PDF document |
-| originCol | string | path | path to the original file |
-| inputRegionsCol | string | region | input column which contain regions |
-
+| Param name      | Type   | Default | Column Data Description                   |
+| --------------- | ------ | ------- | ----------------------------------------- |
+| inputCol        | string | content | binary representation of the PDF document |
+| originCol       | string | path    | path to the original file                 |
+| inputRegionsCol | string | region  | input column which contain regions        |
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| lineWidth | integer | 1 | line width for draw regions |
-
+| Param name | Type    | Default | Description                 |
+| ---------- | ------- | ------- | --------------------------- |
+| lineWidth  | integer | 1       | line width for draw regions |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | pdf_regions | binary representation of the PDF document |
-
+| Param name | Type   | Default     | Column Data Description                   |
+| ---------- | ------ | ----------- | ----------------------------------------- |
+| outputCol  | string | pdf_regions | binary representation of the PDF document |
 
 **Example:**
 
@@ -616,17 +609,16 @@ Next section describes the transformers for image pre-processing: scaling, binar
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | content | binary representation of the image |
-| originCol | string | path | path to the original file |
-
+| Param name | Type   | Default | Column Data Description            |
+| ---------- | ------ | ------- | ---------------------------------- |
+| inputCol   | string | content | binary representation of the image |
+| originCol  | string | path    | path to the original file          |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | image | extracted image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default | Column Data Description                                |
+| ---------- | ------ | ------- | ------------------------------------------------------ |
+| outputCol  | string | image   | extracted image struct ([Image schema](#image-schema)) |
 
 **Scala example:**
 
@@ -653,21 +645,21 @@ data.select("image").show()
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | image | image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default | Column Data Description                      |
+| ---------- | ------ | ------- | -------------------------------------------- |
+| inputCol   | string | image   | image struct ([Image schema](#image-schema)) |
 
 #### Parameters
 
 | Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| threshold | int | 170 |
+| ---------- | ---- | ------- | ----------- |
+| threshold  | int  | 170     |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | binarized_image | image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default         | Column Data Description                      |
+| ---------- | ------ | --------------- | -------------------------------------------- |
+| outputCol  | string | binarized_image | image struct ([Image schema](#image-schema)) |
 
 **Example:**
 
@@ -691,6 +683,7 @@ val binirizer = new ImageBinarizer()
 val data = binirizer.transform(df)
 data.storeImage("binary_image")
 ```
+
 **Original image:**
 
 ![original](/assets/images/ocr/text_with_noise.png)
@@ -698,7 +691,6 @@ data.storeImage("binary_image")
 **Binarized image with 100 threshold:**
 
 ![binarized](/assets/images/ocr/binarized.png)
-
 
 ### ImageAdaptiveThresholding
 
@@ -709,26 +701,25 @@ the weighted mean for the local neighborhood of a pixel subtracted by a constant
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | image | image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default | Column Data Description                      |
+| ---------- | ------ | ------- | -------------------------------------------- |
+| inputCol   | string | image   | image struct ([Image schema](#image-schema)) |
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| blockSize | int | 170 | Odd size of pixel neighborhood which is used to calculate the threshold value (e.g. 3, 5, 7, ..., 21, ...). |
-| method | string | | Method used to determine adaptive threshold for local neighbourhood in weighted mean image. |
-| offset | int | | Constant subtracted from weighted mean of neighborhood to calculate the local threshold value. Default offset is 0. |
-| mode | string | | The mode parameter determines how the array borders are handled, where cval is the value when mode is equal to 'constant' |
-| cval | int | | Value to fill past edges of input if mode is 'constant'. |
-
+| Param name | Type   | Default | Description                                                                                                               |
+| ---------- | ------ | ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| blockSize  | int    | 170     | Odd size of pixel neighborhood which is used to calculate the threshold value (e.g. 3, 5, 7, ..., 21, ...).               |
+| method     | string |         | Method used to determine adaptive threshold for local neighbourhood in weighted mean image.                               |
+| offset     | int    |         | Constant subtracted from weighted mean of neighborhood to calculate the local threshold value. Default offset is 0.       |
+| mode       | string |         | The mode parameter determines how the array borders are handled, where cval is the value when mode is equal to 'constant' |
+| cval       | int    |         | Value to fill past edges of input if mode is 'constant'.                                                                  |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | binarized_image | image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default         | Column Data Description                      |
+| ---------- | ------ | --------------- | -------------------------------------------- |
+| outputCol  | string | binarized_image | image struct ([Image schema](#image-schema)) |
 
 **Example:**
 
@@ -741,7 +732,7 @@ from sparkocr.utils import display_image
 imagePath = "path to image"
 
 # Read image file as binary file
-df = spark.read 
+df = spark.read
     .format("binaryFile")
     .load(imagePath)
 
@@ -766,6 +757,7 @@ for r in result.select("image", "corrected_image").collect():
     display_image(r.image)
     display_image(r.corrected_image)
 ```
+
 **Original image:**
 
 ![original](/assets/images/ocr/text_with_noise.png)
@@ -780,22 +772,21 @@ for r in result.select("image", "corrected_image").collect():
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | image | image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default | Column Data Description                      |
+| ---------- | ------ | ------- | -------------------------------------------- |
+| inputCol   | string | image   | image struct ([Image schema](#image-schema)) |
 
 #### Parameters
 
 | Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| kernelSize | int | 2 |
+| ---------- | ---- | ------- | ----------- |
+| kernelSize | int  | 2       |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | eroded_image | image struct ([Image schema](#image-schema)) |
-
+| Param name | Type   | Default      | Column Data Description                      |
+| ---------- | ------ | ------------ | -------------------------------------------- |
+| outputCol  | string | eroded_image | image struct ([Image schema](#image-schema)) |
 
 **Example:**
 
@@ -826,22 +817,21 @@ data.storeImage("eroded_image")
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | image | image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default | Column Data Description                      |
+| ---------- | ------ | ------- | -------------------------------------------- |
+| inputCol   | string | image   | image struct ([Image schema](#image-schema)) |
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| scaleFactor | double | 1.0 | scale factor |
+| Param name  | Type   | Default | Description  |
+| ----------- | ------ | ------- | ------------ |
+| scaleFactor | double | 1.0     | scale factor |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | scaled_image | scaled image struct ([Image schema](#image-schema)) |
-
+| Param name | Type   | Default      | Column Data Description                             |
+| ---------- | ------ | ------------ | --------------------------------------------------- |
+| outputCol  | string | scaled_image | scaled image struct ([Image schema](#image-schema)) |
 
 **Example:**
 
@@ -872,21 +862,21 @@ data.storeImage("scaled_image")
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | image | image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default | Column Data Description                      |
+| ---------- | ------ | ------- | -------------------------------------------- |
+| inputCol   | string | image   | image struct ([Image schema](#image-schema)) |
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| desiredSize | int | 34 | desired size of font in pixels |
+| Param name  | Type | Default | Description                    |
+| ----------- | ---- | ------- | ------------------------------ |
+| desiredSize | int  | 34      | desired size of font in pixels |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | scaled_image | scaled image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default      | Column Data Description                             |
+| ---------- | ------ | ------------ | --------------------------------------------------- |
+| outputCol  | string | scaled_image | scaled image struct ([Image schema](#image-schema)) |
 
 **Example:**
 
@@ -917,26 +907,24 @@ data.storeImage("scaled_image")
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | image | image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default | Column Data Description                      |
+| ---------- | ------ | ------- | -------------------------------------------- |
+| inputCol   | string | image   | image struct ([Image schema](#image-schema)) |
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| rotationAngle | double | 0.0 | rotation angle |
-| automaticSkewCorrection | boolean | true | enables/disables adaptive skew correction |
-| halfAngle | double | 5.0 | half the angle(in degrees) that will be considered for correction |
-| resolution | double | 1.0 | The step size(in degrees) that will be used for generating correction angle candidates |
-
+| Param name              | Type    | Default | Description                                                                            |
+| ----------------------- | ------- | ------- | -------------------------------------------------------------------------------------- |
+| rotationAngle           | double  | 0.0     | rotation angle                                                                         |
+| automaticSkewCorrection | boolean | true    | enables/disables adaptive skew correction                                              |
+| halfAngle               | double  | 5.0     | half the angle(in degrees) that will be considered for correction                      |
+| resolution              | double  | 1.0     | The step size(in degrees) that will be used for generating correction angle candidates |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | corrected_image | corrected image struct ([Image schema](#image-schema)) |
-
+| Param name | Type   | Default         | Column Data Description                                |
+| ---------- | ------ | --------------- | ------------------------------------------------------ |
+| outputCol  | string | corrected_image | corrected image struct ([Image schema](#image-schema)) |
 
 **Example:**
 
@@ -975,23 +963,22 @@ data.storeImage("corrected_image")
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | image | image struct ([Image schema](#image-schema)) |
-| inputRegionsCol | string | regions | regions |
+| Param name      | Type   | Default | Column Data Description                      |
+| --------------- | ------ | ------- | -------------------------------------------- |
+| inputCol        | string | image   | image struct ([Image schema](#image-schema)) |
+| inputRegionsCol | string | regions | regions                                      |
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| method | [NoiseMethod](#noisemethod) string | NoiseMethod.RATIO | method of computation noise score |
+| Param name | Type                               | Default           | Description                       |
+| ---------- | ---------------------------------- | ----------------- | --------------------------------- |
+| method     | [NoiseMethod](#noisemethod) string | NoiseMethod.RATIO | method of computation noise score |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | noisescores | noise score for each region |
-
+| Param name | Type   | Default     | Column Data Description     |
+| ---------- | ------ | ----------- | --------------------------- |
+| outputCol  | string | noisescores | noise score for each region |
 
 **Example:**
 
@@ -1053,35 +1040,35 @@ data.select("path", "noiselevel").show()
 
 `ImageRemoveObjects` for remove background objects.
 It support removing:
+
 - objects less then minSizeObject
 - holes less then minSizeHole
 - objects more then maxSizeObject
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | None | image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default | Column Data Description                      |
+| ---------- | ------ | ------- | -------------------------------------------- |
+| inputCol   | string | None    | image struct ([Image schema](#image-schema)) |
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| minSizeObject | int | 10 | Min size of object which will keep on image [*]. |
-| connectivityObject | int | 0 | The connectivity defining the neighborhood of a pixel. |
-| minSizeHole | int | None | Min size of hole which will keep on image[ *]. |
-| connectivityHole | int | 0 | The connectivity defining the neighborhood of a pixel. |
-| maxSizeObject | int | None | Max size of object which will keep on image [*]. |
-| connectivityMaxObject | int | 0 | The connectivity defining the neighborhood of a pixel. |
+| Param name            | Type | Default | Description                                            |
+| --------------------- | ---- | ------- | ------------------------------------------------------ |
+| minSizeObject         | int  | 10      | Min size of object which will keep on image [*].       |
+| connectivityObject    | int  | 0       | The connectivity defining the neighborhood of a pixel. |
+| minSizeHole           | int  | None    | Min size of hole which will keep on image[ *].         |
+| connectivityHole      | int  | 0       | The connectivity defining the neighborhood of a pixel. |
+| maxSizeObject         | int  | None    | Max size of object which will keep on image [*].       |
+| connectivityMaxObject | int  | 0       | The connectivity defining the neighborhood of a pixel. |
 
 [*] : _None_ value disables removing objects.
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | None | scaled image struct ([Image schema](#image-schema)) |
-
+| Param name | Type   | Default | Column Data Description                             |
+| ---------- | ------ | ------- | --------------------------------------------------- |
+| outputCol  | string | None    | scaled image struct ([Image schema](#image-schema)) |
 
 **Example:**
 
@@ -1092,7 +1079,7 @@ from com.johnsnowlabs.ocr.transformers import *
 imagePath = "path to image"
 
 # Read image file as binary file
-df = spark.read 
+df = spark.read
     .format("binaryFile")
     .load(imagePath)
 
@@ -1118,33 +1105,32 @@ data = pipeline.transform(df)
 **python only**
 
 `ImageMorphologyOpening` Return greyscale morphological opening of an image.
-                     
- The morphological opening on an image is defined as an erosion followed by
- a dilation. Opening can remove small bright spots (i.e. "salt") and connect
- small dark cracks. This tends to "open" up (dark) gaps between (bright)
- features.
+
+The morphological opening on an image is defined as an erosion followed by
+a dilation. Opening can remove small bright spots (i.e. "salt") and connect
+small dark cracks. This tends to "open" up (dark) gaps between (bright)
+features.
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | None | image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default | Column Data Description                      |
+| ---------- | ------ | ------- | -------------------------------------------- |
+| inputCol   | string | None    | image struct ([Image schema](#image-schema)) |
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| kernelShape | [KernelShape](#kernelshape) | KernelShape.DISK | Kernel shape. |
-| kernelSize | int | 1 | Kernel size in pixels. |
+| Param name  | Type                        | Default          | Description            |
+| ----------- | --------------------------- | ---------------- | ---------------------- |
+| kernelShape | [KernelShape](#kernelshape) | KernelShape.DISK | Kernel shape.          |
+| kernelSize  | int                         | 1                | Kernel size in pixels. |
 
 [*] : _None_ value disables removing objects.
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | None | scaled image struct ([Image schema](#image-schema)) |
-
+| Param name | Type   | Default | Column Data Description                             |
+| ---------- | ------ | ------- | --------------------------------------------------- |
+| outputCol  | string | None    | scaled image struct ([Image schema](#image-schema)) |
 
 **Example:**
 
@@ -1155,7 +1141,7 @@ from com.johnsnowlabs.ocr.transformers import *
 imagePath = "path to image"
 
 # Read image file as binary file
-df = spark.read 
+df = spark.read
     .format("binaryFile")
     .load(imagePath)
 
@@ -1203,23 +1189,23 @@ for r in result.select("image", "corrected_image").collect():
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | image | image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default | Column Data Description                      |
+| ---------- | ------ | ------- | -------------------------------------------- |
+| inputCol   | string | image   | image struct ([Image schema](#image-schema)) |
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| pageSegMode | [PageSegmentationMode](#pagesegmentationmode) | AUTO | page segmentation mode |
-| pageIteratorLevel | [PageIteratorLevel](#pageiteratorlevel) | BLOCK | page iteration level |
-| ocrEngineMode | [EngineMode](#enginemode) | LSTM_ONLY | OCR engine mode |
+| Param name        | Type                                          | Default   | Description            |
+| ----------------- | --------------------------------------------- | --------- | ---------------------- |
+| pageSegMode       | [PageSegmentationMode](#pagesegmentationmode) | AUTO      | page segmentation mode |
+| pageIteratorLevel | [PageIteratorLevel](#pageiteratorlevel)       | BLOCK     | page iteration level   |
+| ocrEngineMode     | [EngineMode](#enginemode)                     | LSTM_ONLY | OCR engine mode        |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | region | array of [Coordinaties](#coordinate-schema)|
+| Param name | Type   | Default | Column Data Description                     |
+| ---------- | ------ | ------- | ------------------------------------------- |
+| outputCol  | string | region  | array of [Coordinaties](#coordinate-schema) |
 
 **Example:**
 
@@ -1252,23 +1238,22 @@ data.show()
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | image | image struct ([Image schema](#image-schema)) |
-| inputRegionsCol | string | region | array of [Coordinaties](#coordinate-schema)|
-
+| Param name      | Type   | Default | Column Data Description                      |
+| --------------- | ------ | ------- | -------------------------------------------- |
+| inputCol        | string | image   | image struct ([Image schema](#image-schema)) |
+| inputRegionsCol | string | region  | array of [Coordinaties](#coordinate-schema)  |
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| explodeCols | Array[string] | |Columns which need to explode |
+| Param name  | Type          | Default | Description                   |
+| ----------- | ------------- | ------- | ----------------------------- |
+| explodeCols | Array[string] |         | Columns which need to explode |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | region_image | image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default      | Column Data Description                      |
+| ---------- | ------ | ------------ | -------------------------------------------- |
+| outputCol  | string | region_image | image struct ([Image schema](#image-schema)) |
 
 **Example:**
 
@@ -1315,23 +1300,22 @@ data.show()
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | image | image struct ([Image schema](#image-schema)) |
-| inputRegionsCol | string | region | array of [Coordinaties](#coordinate-schema)|
-
+| Param name      | Type   | Default | Column Data Description                      |
+| --------------- | ------ | ------- | -------------------------------------------- |
+| inputCol        | string | image   | image struct ([Image schema](#image-schema)) |
+| inputRegionsCol | string | region  | array of [Coordinaties](#coordinate-schema)  |
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| lineWidth | Int | 4 | Line width for draw rectangles |
+| Param name | Type | Default | Description                    |
+| ---------- | ---- | ------- | ------------------------------ |
+| lineWidth  | Int  | 4       | Line width for draw rectangles |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | image_with_regions | image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default            | Column Data Description                      |
+| ---------- | ------ | ------------------ | -------------------------------------------- |
+| outputCol  | string | image_with_regions | image struct ([Image schema](#image-schema)) |
 
 **Example:**
 
@@ -1372,7 +1356,6 @@ val data = pipeline.transform(df)
 data.show()
 ```
 
-
 ## Characters recognition
 
 Next section describes the estimators for OCR
@@ -1383,24 +1366,24 @@ Next section describes the estimators for OCR
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCol | string | image | image struct ([Image schema](#image-schema)) |
+| Param name | Type   | Default | Column Data Description                      |
+| ---------- | ------ | ------- | -------------------------------------------- |
+| inputCol   | string | image   | image struct ([Image schema](#image-schema)) |
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| pageSegMode | [PageSegmentationMode](#pagesegmentationmode) | AUTO | page segmentation mode |
-| pageIteratorLevel | [PageIteratorLevel](#pageiteratorlevel) | BLOCK | page iteration level |
-| ocrEngineMode | [EngineMode](#enginemode) | LSTM_ONLY| OCR engine mode |
-| language | string | eng | language |
+| Param name        | Type                                          | Default   | Description            |
+| ----------------- | --------------------------------------------- | --------- | ---------------------- |
+| pageSegMode       | [PageSegmentationMode](#pagesegmentationmode) | AUTO      | page segmentation mode |
+| pageIteratorLevel | [PageIteratorLevel](#pageiteratorlevel)       | BLOCK     | page iteration level   |
+| ocrEngineMode     | [EngineMode](#enginemode)                     | LSTM_ONLY | OCR engine mode        |
+| language          | string                                        | eng       | language               |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | text | recognized text |
+| Param name | Type   | Default | Column Data Description |
+| ---------- | ------ | ------- | ----------------------- |
+| outputCol  | string | text    | recognized text         |
 
 **Example:**
 
@@ -1450,24 +1433,24 @@ Next section describes the extra transformers
 
 #### Input Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| inputCols | string | image | Input annotations columns |
-| pageMatrixCol | string | | Column name for Page Matrix schema |
+| Param name    | Type   | Default | Column Data Description            |
+| ------------- | ------ | ------- | ---------------------------------- |
+| inputCols     | string | image   | Input annotations columns          |
+| pageMatrixCol | string |         | Column name for Page Matrix schema |
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| matchingWindow | int | 10 | Textual range to match in context, applies in both direction |
-| windowPageTolerance | boolean | true | whether or not to increase tolerance as page number grows |
-| padding | int | 5| padding for area |
+| Param name          | Type    | Default | Description                                                  |
+| ------------------- | ------- | ------- | ------------------------------------------------------------ |
+| matchingWindow      | int     | 10      | Textual range to match in context, applies in both direction |
+| windowPageTolerance | boolean | true    | whether or not to increase tolerance as page number grows    |
+| padding             | int     | 5       | padding for area                                             |
 
 #### Output Columns
 
-| Param name | Type | Default | Column Data Description |
-| --- | --- | --- | --- |
-| outputCol | string | | Name of output column for store coordinates. |
+| Param name | Type   | Default | Column Data Description                      |
+| ---------- | ------ | ------- | -------------------------------------------- |
+| outputCol  | string |         | Name of output column for store coordinates. |
 
 **Example:**
 
@@ -1533,7 +1516,7 @@ results.show()
 
 ### Image Schema
 
-Images are loaded as a DataFrame with a single column called “image.” 
+Images are loaded as a DataFrame with a single column called “image.”
 
 It is a struct-type column, that contains all information about image:
 
@@ -1549,21 +1532,19 @@ image: struct (nullable = true)
 
 #### Fields
 
-| Field name | Type | Description |
-| --- | --- | --- |
-| origin | string | source URI  |
-| height | integer | image height in pixels |
-| width | integer | image width in pixels |
-| nChannels | integer | number of color channels |
-| mode | [ImageType](#imagetype) | the data type and channel order the data is stored in |
-| data | binary | image data in a binary format |
-
+| Field name | Type                    | Description                                           |
+| ---------- | ----------------------- | ----------------------------------------------------- |
+| origin     | string                  | source URI                                            |
+| height     | integer                 | image height in pixels                                |
+| width      | integer                 | image width in pixels                                 |
+| nChannels  | integer                 | number of color channels                              |
+| mode       | [ImageType](#imagetype) | the data type and channel order the data is stored in |
+| data       | binary                  | image data in a binary format                         |
 
 NOTE: Image `data` stored in a binary format. Image data is represented
-      as a 3-dimensional array with the dimension shape (height, width, nChannels)
-      and array values of type t specified by the mode field.
+as a 3-dimensional array with the dimension shape (height, width, nChannels)
+and array values of type t specified by the mode field.
 {:.info}
-
 
 ### Coordinate Schema
 
@@ -1577,70 +1558,69 @@ element: struct (containsNull = true)
  |    |    |-- height: float (nullable = false)
 ```
 
-| Field name | Type | Description |
-| --- | --- | --- |
-| index | integer | Chunk index |
-| page | integer | Page number |
-| x | float | The lower left x coordinate |
-| y | float |  The lower left y coordinate |
-| width | float |  The width of the rectangle |
-| height | float |  The height of the rectangle |
-
+| Field name | Type    | Description                 |
+| ---------- | ------- | --------------------------- |
+| index      | integer | Chunk index                 |
+| page       | integer | Page number                 |
+| x          | float   | The lower left x coordinate |
+| y          | float   | The lower left y coordinate |
+| width      | float   | The width of the rectangle  |
+| height     | float   | The height of the rectangle |
 
 ## Enums
 
 ### PageSegmentationMode
 
-  * ***OSD_ONLY***: Orientation and script detection only.
-  * ***AUTO_OSD***: Automatic page segmentation with orientation and script detection.
-  * ***AUTO_ONLY***: Automatic page segmentation, but no OSD, or OCR.
-  * ***AUTO***: Fully automatic page segmentation, but no OSD.
-  * ***SINGLE_COLUMN***: Assume a single column of text of variable sizes.
-  * ***SINGLE_BLOCK_VERT_TEXT***: Assume a single uniform block of vertically aligned text.
-  * ***SINGLE_BLOCK***: Assume a single uniform block of text.
-  * ***SINGLE_LINE***: Treat the image as a single text line.
-  * ***SINGLE_WORD***: Treat the image as a single word.
-  * ***CIRCLE_WORD***: Treat the image as a single word in a circle.
-  * ***SINGLE_CHAR***: Treat the image as a single character.
-  * ***SPARSE_TEXT***: Find as much text as possible in no particular order.
-  * ***SPARSE_TEXT_OSD***: Sparse text with orientation and script detection.
+- **_OSD_ONLY_**: Orientation and script detection only.
+- **_AUTO_OSD_**: Automatic page segmentation with orientation and script detection.
+- **_AUTO_ONLY_**: Automatic page segmentation, but no OSD, or OCR.
+- **_AUTO_**: Fully automatic page segmentation, but no OSD.
+- **_SINGLE_COLUMN_**: Assume a single column of text of variable sizes.
+- **_SINGLE_BLOCK_VERT_TEXT_**: Assume a single uniform block of vertically aligned text.
+- **_SINGLE_BLOCK_**: Assume a single uniform block of text.
+- **_SINGLE_LINE_**: Treat the image as a single text line.
+- **_SINGLE_WORD_**: Treat the image as a single word.
+- **_CIRCLE_WORD_**: Treat the image as a single word in a circle.
+- **_SINGLE_CHAR_**: Treat the image as a single character.
+- **_SPARSE_TEXT_**: Find as much text as possible in no particular order.
+- **_SPARSE_TEXT_OSD_**: Sparse text with orientation and script detection.
 
 ### EngineMode
 
-  *  ***TESSERACT_ONLY***: Legacy engine only.
-  *  ***OEM_LSTM_ONLY***: Neural nets LSTM engine only.
-  *  ***TESSERACT_LSTM_COMBINED***: Legacy + LSTM engines.
-  *  ***DEFAULT***: Default, based on what is available.
-  
+- **_TESSERACT_ONLY_**: Legacy engine only.
+- **_OEM_LSTM_ONLY_**: Neural nets LSTM engine only.
+- **_TESSERACT_LSTM_COMBINED_**: Legacy + LSTM engines.
+- **_DEFAULT_**: Default, based on what is available.
+
 ### PageIteratorLevel
 
-  * ***BLOCK***: Block of text/image/separator line.
-  * ***PARAGRAPH***: Paragraph within a block.
-  * ***TEXTLINE***: Line within a paragraph.
-  * ***WORD***: Word within a text line.
-  * ***SYMBOL***: Symbol/character within a word.
+- **_BLOCK_**: Block of text/image/separator line.
+- **_PARAGRAPH_**: Paragraph within a block.
+- **_TEXTLINE_**: Line within a paragraph.
+- **_WORD_**: Word within a text line.
+- **_SYMBOL_**: Symbol/character within a word.
 
 ### ImageType
- 
- * ***TYPE_BYTE_GRAY***
- * ***TYPE_BYTE_BINARY***
- * ***TYPE_3BYTE_BGR***
- * ***TYPE_4BYTE_ABGR***
- 
+
+- **_TYPE_BYTE_GRAY_**
+- **_TYPE_BYTE_BINARY_**
+- **_TYPE_3BYTE_BGR_**
+- **_TYPE_4BYTE_ABGR_**
+
 ### NoiseMethod
 
- * ***VARIANCE***
- * ***RATIO***
- 
+- **_VARIANCE_**
+- **_RATIO_**
+
 ### KernelShape
 
- * ***SQUARE***
- * ***DIAMOND***
- * ***DISK***
- * ***OCTAHEDRON***
- * ***OCTAGON***
- * ***STAR***
- 
+- **_SQUARE_**
+- **_DIAMOND_**
+- **_DISK_**
+- **_OCTAHEDRON_**
+- **_OCTAGON_**
+- **_STAR_**
+
 ## OCR implicits
 
 ### asImage
@@ -1649,12 +1629,11 @@ element: struct (containsNull = true)
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| outputCol | string | image | output column name |
-| contentCol | string | content | input column name with binary content |
-| pathCol | string | path | input column name with path to original file |
-
+| Param name | Type   | Default | Description                                  |
+| ---------- | ------ | ------- | -------------------------------------------- |
+| outputCol  | string | image   | output column name                           |
+| contentCol | string | content | input column name with binary content        |
+| pathCol    | string | path    | input column name with path to original file |
 
 **Example:**
 
@@ -1678,12 +1657,11 @@ df.show()
 
 #### Parameters
 
-| Param name | Type | Default | Description |
-| --- | --- | --- | --- |
-| inputColumn | string | | input column name with image struct |
-| formatName | string | png | image format name |
-| prefix | string | sparknlp_ocr_ | prefix for output file |
-
+| Param name  | Type   | Default       | Description                         |
+| ----------- | ------ | ------------- | ----------------------------------- |
+| inputColumn | string |               | input column name with image struct |
+| formatName  | string | png           | image format name                   |
+| prefix      | string | sparknlp*ocr* | prefix for output file              |
 
 **Example:**
 
@@ -1705,14 +1683,13 @@ df.storeImage("image")
 
 ## Error Handling
 
-Pipeline execution would not be interrupted in case of the runtime exceptions 
-while processing some records. 
+Pipeline execution would not be interrupted in case of the runtime exceptions
+while processing some records.
 
 In this case OCR transformers would fill _exception_ column that contains _transformer name_ and _exception_.
 
-NOTE: Storing runtime errors to the _exception_ field allows to process batch of files. 
+NOTE: Storing runtime errors to the _exception_ field allows to process batch of files.
 {:.info}
-
 
 #### Output
 
@@ -1734,5 +1711,5 @@ result.select("path", "text", "exception").show(2, false)
 ## Performance
 
 In case of big count of text PDF's in dataset
-need have manual partitioning for avoid skew in partitions and effective utilize resources. 
+need have manual partitioning for avoid skew in partitions and effective utilize resources.
 For example the randomization could be used.

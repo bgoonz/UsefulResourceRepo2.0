@@ -131,6 +131,7 @@ assert obj5 == {};
 ```
 
 ## Further Reading
+
 There are a few but important concepts that are not touched in this exmaple, including:
 
 - Passing variables from command line: [Parameterize Entire Config](https://jsonnet.org/learning/tutorial.html#parameterize-entire-config)

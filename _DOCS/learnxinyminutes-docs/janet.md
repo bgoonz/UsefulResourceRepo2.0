@@ -2,7 +2,7 @@
 language: Janet
 filename: learnJanet.janet
 contributors:
-    - ["John Gabriele", "http://www.unexpected-vortices.com/"]
+  - ["John Gabriele", "http://www.unexpected-vortices.com/"]
 ---
 
 [Janet](https://janet-lang.org/) is a Lisp-like (Clojure-like),
@@ -14,7 +14,7 @@ I encourage you to try out the code snippets below in the Janet
 repl (either by [installing Janet](https://janet-lang.org/docs/index.html),
 or else by using the repl embedded in the Janet homepage).
 
-As we only have a scant *y* minutes, we'll survey the basics here and
+As we only have a scant _y_ minutes, we'll survey the basics here and
 leave the remaining details for the manual. So please, keep your arms and
 legs inside the vehicle at all times, and on with the scenic tour!
 

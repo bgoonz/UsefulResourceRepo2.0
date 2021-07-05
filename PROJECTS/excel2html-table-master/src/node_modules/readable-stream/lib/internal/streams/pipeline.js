@@ -1,6 +1,6 @@
 // Ported from https://github.com/mafintosh/pump with
 // permission from the author, Mathias Buus (@mafintosh).
-'use strict';
+"use strict";
 
 var eos;
 
@@ -13,9 +13,9 @@ function once(callback) {
   };
 }
 
-var _require$codes = require('../../../errors').codes,
-    ERR_MISSING_ARGS = _require$codes.ERR_MISSING_ARGS,
-    ERR_STREAM_DESTROYED = _require$codes.ERR_STREAM_DESTROYED;
+var _require$codes = require("../../../errors").codes,
+  ERR_MISSING_ARGS = _require$codes.ERR_MISSING_ARGS,
+  ERR_STREAM_DESTROYED = _require$codes.ERR_STREAM_DESTROYED;
 
 function noop(err) {
   // Rethrow the error if it exists to avoid swallowing it
@@ -23,24 +23,28 @@ function noop(err) {
 }
 
 function isRequest(stream) {
-  return stream.setHeader && typeof stream.abort === 'function';
+  return stream.setHeader && typeof stream.abort === "function";
 }
 
 function destroyer(stream, reading, writing, callback) {
   callback = once(callback);
   var closed = false;
-  stream.on('close', function () {
+  stream.on("close", function () {
     closed = true;
   });
-  if (eos === undefined) eos = require('./end-of-stream');
-  eos(stream, {
-    readable: reading,
-    writable: writing
-  }, function (err) {
-    if (err) return callback(err);
-    closed = true;
-    callback();
-  });
+  if (eos === undefined) eos = require("./end-of-stream");
+  eos(
+    stream,
+    {
+      readable: reading,
+      writable: writing,
+    },
+    function (err) {
+      if (err) return callback(err);
+      closed = true;
+      callback();
+    }
+  );
   var destroyed = false;
   return function (err) {
     if (closed) return;
@@ -48,8 +52,8 @@ function destroyer(stream, reading, writing, callback) {
     destroyed = true; // request.destroy just do .end - .abort is what we want
 
     if (isRequest(stream)) return stream.abort();
-    if (typeof stream.destroy === 'function') return stream.destroy();
-    callback(err || new ERR_STREAM_DESTROYED('pipe'));
+    if (typeof stream.destroy === "function") return stream.destroy();
+    callback(err || new ERR_STREAM_DESTROYED("pipe"));
   };
 }
 
@@ -63,12 +67,16 @@ function pipe(from, to) {
 
 function popCallback(streams) {
   if (!streams.length) return noop;
-  if (typeof streams[streams.length - 1] !== 'function') return noop;
+  if (typeof streams[streams.length - 1] !== "function") return noop;
   return streams.pop();
 }
 
 function pipeline() {
-  for (var _len = arguments.length, streams = new Array(_len), _key = 0; _key < _len; _key++) {
+  for (
+    var _len = arguments.length, streams = new Array(_len), _key = 0;
+    _key < _len;
+    _key++
+  ) {
     streams[_key] = arguments[_key];
   }
 
@@ -76,7 +84,7 @@ function pipeline() {
   if (Array.isArray(streams[0])) streams = streams[0];
 
   if (streams.length < 2) {
-    throw new ERR_MISSING_ARGS('streams');
+    throw new ERR_MISSING_ARGS("streams");
   }
 
   var error;

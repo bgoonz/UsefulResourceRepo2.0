@@ -15,7 +15,7 @@ Distinctions are made between the **content** and the **markup**. In short, cont
 
 ## Some definitions and introductions
 
-XML Documents are basically made up of *elements* which can have *attributes* describing them and may contain some textual content or more elements as its children. All XML documents must have a root element, which is the ancestor of all the other elements in the document.
+XML Documents are basically made up of _elements_ which can have _attributes_ describing them and may contain some textual content or more elements as its children. All XML documents must have a root element, which is the ancestor of all the other elements in the document.
 
 XML Parsers are designed to be very strict, and will stop parsing malformed documents. Therefore it must be ensured that all XML documents follow the [XML Syntax Rules](http://www.w3schools.com/xml/xml_syntax.asp).
 
@@ -98,7 +98,7 @@ This is what makes XML versatile. It is human readable too. The following docume
 
 ## Well-formedness and Validation
 
-A XML document is *well-formed* if it is syntactically correct. However, it is possible to add more constraints to the document, using Document Type Definitions (DTDs). A document whose elements are attributes are declared in a DTD and which follows the grammar specified in that DTD is called *valid* with respect to that DTD, in addition to being well-formed.
+A XML document is _well-formed_ if it is syntactically correct. However, it is possible to add more constraints to the document, using Document Type Definitions (DTDs). A document whose elements are attributes are declared in a DTD and which follows the grammar specified in that DTD is called _valid_ with respect to that DTD, in addition to being well-formed.
 
 Declaring a DTD externally:
 
@@ -157,15 +157,15 @@ The DTD could be declared inside the XML file itself:
 
 ## DTD Compatibility and XML Schema Definitions
 
-Support for DTDs is ubiquitous because they are so old. Unfortunately, modern XML features like namespaces are not supported by DTDs. XML Schema Definitions (XSDs) are meant to replace DTDs for defining XML document grammar. 
+Support for DTDs is ubiquitous because they are so old. Unfortunately, modern XML features like namespaces are not supported by DTDs. XML Schema Definitions (XSDs) are meant to replace DTDs for defining XML document grammar.
 
 ## Resources
 
-* [Validate your XML](http://www.xmlvalidation.com)
+- [Validate your XML](http://www.xmlvalidation.com)
 
 ## Further Reading
 
-* [XML Schema Definitions Tutorial](http://www.w3schools.com/schema/)
-* [DTD Tutorial](http://www.w3schools.com/xml/xml_dtd_intro.asp)
-* [XML Tutorial](http://www.w3schools.com/xml/default.asp)
-* [Using XPath queries to parse XML](http://www.w3schools.com/xml/xml_xpath.asp)
+- [XML Schema Definitions Tutorial](http://www.w3schools.com/schema/)
+- [DTD Tutorial](http://www.w3schools.com/xml/xml_dtd_intro.asp)
+- [XML Tutorial](http://www.w3schools.com/xml/default.asp)
+- [Using XPath queries to parse XML](http://www.w3schools.com/xml/xml_xpath.asp)

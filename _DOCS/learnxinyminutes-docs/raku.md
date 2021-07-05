@@ -3,8 +3,8 @@ category: language
 language: Raku
 filename: learnraku.raku
 contributors:
-    - ["vendethiel", "http://github.com/vendethiel"]
-    - ["Samantha McVey", "https://cry.nu"]
+  - ["vendethiel", "http://github.com/vendethiel"]
+  - ["Samantha McVey", "https://cry.nu"]
 ---
 
 Raku (formerly Perl 6) is a highly capable, feature-rich programming language
@@ -15,14 +15,14 @@ the JVM and the [MoarVM](http://moarvm.com).
 
 Meta-note:
 
-* Although the pound sign (`#`) is used for sentences and notes, Pod-styled
+- Although the pound sign (`#`) is used for sentences and notes, Pod-styled
   comments (more below about them) are used whenever it's convenient.
-* `# OUTPUT:` is used to represent the output of a command to any standard
-   stream. If the output has a newline, it's represented by the `␤` symbol.
-   The output is always enclosed by angle brackets (`«` and `»`).
-* `#=>` represents the value of an expression, return value of a sub, etc.
-   In some cases, the value is accompanied by a comment.
-* Backticks are used to distinguish and highlight the language constructs
+- `# OUTPUT:` is used to represent the output of a command to any standard
+  stream. If the output has a newline, it's represented by the `␤` symbol.
+  The output is always enclosed by angle brackets (`«` and `»`).
+- `#=>` represents the value of an expression, return value of a sub, etc.
+  In some cases, the value is accompanied by a comment.
+- Backticks are used to distinguish and highlight the language constructs
   from the text.
 
 ```perl6
@@ -784,7 +784,7 @@ first-of-array(@small); #=> 1
 # Here, `@rest` is `(3,)`, since `$fst` holds the `2`. This results
 # since the length (.elems) of `@rest` is 1.
 sub slurp-in-array(@ [$fst, *@rest]) {
-    say $fst + @rest.elems;           
+    say $fst + @rest.elems;
 }
 slurp-in-array(@tail); # OUTPUT: «3␤»
 
@@ -1084,14 +1084,14 @@ sub call_say_dyn {
     my $*dyn_scoped_1 = 25;
 
     # Will change the value of the file scoped variable.
-    $*dyn_scoped_2 = 100;  
+    $*dyn_scoped_2 = 100;
 
     # $*dyn_scoped 1 and 2 will be looked for in the call.
     say_dyn();  # OUTPUT: «25 100␤»
 
     # The call to `say_dyn` uses the value of $*dyn_scoped_1 from inside
     # this sub's lexical scope even though the blocks aren't nested (they're
-    # call-nested).                     
+    # call-nested).
 }
 say_dyn();      # OUTPUT: «1 10␤»
 
@@ -2388,24 +2388,24 @@ for <a b c> { .say if * ^ff *; }  # OUTPUT: «b␤c␤»
 If you want to go further and learn more about Raku, you can:
 
 - Read the [Raku Docs](https://docs.raku.org/). This is a great
-resource on Raku. If you are looking for something, use the search bar.
-This will give you a dropdown menu of all the pages referencing your search
-term (Much better than using Google to find Raku documents!).
+  resource on Raku. If you are looking for something, use the search bar.
+  This will give you a dropdown menu of all the pages referencing your search
+  term (Much better than using Google to find Raku documents!).
 
 - Read the [Raku Advent Calendar](https://rakuadventcalendar.wordpress.com/). This
-is a great source of Raku snippets and explanations. If the docs don't
-describe something well enough, you may find more detailed information here.
-This information may be a bit older but there are many great examples and
-explanations. Posts stopped at the end of 2015 when the language was declared
-stable and `Raku v6.c` was released.
+  is a great source of Raku snippets and explanations. If the docs don't
+  describe something well enough, you may find more detailed information here.
+  This information may be a bit older but there are many great examples and
+  explanations. Posts stopped at the end of 2015 when the language was declared
+  stable and `Raku v6.c` was released.
 
 - Come along on `#raku` at [`irc.freenode.net`](https://webchat.freenode.net/?channels=#raku). The folks here are
-always helpful.
+  always helpful.
 
 - Check the [source of Raku's functions and
-classes](https://github.com/rakudo/rakudo/tree/master/src/core.c). Rakudo is
-mainly written in Raku (with a lot of NQP, "Not Quite Perl", a Raku subset
-easier to implement and optimize).
+  classes](https://github.com/rakudo/rakudo/tree/master/src/core.c). Rakudo is
+  mainly written in Raku (with a lot of NQP, "Not Quite Perl", a Raku subset
+  easier to implement and optimize).
 
 - Read [the language design documents](https://design.raku.org/). They explain
-Raku from an implementor point-of-view, but it's still very interesting.
+  Raku from an implementor point-of-view, but it's still very interesting.

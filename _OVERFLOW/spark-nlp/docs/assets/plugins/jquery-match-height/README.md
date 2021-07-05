@@ -1,7 +1,7 @@
-# jquery.matchHeight.js #
+# jquery.matchHeight.js
 
-> *matchHeight* makes the height of all selected elements exactly equal.<br>
-It handles many edge cases that cause similar plugins to fail.
+> _matchHeight_ makes the height of all selected elements exactly equal.<br>
+> It handles many edge cases that cause similar plugins to fail.
 
 [brm.io/jquery-match-height](http://brm.io/jquery-match-height/)
 
@@ -28,7 +28,7 @@ See the [jquery.matchHeight.js demo](http://brm.io/jquery-match-height-demo).
 
 ### Status
 
-Current version is `v0.5.2`. I've fully tested it and it works well, but if you use it make sure you test fully too. 
+Current version is `v0.5.2`. I've fully tested it and it works well, but if you use it make sure you test fully too.
 Please report any [issues](https://github.com/liabru/jquery-match-height/issues) you find.
 
 ### Install
@@ -36,15 +36,15 @@ Please report any [issues](https://github.com/liabru/jquery-match-height/issues)
 [jQuery](http://jquery.com/download/) is required, so include it first.
 <br>Download [jquery.matchHeight.js](https://github.com/liabru/jquery-match-height/blob/master/jquery.matchHeight.js) and include the script in your HTML file:
 
-	<script src="jquery.matchHeight.js" type="text/javascript"></script>
+    <script src="jquery.matchHeight.js" type="text/javascript"></script>
 
 #### Or install using [Bower](http://bower.io/)
 
-	bower install matchHeight
+    bower install matchHeight
 
 ### Usage
 
-	$(elements).matchHeight(byRow);
+    $(elements).matchHeight(byRow);
 
 Where `byRow` is a boolean that enables or disables row detection, default is `true`.<br>
 You should apply this on the [DOM ready](http://api.jquery.com/ready/) event.
@@ -53,17 +53,17 @@ See the included [test.html](https://github.com/liabru/jquery-match-height/blob/
 
 ### Examples
 
-	$(function() {
-		$('.item').matchHeight();
-	});
+    $(function() {
+    	$('.item').matchHeight();
+    });
 
 Will set all elements with the class `item` to the height of the tallest.<br>
 If the items are on multiple rows, the items of each row will be set to the tallest of that row.
 
-	<div data-mh="my-group">My text</div>
-	<div data-mh="my-group">Some other text</div>
-	<div data-mh="my-other-group">Even more text</div>
-	<div data-mh="my-other-group">The last bit of text</div>
+    <div data-mh="my-group">My text</div>
+    <div data-mh="my-group">Some other text</div>
+    <div data-mh="my-other-group">Even more text</div>
+    <div data-mh="my-other-group">The last bit of text</div>
 
 Will set both elements in `my-group` to the same height, then both elements in `my-other-group` to be the same height respectively.
 
@@ -77,7 +77,7 @@ There are a few internal properties and functions you should know about:
 
 Use the data attribute `data-match-height="group-name"` (or `data-mh` shorthand) where `group-name` is an arbitrary string to denote which elements should be considered as a group.
 
-All elements with the same group name will be set to the same height when the page is loaded, regardless of their position in the DOM, without any extra code required. 
+All elements with the same group name will be set to the same height when the page is loaded, regardless of their position in the DOM, without any extra code required.
 
 Note that `byRow` will be enabled when using the data API, if you don't want this then use the alternative method above.
 
@@ -99,23 +99,23 @@ Where `event` a jQuery event object (e.g. `load`, `resize`, `orientationchange`)
 
 It is possible to remove any matchHeight bindings for a given set of elements like so
 
-	$('.item').matchHeight('remove');
+    $('.item').matchHeight('remove');
 
 #### Manually trigger an update
 
-	$.fn.matchHeight._update()
+    $.fn.matchHeight._update()
 
 If you need to manually trigger an update of all currently set equal heights groups, for example if you've modified some content.
 
 #### Manually apply match height
 
-	$.fn.matchHeight._apply(elements, byRow)
+    $.fn.matchHeight._apply(elements, byRow)
 
 Use the apply function directly if you wish to avoid the automatic update functionality.
 
 #### Throttling resize updates
 
-	$.fn.matchHeight._throttle = 80;
+    $.fn.matchHeight._throttle = 80;
 
 By default, the `_update` method is throttled to execute at a maximum rate of once every `80ms`.
 Decreasing the above `_throttle` property will update your layout quicker, appearing smoother during resize, at the expense of performance.
@@ -123,7 +123,7 @@ If you experience lagging or freezing during resize, you should increase the `_t
 
 #### Maintain scroll position
 
-	$.fn.matchHeight._maintainScroll = true;
+    $.fn.matchHeight._maintainScroll = true;
 
 Under certain conditions where the size of the page is dynamically changing, such as during resize or when adding new elements, browser bugs cause the page scroll position to change unexpectedly.
 
@@ -131,7 +131,7 @@ If you are observing this behaviour, use the above line to automatically attempt
 
 #### Accessing groups directly
 
-	$.fn.matchHeight._groups
+    $.fn.matchHeight._groups
 
 The array that contains all element groups that have had `matchHeight` applied. Used for automatically updating on resize events. Search and modify this array if you need to remove any groups or elements, for example if you're deleting elements.
 

@@ -2,13 +2,13 @@
 category: Algorithms & Data Structures
 name: Lambda Calculus
 contributors:
-    - ["Max Sun", "http://github.com/maxsun"]
-    - ["Yan Hui Hang", "http://github.com/yanhh0"]
+  - ["Max Sun", "http://github.com/maxsun"]
+  - ["Yan Hui Hang", "http://github.com/yanhh0"]
 ---
 
 # Lambda Calculus
 
-Lambda calculus (λ-calculus), originally created by 
+Lambda calculus (λ-calculus), originally created by
 [Alonzo Church](https://en.wikipedia.org/wiki/Alonzo_Church),
 is the world's smallest programming language.
 Despite not having numbers, strings, booleans, or any non-function datatype,
@@ -17,9 +17,8 @@ lambda calculus can be used to represent any Turing Machine!
 Lambda calculus is composed of 3 elements: **variables**, **functions**, and
 **applications**.
 
-
 | Name        | Syntax                             | Example   | Explanation                                   |
-|-------------|------------------------------------|-----------|-----------------------------------------------|
+| ----------- | ---------------------------------- | --------- | --------------------------------------------- |
 | Variable    | `<name>`                           | `x`       | a variable named "x"                          |
 | Function    | `λ<parameters>.<body>`             | `λx.x`    | a function with parameter "x" and body "x"    |
 | Application | `<function><variable or function>` | `(λx.x)a` | calling the function "λx.x" with argument "a" |
@@ -31,12 +30,12 @@ body of the function.
 ## Free vs. Bound Variables:
 
 - In the function `λx.x`, "x" is called a bound variable because it is both in
-the body of the function and a parameter.
+  the body of the function and a parameter.
 - In `λx.y`, "y" is called a free variable because it is never declared before hand.
 
 ## Evaluation:
 
-Evaluation is done via 
+Evaluation is done via
 [β-Reduction](https://en.wikipedia.org/wiki/Lambda_calculus#Beta_reduction),
 which is essentially lexically-scoped substitution.
 
@@ -51,15 +50,15 @@ You can even create higher-order functions:
 
 - `(λx.(λy.x))a` evaluates to: `λy.a`
 
-Although lambda calculus traditionally supports only single parameter 
-functions, we can create multi-parameter functions using a technique called 
+Although lambda calculus traditionally supports only single parameter
+functions, we can create multi-parameter functions using a technique called
 [currying](https://en.wikipedia.org/wiki/Currying).
 
 - `(λx.λy.λz.xyz)` is equivalent to `f(x, y, z) = ((x y) z)`
 
 Sometimes `λxy.<body>` is used interchangeably with: `λx.λy.<body>`
 
-----
+---
 
 It's important to recognize that traditional **lambda calculus doesn't have
 numbers, characters, or any non-function datatype!**
@@ -87,7 +86,7 @@ Using `IF`, we can define the basic boolean logic operators:
 
 `NOT a` is equivalent to: `λa.IF a F T`
 
-*Note: `IF a b c` is essentially saying: `IF((a b) c)`*
+_Note: `IF a b c` is essentially saying: `IF((a b) c)`_
 
 ## Numbers:
 
@@ -123,7 +122,7 @@ Let S, K, I be the following functions:
 
 `I x = x`
 
-`K x y =  x`
+`K x y = x`
 
 `S x y z = x z (y z)`
 

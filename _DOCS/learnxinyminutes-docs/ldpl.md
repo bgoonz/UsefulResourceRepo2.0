@@ -2,7 +2,7 @@
 language: LDPL
 filename: learnLDPL.ldpl
 contributors:
-    - ["Martín del Río", "https://github.com/lartu"]
+  - ["Martín del Río", "https://github.com/lartu"]
 ---
 
 **LDPL** is a powerful, C++ transpiled, open-source programming language designed
@@ -38,7 +38,7 @@ myMap  is number map        # Defines a map of numbers.
 # TEXT MAPs and NUMBER MAPs. You can also chain many containers
 # to create larger data types:
 textListList is text list list
-myMulticontainer is number list list map 
+myMulticontainer is number list list map
 # Defines a map of lists of lists of numbers.
 
 PROCEDURE:
@@ -116,7 +116,7 @@ store 1.2 in myNumber
 in myNumber solve myNumber * (10 / 7.2) # Operators are separated by spaces.
 floor myNumber
 display myNumber crlf
-get random in myNumber # get a random number between 0 and 1 
+get random in myNumber # get a random number between 0 and 1
                        # and store it in myNumber
 
 # Functions in LDPL are called sub-procedures. Sub-procedures, like source
@@ -167,4 +167,4 @@ exit
 
 ## Further Reading
 
- * [LDPL Docs](https://docs.ldpl-lang.org)
+- [LDPL Docs](https://docs.ldpl-lang.org)

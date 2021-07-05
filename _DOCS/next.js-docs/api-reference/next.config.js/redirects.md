@@ -32,13 +32,13 @@ module.exports = {
   async redirects() {
     return [
       {
-        source: '/about',
-        destination: '/',
+        source: "/about",
+        destination: "/",
         permanent: true,
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 `redirects` is an async function that expects an array to be returned holding objects with `source`, `destination`, and `permanent` properties:
@@ -61,13 +61,13 @@ module.exports = {
   async redirects() {
     return [
       {
-        source: '/old-blog/:slug',
-        destination: '/news/:slug', // Matched parameters can be used in the destination
+        source: "/old-blog/:slug",
+        destination: "/news/:slug", // Matched parameters can be used in the destination
         permanent: true,
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 ### Wildcard Path Matching
@@ -79,13 +79,13 @@ module.exports = {
   async redirects() {
     return [
       {
-        source: '/blog/:slug*',
-        destination: '/news/:slug*', // Matched parameters can be used in the destination
+        source: "/blog/:slug*",
+        destination: "/news/:slug*", // Matched parameters can be used in the destination
         permanent: true,
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 ### Regex Path Matching
@@ -97,13 +97,13 @@ module.exports = {
   async redirects() {
     return [
       {
-        source: '/post/:slug(\\d{1,})',
-        destination: '/news/:slug', // Matched parameters can be used in the destination
+        source: "/post/:slug(\\d{1,})",
+        destination: "/news/:slug", // Matched parameters can be used in the destination
         permanent: false,
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 The following characters `(`, `)`, `{`, `}`, `:`, `*`, `+`, `?` are used for regex path matching, so when used in the `source` as non-special values they must be escaped by adding `\\` before them:
@@ -114,13 +114,13 @@ module.exports = {
     return [
       {
         // this will match `/english(default)/something` being requested
-        source: '/english\\(default\\)/:slug',
-        destination: '/en-us/:slug',
+        source: "/english\\(default\\)/:slug",
+        destination: "/en-us/:slug",
         permanent: false,
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 ## Header, Cookie, and Query Matching
@@ -209,25 +209,25 @@ When leveraging [`basePath` support](/docs/api-reference/next.config.js/basepath
 
 ```js
 module.exports = {
-  basePath: '/docs',
+  basePath: "/docs",
 
   async redirects() {
     return [
       {
-        source: '/with-basePath', // automatically becomes /docs/with-basePath
-        destination: '/another', // automatically becomes /docs/another
+        source: "/with-basePath", // automatically becomes /docs/with-basePath
+        destination: "/another", // automatically becomes /docs/another
         permanent: false,
       },
       {
         // does not add /docs since basePath: false is set
-        source: '/without-basePath',
-        destination: '/another',
+        source: "/without-basePath",
+        destination: "/another",
         basePath: false,
         permanent: false,
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 ### Redirects with i18n support
@@ -237,41 +237,41 @@ When leveraging [`i18n` support](/docs/advanced-features/i18n-routing.md) with r
 ```js
 module.exports = {
   i18n: {
-    locales: ['en', 'fr', 'de'],
-    defaultLocale: 'en',
+    locales: ["en", "fr", "de"],
+    defaultLocale: "en",
   },
 
   async redirects() {
     return [
       {
-        source: '/with-locale', // automatically handles all locales
-        destination: '/another', // automatically passes the locale on
+        source: "/with-locale", // automatically handles all locales
+        destination: "/another", // automatically passes the locale on
         permanent: false,
       },
       {
         // does not handle locales automatically since locale: false is set
-        source: '/nl/with-locale-manual',
-        destination: '/nl/another',
+        source: "/nl/with-locale-manual",
+        destination: "/nl/another",
         locale: false,
         permanent: false,
       },
       {
         // this matches '/' since `en` is the defaultLocale
-        source: '/en',
-        destination: '/en/another',
+        source: "/en",
+        destination: "/en/another",
         locale: false,
         permanent: false,
       },
       {
         // this gets converted to /(en|fr|de)/(.*) so will not match the top-level
         // `/` or `/fr` routes like /:path* would
-        source: '/(.*)',
-        destination: '/another',
+        source: "/(.*)",
+        destination: "/another",
         permanent: false,
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 In some rare cases, you might need to assign a custom status code for older HTTP Clients to properly redirect. In these cases, you can use the `statusCode` property instead of the `permanent` property, but not both. Note: to ensure IE11 compatibility a `Refresh` header is automatically added for the 308 status code.

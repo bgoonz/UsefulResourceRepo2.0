@@ -1,12 +1,12 @@
 ---
 language: latex
 contributors:
-    - ["Chaitanya Krishna Ande", "http://icymist.github.io"]
-    - ["Colton Kohnke", "https://github.com/voltnor"]
-    - ["Sricharan Chiruvolu", "http://sricharan.xyz"]
-    - ["Ramanan Balakrishnan", "https://github.com/ramananbalakrishnan"]
-    - ["Svetlana Golubeva", "https://attillax.github.io/"]
-    - ["Oliver Kopp", "http://orcid.org/0000-0001-6962-4290"]
+  - ["Chaitanya Krishna Ande", "http://icymist.github.io"]
+  - ["Colton Kohnke", "https://github.com/voltnor"]
+  - ["Sricharan Chiruvolu", "http://sricharan.xyz"]
+  - ["Ramanan Balakrishnan", "https://github.com/ramananbalakrishnan"]
+  - ["Svetlana Golubeva", "https://attillax.github.io/"]
+  - ["Oliver Kopp", "http://orcid.org/0000-0001-6962-4290"]
 filename: learn-latex.tex
 ---
 
@@ -140,7 +140,7 @@ about!
 Operators are essential parts of a mathematical document:
 trigonometric functions ($\sin$, $\cos$, $\tan$),
 logarithms and exponentials ($\log$, $\exp$),
-limits ($\lim$), etc.\ 
+limits ($\lim$), etc.\
 have pre-defined LaTeX commands.
 Let's write an equation to see how it's done:
 $\cos(2\theta) = \cos^{2}(\theta) - \sin^{2}(\theta)$
@@ -317,6 +317,6 @@ That's all for now!
 
 ## More on LaTeX
 
-* The amazing LaTeX wikibook: [https://en.wikibooks.org/wiki/LaTeX](https://en.wikibooks.org/wiki/LaTeX)
-* An actual tutorial: [http://www.latex-tutorial.com/](http://www.latex-tutorial.com/)
-* A quick guide for learning LaTeX: [Learn LaTeX in 30 minutes](https://www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes)
+- The amazing LaTeX wikibook: [https://en.wikibooks.org/wiki/LaTeX](https://en.wikibooks.org/wiki/LaTeX)
+- An actual tutorial: [http://www.latex-tutorial.com/](http://www.latex-tutorial.com/)
+- A quick guide for learning LaTeX: [Learn LaTeX in 30 minutes](https://www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes)

@@ -2,10 +2,10 @@
 language: Scala
 filename: learnscala.scala
 contributors:
-    - ["George Petrov", "http://github.com/petrovg"]
-    - ["Dominic Bou-Samra", "http://dbousamra.github.com"]
-    - ["Geoff Liu", "http://geoffliu.me"]
-    - ["Ha-Duong Nguyen", "http://reference-error.org"]
+  - ["George Petrov", "http://github.com/petrovg"]
+  - ["Dominic Bou-Samra", "http://dbousamra.github.com"]
+  - ["Geoff Liu", "http://geoffliu.me"]
+  - ["Ha-Duong Nguyen", "http://reference-error.org"]
 ---
 
 Scala - the scalable language
@@ -27,7 +27,7 @@ Scala - the scalable language
 
   Scala has a tool called the REPL (Read-Eval-Print Loop) that is analogous to
   commandline interpreters in many other languages. You may type any Scala
-  expression, and the result will be evaluated and printed.  
+  expression, and the result will be evaluated and printed.
 
   The REPL is a very handy tool to test and verify code.  Use it as you read
   this tutorial to quickly explore concepts on your own.
@@ -479,16 +479,16 @@ class SaintBernard extends Dog {
 	val breed = "Saint Bernard"
 	val color = "brown"
 	def bite = false
-}  
+}
 
-scala> b  
-res0: SaintBernard = SaintBernard@3e57cd70  
-scala> b.breed  
-res1: String = Saint Bernard  
-scala> b.bark  
-res2: Boolean = true  
-scala> b.bite  
-res3: Boolean = false  
+scala> b
+res0: SaintBernard = SaintBernard@3e57cd70
+scala> b.breed
+res1: String = Saint Bernard
+scala> b.bark
+res2: Boolean = true
+scala> b.bite
+res3: Boolean = false
 
 // A trait can also be used as Mixin. The class "extends" the first trait,
 // but the keyword "with" can add additional traits.
@@ -747,8 +747,8 @@ writer.close()
 
 ## Further resources
 
-* [Scala for the impatient](http://horstmann.com/scala/)
-* [Twitter Scala school](http://twitter.github.io/scala_school/)
-* [The scala documentation](http://docs.scala-lang.org/)
-* [Try Scala in your browser](http://scalatutorials.com/tour/)
-* Join the [Scala user group](https://groups.google.com/forum/#!forum/scala-user)
+- [Scala for the impatient](http://horstmann.com/scala/)
+- [Twitter Scala school](http://twitter.github.io/scala_school/)
+- [The scala documentation](http://docs.scala-lang.org/)
+- [Try Scala in your browser](http://scalatutorials.com/tour/)
+- Join the [Scala user group](https://groups.google.com/forum/#!forum/scala-user)

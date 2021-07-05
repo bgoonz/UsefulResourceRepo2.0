@@ -91,7 +91,7 @@ patients and remove them by replacing with semantic tags.
 
 This spell checker utilizes tensorflow to do context based spell checking. At this moment, this annotator cannot be trained from Spark NLP. We are providing pretrained models only, for now.  
 **Output type:** Token  
-**Input types:** Tokenizer  
+**Input types:** Tokenizer
 
 ### PositionFinder
 
@@ -100,9 +100,10 @@ Consumes a pageMatrixCol given by OCR and returns chunks location in the origina
 **Output type:** CHUNK
 **Input types:** CHUNK
 **Functions:**
+
 - setPageMatrixCol(string)
 - setMatchingWindows(int): In text window around target coordinates. Improves precision when dealing with noisy documents
-- setWindowPageTolerance(bool): Increases precision on noisy documents by increasing tolerance on multi page files. 
+- setWindowPageTolerance(bool): Increases precision on noisy documents by increasing tolerance on multi page files.
 
 ### References
 

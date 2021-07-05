@@ -1,5 +1,4 @@
 ---
-
 language: racket
 filename: learnracket.rkt
 contributors:
@@ -13,7 +12,6 @@ contributors:
 Racket is a general purpose, multi-paradigm programming language in the Lisp/Scheme family.
 
 Feedback is appreciated! You can reach me at [@th3rac25](http://twitter.com/th3rac25) or th3rac25 [at] [google's email service]
-
 
 ```racket
 #lang racket ; defines the language we are using
@@ -166,7 +164,7 @@ my-pet ; => #<dog>
 (list 1 2 3) ; => '(1 2 3)
 ;; a quote can also be used for a literal list value
 '(1 2 3) ; => '(1 2 3)
-;; a quasiquote (represented by the backtick character) with commas 
+;; a quasiquote (represented by the backtick character) with commas
 ;; can be used to evaluate functions
 `(1 ,(+ 1 1) 3) ; => '(1 2 3)
 

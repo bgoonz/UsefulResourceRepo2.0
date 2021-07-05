@@ -59,9 +59,9 @@ By default, Next.js will run ESLint for all files in the `pages/`, `components/`
 ```js
 module.exports = {
   eslint: {
-    dirs: ['pages', 'utils'], // Only run ESLint on the 'pages' and 'utils' directories during production builds (next build)
+    dirs: ["pages", "utils"], // Only run ESLint on the 'pages' and 'utils' directories during production builds (next build)
   },
-}
+};
 ```
 
 Similarly, the `--dir` flag can be used for `next lint`:
@@ -167,9 +167,9 @@ If you already have ESLint configured in your application, we recommend extendin
 module.exports = {
   extends: [
     //...
-    'plugin:@next/next/recommended',
+    "plugin:@next/next/recommended",
   ],
-}
+};
 ```
 
 This eliminates any risk of collisions that can occur due to importing the same plugin or parser across multiple configurations.

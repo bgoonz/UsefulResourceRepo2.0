@@ -15,7 +15,7 @@ In order to get through the NLP process, we need to get raw data
 annotated. There is a special transformer that does this for us: it
 creates the first annotation of type Document which may be used by
 annotators down the road. It can read either a String column or an
-Array\[String\]  
+Array\[String\]
 
 **Settable parameters are:**
 
@@ -23,22 +23,21 @@ Array\[String\]
 - setOutputCol()
 - setIdCol() -> OPTIONAL: Sring type column with id information
 - setMetadataCol() -> OPTIONAL: Map type column with metadata
-information
+  information
 - setCleanupMode(disabled) -> Cleaning up options, possible values:
   - disabled: Source kept as original.
   - inplace: removes new lines and tabs.
   - inplace_full: removes new lines and tabs but also those which were
-  converted to strings (i.e. \\n)
+    converted to strings (i.e. \\n)
   - shrink: removes new lines and tabs, plus merging multiple spaces
-  and blank lines to a single space.
+    and blank lines to a single space.
   - shrink_full: removews new lines and tabs, including stringified
-  values, plus shrinking spaces and blank lines.
+    values, plus shrinking spaces and blank lines.
 
 **Example:**
 
 Refer to the [DocumentAssembler](https://nlp.johnsnowlabs.com/api/index#com.johnsnowlabs.nlp.DocumentAssembler)
 Scala docs for more details on the API.
-
 
 {% include programmingLanguageSelectScalaPython.html %}
 
@@ -97,7 +96,6 @@ TokenAssembler token_assembler = new TokenAssembler()
     .setOutputCol("assembled")
 ```
 
-
 ```python
 token_assembler = TokenAssembler() \
     .setInputCols(["normalized"]) \
@@ -112,7 +110,7 @@ val token_assembler = new TokenAssembler()
 
 ### Doc2Chunk
 
-Converts DOCUMENT type annotations into CHUNK type with the contents of a chunkCol. Chunk text must be contained within input DOCUMENT. May be either StringType or ArrayType\[StringType\] (using isArray Param) Useful for annotators that require a CHUNK type input.  
+Converts DOCUMENT type annotations into CHUNK type with the contents of a chunkCol. Chunk text must be contained within input DOCUMENT. May be either StringType or ArrayType\[StringType\] (using isArray Param) Useful for annotators that require a CHUNK type input.
 
 **Settable parameters are:**
 
@@ -130,7 +128,6 @@ Converts DOCUMENT type annotations into CHUNK type with the contents of a chunkC
 Refer to the [Doc2Chunk](https://nlp.johnsnowlabs.com/api/index#com.johnsnowlabs.nlp.Doc2Chunk) Scala docs for more details on the API.
 
 {% include programmingLanguageSelectScalaPython.html %}
-
 
 ```python
 chunker = Doc2Chunk()\
@@ -150,7 +147,7 @@ val chunker = new Doc2Chunk()
 
 ### Chunk2Doc
 
-Converts a CHUNK type column back into DOCUMENT. Useful when trying to re-tokenize or do further analysis on a CHUNK result.  
+Converts a CHUNK type column back into DOCUMENT. Useful when trying to re-tokenize or do further analysis on a CHUNK result.
 
 **Settable parameters are:**
 
@@ -162,7 +159,6 @@ Converts a CHUNK type column back into DOCUMENT. Useful when trying to re-tokeni
 Refer to the [Chunk2Doc](https://nlp.johnsnowlabs.com/api/index#com.johnsnowlabs.nlp.Chunk2Doc) Scala docs for more details on the API.
 
 {% include programmingLanguageSelectScalaPython.html %}
-
 
 ```python
 chunk_doc = Chunk2Doc()\
@@ -196,7 +192,6 @@ Refer to the [Finisher](https://nlp.johnsnowlabs.com/api/index#com.johnsnowlabs.
 
 {% include programmingLanguageSelect.html %}
 
-
 ```python
 finisher = Finisher() \
     .setInputCols(["token"]) \
@@ -225,6 +220,7 @@ This transformer is designed to deal with embedding annotators: `WordEmbeddings`
 Refer to the [EmbeddingsFinisher](https://nlp.johnsnowlabs.com/api/index#com.johnsnowlabs.nlp.EmbeddingsFinisher) Scala docs for more details on the API.
 
 {% include programmingLanguageSelect.html %}
+
 ```java
 todo
 ```

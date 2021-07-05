@@ -27,29 +27,31 @@ Some Ethereum contract examples include crowdfunding, voting, and blind auctions
 
 - Intro
 - Example
+
 1. Data types and associated methods
 2. Data structures
 3. Simple operators
 4. Global variables of note
 5. Functions and more
-    a. functions
-    b. events
+   a. functions
+   b. events
 6. Branching and loops
 7. Objects/contracts
-    a. calling external contracts
-    b. ERC20 built-in
-    c. following an interface
+   a. calling external contracts
+   b. ERC20 built-in
+   c. following an interface
 8. Other keywords
-    a. selfdestruct
+   a. selfdestruct
 9. Contract design notes
-    a. obfuscation
-    b. storage optimization
-    c. data access in blockchain
-    d. cron job
-    e. observer pattern
+   a. obfuscation
+   b. storage optimization
+   c. data access in blockchain
+   d. cron job
+   e. observer pattern
 10. Security
 11. Style notes
 12. Natspec comments
+
 - Other documents
 
 ---
@@ -59,32 +61,32 @@ Some Ethereum contract examples include crowdfunding, voting, and blind auctions
 From [the docs](https://media.readthedocs.org/pdf/vyper/latest/vyper.pdf)
 the foundational tenants of Vyper are:
 
-1. *Security*
-2. *Language and compiler simplicity*
-3. *Auditability*
+1. _Security_
+2. _Language and compiler simplicity_
+3. _Auditability_
 
 This allows for the following features:
 
-1. *Bounds and overflow checking*
+1. _Bounds and overflow checking_
    - On the arithmetic and array level
    - There are no dynamic arrays in Vyper
-2. *Support for signed integers and decimal fixed point numbers*
-3. *Decidability* - You can always compute precise upper bound on gas cost
-4. *Strong typing* - for built-in and custom types
-5. *Small and understandable compiler code*
-6. *Limited support for pure functions*
-    - Anything marked `@constant` is not allowed to change the state
+2. _Support for signed integers and decimal fixed point numbers_
+3. _Decidability_ - You can always compute precise upper bound on gas cost
+4. _Strong typing_ - for built-in and custom types
+5. _Small and understandable compiler code_
+6. _Limited support for pure functions_
+   - Anything marked `@constant` is not allowed to change the state
 
 Following the principles and goals, Vyper does not provide the following features:
 
-1. *Modifiers* (defining parts of functions elsewhere)
-2. *Class inheritance*
-3. *Inline assembly*
-4. *Function overloading*
-5. *Operator overloading*
-6. *Recursive calling*
-7. *Infinite-length loops*
-8. *Binary fixed point* (decimal fixed point is used for its exactness)
+1. _Modifiers_ (defining parts of functions elsewhere)
+2. _Class inheritance_
+3. _Inline assembly_
+4. _Function overloading_
+5. _Operator overloading_
+6. _Recursive calling_
+7. _Infinite-length loops_
+8. _Binary fixed point_ (decimal fixed point is used for its exactness)
 
 WITH THE RAPID CHANGES IN ETHEREUM, THIS DOCUMENT IS UNLIKELY TO STAY UP TO
 DATE, SO YOU SHOULD FOLLOW THE LATEST VYPER DOCS AND ETHEREUM BLOG FOR THE LATEST.
@@ -99,8 +101,8 @@ features are typically marked, and subject to change. Pull requests welcome.
 
 This document describes Vyper version `0.1.0-beta.8`.
 
-*All of the following code exists for educational purposes only!*
-*None of the following code should be used in production as-is!*
+_All of the following code exists for educational purposes only!_
+_None of the following code should be used in production as-is!_
 
 ## Example
 
@@ -838,6 +840,7 @@ def doSomething():
 ```
 
 ## Additional resources
+
 - [Installation](https://vyper.readthedocs.io/en/latest/installing-vyper.html)
 - [Vyper Docs](https://media.readthedocs.org/pdf/vyper/latest/vyper.pdf)
 - [Vyper GitHub (under active dev)](https://github.com/ethereum/vyper)
@@ -845,28 +848,33 @@ def doSomething():
 - [Online Compiler](https://vyper.online/)
 
 ## Sample contracts
+
 - [Uniswap](https://github.com/Uniswap/contracts-vyper)
 - [Generalized Governance](https://github.com/kpeluso/gdg)
 - [Dynamic Arrays](https://github.com/kpeluso/vyper-dynamic-array)
 
 ## Security
+
 Vyper is secure by design, but it may be helpful to understand what Vyper is
 protecting you from.
+
 - [Thinking About Smart Contract Security](https:#blog.ethereum.org/2016/06/19/thinking-smart-contract-security/)
 - [Smart Contract Security](https:#blog.ethereum.org/2016/06/10/smart-contract-security/)
 - [Hacking Distributed Blog](http:#hackingdistributed.com/)
 
 ## Style
+
 - [Vyper Style Guide WIP](https://github.com/ethereum/vyper/issues/905)
   - Heavily derived from [Solidity's style guide](http:#solidity.readthedocs.io/en/latest/style-guide.html) ...
   - ... which, in turn, is heavily derived from Python's [PEP 8](https:#www.python.org/dev/peps/pep-0008/) style guide.
 
 ## Editors
+
 - [Vyper for VS Code (alpha)](https://github.com/p-/vscode-vyper)
 
 ## Future To Dos
+
 - Update to current Vyper release
 - List of common design patterns
 
-*Feel free to send a pull request with any edits - or email* `pelusoken -/at-/ gmail`
-
+_Feel free to send a pull request with any edits - or email_ `pelusoken -/at-/ gmail`

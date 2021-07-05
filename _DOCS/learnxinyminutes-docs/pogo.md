@@ -1,13 +1,13 @@
 ---
 language: pogoscript
 contributors:
-    - ["Tim Macfarlane", "http://github.com/refractalize"]
+  - ["Tim Macfarlane", "http://github.com/refractalize"]
 filename: learnPogo.pogo
 ---
 
 Pogoscript is a little language that emphasises readability, DSLs and provides excellent asynchronous primitives for writing connected JavaScript applications for the browser or server.
 
-``` javascript
+```javascript
 // defining a variable
 water temperature = 24
 

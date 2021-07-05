@@ -97,10 +97,10 @@ Moment.js includes translations for a lot of locales by default. Next.js now aut
 To load a specific locale use this snippet:
 
 ```js
-import moment from 'moment'
-import 'moment/locale/ja'
+import moment from "moment";
+import "moment/locale/ja";
 
-moment.locale('ja')
+moment.locale("ja");
 ```
 
 You can opt-out of this new default by adding `excludeDefaultMomentLocales: false` to `next.config.js` if you do not want the new behavior, do note it's highly recommended to not disable this new optimization as it significantly reduces the size of Moment.js.
@@ -114,19 +114,19 @@ useEffect(() => {
   const handleRouteChange = (url, { shallow }) => {
     console.log(
       `App is changing to ${url} ${
-        shallow ? 'with' : 'without'
+        shallow ? "with" : "without"
       } shallow routing`
-    )
-  }
+    );
+  };
 
-  router.events.on('routeChangeStart', handleRouteChange)
+  router.events.on("routeChangeStart", handleRouteChange);
 
   // If the component is unmounted, unsubscribe
   // from the event with the `off` method:
   return () => {
-    router.events.off('routeChangeStart', handleRouteChange)
-  }
-}, [router])
+    router.events.off("routeChangeStart", handleRouteChange);
+  };
+}, [router]);
 ```
 
 If your application uses `router.router.events` which was an internal property that was not public please make sure to use `router.events` as well.
@@ -175,13 +175,13 @@ The following `getInitialProps` does nothing and may be removed:
 class MyApp extends App {
   // Remove me, I do nothing!
   static async getInitialProps({ Component, ctx }) {
-    let pageProps = {}
+    let pageProps = {};
 
     if (Component.getInitialProps) {
-      pageProps = await Component.getInitialProps(ctx)
+      pageProps = await Component.getInitialProps(ctx);
     }
 
-    return { pageProps }
+    return { pageProps };
   }
 
   render() {
@@ -209,17 +209,17 @@ The following types are different:
 From:
 
 ```tsx
-import { NextContext } from 'next'
-import { NextAppContext, DefaultAppIProps } from 'next/app'
-import { NextDocumentContext, DefaultDocumentIProps } from 'next/document'
+import { NextContext } from "next";
+import { NextAppContext, DefaultAppIProps } from "next/app";
+import { NextDocumentContext, DefaultDocumentIProps } from "next/document";
 ```
 
 to
 
 ```tsx
-import { NextPageContext } from 'next'
-import { AppContext, AppInitialProps } from 'next/app'
-import { DocumentContext, DocumentInitialProps } from 'next/document'
+import { NextPageContext } from "next";
+import { AppContext, AppInitialProps } from "next/app";
+import { DocumentContext, DocumentInitialProps } from "next/document";
 ```
 
 #### The `config` key is now an export on a page
@@ -234,14 +234,14 @@ You must rename a non-Next.js-purposed `config` export to something different.
 Dynamic components will not render anything by default while loading. You can still customize this behavior by setting the `loading` property:
 
 ```jsx
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
 const DynamicComponentWithCustomLoading = dynamic(
-  () => import('../components/hello2'),
+  () => import("../components/hello2"),
   {
     loading: () => <p>Loading</p>,
   }
-)
+);
 ```
 
 #### `withAmp` has been removed in favor of an exported configuration object
@@ -274,14 +274,14 @@ export default withAmp(Home, { hybrid: true })
 
 ```jsx
 export default function Home() {
-  return <h1>My AMP Page</h1>
+  return <h1>My AMP Page</h1>;
 }
 
 export const config = {
   amp: true,
   // or
-  amp: 'hybrid',
-}
+  amp: "hybrid",
+};
 ```
 
 #### `next export` no longer exports pages as `index.html`
@@ -294,7 +294,7 @@ You can revert to the previous behavior by creating a `next.config.js` with the 
 // next.config.js
 module.exports = {
   trailingSlash: true,
-}
+};
 ```
 
 #### `./pages/api/` is treated differently
@@ -313,16 +313,16 @@ Updating code that relies on this behavior is relatively straightforward! We've 
 **Before**
 
 ```jsx
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
 const HelloBundle = dynamic({
   modules: () => {
     const components = {
-      Hello1: () => import('../components/hello1').then((m) => m.default),
-      Hello2: () => import('../components/hello2').then((m) => m.default),
-    }
+      Hello1: () => import("../components/hello1").then((m) => m.default),
+      Hello2: () => import("../components/hello2").then((m) => m.default),
+    };
 
-    return components
+    return components;
   },
   render: (props, { Hello1, Hello2 }) => (
     <div>
@@ -331,22 +331,22 @@ const HelloBundle = dynamic({
       <Hello2 />
     </div>
   ),
-})
+});
 
 function DynamicBundle() {
-  return <HelloBundle title="Dynamic Bundle" />
+  return <HelloBundle title="Dynamic Bundle" />;
 }
 
-export default DynamicBundle
+export default DynamicBundle;
 ```
 
 **After**
 
 ```jsx
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
-const Hello1 = dynamic(() => import('../components/hello1'))
-const Hello2 = dynamic(() => import('../components/hello2'))
+const Hello1 = dynamic(() => import("../components/hello1"));
+const Hello2 = dynamic(() => import("../components/hello2"));
 
 function HelloBundle({ title }) {
   return (
@@ -355,12 +355,12 @@ function HelloBundle({ title }) {
       <Hello1 />
       <Hello2 />
     </div>
-  )
+  );
 }
 
 function DynamicBundle() {
-  return <HelloBundle title="Dynamic Bundle" />
+  return <HelloBundle title="Dynamic Bundle" />;
 }
 
-export default DynamicBundle
+export default DynamicBundle;
 ```

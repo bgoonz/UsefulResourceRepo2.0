@@ -1,8 +1,8 @@
 ---
 language: kdb+
 contributors:
-    - ["Matt Doherty", "https://github.com/picodoc"]
-    - ["Jonny Press", "https://github.com/jonnypress"]
+  - ["Matt Doherty", "https://github.com/picodoc"]
+  - ["Jonny Press", "https://github.com/jonnypress"]
 filename: learnkdb.q
 ---
 
@@ -15,15 +15,15 @@ encouraging some amount of [code
 golf](https://en.wikipedia.org/wiki/Code_golf)). The fundamental structure in
 the language is not the object but instead the list, and tables are built as
 collections of lists. This means - unlike most traditional RDBMS systems -
-tables are column oriented.  The language has both an in-memory and on-disk
+tables are column oriented. The language has both an in-memory and on-disk
 database built in, giving a large amount of flexibility. kdb+ is most widely
 used in the world of finance to store, analyze, process and retrieve large
 time-series data sets.
 
-The terms *q* and *kdb+* are usually used interchangeably, as the two are not
+The terms _q_ and _kdb+_ are usually used interchangeably, as the two are not
 separable so this distinction is not really useful.
 
-All Feedback welcome!  You can reach me at matt.doherty@aquaq.co.uk, or Jonny
+All Feedback welcome! You can reach me at matt.doherty@aquaq.co.uk, or Jonny
 at jonny.press@aquaq.co.uk
 
 To learn more about kdb+ you can join the [Personal kdb+](https://groups.google.com/forum/#!forum/personal-kdbplus) or [TorQ kdb+](https://groups.google.com/forum/#!forum/kdbtorq) group.
@@ -769,8 +769,8 @@ select from splayed / (the columns are read from disk on request)
 
 ## Want to know more?
 
-* [*q for mortals* q language tutorial](http://code.kx.com/q4m3/)
-* [*Introduction to Kdb+* on disk data tutorial](http://code.kx.com/q4m3/14_Introduction_to_Kdb+/)
-* [q language reference](https://code.kx.com/q/ref/)
-* [Online training courses](http://training.aquaq.co.uk/)
-* [TorQ production framework](https://github.com/AquaQAnalytics/TorQ)
+- [_q for mortals_ q language tutorial](http://code.kx.com/q4m3/)
+- [_Introduction to Kdb+_ on disk data tutorial](http://code.kx.com/q4m3/14_Introduction_to_Kdb+/)
+- [q language reference](https://code.kx.com/q/ref/)
+- [Online training courses](http://training.aquaq.co.uk/)
+- [TorQ production framework](https://github.com/AquaQAnalytics/TorQ)

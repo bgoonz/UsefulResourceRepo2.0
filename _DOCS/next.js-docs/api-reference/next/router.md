@@ -11,28 +11,28 @@ description: Learn more about the API of the Next.js Router, and access the rout
 If you want to access the [`router` object](#router-object) inside any function component in your app, you can use the `useRouter` hook, take a look at the following example:
 
 ```jsx
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 
 function ActiveLink({ children, href }) {
-  const router = useRouter()
+  const router = useRouter();
   const style = {
     marginRight: 10,
-    color: router.asPath === href ? 'red' : 'black',
-  }
+    color: router.asPath === href ? "red" : "black",
+  };
 
   const handleClick = (e) => {
-    e.preventDefault()
-    router.push(href)
-  }
+    e.preventDefault();
+    router.push(href);
+  };
 
   return (
     <a href={href} onClick={handleClick} style={style}>
       {children}
     </a>
-  )
+  );
 }
 
-export default ActiveLink
+export default ActiveLink;
 ```
 
 > `useRouter` is a [React Hook](https://reactjs.org/docs/hooks-intro.html), meaning it cannot be used with classes. You can either use [withRouter](#withRouter) or wrap your class in a function component.
@@ -67,7 +67,7 @@ Additionally, the following methods are also included inside `router`:
 Handles client-side transitions, this method is useful for cases where [`next/link`](/docs/api-reference/next/link.md) is not enough.
 
 ```jsx
-router.push(url, as, options)
+router.push(url, as, options);
 ```
 
 - `url` - The URL to navigate to
@@ -84,32 +84,32 @@ router.push(url, as, options)
 Navigating to `pages/about.js`, which is a predefined route:
 
 ```jsx
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 
 export default function Page() {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
-    <button type="button" onClick={() => router.push('/about')}>
+    <button type="button" onClick={() => router.push("/about")}>
       Click me
     </button>
-  )
+  );
 }
 ```
 
 Navigating `pages/post/[pid].js`, which is a dynamic route:
 
 ```jsx
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 
 export default function Page() {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
-    <button type="button" onClick={() => router.push('/post/abc')}>
+    <button type="button" onClick={() => router.push("/post/abc")}>
       Click me
     </button>
-  )
+  );
 }
 ```
 
@@ -118,23 +118,23 @@ export default function Page() {
 Redirecting the user to `pages/login.js`, useful for pages behind [authentication](/docs/authentication):
 
 ```jsx
-import { useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 // Here you would fetch and return the user
-const useUser = () => ({ user: null, loading: false })
+const useUser = () => ({ user: null, loading: false });
 
 export default function Page() {
-  const { user, loading } = useUser()
-  const router = useRouter()
+  const { user, loading } = useUser();
+  const router = useRouter();
 
   useEffect(() => {
     if (!(user || loading)) {
-      router.push('/login')
+      router.push("/login");
     }
-  }, [user, loading])
+  }, [user, loading]);
 
-  return <p>Redirecting...</p>
+  return <p>Redirecting...</p>;
 }
 ```
 
@@ -143,24 +143,24 @@ export default function Page() {
 You can use a URL object in the same way you can use it for [`next/link`](/docs/api-reference/next/link.md#with-url-object). Works for both the `url` and `as` parameters:
 
 ```jsx
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 
 export default function ReadMore({ post }) {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <button
       type="button"
       onClick={() => {
         router.push({
-          pathname: '/post/[pid]',
+          pathname: "/post/[pid]",
           query: { pid: post.id },
-        })
+        });
       }}
     >
       Click here to read more
     </button>
-  )
+  );
 }
 ```
 
@@ -169,7 +169,7 @@ export default function ReadMore({ post }) {
 Similar to the `replace` prop in [`next/link`](/docs/api-reference/next/link.md), `router.replace` will prevent adding a new URL entry into the `history` stack.
 
 ```jsx
-router.replace(url, as, options)
+router.replace(url, as, options);
 ```
 
 - The API for `router.replace` is exactly the same as the API for [`router.push`](#router.push).
@@ -179,16 +179,16 @@ router.replace(url, as, options)
 Take a look at the following example:
 
 ```jsx
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 
 export default function Page() {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
-    <button type="button" onClick={() => router.replace('/home')}>
+    <button type="button" onClick={() => router.replace("/home")}>
       Click me
     </button>
-  )
+  );
 }
 ```
 
@@ -199,7 +199,7 @@ Prefetch pages for faster client-side transitions. This method is only useful fo
 > This is a production only feature. Next.js doesn't prefetch pages on development.
 
 ```jsx
-router.prefetch(url, as)
+router.prefetch(url, as);
 ```
 
 - `url` - The URL to prefetch, that is, a path with a matching page
@@ -210,37 +210,37 @@ router.prefetch(url, as)
 Let's say you have a login page, and after a login, you redirect the user to the dashboard. For that case, we can prefetch the dashboard to make a faster transition, like in the following example:
 
 ```jsx
-import { useCallback, useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { useCallback, useEffect } from "react";
+import { useRouter } from "next/router";
 
 export default function Login() {
-  const router = useRouter()
+  const router = useRouter();
   const handleSubmit = useCallback((e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         /* Form data */
       }),
     }).then((res) => {
       // Do a fast client-side transition to the already prefetched dashboard page
-      if (res.ok) router.push('/dashboard')
-    })
-  }, [])
+      if (res.ok) router.push("/dashboard");
+    });
+  }, []);
 
   useEffect(() => {
     // Prefetch the dashboard page
-    router.prefetch('/dashboard')
-  }, [])
+    router.prefetch("/dashboard");
+  }, []);
 
   return (
     <form onSubmit={handleSubmit}>
       {/* Form fields */}
       <button type="submit">Login</button>
     </form>
-  )
+  );
 }
 ```
 
@@ -249,7 +249,7 @@ export default function Login() {
 In some cases (for example, if using a [Custom Server](/docs/advanced-features/custom-server.md)), you may wish to listen to [popstate](https://developer.mozilla.org/en-US/docs/Web/Events/popstate) and do something before the router acts on it.
 
 ```jsx
-router.beforePopState(cb)
+router.beforePopState(cb);
 ```
 
 - `cb` - The function to run on incoming `popstate` events. The function receives the state of the event as an object with the following props:
@@ -264,26 +264,26 @@ If `cb` returns `false`, the Next.js router will not handle `popstate`, and you'
 You could use `beforePopState` to manipulate the request, or force a SSR refresh, as in the following example:
 
 ```jsx
-import { useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 export default function Page() {
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     router.beforePopState(({ url, as, options }) => {
       // I only want to allow these two routes!
-      if (as !== '/' && as !== '/other') {
+      if (as !== "/" && as !== "/other") {
         // Have SSR render bad routes as a 404.
-        window.location.href = as
-        return false
+        window.location.href = as;
+        return false;
       }
 
-      return true
-    })
-  }, [])
+      return true;
+    });
+  }, []);
 
-  return <p>Welcome to the page</p>
+  return <p>Welcome to the page</p>;
 }
 ```
 
@@ -294,16 +294,16 @@ Navigate back in history. Equivalent to clicking the browser’s back button. It
 #### Usage
 
 ```jsx
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 
 export default function Page() {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <button type="button" onClick={() => router.back()}>
       Click here to go back
     </button>
-  )
+  );
 }
 ```
 
@@ -314,16 +314,16 @@ Reload the current URL. Equivalent to clicking the browser’s refresh button. I
 #### Usage
 
 ```jsx
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 
 export default function Page() {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <button type="button" onClick={() => router.reload()}>
       Click here to reload
     </button>
-  )
+  );
 }
 ```
 
@@ -353,31 +353,31 @@ You can listen to different events happening inside the Next.js Router. Here's a
 For example, to listen to the router event `routeChangeStart`, open or create `pages/_app.js` and subscribe to the event, like so:
 
 ```jsx
-import { useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 export default function MyApp({ Component, pageProps }) {
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const handleRouteChange = (url, { shallow }) => {
       console.log(
         `App is changing to ${url} ${
-          shallow ? 'with' : 'without'
+          shallow ? "with" : "without"
         } shallow routing`
-      )
-    }
+      );
+    };
 
-    router.events.on('routeChangeStart', handleRouteChange)
+    router.events.on("routeChangeStart", handleRouteChange);
 
     // If the component is unmounted, unsubscribe
     // from the event with the `off` method:
     return () => {
-      router.events.off('routeChangeStart', handleRouteChange)
-    }
-  }, [])
+      router.events.off("routeChangeStart", handleRouteChange);
+    };
+  }, []);
 
-  return <Component {...pageProps} />
+  return <Component {...pageProps} />;
 }
 ```
 
@@ -388,29 +388,29 @@ Router events should be registered when a component mounts ([useEffect](https://
 If a route load is cancelled (for example, by clicking two links rapidly in succession), `routeChangeError` will fire. And the passed `err` will contain a `cancelled` property set to `true`, as in the following example:
 
 ```jsx
-import { useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 export default function MyApp({ Component, pageProps }) {
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const handleRouteChangeError = (err, url) => {
       if (err.cancelled) {
-        console.log(`Route to ${url} was cancelled!`)
+        console.log(`Route to ${url} was cancelled!`);
       }
-    }
+    };
 
-    router.events.on('routeChangeError', handleRouteChangeError)
+    router.events.on("routeChangeError", handleRouteChangeError);
 
     // If the component is unmounted, unsubscribe
     // from the event with the `off` method:
     return () => {
-      router.events.off('routeChangeError', handleRouteChangeError)
-    }
-  }, [])
+      router.events.off("routeChangeError", handleRouteChangeError);
+    };
+  }, []);
 
-  return <Component {...pageProps} />
+  return <Component {...pageProps} />;
 }
 ```
 
@@ -421,13 +421,13 @@ If [`useRouter`](#useRouter) is not the best fit for you, `withRouter` can also 
 ### Usage
 
 ```jsx
-import { withRouter } from 'next/router'
+import { withRouter } from "next/router";
 
 function Page({ router }) {
-  return <p>{router.pathname}</p>
+  return <p>{router.pathname}</p>;
 }
 
-export default withRouter(Page)
+export default withRouter(Page);
 ```
 
 ### TypeScript
@@ -435,20 +435,20 @@ export default withRouter(Page)
 To use class components with `withRouter`, the component needs to accept a router prop:
 
 ```tsx
-import React from 'react'
-import { withRouter, NextRouter } from 'next/router'
+import React from "react";
+import { withRouter, NextRouter } from "next/router";
 
 interface WithRouterProps {
-  router: NextRouter
+  router: NextRouter;
 }
 
 interface MyComponentProps extends WithRouterProps {}
 
 class MyComponent extends React.Component<MyComponentProps> {
   render() {
-    return <p>{this.props.router.pathname}</p>
+    return <p>{this.props.router.pathname}</p>;
   }
 }
 
-export default withRouter(MyComponent)
+export default withRouter(MyComponent);
 ```

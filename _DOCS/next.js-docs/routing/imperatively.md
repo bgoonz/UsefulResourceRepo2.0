@@ -16,15 +16,15 @@ description: Client-side navigations are also possible using the Next.js Router 
 The following example shows how to do basic page navigations with [`useRouter`](/docs/api-reference/next/router.md#useRouter):
 
 ```jsx
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 
 function ReadMore() {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
-    <span onClick={() => router.push('/about')}>Click here to read more</span>
-  )
+    <span onClick={() => router.push("/about")}>Click here to read more</span>
+  );
 }
 
-export default ReadMore
+export default ReadMore;
 ```

@@ -41,7 +41,7 @@ export async function getStaticProps() {
     host: process.env.DB_HOST,
     username: process.env.DB_USER,
     password: process.env.DB_PASS,
-  })
+  });
   // ...
 }
 ```
@@ -90,16 +90,16 @@ This loads `process.env.NEXT_PUBLIC_ANALYTICS_ID` into the Node.js environment a
 
 ```js
 // pages/index.js
-import setupAnalyticsService from '../lib/my-analytics-service'
+import setupAnalyticsService from "../lib/my-analytics-service";
 
 // NEXT_PUBLIC_ANALYTICS_ID can be used here as it's prefixed by NEXT_PUBLIC_
-setupAnalyticsService(process.env.NEXT_PUBLIC_ANALYTICS_ID)
+setupAnalyticsService(process.env.NEXT_PUBLIC_ANALYTICS_ID);
 
 function HomePage() {
-  return <h1>Hello World</h1>
+  return <h1>Hello World</h1>;
 }
 
-export default HomePage
+export default HomePage;
 ```
 
 ## Default Environment Variables
@@ -140,10 +140,10 @@ While running unit tests you can make sure to load your environment variables th
 
 ```js
 // The below can be used in a Jest global setup file or similar for your testing set-up
-import { loadEnvConfig } from '@next/env'
+import { loadEnvConfig } from "@next/env";
 
 export default async () => {
-  const projectDir = process.cwd()
-  loadEnvConfig(projectDir)
-}
+  const projectDir = process.cwd();
+  loadEnvConfig(projectDir);
+};
 ```

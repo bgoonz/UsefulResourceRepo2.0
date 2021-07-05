@@ -3,7 +3,7 @@ category: tool
 tool: OpenGL
 filename: learnopengl.cpp
 contributors:
-    - ["Simon Deitermann", "s.f.deitermann@t-online.de"]
+  - ["Simon Deitermann", "s.f.deitermann@t-online.de"]
 ---
 
 **Open Graphics Library** (**OpenGL**) is a cross-language cross-platform application programming interface
@@ -155,7 +155,7 @@ sf::Event event{ };
 // We also have to delete the program at the end of the application.
 // ...
     }
-    glDeleteProgram(program);	
+    glDeleteProgram(program);
     return 0;
 }
 // ...
@@ -201,6 +201,7 @@ void main() {
 ```
 
 ## VAO and VBO
+
 Now we need to define some vertex position we can pass to our shaders. Lets define a simple 2D quad.
 
 ```cpp
@@ -270,6 +271,7 @@ return 0;
 You can find the current code here: [OpenGL - 1](https://pastebin.com/W8jdmVHD).
 
 ## More VBO's and Color
+
 Let's create another VBO for some colors.
 
 ```cpp
@@ -301,7 +303,7 @@ glBufferData(GL_ARRAY_BUFFER, sizeof(colorData[0]) * colorData.size(),
 glEnableVertexAttribArray(1);
 glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-glBindVertexArray(0);  
+glBindVertexArray(0);
 // ...
 ```
 
@@ -339,8 +341,8 @@ void main() {
 }
 ```
 
-We define a new input variable ```color``` which represents our color data, this data
-is passed on to ```fColor```, which is an output variable of our vertex shader and
+We define a new input variable `color` which represents our color data, this data
+is passed on to `fColor`, which is an output variable of our vertex shader and
 becomes an input variable for our fragment shader.
 It is imporatant that variables passed between shaders have the exact same name
 and type.
@@ -615,7 +617,7 @@ In our source we now need to change the vertex data, create a model- and a proje
 
 ```cpp
 // The new vertex data, counter-clockwise declaration.
-std::vector<float> vertexData {  
+std::vector<float> vertexData {
     0.0f, 1.0f, 0.0f,   // top left
     0.0f, 0.0f, 0.0f,   // bottom left
     1.0f, 0.0f, 0.0f,   // bottom right
@@ -626,7 +628,7 @@ GLint projectionLocation = glGetUniformLocation(program, "projection");
 GLint modelLocation = glGetUniformLocation(program, "model");
 // Declaring the matricies.
 // Orthogonal matrix for a 1024x768 window.
-std::vector<float> projection {  
+std::vector<float> projection {
     0.001953f,       0.0f,  0.0f, 0.0f,
          0.0f, -0.002604f,  0.0f, 0.0f,
          0.0f,       0.0f, -1.0f, 0.0f,
@@ -634,7 +636,7 @@ std::vector<float> projection {
 };
 // Model matrix translating to x 50, y 50
 // and scaling to x 200, y 200.
-std::vector<float> model {  
+std::vector<float> model {
     200.0f,   0.0f, 0.0f, 0.0f,
       0.0f, 200.0f, 0.0f, 0.0f,
       0.0f,   0.0f, 1.0f, 0.0f,
@@ -755,8 +757,8 @@ If you now store a single point with a single color in a VBO and draw them,
 you should see a triangle, with your color mixed half way between
 red, green and blue on each vertex.
 
-
 ## Quotes
+
 <sup>[1]</sup>[OpenGL - Wikipedia](https://en.wikipedia.org/wiki/OpenGL)
 
 ## Books

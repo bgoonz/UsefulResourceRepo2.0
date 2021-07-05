@@ -3,7 +3,7 @@ category: tool
 tool: raylib
 filename: learnraylib.c
 contributors:
-    - ["Nikolas Wipper", "https://notnik.cc"]
+  - ["Nikolas Wipper", "https://notnik.cc"]
 ---
 
 **raylib** is a cross-platform easy-to-use graphics library, built around
@@ -142,5 +142,6 @@ int main(void)
 ```
 
 ## Further reading
+
 raylib has some [great examples](https://www.raylib.com/examples.html)
 If you don't like C check out the [raylib bindings](https://github.com/raysan5/raylib/blob/master/BINDINGS.md)

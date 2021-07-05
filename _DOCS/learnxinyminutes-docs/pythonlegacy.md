@@ -1,13 +1,13 @@
 ---
 language: Python 2 (legacy)
 contributors:
-    - ["Louie Dinh", "http://ldinh.ca"]
-    - ["Amin Bandali", "https://aminb.org"]
-    - ["Andre Polykanine", "https://github.com/Oire"]
-    - ["evuez", "http://github.com/evuez"]
-    - ["asyne", "https://github.com/justblah"]
-    - ["habi", "http://github.com/habi"]
-    - ["Rommel Martinez", "https://ebzzry.io"]
+  - ["Louie Dinh", "http://ldinh.ca"]
+  - ["Amin Bandali", "https://aminb.org"]
+  - ["Andre Polykanine", "https://github.com/Oire"]
+  - ["evuez", "http://github.com/evuez"]
+  - ["asyne", "https://github.com/justblah"]
+  - ["habi", "http://github.com/habi"]
+  - ["Rommel Martinez", "https://ebzzry.io"]
 filename: learnpythonlegacy.py
 ---
 
@@ -809,19 +809,19 @@ print say(say_please=True)  # Can you buy me a beer? Please! I am poor :(
 
 ### Free Online
 
-* [Automate the Boring Stuff with Python](https://automatetheboringstuff.com)
-* [Learn Python The Hard Way](http://learnpythonthehardway.org/book/)
-* [Dive Into Python](http://www.diveintopython.net/)
-* [The Official Docs](http://docs.python.org/2/)
-* [Hitchhiker's Guide to Python](http://docs.python-guide.org/en/latest/)
-* [Python Module of the Week](http://pymotw.com/2/)
-* [A Crash Course in Python for Scientists](http://nbviewer.ipython.org/5920182)
-* [First Steps With Python](https://realpython.com/learn/python-first-steps/)
-* [LearnPython](http://www.learnpython.org/)
-* [Fullstack Python](https://www.fullstackpython.com/)
+- [Automate the Boring Stuff with Python](https://automatetheboringstuff.com)
+- [Learn Python The Hard Way](http://learnpythonthehardway.org/book/)
+- [Dive Into Python](http://www.diveintopython.net/)
+- [The Official Docs](http://docs.python.org/2/)
+- [Hitchhiker's Guide to Python](http://docs.python-guide.org/en/latest/)
+- [Python Module of the Week](http://pymotw.com/2/)
+- [A Crash Course in Python for Scientists](http://nbviewer.ipython.org/5920182)
+- [First Steps With Python](https://realpython.com/learn/python-first-steps/)
+- [LearnPython](http://www.learnpython.org/)
+- [Fullstack Python](https://www.fullstackpython.com/)
 
 ### Dead Tree
 
-* [Programming Python](http://www.amazon.com/gp/product/0596158106/ref=as_li_qf_sp_asin_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=0596158106&linkCode=as2&tag=homebits04-20)
-* [Dive Into Python](http://www.amazon.com/gp/product/1441413022/ref=as_li_tf_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=1441413022&linkCode=as2&tag=homebits04-20)
-* [Python Essential Reference](http://www.amazon.com/gp/product/0672329786/ref=as_li_tf_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=0672329786&linkCode=as2&tag=homebits04-20)
+- [Programming Python](http://www.amazon.com/gp/product/0596158106/ref=as_li_qf_sp_asin_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=0596158106&linkCode=as2&tag=homebits04-20)
+- [Dive Into Python](http://www.amazon.com/gp/product/1441413022/ref=as_li_tf_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=1441413022&linkCode=as2&tag=homebits04-20)
+- [Python Essential Reference](http://www.amazon.com/gp/product/0672329786/ref=as_li_tf_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=0672329786&linkCode=as2&tag=homebits04-20)

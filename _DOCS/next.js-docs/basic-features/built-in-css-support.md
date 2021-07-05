@@ -23,8 +23,8 @@ For example, consider the following stylesheet named `styles.css`:
 
 ```css
 body {
-  font-family: 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', 'Helvetica',
-    'Arial', sans-serif;
+  font-family: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", "Helvetica",
+    "Arial", sans-serif;
   padding: 20px 20px 60px;
   max-width: 680px;
   margin: 0 auto;
@@ -35,11 +35,11 @@ Create a [`pages/_app.js` file](/docs/advanced-features/custom-app.md) if not al
 Then, [`import`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) the `styles.css` file.
 
 ```jsx
-import '../styles.css'
+import "../styles.css";
 
 // This default export is required in a new `pages/_app.js` file.
 export default function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+  return <Component {...pageProps} />;
 }
 ```
 
@@ -59,10 +59,10 @@ For example:
 
 ```jsx
 // pages/_app.js
-import 'bootstrap/dist/css/bootstrap.css'
+import "bootstrap/dist/css/bootstrap.css";
 
 export default function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+  return <Component {...pageProps} />;
 }
 ```
 
@@ -70,15 +70,15 @@ For importing CSS required by a third party component, you can do so in your com
 
 ```tsx
 // components/ExampleDialog.js
-import { useState } from 'react'
-import { Dialog } from '@reach/dialog'
-import VisuallyHidden from '@reach/visually-hidden'
-import '@reach/dialog/styles.css'
+import { useState } from "react";
+import { Dialog } from "@reach/dialog";
+import VisuallyHidden from "@reach/visually-hidden";
+import "@reach/dialog/styles.css";
 
 function ExampleDialog(props) {
-  const [showDialog, setShowDialog] = useState(false)
-  const open = () => setShowDialog(true)
-  const close = () => setShowDialog(false)
+  const [showDialog, setShowDialog] = useState(false);
+  const open = () => setShowDialog(true);
+  const close = () => setShowDialog(false);
 
   return (
     <div>
@@ -91,7 +91,7 @@ function ExampleDialog(props) {
         <p>Hello there. I am a dialog</p>
       </Dialog>
     </div>
-  )
+  );
 }
 ```
 
@@ -123,7 +123,7 @@ You do not need to worry about .error {} colliding with any other `.css` or
 Then, create `components/Button.js`, importing and using the above CSS file:
 
 ```jsx
-import styles from './Button.module.css'
+import styles from "./Button.module.css";
 
 export function Button() {
   return (
@@ -135,7 +135,7 @@ export function Button() {
     >
       Destroy
     </button>
-  )
+  );
 }
 ```
 
@@ -172,13 +172,13 @@ If you want to configure the Sass compiler you can do so by using `sassOptions` 
 For example to add `includePaths`:
 
 ```js
-const path = require('path')
+const path = require("path");
 
 module.exports = {
   sassOptions: {
-    includePaths: [path.join(__dirname, 'styles')],
+    includePaths: [path.join(__dirname, "styles")],
   },
-}
+};
 ```
 
 ## CSS-in-JS
@@ -204,10 +204,10 @@ The simplest one is inline styles:
 
 ```jsx
 function HiThere() {
-  return <p style={{ color: 'red' }}>hi there</p>
+  return <p style={{ color: "red" }}>hi there</p>;
 }
 
-export default HiThere
+export default HiThere;
 ```
 
 We bundle [styled-jsx](https://github.com/vercel/styled-jsx) to provide support for isolated scoped CSS.
@@ -242,10 +242,10 @@ function HelloWorld() {
         }
       `}</style>
     </div>
-  )
+  );
 }
 
-export default HelloWorld
+export default HelloWorld;
 ```
 
 Please see the [styled-jsx documentation](https://github.com/vercel/styled-jsx) for more examples.

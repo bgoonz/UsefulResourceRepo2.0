@@ -26,10 +26,10 @@ Every API route can export a `config` object to change the default configs, whic
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '1mb',
+      sizeLimit: "1mb",
     },
   },
-}
+};
 ```
 
 The `api` object includes all configs available for API routes.
@@ -41,7 +41,7 @@ export const config = {
   api: {
     bodyParser: false,
   },
-}
+};
 ```
 
 `bodyParser.sizeLimit` is the maximum size allowed for the parsed body, in any format supported by [bytes](https://github.com/visionmedia/bytes.js), like so:
@@ -50,10 +50,10 @@ export const config = {
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '500kb',
+      sizeLimit: "500kb",
     },
   },
-}
+};
 ```
 
 `externalResolver` is an explicit flag that tells the server that this route is being handled by an external resolver like _express_ or _connect_. Enabling this option disables warnings for unresolved requests.
@@ -63,7 +63,7 @@ export const config = {
   api: {
     externalResolver: true,
   },
-}
+};
 ```
 
 ## Connect/Express middleware support
@@ -83,12 +83,12 @@ yarn add cors
 Now, let's add `cors` to the API route:
 
 ```js
-import Cors from 'cors'
+import Cors from "cors";
 
 // Initializing the cors middleware
 const cors = Cors({
-  methods: ['GET', 'HEAD'],
-})
+  methods: ["GET", "HEAD"],
+});
 
 // Helper method to wait for a middleware to execute before continuing
 // And to throw an error when an error happens in a middleware
@@ -96,23 +96,23 @@ function runMiddleware(req, res, fn) {
   return new Promise((resolve, reject) => {
     fn(req, res, (result) => {
       if (result instanceof Error) {
-        return reject(result)
+        return reject(result);
       }
 
-      return resolve(result)
-    })
-  })
+      return resolve(result);
+    });
+  });
 }
 
 async function handler(req, res) {
   // Run the middleware
-  await runMiddleware(req, res, cors)
+  await runMiddleware(req, res, cors);
 
   // Rest of the API logic
-  res.json({ message: 'Hello Everyone!' })
+  res.json({ message: "Hello Everyone!" });
 }
 
-export default handler
+export default handler;
 ```
 
 > Go to the [API Routes with CORS](https://github.com/vercel/next.js/tree/canary/examples/api-routes-cors) example to see the finished app
@@ -124,8 +124,8 @@ For better type-safety, it is not recommended to extend the `req` and `res` obje
 ```ts
 // utils/cookies.ts
 
-import { serialize, CookieSerializeOptions } from 'cookie'
-import { NextApiResponse } from 'next'
+import { serialize, CookieSerializeOptions } from "cookie";
+import { NextApiResponse } from "next";
 
 /**
  * This sets `cookie` using the `res` object
@@ -138,29 +138,29 @@ export const setCookie = (
   options: CookieSerializeOptions = {}
 ) => {
   const stringValue =
-    typeof value === 'object' ? 'j:' + JSON.stringify(value) : String(value)
+    typeof value === "object" ? "j:" + JSON.stringify(value) : String(value);
 
-  if ('maxAge' in options) {
-    options.expires = new Date(Date.now() + options.maxAge)
-    options.maxAge /= 1000
+  if ("maxAge" in options) {
+    options.expires = new Date(Date.now() + options.maxAge);
+    options.maxAge /= 1000;
   }
 
-  res.setHeader('Set-Cookie', serialize(name, String(stringValue), options))
-}
+  res.setHeader("Set-Cookie", serialize(name, String(stringValue), options));
+};
 
 // pages/api/cookies.ts
 
-import { NextApiRequest, NextApiResponse } from 'next'
-import { setCookie } from '../../utils/cookies'
+import { NextApiRequest, NextApiResponse } from "next";
+import { setCookie } from "../../utils/cookies";
 
 const handler = (req: NextApiRequest, res: NextApiResponse) => {
   // Calling our pure function using the `res` object, it will add the `set-cookie` header
-  setCookie(res, 'Next.js', 'api-middleware!')
+  setCookie(res, "Next.js", "api-middleware!");
   // Return the `set-cookie` header so we can display it in the browser and show that it works!
-  res.end(res.getHeader('Set-Cookie'))
-}
+  res.end(res.getHeader("Set-Cookie"));
+};
 
-export default handler
+export default handler;
 ```
 
 If you can't avoid these objects from being extended, you have to create your own type to include the extra properties:
@@ -168,19 +168,19 @@ If you can't avoid these objects from being extended, you have to create your ow
 ```ts
 // pages/api/foo.ts
 
-import { NextApiRequest, NextApiResponse } from 'next'
-import { withFoo } from 'external-lib-foo'
+import { NextApiRequest, NextApiResponse } from "next";
+import { withFoo } from "external-lib-foo";
 
 type NextApiRequestWithFoo = NextApiRequest & {
-  foo: (bar: string) => void
-}
+  foo: (bar: string) => void;
+};
 
 const handler = (req: NextApiRequestWithFoo, res: NextApiResponse) => {
-  req.foo('bar') // we can now use `req.foo` without type errors
-  res.end('ok')
-}
+  req.foo("bar"); // we can now use `req.foo` without type errors
+  res.end("ok");
+};
 
-export default withFoo(handler)
+export default withFoo(handler);
 ```
 
 Keep in mind this is not safe since the code will still compile even if you remove `withFoo()` from the export.

@@ -13,7 +13,7 @@ Take a look at the following `next.config.js` example:
 ```js
 module.exports = {
   /* config options here */
-}
+};
 ```
 
 You can also use a function:
@@ -22,26 +22,26 @@ You can also use a function:
 module.exports = (phase, { defaultConfig }) => {
   return {
     /* config options here */
-  }
-}
+  };
+};
 ```
 
 `phase` is the current context in which the configuration is loaded. You can see the [available phases](https://github.com/vercel/next.js/blob/canary/packages/next/next-server/lib/constants.ts#L1-L4). Phases can be imported from `next/constants`:
 
 ```js
-const { PHASE_DEVELOPMENT_SERVER } = require('next/constants')
+const { PHASE_DEVELOPMENT_SERVER } = require("next/constants");
 
 module.exports = (phase, { defaultConfig }) => {
   if (phase === PHASE_DEVELOPMENT_SERVER) {
     return {
       /* development only config options here */
-    }
+    };
   }
 
   return {
     /* config options for all phases except development here */
-  }
-}
+  };
+};
 ```
 
 The commented lines are the place where you can put the configs allowed by `next.config.js`, which are [defined in this file](https://github.com/vercel/next.js/blob/canary/packages/next/next-server/server/config-shared.ts#L68).

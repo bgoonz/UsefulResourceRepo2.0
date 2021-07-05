@@ -5,7 +5,6 @@ permalink: /docs/en/auxiliary
 key: docs-auxiliary
 modify_date: "2019-11-28"
 use_language_switchter: true
-
 ---
 
 ## Auxiliary functions and utilities
@@ -16,20 +15,24 @@ The functions presented here help users manipulate annotations, by providing
 both UDFs and dataframe utilities to deal with them more easily
 
 #### Python
+
 In python, the functions are straight forward and have both UDF and Dataframe applications
-* `map_annotations(f, output_type: DataType)` UDF that applies f(). Requires output DataType from pyspark.sql.types
-* `map_annotations_strict(f)` UDF that apples an f() method that returns a list of Annotations
-* `map_annotations_col(dataframe: DataFrame, f, column, output_column, output_type)` applies f() to `column` from `dataframe` 
-* `filter_by_annotations_col(dataframe, f, column)` applies a boolean filter f() to `column` from `dataframe`
-* `explode_annotations_col(dataframe: DataFrame, column, output_column)` explodes annotation `column` from `dataframe`
+
+- `map_annotations(f, output_type: DataType)` UDF that applies f(). Requires output DataType from pyspark.sql.types
+- `map_annotations_strict(f)` UDF that apples an f() method that returns a list of Annotations
+- `map_annotations_col(dataframe: DataFrame, f, column, output_column, output_type)` applies f() to `column` from `dataframe`
+- `filter_by_annotations_col(dataframe, f, column)` applies a boolean filter f() to `column` from `dataframe`
+- `explode_annotations_col(dataframe: DataFrame, column, output_column)` explodes annotation `column` from `dataframe`
 
 #### Scala
+
 In Scala, importing inner functions brings implicits that allow these functions to be applied directly on top of the dataframe
-* `mapAnnotations(function: Seq[Annotation] => T, outputType: DataType)`
-* `mapAnnotationsStrict(function: Seq[Annotation] => Seq[Annotation])`
-* `mapAnnotationsCol[T: TypeTag](column: String, outputCol: String, function: Seq[Annotation] => T)`
-* `eachAnnotationsCol[T: TypeTag](column: String, function: Seq[Annotation] => Unit)`
-* `def explodeAnnotationsCol[T: TypeTag](column: String, outputCol: String)`
+
+- `mapAnnotations(function: Seq[Annotation] => T, outputType: DataType)`
+- `mapAnnotationsStrict(function: Seq[Annotation] => Seq[Annotation])`
+- `mapAnnotationsCol[T: TypeTag](column: String, outputCol: String, function: Seq[Annotation] => T)`
+- `eachAnnotationsCol[T: TypeTag](column: String, function: Seq[Annotation] => Unit)`
+- `def explodeAnnotationsCol[T: TypeTag](column: String, outputCol: String)`
 
 **Imports:**
 
@@ -67,7 +70,7 @@ def my_annoation_map_function(annotations):
         a.result,
         {'my_key': 'custom_annotation_data'},
         []), annotations))
-        
+
 result.select(
     map_annotations(my_annoation_map_function, Annotation.arrayType())('token')
 ).toDF("my output").show(truncate=False)

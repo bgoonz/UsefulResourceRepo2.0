@@ -2,7 +2,7 @@
 category: tool
 tool: Statistical Computing with Python
 contributors:
-    - ["e99n09", "https://github.com/e99n09"]
+  - ["e99n09", "https://github.com/e99n09"]
 ---
 
 This is a tutorial on how to do some typical statistical programming tasks using Python. It's intended for people basically familiar with Python and experienced at statistical programming in a language like R, Stata, SAS, SPSS, or MATLAB.
@@ -16,7 +16,7 @@ This is a tutorial on how to do some typical statistical programming tasks using
 """ To get started, pip install the following: jupyter, numpy, scipy, pandas,
     matplotlib, seaborn, requests.
         Make sure to do this tutorial in a Jupyter notebook so that you get
-    the inline plots and easy documentation lookup. The shell command to open 
+    the inline plots and easy documentation lookup. The shell command to open
     one is simply `jupyter notebook`, then click New -> Python.
 """
 
@@ -234,5 +234,6 @@ If you want to learn more, get _Python for Data Analysis_ by Wes McKinney. It's 
 You can also find plenty of interactive IPython tutorials on subjects specific to your interests, like Cam Davidson-Pilon's <a href="http://camdavidsonpilon.github.io/Probabilistic-Programming-and-Bayesian-Methods-for-Hackers/" Title="Probabilistic Programming and Bayesian Methods for Hackers">Probabilistic Programming and Bayesian Methods for Hackers</a>.
 
 Some more modules to research:
-   - text analysis and natural language processing: nltk, http://www.nltk.org
-   - social network analysis: igraph, http://igraph.org/python/
+
+- text analysis and natural language processing: nltk, http://www.nltk.org
+- social network analysis: igraph, http://igraph.org/python/

@@ -37,13 +37,13 @@ An example of this configuration:
 ```jsx
 // components/button.js
 export default function Button() {
-  return <button>Click me</button>
+  return <button>Click me</button>;
 }
 ```
 
 ```jsx
 // pages/index.js
-import Button from 'components/button'
+import Button from "components/button";
 
 export default function HomePage() {
   return (
@@ -51,7 +51,7 @@ export default function HomePage() {
       <h1>Hello World</h1>
       <Button />
     </>
-  )
+  );
 }
 ```
 
@@ -76,13 +76,13 @@ An example of this configuration:
 ```jsx
 // components/button.js
 export default function Button() {
-  return <button>Click me</button>
+  return <button>Click me</button>;
 }
 ```
 
 ```jsx
 // pages/index.js
-import Button from '@/components/button'
+import Button from "@/components/button";
 
 export default function HomePage() {
   return (
@@ -90,6 +90,6 @@ export default function HomePage() {
       <h1>Hello World</h1>
       <Button />
     </>
-  )
+  );
 }
 ```

@@ -41,7 +41,6 @@ each doc page.
 Anything not covered by the above -- basically, this README -- you can use as
 you wish, I guess.
 
-
 [1]: http://learnxinyminutes.com
 [2]: /CONTRIBUTING.markdown
 [3]: http://creativecommons.org/licenses/by-sa/3.0/deed.en_US

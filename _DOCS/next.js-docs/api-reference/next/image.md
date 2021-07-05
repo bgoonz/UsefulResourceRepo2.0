@@ -39,8 +39,8 @@ For an example, consider a project with the following files:
 We can serve an optimized image like so:
 
 ```jsx
-import Image from 'next/image'
-import profilePic from '../public/me.png'
+import Image from "next/image";
+import profilePic from "../public/me.png";
 
 function Home() {
   return (
@@ -49,10 +49,10 @@ function Home() {
       <Image src={profilePic} alt="Picture of the author" />
       <p>Welcome to my homepage!</p>
     </>
-  )
+  );
 }
 
-export default Home
+export default Home;
 ```
 
 ## Required Props
@@ -123,11 +123,11 @@ A custom function used to resolve URLs. Defaults to [`images` object in `next.co
 - [`quality`](#quality)
 
 ```js
-import Image from 'next/image'
+import Image from "next/image";
 
 const myLoader = ({ src, width, quality }) => {
-  return `https://example.com/${src}?w=${width}&q=${quality || 75}`
-}
+  return `https://example.com/${src}?w=${width}&q=${quality || 75}`;
+};
 
 const MyImage = (props) => {
   return (
@@ -138,8 +138,8 @@ const MyImage = (props) => {
       width={500}
       height={500}
     />
-  )
-}
+  );
+};
 ```
 
 ### sizes

@@ -24,9 +24,9 @@ In order to extend our usage of `webpack`, you can define a function that extend
 module.exports = {
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     // Important: return the modified config
-    return config
+    return config;
   },
-}
+};
 ```
 
 > The `webpack` function is executed twice, once for the server and once for the client. This allows you to distinguish between client and server configuration using the `isServer` property.
@@ -52,15 +52,15 @@ module.exports = {
       use: [
         options.defaultLoaders.babel,
         {
-          loader: '@mdx-js/loader',
+          loader: "@mdx-js/loader",
           options: pluginOptions.options,
         },
       ],
-    })
+    });
 
-    return config
+    return config;
   },
-}
+};
 ```
 
 ## Related

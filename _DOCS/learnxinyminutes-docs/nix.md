@@ -2,9 +2,9 @@
 language: nix
 filename: learn.nix
 contributors:
-    - ["Chris Martin", "http://chris-martin.org/"]
-    - ["Rommel Martinez", "https://ebzzry.io"]
-    - ["Javier Candeira", "https://candeira.com/"]
+  - ["Chris Martin", "http://chris-martin.org/"]
+  - ["Rommel Martinez", "https://ebzzry.io"]
+  - ["Javier Candeira", "https://candeira.com/"]
 ---
 
 Nix is a simple functional language developed for the
@@ -367,11 +367,11 @@ with builtins; [
 
 ### Further Reading
 
-* [Nix Manual - Nix expression language]
+- [Nix Manual - Nix expression language]
   (https://nixos.org/nix/manual/#ch-expression-language)
 
-* [James Fisher - Nix by example - Part 1: The Nix expression language]
+- [James Fisher - Nix by example - Part 1: The Nix expression language]
   (https://medium.com/@MrJamesFisher/nix-by-example-a0063a1a4c55)
 
-* [Rommel Martinez - A Gentle Introduction to the Nix Family]
+- [Rommel Martinez - A Gentle Introduction to the Nix Family]
   (https://ebzzry.io/en/nix/#nix)

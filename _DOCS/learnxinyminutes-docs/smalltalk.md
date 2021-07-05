@@ -2,8 +2,8 @@
 language: Smalltalk
 filename: smalltalk.st
 contributors:
-    - ["Jigyasa Grover", "https://github.com/jigyasa-grover"]
-    - ["tim Rowledge", "tim@rowledge.org"]
+  - ["Jigyasa Grover", "https://github.com/jigyasa-grover"]
+  - ["tim Rowledge", "tim@rowledge.org"]
 ---
 
 - Smalltalk is a fully object-oriented, dynamically typed, reflective programming language with no 'non-object' types.
@@ -15,17 +15,20 @@ contributors:
 ## The Basics
 
 ### Everything is an object
+
 Yes, everything. Integers are instances of one of the numeric classes. Classes are instances of the class Metaclass and are just as manipulable as any other object. All classes are part of a single class tree; no disjoint class trees. Stack frames are objects and can be manipulated, which is how the debugger works. There are no pointers into memory locations that you can dereference and mess with.
 
 ### Functions are not called; messages are sent to objects
+
 - Work is done by sending messages to objects, which decide how to respond to that message and run a method as a result, which eventually returns some object to the original message sending code.
-- The system knows the class of the object receiving a message and looks up the message in that class's list of methods. If it is not found, the lookup continues in the super class until either it is found or the root of the classes is reached and there is still no relevant method. 
+- The system knows the class of the object receiving a message and looks up the message in that class's list of methods. If it is not found, the lookup continues in the super class until either it is found or the root of the classes is reached and there is still no relevant method.
 - If a suitable method is found the code is run, and the same process keeps on going with all the methods sent by that method and so on forever.
 - If no suitable method is found an exception is raised, which typically results in a user interface notifier to tell the user that the message was not understood. It is entirely possible to catch the exception and do something to fix the problem, which might range from 'ignore it' to 'load some new packages for this class and try again'.
 - A method (more strictly an instance of the class CompiledMethod) is a chunk of Smalltalk code that has been compiled into bytecodes. Executing methods start at the beginning and return to the sender when a return is encountered (we use ^ to signify 'return the following object') or the end of the code is reached, in which case the current object running the code is returned.
 
 ### Simple syntax
-Smalltalk has a simple syntax with very few rules. 
+
+Smalltalk has a simple syntax with very few rules.
 The most basic operation is to send a message to an object
 `anObject aMessage`
 
@@ -36,6 +39,7 @@ There are three sorts of messages
 - keyword - the general form where multiple arguments can be passed. As with the unary form we use camelcase to join words together but arguments are inserted in the midst of the message with colons used to separate them lexically. For example 'setTemperature:', 'at:put:', 'drawFrom:to:lineWidth:fillColor:'
 
 #### An example
+
 `result := myObject doSomethingWith: thatObject`
 We are sending the message 'doSomethingWith:' to myObject. This happens to be a message that has a single argument but that's not important yet.
 'myObject' is a 'MyExampleClass' instance so the system looks at the list of messages understood by MyExampleClass
@@ -56,18 +60,20 @@ We find a proper exact match and start to execute the code:
 ```smalltalk
 doSomethingWith: argumentObject
     self size > 4 ifTrue: [^argumentObject sizeRelatingTo: self].
-```   
+```
 
 Everything here except the `^` involves sending more messages. Event the `ifTrue:` that you might think is a language control structure is just Smalltalk code.
 
-We start by sending `size` to `self`. `self` is the object currently running the code - so in this case it is the myObject we started with. `size` is a very common message that we might anticipate tells us something about how big an object is; you could look it up with the Smalltalk tools very simply. The result we get is then sent the message `>` with the plain old integer 4 (which is an object too; no strange primitive types to pollute the system here) and nobody should be surprised the `>` is a comparison that answers true or false. That boolean (which is actually a Boolean object in Smalltalk) is sent the message `ifTrue:` with the block of code between the `[]` as its argument; obvioulsy a true boolean might be expected to run that block of code and a false to ignore it. 
+We start by sending `size` to `self`. `self` is the object currently running the code - so in this case it is the myObject we started with. `size` is a very common message that we might anticipate tells us something about how big an object is; you could look it up with the Smalltalk tools very simply. The result we get is then sent the message `>` with the plain old integer 4 (which is an object too; no strange primitive types to pollute the system here) and nobody should be surprised the `>` is a comparison that answers true or false. That boolean (which is actually a Boolean object in Smalltalk) is sent the message `ifTrue:` with the block of code between the `[]` as its argument; obvioulsy a true boolean might be expected to run that block of code and a false to ignore it.
 
 If the block is run then we do some more message sending to the argument object and noting the `^` we return the answer back to our starting point and it gets assigned to `result`. If the block is ignored we seem to run out of code and so `self` is returned and assigned to `result`.
 
 ## Smalltalk quick reference cheat-sheet
+
 Taken from [Smalltalk Cheatsheet](http://www.angelfire.com/tx4/cus/notes/smalltalk.html)
 
 #### Allowable characters:
+
 - a-z
 - A-Z
 - 0-9
@@ -75,18 +81,20 @@ Taken from [Smalltalk Cheatsheet](http://www.angelfire.com/tx4/cus/notes/smallta
 - blank, tab, cr, ff, lf
 
 #### Variables:
+
 - variable names must be declared before use but are untyped
 - shared vars (globals, class vars) conventionally begin with uppercase (except the reserved names shown below)
 - local vars (instance vars, temporaries, method & block arguments) conventionally begin with lowercase
 - reserved names: `nil`, `true`, `false`, `self`, `super`, and `thisContext`
 
 #### Variable scope:
+
 - Global: defined in a Dictionary named 'Smalltalk' and accessible by all objects in system
 - Special: (reserved) `Smalltalk`, `super`, `self`, `true`, `false`, & `nil`
 - Method Temporary: local to a method
 - Block Temporary: local to a block
 - Pool: variables in a Dictionary object, possibly shared with classes not directly related by inheritance
-- Method Parameters: automatic method temp vars that name the incoming parameters. Cannot be assigned to 
+- Method Parameters: automatic method temp vars that name the incoming parameters. Cannot be assigned to
 - Block Parameters: automatic block temp vars that name the incoming parameters. Cannot be assigned to
 - Class: shared with all instances of a class & its subclasses
 - Class Instance: unique to each instance of a class. Too commonly confused with class variables
@@ -97,6 +105,7 @@ Taken from [Smalltalk Cheatsheet](http://www.angelfire.com/tx4/cus/notes/smallta
 `"Period (.) is the statement separator. Not required on last line of a method"`
 
 #### Transcript:
+
 ```smalltalk
 Transcript clear.                        "clear to transcript window"
 Transcript show: 'Hello World'.          "output string in transcript window"
@@ -111,6 +120,7 @@ Transcript endEntry.                     "flush the output buffer"
 ```
 
 #### Assignment:
+
 ```smalltalk
 | x y |
 x _ 4.                            "assignment (Squeak) <-"
@@ -121,6 +131,7 @@ x := Object new.                  "bind to allocated instance of a class"
 ```
 
 #### Constants:
+
 ```smalltalk
 | b |
 b := true.                "true constant"
@@ -141,6 +152,7 @@ x := #('abc' 2 $a).       "mixing of types allowed"
 ```
 
 #### Booleans:
+
 ```smalltalk
 | b x y |
 x := 1. y := 2.
@@ -179,6 +191,7 @@ b := $A isLowercase.                   "test if lower case character"
 ```
 
 #### Arithmetic expressions:
+
 ```smalltalk
 | x |
 x := 6 + 3.                             "addition"
@@ -235,6 +248,7 @@ x := 100 atRandom.                      "quick random number"
 ```
 
 #### Bitwise Manipulation:
+
 ```smalltalk
 | b x |
 x := 16rFF bitAnd: 16r0F.           "and bits"
@@ -251,6 +265,7 @@ b := 16rFF noMask: 16r0F.           "test if all bits set in mask clear in recei
 ```
 
 #### Conversion:
+
 ```smalltalk
 | x |
 x := 3.99 asInteger.               "convert number to integer (truncates in Squeak)"
@@ -266,6 +281,7 @@ x := 15 storeStringBase: 16.
 ```
 
 #### Blocks:
+
 - blocks are objects and may be assigned to a variable
 - value is last expression evaluated unless explicit return
 - blocks may be nested
@@ -285,18 +301,19 @@ Transcript show: (x value: 'First' value: 'Second'); cr.    "use block with argu
 ```
 
 #### Method calls:
+
 - unary methods are messages with no arguments
 - binary methods
 - keyword methods are messages with selectors including colons standard categories/protocols:
-- initialize-release    (methods called for new instance)
-- accessing             (get/set methods)
-- testing               (boolean tests - is)
-- comparing             (boolean tests with parameter
-- displaying            (gui related methods)
-- printing              (methods for printing)
-- updating              (receive notification of changes)
-- private               (methods private to class)
-- instance-creation     (class methods for creating instance)
+- initialize-release (methods called for new instance)
+- accessing (get/set methods)
+- testing (boolean tests - is)
+- comparing (boolean tests with parameter
+- displaying (gui related methods)
+- printing (methods for printing)
+- updating (receive notification of changes)
+- private (methods private to class)
+- instance-creation (class methods for creating instance)
 
 ```smalltalk
 | x |
@@ -313,18 +330,19 @@ x := 3 + 2; * 100.                            "result=300. Sends message to same
 ```
 
 #### Conditional Statements:
+
 ```smalltalk
 | x |
 x > 10 ifTrue: [Transcript show: 'ifTrue'; cr].     "if then"
 x > 10 ifFalse: [Transcript show: 'ifFalse'; cr].   "if else"
 
 "if then else"
-x > 10                                                      
+x > 10
    ifTrue: [Transcript show: 'ifTrue'; cr]
    ifFalse: [Transcript show: 'ifFalse'; cr].
 
 "if else then"
-x > 10                                                      
+x > 10
    ifFalse: [Transcript show: 'ifFalse'; cr]
    ifTrue: [Transcript show: 'ifTrue'; cr].
 Transcript
@@ -335,7 +353,7 @@ Transcript
    cr.
 
 "nested if then else"
-Transcript                                                  
+Transcript
    show:
       (x > 10
          ifTrue: [x > 5
@@ -345,7 +363,7 @@ Transcript
    cr.
 
 "switch functionality"
-switch := Dictionary new.     
+switch := Dictionary new.
 switch at: $A put: [Transcript show: 'Case A'; cr].
 switch at: $B put: [Transcript show: 'Case B'; cr].
 switch at: $C put: [Transcript show: 'Case C'; cr].
@@ -353,6 +371,7 @@ result := (switch at: $B) value.
 ```
 
 #### Iteration statements:
+
 ```smalltalk
 | x y |
 x := 4. y := 1.
@@ -365,6 +384,7 @@ x timesRepeat: [y := y * 2].                     "times repeat loop (i := 1 to x
 ```
 
 #### Character:
+
 ```smalltalk
 | x y |
 x := $A.                         "character assignment"
@@ -385,6 +405,7 @@ y := $A max: $B.
 ```
 
 #### Symbol:
+
 ```smalltalk
 | b x y |
 x := #Hello.                                      "symbol assignment"
@@ -407,6 +428,7 @@ y := x asSet.                                     "convert symbol to set collect
 ```
 
 #### String:
+
 ```smalltalk
 | b x y |
 x := 'This is a string'.                           "string assignment"
@@ -437,9 +459,11 @@ y := x shuffled.                                  "randomly shuffle string"
 ```
 
 #### Array:
+
 Fixed length collection
-- ByteArray:     Array limited to byte elements (0-255)
-- WordArray:     Array limited to word elements (0-2^32)
+
+- ByteArray: Array limited to byte elements (0-255)
+- WordArray: Array limited to word elements (0-2^32)
 
 ```smalltalk
 | b x y sum max |
@@ -465,7 +489,7 @@ y := x reject: [:a | a < 2].                     "return collection of elements 
 y := x collect: [:a | a + a].                    "transform each element for new collection"
 y := x detect: [:a | a > 3] ifNone: [].          "find position of first element that passes test"
 sum := 0. x do: [:a | sum := sum + a]. sum.      "sum array elements"
-sum := 0. 1 to: (x size) 
+sum := 0. 1 to: (x size)
             do: [:a | sum := sum + (x at: a)].   "sum array elements"
 sum := x inject: 0 into: [:a :c | a + c].        "sum array elements"
 max := x inject: 0 into: [:a :c | (a > c)        "find max element in array"
@@ -482,11 +506,12 @@ y := x asSet.                                    "convert to set collection"
 ```
 
 #### OrderedCollection:
+
 acts like an expandable array
 
 ```smalltalk
 | b x y sum max |
-x := OrderedCollection 
+x := OrderedCollection
      with: 4 with: 3 with: 2 with: 1.            "create collection with up to 4 elements"
 x := OrderedCollection new.                      "allocate collection"
 x add: 3; add: 2; add: 1; add: 4; yourself.      "add element to collection"
@@ -514,7 +539,7 @@ y := x reject: [:a | a < 2].                     "return collection of elements 
 y := x collect: [:a | a + a].                    "transform each element for new collection"
 y := x detect: [:a | a > 3] ifNone: [].          "find position of first element that passes test"
 sum := 0. x do: [:a | sum := sum + a]. sum.      "sum elements"
-sum := 0. 1 to: (x size) 
+sum := 0. 1 to: (x size)
             do: [:a | sum := sum + (x at: a)].   "sum elements"
 sum := x inject: 0 into: [:a :c | a + c].        "sum elements"
 max := x inject: 0 into: [:a :c | (a > c)        "find max element in collection"
@@ -529,11 +554,12 @@ y := x asSet.                                    "convert to set collection"
 ```
 
 #### SortedCollection:
+
 like OrderedCollection except order of elements determined by sorting criteria
 
 ```smalltalk
 | b x y sum max |
-x := SortedCollection 
+x := SortedCollection
      with: 4 with: 3 with: 2 with: 1.              "create collection with up to 4 elements"
 x := SortedCollection new.                         "allocate collection"
 x := SortedCollection sortBlock: [:a :c | a > c].  "set sort criteria"
@@ -561,7 +587,7 @@ y := x reject: [:a | a < 2].                       "return collection of element
 y := x collect: [:a | a + a].                      "transform each element for new collection"
 y := x detect: [:a | a > 3] ifNone: [].            "find position of first element that passes test"
 sum := 0. x do: [:a | sum := sum + a]. sum.        "sum elements"
-sum := 0. 1 to: (x size) 
+sum := 0. 1 to: (x size)
             do: [:a | sum := sum + (x at: a)].     "sum elements"
 sum := x inject: 0 into: [:a :c | a + c].          "sum elements"
 max := x inject: 0 into: [:a :c | (a > c)          "find max element in collection"
@@ -575,6 +601,7 @@ y := x asSet.                                       "convert to set collection"
 ```
 
 #### Bag:
+
 like OrderedCollection except elements are in no particular order
 
 ```smalltalk
@@ -608,9 +635,11 @@ y := x asSet.                                     "convert to set collection"
 ```
 
 #### Set:
+
 like Bag except duplicates not allowed
 
 #### IdentitySet:
+
 uses identity test (== rather than =)
 
 ```smalltalk
@@ -643,6 +672,7 @@ y := x asSet.                                    "convert to set collection"
 ```
 
 #### Interval:
+
 ```smalltalk
 | b x y sum max |
 x := Interval from: 5 to: 10.                     "create interval object"
@@ -659,7 +689,7 @@ y := x reject: [:a | a < 2].                      "return collection of elements
 y := x collect: [:a | a + a].                     "transform each element for new collection"
 y := x detect: [:a | a > 3] ifNone: [].           "find position of first element that passes test"
 sum := 0. x do: [:a | sum := sum + a]. sum.       "sum elements"
-sum := 0. 1 to: (x size) 
+sum := 0. 1 to: (x size)
             do: [:a | sum := sum + (x at: a)].    "sum elements"
 sum := x inject: 0 into: [:a :c | a + c].         "sum elements"
 max := x inject: 0 into: [:a :c | (a > c)         "find max element in collection"
@@ -673,6 +703,7 @@ y := x asSet.                                     "convert to set collection"
 ```
 
 #### Associations:
+
 ```smalltalk
 | x y |
 x := #myVar->'hello'.
@@ -681,15 +712,17 @@ y := x value.
 ```
 
 #### Dictionary:
+
 #### IdentityDictionary:
+
 uses identity test (== rather than =)
 
 ```smalltalk
 | b x y |
 x := Dictionary new.                   "allocate collection"
-x add: #a->4; 
-  add: #b->3; 
-  add: #c->1; 
+x add: #a->4;
+  add: #b->3;
+  add: #c->1;
   add: #d->2; yourself.                "add element to collection"
 x at: #e put: 3.                       "set element at index"
 b := x isEmpty.                        "test if empty"
@@ -751,6 +784,7 @@ Smalltalk removeKey: #CMRDictionary ifAbsent: [].     "remove user dictionary fr
 ```
 
 #### Internal Stream:
+
 ```smalltalk
 | b x ios |
 ios := ReadStream on: 'Hello read stream'.
@@ -779,6 +813,7 @@ b := ios atEnd.
 ```
 
 #### FileStream:
+
 ```smalltalk
 | b x ios |
 ios := FileStream newFileNamed: 'ios.txt'.
@@ -799,6 +834,7 @@ ios close.
 ```
 
 #### Date:
+
 ```smalltalk
 | x y |
 x := Date today.                                "create date for today"
@@ -833,6 +869,7 @@ b := (x <= Date today).                         "comparison"
 ```
 
 #### Time:
+
 ```smalltalk
 | x y |
 x := Time now.                                      "create time from current time"
@@ -853,6 +890,7 @@ b := (x <= Time now).                               "comparison"
 ```
 
 #### Point:
+
 ```smalltalk
 | x y |
 x := 200@100.                            "obtain a new point"
@@ -878,11 +916,13 @@ x := 20@5 dotProduct: 10@2.              "sum of product (x1*x2 + y1*y2)"
 ```
 
 #### Rectangle:
+
 ```smalltalk
 Rectangle fromUser.
 ```
 
 #### Pen:
+
 ```smalltalk
 | myPen |
 Display restoreAfter: [
@@ -901,7 +941,7 @@ myPen go: 50.                                "move pen specified number of pixel
 myPen location.                              "get the pen position"
 myPen goto: 200@200.                         "move to specified point"
 myPen place: 250@250.                        "move to specified point without drawing"
-myPen print: 'Hello World' 
+myPen print: 'Hello World'
       withFont: (TextStyle default fontAt: 1).
 Display extent.                              "get display width@height"
 Display width.                               "get display width"
@@ -911,6 +951,7 @@ Display height.                              "get display height"
 ```
 
 #### Dynamic Message Calling/Compiling:
+
 ```smalltalk
 | receiver message result argument keyword1 keyword2 argument1 argument2 |
 
@@ -939,10 +980,10 @@ argument2 := 20.
 result := receiver
    perform: (keyword1, keyword2) asSymbol
    withArguments: (Array with: argument1 with: argument2).
-   
+
 result := Compiler evaluate:
    ((receiver storeString), ' ', keyword1, (argument1 storeString) , ' ', keyword2, (argument2 storeString)).
-   
+
 result := (Message
    new
       setSelector: (keyword1, keyword2) asSymbol
@@ -951,6 +992,7 @@ result := (Message
 ```
 
 #### Class/Meta-Class:
+
 ```smalltalk
 | b x |
 x := String name.                     "class name"
@@ -984,6 +1026,7 @@ Object withAllSubclasses size.        "get total number of class entries"
 ```
 
 #### Debugging:
+
 ```smalltalk
 | a b x |
 x yourself.                             "returns receiver"
@@ -1007,6 +1050,7 @@ Transcript show: a, b; cr.
 ```
 
 #### Miscellaneous
+
 ```smalltalk
 | x |
 x := 1.2 hash.                                  "hash value for object"
@@ -1022,22 +1066,26 @@ Utilities openCommandKeyHelp
 ## Ready For More?
 
 ### Online Smalltalk systems
+
 Most Smalltalks are either free as in OSS or have a free downloadable version with some payment required for commercial usage.
-* [Squeak](https://www.squeak.org)
-* [Pharo](http://pharo.org)
-* [Smalltalk/X](https://www.exept.de/en/smalltalk-x.html)
-* [Gemstone](http://gemtalksystems.com/)
-* [VA Smalltalk](http://www.instantiations.com/products/vasmalltalk/)
-* [VisualWorks Smalltalk](http://www.cincomsmalltalk.com/)
+
+- [Squeak](https://www.squeak.org)
+- [Pharo](http://pharo.org)
+- [Smalltalk/X](https://www.exept.de/en/smalltalk-x.html)
+- [Gemstone](http://gemtalksystems.com/)
+- [VA Smalltalk](http://www.instantiations.com/products/vasmalltalk/)
+- [VisualWorks Smalltalk](http://www.cincomsmalltalk.com/)
 
 ### Online Smalltalk books and articles
-* [Smalltalk Programming Resources](http://www.whoishostingthis.com/resources/smalltalk/)
-* [Smalltalk Cheatsheet](http://www.angelfire.com/tx4/cus/notes/smalltalk.html)
-* [Smalltalk-72 Manual](http://www.bitsavers.org/pdf/xerox/parc/techReports/Smalltalk-72_Instruction_Manual_Mar76.pdf)
-* [GNU Smalltalk User's Guide](https://www.gnu.org/software/smalltalk/manual/html_node/Tutorial.html)
+
+- [Smalltalk Programming Resources](http://www.whoishostingthis.com/resources/smalltalk/)
+- [Smalltalk Cheatsheet](http://www.angelfire.com/tx4/cus/notes/smalltalk.html)
+- [Smalltalk-72 Manual](http://www.bitsavers.org/pdf/xerox/parc/techReports/Smalltalk-72_Instruction_Manual_Mar76.pdf)
+- [GNU Smalltalk User's Guide](https://www.gnu.org/software/smalltalk/manual/html_node/Tutorial.html)
 
 #### Historical Documentation(s)
-* [BYTE: A Special issue on Smalltalk](https://archive.org/details/byte-magazine-1981-08)
-* [Smalltalk-72 Manual](http://www.bitsavers.org/pdf/xerox/parc/techReports/Smalltalk-72_Instruction_Manual_Mar76.pdf)
-* [Smalltalk, Objects, and Design](https://books.google.co.in/books?id=W8_Une9cbbgC&printsec=frontcover&dq=smalltalk&hl=en&sa=X&ved=0CCIQ6AEwAWoVChMIw63Vo6CpyAIV0HGOCh3S2Alf#v=onepage&q=smalltalk&f=false)
-* [Smalltalk: An Introduction to Application Development Using VisualWorks](https://books.google.co.in/books?id=zalQAAAAMAAJ&q=smalltalk&dq=smalltalk&hl=en&sa=X&ved=0CCgQ6AEwAmoVChMIw63Vo6CpyAIV0HGOCh3S2Alf/)
+
+- [BYTE: A Special issue on Smalltalk](https://archive.org/details/byte-magazine-1981-08)
+- [Smalltalk-72 Manual](http://www.bitsavers.org/pdf/xerox/parc/techReports/Smalltalk-72_Instruction_Manual_Mar76.pdf)
+- [Smalltalk, Objects, and Design](https://books.google.co.in/books?id=W8_Une9cbbgC&printsec=frontcover&dq=smalltalk&hl=en&sa=X&ved=0CCIQ6AEwAWoVChMIw63Vo6CpyAIV0HGOCh3S2Alf#v=onepage&q=smalltalk&f=false)
+- [Smalltalk: An Introduction to Application Development Using VisualWorks](https://books.google.co.in/books?id=zalQAAAAMAAJ&q=smalltalk&dq=smalltalk&hl=en&sa=X&ved=0CCgQ6AEwAmoVChMIw63Vo6CpyAIV0HGOCh3S2Alf/)

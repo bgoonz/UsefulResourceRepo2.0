@@ -1,7 +1,7 @@
 ---
 language: Pod
 contributors:
-    - ["Luis F. Uceta", "https://uzluisf.gitlab.io/"]
+  - ["Luis F. Uceta", "https://uzluisf.gitlab.io/"]
 filename: learnpod.pod6
 ---
 
@@ -16,27 +16,27 @@ variant of the `Pod::To` modules (e.g. `Pod::To::HTML` for HTML conversion).
 
 - [General Info](#general-info)
 - [Pod Basics](#pod-basics)
-	- [Basic Text Formatting](#basic-text-formatting)
-	- [Headings](#headings)
-	- [Ordinary Paragraphs](#ordinary-paragraphs)
-	- [Lists](#lists)
-	- [Code Blocks](#code-blocks)
-	- [Comments](#comments)
-	- [Links](#links)
-	- [Tables](#tables)
+  - [Basic Text Formatting](#basic-text-formatting)
+  - [Headings](#headings)
+  - [Ordinary Paragraphs](#ordinary-paragraphs)
+  - [Lists](#lists)
+  - [Code Blocks](#code-blocks)
+  - [Comments](#comments)
+  - [Links](#links)
+  - [Tables](#tables)
 - [Block Structures](#block-structures)
-	- [Abbreviated Blocks](#abbreviated-blocks)
-	- [Delimited Blocks](#delimited-blocks)
-	- [Paragraph Blocks](#paragraph-blocks)
+  - [Abbreviated Blocks](#abbreviated-blocks)
+  - [Delimited Blocks](#delimited-blocks)
+  - [Paragraph Blocks](#paragraph-blocks)
 - [Configuration Data](#configuration-data)
-	- [Standard Configuration Options](#standard-configuration-options)
-	- [Block Pre-configuration](#block-pre-configuration)
+  - [Standard Configuration Options](#standard-configuration-options)
+  - [Block Pre-configuration](#block-pre-configuration)
 - [Semantic Blocks](#semantic-blocks)
 - [Miscellaneous](#miscellaneous)
-	- [Notes](#notes)
-	- [Keyboard Input](#keyboard-input)
-	- [Terminal Output](#terminal-output)
-	- [Unicode](#unicode)
+  - [Notes](#notes)
+  - [Keyboard Input](#keyboard-input)
+  - [Terminal Output](#terminal-output)
+  - [Unicode](#unicode)
 - [Rendering Pod](#rendering-pod)
 - [Accessing Pod](#accessing-pod)
 
@@ -246,8 +246,8 @@ examples of both good and bad tables, please visit
 
 ```
 =begin table
-Option      | Description     
-============|================  
+Option      | Description
+============|================
 data        | path to data files.
 engine      | engine to be used for processing templates.
 ext         | extension to be used for dest files.
@@ -277,6 +277,7 @@ The content terminates at the next Pod directive or the first blank line
 ```
 =BLOCK_TYPE  BLOCK_DATA
 ```
+
 For example:
 
 ```
@@ -306,7 +307,7 @@ Top level heading
 This type of blocks is useful for creating headings, list items, code blocks,
 etc. with multiple paragraphs. For example,
 
-* a multiline item of a list
+- a multiline item of a list
 
 ```
 =begin item
@@ -316,7 +317,7 @@ This is another paragraph in the same list item.
 =end item
 ```
 
-* a code block
+- a code block
 
 ```
 =begin code
@@ -366,7 +367,7 @@ blocks can be supplied with configuration information about their
 contents right after the `typename` of the block. Thus the following
 are more general syntaxes for these blocks:
 
-* Delimited blocks
+- Delimited blocks
 
 ```
 =begin BLOCK_TYPE OPTIONAL_CONFIG_INFO
@@ -375,7 +376,7 @@ BLOCK_DATA
 =end BLOCK_TYPE
 ```
 
-* Paragraph blocks
+- Paragraph blocks
 
 ```
 =for BLOCK_TYPE OPTIONAL_CONFIG_INFO
@@ -390,22 +391,21 @@ different ways in which configuration info can be supplied. Please go to
 <https://docs.raku.org/language/pod#Configuration_information> for a more
 thorough treatment of the subject.
 
-| Value     | Specify with...             | Example                        |
-| :-------- | :------                     | :------                        |
-| List      | :key($elem1, $elem2, ...)   | :tags('Pod', 'Raku')          |
-| Hash      | :key{$key1 => $value1, ...} | :feeds{url => 'raku.org'}     |
-| Boolean   | :key/:key(True)             | :skip-test(True)               |
-| Boolean   | :!key/:key(False)           | :!skip-test                    |
-| String    | :key('string')              | :nonexec-reason('SyntaxError') |
-| Int       | :key(2)                     | :post-number(6)                |
-
+| Value   | Specify with...             | Example                        |
+| :------ | :-------------------------- | :----------------------------- |
+| List    | :key($elem1, $elem2, ...)   | :tags('Pod', 'Raku')           |
+| Hash    | :key{$key1 => $value1, ...} | :feeds{url => 'raku.org'}      |
+| Boolean | :key/:key(True)             | :skip-test(True)               |
+| Boolean | :!key/:key(False)           | :!skip-test                    |
+| String  | :key('string')              | :nonexec-reason('SyntaxError') |
+| Int     | :key(2)                     | :post-number(6)                |
 
 ### Standard Configuration Options
 
 Pod provides a small number of standard configuration options that can
 be applied uniformly to built-in block types. Some of them are:
 
-* `:numbered`
+- `:numbered`
 
 This option specifies that the block is to be numbered. The most common
 use of this option is to create numbered headings and ordered lists, but it
@@ -424,7 +424,7 @@ Analysis
 Overview
 ```
 
-* `:allow`
+- `:allow`
 
 The value of the `:allow` option must be a list of the (single-letter) names
 of one or more formatting codes. Those codes will then remain active inside
@@ -617,6 +617,6 @@ DESCRIPTION
 
 ## Additional Information
 
-* <https://docs.raku.org/language/pod> for the Pod documentation.
-* <https://docs.raku.org/language/tables> for advices about Pod tables.
-* <https://design.raku.org/S26.html> for the Pod specification.
+- <https://docs.raku.org/language/pod> for the Pod documentation.
+- <https://docs.raku.org/language/tables> for advices about Pod tables.
+- <https://design.raku.org/S26.html> for the Pod specification.

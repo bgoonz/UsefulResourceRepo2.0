@@ -12,7 +12,7 @@ The Next.js runtime is now Strict Mode-compliant. To opt-in to Strict Mode, conf
 // next.config.js
 module.exports = {
   reactStrictMode: true,
-}
+};
 ```
 
 If you or your team are not ready to use Strict Mode in your entire application, that's OK! You can incrementally migrate on a page-by-page basis [using `<React.StrictMode>`](https://reactjs.org/docs/strict-mode.html).

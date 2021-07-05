@@ -2,7 +2,7 @@
 category: tool
 tool: ShutIt
 contributors:
-    - ["Ian Miell", "http://ian.meirionconsulting.tk"]
+  - ["Ian Miell", "http://ian.meirionconsulting.tk"]
 filename: learnshutit.html
 ---
 
@@ -48,7 +48,6 @@ argument outputs the terminal interactions. By default ShutIt is silent.
 
 'send' takes care of all the messing around with prompts and 'expects' that
 you might be familiar with from expect.
-
 
 ## Log Into a Server
 
@@ -164,13 +163,12 @@ session1.logout()
 session2.logout()
 ```
 
-Here you use the 'send\_and\_get\_output' method to retrieve the output of the
+Here you use the 'send_and_get_output' method to retrieve the output of the
 capacity command (df).
 
 There are much more elegant ways to do the above (e.g. have a dictionary of the
 servers to iterate over), but it's up to you how clever you need the Python to
 be.
-
 
 ## More Intricate IO - Expecting
 
@@ -189,7 +187,7 @@ session.logout()
 Note the 'expect' argument. You only need to give a subset of telnet's
 prompt to match and continue.
 
-Note also the 'check\_exit' argument in the above, which is new. We'll come back
+Note also the 'check_exit' argument in the above, which is new. We'll come back
 to that. The output of the above is:
 
 ```bash
@@ -219,13 +217,12 @@ here
 Connection closed by foreign host.
 ```
 
-Now back to 'check\_exit=False'. Since the telnet command returns a failure exit
-code (1) and we don't want the script to fail, you set 'check\_exit=False' to
+Now back to 'check_exit=False'. Since the telnet command returns a failure exit
+code (1) and we don't want the script to fail, you set 'check_exit=False' to
 let ShutIt know you don't care about the exit code.
 
 If you didn't pass that argument in, ShutIt gives you an interactive terminal
 if there is a terminal to communicate with. This is called a 'pause point'.
-
 
 ## Pause Points
 
@@ -255,7 +252,7 @@ $ python example.py
 Have a look around!
 
 Ians-Air.home:ORIGIN_ENV:I00LA1Mq#  bash
-imiell@Ians-Air:/space/git/shutit  ⑂ master +    
+imiell@Ians-Air:/space/git/shutit  ⑂ master +  
 CTRL-] caught, continuing with run...
 2017-06-05 15:12:33,577 INFO: Sending:  exit
 2017-06-05 15:12:33,633 INFO: Output (squashed):  exitexitIans-Air.home:ORIGIN_ENV:I00LA1Mq#  [...]
@@ -265,7 +262,6 @@ Did you enjoy your pause point?
 Ians-Air.home:ORIGIN_ENV:I00LA1Mq#
 ```
 
-
 ## More Intricate IO - Backgrounding
 
 Returning to our 'monitoring multiple servers' example, let's imagine we
@@ -274,7 +270,6 @@ works serially which would take a long time. But we can run tasks in the
 background to speed things up.
 
 Here you can try an example with the trivial command: 'sleep 60'.
-
 
 ```python
 import shutit
@@ -301,7 +296,6 @@ over a minute to complete (using the 'wait' method).
 Again, this is trivial, but imagine you have hundreds of servers to manage like
 this and you can see the power it can bring in a few lines of code and one
 Python import.
-
 
 ## Learn More
 

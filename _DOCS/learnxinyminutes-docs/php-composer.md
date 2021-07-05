@@ -2,7 +2,7 @@
 category: tool
 tool: composer
 contributors:
-    - ["Brett Taylor", "https://github.com/glutnix"]
+  - ["Brett Taylor", "https://github.com/glutnix"]
 filename: LearnComposer.sh
 ---
 
@@ -123,10 +123,11 @@ In `composer.json`, add a 'autoload' field:
 ```json
 {
   "autoload": {
-    "psr-4": {"Acme\\": "src/"}
+    "psr-4": { "Acme\\": "src/" }
   }
 }
 ```
+
 This will tell the autoloader to look for anything in the `\Acme\` namespace within the `src` folder.
 
 You can also [use PSR-0, a Classmap or just a list of files to include](https://getcomposer.org/doc/04-schema.md#autoload). There is also the `autoload-dev` field for development-only namespaces.
@@ -158,10 +159,10 @@ composer clear-cache
 
 ## Topics not (yet) covered in this tutorial
 
-* Creating and distributing your own packages on Packagist.org or elsewhere
-* Pre- and post- script hooks: run tasks when certain composer events take place
+- Creating and distributing your own packages on Packagist.org or elsewhere
+- Pre- and post- script hooks: run tasks when certain composer events take place
 
 ### References
 
-* [Composer - Dependency Manager for PHP](https://getcomposer.org/)
-* [Packagist.org](https://packagist.org/)
+- [Composer - Dependency Manager for PHP](https://getcomposer.org/)
+- [Packagist.org](https://packagist.org/)

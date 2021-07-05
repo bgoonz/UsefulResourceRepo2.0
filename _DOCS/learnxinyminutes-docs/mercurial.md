@@ -20,49 +20,49 @@ and/or directorie(s) over time.
 
 ### Why use Mercurial?
 
-* Distributed Architecture - Traditionally version control systems such as CVS
-and Subversion are a client server architecture with a central server to
-store the revsion history of a project. Mercurial however is a truly
-distributed architecture, giving each devloper a full local copy of the
-entire development history. It works independently of a central server.
-* Fast - Traditionally version control systems such as CVS and Subversion are a
-client server architecture with a central server to store the revsion history
-of a project. Mercurial however is a truly distributed architecture, giving
-each devloper a full local copy of the entire development history. It works
-independently of a central server.
-* Platform Independent - Mercurial was written to be highly platform
-independent. Much of Mercurial is written in Python, with small performance
-critical parts written in portable C. Binary releases are available for all
-major platforms.
-* Extensible - The functionality of Mercurial can be increased with extensions,
-either by activating the official ones which are shipped with Mercurial or
-downloading some [from the wiki](https://www.mercurial-scm.org/wiki/UsingExtensions) or by [writing your own](https://www.mercurial-scm.org/wiki/WritingExtensions). Extensions are written in
-Python and can change the workings of the basic commands, add new commands and
-access all the core functions of Mercurial.
-* Easy to use - The Mercurial command set is consistent with what subversion
-users would expect, so they are likely to feel right at home. Most dangerous
-actions are part of extensions that need to be enabled to be used.
-* Open Source - Mercurial is free software licensed under the terms of the [GNU
-General Public License Version 2](http://www.gnu.org/licenses/gpl-2.0.txt) or
-any later version.
+- Distributed Architecture - Traditionally version control systems such as CVS
+  and Subversion are a client server architecture with a central server to
+  store the revsion history of a project. Mercurial however is a truly
+  distributed architecture, giving each devloper a full local copy of the
+  entire development history. It works independently of a central server.
+- Fast - Traditionally version control systems such as CVS and Subversion are a
+  client server architecture with a central server to store the revsion history
+  of a project. Mercurial however is a truly distributed architecture, giving
+  each devloper a full local copy of the entire development history. It works
+  independently of a central server.
+- Platform Independent - Mercurial was written to be highly platform
+  independent. Much of Mercurial is written in Python, with small performance
+  critical parts written in portable C. Binary releases are available for all
+  major platforms.
+- Extensible - The functionality of Mercurial can be increased with extensions,
+  either by activating the official ones which are shipped with Mercurial or
+  downloading some [from the wiki](https://www.mercurial-scm.org/wiki/UsingExtensions) or by [writing your own](https://www.mercurial-scm.org/wiki/WritingExtensions). Extensions are written in
+  Python and can change the workings of the basic commands, add new commands and
+  access all the core functions of Mercurial.
+- Easy to use - The Mercurial command set is consistent with what subversion
+  users would expect, so they are likely to feel right at home. Most dangerous
+  actions are part of extensions that need to be enabled to be used.
+- Open Source - Mercurial is free software licensed under the terms of the [GNU
+  General Public License Version 2](http://www.gnu.org/licenses/gpl-2.0.txt) or
+  any later version.
 
 ## Terminology
 
-| Term | Definition |
-| ------------- | ---------------------------------- |
-| Repository | A repository is a collection of revisions |
-| hgrc | A configuration file which stores the defaults for a repository. |
-| revision | A committed changeset: has a REV number |
-| changeset | Set of changes saved as diffs |
-| diff | Changes between file(s) |
-| tag | A named named revision |
-| parent(s) | Immediate ancestor(s) of a revison |
-| branch | A child of a revision |
-| head | A head is a changeset with no child changesets |
-| merge | The process of merging two HEADS |
-| tip | The latest revision in any branch |
-| patch | All of the diffs between two revisions |
-| bundle | Patch with permis­sions and rename support |
+| Term       | Definition                                                       |
+| ---------- | ---------------------------------------------------------------- |
+| Repository | A repository is a collection of revisions                        |
+| hgrc       | A configuration file which stores the defaults for a repository. |
+| revision   | A committed changeset: has a REV number                          |
+| changeset  | Set of changes saved as diffs                                    |
+| diff       | Changes between file(s)                                          |
+| tag        | A named named revision                                           |
+| parent(s)  | Immediate ancestor(s) of a revison                               |
+| branch     | A child of a revision                                            |
+| head       | A head is a changeset with no child changesets                   |
+| merge      | The process of merging two HEADS                                 |
+| tip        | The latest revision in any branch                                |
+| patch      | All of the diffs between two revisions                           |
+| bundle     | Patch with permis­sions and rename support                       |
 
 ## Commands
 
@@ -79,7 +79,7 @@ $ hg init
 
 Will give you access to a very detailed description of each command.
 
-```bash 
+```bash
 # Quickly check what commands are available
 $ hg help
 
@@ -122,9 +122,9 @@ $ hg add *.rb
 
 Set or show the current branch name.
 
-*Branch names are permanent and global. Use 'hg bookmark' to create a
+_Branch names are permanent and global. Use 'hg bookmark' to create a
 light-weight bookmark instead. See 'hg help glossary' for more information
-about named branches and bookmarks.*
+about named branches and bookmarks._
 
 ```bash
 # With no argument it shows the current branch name
@@ -178,7 +178,7 @@ $ hg clone . /tmp/some_backup_dir
 
 ### commit / ci
 
-Commit changes to the given files into the repository. 
+Commit changes to the given files into the repository.
 
 ```bash
 # Commit with a message
@@ -301,11 +301,11 @@ Move changeset (and descendants) to a different branch.
 
 Rebase uses repeated merging to graft changesets from one part of history
 (the source) onto another (the destination). This can be useful for
-linearizing *local* changes relative to a master development tree.
+linearizing _local_ changes relative to a master development tree.
 
-* Draft the commits back to the source revision.
-* -s is the source, ie. what you are rebasing.
-* -d is the destination, which is where you are sending it.
+- Draft the commits back to the source revision.
+- -s is the source, ie. what you are rebasing.
+- -d is the destination, which is where you are sending it.
 
 ```bash
 # Put the commits into draft status
@@ -350,6 +350,6 @@ $ hg remove *.txt
 
 ## Further information
 
-* [Learning Mercurial in Workflows](https://www.mercurial-scm.org/guide)
-* [Mercurial Quick Start](https://www.mercurial-scm.org/wiki/QuickStart)
-* [Mercurial: The Definitive Guide by Bryan O'Sullivan](http://hgbook.red-bean.com/)
+- [Learning Mercurial in Workflows](https://www.mercurial-scm.org/guide)
+- [Mercurial Quick Start](https://www.mercurial-scm.org/wiki/QuickStart)
+- [Mercurial: The Definitive Guide by Bryan O'Sullivan](http://hgbook.red-bean.com/)

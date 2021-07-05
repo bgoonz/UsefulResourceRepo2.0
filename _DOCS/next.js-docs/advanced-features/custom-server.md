@@ -25,33 +25,33 @@ Take a look at the following example of a custom server:
 
 ```js
 // server.js
-const { createServer } = require('http')
-const { parse } = require('url')
-const next = require('next')
+const { createServer } = require("http");
+const { parse } = require("url");
+const next = require("next");
 
-const dev = process.env.NODE_ENV !== 'production'
-const app = next({ dev })
-const handle = app.getRequestHandler()
+const dev = process.env.NODE_ENV !== "production";
+const app = next({ dev });
+const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
   createServer((req, res) => {
     // Be sure to pass `true` as the second argument to `url.parse`.
     // This tells it to parse the query portion of the URL.
-    const parsedUrl = parse(req.url, true)
-    const { pathname, query } = parsedUrl
+    const parsedUrl = parse(req.url, true);
+    const { pathname, query } = parsedUrl;
 
-    if (pathname === '/a') {
-      app.render(req, res, '/a', query)
-    } else if (pathname === '/b') {
-      app.render(req, res, '/b', query)
+    if (pathname === "/a") {
+      app.render(req, res, "/a", query);
+    } else if (pathname === "/b") {
+      app.render(req, res, "/b", query);
     } else {
-      handle(req, res, parsedUrl)
+      handle(req, res, parsedUrl);
     }
   }).listen(3000, (err) => {
-    if (err) throw err
-    console.log('> Ready on http://localhost:3000')
-  })
-})
+    if (err) throw err;
+    console.log("> Ready on http://localhost:3000");
+  });
+});
 ```
 
 > `server.js` doesn't go through babel or webpack. Make sure the syntax and sources this file requires are compatible with the current node version you are running.
@@ -71,8 +71,8 @@ Then, to run the custom server you'll need to update the `scripts` in `package.j
 The custom server uses the following import to connect the server with the Next.js application:
 
 ```js
-const next = require('next')
-const app = next({})
+const next = require("next");
+const app = next({});
 ```
 
 The above `next` import is a function that receives an object with the following options:
@@ -93,7 +93,7 @@ To disable this behavior and prevent routing based on files in `pages`, open `ne
 ```js
 module.exports = {
   useFileSystemPublicRoutes: false,
-}
+};
 ```
 
 > Note that `useFileSystemPublicRoutes` disables filename routes from SSR; client-side routing may still access those paths. When using this option, you should guard against navigation to routes you do not want programmatically.

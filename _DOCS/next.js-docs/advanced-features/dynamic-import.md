@@ -16,12 +16,12 @@ Next.js supports ES2020 [dynamic `import()`](https://github.com/tc39/proposal-dy
 In the following example, we implement fuzzy search using `fuse.js` and only load the module dynamically in the browser after the user types in the search input:
 
 ```jsx
-import { useState } from 'react'
+import { useState } from "react";
 
-const names = ['Tim', 'Joe', 'Bel', 'Max', 'Lee']
+const names = ["Tim", "Joe", "Bel", "Max", "Lee"];
 
 export default function Page() {
-  const [results, setResults] = useState()
+  const [results, setResults] = useState();
 
   return (
     <div>
@@ -29,17 +29,17 @@ export default function Page() {
         type="text"
         placeholder="Search"
         onChange={async (e) => {
-          const { value } = e.currentTarget
+          const { value } = e.currentTarget;
           // Dynamically load fuse.js
-          const Fuse = (await import('fuse.js')).default
-          const fuse = new Fuse(names)
+          const Fuse = (await import("fuse.js")).default;
+          const fuse = new Fuse(names);
 
-          setResults(fuse.search(value))
+          setResults(fuse.search(value));
         }}
       />
       <pre>Results: {JSON.stringify(results, null, 2)}</pre>
     </div>
-  )
+  );
 }
 ```
 
@@ -52,9 +52,9 @@ React components can also be imported using dynamic imports, but in this case we
 In the following example, the module `../components/hello` will be dynamically loaded by the page:
 
 ```jsx
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
-const DynamicComponent = dynamic(() => import('../components/hello'))
+const DynamicComponent = dynamic(() => import("../components/hello"));
 
 function Home() {
   return (
@@ -63,10 +63,10 @@ function Home() {
       <DynamicComponent />
       <p>HOME PAGE is here!</p>
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;
 ```
 
 `DynamicComponent` will be the default component returned by `../components/hello`. It works like a regular React Component, and you can pass props to it as you normally would.
@@ -79,18 +79,18 @@ If the dynamic component is not the default export, you can use a named export t
 
 ```jsx
 export function Hello() {
-  return <p>Hello!</p>
+  return <p>Hello!</p>;
 }
 ```
 
 To dynamically import the `Hello` component, you can return it from the [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) returned by [`import()`](https://github.com/tc39/proposal-dynamic-import#example), like so:
 
 ```jsx
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
 const DynamicComponent = dynamic(() =>
-  import('../components/hello').then((mod) => mod.Hello)
-)
+  import("../components/hello").then((mod) => mod.Hello)
+);
 
 function Home() {
   return (
@@ -99,10 +99,10 @@ function Home() {
       <DynamicComponent />
       <p>HOME PAGE is here!</p>
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;
 ```
 
 ## With custom loading component
@@ -110,12 +110,12 @@ export default Home
 An optional `loading` component can be added to render a loading state while the dynamic component is being loaded. For example:
 
 ```jsx
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
 const DynamicComponentWithCustomLoading = dynamic(
-  () => import('../components/hello'),
+  () => import("../components/hello"),
   { loading: () => <p>...</p> }
-)
+);
 
 function Home() {
   return (
@@ -124,10 +124,10 @@ function Home() {
       <DynamicComponentWithCustomLoading />
       <p>HOME PAGE is here!</p>
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;
 ```
 
 ## With no SSR
@@ -137,12 +137,12 @@ You may not always want to include a module on server-side. For example, when th
 Take a look at the following example:
 
 ```jsx
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
 const DynamicComponentWithNoSSR = dynamic(
-  () => import('../components/hello3'),
+  () => import("../components/hello3"),
   { ssr: false }
-)
+);
 
 function Home() {
   return (
@@ -151,8 +151,8 @@ function Home() {
       <DynamicComponentWithNoSSR />
       <p>HOME PAGE is here!</p>
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;
 ```

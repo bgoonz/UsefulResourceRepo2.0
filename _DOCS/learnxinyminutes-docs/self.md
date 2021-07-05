@@ -1,11 +1,11 @@
 ---
 language: self
 contributors:
-    - ["Russell Allen", "http://github.com/russellallen"]
+  - ["Russell Allen", "http://github.com/russellallen"]
 filename: learnself.self
 ---
 
-Self is a fast prototype based OO language which runs in its own JIT vm. Most development is done through interacting with live objects through a visual development environment called *morphic* with integrated browsers and debugger.
+Self is a fast prototype based OO language which runs in its own JIT vm. Most development is done through interacting with live objects through a visual development environment called _morphic_ with integrated browsers and debugger.
 
 Everything in Self is an object. All computation is done by sending messages to objects. Objects in Self can be understood as sets of key-value slots.
 
@@ -113,6 +113,7 @@ Multiple expressions are separated by a period. ^ returns immediately.
 ```
 
 Blocks are performed by sending them the message 'value' and inherit (delegate to) their contexts:
+
 ```
 "returns 0"
 [|x|
