@@ -4,10 +4,10 @@ The nth partial sum of the series is the triangular number( https://en.wikipedia
 addUpTo(n)=(n * (n + 1)) / 2
 https://wikimedia.org/api/rest_v1/media/math/render/svg/99476e25466549387c585cb4de44e90f6cbe4cf2
 */
-function constantAddUpTo( n ) {
-  return ( n * ( n + 1 ) ) / 2;
+function constantAddUpTo(n) {
+  return (n * (n + 1)) / 2;
 }
-constantAddUpTo( 4 ); //-  constantAddUpTo(4):  10
+constantAddUpTo(4); //-  constantAddUpTo(4):  10
 //console.log("constantAddUpTo(4): ", constantAddUpTo(4));
 //! Has three simple operations: 1 Multiplication 1 Addition 1 Division.
 //!(Regardless of n) Would be O(1) or Constant Time.
@@ -30,19 +30,19 @@ simplifying-a-sum.png
 simp-examples.png
 */
 /***********Comparing two functions with nested for loops*********************/
-function countUpAndDown( n ) {
-  console.log( "going up!" );
-  for ( let i = 0; i < n; i++ ) {
-    console.log( i );
+function countUpAndDown(n) {
+  console.log("going up!");
+  for (let i = 0; i < n; i++) {
+    console.log(i);
   }
-  console.log( "at the top, going down!" );
-  for ( let j = n - 1; j >= 0; j-- ) {
-    console.log( j );
+  console.log("at the top, going down!");
+  for (let j = n - 1; j >= 0; j--) {
+    console.log(j);
   }
-  console.log( "Back down, bye!" );
+  console.log("Back down, bye!");
 }
-countUpAndDown( 5 );
-console.log( "countUpAndDown(5): ", countUpAndDown( 5 ) );
+countUpAndDown(5);
+console.log("countUpAndDown(5): ", countUpAndDown(5));
 /*
 going up!
 0 1	2	3	4
@@ -54,14 +54,14 @@ countUpAndDown(5):  undefined //- because there was no return statment... only c
 //------------------------------------------------
 //!Both loops are O(n) but since we just want the big picture, O(n);
 //-----------------------------------------------
-function printAllPairs( n ) {
-  for ( let i = 0; i < n; i++ ) {
-    for ( let j = 0; j < n; j++ ) {
-      console.log( i, j );
+function printAllPairs(n) {
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      console.log(i, j);
     }
   }
 }
-printAllPairs( 4 );
+printAllPairs(4);
 /*
 0 0	0 1	0 2	0 3	1 0	1 1	1 2	1 3	2 0	2 1	2 2	2 3	3 0	3 1	3 2	3 3
 */
@@ -75,8 +75,8 @@ printAllPairs( 4 );
 //! In a loop, the complexity is the length of the loop times the complexity of whatever is inside of the loop.
 /**************************More Examples**********************/
 //---------------------logAtLeast5---------------------------------
-function logAtLeast5( n ) {
-  for ( let i = 1; i <= Math.max( 5, n ); i++ ) {
+function logAtLeast5(n) {
+  for (let i = 1; i <= Math.max(5, n); i++) {
     //console.log(i);
   }
 }
@@ -92,12 +92,12 @@ function logAtLeast5( n ) {
 1	2	3	4	5	6
 */
 //---------------------logAtMost5---------------------------------
-function logAtMost5( n ) {
-  for ( var i = 1; i <= Math.min( 5, n ); i++ ) {
+function logAtMost5(n) {
+  for (var i = 1; i <= Math.min(5, n); i++) {
     //console.log(i);
   }
 }
-logAtMost5( 20 );
+logAtMost5(20);
 //! O(1) Constant Time.
 /*
 1	2	3	4	5
@@ -107,17 +107,17 @@ logAtMost5( 20 );
 //! O(1) Constant
 The algorithm takes roughly the same number of steps for any input size.
 */
-function constant1( n ) {
+function constant1(n) {
   return n * 2 + 1;
 }
-constant1( 5 ); //constant1(5):  11
+constant1(5); //constant1(5):  11
 //console.log("constant1(5): ", constant1(5));
 //--------
 //! O(1)
 //--------
-function constant2( n ) {
-  for ( let i = 1; i <= 100; i++ ) {
-    console.log( i );
+function constant2(n) {
+  for (let i = 1; i <= 100; i++) {
+    console.log(i);
   }
 }
 //constant2(5);
@@ -131,24 +131,24 @@ log complexity algo's will typically display 'halving' the size of the input ??
 ? (like binary search!)
 */
 // O(log(n))
-function logarithmic1( n ) {
-  if ( n <= 1 ) {
+function logarithmic1(n) {
+  if (n <= 1) {
     return "base case";
   } else {
-    return logarithmic1( n / 2 ); //*Recursive call on **half** the input
+    return logarithmic1(n / 2); //*Recursive call on **half** the input
   }
 }
 //! O(log(n))
-function logarithmic2( n ) {
+function logarithmic2(n) {
   let i = n;
-  while ( i > 1 ) {
+  while (i > 1) {
     i /= 2;
     return i;
   }
 }
-logarithmic1( 5 );
+logarithmic1(5);
 ////console.log("logarithmic1(5): ", logarithmic1(5)); //logarithmic1(5):  base case
-logarithmic2( 6 );
+logarithmic2(6);
 ////console.log("logarithmic2(6): ", logarithmic2(6)); //logarithmic2(6):  3
 //------------------------------------------
 /*
@@ -156,35 +156,35 @@ logarithmic2( 6 );
 Linear algo's will access each item of the input "once".
  */
 // O(n)
-function linear1( n ) {
-  for ( let i = 1; i <= n; i++ ) {
+function linear1(n) {
+  for (let i = 1; i <= n; i++) {
     //console.log("linear1", i);
   }
 }
-linear1( 3 );
+linear1(3);
 /*
 linear1 1
 linear1 2
 linear1 3
 */
 // O(n), where n is the length of the array
-function linear2( array ) {
-  for ( let i = 0; i < array.length; i++ ) {
-    console.log( "linear2", i );
+function linear2(array) {
+  for (let i = 0; i < array.length; i++) {
+    console.log("linear2", i);
   }
 }
-linear2( [ 1, 2, 3 ] );
+linear2([1, 2, 3]);
 /*
 linear2 0
 linear2 1
 linear2 2
 */
 //!  O(n)
-function linear3( n ) {
-  if ( n === 1 ) {
+function linear3(n) {
+  if (n === 1) {
     return 1;
   } else {
-    console.log( `linear3(${n})--->`, linear3( n - 1 ) );
+    console.log(`linear3(${n})--->`, linear3(n - 1));
     /*
      */
   }
@@ -206,19 +206,19 @@ we will see features from both classes.
  */
 // O(n * log(n));
 
-function loglinear( n ) {
-  if ( n <= 1 ) return; // base case
-  for ( let i = 1; i <= n; i++ ) {
+function loglinear(n) {
+  if (n <= 1) return; // base case
+  for (let i = 1; i <= n; i++) {
     console.log(
       `for an input (n=${n}):`,
       `we are on the ${i}'th itteration where i = ${i}`
     );
   }
-  console.log( " first call n('old n'):", n );
-  loglinear( n / 2 );
-  console.log( `   new n is = (${n})` );
+  console.log(" first call n('old n'):", n);
+  loglinear(n / 2);
+  console.log(`   new n is = (${n})`);
 }
-loglinear( 4 );
+loglinear(4);
 /*
 for an input (n=4): we are on the 1'th itteration where i = 1
 for an input (n=4): we are on the 2'th itteration where i = 2
@@ -231,19 +231,19 @@ for an input (n=2): we are on the 2'th itteration where i = 2
    new n is = (2)
    new n is = (4)
 */
-function loglinear( n ) {
-  if ( n <= 1 ) return; // base case
-  for ( let i = 1; i <= n; i++ ) {
+function loglinear(n) {
+  if (n <= 1) return; // base case
+  for (let i = 1; i <= n; i++) {
     console.log(
       `for an input (n=${n}):`,
       `we are on the ${i}'th itteration where i = ${i}`
     );
   }
-  console.log( " first call n('old n'):", n, `new n is = (${n / 2})` );
-  loglinear( n / 2 );
-  console.log( `   new n is = (${n})` );
-  loglinear( n / 2 );
-  console.log( `   Second Call : new n is = (${n})` );
+  console.log(" first call n('old n'):", n, `new n is = (${n / 2})`);
+  loglinear(n / 2);
+  console.log(`   new n is = (${n})`);
+  loglinear(n / 2);
+  console.log(`   Second Call : new n is = (${n})`);
 }
 //loglinear(4);
 /* 
@@ -271,13 +271,13 @@ O(nc) Polynomial
 C is a fixed constant.
  */
 // O(n^3)
-function cubic( n ) {
+function cubic(n) {
   let count = 0;
-  for ( let i = 1; i <= n; i++ ) {
+  for (let i = 1; i <= n; i++) {
     //console.log(`i is ${i}`, "count:", count);
-    for ( let j = 1; j <= n; j++ ) {
+    for (let j = 1; j <= n; j++) {
       //console.log(`  for i:    ${i}      j is:${j}`);
-      for ( let k = 1; k <= n; k++ ) {
+      for (let k = 1; k <= n; k++) {
         count += 1;
         console.log(
           `     itteration #${count}:       i: is  ${i},   j: is  ${j},     k:is   ${k}`
@@ -286,7 +286,7 @@ function cubic( n ) {
     }
   }
 }
-cubic( 3 );
+cubic(3);
 /*
 i is 1 count: 0
   for i:    1      j is:1
@@ -336,34 +336,34 @@ C is now the number of recursive calls made in each stack frame.
 -Algo's with exponential time are VERY SLOW.
 */
 // O(3^n)
-function exponential3n( n ) {
-  if ( n === 0 ) return;
+function exponential3n(n) {
+  if (n === 0) return;
   //console.log("1.)  first call n('old n'):", n, `....new n is = (${n - 1})`);
-  exponential3n( n - 1 );
+  exponential3n(n - 1);
 
-  console.log( "---------------------(__1__)---------------------------", "\n" );
+  console.log("---------------------(__1__)---------------------------", "\n");
   console.log(
     "2.)  after first call ('old n'):",
     n,
     `....new n is = (${n - 1})`
   );
 
-  exponential3n( n - 1 );
+  exponential3n(n - 1);
 
-  console.log( "-------------------------(__2__)---------------------", "\n" );
+  console.log("-------------------------(__2__)---------------------", "\n");
   console.log(
     "3.)  after second call ('old n'):",
     n,
     `....new n is = (${n - 1})`
   );
 
-  exponential3n( n - 1 );
+  exponential3n(n - 1);
 
-  console.log( "-----------------------(__3__)-------------------------", "\n" );
+  console.log("-----------------------(__3__)-------------------------", "\n");
   console.log(
     "4.)   after third call ('old n'):",
     n,
     `....new n is = (${n - 1})`
   );
 }
-exponential3n( 3 );
+exponential3n(3);

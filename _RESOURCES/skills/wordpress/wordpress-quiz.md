@@ -433,10 +433,11 @@ add_action( 'wp_enqueue_scripts', 'load_scripts' );
 #### Q52. According to WordPress PHP coding standards for inline comments, how would you write a single-line comment in a PHP document?
 
 - [✅] `// This is a single line comment`
-- [ ] ````/*
-            * This is a single line comment.
-      	  */```
-      ````
+- [ ] `````/*
+                * This is a single line comment.
+          	  */```
+          ````
+      `````
 - [ ] `// This is a single line comment.`
 - [ ] `<!-- This is a single line comment -->`
 

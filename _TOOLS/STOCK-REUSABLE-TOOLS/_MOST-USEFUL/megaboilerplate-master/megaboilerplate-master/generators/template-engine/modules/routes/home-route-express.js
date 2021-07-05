@@ -1,0 +1,1 @@
+app.get('/', HomeController.index);

@@ -49,11 +49,11 @@
 
 - [ ] The order is not important.
 - [ ]       1. Modem
-                    2. Gateway
-                    3. Switch
+                        2. Gateway
+                        3. Switch
 - [✅] 1. Modem 2. Switch 3. Gateway
 - [ ]       1. Gateway
-                    2. Switch
+                        2. Switch
 
 #### Q7. A client needs to secure their cafe's wireless network, which is used only by employees. What is the best approach for a finite list of devices?
 
@@ -79,25 +79,25 @@
 #### Q10. Which components are typically found on the motherboard?
 
 - [ ]       basic I/O
-                    graphics
-                    NIC
-                    battery
-                    expansion slots
+                        graphics
+                        NIC
+                        battery
+                        expansion slots
 - [ ]       basic I/O
-                    cooling
-                    NIC
-                    graphics
-                    expansion slots
+                        cooling
+                        NIC
+                        graphics
+                        expansion slots
 - [✅] basic I/O
   graphics
   NIC
   mass storage
   expansion slots
 - [ ]       basic I/O
-                    graphics
-                    NIC
-                    power supply
-                    expansion slots
+                        graphics
+                        NIC
+                        power supply
+                        expansion slots
 
 #### Q11. What does the acronym RAID refer to?
 
