@@ -7,10 +7,10 @@ const App = () => {
   const { persistDecorator, clear } = createPersistDecorator({
     name: "myPersistKey",
     debounceTime: 500,
-    whitelist: ["name"]
+    whitelist: ["name"],
   });
   const initialValues = {
-    name: "Hello"
+    name: "Hello",
   };
 
   return (

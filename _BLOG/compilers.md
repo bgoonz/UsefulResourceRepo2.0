@@ -109,7 +109,7 @@ Steve Russell, © [mass:werk](http://www.masswerk.at/spacewar/SpacewarOrigin.htm
 Indeed, Hopper’s work directly impacted Russell’s invention. The first version of the Lisp interpreter was compiled by hand. In an interview with the Computer History Museum in 2008, Russell [explains](http://archive.computerhistory.org/resources/access/text/2012/08/102746453-05-01-acc.pdf) how compilers played into his work at MIT:
 
 > And my remembrance is that John \[McCarthy\] sort of came in one day, in late September or October or something like, that with the universal M-expression, that is the Lisp interpreter written out as an M-expression, and we sort of looked at it and said, “Oh yeah, that’ll work,” and I looked at it and said, “Oh, that’s just a matter of doing more hand compiling, like I’ve been doing. I can do that.”
-> 
+>
 > …I got something working before Christmas, which was a useable interpreter; no garbage collector, but there weren’t any big programs yet.
 
 Russell and his colleagues would go on to [hand-compile](http://www.computerhistory.org/pdp-1/steve-slug-russell/) the first two version of the Lisp interpreter. Today, most programmers wouldn’t even dream of hand-compiling any of their code! Indeed, many of us interact with an interpreter and use it multiple times in application development — we just might not always be aware of it.
@@ -201,6 +201,5 @@ Because both interpreters and compilers have been around for many years now, the
 4.  [Machine Code and High level Languages Using Interpreters and Compilers](https://www.youtube.com/watch?v=1OukpDfsuXE), Banchory Academy Computing Science
 5.  [The Programming Process](http://www2.hawaii.edu/~takebaya/ics111/process_of_programming/process_of_programming.html), Professor Vern Takebayashi
 6.  [Why was the first compiler written before the first interpreter?](https://softwareengineering.stackexchange.com/questions/251431/why-was-the-first-compiler-written-before-the-first-interpreter), StackOverflow
-
 
 [Source](https://medium.com/basecs/a-deeper-inspection-into-compilation-and-interpretation-d98952ebc842)

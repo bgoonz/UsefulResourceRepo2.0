@@ -1,4 +1,4 @@
- ![The Essential Guide to Take-home Coding Challenges](https://cdn-media-1.freecodecamp.org/images/1*JTWK4gL0-NmGWZCke2E0WQ.jpeg) 
+![The Essential Guide to Take-home Coding Challenges](https://cdn-media-1.freecodecamp.org/images/1*JTWK4gL0-NmGWZCke2E0WQ.jpeg)
 
 by Jane Philipps
 
@@ -100,8 +100,8 @@ Your next step will be to identify the technical decisions that you need to make
 
 Now it’s time to plan out the rest of your app. For anything that you need to draw out, now is the perfect time to do that. Thinking through these decisions at the start serves two purposes:
 
--   You’ll be able to reference these drawings and your original plan while you’re building your app. Then if you get stuck at any point, you can always come back to your notes.
--   Later, when you are having a discussion with an engineer about your coding challenge, you can use these notes as a reference when they ask you why you made certain design or architecture decisions.
+- You’ll be able to reference these drawings and your original plan while you’re building your app. Then if you get stuck at any point, you can always come back to your notes.
+- Later, when you are having a discussion with an engineer about your coding challenge, you can use these notes as a reference when they ask you why you made certain design or architecture decisions.
 
 Once you’ve thought through and answered some of the bigger design and architecture questions for your challenge, the next step is research. If you’re planning to use a new technology or something you’re a bit rusty with, use this time to search for documentation and other resources.
 
@@ -211,10 +211,10 @@ When an engineer is reviewing your code, they will look for several different th
 
 There are several things you can do to make your code stand out. You want your code to be:
 
--   Readable
--   Easy to follow
--   Well organized
--   Clean (properly indented, free of syntax errors and unnecessary whitespace)
+- Readable
+- Easy to follow
+- Well organized
+- Clean (properly indented, free of syntax errors and unnecessary whitespace)
 
 These are the basics that don’t take much effort outside of mindfulness to get right. Now let’s talk about three of the more involved code style considerations:
 
@@ -240,8 +240,8 @@ Think of comments as adding clarity to your code. But, pay attention, because th
 
 Here is where you most likely do not need comments:
 
--   When you declare a variable
--   When you declare a function
+- When you declare a variable
+- When you declare a function
 
 Don’t do this:
 
@@ -249,9 +249,9 @@ The variable or function name should be enough to explain exactly what it does. 
 
 Here are some examples of where comments can be useful:
 
--   HTML
--   CSS
--   Technically tricky lines of code
+- HTML
+- CSS
+- Technically tricky lines of code
 
 First, let’s talk about HTML. Markup seems pretty self-explanatory, right? So, why would you need comments? Let’s say you have a really long HTML file with A LOT of `<d`iv>s. Comments can be a good way to signal `which` </div> tags close which sections.
 
@@ -269,12 +269,12 @@ I’m a STICKLER about formatting when it comes to code. And, it’s not just me
 
 So, how do you make sure the code style sticklers will approve of your code? There are a few simple tricks you can use as you’re working through your coding challenge to ensure the end result comes out clean and you don’t have to spend time at the end reformatting everything.
 
--   Choose tabs or spaces and be consistent across your entire application (i.e. no 2 spaces in some files, 4 spaces in others)
--   Indent your code properly as you go so that it stays readable and isn’t all over the place
--   Get rid of trailing whitespace! Whitespace can sometimes wreck havoc, so it’s best to just get rid of it as you write your code.
--   Keep your syntax consistent throughout your entire app. If you’re using a linter, this will be easier, but requires setting one up. If you don’t have time to set one up, pay attention. Don’t use ES5 in some places in your app and ES6 in others. Pick one and stick with it!
--   Remove unnecessary logging and debug statements when you’re done using them! Unless logging is part of your application, you’ll want to remove any temporary statements you were using while building your app.
--   Always leave a newline at the end of every file
+- Choose tabs or spaces and be consistent across your entire application (i.e. no 2 spaces in some files, 4 spaces in others)
+- Indent your code properly as you go so that it stays readable and isn’t all over the place
+- Get rid of trailing whitespace! Whitespace can sometimes wreck havoc, so it’s best to just get rid of it as you write your code.
+- Keep your syntax consistent throughout your entire app. If you’re using a linter, this will be easier, but requires setting one up. If you don’t have time to set one up, pay attention. Don’t use ES5 in some places in your app and ES6 in others. Pick one and stick with it!
+- Remove unnecessary logging and debug statements when you’re done using them! Unless logging is part of your application, you’ll want to remove any temporary statements you were using while building your app.
+- Always leave a newline at the end of every file
 
 That’s it! It’s pretty simple, and once you’re in the habit of doing this, not only will your code be easier for you to read, but it will also be easier for others to read and maintain. Many new developers haven’t been exposed to very much code maintenance, but trust me, when you have to clean up code someone else has written, you will be more thankful if it was neatly organized to start. Pay it forward!
 
@@ -358,14 +358,14 @@ One final word of advice: write your README in markdown so it looks nice! This w
 
 Now that you’ve written your README, you’re almost ready to hit send! Before you do that, take the time to double check all of your work using the following checklist:
 
--   Re-read the take-home challenge instructions to make sure you didn’t miss any requirements
--   Review your app’s code to ensure that it shines
--   Run your app’s automated tests and make sure they are all passing
--   Test your app manually and make sure everything is working properly
--   Test your app installation instructions from your README
--   Start an email draft and copy your README into it for convenience
--   If requested, make sure to attach a zip file of your code
--   Write an email to your contact at the company
+- Re-read the take-home challenge instructions to make sure you didn’t miss any requirements
+- Review your app’s code to ensure that it shines
+- Run your app’s automated tests and make sure they are all passing
+- Test your app manually and make sure everything is working properly
+- Test your app installation instructions from your README
+- Start an email draft and copy your README into it for convenience
+- If requested, make sure to attach a zip file of your code
+- Write an email to your contact at the company
 
 Your email can be short and sweet — I always like to highlight something I enjoyed about the challenge or something I learned. Here’s an example:
 
@@ -397,6 +397,6 @@ Also, if you enjoyed this guide and want to learn more, feel free to sign up for
 
 ![](https://cdn-media-1.freecodecamp.org/images/1*cAOL5Wqd8K_VDgzNI1qGsg.png)
 
-___
+---
 
 Learn to code for free. freeCodeCamp's open source curriculum has helped more than 40,000 people get jobs as developers. [Get started](https://www.freecodecamp.org/learn/)

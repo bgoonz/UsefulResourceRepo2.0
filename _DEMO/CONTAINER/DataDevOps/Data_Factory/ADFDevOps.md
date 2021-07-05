@@ -1,7 +1,9 @@
 # Data Platform DevOps - Azure Data Factory
+
 **Produced by Dave Lusty**
 
 ## Introduction
+
 This demo shows how to use DevOps pipelines and branching for code promotion within Azure DevOps. The video is available [here](https://youtu.be/CW5GXIEhePE)
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fdavedoesdemos%2FDataDevOps%2Fmaster%2FData_Factory%2Fdeploy%2Fazuredeploy.json" target="_blank">
@@ -21,7 +23,7 @@ This guide will assume that you already know how to create a backlog and work it
 
 ### Environments
 
-As a minimum, you will need to have one development environment, and one deployment environment. 
+As a minimum, you will need to have one development environment, and one deployment environment.
 
 #### Development environment
 
@@ -65,7 +67,7 @@ Your build pipeline will be either started manually, or triggered when changes a
 
 #### Release
 
-You will also create one or more release pipelines. For Data Factory, these will be ARM deployments which push the code into your deployment environments. The release pipelines will generally be triggered from a successful build, and will be given the artifact to use in deployment. While these may contain other code such as Spark scripts, we will not discuss orchestrating multiple changes in this demo since it is very specific to your environment and needs. 
+You will also create one or more release pipelines. For Data Factory, these will be ARM deployments which push the code into your deployment environments. The release pipelines will generally be triggered from a successful build, and will be given the artifact to use in deployment. While these may contain other code such as Spark scripts, we will not discuss orchestrating multiple changes in this demo since it is very specific to your environment and needs.
 
 ## Setting up the Environment
 
@@ -137,11 +139,11 @@ Next, create a pipeline and add a copy job from source to sink.
 
 ![pipeline.png](images/pipeline.png)
 
-Finally, click "Save All" on the menu to save the pipeline. At this point your pipeline exists in the feature branch, you can see the JSON files in your Git repository. 
+Finally, click "Save All" on the menu to save the pipeline. At this point your pipeline exists in the feature branch, you can see the JSON files in your Git repository.
 
 ## Merge Branches
 
-On the branch drop down, select "Create Pull Request". You'll be redirected to Azure DevOps to create the pull request. 
+On the branch drop down, select "Create Pull Request". You'll be redirected to Azure DevOps to create the pull request.
 
 ![pullRequest.png](images/pullRequest.png)
 
@@ -231,7 +233,7 @@ Go back to all releases and click on Release-1.
 
 ![release1.png](images/release1.png)
 
-Click Deploy after hovering over the TestEnvironment box. Click Deploy again to begin deployment. You'll then see the deployment take place. 
+Click Deploy after hovering over the TestEnvironment box. Click Deploy again to begin deployment. You'll then see the deployment take place.
 
 ![deploy.png](images/deploy.png)
 

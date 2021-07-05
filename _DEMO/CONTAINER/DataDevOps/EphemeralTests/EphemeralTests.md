@@ -1,7 +1,9 @@
 # Data Platform DevOps - Ephemeral Deployments and test environments
+
 **Produced by Dave Lusty**
 
 ## Introduction
+
 This demo shows how to use ephemeral deployments in a data lake environment. The video is [not ready yet](https://youtu.be/CW5GXIEhePE)
 
 When creating a DevOps strategy for a data lake the question often comes up of how to create test environments as part of a release pipeline. This is often phrased "how do I clone my production data lake environment for testing or QA?". The answer is, of course, that you can't sensibly clone your data lake if it contains 10PiB of data. Neither would it be sensible to maintain two lake environments since data would gradually drift between the two and eventually require a full clone, potentially costing large sums of money and time.

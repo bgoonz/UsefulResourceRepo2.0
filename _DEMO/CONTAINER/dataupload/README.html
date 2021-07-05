@@ -1,121 +1,333 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
-<head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="pandoc" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>README</title>
-  <style type="text/css">
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      span.underline{text-decoration: underline;}
-      div.column{display: inline-block; vertical-align: top; width: 50%;}
-  </style>
-  <style type="text/css">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
-}
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {  }
-@media screen {
-a.sourceLine::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-  </style>
-</head>
-<body>
-<h1 id="data-upload-to-blob">Data Upload to Blob</h1>
-<p><strong>Produced by Dave Lusty</strong></p>
-<h2 id="introduction">Introduction</h2>
-<p>This demo shows how to use HTML and Javascript to upload files to Azure. The site is hosted in a storage account to reduce costs since it requires no server side components. SAS keys can be used to control access via the URI. The upload happens through the storage SDK for Javascript (browser version) and so uses the API directly. For this reason there are no file size limits enforced from a server since there is “no server”. The video is <a href="https://youtu.be/3khzPbmHbAQ">here</a></p>
-<p>The site looks like the below image but has a basic CSS file included for you to modify. I’m not a web designer so it’s pretty basic I’m afraid, but it is functional! (there’s now a Website2 directory with a slightly nicer interface)</p>
-<figure>
-<img src="images/website.png" alt="website.png" /><figcaption>website.png</figcaption>
-</figure>
-<p>Special thanks on this demo goes to Joseph Zimmerman who posted <a href="https://www.smashingmagazine.com/2018/01/drag-drop-file-uploader-vanilla-js/">this excellent article</a>. I especially like this kind of post because it doesn’t lazily use libraries and obfuscate the technology. HTML and Javascript are all you need here besides the storage SDK (which is much more complex under the hood!).</p>
-<h2 id="demo">Demo</h2>
-<p>For this demo, you’ll need a storage account and the code from this repository. Once the storage account is deployed you’ll need to set a few things up to get up and running.</p>
-<h3 id="static-website-on-blob">Static Website on Blob</h3>
-<p>First, you’ll want to set up using your storage account as a static website. This allows you to browse it without a costly web server. To do this, click static website in the settings menu and then type index.html in the index document name and click save. This will allow you to use the generated url without the /index.html part on the end. It’s not entirely necessary since here we’ll be supplying whole urls to people for security purposes.</p>
-<figure>
-<img src="images/staticWebsite.png" alt="staticWebsite.png" /><figcaption>staticWebsite.png</figcaption>
-</figure>
-<p>Next, upload the files from the repository into the root of the new $web container that has been created for your site. You’ll need to tell it to upload to a folder for the css, js and libs folders. <strong>Please note that you’ll need to download and extract the files from <a href="https://aka.ms/downloadazurestoragejsblob">here</a> in the libs folder since I cannot republish them</strong>. Once these are uploaded, create another container and call it “uploads”. This container should be private since we don’t want to give public access to the uploaded files.</p>
-<h3 id="set-up-cors">Set up CORS</h3>
-<p>In order for the scripting to work, you need to enable CORS on the storage account. Click on CORS under the settings menu and set up a rule. Your origin will be the full uri provided under the static website settings above. This includes the https:// part. Allow only PUT and then allow all headers and set the max age to something large. For production purposes you should carefully consider these settings, but the above are relatively locked down and we can be reasonably sure nothing odd will be hosted in your storage account’s domain.</p>
-<figure>
-<img src="images/cors.png" alt="set up CORS" /><figcaption>set up CORS</figcaption>
-</figure>
-<h3 id="generate-the-sas-key">Generate the SAS Key</h3>
-<p>Next, click on Shared access signature on the settings menu to generate your SAS key. In future demos we’ll do this programatically in order to give time limited links to people, but for now we’ll generate it manually. Select only Blob under allowed services, and then Object for resource types. Give the key write, add and create permissions and set a start and end time. Choose HTTPS only and click generate SAS and connection string.</p>
-<figure>
-<img src="images/sasKey.png" alt="sasKey.png" /><figcaption>sasKey.png</figcaption>
-</figure>
-<p>Copy the resulting SAS token from the “SAS Token” box.</p>
-<h3 id="website">website</h3>
-<p>Once you’ve completed the above steps, create your link as per this formula:</p>
-<p><code>https://&lt;url&gt;/index.html&lt;SASKey&gt;&amp;accountName=&lt;accountname&gt;&amp;containerName=&lt;containername&gt;</code></p>
-<p>Please note that there is no extra ? before the SAS key since it includes one already. The URL comes from your static website settings and the accountname is your storage account name. Container name is uploads and is the container you created above. Next, browse to the URI you created and you should see a site like the below:</p>
-<figure>
-<img src="images/website.png" alt="website.png" /><figcaption>website.png</figcaption>
-</figure>
-<p>You can either click the button to browse for files, or you can drag them into the dashed box. Either way they will upload to your storage account.</p>
-<h2 id="code">Code</h2>
-<h3 id="html">HTML</h3>
-<p>The HTML file is fairly simple and just contains some div elements to house the form and drop zone.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode html"><code class="sourceCode html"><a class="sourceLine" id="cb1-1" title="1"><span class="dt">&lt;!DOCTYPE </span>html<span class="dt">&gt;</span></a>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>README</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+    <style type="text/css">
+      a.sourceLine {
+        display: inline-block;
+        line-height: 1.25;
+      }
+      a.sourceLine {
+        pointer-events: none;
+        color: inherit;
+        text-decoration: inherit;
+      }
+      a.sourceLine:empty {
+        height: 1.2em;
+      }
+      .sourceCode {
+        overflow: visible;
+      }
+      code.sourceCode {
+        white-space: pre;
+        position: relative;
+      }
+      div.sourceCode {
+        margin: 1em 0;
+      }
+      pre.sourceCode {
+        margin: 0;
+      }
+      @media screen {
+        div.sourceCode {
+          overflow: auto;
+        }
+      }
+      @media print {
+        code.sourceCode {
+          white-space: pre-wrap;
+        }
+        a.sourceLine {
+          text-indent: -1em;
+          padding-left: 1em;
+        }
+      }
+      pre.numberSource a.sourceLine {
+        position: relative;
+        left: -4em;
+      }
+      pre.numberSource a.sourceLine::before {
+        content: attr(title);
+        position: relative;
+        left: -1em;
+        text-align: right;
+        vertical-align: baseline;
+        border: none;
+        pointer-events: all;
+        display: inline-block;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        padding: 0 4px;
+        width: 4em;
+        color: #aaaaaa;
+      }
+      pre.numberSource {
+        margin-left: 3em;
+        border-left: 1px solid #aaaaaa;
+        padding-left: 4px;
+      }
+      div.sourceCode {
+      }
+      @media screen {
+        a.sourceLine::before {
+          text-decoration: underline;
+        }
+      }
+      code span.al {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Alert */
+      code span.an {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Annotation */
+      code span.at {
+        color: #7d9029;
+      } /* Attribute */
+      code span.bn {
+        color: #40a070;
+      } /* BaseN */
+      code span.bu {
+      } /* BuiltIn */
+      code span.cf {
+        color: #007020;
+        font-weight: bold;
+      } /* ControlFlow */
+      code span.ch {
+        color: #4070a0;
+      } /* Char */
+      code span.cn {
+        color: #880000;
+      } /* Constant */
+      code span.co {
+        color: #60a0b0;
+        font-style: italic;
+      } /* Comment */
+      code span.cv {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* CommentVar */
+      code span.do {
+        color: #ba2121;
+        font-style: italic;
+      } /* Documentation */
+      code span.dt {
+        color: #902000;
+      } /* DataType */
+      code span.dv {
+        color: #40a070;
+      } /* DecVal */
+      code span.er {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Error */
+      code span.ex {
+      } /* Extension */
+      code span.fl {
+        color: #40a070;
+      } /* Float */
+      code span.fu {
+        color: #06287e;
+      } /* Function */
+      code span.im {
+      } /* Import */
+      code span.in {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Information */
+      code span.kw {
+        color: #007020;
+        font-weight: bold;
+      } /* Keyword */
+      code span.op {
+        color: #666666;
+      } /* Operator */
+      code span.ot {
+        color: #007020;
+      } /* Other */
+      code span.pp {
+        color: #bc7a00;
+      } /* Preprocessor */
+      code span.sc {
+        color: #4070a0;
+      } /* SpecialChar */
+      code span.ss {
+        color: #bb6688;
+      } /* SpecialString */
+      code span.st {
+        color: #4070a0;
+      } /* String */
+      code span.va {
+        color: #19177c;
+      } /* Variable */
+      code span.vs {
+        color: #4070a0;
+      } /* VerbatimString */
+      code span.wa {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Warning */
+    </style>
+  </head>
+  <body>
+    <h1 id="data-upload-to-blob">Data Upload to Blob</h1>
+    <p><strong>Produced by Dave Lusty</strong></p>
+    <h2 id="introduction">Introduction</h2>
+    <p>
+      This demo shows how to use HTML and Javascript to upload files to Azure.
+      The site is hosted in a storage account to reduce costs since it requires
+      no server side components. SAS keys can be used to control access via the
+      URI. The upload happens through the storage SDK for Javascript (browser
+      version) and so uses the API directly. For this reason there are no file
+      size limits enforced from a server since there is “no server”. The video
+      is <a href="https://youtu.be/3khzPbmHbAQ">here</a>
+    </p>
+    <p>
+      The site looks like the below image but has a basic CSS file included for
+      you to modify. I’m not a web designer so it’s pretty basic I’m afraid, but
+      it is functional! (there’s now a Website2 directory with a slightly nicer
+      interface)
+    </p>
+    <figure>
+      <img src="images/website.png" alt="website.png" />
+      <figcaption>website.png</figcaption>
+    </figure>
+    <p>
+      Special thanks on this demo goes to Joseph Zimmerman who posted
+      <a
+        href="https://www.smashingmagazine.com/2018/01/drag-drop-file-uploader-vanilla-js/"
+        >this excellent article</a
+      >. I especially like this kind of post because it doesn’t lazily use
+      libraries and obfuscate the technology. HTML and Javascript are all you
+      need here besides the storage SDK (which is much more complex under the
+      hood!).
+    </p>
+    <h2 id="demo">Demo</h2>
+    <p>
+      For this demo, you’ll need a storage account and the code from this
+      repository. Once the storage account is deployed you’ll need to set a few
+      things up to get up and running.
+    </p>
+    <h3 id="static-website-on-blob">Static Website on Blob</h3>
+    <p>
+      First, you’ll want to set up using your storage account as a static
+      website. This allows you to browse it without a costly web server. To do
+      this, click static website in the settings menu and then type index.html
+      in the index document name and click save. This will allow you to use the
+      generated url without the /index.html part on the end. It’s not entirely
+      necessary since here we’ll be supplying whole urls to people for security
+      purposes.
+    </p>
+    <figure>
+      <img src="images/staticWebsite.png" alt="staticWebsite.png" />
+      <figcaption>staticWebsite.png</figcaption>
+    </figure>
+    <p>
+      Next, upload the files from the repository into the root of the new $web
+      container that has been created for your site. You’ll need to tell it to
+      upload to a folder for the css, js and libs folders.
+      <strong
+        >Please note that you’ll need to download and extract the files from
+        <a href="https://aka.ms/downloadazurestoragejsblob">here</a> in the libs
+        folder since I cannot republish them</strong
+      >. Once these are uploaded, create another container and call it
+      “uploads”. This container should be private since we don’t want to give
+      public access to the uploaded files.
+    </p>
+    <h3 id="set-up-cors">Set up CORS</h3>
+    <p>
+      In order for the scripting to work, you need to enable CORS on the storage
+      account. Click on CORS under the settings menu and set up a rule. Your
+      origin will be the full uri provided under the static website settings
+      above. This includes the https:// part. Allow only PUT and then allow all
+      headers and set the max age to something large. For production purposes
+      you should carefully consider these settings, but the above are relatively
+      locked down and we can be reasonably sure nothing odd will be hosted in
+      your storage account’s domain.
+    </p>
+    <figure>
+      <img src="images/cors.png" alt="set up CORS" />
+      <figcaption>set up CORS</figcaption>
+    </figure>
+    <h3 id="generate-the-sas-key">Generate the SAS Key</h3>
+    <p>
+      Next, click on Shared access signature on the settings menu to generate
+      your SAS key. In future demos we’ll do this programatically in order to
+      give time limited links to people, but for now we’ll generate it manually.
+      Select only Blob under allowed services, and then Object for resource
+      types. Give the key write, add and create permissions and set a start and
+      end time. Choose HTTPS only and click generate SAS and connection string.
+    </p>
+    <figure>
+      <img src="images/sasKey.png" alt="sasKey.png" />
+      <figcaption>sasKey.png</figcaption>
+    </figure>
+    <p>Copy the resulting SAS token from the “SAS Token” box.</p>
+    <h3 id="website">website</h3>
+    <p>
+      Once you’ve completed the above steps, create your link as per this
+      formula:
+    </p>
+    <p>
+      <code
+        >https://&lt;url&gt;/index.html&lt;SASKey&gt;&amp;accountName=&lt;accountname&gt;&amp;containerName=&lt;containername&gt;</code
+      >
+    </p>
+    <p>
+      Please note that there is no extra ? before the SAS key since it includes
+      one already. The URL comes from your static website settings and the
+      accountname is your storage account name. Container name is uploads and is
+      the container you created above. Next, browse to the URI you created and
+      you should see a site like the below:
+    </p>
+    <figure>
+      <img src="images/website.png" alt="website.png" />
+      <figcaption>website.png</figcaption>
+    </figure>
+    <p>
+      You can either click the button to browse for files, or you can drag them
+      into the dashed box. Either way they will upload to your storage account.
+    </p>
+    <h2 id="code">Code</h2>
+    <h3 id="html">HTML</h3>
+    <p>
+      The HTML file is fairly simple and just contains some div elements to
+      house the form and drop zone.
+    </p>
+    <div class="sourceCode" id="cb1">
+      <pre
+        class="sourceCode html"
+      ><code class="sourceCode html"><a class="sourceLine" id="cb1-1" title="1"><span class="dt">&lt;!DOCTYPE </span>html<span class="dt">&gt;</span></a>
 <a class="sourceLine" id="cb1-2" title="2"><span class="kw">&lt;html&gt;</span></a>
 <a class="sourceLine" id="cb1-3" title="3">    <span class="kw">&lt;head&gt;</span></a>
 <a class="sourceLine" id="cb1-4" title="4">        <span class="kw">&lt;title&gt;</span>BlobDrop<span class="kw">&lt;/title&gt;</span></a>
@@ -140,10 +352,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb1-23" title="23">        <span class="kw">&lt;script</span><span class="ot"> src=</span><span class="st">&quot;libs/azure-storage-blob.js&quot;</span><span class="ot"> charset=</span><span class="st">&quot;utf-8&quot;</span><span class="kw">&gt;&lt;/script&gt;</span></a>
 <a class="sourceLine" id="cb1-24" title="24">        <span class="kw">&lt;script</span><span class="ot"> src=</span><span class="st">&quot;js/drop.js&quot;</span><span class="ot"> charset=</span><span class="st">&quot;utf-8&quot;</span><span class="kw">&gt;&lt;/script&gt;</span></a>
 <a class="sourceLine" id="cb1-25" title="25">    <span class="kw">&lt;/body&gt;</span></a>
-<a class="sourceLine" id="cb1-26" title="26"><span class="kw">&lt;/html&gt;</span></a></code></pre></div>
-<h3 id="css">CSS</h3>
-<p>Most of the CSS is for presentation but includes functional things like highlights for the button and text responses.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode css"><code class="sourceCode css"><a class="sourceLine" id="cb2-1" title="1"><span class="pp">#outerContainer</span> {</a>
+<a class="sourceLine" id="cb1-26" title="26"><span class="kw">&lt;/html&gt;</span></a></code></pre>
+    </div>
+    <h3 id="css">CSS</h3>
+    <p>
+      Most of the CSS is for presentation but includes functional things like
+      highlights for the button and text responses.
+    </p>
+    <div class="sourceCode" id="cb2">
+      <pre
+        class="sourceCode css"
+      ><code class="sourceCode css"><a class="sourceLine" id="cb2-1" title="1"><span class="pp">#outerContainer</span> {</a>
 <a class="sourceLine" id="cb2-2" title="2">    <span class="kw">position</span>: <span class="dv">absolute</span><span class="op">;</span></a>
 <a class="sourceLine" id="cb2-3" title="3">    <span class="kw">top</span>: <span class="dv">5</span><span class="dt">vh</span><span class="op">;</span></a>
 <a class="sourceLine" id="cb2-4" title="4">    <span class="kw">left</span>: <span class="dv">5</span><span class="dt">vw</span><span class="op">;</span></a>
@@ -277,10 +496,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb2-132" title="132"></a>
 <a class="sourceLine" id="cb2-133" title="133">body {</a>
 <a class="sourceLine" id="cb2-134" title="134">    <span class="kw">background-color</span>: <span class="cn">#323237</span><span class="op">;</span></a>
-<a class="sourceLine" id="cb2-135" title="135">}</a></code></pre></div>
-<h3 id="javascript">Javascript</h3>
-<p>The Javascript mainly consists of listeners to make the page work with drag and drop. Both the form and the drop action call a function to submit files to Blob. For this, we need to connect to the storage account specified in the URI with the SAS token and then push the files up one at a time.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"></a>
+<a class="sourceLine" id="cb2-135" title="135">}</a></code></pre>
+    </div>
+    <h3 id="javascript">Javascript</h3>
+    <p>
+      The Javascript mainly consists of listeners to make the page work with
+      drag and drop. Both the form and the drop action call a function to submit
+      files to Blob. For this, we need to connect to the storage account
+      specified in the URI with the SAS token and then push the files up one at
+      a time.
+    </p>
+    <div class="sourceCode" id="cb3">
+      <pre
+        class="sourceCode javascript"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"></a>
 <a class="sourceLine" id="cb3-2" title="2"><span class="co">//get the drop zone</span></a>
 <a class="sourceLine" id="cb3-3" title="3"><span class="kw">let</span> dropZone <span class="op">=</span> <span class="va">document</span>.<span class="at">getElementById</span>(<span class="st">&#39;top-right&#39;</span>)<span class="op">;</span></a>
 <a class="sourceLine" id="cb3-4" title="4"></a>
@@ -375,6 +604,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb3-93" title="93">    <span class="op">}</span> <span class="cf">catch</span> (error) <span class="op">{</span></a>
 <a class="sourceLine" id="cb3-94" title="94">        <span class="at">reportStatus</span>(<span class="va">error</span>.<span class="va">body</span>.<span class="at">message</span>)<span class="op">;</span></a>
 <a class="sourceLine" id="cb3-95" title="95">    <span class="op">}</span></a>
-<a class="sourceLine" id="cb3-96" title="96"><span class="op">}</span></a></code></pre></div>
-</body>
+<a class="sourceLine" id="cb3-96" title="96"><span class="op">}</span></a></code></pre>
+    </div>
+  </body>
 </html>

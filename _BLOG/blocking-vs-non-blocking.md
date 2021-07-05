@@ -19,8 +19,7 @@ All of the I/O methods in the Node.js standard library provide asynchronous vers
 Using the File System module as an example, this is a **synchronous** file read:
 
     const fs = require('fs');
-    const data = fs.readFileSync('/file.md'); 
-    
+    const data = fs.readFileSync('/file.md');
 
 And here is an equivalent **asynchronous** example:
 
@@ -28,17 +27,15 @@ And here is an equivalent **asynchronous** example:
     fs.readFile('/file.md', (err, data) => {
       if (err) throw err;
     });
-    
 
 The first example appears simpler than the second but has the disadvantage of the second line **blocking** the execution of any additional JavaScript until the entire file is read. Note that in the synchronous version if an error is thrown it will need to be caught or the process will crash. In the asynchronous version, it is up to the author to decide whether an error should throw as shown.
 
 Let's expand our example a little bit:
 
     const fs = require('fs');
-    const data = fs.readFileSync('/file.md'); 
+    const data = fs.readFileSync('/file.md');
     console.log(data);
-    moreWork(); 
-    
+    moreWork();
 
 And here is a similar, but not equivalent asynchronous example:
 
@@ -47,13 +44,11 @@ And here is a similar, but not equivalent asynchronous example:
       if (err) throw err;
       console.log(data);
     });
-    moreWork(); 
-    
+    moreWork();
 
 In the first example above, `console.log` will be called before `moreWork()`. In the second example `fs.readFile()` is **non-blocking** so JavaScript execution can continue and `moreWork()` will be called first. The ability to run `moreWork()` without waiting for the file read to complete is a key design choice that allows for higher throughput.
 
-Concurrency and Throughput[](#concurrency-and-throughput)
----------------------------------------------------------
+## Concurrency and Throughput[](#concurrency-and-throughput)
 
 JavaScript execution in Node.js is single threaded, so concurrency refers to the event loop's capacity to execute JavaScript callback functions after completing other work. Any code that is expected to run in a concurrent manner must allow the event loop to continue running as non-JavaScript operations, like I/O, are occurring.
 
@@ -61,8 +56,7 @@ As an example, let's consider a case where each request to a web server takes 50
 
 The event loop is different than models in many other languages where additional threads may be created to handle concurrent work.
 
-Dangers of Mixing Blocking and Non-Blocking Code[](#dangers-of-mixing-blocking-and-non-blocking-code)
------------------------------------------------------------------------------------------------------
+## Dangers of Mixing Blocking and Non-Blocking Code[](#dangers-of-mixing-blocking-and-non-blocking-code)
 
 There are some patterns that should be avoided when dealing with I/O. Let's look at an example:
 
@@ -72,7 +66,6 @@ There are some patterns that should be avoided when dealing with I/O. Let's look
       console.log(data);
     });
     fs.unlinkSync('/file.md');
-    
 
 In the above example, `fs.unlinkSync()` is likely to be run before `fs.readFile()`, which would delete `file.md` before it is actually read. A better way to write this, which is completely **non-blocking** and guaranteed to execute in the correct order is:
 
@@ -84,12 +77,10 @@ In the above example, `fs.unlinkSync()` is likely to be run before `fs.readFile(
         if (unlinkErr) throw unlinkErr;
       });
     });
-    
 
 The above places a **non-blocking** call to `fs.unlink()` within the callback of `fs.readFile()` which guarantees the correct order of operations.
 
-*   [libuv](https://libuv.org/)
-*   [About Node.js](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/en/about/)
-
+- [libuv](https://libuv.org/)
+- [About Node.js](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/en/about/)
 
 [Source](https://nodejs.org/en/docs/guides/blocking-vs-non-blocking/)

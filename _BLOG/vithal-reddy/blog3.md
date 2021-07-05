@@ -4,7 +4,7 @@ Consider, you’re developing a shiny new node.js project and according to your 
 
 1.  npm prune <pkg> — production
 
-This npm command can be used to remove not required packages from your node\_modules directory and **devDependencies** modules if **NODE\_ENV** environment variable is set to **production** and if you don’t want remove **devDependencies** then you need to set — production=false
+This npm command can be used to remove not required packages from your node_modules directory and **devDependencies** modules if **NODE_ENV** environment variable is set to **production** and if you don’t want remove **devDependencies** then you need to set — production=false
 
 Now let’s see, how to use npm prune with example:
 
@@ -16,17 +16,17 @@ steps by step procedure to use [npm prune](https://docs.npmjs.com/cli/prune):
 4.  if you want to remove **devDependencies** then run prune command with **–production** flag npm prune — production=true
 5.  if you don’t want to unbuild **devDependencies** then you need to set **–production** flag **false** npm prune — production=false
 
-> _If you see an npm module remain in your_ **node\_modules** _directory even after running_ **npm prune** _even though it’s not in_ **package.json**_, then you need to check your_ **npm-shrinkwrap.json** _if it’s present then you need to delete it and then You can follow below method to solve this problem._
+> _If you see an npm module remain in your_ **node_modules** _directory even after running_ **npm prune** _even though it’s not in_ **package.json**_, then you need to check your_ **npm-shrinkwrap.json** _if it’s present then you need to delete it and then You can follow below method to solve this problem._
 
 [**READ** Get List of all files in a directory in Node.js](https://stackfame.com/list-all-files-in-a-directory-nodejs)
 
-If you want to completely remove the **_node\_modules_** directory and want to do a fresh **_npm install_**then this below one-line can be very useful:
+If you want to completely remove the **_node_modules_** directory and want to do a fresh **_npm install_**then this below one-line can be very useful:
 
-1.  rm -rf node\_modules && npm install
+1.  rm -rf node_modules && npm install
 
 That was quick!
 
-But, This can take some time depending upon the size of the **_node\_modules_** directory.
+But, This can take some time depending upon the size of the **_node_modules_** directory.
 
 If you have any queries, please comment below and thanks for reading this how-to guide.
 

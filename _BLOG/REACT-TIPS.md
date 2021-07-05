@@ -8,8 +8,6 @@
 
 ![Reed Barger](https://miro.medium.com/fit/c/96/96/2*ThDHtysgDNqSMTZWyVxVfA.jpeg)
 
-
-
 ](https://reedbarger.medium.com/?source=post_page-----68f585c37ca4--------------------------------)
 
 Here’s a list of amazing tricks that you can use to improve your React applications instantly.
@@ -20,8 +18,7 @@ Give these techniques a try in your React projects today!
 
 > Want the complete guide to become an expert React developer from front to back? Check out [**The React Bootcamp**](https://bit.ly/join-react-bootcamp).
 
-Replace Redux with React Query
-------------------------------
+## Replace Redux with React Query
 
 As our application gets larger it becomes harder to manage state across our components, we may reach for a state management library like Redux.
 
@@ -44,10 +41,10 @@ const queryClient = new QueryClient()
 
 const rootElement = document.getElementById("root");  
 ReactDOM.render(  
-  <QueryClientProvider client={queryClient}>  
-    <App />  
-  </QueryClientProvider>,  
-  rootElement  
+ <QueryClientProvider client={queryClient}>  
+ <App />  
+ </QueryClientProvider>,  
+ rootElement  
 );
 
 Here we are setting up a query client which will setup a cache for us to effortlessly manage any requests that we have made in the past, plus a query client provider component to pass it down the entire component tree.
@@ -59,15 +56,15 @@ You can do so with the useQuery hook, which takes an identifier for our query (i
 import { useQuery } from "react-query";
 
 export default function App() {  
-  const { isLoading, isError, data } = useQuery("user", () =>  
-    fetch("https://randomuser.me/api").then((res) => res.json())  
-  );
+ const { isLoading, isError, data } = useQuery("user", () =>  
+ fetch("https://randomuser.me/api").then((res) => res.json())  
+ );
 
-  if (isLoading) return "Loading...";  
-  if (isError) return "Error!";
+if (isLoading) return "Loading...";  
+ if (isError) return "Error!";
 
-  const user = data.results\[0\];  
-  return user.email;  
+const user = data.results\[0\];  
+ return user.email;  
 }
 
 As you can see, React Query takes care of managing these various states that can take place when we fetch our data. We no longer need to manage these states ourselves, we can just destructure them from what is returned from `useQuery`.
@@ -79,13 +76,13 @@ Now that we have fetched the user data and have it stored in our internal cache,
 import { useQuery } from "react-query";
 
 export default function OtherComponent() {  
-  const { data } = useQuery('user');
+ const { data } = useQuery('user');
 
-      console.log(data);  
+      console.log(data);
+
 }
 
-Make React Context Easier with a Custom Hook
---------------------------------------------
+## Make React Context Easier with a Custom Hook
 
 React Context is a great way to pass data across our component tree. It allows us to pass data into whatever component we like without having to use props.
 
@@ -100,38 +97,37 @@ import React from "react";
 const UserContext = React.createContext();
 
 function UserProvider({ children }) {  
-  const user = { name: "Reed" };  
-  return <UserContext.Provider value={user}>{children}</UserContext.Provider>;  
+ const user = { name: "Reed" };  
+ return <UserContext.Provider value={user}>{children}</UserContext.Provider>;  
 }
 
 function useUser() {  
-  const context = React.useContext(UserContext);  
-  if (context === undefined) {  
-    throw new Error("useUser in not within UserProvider");  
-  }  
-  return context;  
+ const context = React.useContext(UserContext);  
+ if (context === undefined) {  
+ throw new Error("useUser in not within UserProvider");  
+ }  
+ return context;  
 }
 
 export default function App() {  
-  return (  
-    <UserProvider>  
-      <Main />  
-    </UserProvider>  
-  );  
+ return (  
+ <UserProvider>  
+ <Main />  
+ </UserProvider>  
+ );  
 }
 
 function Main() {  
-  const user = useUser();
+ const user = useUser();
 
-  return <h1>{user.name}</h1>; // displays "Reed"  
+return <h1>{user.name}</h1>; // displays "Reed"  
 }
 
 In this example, we are passing down user data on our custom UserProvider component, which takes a user object and is wrapped around the Main component.
 
 We have a `useUser` hook to more easily consume that context. We only need to import that hook itself to consume our User Context in any component we like, such as our Main component.
 
-Manage Context Providers in a Custom Component
-----------------------------------------------
+## Manage Context Providers in a Custom Component
 
 In almost any React application that you create, you will need a number of Context providers.
 
@@ -140,14 +136,14 @@ We not only need Context providers not only for React Context that we are creati
 Once you’ve started working on your React project for a while, here’s what it tends to look like:
 
 ReactDOM.render(  
-  <Provider3>  
-    <Provider2>  
-      <Provider1>  
-        <App />  
-      </Provider1>  
-    </Provider2>  
-  </Provider3>,  
-  rootElement  
+ <Provider3>  
+ <Provider2>  
+ <Provider1>  
+ <App />  
+ </Provider1>  
+ </Provider2>  
+ </Provider3>,  
+ rootElement  
 );
 
 What can we do about this clutter?
@@ -159,15 +155,15 @@ This allows us to use the children prop, then all we have to do is put all these
 src/context/ContextProviders.js
 
 export default function ContextProviders({ children }) {  
-  return (  
-    <Provider3>  
-      <Provider2>  
-        <Provider1>  
-          {children}  
-        </Provider1>  
-      </Provider2>  
-    </Provider3>  
-  );  
+ return (  
+ <Provider3>  
+ <Provider2>  
+ <Provider1>  
+ {children}  
+ </Provider1>  
+ </Provider2>  
+ </Provider3>  
+ );  
 }
 
 Then, wrap the ContextProviders component around App:
@@ -180,14 +176,13 @@ import App from "./App";
 
 const rootElement = document.getElementById("root");  
 ReactDOM.render(  
-  <ContextProviders>  
-    <App />  
-  </ContextProviders>,  
-  rootElement  
+ <ContextProviders>  
+ <App />  
+ </ContextProviders>,  
+ rootElement  
 );
 
-Pass props easier using the object spread operator
---------------------------------------------------
+## Pass props easier using the object spread operator
 
 When it comes to working with components, we normally pass down data with the help of props. We create a prop name and setting it equal to its appropriate value.
 
@@ -200,27 +195,26 @@ A very easy way to be able to pass down all the props that we like without havin
 This involves putting all of our prop data in an object and spreading all of those props individually to the component we want to pass it to:
 
 export default function App() {  
-  const data = {  
-    title: "My awesome app",  
-    greeting: "Hi!",  
-    showButton: true  
-  };
+ const data = {  
+ title: "My awesome app",  
+ greeting: "Hi!",  
+ showButton: true  
+ };
 
-  return <Header {...data} />;  
+return <Header {...data} />;  
 }
 
 function Header(props) {  
-  return (  
-    <nav>  
-      <h1>{props.title}</h1>  
-      <h2>{props.greeting}</h2>  
-      {props.showButton && <button>Logout</button>}  
-    </nav>  
-  );  
+ return (  
+ <nav>  
+ <h1>{props.title}</h1>  
+ <h2>{props.greeting}</h2>  
+ {props.showButton && <button>Logout</button>}  
+ </nav>  
+ );  
 }
 
-Map over fragments with React fragment
---------------------------------------
+## Map over fragments with React fragment
 
 The `.map()` function in React allows us to take an array and iterate over it, then display each elements data within some JSX.
 
@@ -233,30 +227,29 @@ To use the longhand form of React fragments allows us can provide it the `key` p
 import React from 'react'
 
 export default function App() {  
-  const users = \[  
-    {  
-      id: 1,  
-      name: "Reed"  
-    },  
-    {  
-      id: 2,  
-      name: "John"  
-    },  
-    {  
-      id: 3,  
-      name: "Jane"  
-    }  
-  \];
+ const users = \[  
+ {  
+ id: 1,  
+ name: "Reed"  
+ },  
+ {  
+ id: 2,  
+ name: "John"  
+ },  
+ {  
+ id: 3,  
+ name: "Jane"  
+ }  
+ \];
 
-  return users.map((user) => (  
-    <React.Fragment key={user.id}>{user.name}</React.Fragment>  
-  ));  
+return users.map((user) => (  
+ <React.Fragment key={user.id}>{user.name}</React.Fragment>  
+ ));  
 }
 
 Note that we cannot use the required `key` prop for the shorthand fragments alternative: `<></>`.
 
-Want Even More? Join The React Bootcamp
----------------------------------------
+## Want Even More? Join The React Bootcamp
 
 [**The React Bootcamp**](http://bit.ly/join-react-bootcamp) was created to make you a superstar, job-ready React developer in 1 amazing course, featuring videos, cheatsheets and much more.
 
@@ -266,13 +259,8 @@ Gain the insider information **100s of developers** have already used to become 
 
 ![The React Bootcamp](https://miro.medium.com/max/1400/0*HWLElBef5WBe66Mz.png)
 
-
-
-
-
 ](https://bit.ly/join-react-bootcamp)
 
 _Click here to be notified when it opens_
-
 
 [Source](https://codeartistry.io/5-epic-react-tips-to-use-today-68f585c37ca4)

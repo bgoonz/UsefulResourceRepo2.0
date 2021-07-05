@@ -2,7 +2,7 @@
 
 > Learn how to run IFramed content in a sandbox, greatly reducing the risk associated with third-party widgets, and your own application's code.
 
- [![Mike West](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/static/images/profiles/mikewest.png "Mike West")](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/profiles/#mikewest) 
+[![Mike West](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/static/images/profiles/mikewest.png "Mike West")](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/profiles/#mikewest)
 
 **Published:** January 4th, 2013 **Comments:** [9](#disqus_thread)
 
@@ -12,8 +12,7 @@ Constructing a rich experience on today’s web almost unavoidably involves embe
 
 [Content Security Policy (CSP)](http://www.html5rocks.com/en/tutorials/security/content-security-policy/) can mitigate the risks associated with both of these types of content by giving you the ability to whitelist specifically trusted sources of script and other content. This is a major step in the right direction, but it’s worth noting that the protection that most CSP directives offer is binary: the resource is allowed, or it isn’t. There are times when it would be useful to say “I’m not sure I actually _trust_ this source of content, but it’s soooo pretty! Embed it please, Browser, but don’t let it break my site.”
 
-Least Privilege
----------------
+## Least Privilege
 
 In essence, we’re looking for a mechanism that will allow us to grant content we embed only the minimum level of capability necessary to do its job. If a widget doesn’t _need_ to pop up a new window, taking away access to window.open can’t hurt. If it doesn’t require Flash, turning off plugin support shouldn’t be a problem. We’re as secure as we can be if we follow the [principle of least privilege](http://en.wikipedia.org/wiki/Principle_of_least_privilege), and block each and every feature that isn’t directly relevant to functionality we’d like to use. The result is that we no longer have to blindly trust that some piece of embedded content won’t take advantage of privileges it shouldn’t be using. It simply won’t have access to the functionality in the first place.
 
@@ -44,40 +43,39 @@ We saw a few of the possible sandboxing flags in the example above, let’s now 
 
 Given an iframe with an empty sandbox attribute (`<iframe sandbox src="..."> </iframe>`), the framed document will be fully sandboxed, subjecting it to the following restrictions:
 
-*   JavaScript will not execute in the framed document. This not only includes JavaScript explicitly loaded via script tags, but also inline event handlers and javascript: URLs. This also means that content contained in noscript tags will be displayed, exactly as though the user had disabled script herself.
-*   The framed document is loaded into a unique origin, which means that all same-origin checks will fail; unique origins match no other origins ever, not even themselves. Among other impacts, this means that the document has no access to data stored in any origin’s cookies or any other storage mechanisms (DOM storage, Indexed DB, etc.).
-*   The framed document cannot create new windows or dialogs (via `window.open` or `target="_blank"`, for instance).
-*   Forms cannot be submitted.
-*   Plugins will not load.
-*   The framed document can only navigate itself, not its top-level parent. Setting `window.top.location` will throw an exception, and clicking on link with `target="_top"` will have no effect.
-*   Features that trigger automatically (autofocused form elements, autoplaying videos, etc.) are blocked.
-*   Pointer lock cannot be obtained.
-*   The `seamless` attribute is ignored on `iframes` the framed document contains.
+- JavaScript will not execute in the framed document. This not only includes JavaScript explicitly loaded via script tags, but also inline event handlers and javascript: URLs. This also means that content contained in noscript tags will be displayed, exactly as though the user had disabled script herself.
+- The framed document is loaded into a unique origin, which means that all same-origin checks will fail; unique origins match no other origins ever, not even themselves. Among other impacts, this means that the document has no access to data stored in any origin’s cookies or any other storage mechanisms (DOM storage, Indexed DB, etc.).
+- The framed document cannot create new windows or dialogs (via `window.open` or `target="_blank"`, for instance).
+- Forms cannot be submitted.
+- Plugins will not load.
+- The framed document can only navigate itself, not its top-level parent. Setting `window.top.location` will throw an exception, and clicking on link with `target="_top"` will have no effect.
+- Features that trigger automatically (autofocused form elements, autoplaying videos, etc.) are blocked.
+- Pointer lock cannot be obtained.
+- The `seamless` attribute is ignored on `iframes` the framed document contains.
 
 This is nicely draconian, and a document loaded into a fully sandboxed `iframe` poses very little risk indeed. Of course, it also can’t do much of value: you might be able to get away with a full sandbox for some static content, but most of the time you’ll want to loosen things up a bit.
 
 With the exception of plugins, each of these restrictions can be lifted by adding a flag to the sandbox attribute’s value. Sandboxed documents can never run plugins, as plugins are unsandboxed native code, but everything else is fair game:
 
-*   **`allow-forms`** allows form submission.
-*   **`allow-popups`** allows popups (`window.open()`, `showModalDialog()`, `target=”_blank”`, etc.).
-*   **`allow-pointer-lock`** allows (surprise!) pointer lock.
-*   **`allow-same-origin`** allows the document to maintain its origin; pages loaded from `https://example.com/` will retain access to that origin’s data.
-*   **`allow-scripts`** allows JavaScript execution, and also allows features to trigger automatically (as they’d be trivial to implement via JavaScript).
-*   **`allow-top-navigation`** allows the document to break out of the frame by navigating the top-level window.
+- **`allow-forms`** allows form submission.
+- **`allow-popups`** allows popups (`window.open()`, `showModalDialog()`, `target=”_blank”`, etc.).
+- **`allow-pointer-lock`** allows (surprise!) pointer lock.
+- **`allow-same-origin`** allows the document to maintain its origin; pages loaded from `https://example.com/` will retain access to that origin’s data.
+- **`allow-scripts`** allows JavaScript execution, and also allows features to trigger automatically (as they’d be trivial to implement via JavaScript).
+- **`allow-top-navigation`** allows the document to break out of the frame by navigating the top-level window.
 
 With these in mind, we can evaluate exactly why we ended up with the specific set of sandboxing flags in the Twitter example above:
 
-*   **`allow-scripts`** is required, as the page loaded into the frame runs some JavaScript to deal with user interaction.
-*   **`allow-popups`** is required, as the button pops up a tweeting form in a new window.
-*   **`allow-forms`** is required, as the tweeting form should be submittable.
-*   **`allow-same-origin`** is necessary, as twitter.com’s cookies would otherwise be inaccessible, and the user couldn’t log in to post the form.
+- **`allow-scripts`** is required, as the page loaded into the frame runs some JavaScript to deal with user interaction.
+- **`allow-popups`** is required, as the button pops up a tweeting form in a new window.
+- **`allow-forms`** is required, as the tweeting form should be submittable.
+- **`allow-same-origin`** is necessary, as twitter.com’s cookies would otherwise be inaccessible, and the user couldn’t log in to post the form.
 
 One important thing to note is that the sandboxing flags applied to a frame also apply to any windows or frames created in the sandbox. This means that we have to add **`allow-forms`** to the frame’s sandbox, even though the form only exists in the window that the frame pops up.
 
 With the `sandbox` attribute in place, the widget gets only the permissions it requires, and capabilities like plugins, top navigation, and pointer lock remain blocked. We’ve reduced the risk of embedding the widget, with no ill-effects. It’s a win for everyone concerned.
 
-Privilege Separation
---------------------
+## Privilege Separation
 
 Sandboxing third-party content in order to run their untrusted code in a low-privilege environment is fairly obviously beneficial. But what about your own code? You trust yourself, right? So why worry about sandboxing?
 
@@ -147,23 +145,22 @@ Next, we’ll hook up an event handler to clicks on the `button`. When the user 
       // origin, which might alow some esoteric attacks. Validate your output!
       frame.contentWindow.postMessage(code, '*');
     }
-    
+
     document.getElementById('safe').addEventListener('click', evaluate);
 
 Easy, right? We’ve created a very simple evaluation API, and we can be sure that code that’s evaluated doesn’t have access to sensitive information like cookies or DOM storage. Likewise, evaluated code can’t load plugins, pop up new windows, or any of a number of other annoying or malicious activities.
 
 Take a look at the code for yourself:
 
-*   [Evalbox Demo](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/static/demos/evalbox/index.html)
-*   [`index.html`](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/static/demos/evalbox/index.html)
-*   [`frame.html`](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/static/demos/evalbox/frame.html)
+- [Evalbox Demo](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/static/demos/evalbox/index.html)
+- [`index.html`](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/static/demos/evalbox/index.html)
+- [`frame.html`](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/static/demos/evalbox/frame.html)
 
 You can do the same for your own code by breaking monolithic applications into single-purpose components. Each can be wrapped in a simple messaging API, just like what we’ve written above. The high-privilege parent window can act as a controller and dispatcher, sending messages into specific modules that each have the fewest privileges possible to do their jobs, listening for results, and ensuring that each module is well-fed with only the information it requires.
 
 Note, however, that you need to be very careful when dealing with framed content that comes from the same origin as the parent. If a page on `https://example.com/` frames another page on the same origin with a sandbox that includes both the **`allow-same-origin`** and **`allow-scripts`** flags, then the framed page can reach up into the parent, and remove the sandbox attribute entirely.
 
-Play in your sandbox.
----------------------
+## Play in your sandbox.
 
 Sandboxing is available for you now in a variety of browsers: Firefox 17+, IE10+, and Chrome at the time of writing ([caniuse, of course, has an up-to-date support table](http://caniuse.com/#feat=iframe-sandbox)). Applying the `sandbox` attribute to `iframes` you include allows you to grant certain privileges to the content they display, _only_ those privileges which are necessary for the content to function correctly. This gives you the opportunity to reduce the risk associated with the inclusion of third-party content, above and beyond what is already possible with [Content Security Policy](http://www.html5rocks.com/en/tutorials/security/content-security-policy/).
 
@@ -171,17 +168,14 @@ Moreover, sandboxing is a powerful technique for reducing the risk that a clever
 
 That’s not to say that sandboxing is a complete solution to the problem of security on the internet. It offers defense in depth, and unless you have control over your users’ clients, you can’t yet rely on browser support for all your users (if you do control your users clients – an enterprise environment, for example – hooray!). Someday… but for now sandboxing is another layer of protection to strengthen your defenses, it’s not a complete defense upon which you can soley rely. Still, layers are excellent. I suggest making use of this one.
 
-Further Reading
----------------
+## Further Reading
 
-*   “[Privilege Separation in HTML5 Applications](http://www.cs.berkeley.edu/~devdatta/LeastPrivileges.pdf)” is an interesting paper that works through the design of a small framework, and its application to three existing HTML5 apps.
-    
-*   Sandboxing can be even more flexible when combined with two other new iframe attributes: [`srcdoc`](http://www.whatwg.org/specs/web-apps/current-work/multipage/the-iframe-element.html#attr-iframe-srcdoc), and [`seamless`](http://www.whatwg.org/specs/web-apps/current-work/multipage/the-iframe-element.html#attr-iframe-seamless). The former allows you to populate a frame with content without the overhead of an HTTP request, and the latter allows style to flow into the framed content. Both have fairly miserable browser support at the moment (Chrome and WebKit nightlies). but will be an interesting combination in the future. You could, for example, sandbox comments on an article via the following code:
-    
-        <iframe sandbox seamless
-                srcdoc="<p>This is a user's comment!
-                           It can't execute script!
-                           Hooray for safety!</p>"></iframe>
+- “[Privilege Separation in HTML5 Applications](http://www.cs.berkeley.edu/~devdatta/LeastPrivileges.pdf)” is an interesting paper that works through the design of a small framework, and its application to three existing HTML5 apps.
+- Sandboxing can be even more flexible when combined with two other new iframe attributes: [`srcdoc`](http://www.whatwg.org/specs/web-apps/current-work/multipage/the-iframe-element.html#attr-iframe-srcdoc), and [`seamless`](http://www.whatwg.org/specs/web-apps/current-work/multipage/the-iframe-element.html#attr-iframe-seamless). The former allows you to populate a frame with content without the overhead of an HTTP request, and the latter allows style to flow into the framed content. Both have fairly miserable browser support at the moment (Chrome and WebKit nightlies). but will be an interesting combination in the future. You could, for example, sandbox comments on an article via the following code:
 
+      <iframe sandbox seamless
+              srcdoc="<p>This is a user's comment!
+                         It can't execute script!
+                         Hooray for safety!</p>"></iframe>
 
 [Source](https://www.html5rocks.com/en/tutorials/security/sandboxed-iframes/)

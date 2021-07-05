@@ -41,7 +41,7 @@ az storage account create --name MyStorageAccount --resource-group MyResourceGro
 ## Key concepts
 
 The Azure Storage Common client library contains shared infrastructure like
-[authentication credentials][auth_credentials] and [RequestFailedException][RequestFailedException].
+[authentication credentials][auth_credentials] and [RequestFailedException][requestfailedexception].
 
 ## Examples
 
@@ -49,7 +49,7 @@ Please see the examples for [Blobs][blobs_examples], [Queues][queues_examples], 
 
 ## Troubleshooting
 
-All Azure Storage services will throw a [RequestFailedException][RequestFailedException]
+All Azure Storage services will throw a [RequestFailedException][requestfailedexception]
 with helpful [`ErrorCode`s][error_codes].
 
 ## Next steps
@@ -61,7 +61,7 @@ Get started with our [Common samples][samples] and then continue on with our [Bl
 See the [Storage CONTRIBUTING.md][storage_contrib] for details on building,
 testing, and contributing to these libraries.
 
-This project welcomes contributions and suggestions.  Most contributions require
+This project welcomes contributions and suggestions. Most contributions require
 you to agree to a Contributor License Agreement (CLA) declaring that you have
 the right to, and actually do, grant us the rights to use your contribution. For
 details, visit [cla.microsoft.com][cla].
@@ -74,6 +74,7 @@ additional questions or comments.
 ![Impressions](https://azure-sdk-impressions.azurewebsites.net/api/impressions/azure-sdk-for-net%2Fsdk%2Fstorage%2FAzure.Storage.Common%2FREADME.png)
 
 <!-- LINKS -->
+
 [source]: https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/storage/Azure.Storage.Common/src
 [package]: https://www.nuget.org/packages/Azure.Storage.Common/
 [docs]: https://docs.microsoft.com/dotnet/api/azure.storage
@@ -90,7 +91,7 @@ additional questions or comments.
 [blobs_examples]: https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/storage/Azure.Storage.Blobs/README.md#Examples
 [files_examples]: https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/storage/Azure.Storage.Files.Shares/README.md#Examples
 [queues_examples]: https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/storage/Azure.Storage.Queues/README.md#Examples
-[RequestFailedException]: https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/core/Azure.Core/src/RequestFailedException.cs
+[requestfailedexception]: https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/core/Azure.Core/src/RequestFailedException.cs
 [error_codes]: https://docs.microsoft.com/rest/api/storageservices/common-rest-api-error-codes
 [samples]: samples/
 [blobs_samples]: https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/storage/Azure.Storage.Blobs/README.md#next-steps

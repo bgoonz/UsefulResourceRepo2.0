@@ -1,14 +1,20 @@
 # Quick Win - Submitting data through Logic Apps from the web
+
 **Produced by Dave Lusty**
 
 # Introduction
-This demo shows how you can use a simple HTML form stored in Blob storage to submit data and store it as JSON (or any other format) in Logic Apps. This is useful for when you need to collect a tiny piece of data that you don't currenlty have in a database. A great alternative would also be PowerApps, but this method is simple and many people already know HTML and possibly Javascript so this concept will be handy for your toolkit. 
+
+This demo shows how you can use a simple HTML form stored in Blob storage to submit data and store it as JSON (or any other format) in Logic Apps. This is useful for when you need to collect a tiny piece of data that you don't currenlty have in a database. A great alternative would also be PowerApps, but this method is simple and many people already know HTML and possibly Javascript so this concept will be handy for your toolkit.
 You can find the [video demo here](https://youtu.be/PGnwvwJKs4g)
 
 # Website
+
 For this demo we need a very simple website. When i say simple I mean a single HTML page with a single form on it. This will be used to submit our data which the Logic App will store to Blob Storage, or we could just as easily insert into Azure SQL DB or Cosmos DB with the same technique.
+
 ## HTML Content
+
 Create an html file called formdata.html and copy the below code into it. Please note that the form action will be filled in later once we have the URL from Logic Apps. For now we'll leave it as it is though and upload for testing.
+
 ```HTML
 <!DOCTYPE html>
 <html>
@@ -30,6 +36,7 @@ Create an html file called formdata.html and copy the below code into it. Please
 ```
 
 ## Storage Account
+
 Create a Storage Account (yourname20190205) in a new Resource Group (FormsTest). Use LRS to keep costs down here.
 
 ![1.createstorage.png](images/1.createstorage.png)
@@ -68,7 +75,7 @@ Leave defaults on this trigger
 
 ![9.httprequest2.png](images/9.httprequest2.png)
 
-Next, add a Data Operations - Compose task. 
+Next, add a Data Operations - Compose task.
 
 ![10.datacompose.png](images/10.datacompose.png)
 
@@ -83,6 +90,7 @@ In the input box, you'll need to end up with the following. You can use the dyna
 ```
 
 Finally, add a Create Blob task and set up a connection to the storage account. Then browse to the form data container. The content will be the output of the Compose task, which can be selected in the dynamic content popup. For the blob name we'll use the following which can be built using the dynamic content popup. The 'u' format gives a sortable date format which is useful for naming files.
+
 ```
 @{formatDateTime(utcNow(),'u')}-@{triggerFormDataValue('lastname')}-@{triggerFormDataValue('firstname')}.json
 ```

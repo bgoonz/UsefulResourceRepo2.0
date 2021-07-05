@@ -9,7 +9,7 @@ normal **_apollo-server-express middleware:_**
 consider, you want request user as context:
 
 > app.use**(**‘/graphql’, bodyParser.json**()**, graphqlExpress**(**req => **({**YourSchema, context: **{** user: req.user **}**
-> 
+>
 > **}))**;
 
 Here, we are using **es6** arrow functions and passing request object in that function.so that it will be available to pass in context of **graphql** query.

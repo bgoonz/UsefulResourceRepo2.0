@@ -4,14 +4,14 @@
 
 ## Introduction
 
-This demo shows how to use DevOps pipelines to run automated testing in Azure DevOps with Python testing carried out using PyTest. The video is [not available yet](https://youtu.be/R7tJZelEt-Q )
+This demo shows how to use DevOps pipelines to run automated testing in Azure DevOps with Python testing carried out using PyTest. The video is [not available yet](https://youtu.be/R7tJZelEt-Q)
 
 There are multiple tasks associated with this demo:
 
-* Create the test project in Python
-* Write individual tests around your testing scenarios
-* Set up the tests in Azure DevOps
-* Import the test results to the pipeline
+- Create the test project in Python
+- Write individual tests around your testing scenarios
+- Set up the tests in Azure DevOps
+- Import the test results to the pipeline
 
 ## Create Python Test File
 

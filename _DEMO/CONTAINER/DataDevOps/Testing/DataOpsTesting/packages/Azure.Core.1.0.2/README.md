@@ -1,11 +1,11 @@
 # Azure.Core shared library for .NET
 
-Azure.Core provides shared primitives, abstractions, and helpers for modern .NET Azure SDK client libraries. 
-These libraries follow the [Azure SDK Design Guidelines for .NET](https://azuresdkspecs.z5.web.core.windows.net/DotNetSpec.html) 
-and can be easily identified by package and namespaces names starting with 'Azure', e.g. ```Azure.Storage.Blobs```. 
-A more complete list of client libraries using Azure.Core can be found [here](https://github.com/Azure/azure-sdk-for-net#core-services). 
+Azure.Core provides shared primitives, abstractions, and helpers for modern .NET Azure SDK client libraries.
+These libraries follow the [Azure SDK Design Guidelines for .NET](https://azuresdkspecs.z5.web.core.windows.net/DotNetSpec.html)
+and can be easily identified by package and namespaces names starting with 'Azure', e.g. `Azure.Storage.Blobs`.
+A more complete list of client libraries using Azure.Core can be found [here](https://github.com/Azure/azure-sdk-for-net#core-services).
 
-Azure.Core allows client libraries to expose common functionality in a consistent fashion, 
+Azure.Core allows client libraries to expose common functionality in a consistent fashion,
 so that once you learn how to use these APIs in one client library, you will know how to use them in other client libraries.
 
 The main shared concepts of Azure.Core (and so Azure SDK libraries using Azure.Core) include:
@@ -13,34 +13,36 @@ The main shared concepts of Azure.Core (and so Azure SDK libraries using Azure.C
 - Configuring service clients, e.g. configuring retries, logging.
 - Accessing HTTP response details.
 - Calling long-running operations (LROs).
-- Paging and asynchronous streams (```AsyncPageable<T>```) 
+- Paging and asynchronous streams (`AsyncPageable<T>`)
 - Exceptions for reporting errors from service requests in a consistent fashion.
 - Abstractions for representing Azure SDK credentials.
 
 Below, you will find sections explaining these shared concepts in more detail.
 
 ## Installing
-Typically, you will not need to install Azure.Core; 
-it will be installed for you when you install one of the client libraries using it. 
-In case you want to install it explicitly (to implement your own client library, for example), 
+
+Typically, you will not need to install Azure.Core;
+it will be installed for you when you install one of the client libraries using it.
+In case you want to install it explicitly (to implement your own client library, for example),
 you can find the NuGet package [here](https://www.nuget.org/packages/Azure.Core).
 
 ## Usage Scenarios and Samples
 
-**NOTE:** Samples in this file apply only to packages that follow [Azure SDK Design Guidelines](https://azure.github.io/azure-sdk/dotnet_introduction.html). Names of such packages usually start with `Azure`. 
+**NOTE:** Samples in this file apply only to packages that follow [Azure SDK Design Guidelines](https://azure.github.io/azure-sdk/dotnet_introduction.html). Names of such packages usually start with `Azure`.
 
-### Configuring Service Clients Using ```ClientOptions```
-Azure SDK client libraries typically expose one or more _service client_ types that 
-are the main starting points for calling corresponding Azure services. 
-You can easily find these client types as their names end with the word _Client_. 
-For example, ```BlockBlobClient``` can be used to call blob storage service, 
-and ```KeyClient``` can be used to access KeyVault service cryptographic keys. 
+### Configuring Service Clients Using `ClientOptions`
 
-These client types can be instantiated by calling a simple constructor, 
-or its overload that takes various configuration options. 
-These options are passed as a parameter that extends ```ClientOptions``` class exposed by Azure.Core.
-Various service specific options are usually added to its subclasses, but a set of SDK-wide options are 
-available directly on ```ClientOptions```.
+Azure SDK client libraries typically expose one or more _service client_ types that
+are the main starting points for calling corresponding Azure services.
+You can easily find these client types as their names end with the word _Client_.
+For example, `BlockBlobClient` can be used to call blob storage service,
+and `KeyClient` can be used to access KeyVault service cryptographic keys.
+
+These client types can be instantiated by calling a simple constructor,
+or its overload that takes various configuration options.
+These options are passed as a parameter that extends `ClientOptions` class exposed by Azure.Core.
+Various service specific options are usually added to its subclasses, but a set of SDK-wide options are
+available directly on `ClientOptions`.
 
 ```C# Snippet:ConfigurationHelloWorld
 SecretClientOptions options = new SecretClientOptions()
@@ -63,11 +65,12 @@ SecretClient client = new SecretClient(new Uri("http://example.com"), new Defaul
 
 More on client configuration in [client configuration samples](samples/Configuration.md)
 
-### Accessing HTTP Response Details Using ```Response<T>```
-_Service clients_ have methods that can be used to call Azure services. 
+### Accessing HTTP Response Details Using `Response<T>`
+
+_Service clients_ have methods that can be used to call Azure services.
 We refer to these client methods _service methods_.
-_Service methods_ return a shared Azure.Core type ```Response<T>``` (in rare cases its non-generic sibling, a raw ```Response```).
-This type provides access to both the deserialized result of the service call, 
+_Service methods_ return a shared Azure.Core type `Response<T>` (in rare cases its non-generic sibling, a raw `Response`).
+This type provides access to both the deserialized result of the service call,
 and to the details of the HTTP response returned from the server.
 
 ```C# Snippet:ResponseTHelloWorld
@@ -107,7 +110,7 @@ using AzureEventSourceListener listener = AzureEventSourceListener.CreateConsole
 
 More on logging in [configuration samples](samples/Configuration.md)
 
-### Reporting Errors ```RequestFailedException```
+### Reporting Errors `RequestFailedException`
 
 ```C# Snippet:RequestFailedException
 try
@@ -124,7 +127,7 @@ catch (RequestFailedException e) when (e.Status == 404)
 
 More on handling responses in [response samples](samples/Response.md)
 
-### Consuming Service Methods Returning ```AsyncPageable<T>```
+### Consuming Service Methods Returning `AsyncPageable<T>`
 
 If a service call returns multiple values in pages it would return `Pageable<T>/AsyncPageable<T>` as a result.
 You can iterate over `AsyncPageable` directly or in pages.
@@ -141,7 +144,7 @@ await foreach (SecretProperties secretProperties in response)
 
 More on paged responses in [response samples](samples/Response.md)
 
-### Consuming Long-Running Operations Using ```Operation<T>```
+### Consuming Long-Running Operations Using `Operation<T>`
 
 Some operations take long time to complete and require polling for their status. Methods starting long-running operations return `*Operation<T>` types.
 
@@ -164,6 +167,7 @@ Console.WriteLine(value.ScheduledPurgeDate);
 More on long-running operations in [long-running operation samples](samples/LongRunningOperations.md)
 
 ### Mocking
+
 One of the most important cross-cutting features of our new client libraries using Azure.Core is that they are designed for mocking.
 Mocking is enabled by:
 

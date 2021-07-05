@@ -4,13 +4,13 @@
 
 ## Introduction
 
-This demo shows how to use DevOps pipelines to run automated testing in Azure DevOps. The video is [not available yet](https://youtu.be/R7tJZelEt-Q )
+This demo shows how to use DevOps pipelines to run automated testing in Azure DevOps. The video is [not available yet](https://youtu.be/R7tJZelEt-Q)
 
 There are multiple tasks associated with this demo:
 
-* Create the test project in Visual Studio
-* Write individual tests around your testing scenarios
-* Set up the tests in Azure DevOps
+- Create the test project in Visual Studio
+- Write individual tests around your testing scenarios
+- Set up the tests in Azure DevOps
 
 ## Create Projects in Visual Studio
 
@@ -23,7 +23,7 @@ Runsettings, from a parameter perspecive are just key-value pairs as you can see
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
   <RunSettings>
-  
+
   <TestRunParameters>
     <Parameter name="searchString" value="set this in Azure DevOps Pipeline" />
     <Parameter name="storageConnectionString" value="set this in Azure DevOps Pipeline" />

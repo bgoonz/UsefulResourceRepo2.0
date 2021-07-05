@@ -119,6 +119,7 @@ foreach (BlobItem blob in container.GetBlobs())
 ### Async APIs
 
 We fully support both synchronous and asynchronous APIs.
+
 ```C# Snippet:SampleSnippetsBlob_Async
 // Get a temporary path on disk where we can download the file
 string downloadPath = "hello.jpg";
@@ -142,8 +143,8 @@ Learn more about enabling Azure Active Directory for authentication with Azure S
 ## Troubleshooting
 
 All Blob service operations will throw a
-[RequestFailedException][RequestFailedException] on failure with
-helpful [`ErrorCode`s][error_codes].  Many of these errors are recoverable.
+[RequestFailedException][requestfailedexception] on failure with
+helpful [`ErrorCode`s][error_codes]. Many of these errors are recoverable.
 
 ```C# Snippet:SampleSnippetsBlob_Troubleshooting
 // Get a connection string to our Azure Storage account.
@@ -180,7 +181,7 @@ Get started with our [Blob samples][samples]:
 See the [Storage CONTRIBUTING.md][storage_contrib] for details on building,
 testing, and contributing to this library.
 
-This project welcomes contributions and suggestions.  Most contributions require
+This project welcomes contributions and suggestions. Most contributions require
 you to agree to a Contributor License Agreement (CLA) declaring that you have
 the right to, and actually do, grant us the rights to use your contribution. For
 details, visit [cla.microsoft.com][cla].
@@ -193,6 +194,7 @@ additional questions or comments.
 ![Impressions](https://azure-sdk-impressions.azurewebsites.net/api/impressions/azure-sdk-for-net%2Fsdk%2Fstorage%2FAzure.Storage.Blobs%2FREADME.png)
 
 <!-- LINKS -->
+
 [source]: https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/storage/Azure.Storage.Blobs/src
 [package]: https://www.nuget.org/packages/Azure.Storage.Blobs/
 [docs]: https://docs.microsoft.com/dotnet/api/azure.storage.blobs
@@ -208,7 +210,7 @@ additional questions or comments.
 [identity]: https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/identity/Azure.Identity/README.md
 [storage_ad]: https://docs.microsoft.com/azure/storage/common/storage-auth-aad
 [storage_ad_sample]: samples/Sample02c_Auth_ActiveDirectory.cs
-[RequestFailedException]: https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/core/Azure.Core/src/RequestFailedException.cs
+[requestfailedexception]: https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/core/Azure.Core/src/RequestFailedException.cs
 [error_codes]: https://docs.microsoft.com/rest/api/storageservices/blob-service-error-codes
 [samples]: samples/
 [storage_contrib]: ../CONTRIBUTING.md

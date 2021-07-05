@@ -18,7 +18,7 @@ For this demo, you'll need a storage account and the code from this repository. 
 
 ### Static Website on Blob
 
-First, you'll want to set up using your storage account as a static website. This allows you to browse it without a costly web server. To do this, click static website in the settings menu and then type index.html in the index document name and click save. This will allow you to use the generated url without the /index.html part on the end. It's not entirely necessary since here we'll be supplying whole urls to people for security purposes. 
+First, you'll want to set up using your storage account as a static website. This allows you to browse it without a costly web server. To do this, click static website in the settings menu and then type index.html in the index document name and click save. This will allow you to use the generated url without the /index.html part on the end. It's not entirely necessary since here we'll be supplying whole urls to people for security purposes.
 
 ![staticWebsite.png](images/staticWebsite.png)
 
@@ -79,7 +79,7 @@ The HTML file is fairly simple and just contains some div elements to house the 
                 <div id="bottom-right"></div>
             </div>
         </div>
-        
+
         <script src="libs/azure-storage-blob.js" charset="utf-8"></script>
         <script src="js/drop.js" charset="utf-8"></script>
     </body>
@@ -233,55 +233,54 @@ body {
 The Javascript mainly consists of listeners to make the page work with drag and drop. Both the form and the drop action call a function to submit files to Blob. For this, we need to connect to the storage account specified in the URI with the SAS token and then push the files up one at a time.
 
 ```javascript
-
 //get the drop zone
-let dropZone = document.getElementById('top-right');
+let dropZone = document.getElementById("top-right");
 
 //set up the listeners to prevent propogation
-;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, preventDefaults, false);
-  });
-  
-function preventDefaults (e) {
-    e.preventDefault();
-    e.stopPropagation();
+["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+  dropZone.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+  e.preventDefault();
+  e.stopPropagation();
 }
 
 //set up listeners for the drag and feedback
-;['dragenter', 'dragover'].forEach(eventName => {
-    dropZone.addEventListener(eventName, highlight, false);
+["dragenter", "dragover"].forEach((eventName) => {
+  dropZone.addEventListener(eventName, highlight, false);
 });
-  
-;['dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, unhighlight, false);
-})
-  
+
+["dragleave", "drop"].forEach((eventName) => {
+  dropZone.addEventListener(eventName, unhighlight, false);
+});
+
 function highlight(e) {
-    dropZone.classList.add('highlight');
+  dropZone.classList.add("highlight");
 }
-  
+
 function unhighlight(e) {
-    dropZone.classList.remove('highlight');
+  dropZone.classList.remove("highlight");
 }
 
 //set up the drop handler
-dropZone.addEventListener('drop', handleDrop, false)
+dropZone.addEventListener("drop", handleDrop, false);
 
 function handleDrop(e) {
-    let dt = e.dataTransfer;
-    let files = dt.files;
-    
-    handleFiles(files);
+  let dt = e.dataTransfer;
+  let files = dt.files;
+
+  handleFiles(files);
 }
 
 //the file handler
 function handleFiles(files) {
-    ([...files]).forEach(uploadFile);
-  }
+  [...files].forEach(uploadFile);
+}
 
-function reportStatus(message){
-    document.getElementById("statusBox").innerHTML += message + "<br />";
-    document.getElementById("statusBox").classList.add('highlight')
+function reportStatus(message) {
+  document.getElementById("statusBox").innerHTML += message + "<br />";
+  document.getElementById("statusBox").classList.add("highlight");
 }
 
 let url = new URL(document.location.href);
@@ -293,7 +292,7 @@ const containerName = searchParams.get("containerName");
 
 //regenerate the valid SAS key
 const sv = searchParams.get("sv");
-var sasString = "?";//reinsert the ?
+var sasString = "?"; //reinsert the ?
 sasString += "sv=" + sv;
 const ss = searchParams.get("ss");
 sasString += "&ss=" + ss;
@@ -308,25 +307,33 @@ sasString += "&st=" + st;
 const spr = searchParams.get("spr");
 sasString += "&spr=" + spr;
 const sig = searchParams.get("sig");
-sasString += "&sig=" + encodeURIComponent(sig);//must be encoded
+sasString += "&sig=" + encodeURIComponent(sig); //must be encoded
 
 const containerURL = new azblob.ContainerURL(
-    `https://${accountName}.blob.core.windows.net/${containerName}?${sasString}`,
-    azblob.StorageURL.newPipeline(new azblob.AnonymousCredential));
+  `https://${accountName}.blob.core.windows.net/${containerName}?${sasString}`,
+  azblob.StorageURL.newPipeline(new azblob.AnonymousCredential())
+);
 
-async function uploadFile(file){
-    try {
-        reportStatus("Uploading files...");
-        const promises = [];
-        const blockBlobURL = azblob.BlockBlobURL.fromContainerURL(containerURL, file.name);
-        promises.push(azblob.uploadBrowserDataToBlockBlob(
-            azblob.Aborter.none, file, blockBlobURL)
-            );
-        await Promise.all(promises);
-        reportStatus(file.name + "File Uploaded.");
-        listFiles();
-    } catch (error) {
-        reportStatus(error.body.message);
-    }
+async function uploadFile(file) {
+  try {
+    reportStatus("Uploading files...");
+    const promises = [];
+    const blockBlobURL = azblob.BlockBlobURL.fromContainerURL(
+      containerURL,
+      file.name
+    );
+    promises.push(
+      azblob.uploadBrowserDataToBlockBlob(
+        azblob.Aborter.none,
+        file,
+        blockBlobURL
+      )
+    );
+    await Promise.all(promises);
+    reportStatus(file.name + "File Uploaded.");
+    listFiles();
+  } catch (error) {
+    reportStatus(error.body.message);
+  }
 }
 ```
