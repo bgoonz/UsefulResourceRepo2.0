@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+oldrev, newrev = ARGV
+
+def run(cmd)
+  exit($?.exitstatus) unless system "umask 002 && #{cmd}"
+end
+
+
+run("mix deps.get --only prod")
+run("SECRET_KEY_BASE=$SECRET DATABASE_URL=\"ecto://postgres:postgres@127.0.01/database\" MIX_ENV=prod mix compile")
+run("PATH=$PATH:/home/gbaldraw/node-v14.15.0-linux-x64/bin:/home/gbaldraw/gbalbeat/node_modules/.bin npm run deploy --prefix ./assets")
+run("mix phx.digest")
+run("mix distillery.release")

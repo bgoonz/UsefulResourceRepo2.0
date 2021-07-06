@@ -1,71 +1,65 @@
-## [tl;dr](https://www.benmarshall.me/responsive-iframes/#too-long-to-read)
+[tl;dr](https://www.benmarshall.me/responsive-iframes/#too-long-to-read)
+------------------------------------------------------------------------
 
 Use the [responsive iframe generator](https://www.benmarshall.me/responsive-iframe-generator/) to quickly create a responsive iframe at any aspect ratio. Check out the code below to see how you can easily create them with just CSS using aspect ratio boxes.
 
-```
-.iframe-container {
-  overflow: hidden;
-  /* 16:9 aspect ratio */
-  padding-top: 56.25%;
-  position: relative;
-}
+    .iframe-container {
+      overflow: hidden;
+      /* 16:9 aspect ratio */
+      padding-top: 56.25%;
+      position: relative;
+    }
 
-.iframe-container iframe {
-   border: 0;
-   height: 100%;
-   left: 0;
-   position: absolute;
-   top: 0;
-   width: 100%;
-}
-```
+    .iframe-container iframe {
+       border: 0;
+       height: 100%;
+       left: 0;
+       position: absolute;
+       top: 0;
+       width: 100%;
+    }
 
-```
-<div class="iframe-container">
-  <iframe src="//www.youtube.com/embed/KMYrIi_Mt8A" allowfullscreen></iframe>
-</div>
-```
+    <div class="iframe-container">
+      <iframe src="//www.youtube.com/embed/KMYrIi_Mt8A" allowfullscreen></iframe>
+    </div>
 
 ### [Or you can use custom properties:](https://www.benmarshall.me/responsive-iframes/#custom-properties)
 
-```
-[style*="--aspect-ratio"] > :first-child {
-  width: 100%;
-}
-[style*="--aspect-ratio"] > img {
-  height: auto;
-}
-@supports (--custom:property) {
-  [style*="--aspect-ratio"] {
-    position: relative;
-  }
-  [style*="--aspect-ratio"]::before {
-    content: "";
-    display: block;
-    padding-bottom: calc(100% / (var(--aspect-ratio)));
-  }
-  [style*="--aspect-ratio"] > :first-child {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-  }
-}
-```
+    [style*="--aspect-ratio"] > :first-child {
+      width: 100%;
+    }
+    [style*="--aspect-ratio"] > img {
+      height: auto;
+    }
+    @supports (--custom:property) {
+      [style*="--aspect-ratio"] {
+        position: relative;
+      }
+      [style*="--aspect-ratio"]::before {
+        content: "";
+        display: block;
+        padding-bottom: calc(100% / (var(--aspect-ratio)));
+      }
+      [style*="--aspect-ratio"] > :first-child {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+      }
+    }
 
-```
-<div style="--aspect-ratio:815/419;">
-</div>
+    <div style="--aspect-ratio:815/419;">
+    </div>
 
-<div style="--aspect-ratio:16/9;">
-</div>
+    <div style="--aspect-ratio:16/9;">
+    </div>
 
-<!-- even single value -->
-<div style="--aspect-ratio:1.4;">
-</div>
-```
+    <!-- even single value -->
+    <div style="--aspect-ratio:1.4;">
+    </div>
 
-## [Guide to Responsive iframes](https://www.benmarshall.me/responsive-iframes/#step-by-step)
+[Guide to Responsive iframes](https://www.benmarshall.me/responsive-iframes/#step-by-step)
+------------------------------------------------------------------------------------------
 
 You’ve spent countless hours designing and building the perfect responsive site. One problem — `iframes`. Proportionally resizing these pesky little windows to another world can be frustrating. It’s easy enough to make it span 100% of its container, but there’s no attribute (yet) to make the height resize accordingly.
 
@@ -87,7 +81,7 @@ The old way of building responsive iframes usually took the form of some nasty J
 
 For the visual learner, here’s how creating responsive iframes work. We have set a default padding-top here, but in reality, the ratio of the sizing of an embed change per provider and even per embed. We need to calculate the padding-top and then add this as a style to the responsive wrapper.
 
-An aspect ratio is basically **a container that adjusts its height based on its width to always keep its aspect ratio** (i.e. 16×9, 4×3, 1×1, etc.). They’re most commonly used to embed iframe videos like YouTube or Vimeo videos.
+An aspect ratio is basically **a container that adjusts its height based on its width to always keep its aspect ratio** (i.e. 16×9, 4×3, 1×1, etc.). They’re most commonly used to embed iframe videos like YouTube or Vimeo videos.
 
 This isn’t particularly new stuff. I think the original credit goes as far back as 2009 and Thierry Koblentz’s [Intrinsic Ratios](https://alistapart.com/article/creating-intrinsic-ratios-for-video) and maintained popularity even for other kinds of content with articles like [Uncle Dave’s Ol’ Padded Box](http://daverupert.com/2012/04/uncle-daves-ol-padded-box/).
 
@@ -101,15 +95,11 @@ Perfect squares and 16:9 stuff is great, but the values used for those are just 
 
 So how do you figure out the `padding-top` for say an image that’s `1127.34×591.44`? One way is using the CSS `calc()`, like this:
 
-```
-padding-top: calc(591.44 / 1127.34 * 100%);
-```
+    padding-top: calc(591.44 / 1127.34 * 100%);
 
 If you’re using a preprocessor like Sass, we could do the calculation ahead of time:
 
-```
-padding-top: 591.44px / 1127.34px * 100%;
-```
+    padding-top: 591.44px / 1127.34px * 100%;
 
 ### [How to create a responsive iframe?](https://www.benmarshall.me/responsive-iframes/#how-to)
 
@@ -133,56 +123,42 @@ The 3 steps to create a responsive iframe that keeps its aspect ratio:
 
 #### Create the aspect ratio box.
 
-```
-.iframe-container {
-  overflow: hidden;
-  /* 16:9 aspect ratio */
-  padding-top: 56.25%;
-  position: relative;
-}
-```
+    .iframe-container {
+      overflow: hidden;
+      /* 16:9 aspect ratio */
+      padding-top: 56.25%;
+      position: relative;
+    }
 
-```
-<div class="iframe-container"></div>
-```
+    <div class="iframe-container"></div>
 
 #### Position the iframe.
 
-```
-.iframe-container iframe {
-   height: 100%;
-   left: 0;
-   position: absolute;
-   top: 0;
-}
-```
+    .iframe-container iframe {
+       height: 100%;
+       left: 0;
+       position: absolute;
+       top: 0;
+    }
 
-```
-<div class="iframe-container">
-  <iframe src="https://www.youtube.com/embed/mB1dE0FotdY" width="100%" frameborder="0" title="Responsive iframe example" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen />
-</div>
-```
+    <div class="iframe-container">
+      <iframe src="https://www.youtube.com/embed/mB1dE0FotdY" width="100%" frameborder="0" title="Responsive iframe example" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen />
+    </div>
 
 #### Optimize & style as needed.
 
-```
-.iframe-container iframe {
-   border: 0;
-   height: 100%;
-   left: 0;
-   position: absolute;
-   top: 0;
-   width: 100%;
-}
-```
+    .iframe-container iframe {
+       border: 0;
+       height: 100%;
+       left: 0;
+       position: absolute;
+       top: 0;
+       width: 100%;
+    }
 
-```
-<div class="iframe-container">
-  <iframe src="https://www.youtube.com/embed/mB1dE0FotdY" loading="lazy" title="Responsive iframe example" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen />
-</div>
-```
-
-<iframe data-src="https://www.youtube.com/embed/mB1dE0FotdY" allowfullscreen="" loading="lazy"></iframe>
+    <div class="iframe-container">
+      <iframe src="https://www.youtube.com/embed/mB1dE0FotdY" loading="lazy" title="Responsive iframe example" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen />
+    </div>
 
 Try resizing your browser window to see the responsive iframe in action.
 
@@ -192,17 +168,16 @@ Try resizing your browser window to see the responsive iframe in action.
 
 Here’s a list of other aspect ratio percentages you can use when defining `padding-top`.
 
-```
-padding-top: 56.25%; /* 16:9 aspect ratio */
-padding-top: 75%; /* 4:3 aspect ratio */
-padding-top: 66.66%; /* 3:2 aspect ratio */
-padding-top: 62.5%; /* 8:5 aspect ratio */
-padding-top: 100%; /* 1:1 aspect ratio */
-```
+    padding-top: 56.25%; /* 16:9 aspect ratio */
+    padding-top: 75%; /* 4:3 aspect ratio */
+    padding-top: 66.66%; /* 3:2 aspect ratio */
+    padding-top: 62.5%; /* 8:5 aspect ratio */
+    padding-top: 100%; /* 1:1 aspect ratio */
 
 **What’s an aspect ratio?** An aspect ratio of an element describes the proportional relationship between its width and its height. Two common video aspect ratios are 4:3 (the universal video format of the 20th century), and 16:9 (universal for HD television and European digital television, and for YouTube videos).
 
-## [Responsive iframes with Sass](https://www.benmarshall.me/responsive-iframes/#using-sass)
+[Responsive iframes with Sass](https://www.benmarshall.me/responsive-iframes/#using-sass)
+-----------------------------------------------------------------------------------------
 
 Sass makes it even easier to create responsive iframes. You can create a `ratio` `function` that’ll calculate the padding percentage needed for a particular aspect ratio, then a `mixin` to generate the styles.
 
@@ -210,76 +185,73 @@ Sass makes it even easier to create responsive iframes. You can create a `ratio`
 
 Use this Sass mixin to create an aspect ratio box for your iframes.
 
-```
-/// Aspect ratio box.
-///
-/// @author Ben Marshall
-/// @link https://www.benmarshall.me/responsive-iframes
-///
-/// @param {int} $width - Width in pixels.
-/// @param {int} $height - Height in pixels.
-///
-/// @example scss - Aspect ratio box mixin
-///   .iframe-container {
-///     @include aspectRatioBox(834, 469);
-///   }
-///
-/// @output CSS aspect ratio box.
-///   .iframe-container {
-///     overflow: hidden;
-///     padding-top: 56.25%;
-///     position: relative;
-///     top: 0;
-///     width: 100%;
-///   }
-///
-///   .iframe-container iframe {
-///     border: 0;
-///     height: 100%;
-///     left: 0;
-///     position: absolute;
-///     top: 0;
-///     width: 100%;
-///   }
-@mixin aspectRatioBox($width, $height) {
-  overflow: hidden;
-  padding-top: percentage($height / $width);
-  position: relative;
+    /// Aspect ratio box.
+    ///
+    /// @author Ben Marshall
+    /// @link https://www.benmarshall.me/responsive-iframes
+    ///
+    /// @param {int} $width - Width in pixels.
+    /// @param {int} $height - Height in pixels.
+    ///
+    /// @example scss - Aspect ratio box mixin
+    ///   .iframe-container {
+    ///     @include aspectRatioBox(834, 469);
+    ///   }
+    ///
+    /// @output CSS aspect ratio box.
+    ///   .iframe-container {
+    ///     overflow: hidden;
+    ///     padding-top: 56.25%;
+    ///     position: relative;
+    ///     top: 0;
+    ///     width: 100%;
+    ///   }
+    ///
+    ///   .iframe-container iframe {
+    ///     border: 0;
+    ///     height: 100%;
+    ///     left: 0;
+    ///     position: absolute;
+    ///     top: 0;
+    ///     width: 100%;
+    ///   }
+    @mixin aspectRatioBox($width, $height) {
+      overflow: hidden;
+      padding-top: percentage($height / $width);
+      position: relative;
 
-  iframe {
-    border: 0;
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 100%;
-  }
-}
-```
+      iframe {
+        border: 0;
+        height: 100%;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 100%;
+      }
+    }
 
 ### [The `ratio` Sass function.](https://www.benmarshall.me/responsive-iframes/#ratio-sass-function)
 
 Here’s a handy Sass function to calculate aspect ratio percentages:
 
-```
-/// Calculate a ratio.
-///
-/// @author Ben Marshall
-/// @link https://www.benmarshall.me/responsive-iframes
-///
-/// @param {int} $width - Width in pixels.
-/// @param {int} $height - Height in pixels.
-/// @return {int} The calculated ratio percent.
-///
-/// @example scss - Ratio function
-///   ratio(834, 469)
-///   // 56.25
-@function ratio($width, $height) {
-  return percentage($height / $width);
-}
-```
+    /// Calculate a ratio.
+    ///
+    /// @author Ben Marshall
+    /// @link https://www.benmarshall.me/responsive-iframes
+    ///
+    /// @param {int} $width - Width in pixels.
+    /// @param {int} $height - Height in pixels.
+    /// @return {int} The calculated ratio percent.
+    ///
+    /// @example scss - Ratio function
+    ///   ratio(834, 469)
+    ///   // 56.25
+    @function ratio($width, $height) {
+      return percentage($height / $width);
+    }
 
-## [CSS Framework Support](https://www.benmarshall.me/responsive-iframes/#css-framework)
+[CSS Framework Support](https://www.benmarshall.me/responsive-iframes/#css-framework)
+-------------------------------------------------------------------------------------
 
 Many CSS frameworks like [Bootstrap](https://getbootstrap.com/), [Foundation](https://foundation.zurb.com/), or [Materialize](https://materializecss.com/) have built-in styles for aspect ratio boxes. All use the same technique. Check out some of the examples below.
 
@@ -287,79 +259,65 @@ Many CSS frameworks like [Bootstrap](https://getbootstrap.com/), [Foundation](ht
 
 [Bootstrap](https://getbootstrap.com/) 3.2+, uses the predefined class `.embed-responsive`, an aspect ratio class like `.embed-responsive-16by9`, and the `.embed-responsive-item` for the iframe. Check out the examples below or view their [Embeds documentation](https://getbootstrap.com/docs/4.5/utilities/embed/#aspect-ratios).
 
-```
-<!-- 21:9 aspect ratio -->
-<div class="embed-responsive embed-responsive-21by9">
-  <iframe class="embed-responsive-item" src="..."></iframe>
-</div>
+    <!-- 21:9 aspect ratio -->
+    <div class="embed-responsive embed-responsive-21by9">
+      <iframe class="embed-responsive-item" src="..."></iframe>
+    </div>
 
-<!-- 16:9 aspect ratio -->
-<div class="embed-responsive embed-responsive-16by9">
-  <iframe class="embed-responsive-item" src="..."></iframe>
-</div>
+    <!-- 16:9 aspect ratio -->
+    <div class="embed-responsive embed-responsive-16by9">
+      <iframe class="embed-responsive-item" src="..."></iframe>
+    </div>
 
-<!-- 4:3 aspect ratio -->
-<div class="embed-responsive embed-responsive-4by3">
-  <iframe class="embed-responsive-item" src="..."></iframe>
-</div>
+    <!-- 4:3 aspect ratio -->
+    <div class="embed-responsive embed-responsive-4by3">
+      <iframe class="embed-responsive-item" src="..."></iframe>
+    </div>
 
-<!-- 1:1 aspect ratio -->
-<div class="embed-responsive embed-responsive-1by1">
-  <iframe class="embed-responsive-item" src="..."></iframe>
-</div>
-```
+    <!-- 1:1 aspect ratio -->
+    <div class="embed-responsive embed-responsive-1by1">
+      <iframe class="embed-responsive-item" src="..."></iframe>
+    </div>
 
 Within Bootstrap’s `_variables.scss`, you can change the aspect ratios. Here’s an example of the `$embed-responsive-aspect-ratios` list:
 
-```
-$embed-responsive-aspect-ratios: (
-  (21 9),
-  (16 9),
-  (4 3),
-  (1 1)
-) !default;
-```
+    $embed-responsive-aspect-ratios: (
+      (21 9),
+      (16 9),
+      (4 3),
+      (1 1)
+    ) !default;
 
 ### [Responsive iframes in Materialize](https://www.benmarshall.me/responsive-iframes/#materialize)
 
 If you are using Materialize CSS, then you don’t need your own classes either. Just add the `.video-container` class to your wrapper:
 
-```
-<div class="video-container">
-  <iframe src="https://www.youtube.com/embed/K1K8s-tQGqY" frameborder="0" allowfullscreen></iframe>
-</div>
-```
+    <div class="video-container">
+      <iframe src="https://www.youtube.com/embed/K1K8s-tQGqY" frameborder="0" allowfullscreen></iframe>
+    </div>
 
 ### [Responsive iframes in Foundation](https://www.benmarshall.me/responsive-iframes/#foundation)
 
-```
-<div class="responsive-embed">
-  <iframe src="https://www.youtube.com/embed/K1K8s-tQGqY" frameborder="0" allowfullscreen></iframe>
-</div>
-```
+    <div class="responsive-embed">
+      <iframe src="https://www.youtube.com/embed/K1K8s-tQGqY" frameborder="0" allowfullscreen></iframe>
+    </div>
 
 Aspect ratio modifier classes are set in your `$responsive-embed-ratios` map in your Foundation settings file:
 
-```
-$responsive-embed-ratios: (
-  default: 16 by 9,
-  vertical: 9 by 16,
-  panorama: 256 by 81,
-  square: 1 by 1,
-);
-```
+    $responsive-embed-ratios: (
+      default: 16 by 9,
+      vertical: 9 by 16,
+      panorama: 256 by 81,
+      square: 1 by 1,
+    );
 
 ### [Responsive iframes in Semantic UI](https://www.benmarshall.me/responsive-iframes/#semantic-ui)
 
 [Semantic UI](https://semantic-ui.com/) provides an embed module that allows you to create aspect ratio boxes for videos, iframes, and more. See their [Embed documentation](https://semantic-ui.com/modules/embed.html) for more information.
 
-```
-$('.url.example .ui.embed').embed();
-```
+    $('.url.example .ui.embed').embed();
 
-```
-<div class="ui embed" data-url="https://www.youtube.com/embed/O6Xo21L0ybE" data-placeholder="/images/bear-waving.jpg"></div>
-```
+    <div class="ui embed" data-url="https://www.youtube.com/embed/O6Xo21L0ybE" data-placeholder="/images/bear-waving.jpg"></div>
 
 ### [Responsive iframes in Bulma](https://www.benmarshall.me/responsive-iframes/#bulma)
 
@@ -367,76 +325,75 @@ In [Bulma](https://bulma.io/), you can apply a specific **ratio** on **any el
 
 For example, you can apply a `16by9` ratio on an `iframe`.
 
-```
-<figure class="image is-16by9">
-  <iframe class="has-ratio" width="640" height="360" src="https://www.youtube.com/embed/YE7VzlLtp-4?showinfo=0" frameborder="0" allowfullscreen></iframe>
-</figure>
-```
+    <figure class="image is-16by9">
+      <iframe class="has-ratio" width="640" height="360" src="https://www.youtube.com/embed/YE7VzlLtp-4?showinfo=0" frameborder="0" allowfullscreen></iframe>
+    </figure>
 
 Here’s a list of all the available Bulma aspect ration classes:
 
-- `is-square` or `is-1by1` – 1×1
-- `is-5by4` – 5×4
-- `is-4by3` – 4×3
-- `is-3by2` – 3×2
-- `is-5by3` – 5×3
-- `is-16by9` – 16×9
-- `is-2by1` – 2×1
-- `is-3by1` – 3×1
-- `is-4by5` – 4×5
-- `is-3by4` – 3×4
-- `is-2by3` – 2×3
-- `is-3by5` – 3×5
-- `is-9by16` – 9×16
-- `is-1by2` – 1×2
-- `is-1by3` – 1×3
+-   `is-square` or `is-1by1` – 1×1
+-   `is-5by4` – 5×4
+-   `is-4by3` – 4×3
+-   `is-3by2` – 3×2
+-   `is-5by3` – 5×3
+-   `is-16by9` – 16×9
+-   `is-2by1` – 2×1
+-   `is-3by1` – 3×1
+-   `is-4by5` – 4×5
+-   `is-3by4` – 3×4
+-   `is-2by3` – 2×3
+-   `is-3by5` – 3×5
+-   `is-9by16` – 9×16
+-   `is-1by2` – 1×2
+-   `is-1by3` – 1×3
 
-## [What if the aspect ratio is dynamic?](https://www.benmarshall.me/responsive-iframes/#iframe-js-solution)
+[What if the aspect ratio is dynamic?](https://www.benmarshall.me/responsive-iframes/#iframe-js-solution)
+---------------------------------------------------------------------------------------------------------
 
 **This is the only time JavaScript should be used.** Let’s say you have content authors creating interactives with each having different dimensions. Without knowing the aspect ratio of the iframe, it’s not easy to implement the intrinsic ratio technique.
 
 You can overcome this problem by using JS. There’s a number of JS libraries out there ([Pym.js](http://blog.apps.npr.org/pym.js/) or this [jQuery plugin](https://npr.github.io/responsiveiframe/)), or you can use this little code snippet.
 
-```
-function resizeAspectRatioBoxes() {
-  var
-    $this = $(this),
-    proportion = $this.data('proportion'),
-    w = $this.attr('width'),
-    actual_w = $this.width();
+    function resizeAspectRatioBoxes() {
+      var
+        $this = $(this),
+        proportion = $this.data('proportion'),
+        w = $this.attr('width'),
+        actual_w = $this.width();
 
-  if (!proportion) {
-    proportion = $this.attr('height') / w;
-    $this.data('proportion', proportion);
-  }
+      if (!proportion) {
+        proportion = $this.attr('height') / w;
+        $this.data('proportion', proportion);
+      }
 
-  if (actual_w != w) {
-    $this.css('height', Math.round(actual_w * proportion) + 'px');
-  }
-}
+      if (actual_w != w) {
+        $this.css('height', Math.round(actual_w * proportion) + 'px');
+      }
+    }
 
-$(window).resize(function() {
-  resizeAspectRatioBoxes();
-}):
-```
+    $(window).resize(function() {
+      resizeAspectRatioBoxes();
+    }):
 
-## Responsive iframes are awesome.
+Responsive iframes are awesome.
+-------------------------------
 
-Say _Goodbye_ to embedded content breaking your layouts with aspect ratio boxes using the intrinsic ratio technique. No longer do you have to deal with those annoying gaps iframe containers make as content width changes. Just keep in mind these tips when building aspect ratio boxes:
+Say *Goodbye* to embedded content breaking your layouts with aspect ratio boxes using the intrinsic ratio technique. No longer do you have to deal with those annoying gaps iframe containers make as content width changes. Just keep in mind these tips when building aspect ratio boxes:
 
 ### Things to remember.
 
-- First, **the content within the iframe must be responsive**. If not, it defeats the purpose of creating an aspect ratio box.
-- Don’t forget to **specify the containers `position` to be `relative`**. This allows the absolute positioning of the `iframe` within it.
-- The **`padding-top` value is calculated based on the aspect ratio** of your content. You can calculate this value using: `(height / width) * 100 = aspect ratio precent.`
-- `height` is set to `0` because `padding-bottom` gives the `iframe` it’s height.
-- Using `overflow: hidden` is important because it ensures if any content does protrude outside of the container, it will be hidden and avoid screwing up the site’s layout.
-- Like with most `absolute` positioned elements, we need to set the `top` and `left` properties so the `iframe` get’s put in the right place.
-- Finally, `width` and `height` are set to `100%` so the `iframe` takes up 100% of the containers’ space.
+-   First, **the content within the iframe must be responsive**. If not, it defeats the purpose of creating an aspect ratio box.
+-   Don’t forget to **specify the containers `position` to be `relative`**. This allows the absolute positioning of the `iframe` within it.
+-   The **`padding-top` value is calculated based on the aspect ratio** of your content. You can calculate this value using: `(height / width) * 100 = aspect ratio precent.`
+-   `height` is set to `0` because `padding-bottom` gives the `iframe` it’s height.
+-   Using `overflow: hidden` is important because it ensures if any content does protrude outside of the container, it will be hidden and avoid screwing up the site’s layout.
+-   Like with most `absolute` positioned elements, we need to set the `top` and `left` properties so the `iframe` get’s put in the right place.
+-   Finally, `width` and `height` are set to `100%` so the `iframe` takes up 100% of the containers’ space.
 
 Using aspect ratio boxes is great for all kinds of content, not just iframes. We can use this same technique to make other types of embedded content responsive like Google Maps, calendars, Vimeo, and YouTube videos. Basically, anything that needs to keep its aspect ratio as the screen size changes. **How are you using them on your site?** Comment below.
 
-## [FAQ](https://www.benmarshall.me/responsive-iframes/#faq)
+[FAQ](https://www.benmarshall.me/responsive-iframes/#faq)
+---------------------------------------------------------
 
 **What is a responsive iframe?**
 
@@ -444,7 +401,7 @@ A responsive iframe is a iframe that “responds” to its container. For instan
 
 **What is an aspect ratio box?**
 
-It’s a container that adjusts its height based on its width to always keep its aspect ratio (i.e. 16×9, 4×3, 1×1, etc.).
+It’s a container that adjusts its height based on its width to always keep its aspect ratio (i.e. 16×9, 4×3, 1×1, etc.).
 
 **How do you calculate an aspect ratio?**
 
@@ -456,11 +413,12 @@ Intrinsic ratios maintains an element aspect ratio when resized. Think of an `i
 
 Do you have a question about aspect ratio boxes, the intrinsic ratio technique or how to make iframes responsive? Or maybe you have another nifty technique. I wanna hear from you. Post your questions, comments, or suggestions in the comments below.
 
-## More about iframes & aspect ratio boxes.
+More about iframes & aspect ratio boxes.
+----------------------------------------
 
 With the numerous screen sizes, there’s a host of things to consider to ensure your site looks good no matter the device. Not only is it important to consider the responsiveness of elements, but the performance too. Check out these other articles on iframes, responsive performance, and techniques to keep things sized right.
 
-- [Learn how to lazy-load iframes](https://www.benmarshall.me/lazy-load-iframes/)
-- [Responsive iframe Generator](https://www.benmarshall.me/responsive-iframe-generator/)
-- [Resize Videos Proportionally with Intrinsic Ratios](https://www.benmarshall.me/resize-videos-proportionally-intrinsic-ratios/)
-- [Responsive Images — 6 Simple Ways](https://www.benmarshall.me/responsive-images/)
+-   [Learn how to lazy-load iframes](https://www.benmarshall.me/lazy-load-iframes/)
+-   [Responsive iframe Generator](https://www.benmarshall.me/responsive-iframe-generator/)
+-   [Resize Videos Proportionally with Intrinsic Ratios](https://www.benmarshall.me/resize-videos-proportionally-intrinsic-ratios/)
+-   [Responsive Images — 6 Simple Ways](https://www.benmarshall.me/responsive-images/)

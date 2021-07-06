@@ -8,7 +8,7 @@ Today we will learn How to Setup and run **MongoDB windows service** continuing 
 
 If you haven’t installed MongoDB on your Windows Pc please Go to the [Official website](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/#) of MongoDB and download the latest setup file 32bit or 64 bit according to your pc architecture.Now let’s start how we can install mongodb windows service.
 
-> _When you’re installing MongoDB, please select_ **_c:/mongodb_** _as directory for easier access and future uses_
+> *When you’re installing MongoDB, please select* ***c:/mongodb*** *as directory for easier access and future uses*
 
 Before installing mongodb windows service, we will **set up MongoDB environment** as follows:
 
@@ -16,7 +16,7 @@ MongoDB required Directory to store all database to set that directory Create **
 
 ![](https://miro.medium.com/max/1400/1*yaaKuqzmgC0glqMnXq-zQw.png)
 
-To start MongoDB, run **mongod.exe** from the **Command Prompt** navigate to your MongoDB Bin folder and run **mongod** command, it will start MongoDB main process and _The waiting for connections message_ in the console.
+To start MongoDB, run **mongod.exe** from the **Command Prompt** navigate to your MongoDB Bin folder and run **mongod** command, it will start MongoDB main process and *The waiting for connections message* in the console.
 
 ![](https://miro.medium.com/max/1400/1*7MfTwwIOE3zThXtug3EUMw.png)
 

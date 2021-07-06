@@ -5,52 +5,53 @@ If you’re Developing your Rest API’s using Node.js or Express.js, Then You�
 Consider the following document, which is **USER** document, which has an **array** of **Friends**:
 
 {  
- "\_id" : ObjectId("5a0fa6f6e744c923ec159606"),  
- "updated_at" : ISODate("2017-11-18T03:20:22.282Z"),  
- "created_at" : ISODate("2017-11-18T03:20:22.282Z"),  
- "firstName" : "stackFame",  
- "lastName" : "Media",  
- "userName" : "stackFame",  
- "email" : "stackFame@stackFame.com",  
- "password" : "$2a$10$Ru5TVFL889Y5RjDhycly.74c2tFXUEOn0rghzq6OiAu8oQNuqZwu",  
- "status" : 1,  
- "language" : "en",  
- "friends":\[  
- 5a0fa6f6e744c923ec159606,  
- 5a0fa6f6e744c923ec159606,  
- 5a0fa6f6e744c923ec159606, \]  
+“\_id” : ObjectId(“5a0fa6f6e744c923ec159606”),  
+“updated\_at” : ISODate(“2017-11-18T03:20:22.282Z”),  
+“created\_at” : ISODate(“2017-11-18T03:20:22.282Z”),  
+“firstName” : “stackFame”,  
+“lastName” : “Media”,  
+“userName” : “stackFame”,  
+“email” : “stackFame@stackFame.com”,  
+“password” : “$2a<span class="math inline">10</span>Ru5TVFL889Y5RjDhycly.74c2tFXUEOn0rghzq6OiAu8oQNuqZwu”,  
+“status” : 1,  
+“language” : “en”,  
+“friends”:\[  
+5a0fa6f6e744c923ec159606,  
+5a0fa6f6e744c923ec159606,  
+5a0fa6f6e744c923ec159606, \]  
 }
 
 Now, You want edit friends array, when you want to add or remove friend to friends array.First, we will push a friend into an array with the mongoose in nodejs app.
 
 // find by document id and update and push item in array  
 users.findByIdAndUpdate(userID,  
- {$push: {friends: friend}},  
- {safe: true, upsert: true},  
- function(err, doc) {  
- if(err){  
- console.log(err);  
- }else{  
- //do stuff  
- }  
- }  
+{$push: {friends: friend}},  
+{safe: true, upsert: true},  
+function(err, doc) {  
+if(err){  
+console.log(err);  
+}else{  
+//do stuff  
+}  
+}  
 );
 
-## [Receive Inbound emails using Node.js — Node-Mailin](https://stackfame.com/receive-inbound-emails-node-js)
+[Receive Inbound emails using Node.js — Node-Mailin](https://stackfame.com/receive-inbound-emails-node-js)
+----------------------------------------------------------------------------------------------------------
 
 and you’ve successfully pushed item in a MongoDB document.Now we will learn how to pop or remove an item from MongoDB document array.
 
 // find by document id and update and pop or remove item in array  
 users.findByIdAndUpdate(userID,  
- {$pull: {friends: friend}},  
- {safe: true, upsert: true},  
- function(err, doc) {  
- if(err){  
- console.log(err);  
- }else{  
- //do stuff  
- }  
- }  
+{$pull: {friends: friend}},  
+{safe: true, upsert: true},  
+function(err, doc) {  
+if(err){  
+console.log(err);  
+}else{  
+//do stuff  
+}  
+}  
 );
 
 and you’re successfully poped or removed an item in a MongoDB document.

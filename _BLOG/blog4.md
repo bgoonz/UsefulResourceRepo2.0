@@ -2,10 +2,10 @@
 
 [Node.js](https://stackfame.com/nodejs) is very popular nowadays because of it’s feature like:
 
-- JavaScript runtime built on [Chrome’s V8 JavaScript engine](https://developers.google.com/v8/)
-- Node.js uses an event-driven, non-blocking I/O model
-- Which makes it lightweight and efficient
-- Node.js’ package ecosystem, [**npm**](https://stackfame.com/npm), is the largest ecosystem of open source libraries in the world.
+-   JavaScript runtime built on [Chrome’s V8 JavaScript engine](https://developers.google.com/v8/)
+-   Node.js uses an event-driven, non-blocking I/O model
+-   Which makes it lightweight and efficient
+-   Node.js’ package ecosystem, [**npm**](https://stackfame.com/npm), is the largest ecosystem of open source libraries in the world.
 
 Because of these features, Node.Js because very popular in no time and Now its developer’s favorite language for developing Rest APIs and Building high scaling apps.
 
@@ -37,15 +37,15 @@ By NVM can be your Buddy if you’re troubleshooting your node.js app and you ne
 
 [**READ** How To Deploy Node.js App on Ubuntu with Forever and Nginx](https://stackfame.com/deploy-nodejs-app-on-ubuntu-with-forever-and-nginx)
 
-- First Check the version of installed npm using `npm -v` and then update it to latest version using npm install npm@latest -g
-- To update Node, you’ll need npm’s handy [n module](https://www.npmjs.com/package/n). Run this code to clear npm’s cache, install n, and install the latest stable version of Node:
-- sudo npm cache clean -f sudo npm install -g n sudo n stable
-- To install the latest released version, use n latest . Alternatively, you can run n #.#.# to get a specific Node version.
+-   First Check the version of installed npm using `npm -v` and then update it to latest version using npm install npm@latest -g
+-   To update Node, you’ll need npm’s handy [n module](https://www.npmjs.com/package/n). Run this code to clear npm’s cache, install n, and install the latest stable version of Node:
+-   sudo npm cache clean -f sudo npm install -g n sudo n stable
+-   To install the latest released version, use n latest . Alternatively, you can run n \#.\#.\# to get a specific Node version.
 
-- Go to NodeJs [Download page](https://nodejs.org/en/download/), download any release you want and install it using installer for your windows or macOs.
-- After installing you can verify, installation using
-- npm -v node -v
-- And,
+-   Go to NodeJs [Download page](https://nodejs.org/en/download/), download any release you want and install it using installer for your windows or macOs.
+-   After installing you can verify, installation using
+-   npm -v node -v
+-   And,
 
 You’re done, Now you have successfully installed Node.Js and NPM on your Windows or Mac Os uisng official installers.
 

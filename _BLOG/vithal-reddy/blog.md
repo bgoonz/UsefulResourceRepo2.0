@@ -1,8 +1,8 @@
-[
+\[
 
 ![stackFAME](https://miro.medium.com/max/284/1*swMzMD4QNvE5GyLpFfJR5Q.png)
 
-](https://medium.com/stackfame?source=post_page-----befd31677ec5--------------------------------)
+\](https://medium.com/stackfame?source=post\_page—–befd31677ec5——————————–)
 
 [![VithalReddy](https://miro.medium.com/fit/c/96/96/1*GlQSX_dAtVf7agV94PlmgA.jpeg)](https://medium.com/@vithalreddy?source=post_page-----befd31677ec5--------------------------------)
 
@@ -14,8 +14,8 @@ Do you need to get all files present in the directory or you want to scan a dire
 
 We will be using **Node.js fs core module** to get all files in the directory, we can use following **fs**methods.
 
-- **fs.readdir(path, callbackFunction)** — This method will read all files in the directory.You need to pass directory path as the first argument and in the second argument, you can any callback function.
-- **path.join()** — This method of node.js path module, we will be using to get the path of the directory and This will join all given path segments together.
+-   **fs.readdir(path, callbackFunction)** — This method will read all files in the directory.You need to pass directory path as the first argument and in the second argument, you can any callback function.
+-   **path.join()** — This method of node.js path module, we will be using to get the path of the directory and This will join all given path segments together.
 
 1.  Load all the required Nodejs Packages using **“require”.**
 2.  Get the path of the directory using **path.join()** method.
@@ -28,11 +28,12 @@ Full code:
 
 first appeared on [Web Development Blog StackFrame](https://stackfame.com/graphql-req-object).
 
-[
+\[
 
-## stackFAME
+stackFAME
+---------
 
-](https://medium.com/stackfame?source=post_sidebar--------------------------post_sidebar-----------)
+\](https://medium.com/stackfame?source=post\_sidebar————————–post\_sidebar———–)
 
 StackFAME - Top Quality NodeJS and Web Development…
 
@@ -64,6 +65,6 @@ If you have a story to tell, knowledge to share, or a perspective to offer — w
 
 Get the Medium app
 
-[![A button that says 'Download on the App Store', and if clicked it will lead you to the iOS App store](https://miro.medium.com/max/270/1*Crl55Tm6yDNMoucPo1tvDg.png)](https://itunes.apple.com/app/medium-everyones-stories/id828256236?pt=698524&mt=8&ct=post_page&source=post_page-----befd31677ec5--------------------------------)
+[![A button that says ‘Download on the App Store’, and if clicked it will lead you to the iOS App store](https://miro.medium.com/max/270/1*Crl55Tm6yDNMoucPo1tvDg.png)](https://itunes.apple.com/app/medium-everyones-stories/id828256236?pt=698524&mt=8&ct=post_page&source=post_page-----befd31677ec5--------------------------------)
 
-[![A button that says 'Get it on, Google Play', and if clicked it will lead you to the Google Play store](https://miro.medium.com/max/270/1*W_RAPQ62h0em559zluJLdQ.png)](https://play.google.com/store/apps/details?id=com.medium.reader&source=post_page-----befd31677ec5--------------------------------)
+[![A button that says ‘Get it on, Google Play’, and if clicked it will lead you to the Google Play store](https://miro.medium.com/max/270/1*W_RAPQ62h0em559zluJLdQ.png)](https://play.google.com/store/apps/details?id=com.medium.reader&source=post_page-----befd31677ec5--------------------------------)

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>asterisk_install</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h4 id="wip-draft-wip">~~~ WIP ~ Draft ~ WIP ~~~</h4>
+<p><em><a href="https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/pulls">Pull Requests</a></em> gladly accepted How to Install the Asterisk 11 LTS PBX Server on Ubuntu 12.04 =</p>
+<h3 id="introduction">Introduction</h3>
+<p>Asterisk is an open source, software implementation of a Private Branch Exchange (PBX). Asterisk is used by small &amp; medium sized businesses and large enterprises – in addition to call centers, carriers, and government agencies.</p>
+<h2 id="pre-deployment-planning">Pre-deployment Planning</h2>
+<p>First, you must make a few structural decisions, before you deploy your cloud PBX.</p>
+<h4 id="location-of-voip-server">Location of VoIP Server</h4>
+<p>Voice quality on VoIP calls is affected by network latency, among other factors. Thus, it is advisable to select a datacenter that is closest to the general, geographic location of the majority of your anticipated calls.</p>
+<h2 id="server-setup">Server Setup</h2>
+<p>Follow the steps outlined in:</p>
+<ul>
+<li><p><a href="https://www.digitalocean.com/community/articles/how-to-create-your-first-digitalocean-droplet-virtual-server">How To Create Your First DigitalOcean Droplet Virtual Server</a></p>
+<blockquote>
+<p>For increased security, it is advisable that you create your droplet with pre-installed SSH keys. <em>See</em> <a href="https://www.digitalocean.com/community/articles/how-to-use-ssh-keys-with-digitalocean-droplets">How To Use SSH Keys with DigitalOcean Droplets</a>. <strong>Windows users:</strong> Refer <a href="https://www.digitalocean.com/community/articles/how-to-create-ssh-keys-with-putty-to-connect-to-a-vps">How To Create SSH Keys with PuTTY to Connect to a VPS</a></p>
+</blockquote></li>
+<li><p><a href="https://www.digitalocean.com/community/articles/initial-server-setup-with-ubuntu-12-04">Initial Server Setup with Ubuntu 12.04 | DigitalOcean</a>. &gt;* For added security, it is advisable that you disable password logins. <em>See</em>.</p></li>
+</ul>
+<h4 id="hostname-fqdn">Hostname &amp; FQDN</h4>
+<p>Set your server’s hostname and Fully Qualified Domain Name by implementing the steps in <a href="https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/blob/master/set_hostname_fqdn_on_ubuntu_centos.md">Setting the Hostname &amp; Fully Qualified Domain Name (FQDN) on Ubuntu 12.04 or CentOS 6.4</a>.</p>
+<h4 id="timezone">Timezone</h4>
+<p>You can change your server’s timezone to whatever you want; altough it may be best to set it to the same timezone of most of your users. To do so, simply execute, in a terminal:</p>
+<pre><code>sudo dpkg-reconfigure tzdata</code></pre>
+<p>and follow the instructions in the ensuing, on-screen prompts.</p>
+<h2 id="update-your-system">Update Your System</h2>
+<p>To make sure that your server operating system (OS) is up to date, execute:</p>
+<pre><code>sudo apt-get update &amp;&amp; sudo apt-get -y dist-upgrade &amp;&amp; sudo apt-get -y autoremove &amp;&amp; sudo reboot now</code></pre>
+<p>When the update completes, the server will reboot to make sure that all of the software upgrades take effect.</p>
+<h2 id="download-source-files">Download Source Files</h2>
+<p>Even though Asterisk is packaged in Ubuntu’s software repositories, the Asterisk release housed in the repos is out-dated. To download and extract the source files of the most-recent Long Term Support (LTS) version of Asterisk:</p>
+<pre><code>cd /usr/src/ &amp;&amp; sudo wget -O - &quot;http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-11-current.tar.gz&quot; | sudo tar xzf -</code></pre>
+<h2 id="install-asterisk-dependencies">Install Asterisk Dependencies</h2>
+<p>Asterisk is prepackaged with scripts that will install most of the needed dependencies. To use the scripts included with the Asterisk source files, execute:</p>
+<pre><code>cd asterisk*/contrib/scripts &amp;&amp; sudo ./install_prereq install &amp;&amp; sudo ./install_prereq install-unpackaged</code></pre>
+<h4 id="select-country-code">Select Country Code</h4>
+<p>During the installation of the dependencies, you will be prompted to enter the code for the country from which your phone system will be operating, as depicted below:</p>
+<figure>
+<img src="http://i.imgur.com/37iznpU.png" alt="Enter your country code" /><figcaption>Enter your country code</figcaption>
+</figure>
+<p>Enter the number <code>1</code> for North America, including the United States or Canada; tap on the <code>Tab</code> key, to highlight <code>&lt;Ok&gt;</code>; and press <code>Enter</code>.</p>
+<blockquote>
+<p>Wikipedia maintains a <a href="http://en.wikipedia.org/wiki/List_of_country_calling_codes">list of country codes</a>.</p>
+</blockquote>
+<h2 id="install-asterisk">Install Asterisk</h2>
+<p>Now, execute:</p>
+<pre><code>cd /usr/src/asterisk* &amp;&amp; sudo ./configure &amp;&amp; sudo make menuselect &amp;&amp; sudo make &amp;&amp; sudo make install &amp;&amp; sudo make config &amp;&amp; sudo make samples</code></pre>
+<blockquote>
+<p>During the installation, the system will present an <code>Asterisk Module and Build Option Selection</code> menu. For a default install, tap on the <code>Tab</code> to highlight <code>Save &amp; Exit</code>, and press <code>Enter</code> to allow the install to continue. For more about using Menuselect, please refer to the Asterisk Wiki: <a href="https://wiki.asterisk.org/wiki/display/AST/Using+Menuselect+to+Select+Asterisk+Options">Using Menuselect to Select Asterisk Options</a>.</p>
+</blockquote>
+<h2 id="start-pbx-services">Start PBX Services</h2>
+<p>To start Asterisk, execute:</p>
+<pre><code>sudo service asterisk start</code></pre>
+<p>Asterisk should now be running in the background.</p>
+<h2 id="verify-successful-install">Verify Successful Install</h2>
+<p>To connect to the Asterisk command-line interface (CLI), execute:</p>
+<pre><code>asterisk -rvvv</code></pre>
+<blockquote>
+<p>The <code>-r</code> parameter tells the system that you want to re-connect to the Asterisk service. Each <code>v</code> parameter increases the verbosity level when you connect to the Asterisk CLI.</p>
+</blockquote>
+<p>For help in the CLI mode, execute:</p>
+<pre><code>help</code></pre>
+<p>If you would like to exit the Asterisk console and return to your shell, execute:</p>
+<pre><code>quit</code></pre>
+<h2 id="sample-configuration-files">Sample Configuration Files</h2>
+<p>Sample configuration files can be found in the default directory: <code>/etc/asterisk/</code>. Create backups of these files:</p>
+<blockquote>
+<p>Execute each line individually.</p>
+</blockquote>
+<pre><code>cd /etc/asterisk
+sudo mv modules.conf modules.conf.sample
+sudo mv extensions.conf extensions.conf.sample 
+sudo mv sip.conf sip.conf.sample
+sudo mv iax.conf iax.conf.sample</code></pre>
+<p>and use them as templates to create new configurations for testing or production purposes.</p>
+<h2 id="configure-outgoing-mail-server">Configure Outgoing-Mail Server</h2>
+<p>To receive email notifications from your Asterisk server, follow the steps outlined in <a href="https://www.digitalocean.com/community/articles/how-to-install-the-send-only-mail-server-exim-on-ubuntu-12-04">How To Install a Send-Only Mail Server with Exim on Ubuntu 12.04 | DigitalOcean</a>.</p>
+<h2 id="security">Security</h2>
+<p>Any server accessible from the public Internet should be security hardened, and an Asterisk IP-PBX is no exception. Security best practices, however, are not within the scope of this article.</p>
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li><a href="http://www.asterisk.org/community/documentation">Asterisk Documentation</a></li>
+<li><a href="http://forums.asterisk.org/">Asterisk Forums</a></li>
+<li><a href="http://www.asterisk.org/community/discuss">Asterisk Mailing Lists &amp; Chat Channels on IRC</a></li>
+<li><a href="https://wiki.asterisk.org/wiki/display/AST/Home">Asterisk Wiki</a></li>
+</ul>
+<p>As always, if you need help with the steps outlined in this How-to, look to the DigitalOcean Community for assistance by posing your question(s), below.</p>
+<p>
+<div style="text-align: right; font-size:smaller;">
+Article submitted by: <a href="https://plus.google.com/107285164064863645881?rel=author" target="_blank">Pablo Carranza</a> • DATE
+</div>
+</p>
+<h1 id="wip-draft-wip-1">~~~ WIP ~ DRAFT ~ WIP ~~~</h1>
+<p><em><a href="https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/pulls">Pull Requests</a></em> gladly accepted</p>
+</body>
+</html>
