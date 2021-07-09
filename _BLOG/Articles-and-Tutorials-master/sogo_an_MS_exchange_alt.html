@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>sogo_an_MS_exchange_alt</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="draft">~~~~~~~~~~ DRAFT ~~~~~~~~~~</h1>
+    <p>
+      <em
+        ><a
+          href="https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/pulls"
+          >Pull Requests</a
+        >
+        gladly accepted</em
+      >
+      Install &amp; Configure SOGo – an Open-Source Alternative to Microsoft
+      Exchange – on Ubuntu 12.04 =====
+    </p>
+    <h3 id="introduction">Introduction</h3>
+    <p>
+      SOGo is a free and modern scalable groupware server. It offers shared
+      calendars, address books, and emails through your favorite Web browser and
+      by using a native client such as Mozilla Thunderbird and Lightning. In
+      addition, SOGo offers native Microsoft Outlook compatibility using the
+      <a href="http://www.openchange.org/">OpenChange</a> backend. This means
+      that Microsoft Outlook 2003, 2007 and 2010 can talk directly to SOGo –
+      just like if it was a Microsoft Exchange server; without the need for
+      additional plugins required to make this work.
+    </p>
+    <h2 id="sogo-features">SOGo Features</h2>
+    <ul>
+      <li>
+        Scalable architecture suitable for deployments from dozens to many
+        thousands of users
+      </li>
+      <li>
+        Rich Web-based interface that shares the look and feel, the features and
+        the data of Mozilla Thunderbird and Lightning
+      </li>
+      <li>
+        Improved integration with Mozilla Thunderbird and Lightning by using the
+        SOGo Connector and the SOGo Integrator
+      </li>
+      <li>
+        Two-way synchronization support with any SyncML-capable devices
+        (BlackBerry, Palm, Windows CE, etc.) by using the Funambol SOGo
+        Connector
+      </li>
+    </ul>
+    <p>
+      SOGo is standard-compliant. It supports CalDAV, CardDAV, GroupDAV, iMIP
+      and iTIP and reuses existing IMAP, SMTP and database servers – making the
+      solution easy to deploy and interoperable with many applications. Mobile
+      devices supporting the SyncML standard use the Funambol middleware to
+      synchronize information.
+    </p>
+    <h2 id="requirements">Requirements</h2>
+    <p>
+      SOGo reuses many components in an infrastructure. Thus, it requires the
+      following:
+    </p>
+    <ul>
+      <li>Active Directory/Domain Controller Server (e.g. Samba)</li>
+      <li>
+        Messaging Application Programming Interface (MAPI) (e.g. OpenChange)
+      </li>
+      <li>Database server (e.g. PostgreSQL or MySQL);</li>
+      <li>LDAP server (e.g. OpenLDAP);</li>
+      <li>SMTP server (e.g. Postfix);</li>
+      <li>IMAP server (e.g. Cyrus or Dovecot).</li>
+    </ul>
+    <h2 id="assumptions">Assumptions</h2>
+    <p>This guide assumes:</p>
+    <ul>
+      <li>
+        All of the components listed above are running on the same server
+        (i.e. <code>localhost</code> or <code>127.0.0.1</code>); and
+      </li>
+      <li>That SOGo will be installed on the same server;</li>
+      <li>
+        That you have implemented the steps in
+        <a
+          href="https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/blob/master/set_hostname_fqdn_on_ubuntu.md"
+          >Setting the Hostname &amp; Fully Qualified Domain Name (FQDN)</a
+        >;
+      </li>
+      <li>
+        <p>
+          That you will be executing all of the commands that follow as the
+          <code>root</code> user. You can switch from a local user to the
+          <code>root</code> user (to switch to the <code>root</code> user,
+          execute):
+        </p>
+        <pre><code>  sudo su</code></pre>
+      </li>
+    </ul>
+    <h2 id="preparatory-steps">Preparatory Steps</h2>
+    <h3 id="add-sogo-repository-gpg-public-key">
+      Add SOGo Repository &amp; GPG Public Key
+    </h3>
+    <p>
+      Append the SOGo repository to your <code>apt source list</code>, by
+      copying &amp; pasting both lines, below, into the command line and
+      pressing <code>Enter</code>:
+    </p>
+    <pre><code>echo -e &quot;deb http://inverse.ca/ubuntu-nightly precise precise\n\
+deb-src http://inverse.ca/ubuntu-nightly precise precise&quot; &gt; /etc/apt/sources.list.d/SOGo.list</code></pre>
+    <p>
+      Next, you must add SOGo’s GPG public key to Ubuntu’s
+      <code>apt keyring</code>. To do so, execute the following commands:
+    </p>
+    <pre><code>apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4</code></pre>
+    <p>Then, update your lists of available software packages, by executing:</p>
+    <pre><code>apt-get update </code></pre>
+    <h2 id="active-directory-domain-controller">
+      Active Directory/ Domain Controller
+    </h2>
+    <p>Install the Samba4 packages and</p>
+    <pre><code>apt-get -y install acl attr samba4 winbind4 krb5-user</code></pre>
+    <p>
+      Next, add the options <code>acl</code> and <code>user_xattr</code> to your
+      mount point by executing:
+    </p>
+    <pre><code>vim /etc/fstab</code></pre>
+    <p>
+      Then, tap on the <code>i</code> key and modify your settings so that it
+      resembles the following:
+    </p>
+    <pre><code>LABEL=DOROOT    /   ext4    acl,user_xattr,errors=remount-ro        0   1</code></pre>
+    <p>Next, execute:</p>
+    <pre><code>mount / remount</code></pre>
+    <p>
+      Given that some useful files are missing from the Samba4 package found in
+      the repository, we’ll recompile it by executing the following commands
+      (one-by-one):
+    </p>
+    <pre><code>mkdir ~/Samba4
+cd ~/Samba4
+apt-get install dpkg-dev
+apt-get build-dep samba4
+apt-get source samba4
+cd samba4-4.0.1+dfsg1/
+dpkg-buildpackage
+make install</code></pre>
+    <p>
+      Next, delete the initial configuration generated by the Samba4 package:
+    </p>
+    <pre><code>rm /etc/samba/smb.conf
+rm -R /var/lib/samba/private/*
+rm -R /var/lib/samba/sysvol/*</code></pre>
+    <p>
+      The <code>BIND</code> package was automatically installed when we
+      installed Samba4. However, it can be uninstalled because Samba’s internal
+      DNS server will be used, instead:
+    </p>
+    <pre><code>apt-get -y remove --purge bind9</code></pre>
+    <p>
+      Now, you are ready to provision Samba4 with your environment’s variables
+      (replace <code>YOURDOMAIN</code>, <code>yourdomain.tld</code>, and
+      <code>SambaPWD</code> with values of your choice):
+    </p>
+    <pre><code> samba-tool domain provision --domain=YOURDOMAIN --adminpass=SambaPWD --dns-backend=SAMBA_INTERNAL --server-role=dc --function-level=2008_R2 --use-xattr=yes --use-rfc2307 --realm=yourdomain.tld</code></pre>
+    <p>
+      The script will generate your directory for Samba4. In the end, it will
+      present a summary like this:
+    </p>
+    <pre><code>Once the above files are installed, your Samba4 server will be ready to use
+Server Role:           active directory domain controller
+Hostname:              server
+NetBIOS Domain:        YOURDOMAIN
+DNS Domain:            yourdomain.tld
+DOMAIN SID:            S-1-5-21-1716394670-2609614925-1081274792</code></pre>
+    <p>
+      In order to have your domain and sharing, you have to manually change the
+      configuration file with the command:
+    </p>
+    <pre><code>vim /etc/samba/smb.conf</code></pre>
+    <p>then add the following lines in the <code>[global]</code> section:</p>
+    <pre><code>template shell = /usr/sbin/nologin
+template homedir = /home/%ACCOUNTNAME%</code></pre>
+    <p>
+      Change your DNS in order to use Samba4 as main DNS server on your server,
+      by executing:
+    </p>
+    <pre><code>vim /etc/resolv.conf</code></pre>
+    <p>
+      Then, tap on the <code>i</code> key and modify your settings so that it
+      resembles the following:
+    </p>
+    <pre><code>domain yourdomain.tld
+search yourdomain.tld
+nameserver 127.0.0.1
+nameserver 8.8.8.8
+nameserver 8.8.4.4</code></pre>
+    <p>Now, restart Samba4:</p>
+    <pre><code>service samba4 restart</code></pre>
+    <h2 id="openchange-installation">OpenChange Installation</h2>
+    <p>To install OpenChange, execute:</p>
+    <pre><code>apt-get -y install openchangeserver sogo-openchange openchangeproxy openchange-ocsmanager openchange-rpcproxy</code></pre>
+    <p>Next, provision Samba4 with the OpenChange schema:</p>
+    <pre><code>openchange_provision</code></pre>
+    <p>Then, create an internal database for OpenChange:</p>
+    <pre><code>openchange_provision --openchangedb</code></pre>
+    <p>Now, enable the MAPI procotol in Samba4:</p>
+    <pre><code>vim /etc/samba/smb.conf</code></pre>
+    <p>
+      Add the following lines somewhere in [global] section of the configuration
+      file:
+    </p>
+    <pre><code>dcerpc endpoint servers = +epmapper, +mapiproxy
+dcerpc_mapiproxy:server = true
+dcerpc_mapiproxy:interfaces = exchange_emsmdb, exchange_nsp, exchange_ds_rfr</code></pre>
+    <h2 id="sogo-installation">SOGo Installation</h2>
+    <p>
+      Sogo is the “backend“ of OpenChange. Install it with the following
+      command:
+    </p>
+    <pre><code>apt-get -y install sogo</code></pre>
+    <h2 id="install-postgresql-database">Install PostgreSQL Database</h2>
+    <pre><code>apt-get -y install postgresql sope4.9-gdl1-postgresql</code></pre>
+    <p>Next, create the SOGo database in PostgreSQL:</p>
+    <pre><code>su - postgres
+createuser --no-superuser --no-createdb --no-createrole --encrypted --pwprompt sogo
+createdb -O sogo sogo
+exit
+echo &quot;host sogo sogo 127.0.0.1/32 md5&quot; &gt;&gt; /etc/postgresql/9.1/main/pg_hba.conf</code></pre>
+    <p>Finally, restart PostgreSQL:</p>
+    <pre><code>service postgresql restart</code></pre>
+    <h2 id="configure-sogo">Configure SOGo</h2>
+    <pre><code>su - sogo -s /bin/bash
+defaults write sogod SOGoTimeZone &quot;America/Chicago&quot;
+defaults write sogod OCSFolderInfoURL &quot;postgresql://sogo:PostgreSQL_pwd@localhost:5432/sogo/sogo_folder_info&quot;
+defaults write sogod SOGoProfileURL &quot;postgresql://sogo:PostgreSQL_pwd@localhost:5432/sogo/sogo_user_profile&quot;
+defaults write sogod OCSSessionsFolderURL &quot;postgresql://sogo:PostgreSQL_pwd@localhost:5432/sogo/sogo_sessions_folder&quot;
+defaults write sogod OCSEMailAlarmsFolderURL &quot;postgresql://sogo:PostgreSQL_pwd@localhost:5432/sogo/sogo_alarm_folder&quot;
+defaults write sogod SOGoUserSources &#39;({CNFieldName = displayName;  IDFieldName = cn; UIDFieldName = sAMAccountName; IMAPHostFieldName =; baseDN = &quot;cn=Users,dc=yourdomain,dc=tld&quot;; bindDN = &quot;cn=Administrator,cn=Users,dc=youdomain,dc=tld&quot;; bindPassword = SambaPWD; canAuthenticate = YES; displayName = &quot;Shared Addresses&quot;; hostname = &quot;localhost&quot;; id = public; isAddressBook = YES; port = 389;})&#39;
+defaults write sogod WONoDetach YES
+defaults write sogod WOLogFile -
+defaults write sogod WOPidFile /tmp/sogo.pid
+defaults write sogod SOGoDraftsFolderName &quot;Drafts&quot;
+defaults write sogod SOGoSentFolderName &quot;Sent&quot;
+defaults write sogod SOGoTrashFolderName &quot;Trash&quot;
+defaults write sogod SOGoIMAPServer &quot;localhost:144&quot;
+defaults write sogod SOGoSieveServer &quot;sieve://127.0.0.1:4190&quot;
+defaults write sogod SOGoSieveScriptsEnabled &quot;YES&quot;</code></pre>
+    <h4 id="optional">Optional</h4>
+    <p>
+      If you want to allow users to add their own IMAP account in SOGo, add the
+      following command:
+    </p>
+    <pre><code>defaults write sogod SOGoMailAuxiliaryUserAccountsEnabled YES</code></pre>
+    <p>
+      Logout of the <code>sogo</code> user &amp; return to the
+      <code>root</code> user
+    </p>
+    <pre><code>exit</code></pre>
+    <p>
+      Create a symbolic link to allow Samba4 to use the SOGo configuration file:
+    </p>
+    <pre><code>ln -s ~sogo/GNUstep ~root/GNUstep</code></pre>
+    <p>
+      There is a small bug in the <code>init.d</code> of Sogo that holds up the
+      start-up process. You must edit the <code>init</code> file:
+    </p>
+    <pre><code>vim /etc/init.d/sogo</code></pre>
+    <p>and add the <code>-b</code> argument at lines 70 and 88:</p>
+    <pre><code>#Line 70
+if ! start-stop-daemon -b -c $USER --quiet --start --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+# Line 88
+start-stop-daemon -b -c $USER --quiet --start --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS</code></pre>
+    <h4 id="restart-sogo-samba4">Restart SOGo &amp; Samba4:</h4>
+    <pre><code>service samba4 restart &amp;&amp; nohup /etc/init.d/sogo restart &amp;</code></pre>
+    <h2 id="cyrus-imap-installation">Cyrus IMAP Installation</h2>
+    <p>The installation of Cyrus-Imap is done with the following command:</p>
+    <pre><code>apt-get -y install cyrus-admin-2.4 cyrus-imapd-2.4 sasl2-bin</code></pre>
+    <h4 id="configure-saslauth-authentication">
+      Configure saslauth Authentication
+    </h4>
+    <p>
+      Cyrus needs to use Saslauth system in order to authenticate its users. All
+      small setup of Sasl in order to use Samba4.
+    </p>
+    <pre><code>vim /etc/default/saslauthd</code></pre>
+    <p>and change the following lines:</p>
+    <pre><code>...
+START=yes
+...
+MECHANISMS=&quot;ldap&quot;</code></pre>
+    <p>Create the following file with the command</p>
+    <pre><code>vim /etc/saslauthd.conf</code></pre>
+    <p>
+      and paste the following content and by changing of course the
+      Administrator password:
+    </p>
+    <pre><code>ldap_servers: ldapi://%2Fvar%2Flib%2Fsamba%2Fprivate%2Fldapi
+ldap_search_base: dc=yourdomain,dc=tld
+ldap_filter: (cn=%u)
+ldap_version: 3
+ldap_auth_method: bind
+ldap_bind_dn: Administrator@yourdomain.tld
+ldap_bind_pw: pass1234
+ldap_scope: sub</code></pre>
+    <p>Restart the service:</p>
+    <pre><code>service saslauthd restart</code></pre>
+    <p>You can also check that you authentication works:</p>
+    <pre><code>testsaslauthd -u administrator -p pass1234</code></pre>
+    <h4 id="cyrus-configuration">Cyrus Configuration</h4>
+    <pre><code>vim /etc/cyrus.conf</code></pre>
+    <p>Add the following line in SERVICES section:</p>
+    <pre><code>imapnoauth      cmd=&quot;imapd -U 30 -N&quot; listen=&quot;127.0.0.1:144&quot; prefork=0 maxchild=100</code></pre>
+    <h2 id="additional-resources">Additional Resources</h2>
+    <ul>
+      <li><a href="">Link1</a>;</li>
+      <li><a href="">Link2</a>;</li>
+      <li><a href="">Link3</a>.</li>
+    </ul>
+    <h1 id="draft-1">~~~~~~~~~~ DRAFT ~~~~~~~~~~</h1>
+    <p>
+      <em
+        ><a
+          href="https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/pulls"
+          >Pull Requests</a
+        >
+        gladly accepted</em
+      >
+    </p>
+  </body>
+</html>

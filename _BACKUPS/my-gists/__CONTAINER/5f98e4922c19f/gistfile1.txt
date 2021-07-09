@@ -1,0 +1,2534 @@
+// all arguments in _meters_
+function /*bokeh*/(
+    a, // distance to target
+    b, // circle of confusion @see https://gist.github.com/gists/1327415 - z_coc.js for details
+    c, // aperture (f/2.8 - 2.8 etc)
+    d, // lenses focal
+    f, // camera sensor height @see https://gist.github.com/gists/1327415 - z_sensor.js for details
+    x, // distance from target to background, default 1e6 (only finity positive number is allowed)
+    z
+){
+    x = x || 1e6;
+    return x / ((z = ((a * f / d) / f + 1) * d) + x) * d * d / c / (z - d) / b
+};
+function(
+  m, // method - get, post, whatever
+  u, // url
+  c, // [callback] if passed -> asych call
+  d, // [post_data]
+  x
+){
+    with(x=new XMLHttpRequest)
+        return onreadystatechange=function(){ // filter only readyState=4 events
+            readyState^4||c(this) // if callback passed and readyState == 4 than trigger Callback with xhr object
+        },
+        open(m,u,c), // open connection with Method and Url and asyCh flag
+        send(d), // send Data
+        x
+}
+function(s,l){
+   with(new Image) // my lovely ugly hack
+       onload=onerror=function(){
+           l(this) // pass image to callback
+       },
+   src=s // set src
+}
+
+// shorter one with `this` binding to Image instance in callback by @p01
+// function(s,l){with(new Image)onload=onerror=l,src=s}
+function(
+  s // audio source
+){
+    return(s=new Audio(s)) // create instance, using source
+        .play(), // play
+         s       // return instance for other stuff
+}
+(function (
+  a, // Decimal number
+
+  m, // Reverse replacement rules
+     //             0   1    2     3      4     5    6     7      8       9
+     //   default: ["", "0", "00", "000", "10", "1", "01", "001", "0001", "20"]
+     // 
+     //   example: 
+     //     0              -> ''
+     //     1              -> I    0 - I
+     //     7              -> VII  1 - V, 0 - I
+     //     9              -> IX   2 - X, 0 - I
+     //     11(1 + 1 * 10) -> XI
+
+  l, // Language 
+     //   default:  "IVXLCDM" (1,5,10,50,100,500,1000)
+     //   extended: "IVXLCDMↁↂ" (..., 5000, 10000)
+i,j,r,z) {
+    for (
+          a=(a+'').split('').reverse(), // reverse decimal number and make it iterable
+          i=-1, // decimal number digit pointer
+          r=''  // result
+        ;
+          a[++i] // while digits do...
+        ;)
+          for (
+                j=-1           // reset replacement pointer
+              ;
+                z=m[a[i]][++j] // get next replacement by current digit and replacement 
+                               // z = replacement_rules_by_decimal[decimal_number][replacement_index]
+              ;)
+                r = l[+z+i*2] + r; // replace: language[current_replcement + decimal_digit_index * 2] and save
+
+    return r;
+})
+function(){
+                                 // make sure
+                                 // to annotate
+                                 // your code
+                                 // so everyone
+                                 // can learn
+                                 // from it!
+                                 // see jed's entries
+                                 // for examples.
+}
+function (array, iterator) {
+    // array = [1,2,3,4,,"pewpew"];
+    // array.toString() -> "1,2,3,4,,pewpew"
+    // string.replace(/[^,]+/g, iterator); 
+    // itreator(item);
+    ''.replace.call(array, /[^,]+/g, iterator);
+}
+// added some curly braces for readability
+function(
+  a, // {Object} program @see test.html for details
+  b, // {Number[]} tape
+  c, // {String} end state
+  d, // {String} start state
+  e  // [{Number} = 0] caret position
+) {
+
+while(
+  d < c // while ! eof program
+) {
+    /* 'e |= 0' - if e is undefined - reset to 0 else leave as is */
+    with (/* q = */a[d][b[e |= 0] || "B"]) { // push current program statement aka "q" to the top of current scope
+      b[e] = w, // chenge symbol under caret, w is the item of "q"
+      e += m, // move caret by ..., m is the item of "q"
+      d = n; // jump to next state, n is the item of "q"
+    }
+}
+
+return b
+
+}
+const { executionAsyncId, createHook } = require('async_hooks')
+
+const {writeSync} = require('fs')
+const {format} = require('util')
+const err = (...msg) => writeSync(2, format(...msg) + '\n')
+const log = (...msg) => writeSync(1, format(...msg) + '\n')
+
+const hook = createHook({
+  init (eid, type) {
+    // err('INIT', eid, type)
+  },
+  before () {
+    //err('BEFORE', executionAsyncId())
+  },
+  after () {
+    //err('AFTER', executionAsyncId())
+  },
+  destroy () {
+    //err('DESTROY', executionAsyncId())
+  },
+  promiseResolve () {
+    //err('PROMISE RESOLVE', executionAsyncId())
+  },
+})
+//const hook = createHook({})
+hook.enable()
+
+let i = 0
+log('TAP version 13')
+
+const testPoint = (type, {message, expect, actual}) => {
+  const ok = actual === expect ? 'ok' : 'not ok'
+  log(`${ok} ${++i} - ${message}`)
+  if (ok !== 'ok')
+    log(`    ---
+    found: ${actual}
+    wanted: ${expect}
+    type: ${type}
+    ...`)
+}
+
+process.on('beforeExit', () => log(`1..${i}`))
+
+process.on('unhandledRejection', ({message, expect}) => {
+  const actual = executionAsyncId()
+  testPoint('unhandledRejection', {message, expect, actual})
+})
+
+process.on('uncaughtException', ({message, expect}) => {
+  const actual = executionAsyncId()
+  testPoint('uncaughtException', {message, expect, actual})
+})
+
+
+new Promise((resolve, reject) => {
+  reject({message: 'new Promise(reject)', expect: executionAsyncId()})
+})
+
+new Promise((resolve, reject) => {
+  const expect = executionAsyncId()
+  setTimeout(() => {
+    reject({message: 'new Promise(setTimeout(reject))', expect})
+  })
+})
+
+setTimeout(() => {
+  new Promise((resolve, reject) => {
+    const expect = executionAsyncId()
+    setTimeout(() => {
+      reject({message: 'setTimeout(new Promise(setTimeout(reject)))', expect})
+    })
+  })
+})
+
+new Promise((resolve, reject) => {
+  throw({message: 'new Promise(throw)', expect: executionAsyncId()})
+})
+
+new Promise((resolve, reject) => {
+  setTimeout(() => {
+    throw({message: 'new Promise(setTimeout(throw))', expect: executionAsyncId()})
+  })
+})
+
+setTimeout(() => {
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      throw({message: 'setTimeout(new Promise(setTimeout(throw)))', expect: executionAsyncId()})
+    })
+  })
+})
+
+Promise.resolve().then(() => new Promise((resolve, reject) => {
+  reject({message:'Promise.resolve.then(new Promise(reject))', expect: executionAsyncId()})
+}))
+
+Promise.resolve().then(() => new Promise((resolve, reject) => {
+  const expect = executionAsyncId()
+  setTimeout(() => {
+    reject({message:'Promise.resolve.then(new Promise(setTimeout(reject)))', expect})
+  })
+}))
+
+setTimeout(() => {
+  Promise.resolve().then(() => new Promise((resolve, reject) => {
+    const expect = executionAsyncId()
+    setTimeout(() => {
+      reject({message: 'setTimeout(Promise.resolve.then(new Promise(setTimeout(reject))))', expect})
+    })
+  }))
+})
+
+Promise.resolve().then(() => new Promise((resolve, reject) => {
+  throw({message: 'Promise.resolve.then(new Promise(throw))', expect: executionAsyncId()})
+}))
+
+Promise.resolve().then(() => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    throw({message: 'Promise.resolve.then(new Promise(setTimeout(throw)))', expect: executionAsyncId()})
+  })
+}))
+
+setTimeout(() => {
+  Promise.resolve().then(() => new Promise((resolve, reject) => {
+    setTimeout(() => {
+      throw({message: 'setTimeout(Promise.resolve.then(new Promise(setTimeout(throw))))', expect: executionAsyncId()})
+    })
+  }))
+})
+
+module.exports = {
+	root: true,
+	parser: 'babel-eslint',
+	parserOptions: {
+		ecmaVersion: 6,
+		sourceType: 'module'
+	},
+	extends: 'airbnb-base',
+	env: {
+		'node': true
+	},
+	rules: {
+		'no-comma-dangle': 'off',
+		'comma-dangle': [
+			'error',
+			'always-multiline'
+		],
+		indent: [
+			'warn',
+			'tab',
+			{
+				SwitchCase: 1,
+			},
+		],
+		'object-curly-spacing': [
+			'error',
+			'always'
+		],
+		'import/no-unresolved': 'off', // does not work with the ember resolver
+		'max-len': [
+			'error',
+			120,
+			{
+				'ignorePattern': 'Logger\\.|computed\\(|observer\\(',
+			}
+		],
+		'no-param-reassign': 'off', // tbd
+		'func-names': 'off', //tbd
+		'prefer-arrow-callback': 'off', // tbd
+		'prefer-rest-params': 'off', //tbd
+		'new-cap': [
+			'error',
+			{
+				properties: false,
+				capIsNewExceptions: [
+					'A', // Ember.A()
+				]
+			}
+		],
+		'no-underscore-dangle': 'off',
+		'consistent-this': [
+			'error',
+			'that',
+		],
+		'no-alert': 'off', //tbd
+		'newline-after-var': 'error',
+		'newline-before-return': 'error',
+		'no-multiple-empty-lines': [
+			'error',
+			{
+				'max': 1,
+			},
+		],
+	}
+};
+
+module.exports = {
+    "env": {
+        "browser": true,
+        "es6": true
+    },
+    "extends": ["eslint:recommended", "plugin:react/recommended"],
+    "parser": "babel-eslint",
+    "parserOptions": {
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true,
+            "jsx": true
+        },
+        "sourceType": "module"
+    },
+    "plugins": [
+        "react",
+        "eslint-plugin-react"
+    ],
+    "rules": {
+        "indent": [
+            "error",
+            "tab",
+            {"SwitchCase": 1}
+        ],
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "no-console": 0,
+    }
+};
+module.exports = {
+  defaultBrowser: 'Safari',
+  handlers: [
+    // Anything localhost should open in Edge
+    {
+      match: finicky.matchHostnames(['localhost']),
+      browser: 'Microsoft Edge',
+    },
+
+    // Launch Google Meet on my third user account
+    {
+      match: finicky.matchHostnames(['meet.google.com']),
+      browser: 'Google Chrome',
+      url: ({ url }) => {
+        return {
+          ...url,
+          search: 'authuser=2',
+        };
+      },
+    },
+
+    // Zoom.us
+    {
+      match: /zoom.us\/j\//,
+      browser: 'us.zoom.xos',
+    },
+
+    // Microsoft Teams
+    {
+      match: finicky.matchHostnames(['teams.microsoft.com']),
+      browser: 'com.microsoft.teams',
+      url: ({ url }) => {
+        return {
+          ...url,
+          protocol: 'msteams',
+        };
+      },
+    },
+
+    // Screens.so
+    {
+      match: finicky.matchHostnames(['screen.so']),
+      browser: 'so.screen.screen.app',
+      url: ({ url }) => {
+        return {
+          hash: '',
+          host: 'join',
+          password: '',
+          pathname: '',
+          protocol: 'screen',
+          search: 'roomId=' + url.hash.match(/\d{3}-\d{3}-\d{3}/),
+          username: '',
+        };
+      },
+    },
+
+    // VSCode Liveshare
+    {
+      match: ({ url }) => {
+        if (url.pathname !== '/join') {
+          return false;
+        }
+
+        return finicky.matchHostnames(['prod.liveshare.vsengsaas.visualstudio.com'])({ url });
+      },
+      browser: 'com.microsoft.VSCode',
+      url: ({ url, urlString }) => {
+        if (url.pathname === '/join') {
+          return {
+            hash: '',
+            host: 'ms-vsliveshare.vsliveshare',
+            password: '',
+            pathname: 'join',
+            protocol: 'vscode',
+            search: 'vslsLink=' + encodeURIComponent(urlString) + '&correlationId=null',
+            username: '',
+          };
+        }
+
+        return url;
+      },
+    },
+  ],
+};
+
+// Future versions of Hyper may add additional config options,
+// which will not automatically be merged into this file.
+// See https://hyper.is#cfg for all currently supported options.
+
+module.exports = {
+  config: {
+    // Choose either "stable" for receiving highly polished,
+    // or "canary" for less polished but more frequent updates
+    updateChannel: 'stable',
+
+    // default font size in pixels for all tabs
+    fontSize: 12,
+
+    // font family with optional fallbacks
+    fontFamily: '"OperatorMono Nerd Font", "Anonymous Pro for Powerline Regular", monospace',
+
+    // terminal cursor background color and opacity (hex, rgb, hsl, hsv, hwb or cmyk)
+    cursorColor: 'rgba(248,28,229,0.8)',
+
+    // `BEAM` for |, `UNDERLINE` for _, `BLOCK` for █
+    cursorShape: 'BLOCK',
+
+    // set to true for blinking cursor
+    cursorBlink: false,
+
+    // color of the text
+    foregroundColor: '#fff',
+
+    // terminal background color
+    backgroundColor: '#000',
+
+    // border color (window, tabs)
+    borderColor: '#333',
+
+    // custom css to embed in the main window
+    css: '',
+
+    // custom css to embed in the terminal window
+    termCSS: '',
+
+    // set to `true` (without backticks) if you're using a Linux setup that doesn't show native menus
+    // default: `false` on Linux, `true` on Windows (ignored on macOS)
+    showHamburgerMenu: '',
+
+    // set to `false` if you want to hide the minimize, maximize and close buttons
+    // additionally, set to `'left'` if you want them on the left, like in Ubuntu
+    // default: `true` on windows and Linux (ignored on macOS)
+    showWindowControls: '',
+
+    // custom padding (css format, i.e.: `top right bottom left`)
+    padding: '12px 14px',
+
+    // the full list. if you're going to provide the full color palette,
+    // including the 6 x 6 color cubes and the grayscale map, just provide
+    // an array here instead of a color map object
+    colors: {
+      black: '#000000',
+      red: '#ff0000',
+      green: '#33ff00',
+      yellow: '#ffff00',
+      blue: '#0066ff',
+      magenta: '#cc00ff',
+      cyan: '#00ffff',
+      white: '#d0d0d0',
+      lightBlack: '#808080',
+      lightRed: '#ff0000',
+      lightGreen: '#33ff00',
+      lightYellow: '#ffff00',
+      lightBlue: '#0066ff',
+      lightMagenta: '#cc00ff',
+      lightCyan: '#00ffff',
+      lightWhite: '#ffffff'
+    },
+
+    // the shell to run when spawning a new session (i.e. /usr/local/bin/fish)
+    // if left empty, your system's login shell will be used by default
+    //
+    // Windows
+    // - Make sure to use a full path if the binary name doesn't work
+    // - Remove `--login` in shellArgs
+    //
+    // Bash on Windows
+    // - Example: `C:\\Windows\\System32\\bash.exe`
+    //
+    // Powershell on Windows
+    // - Example: `C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe`
+    shell: '/bin/bash',
+    termCSS: 'x-row {line-height: initial} .unicode-node {position: relative}',
+
+    // for setting shell arguments (i.e. for using interactive shellArgs: ['-i'])
+    // by default ['--login'] will be used
+    shellArgs: ['--login'],
+
+    // for environment variables
+    env: {},
+
+    // set to false for no bell
+    bell: 'SOUND',
+
+    // if true, selected text will automatically be copied to the clipboard
+    copyOnSelect: false
+
+    // if true, on right click selected text will be copied or pasted if no
+    // selection is present (true by default on Windows)
+    // quickEdit: true
+
+    // URL to custom bell
+    // bellSoundURL: 'http://example.com/bell.mp3',
+
+    // for advanced config flags please refer to https://hyper.is/#cfg
+  },
+
+  // a list of plugins to fetch and install from npm
+  // format: [@org/]project[#version]
+  // examples:
+  //   `hyperpower`
+  //   `@company/project`
+  //   `project#1.0.1`
+  plugins: [
+    'hyperterm-cobalt2-theme',
+    //'hyperline#0.6.1',
+    'hyper-sync-settings',
+    'hypercwd',
+    'hyperborder',
+    'hyperpower',
+    'hyper-tab-icons',
+    'hyper-statusline',
+    'hyper-search',
+    'hyper-alt-click'
+  ],
+
+  // in development, you can create a directory under
+  // `~/.hyper_plugins/local/` and include it here
+  // to load it and avoid it being `npm install`ed
+  localPlugins: [],
+
+  keymaps: {
+    // Example
+    // 'window:devtools': 'cmd+alt+o',
+  }
+};
+
+// Action signature should be descriptive so IDE could use it.
+var actionSet = createActions({
+  /**
+   * @param {object} data
+   * @param {string} data.name
+   * @param {string} data.value
+   */ 
+  a: function actionMiddleware(data) {
+    // Case validate data
+    if (validate(data)) {
+      throw new TypeError();
+    }
+    
+    // Case forward action
+    if (forwardAction) {
+      this.cancelAction();
+      actionSet.b({
+        name: data.name
+      });
+      return;
+    }
+    
+    if (wait) {
+      this.cancelAction();
+      delayPromise(1000).then(actionSet.a);
+      return;
+    }
+    
+    if (doNotDispatchAction) {
+      this.cancelAction();
+      return;
+    }
+  },
+  /**
+   * @param {object} data
+   * @param {string} data.name
+   */ 
+  b: function (data) {}
+});
+
+const { readdirSync, readFileSync } = require('fs');
+const { join, parse } = require('path');
+const ts = require('typescript');
+
+const fileToParse = join(__dirname, '../', 'src', 'index.ts')
+let program = ts.createProgram([fileToParse], {});
+program.getTypeChecker({});
+
+const sourceFile = program.getSourceFile(fileToParse)
+let optionsInterface, mainExport
+
+ts.forEachChild(sourceFile, node => {
+  if (node.kind === ts.SyntaxKind.InterfaceDeclaration && node.symbol.escapedName === "ExampleOptions") {
+      optionsInterface = node
+  }
+
+  if (node.kind === ts.SyntaxKind.FunctionDeclaration && node.symbol.escapedName === "twoslasher") {
+    mainExport = node
+    mainExport.body = null
+  }
+});
+
+const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
+const twoslasher = printer.printNode(ts.EmitHint.Unspecified, mainExport, sourceFile);
+const optionsObj = printer.printNode(ts.EmitHint.Unspecified, optionsInterface, sourceFile);
+
+
+console.log(twoslasher)
+console.log(optionsObj)
+var store = createStore({
+    // The same as #componentDidMount
+    initialize: function () {
+        this.listenTo(actionSet.a); // (actionSet.a, this.onA)
+        this.listenToAll(actionSet2);
+    },
+    
+    // Event listenter
+    onA: function (data) {
+        // the same as #setState
+        this.set({
+            a: this.state.a.concat(data.item),
+            b: Math.max(data.age, this.state.b)
+        });
+    },
+    
+    // The same as #getInitialState
+    defaults: function () {
+        return {
+            a: [],
+            b: 2
+        };
+    },
+    
+    // Same as #render() but for data
+    emit: function () {
+        return {
+            a: this.state.a,
+            isEmpty: this.state.a.length === 0,
+            b: this.state.b * 2
+        };
+    }
+});
+
+// Use Gists to store code you would like to remember later on
+console.log(window); // log the "window" object to the console
+
+import shallowequal from 'shallowequal'
+import _ from 'lodash'
+
+export const LIST_UPSERT = '@@list/LIST_UPSERT'
+export const LIST_DELETE = '@@list/LIST_DELETE'
+
+const ids = (state=[], action) => {
+  switch (action.type) {
+    case LIST_UPSERT: {
+      const hasAt = typeof action.at !== 'undefined'
+      const includesItem = state.includes(action.id)
+
+      if (includesItem && !hasAt) return state
+
+      if (hasAt) {
+        state = state.slice()
+        if (includesItem) _.pull(state, action.id)
+        state.splice(action.at, 0, action.id)
+        return state
+      }
+      else {
+        return [ ...state, action.id ]
+      }
+    }
+
+    case LIST_DELETE:
+      if (!state.includes(action.id)) return state
+      return _.without(state, action.id)
+
+    default:
+      return state
+  }
+}
+
+function byIdReducerGenerator(itemReducer, initialState={}) {
+  return (state={}, action) => {
+    switch (action.type) {
+      case LIST_UPSERT: {
+        const newItem = itemReducer(state[action.id], action.innerAction)
+
+        if (state[action.id] && shallowequal(state[action.id], newItem)) return state
+
+        return {
+          ...state,
+          [action.id]: newItem
+        }
+      }
+
+      case LIST_DELETE: {
+        if (!(action.id in state)) return state
+        return _.omit(state, action.id)
+      }
+
+      default:
+        return state
+    }
+  }
+}
+
+export default function indexedListReducerGenerator(itemReducer, initialState={ byId: {}, ids: [] }) {
+  const byId = byIdReducerGenerator(itemReducer, initialState.byId)
+
+  return function (state=initialState, action) {
+    switch (action.type) {
+      case LIST_UPSERT:
+      case LIST_DELETE: {
+        const newById = byId(state.byId, action)
+        if (newById === state.byId) return state
+        const newIds = ids(state.ids, action)
+
+        return {
+          ...state,
+          ids: newIds,
+          byId: newById
+        }
+      }
+
+      default:
+        return state
+    }
+  }
+}
+
+// NOTE: ag(..) is defined in 2.js below
+
+for await (let v of ag("hello")) {
+   console.log(`v: ${v}`);
+}
+// a: hello
+// b
+// v: 42
+// c: some data: 10
+// d
+// v: some data: 50
+//                        .... waiting 5 seconds ....
+// e
+// finally!
+
+// ********************************************************
+
+for await (let v of ag("hello")) {
+   console.log(`v: ${v}`);
+   if (v == "some data: 50") {
+      break;
+   }
+}
+// a: hello
+// b
+// v: 42
+// c: some data: 10
+// d
+// v: some data: 50
+// finally!
+
+// ********************************************************
+
+var it = ag("hello");
+for await (let v of it) {
+   console.log(`v: ${v}`);
+   if (v == "some data: 50") {
+      setTimeout(function(){ it.return(); },10);
+   }
+}
+// a: hello
+// b
+// v: 42
+// c: some data: 10
+// d
+// v: some data: 50
+//                        .... waiting only 10 milliseconds ....
+// finally!
+function Article({ id }) {
+  const [article, setArticle] = useState(null);
+
+  useEffect(() => {
+    let cancelToken = new CAF.cancelToken();
+
+    let fetchData = CAF(function *fetchData(signal) {
+      const article = yield API.fetchArticle(id);
+      setArticle(article);
+    });
+
+    fetchData(cancelToken);
+
+    return () => {
+      cancelToken.abort();
+    };
+  }, [id]);
+
+  // ...
+}
+// is Just(..) a monad? Well, it's a monad constructor.
+// Its instances are certainly monads.
+function Just(v) {
+  return { map, chain, ap };
+  function map(fn) {
+    return Just(fn(v));
+  }
+  function chain(fn) {
+    return fn(v);
+  }
+  function ap(monad) {
+    monad.map(v);
+  }
+}
+var x = '/x/';
+
+/x/==x
+// VERSION 1 -- broken
+
+async function *main() {
+   yield ready;
+}
+
+var resolve1;
+var resolve2;
+var ready = new Promise(function c(res){
+   resolve1 = res;
+});
+var other = new Promise(function c(res){
+   resolve2 = res;
+});
+
+resolve1("hare");                  // winner should be "hare"
+resolve2({ value: "tortoise" });   // but winner is "tortoise" :/
+
+
+Promise.race([
+   main().next(),
+   other,
+])
+.then(function t({ value }){
+   console.log(`The winner is: ${value}`);   // The winner is: tortoise
+});
+
+async function *getStuff(urls) {
+   showSpinner();
+   try {
+      for (let url of urls) {
+         let resp = await fetch(url);
+         yield await resp.json();
+      }
+   }
+   finally {
+      hideSpinner();
+   }
+}
+
+var it = getStuff(contentURLs);
+cancelBtn.addEventListener("click",() => it.return(),false);
+
+for await (let stuff of it) {
+   render(stuff);
+}
+
+showSummary();
+ajax(
+  ajaxOptions({
+    url: "https://my.other.tld/api",
+    headers: {
+      "Cache-Control": "no-cache"
+    },
+    cb: resp => console.log(resp)
+  })
+);
+
+
+// *****************************
+
+function ajaxOptions({
+  url = "https://some.tld",
+  method = "GET",
+  headers: {
+    "Content-Type": contentType = "text/plain",
+    ...otherHeaders
+  } = {},
+  ...otherSettings  
+} = {}) {
+  return {
+    url, method,
+    headers: { "Content-Type": contentType, ...otherHeaders },
+    ...otherSettings
+  };
+}
+convert("one hundred five");  // "105"
+convert("six hundred and fifty three");  // "653"
+convert("zero zero one two three");  // "123"
+convert("twelve o three");  // "1203"
+convert("thirteen zero nine");  // "1309"
+convert("fifteen sixteen");  // "1516"
+convert("fourteen ninety two");  // "1492"
+convert("nineteen ten");  // "1910"
+convert("twelve hundred");  // "1200"
+convert("twenty three hundred"); // "2300"
+convert("twenty twenty");  // "2020" <---- ugh!
+convert("twenty twenty one");  // "2021"  <---- ehhh...
+convert("twenty twenty two");  // "2022"  <---- let's hope!
+convert("four five two three eight");  // "45238"
+convert("sixteen thousand three eighty four");  // "16384"
+convert("seven billion six hundred eighty-one million"); // "7681000000"
+convert("twenty three trillion and nine");  // "23000000000009"
+convert("four billion two hundred nine thousand");  // "4000209000"
+convert("nine hundred ninety nine quadrillion nine ninety nine trillion nine hundred and ninety nine billion nine ninety-nine million nine hundred ninety-nine thousand nine ninety nine");  // "999999999999999999"
+convert("one two three four five six seven eight nine eight seven six five four three two one two three four five"); // "123456789876543212345"
+convert("negative forty two");  // "-42"
+convert("negative zero");  // "-0"
+
+// "free units": dozen, score, pair
+convert("a dozen and one");  // "13"
+convert("three dozen");  // "36"
+convert("sixty four dozen eighteen");  // "786"
+convert("four score and seven");  // "87"
+convert("seventeen score");  // "340"
+convert("nine hundred ninety nine score and ninety nine");  // "20079"
+convert("three pair");  // "6"
+convert("thirty five pair");  // "70"
+convert("five pair and one");  // "11"
+
+// decimals
+convert("forty two point zero");  // "42.0"
+convert("three point one four one five nine two six");  // "3.1415926"
+convert("point");  // "0.0"
+convert("four point zero o o o zero");  // "4.00000"
+convert("negative point");  // "-0.0"
+convert("negative o point zero zero");  // "-0.00"
+convert("negative point one two three");  // "-0.123"
+
+// unit-place separator: ","
+convert("sixty five thousand five thirty six",",");  // "65,536"
+convert("four billion two hundred nine thousand",",");  // "4,000,209,000"
+convert("forty two",",");  // "42"
+convert("twenty one twenty three",",");  // "2,123"
+convert("one two three four five six seven eight nine eight seven six five four three two one two three four five",","); // "123456,789,876,543,212,345" <---- not a mistake, quadrillion is the highest supported "place"
+convert("nine hundred ninety nine score and ninety nine",",");  // "20,079"
+// note: mathematically, `x` can only ever be 0, 1, 2, or 3
+var x = someNumber % 4;
+
+// let's consider some options for an if..else if..else clause series...
+// NOTE: To see this demo: https://codepen.io/getify/pen/LYPbmYG?editors=0012
+
+
+var counter = 1;
+
+function printMessage() {
+  console.log(`message ${counter++}`);
+}
+
+var schedule = Scheduler(/* debounceMinimum = */50,/* throttleMaximum = */500);
+
+// try to schedule a message to be printed (after approx 50ms of debounce)
+schedule(printMessage);
+
+setTimeout(function waitAWhile(){
+  // try to schedule next message to be printed (after approx 50ms of debounce)
+  schedule(printMessage);
+
+  // but now keep flooding the scheduling, so it keeps debouncing, up to the 500ms max throttling
+  var intv = setInterval(function(){ schedule(printMessage); },30);
+  
+  // stop the madness, after about 10 seconds!
+  setTimeout(function(){ clearInterval(intv); },10*1000);
+},3*1000);
+
+// "message 1" (printed after about 50ms)
+
+// (waiting about 3.5 seconds)
+
+// "message 2"
+// "message 3"  (after another 500ms)
+// "message 4"  (after another 500ms)
+// ..
+var Force = { Skywalker, RegularFolk, of: Skywalker };
+
+function Skywalker(v) {
+  return { map, chain, ap };
+  function map(fn) {
+    return Skywalker(fn(v));
+  }
+  function chain(fn) {
+    return fn(v);
+  }
+  function ap(monad) {
+    monad.map(v);
+  }
+}
+
+function RegularFolk() {
+  return { map: RegularFolk, chain: RegularFolk, ap: RegularFolk };
+}
+import { createReducer } from 'redux-create-reducer'
+import * as types from '../constants/ActionTypes'
+
+import indexedListReducerGenerator, { LIST_UPSERT, LIST_DELETE } from './indexedListReducerGenerator'
+
+const initialState = {
+  items: { byId: {}, ids: [] }
+}
+
+const quantityCounter = createReducer(0, {
+  [types.CART_ADD_ITEM](state, action) { return 1 },
+  [types.CART_REMOVE_ITEM](state, action) { return 0 },
+  [types.CART_INC_ITEM_QUANTITY](state, action) { return state + 1 },
+  [types.CART_DEC_ITEM_QUANTITY](state, action) { return Math.max(state - 1, 0) },
+})
+
+function cartEntry(state={ quantity: 0 }, action) {
+  switch (action.type) {
+    case types.CART_ADD_ITEM:
+    case types.CART_REMOVE_ITEM:
+    case types.CART_INC_ITEM_QUANTITY:
+    case types.CART_DEC_ITEM_QUANTITY:
+      return {
+        ...state,
+        quantity: quantityCounter(state.quantity, action)
+      }
+
+    default:
+      return state
+  }
+}
+
+const itemsByIdReducer = indexedListReducerGenerator(cartEntry)
+
+export default function cartReducer(state=initialState, action) {
+  let listActionType
+
+  switch (action.type) {
+    case types.CART_ADD_ITEM:
+    case types.CART_INC_ITEM_QUANTITY:
+    case types.CART_DEC_ITEM_QUANTITY:
+      listActionType = LIST_UPSERT
+      break
+
+    case types.CART_REMOVE_ITEM:
+      listActionType = LIST_DELETE
+      break
+
+    default:
+      return state
+  }
+
+  return {
+    ...state,
+    items: itemsByIdReducer(state.items, { type: listActionType, id: action.item.id, innerAction: action } ),
+  }
+}
+
+// NOTE: asyncGenerator(..) utility is defined in 3.js below
+
+var ag = asyncGenerator(function *main(pwait,a){
+// NOTE: `pwait` parameter here is how we fake an `await` inside a normal generator
+//       for it to work, you have to do `yield pwait(..)`, not just `pwait(..)`
+  
+  try {
+     console.log(`a: ${a}`);
+     yield pwait(delay(500));    // <---- fake `await`
+     console.log("b");
+     yield 42;
+     var c = yield pwait(getData(10));    // <---- fake `await`
+     console.log(`c: ${c}`);
+     yield pwait(delay(500));    // <---- fake `await`
+     console.log("d");
+     yield getData(50);    // but THIS one is just yielding a promise out through the async generator machinery, which is where the "v: some data: 50" log message comes from
+     yield pwait(delay(5000));    // <---- fake `await`
+     console.log("e");
+     yield pwait(delay(500));    // <---- fake `await`
+     return 250;
+   }
+   finally {
+     console.log("finally!");
+   }
+  
+});
+// is Nothing() a monad? Well, it's a monad constructor.
+// Its instances are certainly monads.
+function Nothing() {
+  return { map: Nothing, chain: Nothing, ap: Nothing };
+}
+var x = function () {
+    var i = -5; 
+    return x = function () {
+        return ++i ? x : true;
+    };
+};
+
+x() === x()() === x()()()
+// VERSION 2 -- broken
+
+async function *main() {
+   yield ready;
+}
+
+var resolve1;
+var resolve2;
+var ready = new Promise(function c(res){
+   resolve1 = res;
+});
+var other = new Promise(function c(res){
+   resolve2 = function r(v){ Promise.resolve(v).then(res); };   // ONLY THIS LINE WAS CHANGED!
+});
+
+resolve1("hare");                  // winner should be "hare"
+resolve2({ value: "tortoise" });   // but winner is "tortoise" :/
+
+
+Promise.race([
+   main().next(),
+   other,
+])
+.then(function t({ value: winner }){
+   console.log(`The winner is: ${winner}`);   // The winner is: tortoise
+});
+
+// (c) 2021 Kyle Simpson | MIT License
+
+"use strict";
+
+var digits = {
+  "o": "0",
+  "zero": "0",
+  "one": "1",
+  "two": "2",
+  "three": "3",
+  "four": "4",
+  "five": "5",
+  "six": "6",
+  "seven": "7",
+  "eight": "8",
+  "nine": "9",
+};
+
+var tens = {
+  "ten": "10",
+  "eleven": "11",
+  "twelve": "12",
+  "thirteen": "13",
+  "fourteen": "14",
+  "fifteen": "15",
+  "sixteen": "16",
+  "seventeen": "17",
+  "eighteen": "18",
+  "nineteen": "19",
+};
+
+var doubles = {
+  "twenty": "20",
+  "thirty": "30",
+  "forty": "40",
+  "fifty": "50",
+  "sixty": "60",
+  "seventy": "70",
+  "eighty": "80",
+  "ninety": "90",
+};
+
+var units = [
+  "hundred",
+  "thousand",
+  "million",
+  "billion",
+  "trillion",
+  "quadrillion",
+];
+
+var freeUnits = {
+  "pair": 2,
+  "dozen": 12,
+  "score": 20,
+};
+
+function convert(numstr,separator = "") {
+  var ast = parse(numstr);
+  
+  var numberDigits = "";
+  var node = ast;
+  while (node) {
+    numberDigits += (
+      (node.unit == "decimal" ?
+        ("." + (node.value || "0")) :
+        (
+          (numberDigits != "" ? separator : "") +
+          (node.value || "000")
+        )
+      )
+    );
+    node = node.and;
+  }
+  
+  // normalize leading zeros
+  numberDigits = numberDigits.replace(/^0+/,"").replace(/^\./,"0.") || "0";
+  
+  // append negative sign (if needed)
+  if (ast.negative) {
+    numberDigits = "-" + numberDigits;
+  }
+  
+  return numberDigits;
+}
+
+function parse(numstr) {
+  var words = numstr.trim().replace(/[^\-0-9a-z\s]+/ig,"").toLowerCase().split(/[\s\-]+/).filter(Boolean);
+
+  // (STEP 1) tokenize the string
+  var tokens = [];
+  var inDecimal = false;
+  for (let word of words) {
+    let curToken = tokens[tokens.length - 1];
+        
+    if (word == "negative" && tokens.length == 0) {
+      tokens.push({ type: "negative", value: "-", complete: true, });
+    }
+    else if (word == "point" || word == "dot") {
+      if (curToken && !curToken.complete) {
+        if (!curToken.unit) {
+          curToken.unit = "hundred";
+        }
+        curToken.complete = true;
+      }
+      
+      if (!inDecimal) {
+        inDecimal = true;
+        tokens.push({ type: "point", value: ".", complete: true, });
+      }
+      else {
+        throw new Error("Invalid! " + word);
+      }
+    }
+    else if (word == "o" || word == "zero") {
+      if (curToken && !curToken.complete) {
+        tokens.push({ type: "digit", value: "0", complete: true, });
+        curToken.complete = true;
+      }
+      else {
+        tokens.push({ type: "digit", value: "0", complete: true, });
+      }
+    }
+    else if (word in digits) {
+      if (curToken && !curToken.complete) {
+        // replace a trailing zero (from a double or hundred)?
+        if (curToken.value.endsWith("0")) {
+          curToken.value = curToken.value.slice(0,-1) + digits[word];
+          curToken.complete = true;
+        }
+        else {
+          tokens.push({ type: "digit", value: digits[word], complete: true, });
+          curToken.complete = true;
+        }
+      }
+      else {
+        tokens.push({ type: "digit", value: digits[word], complete: true, });
+      }
+    }
+    else if (word in tens) {
+      if (curToken && !curToken.complete) {
+        // replace two trailing zeros (from a hundred)?
+        if (curToken.value.endsWith("00")) {
+          curToken.value = curToken.value.slice(0,1) + tens[word];
+          curToken.complete = true;
+        }
+        else {
+          tokens.push({ type: "ten", value: tens[word], complete: true, });
+          curToken.complete = true;
+        }
+      }
+      // promote a single digit to a complete triple?
+      else if (curToken && !curToken.unit && curToken.type == "digit") {
+        curToken.type = "triple";
+        curToken.value = curToken.value.slice(0,1) + tens[word];
+      }
+      else {
+        tokens.push({ type: "ten", value: tens[word], complete: true, });
+      }
+    }
+    else if (word in doubles) {
+      if (curToken && !curToken.complete) {
+        // replace two trailing zeros (from a triple)?
+        if (curToken.value.endsWith("00")) {
+          curToken.value = curToken.value.slice(0,1) + doubles[word];
+          // NOTE: leave complete:false since a digit can complete a double
+        }
+        else {
+          tokens.push({ type: "double", value: doubles[word], complete: false, });
+          curToken.complete = true;
+        }
+      }
+      // promote a single digit to an incomplete triple?
+      else if (curToken && !curToken.unit && curToken.type == "digit") {
+        curToken.type = "triple";
+        curToken.value = curToken.value.slice(0,1) + doubles[word];
+        curToken.complete = false;
+      }
+      else {
+        tokens.push({ type: "double", value: doubles[word], complete: false, });
+      }
+    }
+    else if (!inDecimal) {
+      if (word == "hundred") {
+        if (curToken && !curToken.complete) {
+          curToken.complete = true;
+          tokens.push({ type: "triple", value: "100", complete: false, });
+        }
+        // promote a single digit to an incomplete triple?
+        else if (curToken && !curToken.unit && curToken.type == "digit") {
+          curToken.type = "triple";
+          curToken.value = curToken.value.slice(0,1) + "00";
+          curToken.complete = false;
+        }
+        else {
+          tokens.push({ type: "triple", value: "100", complete: false, });
+        }
+      }
+      else if (
+        // thousand, million, etc
+        units.includes(word) ||
+        // dozen, score, etc
+        word in freeUnits
+      ) {
+        if (curToken && !curToken.unit) {
+          curToken.unit = word;
+          curToken.complete = true;
+        }
+        else {
+          tokens.push({ type: "digit", unit: word, value: "1", complete: true, });
+        }
+      }
+      // harmless article or conjunction word?
+      else if ([ "a", "and", ].includes(word)) {
+        continue;
+      }
+      // unrecognized/invalid word
+      else {
+        throw new Error("Invalid! " + word);
+      }
+    }
+    // word not allowed while tokenizing decimal values
+    else {
+      throw new Error("Invalid! " + word);
+    }
+  }
+    
+  // (STEP 2) parse the token list into an AST
+  var ast = {};
+  var curNode = ast;
+  for (let tokenIdx = 0; tokenIdx < tokens.length; tokenIdx++) {
+    let token = tokens[tokenIdx];
+    let nextToken = tokens[tokenIdx + 1];
+    
+    if (token.type == "negative") {
+      curNode.negative = true;
+    }
+    // token indicates an assigned base-10 unit-place?
+    else if (units.includes(token.unit)) {
+      // current node has no assigned unit-place?
+      if (!curNode.unit) {
+        curNode.unit = token.unit;
+        curNode.value = (
+          curNode == ast ?
+            token.value :
+            token.value.padStart(3,"0")
+        );
+        let unit = nextUnit(token.unit);
+        if (unit) {
+          // create next placeholder node
+          curNode = curNode.and = { unit, };
+        }
+      }
+      // token unit same as current node?
+      else if (token.unit == curNode.unit) {
+        // current node is a placeholder that has not yet
+        // been assigned a value from token?
+        if (!curNode.value) {
+          curNode.value = (
+            curNode == ast ?
+              token.value :
+              token.value.padStart(3,"0")
+          );
+          let unit = nextUnit(token.unit);
+          if (unit) {
+            // create next placeholder node
+            curNode = curNode.and = { unit, };
+          }
+        }
+        else {
+          throw new Error("Invalid! " + token.unit);
+        }
+      }
+      // current node is different (higher?) unit place
+      // than token?
+      else {
+        // attempt to generate missing unit node(s)
+        let [ tree, leaf,] =
+            generateMissingUnitNodes(curNode.unit,token.unit);
+        if (tree) {
+          curNode.and = tree.and;
+          curNode = leaf;
+          curNode.value = token.value;
+        }
+        else {
+          throw new Error("Invalid! " + token.unit);
+        }
+      }
+    }
+    // token indicates a free-unit (dozen, score, etc)?
+    else if (token.unit in freeUnits) {
+      // current node has no unit-place assigned yet?
+      if (!curNode.unit) {
+        // compute the free-unit real value
+        let val = BigInt(Number(token.value) * freeUnits[token.unit]);
+        
+        // additional value following after free unit?
+        //   * "three dozen and __" (digit, ten, double, or triple)
+        //   * "four score and seven"
+        if (
+          nextToken &&
+          ["digit","ten","double",].includes(nextToken.type) &&
+          !nextToken.unit
+        ) {
+          // include additional value in computed value
+          val += BigInt(nextToken.value);
+          tokenIdx += 1;  // lookahead: 1 spot
+        }
+        
+        // determine unit-places needed to represent
+        // computed value
+        let magnitudes = units.map((unit,idx) => [
+          idx == 0 ? 0 : 10n ** (BigInt(idx) * 3n),
+          unit
+        ]);
+        let [,maxUnit] = magnitudes.reduce(
+          ([val,nearUnit],[magnitude,unit]) => (
+            (val >= magnitude) ? [val,unit] : [val,nearUnit]
+          ),
+          [val,""]
+        );
+        magnitudes = magnitudes.reduce(
+          (list,[magnitude,unit]) => (
+            (val >= magnitude) ? [ ...list, magnitude ] : list
+          ),
+          []
+        ).reverse();
+        
+        // distribute the computed value into tree
+        // node(s) as needed
+        let [ tree, leaf,] =
+          generateMissingUnitNodes(maxUnit,"hundred");
+        do {
+          curNode.unit = tree.unit;
+          
+          // compute this node's value
+          let magnitude = magnitudes.shift();
+          let nodeVal = (
+            (val >= magnitude && magnitude > 0) ?
+              // NOTE: bigints use integer division
+              (val / magnitude) :
+              val
+          );
+          curNode.value = String(Number(nodeVal)).padStart(3,"0");
+          
+          // any more nodes left to fill in?
+          if (magnitude > 0) {
+            // compute remaining value for next node
+            val = val % magnitude;
+            tree = tree.and;
+            curNode = curNode.and = {};
+          }
+          else {
+            tree = null;
+          }
+        }
+        while (tree);
+      }
+      else {
+        throw new Error("Invalid! " + token.unit);
+      }
+    }
+    // decimal point?
+    else if (token.type == "point") {
+      // current node has no unit-place assigned yet?
+      if (!curNode.unit) {
+        curNode.unit = "hundred";
+        curNode = curNode.and = { unit: "decimal", value: "", };
+      }
+      else if (curNode.unit == "hundred") {
+        curNode = curNode.and = { unit: "decimal", value: "", };
+      }
+      else {
+        // attempt to generate missing unit-place node(s)
+        let [ tree, leaf,] =
+          generateMissingUnitNodes(curNode.unit,"hundred");
+        if (tree) {
+          curNode.and = tree.and;
+          curNode = leaf;
+          curNode = curNode.and = { unit: "decimal", value: "", };
+        }
+        else {
+          throw new Error("Invalid! " + token.type);
+        }
+      }
+    }
+    // separate digit?
+    else if (token.type == "digit") {
+      // append digit to the decimal node?
+      if (curNode.unit == "decimal") {
+        // look-ahead to collect all consecutive digits, if any
+        let digitTokens = collectConsecutiveDigits(tokens,tokenIdx);
+        tokenIdx += (digitTokens.length - 1);
+        
+        // add digit token(s) to current node 
+        for (let digit of digitTokens) {
+          curNode.value = (curNode.value || "") + digit.value;
+        }
+      }
+      // multiple adjacent (non-decimal) digits?
+      else if (
+        nextToken &&
+        nextToken.type == "digit"
+      ) {
+        // current node is "empty", so we can implicitly
+        // create arbitrary unit-place segment(s) from multiple
+        // digits?
+        if (!curNode.unit) {
+          // look-ahead to collect all consecutive digits
+          let digitTokens = collectConsecutiveDigits(tokens,tokenIdx);
+          tokenIdx += (digitTokens.length - 1);
+
+          // skip any leading zeros (since we're at the
+          // start of the number)
+          let firstNonZeroDigitIdx = digitTokens.findIndex(digit => digit.value != "0");
+          if (firstNonZeroDigitIdx > 0) {
+            digitTokens = digitTokens.slice(firstNonZeroDigitIdx);
+          }
+          
+          // any digits remain to be added to the AST?
+          if (digitTokens.length > 0) {
+            // determine how many unit-place groups are needed
+            let numGroups = Math.ceil(
+              Math.min(digitTokens.length,units.length * 3) / 3
+            );
+
+            // determine number of digits in first group
+            let groupSize = (
+              digitTokens.length > (units.length * 3) ?
+                digitTokens.length - (units.length * 3) + 3 :
+                digitTokens.length % 3 || 3
+            );
+
+            // create the necessary unit-place nodes in the AST
+            let [ tree, leaf ] = generateMissingUnitNodes(
+              units[
+                Math.min(units.length - 1,numGroups - 1)
+              ],
+              "hundred"
+            );
+            if (tree) {
+              curNode.unit = tree.unit;
+              curNode.value = "";
+              if (tree.and) {
+                curNode.and = tree.and;
+              }
+              // fill in the unit-place groups to the AST
+              do {
+                // collect a group of digits into current node
+                let digitGroup = digitTokens.slice(0,groupSize);
+                digitTokens = digitTokens.slice(groupSize);
+                curNode.value = digitGroup.reduce((val,digit) => val + digit.value,"");
+
+                // more digits to add as a unit-place group?
+                if (curNode.and && digitTokens.length > 0) {
+                  curNode = curNode.and;
+                  // from here forward, all digit groups are
+                  // fixed size of 3
+                  groupSize = 3;
+                }
+              }
+              // keep going while digits remain to be grouped
+              while (digitTokens.length > 0);
+            }
+          }
+          else {
+            // NOTE: should never get here
+            throw new Error("Invalid! " + token.value);
+          }
+        }
+        else {
+          // look-ahead to collect up to 3 consecutive digits
+          let digitTokens =
+              collectConsecutiveDigits(tokens,tokenIdx,/*limit=*/3);
+          tokenIdx += (digitTokens.length - 1);
+
+          // combine digits into a single value
+          let val = digitTokens.reduce((val,digit) => val + digit.value,"");
+
+          // assign combined-digits to "hundred" unit-place node
+          curNode = assignHundredUnitPlaceNode(
+            curNode,
+            // zero-pad the value
+            val.padStart(3,"0")
+          );
+        }
+      }
+      else {
+        // assign single digit to "hundred" unit-place node
+        curNode = assignHundredUnitPlaceNode(
+          curNode,
+          // zero-pad the value
+          token.value.padStart(3,"0")
+        );
+      }
+    }
+    // stand-alone ten or double token?
+    else if (token.type == "ten" || token.type == "double") {
+      // append numbers to the decimal node?
+      if (curNode.unit == "decimal") {
+        curNode.value += token.value;
+      }
+      // literal/year form:
+      //   * "seventeen nineteen"
+      //   * "seventeen thirty"
+      //   * "twenty fourteen"
+      //   * "twenty fifty"
+      else if (
+        nextToken &&
+        (nextToken.type == "ten" || nextToken.type == "double")
+      ) {
+        if (!curNode.unit) {
+          curNode.unit = "thousand";
+          curNode.value = token.value.slice(0,1);
+          curNode = curNode.and = {
+            unit: "hundred",
+            value: token.value.slice(1) + nextToken.value,
+          };
+          tokenIdx += 1;  // lookahead: 1 spot
+        }
+        else {
+          throw new Error("Invalid! " + token.value);
+        }
+      }
+      // "twelve hundred"
+      // "twenty three hundred"
+      else if (
+        !curNode.unit &&
+        nextToken &&
+        nextToken.type == "triple" &&
+        nextToken.value == "100" &&
+        !nextToken.unit
+      ) {
+        curNode.unit = "thousand";
+        curNode.value = token.value.slice(0,1);
+        curNode = curNode.and = {
+          unit: "hundred",
+          value: token.value.slice(1) + "00",
+        };
+        tokenIdx += 1;  // lookahead: 1 spot
+      }
+      // ten/double followed by:
+      //   * any 3 digits
+      //   * '0' plus another digit
+      else if (
+        !curNode.unit &&
+        nextToken &&
+        nextToken.type == "digit" &&
+        !nextToken.unit
+      ) {
+        let tokenN2 = tokens[tokenIdx + 2];
+        let tokenN3 = tokens[tokenIdx + 3];
+        
+        // any 3 digits
+        if (
+          tokenN2 &&
+          tokenN2.type == "digit" &&
+          tokenN3 &&
+          tokenN3.type == "digit"
+        ) {
+          curNode.unit = "thousand";
+          curNode.value = token.value;
+          curNode = curNode.and = {
+            unit: "hundred",
+            value: nextToken.value + tokenN2.value + tokenN3.value,
+          };
+          tokenIdx += 3;  // lookahead: 3 spots
+        }
+        // '0' plus another digit
+        else if (
+          nextToken.value == "0" &&
+          tokenN2 &&
+          tokenN2.type == "digit"
+        ) {
+          curNode.unit = "thousand";
+          curNode.value = token.value.slice(0,1);
+          curNode = curNode.and = {
+            unit: "hundred",
+            value: token.value.slice(1) + nextToken.value + tokenN2.value,
+          };
+          tokenIdx += 2;  // lookahead: 2 spots
+        }
+        else {
+          throw new Error("Invalid! " + token.value);
+        }
+      }
+      // assumed "thousand" unit:
+      //   * "thirteen nine forty two"
+      //   * "thirty nine two o six"
+      else if (
+        !curNode.unit &&
+        nextToken &&
+        nextToken.type == "triple" &&
+        !nextToken.unit        
+      ) {
+        curNode.unit = "thousand";
+        curNode.value = token.value;
+        curNode = curNode.and = {
+          unit: "hundred",
+          value: nextToken.value.padStart(3,"0"),
+        };
+        tokenIdx += 1;  // lookahead: 1 spot
+      }
+      else {
+        // assign ten/double value to "hundred" unit-place node
+        curNode = assignHundredUnitPlaceNode(
+          curNode,
+          // zero-pad the value
+          token.value.padStart(3,"0")
+        );        
+      }
+    }
+    // encountered a stand-alone triple?
+    else if (token.type == "triple") {
+      if (curNode.unit == "decimal") {
+        curNode.value += token.value;
+      }
+      else {
+        // assign triple value to "hundred" unit-place node
+        curNode = assignHundredUnitPlaceNode(
+          curNode,
+          // zero-pad the value
+          token.value.padStart(3,"0")
+        );        
+      }
+    }
+    else {
+      // NOTE: should never get here
+      throw new Error("Invalid! " + token.type);
+    }
+  }
+  
+  // append missing AST nodes (if any)
+  if (![ "hundred", "decimal" ].includes(curNode.unit)) {
+    let [ tree ] = generateMissingUnitNodes(curNode.unit,"hundred");
+    if (tree) {
+      curNode.and = tree.and;
+    }
+    else {
+      throw new Error("Invalid! " + curNode.value);
+    }
+  }
+    
+  return ast;
+}
+
+function assignHundredUnitPlaceNode(curNode,val) {
+  if (curNode.unit != "hundred") {
+    // current node is "empty", so we can assign it
+    // as the "hundred" unit-place node
+    if (!curNode.unit && !curNode.value) {
+      curNode.unit = "hundred";
+      curNode.value = val;
+      return curNode;
+    }
+    else {
+      // attempt to generate missing unit node(s)
+      let [ tree, leaf,] =
+        generateMissingUnitNodes(curNode.unit,"hundred");
+      if (tree) {
+        curNode.and = tree.and;
+        curNode = leaf;
+      }
+      else {
+        throw new Error("Invalid! " + val);
+      }
+    }
+  }
+
+  // current node is a placeholder in the "hundred"
+  // unit-place, that has not yet been assigned any
+  // value from a token?
+  if (!curNode.value) {
+    curNode.value = val;
+    return curNode;
+  }
+  else {
+    throw new Error("Invalid! " + val);
+  }
+}
+
+function collectConsecutiveDigits(tokens,tokenIdx,limit = Number.MAX_SAFE_INTEGER) {
+  var digitTokens = [ tokens[tokenIdx], ];
+  for (
+    let adjIdx = tokenIdx + 1;
+    (
+      adjIdx < tokens.length &&
+      tokens[adjIdx].type == "digit" &&
+      !tokens[adjIdx].unit &&
+      digitTokens.length < limit
+    );
+    adjIdx++
+  ) {
+    digitTokens.push(tokens[adjIdx]);
+  }
+  return digitTokens;
+}
+
+function generateMissingUnitNodes(curUnit,targetUnit) {
+  if (units.includes(curUnit) && units.includes(targetUnit)) {
+    let unit = curUnit;
+    let tree = { unit: curUnit, };
+    let leaf = tree;
+    while (unit && unit != targetUnit) {
+      unit = nextUnit(unit);
+      if (unit) {
+        leaf = leaf.and = { unit, };
+      }
+    }
+
+    if (unit && unit == targetUnit) {
+      return [ tree, leaf ];
+    }
+  }
+  
+  return [];
+}
+
+function nextUnit(unit) {
+  var unitIdx = units.indexOf(unit);
+  if (unitIdx > 0) {
+    return units[unitIdx - 1];
+  }
+}
+// option 1:
+if (x === 0) {
+  // ..
+}
+else if (x === 1) {
+  // ..
+}
+else if (x === 2) {
+  // ..
+}
+else if (x === 3) {
+  // ..
+}
+// note: else {} clause omitted because it's impossible to reach, and
+// Istanbul will complain about never reaching it
+function Scheduler(debounceMin,throttleMax) {
+  var entries = new WeakMap();
+
+  return schedule;
+
+
+  // ***********************
+
+  function schedule(fn) {
+    var entry;
+
+    if (entries.has(fn)) {
+      entry = entries.get(fn);
+    }
+    else {
+      entry = {
+        last: 0,
+        timer: null,
+      };
+      entries.set(fn,entry);
+    }
+
+    var now = Date.now();
+
+    if (!entry.timer) {
+      entry.last = now;
+    }
+
+    if (
+      // no timer running yet?
+      entry.timer == null ||
+      // room left to debounce while still under the throttle-max?
+      (now - entry.last) < throttleMax
+    ) {
+      if (entry.timer) {
+        clearTimeout(entry.timer);
+      }
+
+      let time = Math.min(debounceMin,Math.max(0,(entry.last + throttleMax) - now));
+      entry.timer = setTimeout(run,time,fn,entry);
+    }
+  }
+
+  function run(fn,entry) {
+    entry.timer = null;
+    entry.last = Date.now();
+    fn();
+  }
+}
+var Anakin = Skywalker("Anakin");
+var Luke = Anakin.map(x => "Luke");
+var Leia = Anakin.map(x => "Leia");
+
+function nonJedi(who) {
+  if (who == "Rey") return Force.of(who);
+  return RegularFolk(who);
+}
+
+Luke
+.chain( () => nonJedi("Rey") )
+.chain( () => nonJedi("George Lucas") )
+.map( v => w => console.log("Han shot first.") )
+.ap( Force.of("Chewbacca") );
+import * as types from '../constants/ActionTypes'
+
+export const addItem = (item) => {
+  return { type: types.CART_ADD_ITEM, item }
+}
+
+export const removeItem = (item) => {
+  return { type: types.CART_REMOVE_ITEM, item }
+}
+
+export const incQuantity = (item) => {
+  return { type: types.CART_INC_ITEM_QUANTITY, item }
+}
+
+export const decQuantity = (item) => {
+  return { type: types.CART_DEC_ITEM_QUANTITY, item }
+}
+
+// This is how Maybe(..) is usually implemented.
+// But Maybe(..) here doesn't construct pure/valid monad instances,
+// since its map() does a value-type check, which is a no-no.
+function Maybe(v) {
+  return { map, chain, ap };
+  function map(fn) {
+    if (v == null) return Nothing();
+    return Just(fn(v));
+  }
+  function chain(fn) {
+    return fn(v);
+  }
+  function ap(monad) {
+    return monad.map(v);
+  }
+}
+
+var identity = v => v;
+var prop = k => o => o[k];
+
+var myObj = { something: { other: { and: 42 } } };
+Maybe( myObj )
+.map( prop("something") )
+.map( prop("other") )
+.map( prop("and") )
+.chain( identity );   // 42
+var x = {
+   x: 5,
+   toString: function () {
+       this.x -= 2;
+       return this.x;
+   }
+};
+
+x > 2 && x < 2
+// VERSION 3 -- "fixed", but UGH :(
+
+async function *main() {
+   yield ready;
+}
+
+var resolve1;
+var resolve2;
+var ready = new Promise(function c(res){
+   resolve1 = res;
+});
+var other = new Promise(function c(res){
+   resolve2 = function(v){ Promise.resolve().then(()=>v).then(res); };   // ONLY THIS LINE WAS CHANGED!
+});
+
+resolve1("hare");                  // winner should be "hare"
+resolve2({ value: "tortoise" });   // and it is! :(
+
+
+Promise.race([
+   main().next(),
+   other,
+])
+.then(function t({ value: winner }){
+   console.log(`The winner is: ${winner}`);   // The winner is: hare
+});
+
+// option 2:
+if (x === 0) {
+  // ..
+}
+else if (x === 1) {
+  // ..
+}
+else if (x === 2) {
+  // ..
+}
+else /* if (x === 3) */ {
+  // ..
+}
+// note: Istanbul will *NOT* complain here
+// inspired by: https://alinacierdem.com/the-problem-with-async-generators/
+
+function asyncGenerator(gen) {
+	var awaiteds = new WeakSet();
+	var unset = Symbol("unset");
+	var returned = Symbol("returned");
+	
+	return function wrapped(...args){
+		var def = deferred();
+		var it = gen(pwait,...args);
+		var ait = runner(it,def.pr);
+		var aitRet = ait.return;
+		ait.return = doReturn;
+		return ait;
+		
+	
+		// ***************************
+	
+		function doReturn(v){
+			try {
+				def.pr.resolved = true;
+				def.resolve(returned);
+				return it.return(v);
+			}
+			finally {
+				aitRet.call(ait);
+				ait.return = aitRet;
+				def = ait = aitRet = null;
+			}
+		}
+	};
+
+
+	// ***************************
+	
+	function pwait(v) {
+		var pr = Promise.resolve(v);
+		awaiteds.add(pr);
+		return pr;
+	}
+
+	async function *runner(it,complete) {
+		var res;
+		var excp = unset;
+		
+		try {
+			while (!complete.resolved) {
+				if (excp !== unset) {
+					res = it.throw(excp);
+				}
+				else {
+					res = it.next(res);
+				}
+				if (isPromise(res.value)) {
+					if (awaiteds.has(res.value)) {
+						awaiteds.delete(res.value);
+						try {
+							res = await Promise.race([
+								complete,
+								res.value,
+							]);
+							if (res === returned) {
+								return;
+							}
+						}
+						catch (err) {
+							excp = err;
+						}
+					}
+					else {
+						res = yield res.value;
+					}
+				}
+				else if (res.done) {
+					return res.value;
+				}
+				else {
+					res = yield res.value;
+				}
+			}
+		}
+		finally {
+			it = complete = null;
+		}
+	}
+
+	function isPromise(pr) {
+		return (pr && typeof pr == "object" && typeof pr.then == "function");
+	}
+	
+	function deferred() {
+		var resolve;
+		var pr = new Promise(function c(res){
+			resolve = res;
+		});
+		return { pr, resolve };
+	}
+}
+var X = function () {
+    this.a = true;
+};
+X.prototype.a = true;
+var x = new X;
+
+delete x.a && x.a;
+// VERSION 4 -- also "fixed", but double UGH :(
+
+async function *main() {
+   yield ready;
+}
+
+async function *main2() {
+   yield other;
+}
+
+var resolve1;
+var resolve2;
+var ready = new Promise(function c(res){
+   resolve1 = res;
+});
+var other = new Promise(function c(res){
+   resolve2 = res;
+});
+
+resolve1("hare");       // winner should be "hare"
+resolve2("tortoise");   // and it is! :(
+
+
+Promise.race([
+   main().next(),
+   main2().next(),
+])
+.then(function t({ value: winner }){
+   console.log(`The winner is: ${winner}`);   // The winner is: hare
+});
+// option 3:
+if (x === 0) {
+  // ..
+}
+else if (x === 1) {
+  // ..
+}
+else if (x === 2) {
+  // ..
+}
+else {
+  if (x === 3) {
+    // ..
+  }
+  // note: else {} clause omitted because it's impossible to reach, and
+  // Istanbul will complain about never reaching it
+}
+// This is a more "pure" / accurate implementation of Maybe:
+// But, is Maybe here a monad? It's not even a constructor of a monad,
+// it's a namespace that holds methods that can make different kinds
+// of monads.
+var Maybe = { Just, Nothing, of: Just };
+
+var identity = v => v;
+// we moved the empty check from Maybe into prop()
+var isEmpty = v => v == null;
+var prop = k => o => isEmpty(o[k]) ? Nothing() : Maybe.of(o[k]);
+
+var myObj = { something: { other: { and: 42 } } };
+Maybe.of( myObj )
+.chain( prop("something") )
+.chain( prop("other") )
+.chain( prop("and") )
+.chain( identity );   // 42
+module.exports = () => ({
+  presets: ['react-app'],
+  plugins: ['flow-react-proptypes'],
+});
+
+// option 4:
+if (x === 0) {
+  // ..
+}
+else if (x === 1) {
+  // ..
+}
+else if (x === 2) {
+  // ..
+}
+else if (x === 3) {
+  // ..
+}
+else {
+  // impossible to get here
+  
+  // note: because this else {} clause cannot be reached, Istanbul will
+  // complain about never reaching it
+}
+var x = {
+    "[object Object]": "[object Object]"
+};
+
+x[x]==x
+// option 5:
+if (x === 0) {
+  // ..
+}
+else if (x === 1) {
+  // ..
+}
+else if (x === 2) {
+  // ..
+}
+else if (x === 3) {
+  // ..
+}
+else {
+  throw new Error("impossible to get here");
+  
+  // note: because this else {} clause cannot be reached, Istanbul will
+  // complain about never reaching it
+}
+var x = function () { x = '' };
+
+typeof new x < typeof x
+// option 6:
+if (x === 0) {
+  // ..
+}
+if (x === 1) {
+  // ..
+}
+if (x === 2) {
+  // ..
+}
+if (x === 3) {
+  // ..
+}
+// note: all 4 omitted else clauses are actually "reached" in this
+// construct, so Istanbul will *NOT* complain
+
+// note 2: in this case, each independent `if` test clause automatically
+// (mathematically) excludes the previous ones -- `x` can never be two or
+// more values at the same time. general test clauses would need to explicitly
+// exclude previous conditions, like:
+//   if (A) { .. }
+//   if (!A && B) { .. }
+//   if (!(A || B) && C) { .. }
+//   if (!(A || B || C) && D) { .. }
+
+// note 3: this option is also a bit more "dangerous" in that if one of the 
+// if blocks reassigned `x`, then it could potentially (and accidentally) match
+// more than one clause, unlike an if..else if series
+var x = Infinity;
+
+x - 1 === x + 1
+// option 7:
+switch (true) {
+  case (x === 0): {
+    // ..
+    break;
+  }
+  case (x === 1): {
+    // ..
+    break;
+  }
+  case (x === 2): {
+    // ..
+    break;
+  }
+  case (x === 3):
+  default: {
+    // ..
+  }
+  // note: some linter configs may complain about the lack of a `break`
+  // (aka, "fall-through") in this construct
+}
+class Example extends React.Component<
+  Props,
+  State,
+  Snapshot
+> {
+  static getDerivedStateFromProps(
+    nextProps: Props,
+    prevState: State
+  ): $Shape<State> | null {
+    // ...
+  }
+
+  getSnapshotBeforeUpdate(
+    prevProps: Props,
+    prevState: State
+  ): Snapshot {
+    // ...
+  }
+}
+// change this file
+module.exports = 42
+/**
+ * Accept-* header parser in JavaScript - rfc2616 sec 14.4
+ * 
+ * @param {String} string Accept-*
+ * 
+ * @return {Array} ordered by weight list of accepted values
+ * 
+ * @example
+ *    acceptLanguageParser('nl;q=0.6, en;q=0.8,el;q=0.4, en-US , de;q=0.2');
+ *    // ["en-US", "en", "nl", "el", "de"]
+ *    acceptLanguageParser('text/html,application/xhtml+xml,application/xml;q=0.9,*\/*;q=0.8');
+ *    // ["text/html", "application/xhtml+xml", "application/xml", "*\/*"]
+ */
+function acceptLanguageParser(string) {
+    var langs = string.split(','), i, c;
+    
+    for (i = 0, c = langs.length; i < c; i++) {
+        langs[i] = langs[i].split(';q=');
+        langs[i][1] = +langs[i][1] || 1;
+    }
+    
+    langs = langs.sort(function (a, b) {
+        return b[1] - a[1];
+    });
+    
+    for (i = 0, c = langs.length; i < c; i++) {
+        langs[i] = langs[i][0].replace(/^\s+|\s+$/, '');
+    }
+    
+    return langs;
+}
+// Best practice dictates specifying constants
+// for the different types of actions in an application
+export const SEARCH_POST = 'SEARCH_POST';
+
+// This is an action creator
+export const searchPost = (query) => {
+  // The returned object is an action
+  return {
+    // 'type' is a required field for an action, 
+    // specifying the type of action being performed
+    type: SEARCH_POST,
+    query
+  }
+}
+import produce from 'immer';
+
+const like = item => ({
+  type: like.type,
+  payload: item
+});
+like.type = 'user/like';
+
+const initialState = {
+  name: 'Anonymous',
+  avatar: 'Anonymous',
+  email: '',
+  walletAddress: '',
+  likes: {}
+};
+
+// After immer
+const reducer = produce((draft, { type, payload } = {}) => {
+  switch (type) {
+    case like.type: {
+      draft.likes[payload.id] = payload;
+      return;
+    }
+    default:
+      return draft;
+  }
+}, initialState);
+
+// Promise.all: if one promise rejects, all fail.
+const [dogs, cats, possums] = await Promise.all([
+    getDogs(),
+    getCats(),
+    getPossums()
+])
+
+// Promise.allSettled: if one rejects, 
+// the others will still go through!
+const allRequests = await Promise.allSettled([
+    getDogs(),
+    getCats(),
+    getPossums()
+])
+const [dogs, cats, possums] = allRequests.map((result) =>
+    result.status === 'fulfilled' ? result.value : undefined
+)
+
+
+/**
+ * Triggers a CSS3 keyframe-based animation
+ *
+ * @param {String} animation name
+ * @api public
+ */
+
+jQuery.fn.animation = function (name, opts, fn) {
+  if ('function' == typeof opts) {
+    fn = opts;
+    opts = {};
+  }
+
+  opts = opts || {};
+  opts.duration = opts.duration || '1s';
+  opts.timing = opts.timing || 'linear';
+  opts.reset = undefined === opts.reset ? true : opts.reset;
+
+  $(this)
+    .css('webkitAnimationDuration', opts.duration)
+    .css('webkitAnimationTiming', opts.timing)
+    .css('webkitAnimationName', name)
+    .one('webkitAnimationEnd', function () {
+      if (opts.reset) {
+        $(this)
+          .css('webkitAnimationName', '')
+          .css('webkitAnimationDuration', '')
+          .css('webkitAnimationTiming', '')
+      }
+      fn && fn();
+    });
+
+  return $(this);
+};
+function (
+modules, // map of modules
+main,    // main module function
+module,  // tmp var
+inited_modules // list of inited modules
+) {
+    inited_modules = {}; // init
+    main(function require(moduleName) { // pass require fucntion only
+        module = modules[moduleName];
+        if (!inited_modules[moduleName]) { // lazy init
+            try {
+                if (module[0]=='(') { // its a lazy module
+                    module = (0,this.eval)(module); // global eval it!
+                }
+                module = module(require); // lazy module init
+            } catch(e){}
+        }
+        inited_modules[moduleName] = 1; // mark module as inited
+        return modules[moduleName] = module; // return
+    });
+}
+function (
+paths,  // {String[]} list of absolute paths
+parts,  // path parts
+target, // pointer to current subtree
+file,   // path item
+fs      // result fs tree
+) {
+    // init fs, reset pointer, get item
+    for (fs = {};target = fs,parts = paths.pop();) {
+        parts = ('#' + parts).split('/'); // split path
+        while (parts[0]) { // while !eopath
+            target = target[file = parts.shift()]   // set current pointer to file
+                   = parts[0] ? target[file] || {}  // !last -> its a dir
+                              : file;               // else -> file
+        }
+    }
+    return fs;
+}
+function (
+  argv,   // {String} argv
+  item,   // argv item
+  result, // result hash
+  i       // counter
+){
+    result = {}; // reset
+    for(
+        argv = argv.split(/\s*\B[\/-]+([\w-]+)[\s=]*/), // use special regexp 
+                                             // "node pewpew.js --p a -c -d" ~~magic~~> 
+                                             // ["node pewpew.js", "p", "a", "c", "", "d", ""]
+        i = 1; // skip 1 item ("node pewpew.js")
+
+        item = argv[i++]; // while !eoargv
+
+        result[item] = argv[i++] || !0 // set value, default true
+    );
+    return result;
+}

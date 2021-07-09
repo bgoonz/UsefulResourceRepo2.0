@@ -2,32 +2,30 @@
 
 /* testing page code only, you wont need this! */
 
-(function() {
+(function () {
+  $(function () {
+    bindTestOptions();
+  });
 
-    $(function() {
-        bindTestOptions();
+  var bindTestOptions = function () {
+    resetTestOptions();
+    $(".option").change(resetTestOptions);
+  };
+
+  var resetTestOptions = function () {
+    // update test options
+    $(".option").each(function () {
+      var $this = $(this);
+      $("body").toggleClass($this.val(), $this.prop("checked"));
     });
 
-    var bindTestOptions = function() {
-        resetTestOptions();
-        $('.option').change(resetTestOptions);
-    };
+    // update byRow option
+    var byRow = $("body").hasClass("test-rows");
+    $.each($.fn.matchHeight._groups, function () {
+      this.byRow = byRow;
+    });
 
-    var resetTestOptions = function() {
-        // update test options
-        $('.option').each(function() {
-            var $this = $(this);
-            $('body').toggleClass($this.val(), $this.prop('checked'));
-        });
-
-        // update byRow option
-        var byRow = $('body').hasClass('test-rows');
-        $.each($.fn.matchHeight._groups, function() {
-            this.byRow = byRow;
-        });
-
-        // update all heights
-        $.fn.matchHeight._update();
-    };
-
+    // update all heights
+    $.fn.matchHeight._update();
+  };
 })();

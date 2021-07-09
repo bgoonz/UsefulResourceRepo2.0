@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>math</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="math">math</h1>
+<p>Math utilities.</p>
+<h2 id="ceilval-stepnumber">ceil(val[, step]):Number</h2>
+<p>Round value up to full steps. Similar to <code>Math.ceil()</code> but can round value to an arbitrary <em>radix</em>.</p>
+<pre><code>ceil(7.2);   // 8
+ceil(7.8);   // 8
+ceil(7, 5);  // 10
+ceil(11, 5); // 15
+ceil(15, 5); // 15</code></pre>
+<h3 id="common-use-cases">Common use cases</h3>
+<p>Round values by increments of 5/10/1000/etc.</p>
+<p>See: <a href="#round"><code>round()</code></a>, <a href="#floor"><code>floor()</code></a>, <a href="#countSteps"><code>countSteps()</code></a></p>
+<h2 id="clampval-min-maxnumber">clamp(val, min, max):Number</h2>
+<p>Clamps value inside range.</p>
+<p><code>clamp()</code> is extremely useful in cases where you need to limit a value inside a certain range. So instead of doing a complex <code>if/else</code> to filter/process the value you can restrict it to always be inside the desired range:</p>
+<pre><code>clamp(-5, 0, 10); // 0
+clamp(7, 1, 10);  // 7
+clamp(8, 1, 10);  // 8
+clamp(10, 1, 10); // 10
+clamp(11, 1, 10); // 10</code></pre>
+<p>If the value is smaller than <code>min</code> it returns the <code>min</code>, if <code>val</code> is higher than <code>max</code> it returns <code>max</code>.</p>
+<h3 id="common-use-cases-1">Common use cases</h3>
+<p>Any situation where you need to limit a number inside a range like: slider position, image galleries <span class="small">(so user can’t skip to an image that doesn’t exist)</span>, drag and drop, scroll boundaries, etc.</p>
+<p>See: <a href="#loop"><code>loop()</code></a></p>
+<h2 id="countstepsval-step-overflownumber">countSteps(val, step[, overflow]):Number</h2>
+<p>Count number of full steps.</p>
+<h3 id="arguments">Arguments:</h3>
+<ol type="1">
+<li><code>val</code> (Number) : Value.</li>
+<li><code>step</code> (Number) : Step size.</li>
+<li><code>[overflow]</code> (Number) : Maximum number of steps, nSteps will loop if <code>&gt;=</code> than overflow.</li>
+</ol>
+<p>Count steps is very useful for cases where you need to know how many “full steps” the number <em>completed</em>. Think of it as a division that only returns integers and ignore remainders.</p>
+<pre><code>countSteps(3,  5);    // 0
+countSteps(6,  5);    // 1
+countSteps(12, 5);    // 2
+countSteps(18, 5);    // 3
+countSteps(21, 5);    // 4</code></pre>
+<p>You can also set an <code>overflow</code> which will reset the <em>counter</em> before reaching this number.</p>
+<pre><code>countSteps(3, 5, 3);  // 0
+countSteps(6, 5, 3);  // 1
+countSteps(12, 5, 3); // 2
+countSteps(18, 5, 3); // 0
+countSteps(21, 5, 3); // 1</code></pre>
+<h3 id="common-use-cases-2">Common use cases</h3>
+<h4 id="how-many-items-fit-inside-an-area">How many items fit inside an area:</h4>
+<pre><code>var containerWidth = 100;
+var itemWidth = 8;
+var howManyFit = countSteps(containerWidth, itemWidth); // 12</code></pre>
+<h4 id="split-value-into-different-scales-or-convert-value-from-one-scale-to-another">Split value into different scales or convert value from one scale to another</h4>
+<p>From <a href="time.html#parseMs">mout/time/parseMs</a>:</p>
+<pre><code>function parseMs(ms){
+    return {
+        milliseconds : countSteps(ms, 1, 1000),
+        seconds      : countSteps(ms, 1000, 60),
+        minutes      : countSteps(ms, 60000, 60),
+        hours        : countSteps(ms, 3600000, 24),
+        days         : countSteps(ms, 86400000)
+    };
+}
+
+// {days:27, hours:4, minutes:26, seconds:5, milliseconds:454}
+parseMs(2348765454);</code></pre>
+<h2 id="floorval-stepnumber">floor(val[, step]):Number</h2>
+<p>Round value down to full steps. Similar to <code>Math.floor()</code> but can round value to an arbitrary <em>radix</em>. (formerly <code>snap</code>)</p>
+<pre><code>floor(7.2);   // 7
+floor(7.8);   // 7
+floor(7, 5);  // 5
+floor(11, 5); // 10
+floor(15, 5); // 15</code></pre>
+<h3 id="common-use-cases-3">Common use cases</h3>
+<p>Round values by increments of 5/10/1000/etc.</p>
+<p>See: <a href="#round"><code>round()</code></a>, <a href="#ceil"><code>ceil()</code></a>, <a href="#countSteps"><code>countSteps()</code></a></p>
+<h2 id="inrangeval-min-max-thresholdboolean">inRange(val, min, max[, threshold]):Boolean</h2>
+<p>Checks if value is inside the range.</p>
+<pre><code>inRange(-6, 1, 10);    // false
+inRange( 5, 1, 10);    // true
+inRange(12, 1, 10);    // false</code></pre>
+<p>The threshold can be useful when you want granular control of what should match and/or the precision could change at runtime or by some configuration option, avoids the clutter of adding/subtracting the <code>threshold</code> from <code>mix</code> and <code>max</code>.</p>
+<pre><code>inRange(12, 1, 10, 2); // true
+inRange(13, 1, 10, 2); // false</code></pre>
+<h3 id="common-use-cases-4">Common use cases</h3>
+<p>Anything that needs to check if value is inside a range, be it collision detection, limiting interaction by mouse position, ignoring parts of the logic that shouldn’t happen if value isn’t valid, simplify <code>if/else</code> conditions, making code more readable, etc…</p>
+<h2 id="isnearval-target-thresholdboolean">isNear(val, target, threshold):Boolean</h2>
+<p>Check if value is close to target.</p>
+<p>Similar to <code>inRange()</code> but used to check if value is close to a certain value or match the desired value. Basically to simplify <code>if/else</code> conditions and to make code clearer.</p>
+<pre><code>isNear( 10.2, 10, 0.5); // true
+isNear( 10.5, 10, 0.5); // true
+isNear(10.51, 10, 0.5); // false</code></pre>
+<h3 id="common-use-cases-5">Common use cases</h3>
+<p>Games where a certain action should happen if an <em>actor</em> is close to a target, gravity fields, any numeric check that has some tolerance.</p>
+<h2 id="lerpratio-start-endnumber">lerp(ratio, start, end):Number</h2>
+<p>Linear interpolation.</p>
+<pre><code>lerp(0.5, 0, 10);  // 5
+lerp(0.75, 0, 10); // 7.5</code></pre>
+<h3 id="common-use-cases-6">Common use cases</h3>
+<p>Linear interpolation is commonly used to create animations of elements moving from one point to another, where you simply update the current ratio (which in this case represents time) and get back the position of the element at that “frame”.</p>
+<p>The core idea of <code>lerp</code> is that you are using a number that goes from <code>0</code> to <code>1</code> to specify a ratio inside that scale. This concept can be applied to convert numbers from different scales easily.</p>
+<p>See: <a href="#map"><code>map()</code></a>, <a href="#norm"><code>norm()</code></a></p>
+<h2 id="loopval-min-maxnumber">loop(val, min, max):Number</h2>
+<p>Loops value inside range. Will return <code>min</code> if <code>val &gt; max</code> and <code>max</code> if <code>val &lt; min</code>, otherwise it returns <code>val</code>.</p>
+<pre><code>loop(-1, 0, 10); // 10
+loop( 1, 0, 10); // 1
+loop( 5, 0, 10); // 5
+loop( 9, 0, 10); // 9
+loop(10, 0, 10); // 10
+loop(11, 0, 10); // 0</code></pre>
+<p>Similar to <a href="#clamp"><code>clamp()</code></a> but <em>loops</em> the value inside the range when an overflow occurs.</p>
+<h3 id="common-use-cases-7">Common use cases</h3>
+<p>Image galleries, infinite scroll, any kind of logic that requires that the first item should be displayed after the last one or the last one should be displayed after first if going on the opposite direction.</p>
+<p>See: <a href="#clamp"><code>clamp()</code></a></p>
+<h2 id="mapval-min1-max1-min2-max2number">map(val, min1, max1, min2, max2):Number</h2>
+<p>Maps a number from one scale to another.</p>
+<pre><code>map(3, 0, 4, -1, 1)   // 0.5
+map(3, 0, 10, 0, 100) // 30</code></pre>
+<h3 id="common-use-cases-8">Common use cases</h3>
+<p>Very useful to convert values from/to multiple scales.</p>
+<p>Let’s suppose we have a slider that needs to go from <code>2000</code> to <code>5000</code> and that slider has <code>300px</code> of width, here is how we would translate the knob position into the current value:</p>
+<pre><code>var knobX = 123;
+var sliderWid = 300;
+var minVal = 2000;
+var maxVal = 5000;
+
+var curVal = map(knobX, 0, sliderWid, minVal, maxVal); // 3230</code></pre>
+<p>See: <a href="#lerp"><code>lerp()</code></a>, <a href="#norm"><code>norm()</code></a></p>
+<h2 id="normval-min-maxnumber">norm(val, min, max):Number</h2>
+<p>Gets normalized ratio of value inside range.</p>
+<p>If <code>val &lt; min</code> or <code>val &gt; max</code> it will throw a <code>RangeError</code> since we can’t normalize the value.</p>
+<pre><code>norm(50, 0, 100); // 0.5
+norm(75, 0, 100); // 0.75
+norm(100, 0, 100); // 1
+norm(-50, 0, 100); // RangeError: value (-50) must be between 0 and 100</code></pre>
+<h3 id="common-use-cases-9">Common use cases</h3>
+<p>Convert values between scales, used by <a href="#map"><code>map()</code></a> internally. Direct opposite of <a href="#lerp"><code>lerp()</code></a>.</p>
+<p>See: <a href="#lerp"><code>lerp()</code></a>, <a href="#map"><code>map()</code></a></p>
+<h2 id="overflowval-min-maxnumber">overflow(val[, min], max):Number</h2>
+<p>Wraps number within [min, max). When no <code>min</code> is given, the value <code>0</code> is assumed. A number larger or equal <code>max</code> loops around and starts over at <code>min</code>. For positive numbers larger or equal max this method behaves identical to the modulo operator. Numbers smaller than min loop around and start over at <code>max</code>.</p>
+<pre><code>overflow(13, 5, 10); // 8
+overflow(3, 5, 10); // 8
+overflow(23, 5); // 3
+overflow(-10, -7, -1); // -4</code></pre>
+<p>See: <a href="#loop"><code>loop()</code></a></p>
+<h2 id="roundval-stepnumber">round(val[, step]):Number</h2>
+<p>Round value to full steps. Similar to <code>Math.round()</code> but allow setting an arbitrary <em>radix</em>.</p>
+<pre><code>// default
+round(0.22);      // 0
+round(0.49);      // 0
+round(0.51);      // 1
+
+// custom radix
+round(0.22, 0.5); // 0
+round(0.49, 0.5); // 0.5
+round(0.51, 0.5); // 0.5
+round(0.74, 0.5); // 0.5
+round(0.75, 0.5); // 1
+round(1.24, 0.5); // 1
+round(1.25, 0.5); // 1.5
+round(1.74, 0.5); // 1.5</code></pre>
+<h3 id="common-use-cases-10">Common use cases</h3>
+<p>Round values by increments of 0.5/5/10/1000/etc.</p>
+<p>See: <a href="#floor"><code>floor()</code></a>, <a href="#ceil"><code>ceil()</code></a>, <a href="#countSteps"><code>countSteps()</code></a></p>
+<hr />
+<p>For more usage more info check the specs and source code.</p>
+</body>
+</html>

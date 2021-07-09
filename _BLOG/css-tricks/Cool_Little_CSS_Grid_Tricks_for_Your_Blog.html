@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>Cool_Little_CSS_Grid_Tricks_for_Your_Blog</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <p>
+      I discovered CSS about a decade ago while trying to modify the look of a
+      blog I had created. Pretty soon, I was able to code
+      <a href="https://codepen.io/thebabydino/details/GRgYQge">cool things</a>
+      with more mathematical and, therefore, easier-to-understand features like
+      transforms. However, other areas of CSS, such as layout, have remained a
+      constant source of pain.
+    </p>
+    <p>
+      This post is about a problem I encountered about a decade ago and, until
+      recently, did not know how to solve in a smart way. Specifically, it’s
+      about how I found a solution to a long-running problem using a modern CSS
+      grid technique that, in the process, gave me even cooler results than I
+      originally imagined.
+    </p>
+    <p>
+      Note that this is not a tutorial on how to best use CSS grid, but more of
+      a walk through my own learning process.
+    </p>
+    <h3 id="the-problem">The problem</h3>
+    <p>
+      One of the first things I used to dump on that blog were random photos
+      from the city, so I had this idea about having a grid of thumbnails with a
+      fixed size. For a nicer look, I wanted this grid to be middle-aligned with
+      respect to the paragraphs above and below it, but, at the same time, I
+      wanted the thumbnails on the last row to be left-aligned with respect to
+      the grid. Meanwhile, the width of the post (and the width of the grid
+      within it) would depend on the viewport.
+    </p>
+    <p>The HTML looks something like this:</p>
+    <pre><code>&lt;section class=&#39;post__content&#39;&gt;
+  &lt;p&gt;&lt;/p&gt;
+  &lt;div class=&#39;grid--thumbs&#39;&gt;
+    &lt;a href=&#39;full-size-image.jpg&#39;&gt;
+      &lt;img src=&#39;thumb-image.jpg&#39; alt=&#39;image description&#39;/&gt;
+    &lt;/a&gt;
+
+  &lt;/div&gt;
+  &lt;p&gt;&lt;/p&gt;
+&lt;/section&gt;</code></pre>
+    <p>
+      It may seem simple, but it turned out to be one of the most difficult CSS
+      problems I’ve ever encountered.
+    </p>
+    <h3 id="less-than-ideal-solutions">Less than ideal solutions</h3>
+    <p>
+      These are things I have tried or seen suggested over the years, but that
+      never really got me anywhere.
+    </p>
+    <h4 id="floating-impossibility">Floating impossibility</h4>
+    <p>
+      Floats turned out to be a dead end because I couldn’t figure out how to
+      make the grid be middle aligned this way.
+    </p>
+    <pre><code>.grid--thumbs { overflow: hidden; }
+
+.grid--thumbs a { float: left; }</code></pre>
+    <p>
+      The demo below shows the float attempt. Resize the embed to see how they
+      behave at different viewport widths.
+    </p>
+    <h4 id="inline-block-madness"><code>inline-block</code> madness</h4>
+    <p>At first, this seemed like a better idea:</p>
+    <pre><code>.grid--thumbs { text-align: center }
+
+.grid--thumbs a { display: inline-block }</code></pre>
+    <p>Except it turned out it wasn’t:</p>
+    <p>The last row isn’t left aligned in this case.</p>
+    <p>
+      At a certain point, thanks to an accidental CSS auto-complete on CodePen,
+      I found out about a property called
+      <code
+        >[text-align-last](https://css-tricks.com/almanac/properties/t/text-align-last/)</code
+      >, which determines how the last line of a block is aligned.
+    </p>
+    <p>
+      Unfortunately, setting <code>text-align-last: left</code> on the grid
+      wasn’t the solution I was looking for either:
+    </p>
+    <p>
+      At this point, I actually considered dropping the idea of a middle aligned
+      grid. Could a combo of <code>text-align: justified</code> and
+      <code>text-align-last: left</code> on the grid produce a better result?
+    </p>
+    <p>
+      Well, turns out it doesn’t. That is, unless there’s only a thumbnail on
+      the last row and the gaps between the columns aren’t too big. Resize the
+      embed below to see what I mean.
+    </p>
+    <p>
+      This is pretty much where I was at two years ago, after nine years of
+      trying and failing to come up with a solution to this problem.
+    </p>
+    <h4 id="messy-flexbox-hacks">Messy flexbox hacks</h4>
+    <p>
+      A flexbox solution that seemed like it would work at first was to add an
+      <code>::after</code> pseudo-element on the grid and set
+      <code>flex: 1</code> on both the thumbnails and this pseudo-element:
+    </p>
+    <pre><code>.grid--thumbs {
+  display: flex;
+  flex-wrap: wrap;
+
+  a, &amp;::after { flex: 1; }
+
+  img { margin: auto; }
+
+  &amp;:after { content: &#39;AFTER&#39;; }
+}</code></pre>
+    <p>
+      The demo below shows how this method works. I’ve given the thumbnails and
+      the <code>::after</code> pseudo-element purple outlines to make it easier
+      to see what is going on.
+    </p>
+    <p>
+      This is not quite what I wanted because the grid of thumbnails is not
+      middle-aligned. Thats said, it doesn’t look too bad… as long as the last
+      row has exactly one item less image than the others. As soon as that
+      changes, however, the layout breaks if it’s missing more items or none.
+    </p>
+    <figure>
+      <img
+        src="https://i2.wp.com/css-tricks.com/wp-content/uploads/2020/05/screen_flex_after_issue.png?ssl=1"
+        alt="Screenshot collage. Shows how the layout breaks when the last row is not missing exactly one item to be full."
+      />
+      <figcaption>
+        Screenshot collage. Shows how the layout breaks when the last row is not
+        missing exactly one item to be full.
+      </figcaption>
+    </figure>
+    <p>Why the <code>::after</code> hack is not reliable.</p>
+    <p>
+      That was one hacky idea. Another is not to use a pseudo-element, but add
+      as many empty divs after the thumbnails as there are columns that we’re
+      expecting to have.
+    </p>
+    <p>
+      The expected number of columns is something we should be able to
+      approximate since the size of the thumbnails is fixed and we probably want
+      to set a maximum width for the post since text that stretches across the
+      width of a full screen can visually exhausting for eyes to read. Dividing
+      the maximum width by the fixed thumbnail width should give us the maximum
+      number of columns in this case.
+    </p>
+    <p>
+      The first empty elements will take up the full width of the row that’s not
+      completely filled with thumbnails, while the rest will spill into other
+      rows. But since their <code>height</code> is zero, it won’t matter
+      visually.
+    </p>
+    <p>
+      This kind of does the trick but, again, it’s hacky and still doesn’t
+      produce the exact result I want since it sometimes ends up with big and
+      kind of ugly-looking gaps between the columns.
+    </p>
+    <h4 id="a-grid-solution">A grid solution?</h4>
+    <p>
+      The grid layout has always sounded like the answer, given its name. The
+      problem was that all examples I had seen by then were using a predefined
+      number of columns and that doesn’t work for this particular pattern where
+      the number of columns is determined by the viewport width.
+    </p>
+    <p>
+      Last year, while coding a collection of one element, pure CSS background
+      patterns, I had the idea of generating a bunch of media queries that would
+      modify a CSS variable, <code>--n</code>, corresponding to the number of
+      columns used to set <code>grid-template-columns</code>.
+    </p>
+    <pre><code>$w: 13em;
+$h: 19em;
+$f: $h/$w;
+$n: 7;
+$g: 1em;
+
+--h: #{$f*$w};
+display: grid;
+grid-template-columns: repeat(var(--n, #{$n}), var(--w, #{$w}));
+grid-gap: $g;
+place-content: center;
+
+@for $i from 1 to $n {
+  @media (max-width: ($n - $i + 1)*$w + ($n - $i + 2)*$g) {
+    --n: #{$n - $i}
+  }
+}</code></pre>
+    <p>
+      I was actually super proud of this idea at the time, even though I cringe
+      looking back on it now. One media query for every number of columns
+      possible is not exactly ideal, not to mention it doesn’t work so well when
+      the grid width doesn’t equal the viewport width, but is still somewhat
+      flexible and also depends on the width of its siblings.
+    </p>
+    <h3 id="a-magic-solution">A magic solution</h3>
+    <p>
+      I finally came across a better solution while working with CSS grid and
+      failing to understand why the <code>repeat()</code> function wasn’t
+      working in a particular situation. It was so frustrating and prompted me
+      to go to MDN, where I happened to notice the
+      <code
+        >[auto-fit](https://css-tricks.com/auto-sizing-columns-css-grid-auto-fill-vs-auto-fit/)</code
+      >
+      keyword and, while I didn’t understand the explanation, I had a hunch that
+      it could help with <em>this</em> other problem, so I dropped everything
+      else I was doing and gave it a try.
+    </p>
+    <p>Here’s what I got:</p>
+    <pre><code>.grid--thumbs {
+  display: grid;
+  justify-content: center;
+  grid-gap: .25em;
+  grid-template-columns: repeat(auto-fit, 8em);
+}</code></pre>
+    <p>
+      I also discovered the
+      <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/minmax"
+        ><code>minmax()</code></a
+      >
+      function, which can be used in place of fixed sizes on grid items. I still
+      haven’t been able to understand exactly how <code>minmax()</code> works —
+      and the more I play with it, the less I understand it — but what it looks
+      like it does in this situation is create the grid then stretch its columns
+      equally until they fill all of the available space:
+    </p>
+    <pre><code>grid-template-columns: repeat(auto-fit, minmax(8em, 1fr));</code></pre>
+    <p>
+      Another cool thing we can do here is prevent the image from overflowing
+      when it’s wider than the grid element. We can do this by replacing the
+      minimum <code>8em</code> with <code>min(8em, 100%)</code> That essentially
+      ensures that images will never exceed 100%, but never below 8em. Thanks to
+      Chris for this suggestion!
+    </p>
+    <p>
+      Note that the
+      <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/min"
+        ><code>min()</code></a
+      >
+      function doesn’t work in pre-Chromium Edge!
+    </p>
+    <p>
+      Keep in mind that this only produces a nice result if all of the images
+      have the same aspect ratio — like the square images I’ve used here. For my
+      blog, this was not an issue since all photos were taken with my Sony
+      Ericsson W800i phone, and they all had the same aspect ratio. But if we
+      were to drop images with different aspect ratios, the grid wouldn’t look
+      as good anymore:
+    </p>
+    <p>
+      We can, of course, set the image <code>height</code> to a fixed value, but
+      that distorts the images… unless we set
+      <a href="https://css-tricks.com/on-object-fit-and-object-position/"
+        ><code>object-fit</code></a
+      >
+      to <code>cover</code>, which solves our problem!
+    </p>
+    <p>
+      Another idea would be to turn the first thumbnail into a sort of banner
+      that spans all grid columns. The one problem is that we don’t know the
+      number of columns because that depends on the viewport. But, there
+      <em>is</em> a solution — we can set <code>grid-column-end</code> to
+      <code>-1</code>!
+    </p>
+    <pre><code>.grid--thumbs {
+
+
+  a:first-child {
+    grid-column: 1/ -1;
+
+    img { height: 13em }
+  }
+}</code></pre>
+    <p>
+      The first image gets a bigger <code>height</code> than all the others.
+    </p>
+    <p>
+      Of course, if we wanted the image to span all columns except the last, one
+      we’d set it to <code>-2</code> and so on… negative column indices are a
+      thing!
+    </p>
+    <p>
+      <code>auto-fill</code> is another grid property keyword I noticed on MDN.
+      The explanations for both are long walls of text without visuals, so I
+      didn’t find them particularly useful. Even worse, replacing
+      <code>auto-fit</code> with <code>auto-fill</code> in any of the grid demos
+      above produces absolutely no difference. How they really work and how they
+      differ still remains a mystery, even after checking out
+      <a
+        href="https://css-tricks.com/auto-sizing-columns-css-grid-auto-fill-vs-auto-fit/#article-header-id-0"
+        >articles</a
+      >
+      or toying with
+      <a href="https://gridbyexample.com/examples/example37/">examples</a>.
+    </p>
+    <p>
+      However, trying out different things and seeing what happens in various
+      scenarios at one point led me to the conclusion that, if we’re using a
+      <code>minmax()</code> column width and not a fixed one (like
+      <code>8em</code>), then it’s probably better to use
+      <code>auto-fill</code> instead of <code>auto-fit</code> because, the
+      result looks better if we happen to only have a few images, as illustrated
+      by the interactive demo below:
+    </p>
+    <p>
+      I think what I personally like best is the initial idea of a thumbnail
+      grid that’s middle-aligned and has a mostly fixed column width (but still
+      uses <code>min(100%, 15em)</code> instead of just
+      <code>15em</code> though). At the end of the day, it’s a matter of
+      personal preference and what can be seen in the demo below just happens to
+      look better to me:
+    </p>
+    <p>
+      I’m using <code>auto-fit</code> in this demo because it produces the same
+      result as <code>auto-fill</code> and is one character shorter. However,
+      what I didn’t understand when making this is that both keywords produce
+      the same result because there are more items in the gallery than we need
+      to fill a row.
+    </p>
+    <p>
+      But once that changes, <code>auto-fit</code> and
+      <code>auto-fill</code> produce different results, as illustrated below.
+      You can change the <code>justify-content</code> value and the number of
+      items placed on the grid:
+    </p>
+    <p>
+      I’m not really sure which is the better choice. I guess this also depends
+      on personal preference. Coupled with <code>justify-content: center</code>,
+      <code>auto-fill</code> seems to be the more logical option, but, at the
+      same time, <code>auto-fit</code> produces a better-looking result.
+    </p>
+  </body>
+</html>

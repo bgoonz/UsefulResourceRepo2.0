@@ -1,0 +1,1 @@
+soapsuds -url:http://localhost:1234/CustomerManager.soap?wsdl -gc

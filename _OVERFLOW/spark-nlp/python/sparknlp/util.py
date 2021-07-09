@@ -8,4 +8,6 @@ def get_config_path():
 class CoNLLGenerator:
     @staticmethod
     def exportConllFiles(spark, files_path, pipeline, output_path):
-        _internal._CoNLLGeneratorExport(spark, files_path, pipeline, output_path).apply()
+        _internal._CoNLLGeneratorExport(
+            spark, files_path, pipeline, output_path
+        ).apply()

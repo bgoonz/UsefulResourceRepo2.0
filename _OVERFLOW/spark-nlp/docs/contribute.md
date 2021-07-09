@@ -4,15 +4,15 @@ title: Contribute
 permalink: /contribute
 key: contribute
 aside:
-    toc: false
+  toc: false
 sidebar:
-    nav: extras    
+  nav: extras
 license: false
 show_edit_on_github: true
 show_date: true
 header:
-    theme: light
-    background: "#ecf0f1"
+  theme: light
+  background: "#ecf0f1"
 modify_date: "2019-06-30"
 ---
 
@@ -20,10 +20,10 @@ Refer to our GitHub page to take a look at the GH Issues, as the project is yet 
 
 Feel free to clone the repository locally and submit pull requests so we can review them and work together.
 
-* feedback, ideas and bug reports
-* testing and development
-* training and testing nlp corpora
-* documentation and research
+- feedback, ideas and bug reports
+- testing and development
+- training and testing nlp corpora
+- documentation and research
 
 Help is always welcome, for any further questions, contact nlp@johnsnowlabs.com.
 

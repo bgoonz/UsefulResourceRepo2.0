@@ -5,7 +5,11 @@ from pyspark.ml.wrapper import JavaEstimator
 from pyspark.ml.param.shared import Param, Params, TypeConverters
 from pyspark.ml.pipeline import Pipeline, PipelineModel, Estimator, Transformer
 from sparknlp.common import AnnotatorProperties
-from sparknlp.internal import AnnotatorTransformer, RecursiveEstimator, RecursiveTransformer
+from sparknlp.internal import (
+    AnnotatorTransformer,
+    RecursiveEstimator,
+    RecursiveTransformer,
+)
 
 from sparknlp.annotation import Annotation
 import sparknlp.internal as _internal
@@ -14,20 +18,24 @@ import sparknlp.internal as _internal
 class LightPipeline:
     def __init__(self, pipelineModel, parse_embeddings=False):
         self.pipeline_model = pipelineModel
-        self._lightPipeline = _internal._LightPipeline(pipelineModel, parse_embeddings).apply()
+        self._lightPipeline = _internal._LightPipeline(
+            pipelineModel, parse_embeddings
+        ).apply()
 
     @staticmethod
     def _annotation_from_java(java_annotations):
         annotations = []
         for annotation in java_annotations:
-            annotations.append(Annotation(annotation.annotatorType(),
-                                          annotation.begin(),
-                                          annotation.end(),
-                                          annotation.result(),
-                                          annotation.metadata(),
-                                          annotation.embeddings
-                                          )
-                               )
+            annotations.append(
+                Annotation(
+                    annotation.annotatorType(),
+                    annotation.begin(),
+                    annotation.end(),
+                    annotation.result(),
+                    annotation.metadata(),
+                    annotation.embeddings,
+                )
+            )
         return annotations
 
     def fullAnnotate(self, target):
@@ -42,7 +50,6 @@ class LightPipeline:
         return result
 
     def annotate(self, target):
-
         def reformat(annotations):
             return {k: list(v) for k, v in annotations.items()}
 
@@ -72,7 +79,9 @@ class RecursivePipeline(Pipeline, JavaEstimator):
     @keyword_only
     def __init__(self, *args, **kwargs):
         super(RecursivePipeline, self).__init__(*args, **kwargs)
-        self._java_obj = self._new_java_obj("com.johnsnowlabs.nlp.RecursivePipeline", self.uid)
+        self._java_obj = self._new_java_obj(
+            "com.johnsnowlabs.nlp.RecursivePipeline", self.uid
+        )
         kwargs = self._input_kwargs
         self.setParams(**kwargs)
 
@@ -81,7 +90,8 @@ class RecursivePipeline(Pipeline, JavaEstimator):
         for stage in stages:
             if not (isinstance(stage, Estimator) or isinstance(stage, Transformer)):
                 raise TypeError(
-                    "Cannot recognize a pipeline stage of type %s." % type(stage))
+                    "Cannot recognize a pipeline stage of type %s." % type(stage)
+                )
         indexOfLastEstimator = -1
         for i, stage in enumerate(stages):
             if isinstance(stage, Estimator):
@@ -108,7 +118,6 @@ class RecursivePipeline(Pipeline, JavaEstimator):
 
 
 class RecursivePipelineModel(PipelineModel):
-
     def __init__(self, pipeline_model):
         super(PipelineModel, self).__init__()
         self.stages = pipeline_model.stages
@@ -117,7 +126,9 @@ class RecursivePipelineModel(PipelineModel):
         for t in self.stages:
             if isinstance(t, HasRecursiveTransform):
                 # drops current stage from the recursive pipeline within
-                dataset = t.transform_recursive(dataset, PipelineModel(self.stages[:-1]))
+                dataset = t.transform_recursive(
+                    dataset, PipelineModel(self.stages[:-1])
+                )
             elif isinstance(t, AnnotatorProperties) and t.getLazyAnnotator():
                 pass
             else:
@@ -135,18 +146,50 @@ class HasRecursiveTransform(RecursiveTransformer):
 
 class DocumentAssembler(AnnotatorTransformer):
 
-    inputCol = Param(Params._dummy(), "inputCol", "input column name", typeConverter=TypeConverters.toString)
-    outputCol = Param(Params._dummy(), "outputCol", "output column name", typeConverter=TypeConverters.toString)
-    idCol = Param(Params._dummy(), "idCol", "column for setting an id to such string in row", typeConverter=TypeConverters.toString)
-    metadataCol = Param(Params._dummy(), "metadataCol", "String to String map column to use as metadata", typeConverter=TypeConverters.toString)
-    calculationsCol = Param(Params._dummy(), "calculationsCol", "String to Float vector map column to use as embeddigns and other representations", typeConverter=TypeConverters.toString)
-    cleanupMode = Param(Params._dummy(), "cleanupMode", "possible values: disabled, inplace, inplace_full, shrink, shrink_full, each, each_full, delete_full", typeConverter=TypeConverters.toString)
-    name = 'DocumentAssembler'
+    inputCol = Param(
+        Params._dummy(),
+        "inputCol",
+        "input column name",
+        typeConverter=TypeConverters.toString,
+    )
+    outputCol = Param(
+        Params._dummy(),
+        "outputCol",
+        "output column name",
+        typeConverter=TypeConverters.toString,
+    )
+    idCol = Param(
+        Params._dummy(),
+        "idCol",
+        "column for setting an id to such string in row",
+        typeConverter=TypeConverters.toString,
+    )
+    metadataCol = Param(
+        Params._dummy(),
+        "metadataCol",
+        "String to String map column to use as metadata",
+        typeConverter=TypeConverters.toString,
+    )
+    calculationsCol = Param(
+        Params._dummy(),
+        "calculationsCol",
+        "String to Float vector map column to use as embeddigns and other representations",
+        typeConverter=TypeConverters.toString,
+    )
+    cleanupMode = Param(
+        Params._dummy(),
+        "cleanupMode",
+        "possible values: disabled, inplace, inplace_full, shrink, shrink_full, each, each_full, delete_full",
+        typeConverter=TypeConverters.toString,
+    )
+    name = "DocumentAssembler"
 
     @keyword_only
     def __init__(self):
-        super(DocumentAssembler, self).__init__(classname="com.johnsnowlabs.nlp.DocumentAssembler")
-        self._setDefault(outputCol="document", cleanupMode='disabled')
+        super(DocumentAssembler, self).__init__(
+            classname="com.johnsnowlabs.nlp.DocumentAssembler"
+        )
+        self._setDefault(outputCol="document", cleanupMode="disabled")
 
     @keyword_only
     def setParams(self):
@@ -169,8 +212,19 @@ class DocumentAssembler(AnnotatorTransformer):
         return self._set(metadataCol=value)
 
     def setCleanupMode(self, value):
-        if value.strip().lower() not in ['disabled', 'inplace', 'inplace_full', 'shrink', 'shrink_full', 'each', 'each_full', 'delete_full']:
-            raise Exception("Cleanup mode possible values: disabled, inplace, inplace_full, shrink, shrink_full, each, each_full, delete_full")
+        if value.strip().lower() not in [
+            "disabled",
+            "inplace",
+            "inplace_full",
+            "shrink",
+            "shrink_full",
+            "each",
+            "each_full",
+            "delete_full",
+        ]:
+            raise Exception(
+                "Cleanup mode possible values: disabled, inplace, inplace_full, shrink, shrink_full, each, each_full, delete_full"
+            )
         return self._set(cleanupMode=value)
 
 
@@ -180,7 +234,9 @@ class TokenAssembler(AnnotatorTransformer, AnnotatorProperties):
 
     @keyword_only
     def __init__(self):
-        super(TokenAssembler, self).__init__(classname="com.johnsnowlabs.nlp.TokenAssembler")
+        super(TokenAssembler, self).__init__(
+            classname="com.johnsnowlabs.nlp.TokenAssembler"
+        )
 
     @keyword_only
     def setParams(self):
@@ -190,20 +246,48 @@ class TokenAssembler(AnnotatorTransformer, AnnotatorProperties):
 
 class Doc2Chunk(AnnotatorTransformer, AnnotatorProperties):
 
-    chunkCol = Param(Params._dummy(), "chunkCol", "column that contains string. Must be part of DOCUMENT", typeConverter=TypeConverters.toString)
-    startCol = Param(Params._dummy(), "startCol", "column that has a reference of where chunk begins", typeConverter=TypeConverters.toString)
-    startColByTokenIndex = Param(Params._dummy(), "startColByTokenIndex", "whether start col is by whitespace tokens", typeConverter=TypeConverters.toBoolean)
-    isArray = Param(Params._dummy(), "isArray", "whether the chunkCol is an array of strings", typeConverter=TypeConverters.toBoolean)
-    failOnMissing = Param(Params._dummy(), "failOnMissing", "whether to fail the job if a chunk is not found within document. return empty otherwise", typeConverter=TypeConverters.toBoolean)
-    lowerCase = Param(Params._dummy(), "lowerCase", "whether to lower case for matching case", typeConverter=TypeConverters.toBoolean)
+    chunkCol = Param(
+        Params._dummy(),
+        "chunkCol",
+        "column that contains string. Must be part of DOCUMENT",
+        typeConverter=TypeConverters.toString,
+    )
+    startCol = Param(
+        Params._dummy(),
+        "startCol",
+        "column that has a reference of where chunk begins",
+        typeConverter=TypeConverters.toString,
+    )
+    startColByTokenIndex = Param(
+        Params._dummy(),
+        "startColByTokenIndex",
+        "whether start col is by whitespace tokens",
+        typeConverter=TypeConverters.toBoolean,
+    )
+    isArray = Param(
+        Params._dummy(),
+        "isArray",
+        "whether the chunkCol is an array of strings",
+        typeConverter=TypeConverters.toBoolean,
+    )
+    failOnMissing = Param(
+        Params._dummy(),
+        "failOnMissing",
+        "whether to fail the job if a chunk is not found within document. return empty otherwise",
+        typeConverter=TypeConverters.toBoolean,
+    )
+    lowerCase = Param(
+        Params._dummy(),
+        "lowerCase",
+        "whether to lower case for matching case",
+        typeConverter=TypeConverters.toBoolean,
+    )
     name = "Doc2Chunk"
 
     @keyword_only
     def __init__(self):
         super(Doc2Chunk, self).__init__(classname="com.johnsnowlabs.nlp.Doc2Chunk")
-        self._setDefault(
-            isArray=False
-        )
+        self._setDefault(isArray=False)
 
     @keyword_only
     def setParams(self):
@@ -245,14 +329,54 @@ class Chunk2Doc(AnnotatorTransformer, AnnotatorProperties):
 
 class Finisher(AnnotatorTransformer):
 
-    inputCols = Param(Params._dummy(), "inputCols", "input annotations", typeConverter=TypeConverters.toListString)
-    outputCols = Param(Params._dummy(), "outputCols", "output finished annotation cols", typeConverter=TypeConverters.toListString)
-    valueSplitSymbol = Param(Params._dummy(), "valueSplitSymbol", "character separating annotations", typeConverter=TypeConverters.toString)
-    annotationSplitSymbol = Param(Params._dummy(), "annotationSplitSymbol", "character separating annotations", typeConverter=TypeConverters.toString)
-    cleanAnnotations = Param(Params._dummy(), "cleanAnnotations", "whether to remove annotation columns", typeConverter=TypeConverters.toBoolean)
-    includeMetadata = Param(Params._dummy(), "includeMetadata", "annotation metadata format", typeConverter=TypeConverters.toBoolean)
-    outputAsArray = Param(Params._dummy(), "outputAsArray", "finisher generates an Array with the results instead of string", typeConverter=TypeConverters.toBoolean)
-    parseEmbeddingsVectors = Param(Params._dummy(), "parseEmbeddingsVectors", "whether to include embeddings vectors in the process", typeConverter=TypeConverters.toBoolean)
+    inputCols = Param(
+        Params._dummy(),
+        "inputCols",
+        "input annotations",
+        typeConverter=TypeConverters.toListString,
+    )
+    outputCols = Param(
+        Params._dummy(),
+        "outputCols",
+        "output finished annotation cols",
+        typeConverter=TypeConverters.toListString,
+    )
+    valueSplitSymbol = Param(
+        Params._dummy(),
+        "valueSplitSymbol",
+        "character separating annotations",
+        typeConverter=TypeConverters.toString,
+    )
+    annotationSplitSymbol = Param(
+        Params._dummy(),
+        "annotationSplitSymbol",
+        "character separating annotations",
+        typeConverter=TypeConverters.toString,
+    )
+    cleanAnnotations = Param(
+        Params._dummy(),
+        "cleanAnnotations",
+        "whether to remove annotation columns",
+        typeConverter=TypeConverters.toBoolean,
+    )
+    includeMetadata = Param(
+        Params._dummy(),
+        "includeMetadata",
+        "annotation metadata format",
+        typeConverter=TypeConverters.toBoolean,
+    )
+    outputAsArray = Param(
+        Params._dummy(),
+        "outputAsArray",
+        "finisher generates an Array with the results instead of string",
+        typeConverter=TypeConverters.toBoolean,
+    )
+    parseEmbeddingsVectors = Param(
+        Params._dummy(),
+        "parseEmbeddingsVectors",
+        "whether to include embeddings vectors in the process",
+        typeConverter=TypeConverters.toBoolean,
+    )
 
     name = "Finisher"
 
@@ -263,7 +387,7 @@ class Finisher(AnnotatorTransformer):
             cleanAnnotations=True,
             includeMetadata=False,
             outputAsArray=True,
-            parseEmbeddingsVectors=False
+            parseEmbeddingsVectors=False,
         )
 
     @keyword_only
@@ -304,20 +428,39 @@ class Finisher(AnnotatorTransformer):
 
 class EmbeddingsFinisher(AnnotatorTransformer):
 
-    inputCols = Param(Params._dummy(), "inputCols", "name of input annotation cols containing embeddings", typeConverter=TypeConverters.toListString)
-    outputCols = Param(Params._dummy(), "outputCols", "output EmbeddingsFinisher ouput cols", typeConverter=TypeConverters.toListString)
-    cleanAnnotations = Param(Params._dummy(), "cleanAnnotations", "whether to remove all the existing annotation columns", typeConverter=TypeConverters.toBoolean)
-    outputAsVector = Param(Params._dummy(), "outputAsVector", "if enabled it will output the embeddings as Vectors instead of arrays", typeConverter=TypeConverters.toBoolean)
+    inputCols = Param(
+        Params._dummy(),
+        "inputCols",
+        "name of input annotation cols containing embeddings",
+        typeConverter=TypeConverters.toListString,
+    )
+    outputCols = Param(
+        Params._dummy(),
+        "outputCols",
+        "output EmbeddingsFinisher ouput cols",
+        typeConverter=TypeConverters.toListString,
+    )
+    cleanAnnotations = Param(
+        Params._dummy(),
+        "cleanAnnotations",
+        "whether to remove all the existing annotation columns",
+        typeConverter=TypeConverters.toBoolean,
+    )
+    outputAsVector = Param(
+        Params._dummy(),
+        "outputAsVector",
+        "if enabled it will output the embeddings as Vectors instead of arrays",
+        typeConverter=TypeConverters.toBoolean,
+    )
 
     name = "EmbeddingsFinisher"
 
     @keyword_only
     def __init__(self):
-        super(EmbeddingsFinisher, self).__init__(classname="com.johnsnowlabs.nlp.EmbeddingsFinisher")
-        self._setDefault(
-            cleanAnnotations=False,
-            outputAsVector=False
+        super(EmbeddingsFinisher, self).__init__(
+            classname="com.johnsnowlabs.nlp.EmbeddingsFinisher"
         )
+        self._setDefault(cleanAnnotations=False, outputAsVector=False)
 
     @keyword_only
     def setParams(self):
