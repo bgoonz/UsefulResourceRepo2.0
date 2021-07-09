@@ -3,13 +3,14 @@ from math import sin, cos, pi
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
+
 class CartPole:
     def __init__(self, physics):
         self.physics = physics
         self.mass_cart = 1.0
         self.mass_pole = 0.3
         self.mass = self.mass_cart + self.mass_pole
-        self.length = 0.7 # actually half the pole length
+        self.length = 0.7  # actually half the pole length
         self.pole_mass_length = self.mass_pole * self.length
 
     def simulate(self, action, state_tuple):
@@ -36,8 +37,12 @@ class CartPole:
         force = self.physics.force_mag if action > 0 else (-1 * self.physics.force_mag)
 
         # intermediate calculation
-        temp = (force + self.pole_mass_length * theta_dot * theta_dot * sintheta) / self.mass
-        theta_acc = (self.physics.gravity * sintheta - temp * costheta) / (self.length * (4/3 - self.mass_pole * costheta * costheta / self.mass))
+        temp = (
+            force + self.pole_mass_length * theta_dot * theta_dot * sintheta
+        ) / self.mass
+        theta_acc = (self.physics.gravity * sintheta - temp * costheta) / (
+            self.length * (4 / 3 - self.mass_pole * costheta * costheta / self.mass)
+        )
 
         x_acc = temp - self.pole_mass_length * theta_acc * costheta / self.mass
 
@@ -79,7 +84,7 @@ class CartPole:
         state = 0
 
         if x < -2.4 or x > 2.4 or theta < -twelve_deg or theta > twelve_deg:
-            state = total_states - 1 # to signal failure
+            state = total_states - 1  # to signal failure
         else:
             # x: 3 categories
             if x < -1.5:
@@ -133,27 +138,32 @@ class CartPole:
         -------
         """
         x, x_dot, theta, theta_dot = state_tuple
-        X = [x, x + 4*self.length * sin(theta)]
-        Y = [0, 4*self.length * cos(theta)]
-        plt.close('all')
+        X = [x, x + 4 * self.length * sin(theta)]
+        Y = [0, 4 * self.length * cos(theta)]
+        plt.close("all")
         fig, ax = plt.subplots(1)
         plt.ion()
         ax.set_xlim(-3, 3)
         ax.set_ylim(-0.5, 3.5)
         ax.plot(X, Y)
-        cart = patches.Rectangle((x - 0.4, -0.25), 0.8, 0.25,
-                        linewidth=1, edgecolor='k', facecolor='cyan')
-        base = patches.Rectangle((x - 0.01, -0.5), 0.02, 0.25,
-                        linewidth=1, edgecolor='k', facecolor='r')
+        cart = patches.Rectangle(
+            (x - 0.4, -0.25), 0.8, 0.25, linewidth=1, edgecolor="k", facecolor="cyan"
+        )
+        base = patches.Rectangle(
+            (x - 0.01, -0.5), 0.02, 0.25, linewidth=1, edgecolor="k", facecolor="r"
+        )
         ax.add_patch(cart)
         ax.add_patch(base)
-        x_dot_str, theta_str, theta_dot_str = '\\dot{x}', '\\theta', '\\dot{\\theta}'
-        ax.set_title('x: %.3f, $%s$: %.3f, $%s$: %.3f, $%s$: %.3f'\
-                                %(x, x_dot_str, x_dot, theta_str, theta, theta_dot_str, x))
+        x_dot_str, theta_str, theta_dot_str = "\\dot{x}", "\\theta", "\\dot{\\theta}"
+        ax.set_title(
+            "x: %.3f, $%s$: %.3f, $%s$: %.3f, $%s$: %.3f"
+            % (x, x_dot_str, x_dot, theta_str, theta, theta_dot_str, x)
+        )
         plt.show()
         plt.pause(pause_time)
+
 
 class Physics:
     gravity = 9.8
     force_mag = 10.0
-    tau = 0.02 # seconds between state updates
+    tau = 0.02  # seconds between state updates

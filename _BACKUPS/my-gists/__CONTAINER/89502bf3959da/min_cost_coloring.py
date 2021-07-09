@@ -1,4 +1,4 @@
-'''
+"""
 Min Cost Coloring
 
 A builder is looking to build a row of N houses that can be of K different colors.
@@ -12,13 +12,14 @@ But don't search the whole array with combinations (colors), save only the small
 (in this case we're sure that the previous house doesn't have the same color).
     Time Complexity:    O(N * K)
     Space Complexity:   O(1)
-'''
+"""
 
 ############
 # Solution #
 ############
 
 import math
+
 
 def min_cost_coloring(dp):
     # no need from a new dp matrix, you can use the input matrix
@@ -61,8 +62,16 @@ def min_cost_coloring(dp):
 
 # Test 1
 # Correct result => 5
-print(min_cost_coloring([[1, 2, 3, 4, 5], [5, 4, 3, 2, 1], [3, 2, 1, 4, 5], [3, 2, 1, 4, 3]]))
+print(
+    min_cost_coloring(
+        [[1, 2, 3, 4, 5], [5, 4, 3, 2, 1], [3, 2, 1, 4, 5], [3, 2, 1, 4, 3]]
+    )
+)
 
 # Test 2
 # Correct result => 6
-print(min_cost_coloring([[1, 2, 3, 4, 5], [1, 2, 3, 4, 5], [1, 2, 3, 4, 5], [1, 2, 3, 4, 5]]))
+print(
+    min_cost_coloring(
+        [[1, 2, 3, 4, 5], [1, 2, 3, 4, 5], [1, 2, 3, 4, 5], [1, 2, 3, 4, 5]]
+    )
+)

@@ -1,8 +1,9 @@
 class LinearModel(object):
     """Base class for linear models."""
 
-    def __init__(self, step_size=0.2, max_iter=100, eps=1e-5,
-                 theta_0=None, verbose=True):
+    def __init__(
+        self, step_size=0.2, max_iter=100, eps=1e-5, theta_0=None, verbose=True
+    ):
         """
         Args:
             step_size: Step size for iterative solvers only.
@@ -24,7 +25,7 @@ class LinearModel(object):
             x: Training example inputs. Shape (m, n).
             y: Training example labels. Shape (m,).
         """
-        raise NotImplementedError('Subclass of LinearModel must implement fit method.')
+        raise NotImplementedError("Subclass of LinearModel must implement fit method.")
 
     def predict(self, x):
         """Make a prediction given new inputs x.
@@ -35,4 +36,6 @@ class LinearModel(object):
         Returns:
             Outputs of shape (m,).
         """
-        raise NotImplementedError('Subclass of LinearModel must implement predict method.')
+        raise NotImplementedError(
+            "Subclass of LinearModel must implement predict method."
+        )

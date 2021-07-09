@@ -26,8 +26,15 @@ import logging.handlers
 
 
 def setup_file_logging(
-    base_name, log_path=None, log_level=logging.INFO, show_name=False,
-    log_perror=False, rotations=None, rotate_kb=None, rotate_time=None):
+    base_name,
+    log_path=None,
+    log_level=logging.INFO,
+    show_name=False,
+    log_perror=False,
+    rotations=None,
+    rotate_kb=None,
+    rotate_time=None,
+):
     """Configure and add file logging handler to logger with base_name.
 
     The log file written to is defined by the log_path parameter.
@@ -66,30 +73,32 @@ def setup_file_logging(
     # Setup logging format
     if show_name:
         # Show logger name in log message.
-        fmt='%(asctime)s %(name)s %(levelname)-8s %(message)s'
+        fmt = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
     else:
-        fmt='%(asctime)s %(levelname)-8s %(message)s'
-    log_formatter = logging.Formatter(fmt=fmt, datefmt='%c')
+        fmt = "%(asctime)s %(levelname)-8s %(message)s"
+    log_formatter = logging.Formatter(fmt=fmt, datefmt="%c")
 
     # If logging to file.
     if log_path:
         file_handler = None
         if rotations is not None:
-            assert(isinstance(rotations, int) and rotations >= 0)
+            assert isinstance(rotations, int) and rotations >= 0
             # If rotating at specified size.
             if rotate_kb:
                 file_handler = logging.handlers.RotatingFileHandler(
-                    log_path, 'a', int(rotate_kb) << 10, rotations)
+                    log_path, "a", int(rotate_kb) << 10, rotations
+                )
             elif rotate_time:
                 # If rotating at specified interval.
-                when, interval = rotate_time.lower.split(',', 1)
-                assert(when in ('s','m','h','d','w','midnight'))
+                when, interval = rotate_time.lower.split(",", 1)
+                assert when in ("s", "m", "h", "d", "w", "midnight")
                 interval = int(interval)
                 file_handler = logging.handlers.TimedRotatingFileHandler(
-                    log_path, when, interval, rotations)
+                    log_path, when, interval, rotations
+                )
 
         if file_handler is None:
-            file_handler = logging.FileHandler(log_path, 'a')
+            file_handler = logging.FileHandler(log_path, "a")
 
         file_handler.setFormatter(log_formatter)
         logger.addHandler(file_handler)
@@ -107,8 +116,15 @@ def setup_file_logging(
 
 
 def setup_syslog_logging(
-    base_name, log_level=logging.INFO, show_name=False, log_perror=False,
-    address=None, port=None, facility=None, socktype=None):
+    base_name,
+    log_level=logging.INFO,
+    show_name=False,
+    log_perror=False,
+    address=None,
+    port=None,
+    facility=None,
+    socktype=None,
+):
     """Configure and add syslog logging handler to logger with base_name.
 
     Arguments:
@@ -133,48 +149,50 @@ def setup_syslog_logging(
     logger = logging.getLogger(base_name)
     logger.setLevel(_get_log_level_value(log_level))
     if facility is not None:
-        facility_num = logging.handlers.SysLogHandler.facility_names.get(
-            facility)
+        facility_num = logging.handlers.SysLogHandler.facility_names.get(facility)
         if facility_num is None:
             names = logging.handlers.SysLogHandler.facility_names.iterkeys()
-            raise Exception('ERROR: unsupported syslog facility.  Must be '
-                            'one of: %s' % ', '.join(names))
+            raise Exception(
+                "ERROR: unsupported syslog facility.  Must be "
+                "one of: %s" % ", ".join(names)
+            )
     else:
         facility_num = logging.handlers.SysLogHandler.LOG_USER
 
-    if not socktype or socktype == 'unix':
+    if not socktype or socktype == "unix":
         if not address:
-            address = '/dev/log'
+            address = "/dev/log"
         else:
             address = str(address)
         syslog_handler = logging.handlers.SysLogHandler(
-            address=address, facility=facility_num)
+            address=address, facility=facility_num
+        )
     else:
-        if socktype == 'udp':
+        if socktype == "udp":
             if not port:
                 port = logging.handlers.SysLogHandler.SYSLOG_UDP_PORT
             socktype = socket.SOCK_DGRAM
-        elif socktype == 'tcp':
+        elif socktype == "tcp":
             if not port:
                 port = logging.handlers.SysLogHandler.SYSLOG_TCP_PORT
             socktype = socket.SOCK_STREAM
         else:
-            raise Exception('ERROR: unsupported socket type: %s'%socktype)
+            raise Exception("ERROR: unsupported socket type: %s" % socktype)
 
         if not address:
-            address = 'localhost'
+            address = "localhost"
 
         syslog_handler = logging.handlers.SysLogHandler(
-            address=(address, int(port)), facility=facility_num,
-            socktype=socktype)
+            address=(address, int(port)), facility=facility_num, socktype=socktype
+        )
 
     # Setup logging format
     if show_name:
         # Show logger name in log message.
-        fmt = base_name + ': %(name)s %(levelname)-8s %(message)s'
+        fmt = base_name + ": %(name)s %(levelname)-8s %(message)s"
     else:
-        fmt = base_name + ': %(levelname)-8s %(message)s'
-    log_formatter = logging.Formatter(fmt=fmt, datefmt='%c')
+        fmt = base_name + ": %(levelname)-8s %(message)s"
+    log_formatter = logging.Formatter(fmt=fmt, datefmt="%c")
 
     syslog_handler.setFormatter(log_formatter)
     logger.addHandler(syslog_handler)
@@ -195,18 +213,15 @@ def _get_log_level_value(log_level):
 
     # Convert level name to value.
     log_level = log_level.lower()
-    if log_level == 'debug':
+    if log_level == "debug":
         return logging.DEBUG
-    if log_level == 'info':
+    if log_level == "info":
         return logging.INFO
-    if log_level == 'warning':
+    if log_level == "warning":
         return logging.WARNING
-    if log_level == 'error':
+    if log_level == "error":
         return logging.ERROR
-    if log_level == 'critical':
+    if log_level == "critical":
         return logging.CRITICAL
 
-    raise Exception('ERROR: unsupported log level: %s' % log_level)
-
-
-
+    raise Exception("ERROR: unsupported log level: %s" % log_level)

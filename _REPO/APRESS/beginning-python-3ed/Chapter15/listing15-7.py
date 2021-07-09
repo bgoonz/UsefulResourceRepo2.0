@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import cgi
+
 form = cgi.FieldStorage()
 
-name = form.getvalue('name', 'world')
+name = form.getvalue("name", "world")
 
-print("""Content-type: text/html
+print(
+    """Content-type: text/html
 
 <html>
   <head>
@@ -21,4 +23,7 @@ print("""Content-type: text/html
     </form>
   </body>
 </html>
-""".format(name))
+""".format(
+        name
+    )
+)

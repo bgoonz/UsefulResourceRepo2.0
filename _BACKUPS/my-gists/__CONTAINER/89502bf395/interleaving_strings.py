@@ -1,4 +1,4 @@
-'''
+"""
 Interleaving Strings
 
 Given are three strings A, B and C.
@@ -20,17 +20,18 @@ Output explanation:
 1D Dynamic programming solution. Only the last two rows from the whole matrix are used, but that could be represented using only 1 row.
     Time Complexity:    O(N*M)
     Space Complexity:   O(M)
-'''
+"""
 
 ##############
 # Solution 1 #
 ##############
 
+
 def interleaving_strings_1(A, B, C):
     nA, nB, nC = len(A), len(B), len(C)
     if nA + nB != nC:
         return 0
-    
+
     dp = [[0 for j in range(nB + 1)] for i in range(nA + 1)]
 
     # starting values
@@ -45,7 +46,7 @@ def interleaving_strings_1(A, B, C):
     for i in range(1, nB + 1):
         if B[i - 1] == C[i - 1]:
             dp[0][i] = dp[0][i - 1]
-    
+
     # run dp
     for i in range(1, nA + 1):
         for j in range(1, nB + 1):
@@ -63,11 +64,12 @@ def interleaving_strings_1(A, B, C):
 # Solution 2 #
 ##############
 
+
 def interleaving_strings_2(A, B, C):
     nA, nB, nC = len(A), len(B), len(C)
     if nA + nB != nC:
         return 0
-    
+
     dp = [0 for j in range(nB + 1)]
 
     # starting values
@@ -76,7 +78,7 @@ def interleaving_strings_2(A, B, C):
     for i in range(1, nB + 1):
         if B[i - 1] == C[i - 1]:
             dp[i] = dp[i - 1]
-    
+
     # run dp
     for i in range(1, nA + 1):
         if A[i - 1] != C[i - 1]:
@@ -99,6 +101,6 @@ def interleaving_strings_2(A, B, C):
 
 # Test 1
 # Correct result => 2
-a, b, c = 'xy', 'xz', 'xxyz'
+a, b, c = "xy", "xz", "xxyz"
 print(interleaving_strings_1(a, b, c))
 print(interleaving_strings_2(a, b, c))

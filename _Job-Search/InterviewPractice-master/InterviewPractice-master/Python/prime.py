@@ -11,6 +11,7 @@ def is_prime(n):
             i += 1
         return True
 
+
 p = int(input().strip())
 for _ in range(p):
     n = int(input().strip())

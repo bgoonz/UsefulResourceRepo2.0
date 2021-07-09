@@ -1,2 +1,2 @@
-f = ProfanitiesFilter([''], replacements="*") 
+f = ProfanitiesFilter([""], replacements="*")
 f.inside_words = True

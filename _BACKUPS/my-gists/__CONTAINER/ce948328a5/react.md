@@ -86,10 +86,10 @@ fetch("https://example.com/api/people")
 - **`React DevTools`** : New tool in your browser to see ow React is working in the browser
 - **`create-react-app`** : Extensible command-line tool to help generate standard React applications.
 - **`Webpack`** : In between tool for dealing with the extra build step involved.
-  ![pic](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/intro-to-react/assets/webpack.png)
+  ![pic](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/intro-to-react/assets/webpack.png)
 - **HMR** : (Hot Module Replacement) When you make changes to your source code the changes are delivered in real-time.
 - React Developers created something called `Flux Architecture` to moderate how their web page consumes and modifies data received from back-end API's.
-  ![fluxarch](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/intro-to-react/assets/flux-architecture.png)
+  ![fluxarch](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/intro-to-react/assets/flux-architecture.png)
   **Choosing React**
 - Basically, React is super important to learn and master.
 
@@ -994,7 +994,7 @@ const Links = () =>
     React.createElement(
       "li",
       { className: "is-selected" },
-      React.createElement("a", { href: "http://appacademy.io" }, "App Academy")
+      React.createElement("a", { href: "http://Lambda.io" }, "App Academy")
     ),
     React.createElement(
       "li",
@@ -1134,12 +1134,12 @@ React.createElement(
   "a",
   {
     className: "active",
-    href: "https://appacademy.io",
+    href: "https://Lambda.io",
   },
   "App Academy"
 );
 // JSX Version
-<a className="active" href="https://appacademy.io">
+<a className="active" href="https://Lambda.io">
   App Academy
 </a>;
 ```
@@ -1180,7 +1180,7 @@ const BookPanel = (props) => {
 ## **Using Custom CRA Templates**
 
 **Using a Custom Template**
-`npx create-react-app my-app --template @appacademy/simple`
+`npx create-react-app my-app --template @Lambda/simple`
 
 - Keep in mind that using `create-react-app` automatically initializes a git repository for you!
 - App Academy custom template for creating a react app.
@@ -2021,7 +2021,7 @@ export default PupContext;
 - `Dispatcher` : Mechanism for distributing actions to the store.
 - `Store` : The entire state of the application, responsible for updating the state of your app.
 - `View` : Unit of code that's responsible for rendering the user interface. Used to re-render the application when actions and changes occur.
-  ![graph](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/fullstack/react/assets/flux-loop.png)
+  ![graph](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/fullstack/react/assets/flux-loop.png)
   **Redux**
   ![rdx](https://assets.aaonline.io/fullstack/react/assets/redux.gif)
 - Library that facilitates the implementation of Flux.
@@ -2328,7 +2328,7 @@ routing. You are using React, so you will use React Router to do this.
 Create a simple react project template:
 
 ```sh
-npx create-react-app my-app --template @appacademy/simple
+npx create-react-app my-app --template @Lambda/simple
 ```
 
 Then install React Router:
@@ -3471,7 +3471,7 @@ others.
 Begin by creating a new React project:
 
 ```sh
-npx create-react-app rainbow-routes --template @appacademy/simple
+npx create-react-app rainbow-routes --template @Lambda/simple
 ```
 
 Now you'll remove all the contents of your `src` and all the contents from your
@@ -3816,7 +3816,7 @@ Express application.
 Begin by using the [create-react-app] package to create a React application:
 
 ```sh
-npx create-react-app exploring-react-builds --template @appacademy/simple
+npx create-react-app exploring-react-builds --template @Lambda/simple
 ```
 
 > Remember that using the `create-react-app` command initializes your project
@@ -4555,14 +4555,14 @@ React application's routes:
 - [http://localhost:9000/class-component][class component link]
 
 [create-react-app]: https://github.com/facebook/create-react-app
-[react builds cat]: https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/react-builds/assets/react-builds-cat.png
+[react builds cat]: https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/react-builds/assets/react-builds-cat.png
 [react builds dev tools image]: images/react-builds-dev-tools-image.png
 [react builds css modules]: images/react-builds-css-modules.png
 [css modules]: https://github.com/css-modules/css-modules
 [`webpack-dev-server`]: https://webpack.js.org/configuration/dev-server/
 [browserl.ist]: https://browserl.ist
 [caniuse es6 classes]: https://caniuse.com/#feat=es6-class
-[react builds transpilation]: https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/react-builds/assets/react-builds-transpilation.png
+[react builds transpilation]: https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/react-builds/assets/react-builds-transpilation.png
 [react builds sourcemaps]: images/react-builds-sourcemaps.png
 [react builds index html]: images/react-builds-index-html.png
 [react builds component env var]: images/react-builds-component-env-var.png

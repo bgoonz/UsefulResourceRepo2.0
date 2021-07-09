@@ -1,10 +1,10 @@
-'''
+"""
 Title     : Keyword Transposition Cipher
 Subdomain : Cryptography
 Domain    : Security
 Author    : Kalpak Seal
 Created   : 26 September 2016
-'''
+"""
 import collections
 
 alpha_l = []
@@ -27,7 +27,7 @@ for i in range(n):
     for j in keyword:
         if j not in keyword_mod:
             keyword_mod.append(j)
-    #print (keyword_mod)
+    # print (keyword_mod)
 
     keyword_mod_len = len(keyword_mod)
 
@@ -44,7 +44,7 @@ for i in range(n):
     for j in alpha_l:
         if j not in keyword_mod:
             column_ar.append(j)
-    #print (column_ar)
+    # print (column_ar)
 
     for j in range(0, keyword_mod_len):
         cnt = j
@@ -55,14 +55,20 @@ for i in range(n):
             character = column_ar[cnt]
 
             if key != character:
-                substitution_od[key].append(character)  # Adding characters under the same column to the key in the dict.
+                substitution_od[key].append(
+                    character
+                )  # Adding characters under the same column to the key in the dict.
 
-            cnt += keyword_mod_len  # looping increment is the length of keyword_mod list
+            cnt += (
+                keyword_mod_len  # looping increment is the length of keyword_mod list
+            )
         pos += 1
 
-    substitution_od = sorted(substitution_od.items())   # Sort the dictionary on the basis of the key as asked
+    substitution_od = sorted(
+        substitution_od.items()
+    )  # Sort the dictionary on the basis of the key as asked
 
-    #print (substitution_od)
+    # print (substitution_od)
 
     # Converting the ordered dictionary to list
     substitution_l = []
@@ -72,18 +78,18 @@ for i in range(n):
         for j in key_val[1]:
             substitution_l.append(j)
 
-    #print (substitution_l)
+    # print (substitution_l)
 
     # Mapping the keyword list with English alphabets
     decryption_dict = dict(zip(substitution_l, alpha_l))
-    #print (decryption_dict)
+    # print (decryption_dict)
 
     # Decrypting the cipher text with the help of the decryption dict
-    decrypt_msg = ''
+    decrypt_msg = ""
     for c in cipher:
         if c in decryption_dict.keys():
             decrypt_msg += decryption_dict[c]
         else:
-            decrypt_msg += c   # generally adds the spaces to the original messages
+            decrypt_msg += c  # generally adds the spaces to the original messages
 
     print(decrypt_msg)

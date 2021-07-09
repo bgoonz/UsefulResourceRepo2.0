@@ -21,7 +21,9 @@ from json import load, dump
 try:
     from darksky import forecast
 except ImportError as e:
-    print("Install 'darksky' module with 'pip install git+https://github.com/lukaskubis/darkskylib'...")
+    print(
+        "Install 'darksky' module with 'pip install git+https://github.com/lukaskubis/darkskylib'..."
+    )
     raise e
 
 
@@ -49,16 +51,22 @@ def get_data(names, locations, key, verbose=True):
     now = datetime.now()
     for name, location in zip(names, locations):
         weather = forecast(key, *location)
-        temperature_in_F = weather['currently']['temperature']
-        temperature_in_C = round((temperature_in_F - 32) * (5/9), 1)
-        data.append({
-            "name": name,
-            "location": location,
-            "temperature_in_C": temperature_in_C,
-        })
+        temperature_in_F = weather["currently"]["temperature"]
+        temperature_in_C = round((temperature_in_F - 32) * (5 / 9), 1)
+        data.append(
+            {
+                "name": name,
+                "location": location,
+                "temperature_in_C": temperature_in_C,
+            }
+        )
         if verbose:
-            print("\n- In {}, at location {}, the temperature is {}°C at time {:%Y-%m-%d %H:%M}".format(name, location, temperature_in_C, now))
-    return weather['currently']['time'], data
+            print(
+                "\n- In {}, at location {}, the temperature is {}°C at time {:%Y-%m-%d %H:%M}".format(
+                    name, location, temperature_in_C, now
+                )
+            )
+    return weather["currently"]["time"], data
 
 
 def main(filename, names, locations, key, verbose=True):
@@ -67,14 +75,15 @@ def main(filename, names, locations, key, verbose=True):
     return time_of_data, data
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     filename = "get_current_temperature.json"
     names, locations = [], []
 
     # https://www.google.fr/maps/place/Supélec/@48.1252316,-1.6255899,17z/
     name = "CentraleSupélec, Rennes, France"
     location = 48.1252316, -1.6255899
-    names.append(name); locations.append(location)
+    names.append(name)
+    locations.append(location)
 
     # # https://www.google.fr/maps/place/05100+Briançon/@44.8826142,6.6285124,16z/
     # name = "Briançon, France"
@@ -84,7 +93,8 @@ if __name__ == '__main__':
     # https://www.google.fr/maps/place/Palais+du+Grand+Large/@48.6516678,-2.0214016,17z/
     name = "ICT conference, Saint-Malo, France"
     location = 48.6516678, -2.0214016
-    names.append(name); locations.append(location)
+    names.append(name)
+    locations.append(location)
 
     with open(join(expanduser("~"), ".darksky_api.key"), "r") as f:
         key = f.readline()

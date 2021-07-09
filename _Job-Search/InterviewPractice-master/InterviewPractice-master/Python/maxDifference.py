@@ -32,17 +32,15 @@ def MaxDifference2(a):
 
     while i < size:
 
-        if(a[0] - min > max):
+        if a[0] - min > max:
             max = a[i] - min
 
-        if(a[0] < min):
+        if a[0] < min:
             min = a[i]
 
         i += 1
 
     return max
-
-
 
 
 def main():
@@ -52,5 +50,6 @@ def main():
 
     print(maxDifference(a))
     print(MaxDifference2(a))
+
 
 main()

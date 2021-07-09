@@ -1,5 +1,3 @@
-
-
 def findNthElement(list, n):
     answer = list[n::]
     return answer
@@ -12,5 +10,6 @@ def main():
     n = int(input("Enter a value for n: "))
 
     print(findNthElement(MyList, n))
+
 
 main()

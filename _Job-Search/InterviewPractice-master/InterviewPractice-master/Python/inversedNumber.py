@@ -13,4 +13,5 @@ def solution():
     answer = int(inverse, 2)
     print(answer)
 
+
 solution()

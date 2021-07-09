@@ -1,4 +1,4 @@
-'''
+"""
 Transform Number Ascending Digits
 
 Given a number and we need to transform to a new number where all its digits are ordered in a non descending order.
@@ -13,12 +13,13 @@ Output explanation: 5999, 1 operation to transform 8 to 9, 3 operations to trans
 Dynamic programming solution.
     Time Complexity:    O(N)    , O(N * 10 * 10) = O(100 N) = O(N)
     Space Complexity:   O(1)    , O(10 * 10) = O(100) = O(1)
-'''
+"""
 
 
 ############
 # Solution #
 ############
+
 
 def operations(number):
     n = len(number)
@@ -46,12 +47,12 @@ def operations(number):
 
 # Test 1
 # Correct result => 1
-print(operations('901'))
+print(operations("901"))
 
 # Test 2
 # Correct result => 3
-print(operations('301'))
+print(operations("301"))
 
 # Test 3
 # Correct result => 4
-print(operations('5982'))
+print(operations("5982"))

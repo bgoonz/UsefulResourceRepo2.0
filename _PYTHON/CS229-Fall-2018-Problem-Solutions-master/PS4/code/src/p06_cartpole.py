@@ -78,6 +78,7 @@ initial learning quickly, and start the display only after the
 performance is reasonable.
 """
 
+
 def initialize_mdp_data(num_states):
     """
     Return a variable that contains all the parameters/state you need for your MDP.
@@ -103,13 +104,14 @@ def initialize_mdp_data(num_states):
     value = np.random.rand(num_states) * 0.1
 
     return {
-        'transition_counts': transition_counts,
-        'transition_probs': transition_probs,
-        'reward_counts': reward_counts,
-        'reward': reward,
-        'value': value,
-        'num_states': num_states,
+        "transition_counts": transition_counts,
+        "transition_probs": transition_probs,
+        "reward_counts": reward_counts,
+        "reward": reward,
+        "value": value,
+        "num_states": num_states,
     }
+
 
 def choose_action(state, mdp_data):
     """
@@ -125,14 +127,17 @@ def choose_action(state, mdp_data):
     """
 
     # *** START CODE HERE ***
-    expect_value = mdp_data['value'].dot(mdp_data['transition_probs'][state])
+    expect_value = mdp_data["value"].dot(mdp_data["transition_probs"][state])
     if expect_value[0] == expect_value[1]:
         return np.random.randint(2)
     else:
         return np.argmax(expect_value)
     # *** END CODE HERE ***
 
-def update_mdp_transition_counts_reward_counts(mdp_data, state, action, new_state, reward):
+
+def update_mdp_transition_counts_reward_counts(
+    mdp_data, state, action, new_state, reward
+):
     """
     Update the transition count and reward count information in your mdp_data.
     Do not change the other MDP parameters (those get changed later).
@@ -154,16 +159,17 @@ def update_mdp_transition_counts_reward_counts(mdp_data, state, action, new_stat
     """
 
     # *** START CODE HERE ***
-    mdp_data['transition_counts'][state, new_state, action] += 1
+    mdp_data["transition_counts"][state, new_state, action] += 1
 
     if reward == -1:
-        mdp_data['reward_counts'][new_state, 0] += 1
+        mdp_data["reward_counts"][new_state, 0] += 1
 
-    mdp_data['reward_counts'][new_state, 1] += 1
+    mdp_data["reward_counts"][new_state, 1] += 1
     # *** END CODE HERE ***
 
     # This function does not return anything
     return
+
 
 def update_mdp_transition_probs_reward(mdp_data):
     """
@@ -173,7 +179,7 @@ def update_mdp_transition_probs_reward(mdp_data):
     been tried before, or the state has never been visited before. In that
     case, you must not change that component (and thus keep it at the
     initialized uniform distribution).
-    
+
     Args:
         mdp_data: The data for your MDP. See initialize_mdp_data.
 
@@ -183,23 +189,26 @@ def update_mdp_transition_probs_reward(mdp_data):
     """
 
     # *** START CODE HERE ***
-    transition_counts = mdp_data['transition_counts']
+    transition_counts = mdp_data["transition_counts"]
     num_counts = transition_counts.sum(axis=1)
     num_states = transition_counts.shape[0]
     for i in range(num_states):
         for a in range(2):
-            if  num_counts[i, a]  != 0:
-                mdp_data['transition_probs'][i, :, a] = transition_counts[i, :, a] / num_counts[i, a]
+            if num_counts[i, a] != 0:
+                mdp_data["transition_probs"][i, :, a] = (
+                    transition_counts[i, :, a] / num_counts[i, a]
+                )
 
-    reward_counts = mdp_data['reward_counts']
+    reward_counts = mdp_data["reward_counts"]
     for k in range(num_states):
         sum_count = reward_counts[k, 1]
         if sum_count != 0:
-            mdp_data['reward'][k] = -reward_counts[k, 0] / sum_count
+            mdp_data["reward"][k] = -reward_counts[k, 0] / sum_count
     # *** END CODE HERE ***
 
     # This function does not return anything
     return
+
 
 def update_mdp_value(mdp_data, tolerance, gamma):
     """
@@ -210,7 +219,7 @@ def update_mdp_value(mdp_data, tolerance, gamma):
     at the top of the file.
 
     Return true if it converges within one iteration.
-    
+
     Args:
         mdp_data: The data for your MDP. See initialize_mdp_data.
         tolerance: The tolerance to use for the convergence criterion.
@@ -223,20 +232,21 @@ def update_mdp_value(mdp_data, tolerance, gamma):
 
     # *** START CODE HERE ***
     iters = 0
-    transition_probs = mdp_data['transition_probs']
+    transition_probs = mdp_data["transition_probs"]
 
     while True:
         iters += 1
 
-        value = mdp_data['value']
-        new_value = mdp_data['reward'] + gamma * value.dot(transition_probs).max(axis=1)
-        mdp_data['value'] = new_value
+        value = mdp_data["value"]
+        new_value = mdp_data["reward"] + gamma * value.dot(transition_probs).max(axis=1)
+        mdp_data["value"] = new_value
 
         if np.max(np.abs(value - new_value)) < tolerance:
             break
 
-    return iters==1
+    return iters == 1
     # *** END CODE HERE ***
+
 
 def main(plot=True):
     # Seed the randomness of the simulation so this outputs the same thing each time
@@ -311,7 +321,9 @@ def main(plot=True):
         else:
             R = 0
 
-        update_mdp_transition_counts_reward_counts(mdp_data, state, action, new_state, R)
+        update_mdp_transition_counts_reward_counts(
+            mdp_data, state, action, new_state, R
+        )
 
         # Recompute MDP model whenever pole falls
         # Compute the value function V for the new model
@@ -332,12 +344,15 @@ def main(plot=True):
             num_failures += 1
             if num_failures >= max_failures:
                 break
-            print('[INFO] Failure number {}'.format(num_failures))
+            print("[INFO] Failure number {}".format(num_failures))
             time_steps_to_failure.append(time - time_at_start_of_current_trial)
             # time_steps_to_failure[num_failures] = time - time_at_start_of_current_trial
             time_at_start_of_current_trial = time
 
-            if time_steps_to_failure[num_failures - 1] > min_trial_length_to_start_display:
+            if (
+                time_steps_to_failure[num_failures - 1]
+                > min_trial_length_to_start_display
+            ):
                 display_started = 1
 
             # Reinitialize state
@@ -352,18 +367,19 @@ def main(plot=True):
     if plot:
         # plot the learning curve (time balanced vs. trial)
         log_tstf = np.log(np.array(time_steps_to_failure))
-        plt.plot(np.arange(len(time_steps_to_failure)), log_tstf, 'k')
+        plt.plot(np.arange(len(time_steps_to_failure)), log_tstf, "k")
         window = 30
-        w = np.array([1/window for _ in range(window)])
+        w = np.array([1 / window for _ in range(window)])
         weights = lfilter(w, 1, log_tstf)
-        x = np.arange(window//2, len(log_tstf) - window//2)
-        plt.plot(x, weights[window:len(log_tstf)], 'r--')
-        plt.xlabel('Num failures')
-        plt.ylabel('Log of num steps to failure')
-        plt.title('seed = {}'.format(seed))
-        plt.savefig('output/control_{}.png'.format(seed))
+        x = np.arange(window // 2, len(log_tstf) - window // 2)
+        plt.plot(x, weights[window : len(log_tstf)], "r--")
+        plt.xlabel("Num failures")
+        plt.ylabel("Log of num steps to failure")
+        plt.title("seed = {}".format(seed))
+        plt.savefig("output/control_{}.png".format(seed))
 
     return np.array(time_steps_to_failure)
-    
-if __name__ == '__main__':
+
+
+if __name__ == "__main__":
     main()

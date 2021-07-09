@@ -19,9 +19,11 @@ def pressAForCapsLock(message):
 
     return result
 
+
 def main():
     message = input("Enter a word or phrase: ")
     pressAForCapsLock(message)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -40,10 +40,11 @@ chapter = str(sys.argv[2]) if len(sys.argv) > 2 else ""
 
 urlToGo = "http://mp.cpgedupuydelome.fr/mesexos.php?idTeX=%i" % numexo
 
-print("Numéro <magenta>%i<reset>. On va vers <u>\"%s\"<U><white>" % (numexo, urlToGo))
+print('Numéro <magenta>%i<reset>. On va vers <u>"%s"<U><white>' % (numexo, urlToGo))
 
 # On récupère la page (la partie la plus lente du coup)
 import urllib2
+
 response = urllib2.urlopen(urlToGo)
 html = response.read()
 
@@ -51,18 +52,24 @@ html = response.read()
 from BeautifulSoup import BeautifulSoup
 
 # On l'analyse
-parsed_html = BeautifulSoup(html, fromEncoding='utf-8')
+parsed_html = BeautifulSoup(html, fromEncoding="utf-8")
 
 print("<black>Encodage original : %s<white>\n\n" % parsed_html.originalEncoding)
 
 # On cherche la section <section id="contenu">..</section>
-contenu = parsed_html.body.find('section', attrs={'id': 'contenu'})
+contenu = parsed_html.body.find("section", attrs={"id": "contenu"})
 
 # Et on prend le contenu de la première <textarea> !
-codeTeX = contenu.findAll('textarea', limit=1)[0].renderContents()
+codeTeX = contenu.findAll("textarea", limit=1)[0].renderContents()
 
 # Quelques corrections, parce que BeautifulSoup échappe certains trucs
-codeTeX = codeTeX.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">").replace("&le;", "<=").replace("&ge;", ">=")
+codeTeX = (
+    codeTeX.replace("&amp;", "&")
+    .replace("&lt;", "<")
+    .replace("&gt;", ">")
+    .replace("&le;", "<=")
+    .replace("&ge;", ">=")
+)
 
 # Et d'autres erreurs fréquentes.
 codeTeX = codeTeX.replace("^ - ", "^{-}")
@@ -85,12 +92,21 @@ print("<green>On écrit dans %s !<white>" % out)
 if chapter:
     chapter = chapter.replace("_", " ").replace("/", "")
     print("<magenta>Pour le chapitre '%s' :<white>" % chapter)
-    out.write("%%%% -*- mode: latex; coding: utf-8 -*-\n%%%% Chapter : %s.\n%%%% Start of LaTeX code, for exercise #%i (from '%s'), in French (file '%s').\n\n" % (chapter, numexo, urlToGo, name))
+    out.write(
+        "%%%% -*- mode: latex; coding: utf-8 -*-\n%%%% Chapter : %s.\n%%%% Start of LaTeX code, for exercise #%i (from '%s'), in French (file '%s').\n\n"
+        % (chapter, numexo, urlToGo, name)
+    )
 else:
-    out.write("%%%% -*- mode: latex; coding: utf-8 -*-\n%%%% Start of LaTeX code, for exercise #%i (from '%s'), in French (file '%s').\n\n" % (numexo, urlToGo, name))
+    out.write(
+        "%%%% -*- mode: latex; coding: utf-8 -*-\n%%%% Start of LaTeX code, for exercise #%i (from '%s'), in French (file '%s').\n\n"
+        % (numexo, urlToGo, name)
+    )
 
 out.write(codeTeX)
-out.write("\n%%%% End of LaTeX code, for exercise #%i (from '%s'), in French (file '%s').\n" % (numexo, urlToGo, name))
+out.write(
+    "\n%%%% End of LaTeX code, for exercise #%i (from '%s'), in French (file '%s').\n"
+    % (numexo, urlToGo, name)
+)
 
 print("<green>Succès :)")
 # DONE !

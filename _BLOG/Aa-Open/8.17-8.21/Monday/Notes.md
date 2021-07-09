@@ -47,7 +47,7 @@
 
 ```
 GET / HTTP/1.1
-Host: appacademy.io
+Host: Lambda.io
 Connection: keep-alive
 Upgrade-Insecure-Requests: 1
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36
@@ -56,7 +56,7 @@ Accept-Encoding: gzip, deflate
 Accept-Language: en-US,en;q=0.9
 ```
 
-> Example of how an HTTP request looks like for visiting appacademy.io
+> Example of how an HTTP request looks like for visiting Lambda.io
 
 - **Request-line & HTTP verbs**
 
@@ -91,7 +91,7 @@ Accept-Language: en-US,en;q=0.9
 
 - **netcat** : (nc) A Utility that comes as part of Unix-line environments such as Ubuntu and macOS.
   - Allows us to open a direct connection with a URL and manually send HTTP requests.
-  - `nc -v appacademy.io 80`
+  - `nc -v Lambda.io 80`
   - `man nc` to open the netcat manual.
 
 ---

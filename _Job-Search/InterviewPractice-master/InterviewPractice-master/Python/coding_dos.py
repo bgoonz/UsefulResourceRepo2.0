@@ -5,6 +5,7 @@ import collections
 import socket
 import re
 
+
 def readInput(data):
 
     data_list = []
@@ -19,6 +20,7 @@ def readInput(data):
         frames.append(frame)
 
     attack_type(frames)
+
 
 def attack_type(frames):
 
@@ -87,7 +89,7 @@ def udp_attack(frames):
         types.append(i[0])
 
     # UDP flood - single host sends IP packets containing UDP datagrams to random ports on target.
-    if (types[0] == "UDP"):
+    if types[0] == "UDP":
         udp_frequency(frames)
         print("UDP Flood")
 
@@ -104,7 +106,7 @@ def icmp_attack(frames):
     length_items = sorted(count_length.items(), key=lambda item: (-item[1]))
 
     # Ping of Death - Increase the size of ping packet when sending to cause buffer overflow when put together on target
-    if (int(length_items[0][0]) > 84):
+    if int(length_items[0][0]) > 84:
         icmp_frequency(frames)
         print("Ping of Death")
 
@@ -123,7 +125,7 @@ def icmp_attack(frames):
             types.append(i[0])
 
         # ICMP flood - When the attacker attempts to overwhelm a target with ICMP echo-request packets
-        if (types[0] == "ECHO"):
+        if types[0] == "ECHO":
             icmp_frequency(frames)
             print("ICMP Flood")
 
@@ -152,6 +154,7 @@ def http_attack(frames):
         http_frequency(frames)
         print("ICMP Flood")
 
+
 def http_frequency(frames):
     addresses = []
 
@@ -160,7 +163,9 @@ def http_frequency(frames):
             addresses.append(i[2])
 
     counter = collections.Counter(addresses)
-    items = sorted(counter.items(), key=lambda item: (item[1], socket.inet_aton(item[0])))
+    items = sorted(
+        counter.items(), key=lambda item: (item[1], socket.inet_aton(item[0]))
+    )
 
     results = []
     for i in items:
@@ -170,6 +175,7 @@ def http_frequency(frames):
     top.reverse()
     for i in top:
         print(i)
+
 
 def icmp_frequency(frames):
     addresses = []
@@ -179,7 +185,9 @@ def icmp_frequency(frames):
             addresses.append(i[2])
 
     counter = collections.Counter(addresses)
-    items = sorted(counter.items(), key=lambda item: (item[1], socket.inet_aton(item[0])))
+    items = sorted(
+        counter.items(), key=lambda item: (item[1], socket.inet_aton(item[0]))
+    )
 
     results = []
     for i in items:
@@ -189,6 +197,7 @@ def icmp_frequency(frames):
     top.reverse()
     for i in top:
         print(i)
+
 
 def tcp_frequency(frames):
 
@@ -199,7 +208,9 @@ def tcp_frequency(frames):
             addresses.append(i[2])
 
     counter = collections.Counter(addresses)
-    items = sorted(counter.items(), key=lambda item: (item[1], socket.inet_aton(item[0])))
+    items = sorted(
+        counter.items(), key=lambda item: (item[1], socket.inet_aton(item[0]))
+    )
 
     results = []
     for i in items:
@@ -220,7 +231,9 @@ def udp_frequency(frames):
             addresses.append(i[2])
 
     counter = collections.Counter(addresses)
-    items = sorted(counter.items(), key=lambda item: (item[1], socket.inet_aton(item[0])))
+    items = sorted(
+        counter.items(), key=lambda item: (item[1], socket.inet_aton(item[0]))
+    )
 
     results = []
     for i in items:
@@ -234,13 +247,13 @@ def udp_frequency(frames):
 
 def main():
 
-    file = open('input004.txt')
+    file = open("input004.txt")
 
     contents = []
 
     for i in file:
         contents.append(i)
-            
+
     readInput(contents)
 
 

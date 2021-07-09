@@ -1,4 +1,4 @@
-'''
+"""
 Ordered Digits
 
 We are given a number and we need to transform to a new number where all its digits are ordered in a non descending order.
@@ -24,19 +24,20 @@ Dynamic programming solution. For each position, calculate the cost of transform
 And take the minimum value from the previous position (but smaller than the current digit).
     Time Complexity:    O(N)    , O(N*10) = O(N), N = number of digits
     Space Complexity:   O(N)    , same O(N*2) = O(N)
-'''
+"""
 
 
 ############
 # Solution #
 ############
 
+
 def ordered_digits(number):
     n = len(number)
     dp = [[0 for j in range(10)] for i in range(2)]
 
     for i in range(n):
-        min_prev = float('inf')
+        min_prev = float("inf")
         for j in range(10):
             # find the min value from the previous digit and add it to the current value
             min_prev = min(min_prev, dp[(i - 1) % 2][j])
@@ -54,12 +55,12 @@ def ordered_digits(number):
 
 # Test 1
 # Correct result => 3
-print(ordered_digits('301'))
+print(ordered_digits("301"))
 
 # Test 2
 # Correct result => 1
-print(ordered_digits('901'))
+print(ordered_digits("901"))
 
 # Test 3
 # Correct result => 4
-print(ordered_digits('5982'))
+print(ordered_digits("5982"))

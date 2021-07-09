@@ -33,7 +33,7 @@ class FLock(object):
     """
 
     def __init__(self, lock_path):
-        assert(lock_path)
+        assert lock_path
         self._lock_path = lock_path
 
     def __enter__(self):
@@ -77,7 +77,7 @@ class FLock(object):
                     return False
                 if timeout and time.time() >= expiration:
                     return False
-                time.sleep(.5)
+                time.sleep(0.5)
                 continue
 
     def release(self):
@@ -96,5 +96,5 @@ class FLock(object):
             os.unlink(self._lock_path)
         except Exception as e:
             if e.errno == errno.ENOENT:
-                raise RuntimeError('release unlocked lock')
+                raise RuntimeError("release unlocked lock")
             raise

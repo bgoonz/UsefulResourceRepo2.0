@@ -13,18 +13,18 @@ from sentry.utils.email import email_to_group_id
 
 @never_cache
 @csrf_exempt
-@require_http_methods(['POST'])
+@require_http_methods(["POST"])
 def process_inbound_message(request):
-    to_email = parseaddr(request.POST['To'])[1]
-    from_email = parseaddr(request.POST['From'])[1]
+    to_email = parseaddr(request.POST["To"])[1]
+    from_email = parseaddr(request.POST["From"])[1]
 
     try:
         group_id = email_to_group_id(to_email)
     except Exception:
-        logging.info('%r is not a valid email address', to_email)
+        logging.info("%r is not a valid email address", to_email)
         return HttpResponse(status=500)
 
-    payload = EmailReplyParser.parse_reply(request.POST['body-plain']).strip()
+    payload = EmailReplyParser.parse_reply(request.POST["body-plain"]).strip()
     if not payload:
         # If there's no body, we don't need to go any further
         return HttpResponse(status=200)

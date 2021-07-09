@@ -8,6 +8,7 @@
         return [0, 1].
 """
 
+
 class Solution:
     def twoSum(self, nums, target):
         """
@@ -15,15 +16,13 @@ class Solution:
         :type target: int
         :rtype: List[int]
         """
-        
-        for x,y in enumerate(nums):
-            if target - y in nums and nums.index(target-y) != x:
-                return [x, nums.index(target-y)]
-        return 0
-            
-            
 
-            
+        for x, y in enumerate(nums):
+            if target - y in nums and nums.index(target - y) != x:
+                return [x, nums.index(target - y)]
+        return 0
+
+
 nums = [3, 2, 4]
 target = 6
 

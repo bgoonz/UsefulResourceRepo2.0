@@ -57,9 +57,10 @@ class Filter(object):
     ignore_case  -- Ignore case of exclude_keys.
 
     """
-    def __init__(self, patterns='**', exclude_keys=None, ignore_case=False):
+
+    def __init__(self, patterns="**", exclude_keys=None, ignore_case=False):
         if not patterns:
-            patterns = '**'
+            patterns = "**"
 
         if isinstance(patterns, str):
             patterns = [patterns]
@@ -77,21 +78,21 @@ class Filter(object):
     @staticmethod
     def _pattern_to_regex(pattern):
         is_include = True
-        if pattern.startswith('!'):
+        if pattern.startswith("!"):
             pattern = pattern[1:]
             is_include = False
 
-        if pattern.find('***') != -1:
-            raise ValueError('invalid pattern: ' + pattern)
+        if pattern.find("***") != -1:
+            raise ValueError("invalid pattern: " + pattern)
 
-        pattern = pattern.replace('/', '[\\\\/]')
-        pattern = pattern.replace('.', '\\.')
-        pattern = pattern.replace('+', '\\+')
-        pattern = pattern.replace('**', '$$$$')
-        pattern = pattern.replace('*', '[^\\\\/]*')
-        pattern = pattern.replace('[\\\\/]$$$$', '($|[\\\\/].*)')
-        pattern = pattern.replace('$$$$', '.*')
-        pattern = '^' + pattern + '$'
+        pattern = pattern.replace("/", "[\\\\/]")
+        pattern = pattern.replace(".", "\\.")
+        pattern = pattern.replace("+", "\\+")
+        pattern = pattern.replace("**", "$$$$")
+        pattern = pattern.replace("*", "[^\\\\/]*")
+        pattern = pattern.replace("[\\\\/]$$$$", "($|[\\\\/].*)")
+        pattern = pattern.replace("$$$$", ".*")
+        pattern = "^" + pattern + "$"
         pattern = re.compile(pattern)
         return (is_include, pattern)
 
@@ -117,8 +118,14 @@ class Filter(object):
         return include
 
 
-def rglob(path, patterns, relative=False, files_only=False, exclude_keys=None,
-          ignore_case=False):
+def rglob(
+    path,
+    patterns,
+    relative=False,
+    files_only=False,
+    exclude_keys=None,
+    ignore_case=False,
+):
     """Yield each file and directory, within path, included by patterns.
 
     Arguments:
@@ -132,10 +139,10 @@ def rglob(path, patterns, relative=False, files_only=False, exclude_keys=None,
 
     """
     if not os.path.isdir(path):
-        raise ValueError('not a directory: ' + path)
+        raise ValueError("not a directory: " + path)
     match = Filter(patterns, exclude_keys, ignore_case)
     for root, dirs, files in os.walk(path):
-        rel_root = root.replace(path, '', 1)[1:]
+        rel_root = root.replace(path, "", 1)[1:]
         if files_only:
             it = itertools.chain(files)
         else:
@@ -147,11 +154,23 @@ def rglob(path, patterns, relative=False, files_only=False, exclude_keys=None,
                 yield os.path.join(rel_root if relative else root, f)
 
 
-def frglob(path, patterns_path, relative=False, files_only=False,
-           exclude_keys=None, ignore_case=False):
+def frglob(
+    path,
+    patterns_path,
+    relative=False,
+    files_only=False,
+    exclude_keys=None,
+    ignore_case=False,
+):
     """Same as rglob(), but reads patterns from patterns_file."""
-    return rglob(path, read_patterns_file(patterns_path), relative, files_only,
-                 exclude_keys, ignore_case)
+    return rglob(
+        path,
+        read_patterns_file(patterns_path),
+        relative,
+        files_only,
+        exclude_keys,
+        ignore_case,
+    )
 
 
 def read_patterns_file(file_path):
@@ -167,40 +186,60 @@ def read_patterns_file(file_path):
             if not pat:
                 continue
             pat = pat.strip()
-            if not pat or pat[0] == '#':
+            if not pat or pat[0] == "#":
                 continue
             patterns.append(pat)
     return patterns
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
     import sys
+
     parser = parser = argparse.ArgumentParser(
-        description='List items in path included by patterns.')
+        description="List items in path included by patterns."
+    )
     parser.add_argument(
-        'path', default='.', nargs='?',
-        help='top-level directory to search for included items, defaults to '
-        'current directory')
+        "path",
+        default=".",
+        nargs="?",
+        help="top-level directory to search for included items, defaults to "
+        "current directory",
+    )
     parser.add_argument(
-        '--pattern', '-p', action='append',
-        help='glob pattern to match against, multiple allowed')
+        "--pattern",
+        "-p",
+        action="append",
+        help="glob pattern to match against, multiple allowed",
+    )
     parser.add_argument(
-        '--file', '-f', action='store_true', dest='use_file',
-        help='last --pattern value specifies a file to read patterns from, '
-        'comment lines (starting with "#") and blank lines are ignored')
+        "--file",
+        "-f",
+        action="store_true",
+        dest="use_file",
+        help="last --pattern value specifies a file to read patterns from, "
+        'comment lines (starting with "#") and blank lines are ignored',
+    )
     parser.add_argument(
-        '--relative', action='store_true',
-        help='return relative paths for matching items')
+        "--relative",
+        action="store_true",
+        help="return relative paths for matching items",
+    )
     parser.add_argument(
-        '--nodirs', '-n', action='store_true',
-        help='only return paths to files, not directories')
+        "--nodirs",
+        "-n",
+        action="store_true",
+        help="only return paths to files, not directories",
+    )
     parser.add_argument(
-        '--exclude', '-x', action='append',
-        help='exclude matches containing this substring, multiple allowed')
+        "--exclude",
+        "-x",
+        action="append",
+        help="exclude matches containing this substring, multiple allowed",
+    )
     parser.add_argument(
-        '--ignore-case', '-i', action='store_true',
-        help='ignore case of excludes')
+        "--ignore-case", "-i", action="store_true", help="ignore case of excludes"
+    )
 
     args = parser.parse_args()
     if args.use_file:
@@ -210,11 +249,17 @@ if __name__ == '__main__':
     patterns.extend(args.pattern)
 
     try:
-        for i in rglob(args.path, patterns, args.relative, args.nodirs,
-                       args.exclude, args.ignore_case):
+        for i in rglob(
+            args.path,
+            patterns,
+            args.relative,
+            args.nodirs,
+            args.exclude,
+            args.ignore_case,
+        ):
             print(i)
     except ValueError as e:
         print(e, file=sys.stderr)
     except Exception:
-        print('error at pattern:', p, file=sys.stderr)
+        print("error at pattern:", p, file=sys.stderr)
         raise

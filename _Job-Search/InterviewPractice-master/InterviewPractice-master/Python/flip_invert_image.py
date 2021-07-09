@@ -10,29 +10,31 @@ Explanation: First reverse each row: [[0,1,1],[1,0,1],[0,0,0]].
 Then, invert the image: [[1,0,0],[0,1,0],[1,1,1]]
 """
 
+
 def flipAndInvertImage(A):
-        """
-        :type A: List[List[int]]
-        :rtype: List[List[int]]
-        """
-        
-        results = []
+    """
+    :type A: List[List[int]]
+    :rtype: List[List[int]]
+    """
 
-        for image in A:
-            reverse = image[::-1]
+    results = []
 
-            flip_image = []
-            for bit in reverse:
-                bit = 1 - bit
-                flip_image.append(bit)
+    for image in A:
+        reverse = image[::-1]
 
-            results.append(flip_image)
+        flip_image = []
+        for bit in reverse:
+            bit = 1 - bit
+            flip_image.append(bit)
 
-        print(results)
-            
+        results.append(flip_image)
+
+    print(results)
+
+
 def main():
-    A = [[1,1,0],[1,0,1],[0,0,0]]
+    A = [[1, 1, 0], [1, 0, 1], [0, 0, 0]]
     flipAndInvertImage(A)
 
+
 main()
-        

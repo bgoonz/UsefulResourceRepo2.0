@@ -25,8 +25,9 @@ class ProgressBar(object):
 
     """
 
-    def __init__(self, total_size, blocks_in_bar=None, block_char='#',
-                 fraction=True, quiet=False):
+    def __init__(
+        self, total_size, blocks_in_bar=None, block_char="#", fraction=True, quiet=False
+    ):
         """Initialize class instance.
 
         Arguments:
@@ -41,16 +42,16 @@ class ProgressBar(object):
                          and only wants to use the output from update() and
                          finish()
         """
-        assert(total_size > 1)
-        assert(blocks_in_bar is None or blocks_in_bar > 0)
-        assert(isinstance(block_char, str))
+        assert total_size > 1
+        assert blocks_in_bar is None or blocks_in_bar > 0
+        assert isinstance(block_char, str)
         if blocks_in_bar is None:
             try:
                 cols, lines = shutil.get_terminal_size()
             except:
                 cols = 80
             if fraction:
-                max_fract = len(' (%d/%d)' % (total_size, total_size))
+                max_fract = len(" (%d/%d)" % (total_size, total_size))
             else:
                 max_fract = 0
             blocks_in_bar = cols - (8 + max_fract)
@@ -64,9 +65,9 @@ class ProgressBar(object):
         self._show_fraction = fraction
 
         if fraction:
-            status = '[%s] 0%% (0/%d)' % (' '*blocks_in_bar, total_size)
+            status = "[%s] 0%% (0/%d)" % (" " * blocks_in_bar, total_size)
         else:
-            status = '[%s] 0%%' % (' '*blocks_in_bar,)
+            status = "[%s] 0%%" % (" " * blocks_in_bar,)
 
         if not self._quiet:
             sys.stdout.write(status)
@@ -99,7 +100,7 @@ class ProgressBar(object):
         Number of additional blocks that get printed.
 
         """
-        assert(more_size >= 0)
+        assert more_size >= 0
         self._total_done += more_size
         if self._total_done > self._total_size:
             self._total_done = self._total_size
@@ -119,22 +120,27 @@ class ProgressBar(object):
         blocks_so_far = int((total_done * total_blocks) / total_size)
         blocks_to_print = blocks_so_far - self._blocks_printed
         if not self._quiet:
-            sys.stdout.write(chr(8)*self._bksp)
+            sys.stdout.write(chr(8) * self._bksp)
 
             if total_done == total_size:
                 percent = 100
             else:
                 percent = int((float(total_done) / total_size) * 100)
 
-            sys.stdout.write(self._block_char*blocks_to_print)
+            sys.stdout.write(self._block_char * blocks_to_print)
             self._blocks_printed += blocks_to_print
             if self._show_fraction:
-                rest = '%s] %d%% (%d/%d)' % (
-                    ' '*(total_blocks - self._blocks_printed), percent,
-                    total_done, total_size)
+                rest = "%s] %d%% (%d/%d)" % (
+                    " " * (total_blocks - self._blocks_printed),
+                    percent,
+                    total_done,
+                    total_size,
+                )
             else:
-                rest = '%s] %d%%' % (
-                    ' '*(total_blocks - self._blocks_printed), percent)
+                rest = "%s] %d%%" % (
+                    " " * (total_blocks - self._blocks_printed),
+                    percent,
+                )
             sys.stdout.write(rest)
             sys.stdout.flush()
             self._bksp = len(rest)
@@ -156,16 +162,24 @@ class ProgressBar(object):
             if self._total_done == self._total_size:
                 percent = 100
             else:
-                percent = int((float(self._total_done)/self._total_size) * 100)
+                percent = int((float(self._total_done) / self._total_size) * 100)
 
-            sys.stdout.write(chr(8)*self._bksp)
+            sys.stdout.write(chr(8) * self._bksp)
             if remaining > 0:
-                sys.stdout.write('.'*remaining)
+                sys.stdout.write("." * remaining)
             if self._show_fraction:
-                print('] ', percent, '% (', self._total_done, '/',
-                      self._total_size, ')', sep='')
+                print(
+                    "] ",
+                    percent,
+                    "% (",
+                    self._total_done,
+                    "/",
+                    self._total_size,
+                    ")",
+                    sep="",
+                )
             else:
-                print('] ', percent, '%', sep='')
+                print("] ", percent, "%", sep="")
             sys.stdout.flush()
 
         return remaining

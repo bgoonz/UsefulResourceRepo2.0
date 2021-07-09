@@ -3,6 +3,7 @@
     Each character in S is a type of stone you have.  You want to know how many of the stones you have are also jewels.
 """
 
+
 def numJewelsInStones(J, S):
     """
     :type J: str
@@ -27,9 +28,11 @@ def numJewelsInStones(J, S):
 
     return count
 
+
 def main():
     J = "aA"
     S = "aAAbbbb"
     numJewelsInStones(J, S)
+
 
 main()

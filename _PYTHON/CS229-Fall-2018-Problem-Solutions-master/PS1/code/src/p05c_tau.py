@@ -19,7 +19,7 @@ def main(tau_values, train_path, valid_path, test_path, pred_path):
     x_train, y_train = util.load_dataset(train_path, add_intercept=True)
 
     # *** START CODE HERE ***
-    
+
     x_eval, y_eval = util.load_dataset(valid_path, add_intercept=True)
     x_test, y_test = util.load_dataset(test_path, add_intercept=True)
 
@@ -31,26 +31,26 @@ def main(tau_values, train_path, valid_path, test_path, pred_path):
         model.tau = tau
         y_pred = model.predict(x_eval)
 
-        mse = np.mean((y_pred - y_eval)**2)
+        mse = np.mean((y_pred - y_eval) ** 2)
         mse_list.append(mse)
-        print(f'valid set: tau={tau}, MSE={mse}')
+        print(f"valid set: tau={tau}, MSE={mse}")
 
         plt.figure()
-        plt.title('tau = {}'.format(tau))
-        plt.plot(x_train, y_train, 'bx', linewidth=2)
-        plt.plot(x_eval, y_pred, 'ro', linewidth=2)
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.savefig('output/p05c_tau_{}.png'.format(tau))
+        plt.title("tau = {}".format(tau))
+        plt.plot(x_train, y_train, "bx", linewidth=2)
+        plt.plot(x_eval, y_pred, "ro", linewidth=2)
+        plt.xlabel("x")
+        plt.ylabel("y")
+        plt.savefig("output/p05c_tau_{}.png".format(tau))
 
     tau_opt = tau_values[np.argmin(mse_list)]
-    print(f'valid set: lowest MSE={min(mse_list)}, tau={tau_opt}')
+    print(f"valid set: lowest MSE={min(mse_list)}, tau={tau_opt}")
     model.tau = tau_opt
 
     y_pred = model.predict(x_test)
     np.savetxt(pred_path, y_pred)
 
-    mse = np.mean((y_pred - y_test)**2)
-    print(f'test set: tau={tau_opt}, MSE={mse}')
+    mse = np.mean((y_pred - y_test) ** 2)
+    print(f"test set: tau={tau_opt}, MSE={mse}")
 
     # *** END CODE HERE ***

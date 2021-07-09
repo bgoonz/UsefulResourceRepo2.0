@@ -6,7 +6,7 @@
 
 - The DOM is an object oriented representation of an HTML document or Web Page, meaning that the document is represented as objects or nodes.
 
-![dom](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-DOM-API/element-selection/assets/DOM_tree.png)
+![dom](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-DOM-API/element-selection/assets/DOM_tree.png)
 
 > The DOM Hierarchy
 

@@ -118,7 +118,7 @@ replaceContents("poetry.txt", "do not", "should");
 
 * **`Commits`** : collection of changes grouped towards a shared purpose.
 
-  ![msg and hash](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-timeline.svg)
+  ![msg and hash](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-timeline.svg)
 
 * **`Commit Messages & Commit Hashes`** :
   Git id's your commits with a specially generated series of letters and numbers called a Hash, and a detailed message describing the commit.
@@ -154,7 +154,7 @@ replaceContents("poetry.txt", "do not", "should");
 - **`Branch`** : Basically a seperate timeline in Git, reserved for it's own changes - Master is the default branch.
 
 - **`Git branch [name of branch]`** : Used to reate a new branch.
-  ![img of branch](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-branch.svg)
+  ![img of branch](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-branch.svg)
 
 - **`Git Checkout`** : Used to switch to an existing branch.
 
@@ -183,7 +183,7 @@ This is the typical push workflow.
 
 - **`-u`** flag stands for **`--set-upstream`**.
 - **`Git Pull`** : Used to update your files from remote repo - behind the scenes this is a combination of Git Fetch and Git Merge.
-  ![git pull behind](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-pull-parts.svg)
+  ![git pull behind](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-pull-parts.svg)
 
 - **Pull Request** : Feature specific to Github, used as a safety net to prevent bugs and is a critical aspect of collaboration workflow.
   1. Push your code to GH on it's own branch.
@@ -200,7 +200,7 @@ This is the typical push workflow.
 ## **Managing your Github Repository**
 
 - **`Git Diff`** : Used to visualize any tracked differences in our repository.
-  ![img of diff](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-diff-output.svg)
+  ![img of diff](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-diff-output.svg)
 
 * **`---`** & **`+++`** : let's us know there are both additions & subtractions in our js file.
 * **`@@`** : shows use where our chunk of changes are line-wise.
@@ -224,7 +224,7 @@ This is the typical push workflow.
 ```
 
 **Time Travel**
-![checkout](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-checkout.svg)
+![checkout](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-checkout.svg)
 
 - Using Git Checkout is entirely non-destructive.
 - Git checkout has a few special characters and reserved references.
@@ -259,7 +259,7 @@ This is the typical push workflow.
 
 - **Git Rebase** : Involves changing your current branch's base branch.
   - Rebasing is a dangerous process that involves re-writing history.
-    ![diagram of rebase](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-rebase-before-and-after.svg)
+    ![diagram of rebase](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-rebase-before-and-after.svg)
 
 **The Golden Rule of Git**
 
@@ -273,10 +273,10 @@ This is the typical push workflow.
 ## **Git Merge Conflicts & You**
 
 - **Merge Conflict** : Special state that Git presents to us when two branches have code changes that are incompatible with each other.
-  ![conflict img](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-merge-conflict.svg)
+  ![conflict img](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-merge-conflict.svg)
 
 **Conflict Resolution**
-![img of conflict](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-merge-conflict-inline-operators.svg)
+![img of conflict](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/git/assets/image-git-merge-conflict-inline-operators.svg)
 
 - The <<< === >>> signs are delimiters to indicate we are separating two pieces of conflicting code.
 - The first piece is from our Base Branch.

@@ -7,6 +7,7 @@ The program will read the text file and perform a binary search.
 
 text = []
 
+
 def readFile(filename):
 
     for line in open(filename):
@@ -14,6 +15,7 @@ def readFile(filename):
         text.append(numbers)
 
     return text
+
 
 """
 Get the middle value of list.
@@ -23,6 +25,7 @@ If the middle value happens to be the number you are searching for stop program
 and return index of that value.
 """
 
+
 def bin_search(data, target, start, end):
 
     if start > end:
@@ -30,7 +33,7 @@ def bin_search(data, target, start, end):
 
     print("searching...")
 
-    mid_index = (start + end)//2
+    mid_index = (start + end) // 2
 
     mid_value = data[mid_index]
 
@@ -39,11 +42,12 @@ def bin_search(data, target, start, end):
     elif target > mid_value:
         return bin_search(data, target, mid_index + 1, end)
     else:
-        return bin_search(data, target, start, mid_index-1)
+        return bin_search(data, target, start, mid_index - 1)
 
 
 def getSearch(target, list):
     bin_search(target, list, 0, len(text) - 1)
+
 
 def main():
     file = input("Enter file name: ")
@@ -52,5 +56,6 @@ def main():
     target = int(input("Enter a value of which index you're trying to find: "))
 
     print(getSearch(target, readFile(file)))
+
 
 main()

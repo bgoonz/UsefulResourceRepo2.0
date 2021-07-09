@@ -6,14 +6,14 @@ def remove_instance(nums, val):
     Output: 3
     """
     try:
-        #check for cases of an empty array
+        # check for cases of an empty array
         if len(nums) == 0:
             return 0
         else:
-            count=0
+            count = 0
             for i in nums:
                 if i != val:
-                    count +=1
+                    count += 1
             return count
     except:
         return 0

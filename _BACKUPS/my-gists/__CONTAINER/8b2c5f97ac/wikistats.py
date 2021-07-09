@@ -44,15 +44,15 @@ language_default = os.getenv("LANG")[0:2]
 
 
 def lang_to_text(lang, exception=False):
-    """ lang_to_text(lang, exception=False) -> str
+    """lang_to_text(lang, exception=False) -> str
 
-Convert a Wikipédia language code (two letters) to a English version of the language.
+    Convert a Wikipédia language code (two letters) to a English version of the language.
 
-Example:
->>> lang_to_text("en")
-'english'
->>> lang_to_text("fr")
-'french'
+    Example:
+    >>> lang_to_text("en")
+    'english'
+    >>> lang_to_text("fr")
+    'french'
     """
     if exception:
         try:
@@ -63,6 +63,7 @@ Example:
     else:
         return {"en": "english", "fr": "french"}[lang]
 
+
 latest = 30  # also 60 or 90 are available
 
 template_url_default = "http://stats.grok.se/json/{language}/latest{latest}/{page}"
@@ -70,29 +71,34 @@ template_url_default = "http://stats.grok.se/json/{language}/latest{latest}/{pag
 template_output_default = "{page}.{language}.json"
 
 
-def download_json(page="JSON", language=language_default,
-                  template_output=template_output_default,
-                  template_url=template_url_default):
-    """ download_json(page="JSON", template_output=template_output_default,                  language=language_default, template_url=templateurl_default) -> str
+def download_json(
+    page="JSON",
+    language=language_default,
+    template_output=template_output_default,
+    template_url=template_url_default,
+):
+    """download_json(page="JSON", template_output=template_output_default,                  language=language_default, template_url=templateurl_default) -> str
 
-Download a JSON file.
+    Download a JSON file.
 
-@page: tell which Wikipédia page to lookup to.
-@template_output: template string for the output JSON (.json) file.
-@language: language to use for downloading the JSON.
-@template_url: online page to use a format to download the JSON.
+    @page: tell which Wikipédia page to lookup to.
+    @template_output: template string for the output JSON (.json) file.
+    @language: language to use for downloading the JSON.
+    @template_url: online page to use a format to download the JSON.
 
-Example:
->>> download_json(page="France", language="en", template_output="{page}.en.json")
-'France.en.json'
+    Example:
+    >>> download_json(page="France", language="en", template_output="{page}.en.json")
+    'France.en.json'
 
->>> download_json(page="France", language="fr", template_output="out_{page}.fr.json")
-'out_France.fr.json'
+    >>> download_json(page="France", language="fr", template_output="out_{page}.fr.json")
+    'out_France.fr.json'
     """
     from sys import stderr
+
     # To download the JSON file from the web
     # WARNING: https might not be supported
     import urllib2
+
     # To move the destination file to "/tmp/" if it is already there.
     import distutils.file_util
 
@@ -100,9 +106,18 @@ Example:
     outfile = template_output.format(page=page, language=language)
 
     try:
-        stderr.write("\nWarning: The destination file '{outfile}' was already present in the current directory, now it is in {newfile}.\n".format(outfile=outfile, newfile=distutils.file_util.copy_file(outfile, "/tmp/")[0]))
+        stderr.write(
+            "\nWarning: The destination file '{outfile}' was already present in the current directory, now it is in {newfile}.\n".format(
+                outfile=outfile,
+                newfile=distutils.file_util.copy_file(outfile, "/tmp/")[0],
+            )
+        )
     except distutils.file_util.DistutilsFileError:
-        stderr.write("Perfect, apparently the destination file '{outfile}' is not there.\n".format(outfile=outfile))
+        stderr.write(
+            "Perfect, apparently the destination file '{outfile}' is not there.\n".format(
+                outfile=outfile
+            )
+        )
 
     url_request = urllib2.urlopen(url_to_download)
     distutils.file_util.write_file(outfile, url_request.readlines())
@@ -110,29 +125,37 @@ Example:
 
 
 def outfile_to_json(outfile_name):
-    """ outfile_to_json(outfile_name) -> dir
+    """outfile_to_json(outfile_name) -> dir
 
     Try to dump and return the content of the file @outfile.
     """
     outfile = open(outfile_name)
     # To convert the content of this file in a Python dictionnary.
     import json
+
     try:
         json_obj = json.loads(outfile.readline())
     except ValueError:
         import string
+
         json_obj = json.loads(string.join(outfile.readlines()))
     return json_obj
 
 
-def plot_stats_from_json(json_obj, graphic_name=None, graphic_name_template="{title}.{lang}.{ext}", ext="all", title=None):
-    """ plot_stats_from_json(json_obj, graphic_name=None, graphic_name_template="{title}.{lang}.{ext}", ext="png") -> None
+def plot_stats_from_json(
+    json_obj,
+    graphic_name=None,
+    graphic_name_template="{title}.{lang}.{ext}",
+    ext="all",
+    title=None,
+):
+    """plot_stats_from_json(json_obj, graphic_name=None, graphic_name_template="{title}.{lang}.{ext}", ext="png") -> None
 
     Plot a couple of PNG/SVG/PDF statistics.
 
     .. warning:: Beta !
     """
-    assert(ext in ["png", "svg", "pdf", "all"])
+    assert ext in ["png", "svg", "pdf", "all"]
 
     title = title if title else json_obj["title"]
     lang = json_obj["project"]
@@ -147,6 +170,7 @@ def plot_stats_from_json(json_obj, graphic_name=None, graphic_name_template="{ti
 
     try:
         import datetime
+
         today = datetime.date.today()
         year, month, day = today.year, today.month, today.day
     except ImportError:
@@ -163,11 +187,16 @@ def plot_stats_from_json(json_obj, graphic_name=None, graphic_name_template="{ti
         # print("On {year}, the {date} the page \"{title}\" (lang={lang}) had {number} visitor{plural}.".format(date=newkey, number=stats[newkey], title=title, lang=lang, year=year, plural=("s" if stats[newkey]>1 else "")))
 
     # Now make a graphic thanks to this data
-    print("A graphic will be produced to the file \"{graphic_name}\" (with the type \"{ext}\").".format(graphic_name=graphic_name, ext=ext))
+    print(
+        'A graphic will be produced to the file "{graphic_name}" (with the type "{ext}").'.format(
+            graphic_name=graphic_name, ext=ext
+        )
+    )
 
     # We use numpy for the data manipulation and pylab for plotting (à la Matlab).
     import numpy
     import pylab
+
     data_old = data
     try:
         data = numpy.array(data)
@@ -179,7 +208,16 @@ def plot_stats_from_json(json_obj, graphic_name=None, graphic_name_template="{ti
     numbers = data[::, 1].astype(numpy.int)
     nbnumbers = numpy.size(numbers)
 
-    print("The page \"{title}\", with language {lang}, has been ranked {rank}th on the {month}th month of {year}, for a total of {total} views.".format(title=title, lang=lang_to_text(lang, exception=True), rank=rank, month=month, year=year, total=sum(numbers)))
+    print(
+        'The page "{title}", with language {lang}, has been ranked {rank}th on the {month}th month of {year}, for a total of {total} views.'.format(
+            title=title,
+            lang=lang_to_text(lang, exception=True),
+            rank=rank,
+            month=month,
+            year=year,
+            total=sum(numbers),
+        )
+    )
 
     # # Sort decreasingly (bad idea here)
     # ind = numpy.argsort(numbers)
@@ -187,14 +225,22 @@ def plot_stats_from_json(json_obj, graphic_name=None, graphic_name_template="{ti
     # numbers = numbers[ind]
 
     # Graph options
-    pylab.xlabel("Dates from the last 30 days (at the {today})".format(today=datetime.date.today()))
+    pylab.xlabel(
+        "Dates from the last 30 days (at the {today})".format(
+            today=datetime.date.today()
+        )
+    )
     pylab.ylabel("Number of visitors")
 
     try:
         lang_name = "(in " + lang_to_text(lang, exception=False).capitalize() + ")"
     except KeyError:
         lang_name = "(unknown language)"
-    pylab.title(u".: Visiting statistics for the Wikipedia page '{title}' {lang_name} :.\n (Data from http://stats.grok.se, Python script by Lilian Besson (C) 2014) ".format(title=title, lang_name=lang_name))
+    pylab.title(
+        u".: Visiting statistics for the Wikipedia page '{title}' {lang_name} :.\n (Data from http://stats.grok.se, Python script by Lilian Besson (C) 2014) ".format(
+            title=title, lang_name=lang_name
+        )
+    )
 
     # X axis
     pylab.xlim(1, nbnumbers + 1)
@@ -210,23 +256,31 @@ def plot_stats_from_json(json_obj, graphic_name=None, graphic_name_template="{ti
 
     # We keep the days with visitors
     idc = numbers >= 0
-    pylab.plot(bins[idc], numbers[idc], 'go--', linewidth=.5, markersize=5)
+    pylab.plot(bins[idc], numbers[idc], "go--", linewidth=0.5, markersize=5)
 
     # Tweak spacing to prevent clipping of ylabel
     pylab.subplots_adjust(left=0.15)  # bottom=0.5
 
-#    pylab.show()  # only if interactive will testing
+    #    pylab.show()  # only if interactive will testing
     # Plot the histogram on 3 files (png, svg, pdf)
     if ext == "all":
         graphic_name = "{title}.{lang}.".format(title=title, lang=lang)
         for ext in ["png", "svg", "pdf"]:
             pylab.savefig(graphic_name + ext, format=ext, dpi=600)
-            print("Ploting the statistics on an histogram on the file \"{graphic_name}\".".format(graphic_name=graphic_name + ext))
+            print(
+                'Ploting the statistics on an histogram on the file "{graphic_name}".'.format(
+                    graphic_name=graphic_name + ext
+                )
+            )
             pylab.draw()
     # Otherwise use only the one given by the user
     else:
         pylab.savefig(graphic_name, format=ext, dpi=400)
-        print("Ploting the statistics on an histogram on the file \"{graphic_name}\".".format(graphic_name=graphic_name))
+        print(
+            'Ploting the statistics on an histogram on the file "{graphic_name}".'.format(
+                graphic_name=graphic_name
+            )
+        )
         pylab.draw()
     pylab.clf()
 
@@ -234,7 +288,7 @@ def plot_stats_from_json(json_obj, graphic_name=None, graphic_name_template="{ti
 
 
 def main(argv):
-    """ main(argv) -> None
+    """main(argv) -> None
 
     Main function. Use the arguments of the command line."""
 

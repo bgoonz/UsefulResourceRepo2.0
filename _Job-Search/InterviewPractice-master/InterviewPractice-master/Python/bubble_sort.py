@@ -1,5 +1,5 @@
 n = int(input().strip())
-arr = list(map(int, input().strip().split(' ')))
+arr = list(map(int, input().strip().split(" ")))
 swaps = 0
 flag = True
 

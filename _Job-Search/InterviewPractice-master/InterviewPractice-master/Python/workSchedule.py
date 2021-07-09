@@ -12,7 +12,7 @@ def findSchedules(workHours, dayHours, pattern):
                 remainingList.append(s)
 
     remaining = len(remainingList)
-    currentTotal = sum(current[0:len(current)])
+    currentTotal = sum(current[0 : len(current)])
     hoursLeft = workHours - currentTotal
 
     if (hoursLeft % remaining) == 0:
@@ -23,14 +23,12 @@ def findSchedules(workHours, dayHours, pattern):
     return result
 
 
-
-
-
 def main():
     workHours = 56
     dayHours = 8
     pattern = "???8???"
 
     print(findSchedules(workHours, dayHours, pattern))
+
 
 main()

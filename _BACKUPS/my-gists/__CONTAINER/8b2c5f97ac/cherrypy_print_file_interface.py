@@ -37,7 +37,7 @@ class Print(object):
             with tempfile.NamedTemporaryFile(prefix="tmp_print") as f:
                 f.write(content)
                 f.flush()
-                id = conn.printFile('MFP', f.name, job_name, {})
+                id = conn.printFile("MFP", f.name, job_name, {})
             msg = "success, job id: {}, job name: {}".format(id, job_name)
         except cups.IPPError as ex:
             status, description = ex
@@ -45,7 +45,5 @@ class Print(object):
         return msg
 
 
-cherrypy.config.update({
-    'server.socket_host': '0.0.0.0',
-    'server.socket_port': 9999})
+cherrypy.config.update({"server.socket_host": "0.0.0.0", "server.socket_port": 9999})
 cherrypy.quickstart(Print())

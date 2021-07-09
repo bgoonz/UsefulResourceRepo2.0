@@ -392,7 +392,7 @@ memo; // => { '2': 2, '3': 6, '4': 24, '5': 120, '6': 720, '7': 5040 }
   - Keep in mind we didn't improve the speed of our algo.
 
 **Memoizing Fibonacci**
-![memofib](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/memoization/images/fib_memoized.png)
+![memofib](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/memoization/images/fib_memoized.png)
 
 - Our time complexity for fibonacci goes from O(2^n) to O(n) after applying memoization.
 

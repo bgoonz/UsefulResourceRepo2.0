@@ -15,7 +15,7 @@ from __future__ import print_function  # Python 2/3 compatibility !
 from gi.repository import Gtk
 import sys
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     color_sel = Gtk.ColorSelectionDialog("GTK Color Picker (color-picker.py)")
 
     if len(sys.argv) > 1:

@@ -167,4 +167,4 @@ The logs may clue you into why you are experiencing errors or different behavior
 
 You can also open your site in the browser with `heroku open`. If it works, congratulations, you've created a production-ready, dynamic, full-stack website that can be securely accessed anywhere in the world! Give yourself a pat on the back. You're a web developer!
 
-[Source](https://open.appacademy.io/learn/js-py---oct-2020-online/week-15-oct-2020-online/authenticate-me-part-3--deploy)
+[Source](https://open.Lambda.io/learn/js-py---oct-2020-online/week-15-oct-2020-online/authenticate-me-part-3--deploy)

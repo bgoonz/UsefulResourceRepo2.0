@@ -14,18 +14,18 @@ except NameError:
 
 def shuffle(x):
     """Randomize the order, in-place, of items in a list."""
-    for i in xrange(len(x)-1, 0, -1):
+    for i in xrange(len(x) - 1, 0, -1):
         # Exchange element x[:i+1] with x[i]
-        j = int(random.random() * (i+1))
+        j = int(random.random() * (i + 1))
         x[i], x[j] = x[j], x[i]
 
 
-if __name__ == '__main__':
-    alpha = list('abcdefghijklmnopqrstuvwxyz')
-    print('Before:', ''.join(alpha))
+if __name__ == "__main__":
+    alpha = list("abcdefghijklmnopqrstuvwxyz")
+    print("Before:", "".join(alpha))
     shuffle(alpha)
-    print('After:', ''.join(alpha))
+    print("After:", "".join(alpha))
     shuffle(alpha)
-    print('Again:', ''.join(alpha))
+    print("Again:", "".join(alpha))
     shuffle(alpha)
-    print('Again:', ''.join(alpha))
+    print("Again:", "".join(alpha))

@@ -6,7 +6,7 @@ import tensorflow as tf
 
 
 def lazy_property(function):
-    attribute = '_' + function.__name__
+    attribute = "_" + function.__name__
 
     @property
     @functools.wraps(function)
@@ -14,11 +14,11 @@ def lazy_property(function):
         if not hasattr(self, attribute):
             setattr(self, attribute, function(self))
         return getattr(self, attribute)
+
     return wrapper
 
 
 class SequenceLabelling:
-
     def __init__(self, data, target, dropout, num_hidden=200, num_layers=3):
         self.data = data
         self.target = target
@@ -33,8 +33,7 @@ class SequenceLabelling:
     def prediction(self):
         # Recurrent network.
         network = tf.nn.rnn_cell.GRUCell(self._num_hidden)
-        network = tf.nn.rnn_cell.DropoutWrapper(
-            network, output_keep_prob=self.dropout)
+        network = tf.nn.rnn_cell.DropoutWrapper(network, output_keep_prob=self.dropout)
         network = tf.nn.rnn_cell.MultiRNNCell([network] * self._num_layers)
         output, _ = tf.nn.dynamic_rnn(network, data, dtype=tf.float32)
         # Softmax layer.
@@ -49,8 +48,7 @@ class SequenceLabelling:
 
     @lazy_property
     def cost(self):
-        cross_entropy = -tf.reduce_sum(
-            self.target * tf.log(self.prediction), [1, 2])
+        cross_entropy = -tf.reduce_sum(self.target * tf.log(self.prediction), [1, 2])
         cross_entropy = tf.reduce_mean(cross_entropy)
         return cross_entropy
 
@@ -63,7 +61,8 @@ class SequenceLabelling:
     @lazy_property
     def error(self):
         mistakes = tf.not_equal(
-            tf.argmax(self.target, 2), tf.argmax(self.prediction, 2))
+            tf.argmax(self.target, 2), tf.argmax(self.prediction, 2)
+        )
         return tf.reduce_mean(tf.cast(mistakes, tf.float32))
 
     @staticmethod
@@ -75,14 +74,15 @@ class SequenceLabelling:
 
 def read_dataset():
     dataset = sets.Ocr()
-    dataset = sets.OneHot(dataset.target, depth=2)(dataset, columns=['target'])
-    dataset['data'] = dataset.data.reshape(
-        dataset.data.shape[:-2] + (-1,)).astype(float)
+    dataset = sets.OneHot(dataset.target, depth=2)(dataset, columns=["target"])
+    dataset["data"] = dataset.data.reshape(dataset.data.shape[:-2] + (-1,)).astype(
+        float
+    )
     train, test = sets.Split(0.66)(dataset)
     return train, test
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     train, test = read_dataset()
     _, length, image_size = train.data.shape
     num_classes = train.target.shape[2]
@@ -95,8 +95,10 @@ if __name__ == '__main__':
     for epoch in range(10):
         for _ in range(100):
             batch = train.sample(10)
-            sess.run(model.optimize, {
-                data: batch.data, target: batch.target, dropout: 0.5})
-        error = sess.run(model.error, {
-            data: test.data, target: test.target, dropout: 1})
-        print('Epoch {:2d} error {:3.1f}%'.format(epoch + 1, 100 * error))
+            sess.run(
+                model.optimize, {data: batch.data, target: batch.target, dropout: 0.5}
+            )
+        error = sess.run(
+            model.error, {data: test.data, target: test.target, dropout: 1}
+        )
+        print("Epoch {:2d} error {:3.1f}%".format(epoch + 1, 100 * error))

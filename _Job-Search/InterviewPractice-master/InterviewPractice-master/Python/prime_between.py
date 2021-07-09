@@ -2,6 +2,7 @@
 Print all primes between 1 and a number
 """
 
+
 def primes():
     n = 100
 
@@ -11,5 +12,6 @@ def primes():
                 if i == j:
                     print(i)
                 break
+
 
 primes()

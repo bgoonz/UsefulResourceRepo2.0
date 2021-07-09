@@ -20,13 +20,13 @@ def escape_string(orig_string, esc_chars):
     String containing encoded characters.
 
     """
-    if '~' in esc_chars:
+    if "~" in esc_chars:
         esc_chars = list(esc_chars)
-        esc_chars.remove('~')
+        esc_chars.remove("~")
 
-    orig_string = orig_string.replace('~', '~'+hex(ord('~')))
+    orig_string = orig_string.replace("~", "~" + hex(ord("~")))
     for c in esc_chars:
-        orig_string = orig_string.replace(c, '~'+hex(ord(c)))
+        orig_string = orig_string.replace(c, "~" + hex(ord(c)))
     return orig_string
 
 
@@ -45,10 +45,10 @@ def unescape_string(orig_string, esc_chars):
     String containing decoded characters.
 
     """
-    if '~' in esc_chars:
+    if "~" in esc_chars:
         esc_chars = list(esc_chars)
-        esc_chars.remove('~')
+        esc_chars.remove("~")
 
     for c in esc_chars:
-        orig_string = orig_string.replace('~'+hex(ord(c)), c)
-    return orig_string.replace('~'+hex(ord('~')), '~')
+        orig_string = orig_string.replace("~" + hex(ord(c)), c)
+    return orig_string.replace("~" + hex(ord("~")), "~")

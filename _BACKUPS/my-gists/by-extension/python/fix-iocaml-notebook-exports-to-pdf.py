@@ -25,7 +25,7 @@ from pprint import pprint
 def is_stderr_used(outputs):
     for output in outputs:
         try:
-            if output['name'] == "stderr":
+            if output["name"] == "stderr":
                 return True
         except KeyError:
             pass
@@ -36,7 +36,12 @@ def transform_data_texthtml(data_texthtml):
     data_texthtml[0] = data_texthtml[0][2:]
     for i in range(len(data_texthtml)):
         # Hack to replace a few HTML escaped caracters
-        data_texthtml[i] = data_texthtml[i].replace('&gt;','>').replace('&lt;','<').replace('&quot;','\'')
+        data_texthtml[i] = (
+            data_texthtml[i]
+            .replace("&gt;", ">")
+            .replace("&lt;", "<")
+            .replace("&quot;", "'")
+        )
     return data_texthtml
 
 
@@ -44,8 +49,11 @@ def get_data_texthtml(outputs):
     data_texthtml = []
     for output in outputs:
         try:
-            if output['output_type'] == "execute_result" and 'text/html' in output['data']:
-                long_data_texthtml = output['data']['text/html']
+            if (
+                output["output_type"] == "execute_result"
+                and "text/html" in output["data"]
+            ):
+                long_data_texthtml = output["data"]["text/html"]
                 assert len(long_data_texthtml) >= 8
                 data_texthtml += transform_data_texthtml(long_data_texthtml[6:-1])
         except KeyError:
@@ -55,15 +63,21 @@ def get_data_texthtml(outputs):
 
 def main(old, new, debug=False):
     filename = old
-    assert filename[-6:] == '.ipynb', "Error: the input file is not a .ipynb Jupyter Notebook file."
-    with open(filename, 'r') as file:
+    assert (
+        filename[-6:] == ".ipynb"
+    ), "Error: the input file is not a .ipynb Jupyter Notebook file."
+    with open(filename, "r") as file:
         content = json.load(file)
     # Check that it is a IOCaml notebook
-    assert content['metadata']['kernelspec']['name'] == "iocaml-kernel" and content['metadata']['kernelspec']['language'] == "ocaml" and content['metadata']['kernelspec']['display_name'] == "OCaml", "Error: the input notebook does not appear to have been produced by the IOCaml OCaml kernel."
+    assert (
+        content["metadata"]["kernelspec"]["name"] == "iocaml-kernel"
+        and content["metadata"]["kernelspec"]["language"] == "ocaml"
+        and content["metadata"]["kernelspec"]["display_name"] == "OCaml"
+    ), "Error: the input notebook does not appear to have been produced by the IOCaml OCaml kernel."
     # For each cell
-    for cell in content['cells']:
-        if cell['cell_type'] == "code":
-            outputs = cell['outputs']
+    for cell in content["cells"]:
+        if cell["cell_type"] == "code":
+            outputs = cell["outputs"]
             # execution_count = cell['execution_count']
             # No need
             # if is_stderr_used(outputs):
@@ -79,9 +93,10 @@ def main(old, new, debug=False):
             # if debug: pprint(new_stderr_output)
             # cell['outputs'].append(new_stderr_output)
             for output in outputs:
-                if 'data' in output:
-                    output['data']['text/plain'] = data_texthtml
-                    if debug: pprint(output['data'])
+                if "data" in output:
+                    output["data"]["text/plain"] = data_texthtml
+                    if debug:
+                        pprint(output["data"])
                     break  # do not add twice the same output cell
 
     # Check before changing the file
@@ -91,16 +106,16 @@ def main(old, new, debug=False):
     # shutil.copy(filename, filename.replace('.ipynb', '.ipynb~'))
 
     # Now write the JSON to the input file $input.ipynb
-    with open(new, 'w') as file:
+    with open(new, "w") as file:
         json.dump(content, file, indent=2)
     print("New notebook written to", new)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     argv = sys.argv[1:]
     old = argv[0]
     if len(argv) < 2:
-        new = old.replace('.ipynb', '__fix-iocaml-notebook-exports-to-pdf.ipynb')
+        new = old.replace(".ipynb", "__fix-iocaml-notebook-exports-to-pdf.ipynb")
     else:
         new = argv[1]
     print("old =", old)

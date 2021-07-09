@@ -1,8 +1,10 @@
 # Complete the function below.
 import sys
 
-def function( x):
-    return (x*x)
+
+def function(x):
+    return x * x
+
 
 if __name__ == "__main__":
     try:

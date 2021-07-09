@@ -22,16 +22,16 @@ def l_to_c(l):
     try:
         return str(int(l))
     except ValueError:
-        return str(10 + ord(l.upper()) - ord('A'))
+        return str(10 + ord(l.upper()) - ord("A"))
 
 
 def check_nirpp(nirpp, length_checksum=length_checksum):
     print("\nChecking the NIRPP number '%s' ..." % nirpp)
-    ib = nirpp.replace(' ', '')
+    ib = nirpp.replace(" ", "")
     checksum = int(ib[-length_checksum:])
     ib = ib[:-length_checksum]
     print("  Of length", len(ib))
-    num_nirpp = int(''.join(l_to_c(l) for l in ib))
+    num_nirpp = int("".join(l_to_c(l) for l in ib))
     print("  Of sum num_nirpp =", num_nirpp)
     print("  Of check sum to 97 =", (97 - (num_nirpp % 97)))
     print("  And expected checksum was", checksum)
@@ -50,14 +50,14 @@ information_nirpp = {
             "1": "homme",
             "2": "femme",
             "3": "personne étrangère de sexe masculin en cours d'immatriculation en France",
-            "4": "personne étrangère de sexe féminin en cours d'immatriculation en France"
-        }
+            "4": "personne étrangère de sexe féminin en cours d'immatriculation en France",
+        },
     },
     (1, 2): {
         "meaning": "deux derniers chiffres de l'année de naissance",
         "mapping": {
             # DONE nothing to do for this information
-        }
+        },
     },
     (3, 2): {
         "meaning": "mois de naissance",
@@ -74,7 +74,7 @@ information_nirpp = {
             "10": "octobre",
             "11": "novembre",
             "12": "décembre",
-        }
+        },
     },
     # Only case A : TODO implement case B and C
     (5, 2): {
@@ -189,34 +189,32 @@ information_nirpp = {
             "986": "Wallis-et-Futuna",
             "987": "Polynésie française",
             "988": "Nouvelle-Calédonie",
-            "989": "Île de Clipperton"
-        }
+            "989": "Île de Clipperton",
+        },
     },
     (7, 3): {
         "meaning": "code officiel de la commune de naissance",
-        "mapping": {  # TODO
-        }
+        "mapping": {},  # TODO
     },
     (10, 3): {
         "meaning": "numéro d’ordre de la naissance dans le mois et la commune (ou le pays)",
         "mapping": {
             # DONE nothing to do for this information
-        }
-    }
-
+        },
+    },
 }
 
 
 def pprint_nirpp(nirpp, length_checksum=length_checksum):
     print("\nDisplaying information contained in the NIRPP number '%s' ..." % nirpp)
-    ib = nirpp.replace(' ', '')
+    ib = nirpp.replace(" ", "")
     ib = ib[:-length_checksum]
     # Printing
     for (i, l) in sorted(information_nirpp):
-        n = nirpp[i: i + l]
+        n = nirpp[i : i + l]
         info = information_nirpp[(i, l)]
         if n in info["mapping"]:
-            explain = "\"{}\"".format(info["mapping"][n])
+            explain = '"{}"'.format(info["mapping"][n])
         else:
             explain = n
         # For towns, durty hack to extract the town from the INSEE database
@@ -244,29 +242,33 @@ def pprint_nirpp(nirpp, length_checksum=length_checksum):
 
                 # 2nd try
                 args = [
-                    "grep", "--", "',{},{},'".format(
-                        nirpp[5: 5 + 2],
-                        nirpp[7: 7 + 3]
-                    ),
+                    "grep",
+                    "--",
+                    "',{},{},'".format(nirpp[5 : 5 + 2], nirpp[7 : 7 + 3]),
                     "/home/lilian/bin/comsimp2016.txt",
-                    "|", "cut", "-d,", "-f10"
+                    "|",
+                    "cut",
+                    "-d,",
+                    "-f10",
                 ]
                 # print("Executing subprocess.check_output to \"{}\"".format(' '.join(args)))
-                explain = subprocess.check_output(' '.join(args), shell=True)
+                explain = subprocess.check_output(" ".join(args), shell=True)
                 explain = explain[:-1].decode()
                 # print("explain =", explain)
-                explain = "{} (code {})".format(explain, nirpp[7: 7 + 3])
+                explain = "{} (code {})".format(explain, nirpp[7 : 7 + 3])
             except Exception:
                 explain = n
-        print("- Number '{}' (index {}:{}) means:\n\t\"{}\" : \t{}".format(
-            n, i, i + l, info["meaning"], explain)
+        print(
+            "- Number '{}' (index {}:{}) means:\n\t\"{}\" : \t{}".format(
+                n, i, i + l, info["meaning"], explain
+            )
         )
 
 
 def main(args):
     try:
         if not args:
-            check_nirpp('HAHA LOL YOU THOUGH I WILL LET A REAL NIRPP IN MY SCRIPT')
+            check_nirpp("HAHA LOL YOU THOUGH I WILL LET A REAL NIRPP IN MY SCRIPT")
         else:
             for nirpp in args:
                 if check_nirpp(nirpp):
@@ -277,8 +279,9 @@ def main(args):
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from sys import argv, exit
+
     exit(main(argv[1:]))
 
 # End of check_nirpp.py

@@ -79,14 +79,14 @@ A list of awesome beginners-friendly projects.
 
 [31508](https://github.com/MunGell/awesome-for-beginners/stargazers)[4801](https://github.com/MunGell/awesome-for-beginners/network/members)
 
-[ appacademy / welcome-to-open](https://github.com/appacademy/welcome-to-open)
+[ Lambda / welcome-to-open](https://github.com/Lambda/welcome-to-open)
 ==============================================================================
 
 Star
 
 Overview of App Academy Open
 
-[2273](https://github.com/appacademy/welcome-to-open/stargazers)[75](https://github.com/appacademy/welcome-to-open/network/members)
+[2273](https://github.com/Lambda/welcome-to-open/stargazers)[75](https://github.com/Lambda/welcome-to-open/network/members)
 
 [ lostdesign / webgems](https://github.com/lostdesign/webgems)
 ==============================================================

@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 
 import cgi
+
 form = cgi.FieldStorage()
 
-text = form.getvalue('text', open('simple_edit.dat').read())
-f = open('simple_edit.dat', 'w')
+text = form.getvalue("text", open("simple_edit.dat").read())
+f = open("simple_edit.dat", "w")
 f.write(text)
 f.close()
 
 
-print("""Content-type: text/html
+print(
+    """Content-type: text/html
 
 
 <html>
@@ -23,4 +25,7 @@ print("""Content-type: text/html
      </form>
   </body>
 </html>
-""".format(text))
+""".format(
+        text
+    )
+)

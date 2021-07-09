@@ -4,17 +4,17 @@ import re
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('index', type=int)
+parser.add_argument("index", type=int)
 
 args = parser.parse_args()
 
 insert_index = args.index
 
-filenames = os.listdir('.')
+filenames = os.listdir(".")
 
 file_tuples = []
 
-re_file = re.compile(r'^(\d\d)_(.*)$')
+re_file = re.compile(r"^(\d\d)_(.*)$")
 
 for filename in filenames:
     m = re_file.match(filename)
@@ -30,7 +30,7 @@ file_tuples = sorted(file_tuples, key=lambda t: t[0])
 
 for i, t in enumerate(file_tuples):
     if i + 1 != t[0]:
-        raise Exception('Expected index %s for %s' % (i, t[1]))
+        raise Exception("Expected index %s for %s" % (i, t[1]))
 
 for i in range(insert_index - 1, len(file_tuples)):
     old_filename = file_tuples[i][1]
@@ -39,8 +39,8 @@ for i in range(insert_index - 1, len(file_tuples)):
 
     filepart = m.groups()[1]
 
-    new_filename = '%02d_%s' % (i + 2, filepart)
+    new_filename = "%02d_%s" % (i + 2, filepart)
 
-    print('rename %s to %s' % (old_filename, new_filename))
+    print("rename %s to %s" % (old_filename, new_filename))
 
     os.rename(old_filename, new_filename)

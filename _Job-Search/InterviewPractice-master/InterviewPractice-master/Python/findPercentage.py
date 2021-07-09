@@ -9,9 +9,9 @@ while i < numStudents:
     test2 = int(input("Score for test 2: "))
     test3 = int(input("Score for test 3: "))
 
-    average = (test1+test2+test3)/3
+    average = (test1 + test2 + test3) / 3
 
-    x={}
+    x = {}
 
     x[name] = average
 

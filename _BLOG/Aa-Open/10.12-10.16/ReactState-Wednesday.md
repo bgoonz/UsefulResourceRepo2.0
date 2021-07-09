@@ -4,7 +4,7 @@
 
 **Using a Custom Template**
 
-`npx create-react-app my-app --template @appacademy/simple`
+`npx create-react-app my-app --template @Lambda/simple`
 
 - Keep in mind that using `create-react-app` automatically initializes a git repository for you!
 

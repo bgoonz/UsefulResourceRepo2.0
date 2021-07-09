@@ -164,7 +164,7 @@ COMMIT;
 **What is a JOIN?**
 
 - JOIN allows us to retrieve rows from multiple tables.
-  ![inner](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-SQL/assets/inner-join-venn-diagram.png)
+  ![inner](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-SQL/assets/inner-join-venn-diagram.png)
 
 ```sql
 SELECT * FROM puppies

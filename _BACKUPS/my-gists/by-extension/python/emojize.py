@@ -47,13 +47,14 @@ def emojize_all(s):
 
 def main(path):
     """Handle the file given by its path."""
-    with open(path, 'r') as f:
+    with open(path, "r") as f:
         for line in f.readlines():
-            print(emojize_all(line), end='')
+            print(emojize_all(line), end="")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from sys import argv
+
     for arg in argv[1:]:
         main(arg)
 

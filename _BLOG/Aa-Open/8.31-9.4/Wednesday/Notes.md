@@ -7,7 +7,7 @@
   - May have cycles.
   - May have any number of edges leaving a node.
 
-![graph](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/graphs/images/graphs.png)
+![graph](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/graphs/images/graphs.png)
 
 **GraphNode Class**
 
@@ -33,7 +33,7 @@ f.neighbors = [e];
 
 - **Adjacency Matrix** : Mathematician's preferred way of representing a graph.
 
-![adja](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/graphs/images/adj_matrix_graph.png)
+![adja](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/graphs/images/adj_matrix_graph.png)
 
 ```js
 let matrix = [

@@ -419,7 +419,7 @@ def example2(arg_1, arg_2, *args, kw_1="shark", kw_2="blowfish", **kwargs):
 - **function** : Function in a module.
 
 - A module can be any file but it is usually created by placing a special file `__init__.py` into a folder.
-  ![pic](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/python/topics/modules/assets/module-tree.svg)
+  ![pic](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/python/topics/modules/assets/module-tree.svg)
 
 - Try to avoid importing with wildcards in Python.
 

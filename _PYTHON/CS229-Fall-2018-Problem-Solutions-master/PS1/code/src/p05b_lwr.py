@@ -17,22 +17,22 @@ def main(tau, train_path, eval_path):
     x_train, y_train = util.load_dataset(train_path, add_intercept=True)
 
     # *** START CODE HERE ***
-     
+
     model = LocallyWeightedLinearRegression(tau=tau)
     model.fit(x_train, y_train)
 
     x_eval, y_eval = util.load_dataset(eval_path, add_intercept=True)
     y_pred = model.predict(x_eval)
 
-    mse = np.mean((y_pred - y_eval)**2)
-    print(f'MSE={mse}')
+    mse = np.mean((y_pred - y_eval) ** 2)
+    print(f"MSE={mse}")
 
     plt.figure()
-    plt.plot(x_train, y_train, 'bx', linewidth=2)
-    plt.plot(x_eval, y_pred, 'ro', linewidth=2)
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.savefig('output/p05b.png')
+    plt.plot(x_train, y_train, "bx", linewidth=2)
+    plt.plot(x_eval, y_pred, "ro", linewidth=2)
+    plt.xlabel("x")
+    plt.ylabel("y")
+    plt.savefig("output/p05b.png")
 
     # *** END CODE HERE ***
 
@@ -45,11 +45,9 @@ class LocallyWeightedLinearRegression(LinearModel):
         self.y = None
 
     def fit(self, x, y):
-        """Fit LWR by saving the training set.
-
-        """
+        """Fit LWR by saving the training set."""
         # *** START CODE HERE ***
-        
+
         self.x = x
         self.y = y
 
@@ -65,13 +63,21 @@ class LocallyWeightedLinearRegression(LinearModel):
             Outputs of shape (m,).
         """
         # *** START CODE HERE ***
-        
+
         m, n = x.shape
         y_pred = np.zeros(m)
-        
+
         for i in range(m):
-            W = np.diag(np.exp(-np.sum((self.x - x[i])**2, axis=1) / (2 * self.tau**2)))
-            y_pred[i] = np.linalg.inv(self.x.T.dot(W).dot(self.x)).dot(self.x.T).dot(W).dot(self.y).T.dot(x[i])
+            W = np.diag(
+                np.exp(-np.sum((self.x - x[i]) ** 2, axis=1) / (2 * self.tau ** 2))
+            )
+            y_pred[i] = (
+                np.linalg.inv(self.x.T.dot(W).dot(self.x))
+                .dot(self.x.T)
+                .dot(W)
+                .dot(self.y)
+                .T.dot(x[i])
+            )
 
         return y_pred
 

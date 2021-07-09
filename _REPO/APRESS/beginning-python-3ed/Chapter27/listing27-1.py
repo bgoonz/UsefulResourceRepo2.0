@@ -8,12 +8,13 @@ MAX_HISTORY_LENGTH = 6
 
 OK = 1
 FAIL = 2
-EMPTY = ''
+EMPTY = ""
+
 
 def get_port(url):
-    'Extracts the port from a URL'
+    "Extracts the port from a URL"
     name = urlparse(url)[1]
-    parts = name.split(':')
+    parts = name.split(":")
     return int(parts[-1])
 
 
@@ -21,6 +22,7 @@ class Node:
     """
     A node in a peer-to-peer network.
     """
+
     def __init__(self, url, dirname, secret):
         self.url = url
         self.dirname = dirname
@@ -52,10 +54,11 @@ class Node:
         """
         Used to make the Node find a file and download it.
         """
-        if secret != self.secret: return FAIL
+        if secret != self.secret:
+            return FAIL
         code, data = self.query(query)
         if code == OK:
-            f = open(join(self.dirname, query), 'w')
+            f = open(join(self.dirname, query), "w")
             f.write(data)
             f.close()
             return OK
@@ -76,7 +79,8 @@ class Node:
         """
         dir = self.dirname
         name = join(dir, query)
-        if not isfile(name): return FAIL, EMPTY
+        if not isfile(name):
+            return FAIL, EMPTY
         return OK, open(name).read()
 
     def _broadcast(self, query, history):
@@ -84,7 +88,8 @@ class Node:
         Used internally to broadcast a query to all known Nodes.
         """
         for other in self.known.copy():
-            if other in history: continue
+            if other in history:
+                continue
             try:
                 s = ServerProxy(other)
                 code, data = s.query(query, history)
@@ -94,9 +99,12 @@ class Node:
                 self.known.remove(other)
         return FAIL, EMPTY
 
+
 def main():
     url, directory, secret = sys.argv[1:]
     n = Node(url, directory, secret)
     n._start()
 
-if __name__ == '__main__': main()
+
+if __name__ == "__main__":
+    main()

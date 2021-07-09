@@ -10,10 +10,10 @@ import math
 def primes(n, show_dist):
     if n < 2:
         return []
-    numbers = [0]*(n+1)
+    numbers = [0] * (n + 1)
     primes = [2]
     # Mark all odd numbers as maybe prime, leave evens marked composit.
-    for i in xrange(3, n+1, 2):
+    for i in xrange(3, n + 1, 2):
         numbers[i] = 1
 
     sqn = int(math.sqrt(n))
@@ -27,11 +27,10 @@ def primes(n, show_dist):
         primes.append(i)
         if i > sqn:
             # All the remaining odd numbers not marked composit must be prime.
-            primes.extend([i for i in xrange(i+2, len(numbers), 2)
-                           if numbers[i]])
+            primes.extend([i for i in xrange(i + 2, len(numbers), 2) if numbers[i]])
             break
         # Mark all multiples of the prime as composit.  Check odd multiples.
-        for r in xrange(i*i, len(numbers), i*2):
+        for r in xrange(i * i, len(numbers), i * 2):
             numbers[r] = 0
 
     if show_dist:
@@ -44,9 +43,9 @@ def nums(numbers):
     numbers[2] = 1
     for n in numbers[1:]:
         if n:
-            print('*', end='')
+            print("*", end="")
         else:
-            print('_', end='')
+            print("_", end="")
         if i == 80:
             i = 1
             print()
@@ -57,13 +56,18 @@ def nums(numbers):
 
 def main():
     import argparse
-    ap = argparse.ArgumentParser(
-        description='Find all primes up to the given value')
-    ap.add_argument('max', type=int, help='Find primes up to this value')
-    ap.add_argument('--quiet', '-q', action='store_true',
-                    help='Only count primes found, do not show them')
-    ap.add_argument('--distance', '-d', action='store_true',
-                    help='Show distance between primes')
+
+    ap = argparse.ArgumentParser(description="Find all primes up to the given value")
+    ap.add_argument("max", type=int, help="Find primes up to this value")
+    ap.add_argument(
+        "--quiet",
+        "-q",
+        action="store_true",
+        help="Only count primes found, do not show them",
+    )
+    ap.add_argument(
+        "--distance", "-d", action="store_true", help="Show distance between primes"
+    )
     args = ap.parse_args()
 
     n = int(args.max)
@@ -74,12 +78,12 @@ def main():
     p = primes(n, args.distance)
     if not args.quiet:
         for x in p:
-            print(x, end=' ')
+            print(x, end=" ")
         print()
 
     print("Found", len(p), "primes <=", n)
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

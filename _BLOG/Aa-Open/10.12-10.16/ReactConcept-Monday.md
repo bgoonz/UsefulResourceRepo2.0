@@ -77,13 +77,13 @@ fetch("https://example.com/api/people")
 - **`create-react-app`** : Extensible command-line tool to help generate standard React applications.
 - **`Webpack`** : In between tool for dealing with the extra build step involved.
 
-![pic](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/intro-to-react/assets/webpack.png)
+![pic](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/intro-to-react/assets/webpack.png)
 
 - **HMR** : (Hot Module Replacement) When you make changes to your source code the changes are delivered in real-time.
 
 - React Developers created something called `Flux Architecture` to moderate how their web page consumes and modifies data received from back-end API's.
 
-![fluxarch](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/intro-to-react/assets/flux-architecture.png)
+![fluxarch](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/intro-to-react/assets/flux-architecture.png)
 
 **Choosing React**
 

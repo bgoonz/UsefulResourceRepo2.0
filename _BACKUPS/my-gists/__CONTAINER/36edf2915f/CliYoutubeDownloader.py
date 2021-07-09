@@ -8,7 +8,8 @@ class YouTubeDownloder:
     def __init__(self):
         self.url = str(input("Enter the url of video : "))
         self.youtube = pytube.YouTube(
-            self.url, on_progress_callback=YouTubeDownloder.onProgress)
+            self.url, on_progress_callback=YouTubeDownloder.onProgress
+        )
         self.showTitle()
 
     def showTitle(self):
@@ -18,8 +19,11 @@ class YouTubeDownloder:
     def showStreams(self):
         self.streamNo = 1
         for stream in self.youtube.streams:
-            print("{0} => resolution:{1}/fps:{2}/type:{3}".format(self.streamNo,
-                                                                  stream.resolution, stream.fps, stream.type))
+            print(
+                "{0} => resolution:{1}/fps:{2}/type:{3}".format(
+                    self.streamNo, stream.resolution, stream.fps, stream.type
+                )
+            )
             self.streamNo += 1
         self.chooseStream()
 
@@ -35,7 +39,7 @@ class YouTubeDownloder:
             self.chooseStream()
 
     def getStream(self):
-        self.stream = self.youtube.streams[self.choose-1]
+        self.stream = self.youtube.streams[self.choose - 1]
         self.getFileSize()
 
     def getFileSize(self):
@@ -53,10 +57,12 @@ class YouTubeDownloder:
         self.stream.download()
 
     @staticmethod
-    def onProgress(stream=None, chunk=None,  remaining=None):
-        file_downloaded = (file_size-(remaining/1000000))
+    def onProgress(stream=None, chunk=None, remaining=None):
+        file_downloaded = file_size - (remaining / 1000000)
         print(
-            f"downloading ... {file_downloaded/file_size*100:0.2f} % [{file_downloaded:.1f}MB of {file_size:.1f}MB]", end="\r")
+            f"downloading ... {file_downloaded/file_size*100:0.2f} % [{file_downloaded:.1f}MB of {file_size:.1f}MB]",
+            end="\r",
+        )
 
     def main(self):
         try:

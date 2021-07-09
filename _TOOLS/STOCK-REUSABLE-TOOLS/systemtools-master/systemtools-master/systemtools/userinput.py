@@ -28,7 +28,7 @@ def timed_input(prompt, timeout):
     None for timeout.
 
     """
-    sys.stdout.write('(waiting %d seconds) ' % (int(timeout),))
+    sys.stdout.write("(waiting %d seconds) " % (int(timeout),))
     sys.stdout.write(prompt)
     sys.stdout.flush()
     rlist, wlist, xlist = select([sys.stdin], [], [], timeout)
@@ -57,12 +57,12 @@ def confirm(prompt, default=None, timeout=None):
 
     """
     if default is None:
-        default_yn = 'y/n'
+        default_yn = "y/n"
     elif default:
-        default_yn = 'Y/n'
+        default_yn = "Y/n"
     else:
-        default_yn = 'y/N'
-    prompt = '%s (%s): ' % (prompt, default_yn)
+        default_yn = "y/N"
+    prompt = "%s (%s): " % (prompt, default_yn)
 
     confirmed = None
     while confirmed is None:
@@ -77,9 +77,9 @@ def confirm(prompt, default=None, timeout=None):
             yn = raw_input(prompt)
         if yn:
             yn = yn.lower()
-            if yn in ('y', 'yes'):
+            if yn in ("y", "yes"):
                 confirmed = True
-            elif yn in ('n', 'no'):
+            elif yn in ("n", "no"):
                 confirmed = False
         elif default is not None:
             confirmed = default
@@ -109,9 +109,9 @@ def ask_input(prompt, default=None, timeout=None):
 
     """
     if default:
-        prompt = '%s [%s]: ' % (prompt, default)
+        prompt = "%s [%s]: " % (prompt, default)
     else:
-        prompt = prompt + ': '
+        prompt = prompt + ": "
 
     if timeout:
         answer = timed_input(prompt, timeout)
@@ -145,9 +145,9 @@ def choose(prompt, choices, default=None, timeout=None):
 
     """
     if default is not None and default in choices:
-        prompt = '%s [%s]: ' % (prompt, default)
+        prompt = "%s [%s]: " % (prompt, default)
     else:
-        prompt = prompt + ': '
+        prompt = prompt + ": "
         default = None
 
     # Prompt and read input, coninue until valid input given.
@@ -197,9 +197,9 @@ def choose_number(prompt, choices, default=None, timeout=None):
 
     """
     if default is not None and choices[default] in choices:
-        prompt = '%s [%d]: ' % (prompt, default)
+        prompt = "%s [%d]: " % (prompt, default)
     else:
-        prompt = prompt + ': '
+        prompt = prompt + ": "
         default = None
 
     good_range = xrange(len(choices))
@@ -208,7 +208,7 @@ def choose_number(prompt, choices, default=None, timeout=None):
     answer = None
     while answer is None:
         for i, ch in enumerate(choices):
-            print('[%s] %s' % (i, ch))
+            print("[%s] %s" % (i, ch))
 
         if timeout:
             choice = timed_input(prompt, timeout)
@@ -228,32 +228,32 @@ def choose_number(prompt, choices, default=None, timeout=None):
     return answer
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Run this module as a script to see how the user input methods work.
-    v = ask_input('Enter something')
-    print('You entered:', v)
+    v = ask_input("Enter something")
+    print("You entered:", v)
 
     print()
-    v = ask_input('Enter something', None, 5)
-    print('You entered:', v)
+    v = ask_input("Enter something", None, 5)
+    print("You entered:", v)
 
     print()
-    v = confirm('Do you like this', True)
-    print('You entered:', v)
+    v = confirm("Do you like this", True)
+    print("You entered:", v)
 
     print()
-    v = confirm('Do you like this', None, 5)
-    print('You entered:', v)
+    v = confirm("Do you like this", None, 5)
+    print("You entered:", v)
 
     print()
-    v = confirm('Do you still like this', False, 5)
-    print('You entered:', v)
+    v = confirm("Do you still like this", False, 5)
+    print("You entered:", v)
 
-    c = ['foo', 'bar', 'baz']
+    c = ["foo", "bar", "baz"]
     print()
-    v = choose('Make a choice', c, c[0], 5)
-    print('You entered:', v)
+    v = choose("Make a choice", c, c[0], 5)
+    print("You entered:", v)
 
     print()
-    v = choose_number('Choice a number', c, 1, 5)
-    print('You entered: %s (%s)' % (v, c[v]))
+    v = choose_number("Choice a number", c, 1, 5)
+    print("You entered: %s (%s)" % (v, c[v]))

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>propr-drilling</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="how-to-avoid-prop-drilling-in-react-using-component-composition">How To Avoid Prop Drilling in React Using Component Composition</h1>
+<blockquote>
+<p>Prop Drilling is the process by which you pass data from one part of the React Component tree to another by going through other parts that…</p>
+</blockquote>
+<h2 id="no-redux-or-context-api">No Redux or Context API</h2>
+<p><a href="https://solathecoder.medium.com/?source=post_page-----c42adfcdde1b--------------------------------"><img src="https://miro.medium.com/fit/c/96/96/1*4uKprtl6FxkdLgi0ozr1TA.jpeg" alt="Olusola Samuel" /></a></p>
+<p><img src="https://miro.medium.com/max/2560/1*zd8xNfpnLt5nHEpNmXPMQw.jpeg" /></p>
+<p>Prop Drilling is the process by which you pass data from one part of the React Component tree to another by going through other parts that do not need the data but only help in passing it around.</p>
+<p>Imagine someone living in Lagos, Nigeria placing an order on Amazon for a package. The package will have to go through many hands — it has to be flown by air to Nigeria, transported to the Lagos, moved from place to place until it gets into the hands of the buyer. At each stage, Amazon employs the services of people that do not ‘care’ about the product, they only help to ‘pass’ it to the person who cared — the buyer.</p>
+<p>Prop drilling is similar: You pass data (props) from some <code>FirstComponent</code> to another <code>SecondComponent</code>— which doesn’t need the data to render but only passes it to another <code>ThirdComponent</code>, which also doesn’t need it and may pass it to another <code>FourthComponent</code>. This may continue until the data gets to the <code>ComponentNeedingProps</code>.</p>
+<p>Consider the code snippet below:</p>
+<p><a href="https://gist.github.com/bgoonz/03340eb3c61cf93ff650ad74e1c7c01e">gist</a></p>
+<p>The <code>content</code> prop is passed to <code>FirstComponent</code> in the root component, <code>App</code>. But <code>FirstComponent</code> does not need the prop to render, it only passes it to <code>SecondComponent</code>, which passes it to <code>ThirdComponent</code>, which passes it to <code>ComponentNeedingProps</code>. It is this component that uses the <code>content</code> prop to render content in <code>&lt;h3&gt;{content}&lt;/h3&gt;</code>.</p>
+<p>Prop drilling doesn’t have to be a problem. If we are passing data only between 2 or 3 levels, we are fine. It will be easy to trace the flow of data. But imagine, we are drilling 5 levels, or 10 levels, or 15.</p>
+<p><img src="https://miro.medium.com/max/60/1*R4csNpIyGu4cHg54n2P7xA.jpeg?q=20" /></p>
+<p><img src="https://miro.medium.com/max/1014/1*R4csNpIyGu4cHg54n2P7xA.jpeg" /></p>
+<p>Prop drilling is not a new problem in React (quite obviously), and there have been many solutions that let us pass data down to deeply nested Components.</p>
+<p>One of which is Redux: You create a data <code>store</code> and <code>connect</code> any component to the <code>store</code> and voila, no matter where the component is positioned in the Component Tree it has access to the store.</p>
+<p>React also has the concept of <code>Context</code> which lets you create something like a global <code>data store</code> and any Component in ‘context’ can have access to the data store.</p>
+<p>If you however want to solve this problem <strong>without using context</strong>, you can use Component Composition as suggested by the <a href="https://reactjs.org/docs/context.html#when-to-use-context">React Docs:</a></p>
+<p><em>If you only want to avoid passing some props through many levels, component composition is often a simpler solution than context</em></p>
+<p>You can learn more here <a href="https://reactjs.org/docs/context.html#before-you-use-context">Before You Use Context</a> and also, check out</p>
+<p>’s thread on why you should avoid using the Context API.</p>
+<p>Component Composition is when you compose different Components, usually simple, together to create more complex functionality. If you have ever written a React app, I bet that you have been composing components. Take for example:</p>
+<p>function LoginForm(props){<br />
+return (<br />
+<Input name="fname" /><br />
+<Button onClick={props.handleClick} />)<br />
+}</p>
+<p>Here, by using composition we are creating a ‘complex’ functionality, <code>LoginForm</code> by composing two simpler functionalities, <code>Button</code> and <code>Input</code> components. You can read more on the composition on React <a href="https://reactjs.org/docs/composition-vs-inheritance.html">documentation page</a>.</p>
+<p>The actual problem is that we want <code>ComponentNeedingProps</code> to be rendered in <code>ThirdComponent</code> but it needs data from the root component, <code>App</code> to do so. In other words, <code>ComponentNeedingProps</code> needs data from somewhere higher in the Component Tree (<code>App</code>) from where it is rendered (<code>ThirdComponent</code>).</p>
+<p>The Solution?</p>
+<p>You can compose components by making one a child of another, for example:</p>
+<p><ReactComponent1><br />
+<ReactComponent2 /><br />
+</ReactCompoent1></p>
+<p><code>ReactComponent2</code> is invoked inside of <code>ReactComponent1</code> and hence it is a child of it. Every component has an ‘automatic’ prop named <code>children</code> that holds the children of the Component. So in <code>ReactComponent1</code> we can write:</p>
+function ReactComponent1({ children }) {<br />
+return<br />
+(
+<div>
+<p>I render my children<br />
+{children}</p>
+</div>
+<p>)<br />
+}</p>
+<p>How can we use it in this case? Remember we want <code>ComponentNeedingProps</code> to be rendered in another component down in the Component Tree, if we can pass <code>ComponentNeedingProps</code> as a child component with the data it needs and then render it in its parent then we have successfully avoided prop drilling.</p>
+<p>So, we will have:</p>
+<ThirdComponent><br />
+
+<h3>
+I am the third component
+</h3>
+<pre><code> &lt;ComponentNeedingProps content={content}  /&gt;  </code></pre>
+<p></ThirdCompoent></p>
+<p>And in the declaration of <code>ThirdComponent</code> we have:</p>
+<p>function ThirdComponent({ children }) {<br />
+return (</p>
+<div>
+<pre><code>&lt;h3&gt;I am the third component&lt;/h3&gt;  
+ {children}  </code></pre>
+</div>
+<p>);<br />
+}</p>
+<p>This doesn’t look much different from what we had earlier but wait for the magic.</p>
+<p>By following this technique of rendering children, we can refactor <code>App</code> to this:</p>
+<p>function App() {<br />
+const content = “Who needs me?”;<br />
+return (</p>
+<div data-classname="App">
+<p><FirstComponent><br />
+<SecondComponent><br />
+<ThirdComponent><br />
+<ComponentNeedingProps content={content}  /><br />
+<ThirdComponent><br />
+</SecondComponent><br />
+</FirstComponent></p>
+</div>
+<p>);<br />
+}</p>
+<p>Then we refactor each of the other components to render their <code>children</code></p>
+<p>FirstComponent:</p>
+function FirstComponent({ children }) {<br />
+return (<br />
+
+<div>
+<h3>
+I am the first component
+</h3>
+;<br />
+{ children }<br />
+
+</div>
+<p>);<br />
+}</p>
+<p>SecondComponent:</p>
+function SecondComponent({ children }) {<br />
+return (<br />
+
+<div>
+<h3>
+I am the second component
+</h3>
+;<br />
+{children}<br />
+
+</div>
+<p>);<br />
+}</p>
+<p>ThirdComponent:</p>
+function ThirdComponent({ children }) {<br />
+return (<br />
+
+<div>
+<h3>
+I am the third component
+</h3>
+{children}<br />
+
+</div>
+<p>);<br />
+}</p>
+<p><code>ComponentNeedingProps</code> stays as it is:</p>
+function ComponentNeedingProps({ content }) {<br />
+return
+<h3>
+{content}
+</h3>
+<p>}</p>
+<p>Did you see it? We have avoided prop drilling by giving <code>ComponentNeedingProps</code> the data it needs right from the source of the data <code>App</code> and then by using the children prop, we passed it down to where it should be rendered, <code>ThirdComponent</code>.</p>
+<p>Awesome. See the complete code:</p>
+<p><a href="https://gist.github.com/bgoonz/14f267102d11fd116256e5e10c2be817">final</a></p>
+<h2 id="when-should-you-use-the-context-api">When should you use the Context API?</h2>
+<p>You can also use the Context API to avoid prop drilling and I may write another article on that in the nearest future.</p>
+<p>If you need to have some data accessible by many components at different nesting levels, then you should use the Context API. React docs advises that we ‘apply it sparingly because it makes component reuse more difficult.’ In other words, you might not be able to reuse your components ‘out of context’.</p>
+<p>That is it for this post, thank you for reading through. You can play with the code on <a href="https://codesandbox.io/s/propdrilling-vs-composition-updated-qe8nm?file=/src/App.js:0-878">CodeSandbox</a></p>
+<p>Happy Coding.</p>
+<p><strong><em>Note</em></strong>_: This post has had to go through major revisions based on the feedback provided in the comments. I am grateful for all the people who provided useful feedback. Some of the comments below do not apply to this revision._</p>
+<p><a href="https://javascript.plainenglish.io/how-to-avoid-prop-drilling-in-react-using-component-composition-c42adfcdde1b">Source</a></p>
+</body>
+</html>

@@ -12,4 +12,5 @@ def main():
 
     print(SumOfIntegers(arr))
 
+
 main()

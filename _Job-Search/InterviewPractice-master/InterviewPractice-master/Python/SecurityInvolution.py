@@ -1,10 +1,10 @@
-'''
+"""
 Title     : Security Involution
 Subdomain : Functions
 Domain    : Security
 Author    : Kalpak Seal
 Created   : 24 September 2016
-'''
+"""
 
 n = int(input())
 
@@ -18,5 +18,4 @@ for i in range(0, n):
         flag = "NO"
         break
 
-print (flag)
-
+print(flag)

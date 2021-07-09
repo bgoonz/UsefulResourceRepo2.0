@@ -5,8 +5,9 @@ import os
 
 arr = []
 
+
 def inputer():
-    length = (int(input("Number of elements: ")))
+    length = int(input("Number of elements: "))
 
     i = 0
     while i < length:
@@ -28,6 +29,7 @@ def findNumber(arr, k):
     else:
         print(len(hold))
         print("No")
+
 
 inputer()
 k = int(input("Enter number to search for: "))

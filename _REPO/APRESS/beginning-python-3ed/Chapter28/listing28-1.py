@@ -7,11 +7,11 @@ from os import listdir
 import sys
 import tkinter as tk
 
-HEAD_START = 0.1 # Seconds
+HEAD_START = 0.1  # Seconds
 SECRET_LENGTH = 100
 
-class Client(tk.Frame):
 
+class Client(tk.Frame):
     def __init__(self, master, url, dirname, urlfile):
         super().__init__(master)
         self.node_setup(url, dirname, urlfile)
@@ -33,11 +33,11 @@ class Client(tk.Frame):
 
     def create_widgets(self):
         self.input = input = tk.Entry(self)
-        input.pack(side='left')
+        input.pack(side="left")
 
         self.submit = submit = tk.Button(self)
-        submit['text'] = "Fetch"
-        submit['command'] = self.fetch_handler
+        submit["text"] = "Fetch"
+        submit["command"] = self.fetch_handler
         submit.pack()
 
     def fetch_handler(self):
@@ -45,8 +45,10 @@ class Client(tk.Frame):
         try:
             self.server.fetch(query, self.secret)
         except Fault as f:
-            if f.faultCode != UNHANDLED: raise
+            if f.faultCode != UNHANDLED:
+                raise
             print("Couldn't find the file", query)
+
 
 def main():
     urlfile, directory, url = sys.argv[1:]
@@ -57,4 +59,6 @@ def main():
     client = Client(root, url, directory, urlfile)
     client.mainloop()
 
-if __name__ == "__main__": main()
+
+if __name__ == "__main__":
+    main()

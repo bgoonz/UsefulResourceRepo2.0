@@ -57,7 +57,9 @@ class hashtable(object):
     def insert(self, key, value):
         """Insert a new (key, value) pair in the hash table."""
         if key in self.keys():
-            raise ValueError("key = {} is already present in the hash table".format(key))
+            raise ValueError(
+                "key = {} is already present in the hash table".format(key)
+            )
         self._keys.append(key)
         self._nb += 1
         h = small_hash(key, nb_bits=self._nb_bits)
@@ -73,7 +75,11 @@ class hashtable(object):
         self._nb_bits += 1
         self._size *= 2
         if debug:
-            print("Doubling the size of the hash table...\nUsing now {} bits for the addressing, and able to store up to {} values. Currently {} are used.".format(self._nb_bits, self._size, self._nb))  # DEBUG
+            print(
+                "Doubling the size of the hash table...\nUsing now {} bits for the addressing, and able to store up to {} values. Currently {} are used.".format(
+                    self._nb_bits, self._size, self._nb
+                )
+            )  # DEBUG
 
     # read, write, delete methods
 
@@ -140,7 +146,7 @@ class hashtable(object):
             self.insert(key, value)
 
     def update(self, iterator):
-        if hasattr(iterator, 'keys') and callable(iterator.keys):
+        if hasattr(iterator, "keys") and callable(iterator.keys):
             for k in iterator:
                 self[k] = iterator[k]
         else:
@@ -165,6 +171,7 @@ class hashtable(object):
 
 # --- Testing
 
+
 def test():
     print("Creating empty hash table ...")
     H = hashtable()
@@ -172,7 +179,7 @@ def test():
 
     print("Inserting i**2 for i = 0..9 ...")
     for i in range(10):
-        H.insert(i, i**2)
+        H.insert(i, i ** 2)
     print(H)
 
     print("Reading i**2 for i = 0..9 ...")
@@ -183,12 +190,12 @@ def test():
 
     print("Writing in place i**3 ...")
     for i in range(10):
-        H.write(i, i**3)
+        H.write(i, i ** 3)
     print(H)
 
     print("Writing in place i**4 ...")
     for i in range(10):
-        H[i] = i**4
+        H[i] = i ** 4
     print(H)
 
     print("Deleting even values ...")
@@ -209,12 +216,13 @@ def test():
     print("list(H) =", list(H))
 
     print("Updating from a dictionary ...")
-    H.update({k: k**2 for k in range(10, 15)})
+    H.update({k: k ** 2 for k in range(10, 15)})
     print(H)
 
     print("Updating from a list ...")
-    H.update([(k, k**2) for k in range(15, 20)])
+    H.update([(k, k ** 2) for k in range(15, 20)])
     print(H)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     test()

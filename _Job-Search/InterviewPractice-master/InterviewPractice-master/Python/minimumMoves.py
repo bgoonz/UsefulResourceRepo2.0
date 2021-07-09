@@ -5,6 +5,7 @@
 # The function accepts INTEGER_ARRAY numbers as parameter.
 #
 
+
 def countMoves(numbers):
     # Write your code here
     minimum = min(numbers)
@@ -15,8 +16,10 @@ def countMoves(numbers):
 
     print(res)
 
+
 def main():
-    numbers = [5,6,8,8,5]
+    numbers = [5, 6, 8, 8, 5]
     countMoves(numbers)
+
 
 main()

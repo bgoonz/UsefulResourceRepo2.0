@@ -4,6 +4,7 @@
     Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?
 """
 
+
 def climbStairs(n):
     """
     :type n: int
@@ -18,13 +19,15 @@ def climbStairs(n):
 
     for i in range(2, n):
         temp = y
-        y = x+y
+        y = x + y
         x = temp
     return y
+
 
 def main():
     n = int(input("Enter a name: "))
     print(climbStairs(n))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

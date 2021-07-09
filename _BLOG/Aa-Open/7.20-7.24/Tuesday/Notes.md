@@ -269,14 +269,14 @@ So far we have learned about 6 different data types:
 
 **Immutabiity**
 
-![pic of nums](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/pojo/assets/assignment-num2.png)
+![pic of nums](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/pojo/assets/assignment-num2.png)
 
 - When we reassign primitives we simply have our variable point elsewhere in memory.
 - In a nutshell, **immutability** cannot change values in memory, but only reassign where our variables are pointing to.
 
 **Mutabulity**
 
-![img of mut](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/pojo/assets/assignment-num5.png)
+![img of mut](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/pojo/assets/assignment-num5.png)
 
 - If we change either cat1 or cat2, our computer memory will change because they are both pointing at the same memory location.
 

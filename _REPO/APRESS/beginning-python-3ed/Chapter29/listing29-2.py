@@ -6,9 +6,9 @@
 # variables.
 
 # Change these to use other images in the game:
-banana_image = 'banana.png'
-weight_image = 'weight.png'
-splash_image = 'weight.png'
+banana_image = "banana.png"
+weight_image = "weight.png"
+splash_image = "weight.png"
 
 # Change these to affect the general appearance:
 screen_size = 800, 600

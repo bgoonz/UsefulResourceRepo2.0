@@ -1,4 +1,4 @@
-'''
+"""
 Longest Common Subsequence
 
 Given 2 strings, find the longest common subseqence - https://en.wikipedia.org/wiki/Longest_common_subsequence_problem
@@ -16,12 +16,13 @@ Dynamic programming solution.
 Find more details here: https://www.geeksforgeeks.org/printing-longest-common-subsequence/
     Time Complexity:    O(N * M)
     Space Complexity:   O(N * M)    , can be O(M) see longest_common_substring.py solution (but you'll need to save subsequences)
-'''
+"""
 
 
 ############
 # Solution #
 ############
+
 
 def longest_common_subsequence(str1, str2):
     n, m = len(str1), len(str2)
@@ -46,7 +47,7 @@ def longest_common_subsequence(str1, str2):
     # find the subseqence/string
     letters = dp[n][m]
     # use an array for storing the chars because string manipulation operations are not time and space efficient
-    result = ['' for i in range(letters)]
+    result = ["" for i in range(letters)]
     i = n
     j = m
 
@@ -62,7 +63,7 @@ def longest_common_subsequence(str1, str2):
         else:
             i -= 1
 
-    return ''.join(result)
+    return "".join(result)
 
 
 ###########
@@ -71,8 +72,8 @@ def longest_common_subsequence(str1, str2):
 
 # Test 1
 # Correct result => 'ABAD'
-print(longest_common_subsequence('ABAZDC', 'BACBAD'))
+print(longest_common_subsequence("ABAZDC", "BACBAD"))
 
 # Test 2
 # Correct result => 'Im eto'
-print(longest_common_subsequence('I\'m meto', 'I am Meto'))
+print(longest_common_subsequence("I'm meto", "I am Meto"))

@@ -1,6 +1,8 @@
 def lines(file):
-    for line in file: yield line
-    yield '\n'
+    for line in file:
+        yield line
+    yield "\n"
+
 
 def blocks(file):
     block = []
@@ -8,5 +10,5 @@ def blocks(file):
         if line.strip():
             block.append(line)
         elif block:
-            yield ''.join(block).strip()
+            yield "".join(block).strip()
             block = []

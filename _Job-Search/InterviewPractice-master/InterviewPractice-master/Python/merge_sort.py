@@ -1,4 +1,4 @@
-SENTINEL = 10**8
+SENTINEL = 10 ** 8
 
 
 def merge_sort(a):
@@ -34,8 +34,9 @@ def count_inversions(a):
     merge_sort(a)
     return cnt
 
+
 t = int(input().strip())
 for a0 in range(t):
     n = int(input().strip())
-    arr = list(map(int, input().strip().split(' ')))
+    arr = list(map(int, input().strip().split(" ")))
     print(count_inversions(arr))

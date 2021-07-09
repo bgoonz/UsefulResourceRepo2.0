@@ -1,4 +1,4 @@
-'''
+"""
 Longest Increasing Subsequence (LIS)
 
 Find the longest increasing subsequence.
@@ -17,12 +17,13 @@ Dynamic programing in combination with binary search.
 Explanation in details: https://www.geeksforgeeks.org/longest-monotonically-increasing-subsequence-size-n-log-n/
     Time Complexity:    O(N * logN)
     Space Complexity:   O(N^2)      , if you need only the length of the LIS, extra space complexity will be O(N)
-'''
+"""
 
 
 ##############
 # Solution 1 #
 ##############
+
 
 def longest_increasing_subsequence_1(nums):
     n = len(nums)
@@ -43,7 +44,9 @@ def longest_increasing_subsequence_1(nums):
     result = [0 for i in range(current_val)]
     # start from the back and look for the biggest value in dp list
     for i in range(n - 1, -1, -1):
-        if (dp[i] == current_val) and ((len(result) == current_val) or (result[current_val] > nums[i])):
+        if (dp[i] == current_val) and (
+            (len(result) == current_val) or (result[current_val] > nums[i])
+        ):
             current_val -= 1
             result[current_val] = nums[i]
 
@@ -53,6 +56,7 @@ def longest_increasing_subsequence_1(nums):
 ##############
 # Solution 2 #
 ##############
+
 
 def longest_increasing_subsequence_2(nums):
     n = len(nums)
@@ -69,7 +73,7 @@ def longest_increasing_subsequence_2(nums):
             # bigger element than the current wasn't found
             arr = []
             if k != 0:
-                arr = [i for i in dp[-1]] # make a copy
+                arr = [i for i in dp[-1]]  # make a copy
             arr.append(nums[i])
 
             dp.append(arr)
@@ -78,6 +82,7 @@ def longest_increasing_subsequence_2(nums):
             dp[idx][-1] = nums[i]
 
     return dp[-1]
+
 
 def binary_search(dp, target):
     l = 0

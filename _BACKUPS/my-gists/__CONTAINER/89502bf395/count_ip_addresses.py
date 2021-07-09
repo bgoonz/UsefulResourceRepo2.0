@@ -1,4 +1,4 @@
-'''
+"""
 Count IP Addresses
 
 An IP Address (IPv4) consists of 4 numbers which are all between 0 and 255.
@@ -26,12 +26,13 @@ Output explanation: It is not possible to form a valid IP Address with two numbe
 1D Dynamic programming solution.
     Time Complexity:    O(N*K)
     Space Complexity:   O(N)
-'''
+"""
 
 
 ############
 # Solution #
 ############
+
 
 def count_ip_addresses(S, K):
     n = len(S)
@@ -51,13 +52,14 @@ def count_ip_addresses(S, K):
 
             # use iteration to check all 3 possible numbers (x, xx, xxx), instead of writing 3 IFs
             for e in range(max(i, j - 3), j):
-                if is_valid(S[e : j]):
+                if is_valid(S[e:j]):
                     dp[j] += dp[e]
 
     return dp[n]
 
+
 def is_valid(S):
-    if (len(S) > 1) and (S[0] == '0'):
+    if (len(S) > 1) and (S[0] == "0"):
         return False
     return int(S) <= 255
 
@@ -68,12 +70,12 @@ def is_valid(S):
 
 # Test 1
 # Correct result => 1
-print(count_ip_addresses('1234567', 3))
+print(count_ip_addresses("1234567", 3))
 
 # Test 2
 # Correct result => 3
-print(count_ip_addresses('100111', 3))
+print(count_ip_addresses("100111", 3))
 
 # Test 3
 # Correct result => 0
-print(count_ip_addresses('345678', 2))
+print(count_ip_addresses("345678", 2))

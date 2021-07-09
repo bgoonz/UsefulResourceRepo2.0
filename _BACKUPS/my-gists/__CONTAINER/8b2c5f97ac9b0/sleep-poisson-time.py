@@ -22,7 +22,7 @@ MEAN_TIME = 3 * MINUTE
 
 # --- Main script
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     mean_time = int(sys.argv[1]) if len(sys.argv) > 1 else MEAN_TIME
     waiting_time = poisson(mean_time)
     print("Sleeping for {:.3g} seconds ...".format(waiting_time))  # DEBUG

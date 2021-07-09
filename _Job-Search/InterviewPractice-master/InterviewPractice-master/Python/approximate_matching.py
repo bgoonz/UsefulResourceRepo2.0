@@ -15,15 +15,21 @@ def calculateScore(text, prefixString, suffixString):
     while score > 0:
 
         for i in range(len(text) + 1 - score):
-            substring = text[i:i + score]
+            substring = text[i : i + score]
             prefixScore = min(len(prefixString), len(substring))
 
-            while substring[:prefixScore] != prefixString[-prefixScore:] and prefixScore > 0:
+            while (
+                substring[:prefixScore] != prefixString[-prefixScore:]
+                and prefixScore > 0
+            ):
                 prefixScore -= 1
 
             suffixScore = min(len(suffixString), len(substring))
 
-            while substring[-suffixScore:] != suffixString[:suffixScore] and suffixScore > 0:
+            while (
+                substring[-suffixScore:] != suffixString[:suffixScore]
+                and suffixScore > 0
+            ):
                 suffixScore -= 1
 
             textScore = prefixScore + suffixScore

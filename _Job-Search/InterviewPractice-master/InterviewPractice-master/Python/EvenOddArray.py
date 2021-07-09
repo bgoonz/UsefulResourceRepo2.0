@@ -8,7 +8,7 @@ def EvenOdd(lst):
     even = 0
     odd = 1
 
-    while even <= length-2 and odd <= length-1:
+    while even <= length - 2 and odd <= length - 1:
         if lst[odd] % 2 == 1:
             odd += 1
 
@@ -29,5 +29,6 @@ def main():
     lst2 = [2, 4, 3, 45, 21, 6, 22, 5, 9, 111]
 
     print(EvenOdd(lst2))
+
 
 main()

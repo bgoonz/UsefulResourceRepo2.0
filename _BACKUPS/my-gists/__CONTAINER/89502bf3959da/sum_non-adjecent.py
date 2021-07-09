@@ -1,4 +1,4 @@
-'''
+"""
 Sum of non-adjacent numbers
 
 Given a list of integers, write a function that returns the largest sum of non-adjacent numbers.
@@ -16,12 +16,13 @@ Output explanation: We pick 5 and 5.
 Dynamic programming solution, but don't need the whole DP array, only the last 3 sums (DPs) are needed.
     Time Complexity:    O(N)
     Space Complexity:   O(1)
-'''
+"""
 
 
 ############
 # Solution #
 ############
+
 
 def sum_non_adjacent(arr):
     n = len(arr)

@@ -22,10 +22,11 @@ from os.path import join, expanduser
 import time
 
 import logging
+
 logging.basicConfig(
     format="%(asctime)s  %(levelname)s: %(message)s",
-    datefmt='%m-%d-%Y %I:%M:%S %p',
-    level=logging.INFO
+    datefmt="%m-%d-%Y %I:%M:%S %p",
+    level=logging.INFO,
 )
 
 from numpy.random import poisson
@@ -38,7 +39,7 @@ HOURS = 60 * MINUTES
 
 QUOTE_FILE = os.getenv("quotes", expanduser(join("~", ".quotes.txt")))
 
-SLACK_TOKEN = open(expanduser(join("~", ".slack_api_key")), 'r').readline().strip()
+SLACK_TOKEN = open(expanduser(join("~", ".slack_api_key")), "r").readline().strip()
 
 USE_CHANNEL = False  # DEBUG
 USE_CHANNEL = True
@@ -49,11 +50,12 @@ MEAN_TIME = (12 * HOURS) if USE_CHANNEL else 30
 
 URL = "https://bitbucket.org/lbesson/bin/src/master/my-small-slack-bot.py"
 
-POSITIVE_REACTIONS = ['up', '+1', 'thumbsup']
-NEGATIVES_REACTIONS = ['down', '-1', 'thumbsdown']
+POSITIVE_REACTIONS = ["up", "+1", "thumbsup"]
+NEGATIVES_REACTIONS = ["down", "-1", "thumbsdown"]
 
 
 # --- Functions
+
 
 def sleeptime(lmbda=MEAN_TIME, use_poisson=True):
     """Random time until next message."""
@@ -68,11 +70,12 @@ def sleep_bar(secs):
     try:
         # From progressbar example #3, https://github.com/niltonvolpato/python-progressbar/blob/master/examples.py#L67
         from progressbar import Bar, ETA, ProgressBar, ReverseBar
-        widgets = [Bar('>'), ' ', ETA(), ' ', ReverseBar('<')]
+
+        widgets = [Bar(">"), " ", ETA(), " ", ReverseBar("<")]
         pbar = ProgressBar(widgets=widgets, maxval=100).start()
         for i in range(100):
             # do something
-            time.sleep(secs / 110.)
+            time.sleep(secs / 110.0)
             pbar.update(i)
         pbar.finish()
     except ImportError:
@@ -82,32 +85,38 @@ def sleep_bar(secs):
 def random_line(lines):
     """Read the file and select one line."""
     try:
-        return random.choice(lines).replace('`', '').replace('_', '')
+        return random.choice(lines).replace("`", "").replace("_", "")
     except:  # Default quote
-        logging.info("Failed to read a random line from this list with {} lines...".format(len(lines)))  # DEBUG
+        logging.info(
+            "Failed to read a random line from this list with {} lines...".format(
+                len(lines)
+            )
+        )  # DEBUG
         return "I love you !"
 
 
 def get_reactions(list_of_ts_channel, sc):
     """Get the reaction of users on all the messages sent by the bot, to increase or decrease the frequency of messages."""
-    scale_factor = 1.
+    scale_factor = 1.0
     try:
         for (ts, c) in list_of_ts_channel:
             # https://api.slack.com/methods/reactions.get
-            reaction = sc.api_call(
-                "reactions.get", channel=c, timestamp=ts
-            )
+            reaction = sc.api_call("reactions.get", channel=c, timestamp=ts)
             logging.debug("reaction =", reaction)
-            if 'message' not in reaction:
+            if "message" not in reaction:
                 continue
-            text = {t['name']: t['count'] for t in reaction['message']['reactions']}
+            text = {t["name"]: t["count"] for t in reaction["message"]["reactions"]}
             logging.info("text =", text)
             if any(s in text.keys() for s in POSITIVE_REACTIONS):
-                nb = max([0.5] + [text[s] for s in POSITIVE_REACTIONS if s in text.keys()])
+                nb = max(
+                    [0.5] + [text[s] for s in POSITIVE_REACTIONS if s in text.keys()]
+                )
                 logging.info("I read {} positive reactions ...".format(int(nb)))
                 scale_factor /= 2 * nb
             elif any(s in text for s in NEGATIVES_REACTIONS):
-                nb = max([0.5] + [text[s] for s in NEGATIVES_REACTIONS if s in text.keys()])
+                nb = max(
+                    [0.5] + [text[s] for s in NEGATIVES_REACTIONS if s in text.keys()]
+                )
                 logging.info("I read {} negative reactions ...".format(int(nb)))
                 scale_factor *= 2 * nb
             elif "rage" in text:
@@ -123,20 +132,31 @@ def send(text, sc, use_channel=USE_CHANNEL):
     - https://github.com/slackapi/python-slackclient#sending-a-message
     """
     channel = SLACK_CHANNEL if use_channel else SLACK_USER
-    text = "{}\n> (Sent by an _open-source_ Python script :snake:, {}, written by Lilian Besson)".format(text, URL)
-    logging.info("Sending the message '{}' to channel/user {} ...".format(text, channel))
+    text = "{}\n> (Sent by an _open-source_ Python script :snake:, {}, written by Lilian Besson)".format(
+        text, URL
+    )
+    logging.info(
+        "Sending the message '{}' to channel/user {} ...".format(text, channel)
+    )
     # https://api.slack.com/methods/chat.postMessage
     return sc.api_call(
-        "chat.postMessage", channel=channel, text=text,
-        username="Citations aléatoires", icon_emoji=":robot_face:"
+        "chat.postMessage",
+        channel=channel,
+        text=text,
+        username="Citations aléatoires",
+        icon_emoji=":robot_face:",
     )
 
 
 def loop(quote_file=QUOTE_FILE):
     """Main loop."""
-    logging.info("Starting my Slack bot, reading random quotes from the file {}...".format(quote_file))
+    logging.info(
+        "Starting my Slack bot, reading random quotes from the file {}...".format(
+            quote_file
+        )
+    )
     # Get list of quotes and parameters
-    the_quote_file = open(quote_file, 'r')
+    the_quote_file = open(quote_file, "r")
     lines = the_quote_file.readlines()
     sc = SlackClient(SLACK_TOKEN)
     lmbda = MEAN_TIME
@@ -151,11 +171,13 @@ def loop(quote_file=QUOTE_FILE):
         # 2. sleep until next quote
         secs = sleeptime(lmbda)
         str_secs = time.asctime(time.localtime(time.time() + secs))
-        logging.info("  ... Next message in {} seconds, at {} ...".format(secs, str_secs))
+        logging.info(
+            "  ... Next message in {} seconds, at {} ...".format(secs, str_secs)
+        )
         sleep_bar(secs)
         # 3. get response
         try:
-            ts, c = response['ts'], response['channel']
+            ts, c = response["ts"], response["channel"]
             # logging.debug("  ts, c =", ts, c)
             list_of_ts_channel.append((ts, c))
             # Get reaction from users on the messages already posted
@@ -163,13 +185,15 @@ def loop(quote_file=QUOTE_FILE):
             lmbda = scale_factor * MEAN_TIME  # Don't accumulate this!
         except KeyError:
             pass
-        logging.info("  Currently, the mean time between messages is {} ...".format(lmbda))
+        logging.info(
+            "  Currently, the mean time between messages is {} ...".format(lmbda)
+        )
     return 0
 
 
 # --- Main script
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     quote_file = sys.argv[1] if len(sys.argv) > 1 else QUOTE_FILE
     sys.exit(loop(quote_file))
 

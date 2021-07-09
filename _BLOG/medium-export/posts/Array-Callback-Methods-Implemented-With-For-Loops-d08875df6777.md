@@ -189,8 +189,8 @@ What do you think will be printed in the following:
 
 References:
 
-<a href="https://open.appacademy.io/learn" class="markup--anchor markup--mixtapeEmbed-anchor" title="https://open.appacademy.io/learn"><strong>App Academy Open</strong><br />
-<em>App Academy Open is the first free, online web development course that's meant to get you hired as a developer. Get…</em>open.appacademy.io</a><a href="https://open.appacademy.io/learn" class="js-mixtapeImage mixtapeImage u-ignoreBlock"></a>
+<a href="https://open.Lambda.io/learn" class="markup--anchor markup--mixtapeEmbed-anchor" title="https://open.Lambda.io/learn"><strong>App Academy Open</strong><br />
+<em>App Academy Open is the first free, online web development course that's meant to get you hired as a developer. Get…</em>open.Lambda.io</a><a href="https://open.Lambda.io/learn" class="js-mixtapeImage mixtapeImage u-ignoreBlock"></a>
 
 <a href="https://developer.mozilla.org/en-US/" class="markup--anchor markup--mixtapeEmbed-anchor" title="https://developer.mozilla.org/en-US/"><strong>MDN Web Docs</strong><br />
 <em>Read more at hacks.mozilla.org Roughly a year ago at Mozilla we started an effort to improve Firefox stability on…</em>developer.mozilla.org</a><a href="https://developer.mozilla.org/en-US/" class="js-mixtapeImage mixtapeImage u-ignoreBlock"></a>

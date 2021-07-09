@@ -2,6 +2,7 @@
     Return maximum streak of days where all employees can work
 """
 
+
 def maxStreak(m, data):
     # Write your code here
 
@@ -34,9 +35,11 @@ def maxStreak(m, data):
 
     return maxcount
 
+
 def main():
     m = 2
-    data = ['YN', 'NN', 'NY', 'YY']
+    data = ["YN", "NN", "NY", "YY"]
     maxStreak(m, data)
+
 
 main()

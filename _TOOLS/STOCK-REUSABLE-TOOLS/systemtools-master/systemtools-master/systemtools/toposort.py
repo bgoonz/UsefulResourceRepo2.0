@@ -66,8 +66,7 @@ def toposort(edges, child_first=False, exclude_src_only=False):
             if seen is None:
                 seen = node
             elif seen is node:
-                raise RuntimeError(
-                    'cycle found, cannot continue topological sort')
+                raise RuntimeError("cycle found, cannot continue topological sort")
 
             keep = False
             # Iterate node's parents to see if any are still unsorted.
@@ -90,29 +89,42 @@ def toposort(edges, child_first=False, exclude_src_only=False):
     return topo_sorted
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Example sorting a DAG, and a graph with a cycle:
     #
-    print('\nSorting graph:')
-    print('A--> B--> D--> E <---F')
-    print('|         ^          |')
-    print('|         |          |')
-    print('+-------> C <--------+')
+    print("\nSorting graph:")
+    print("A--> B--> D--> E <---F")
+    print("|         ^          |")
+    print("|         |          |")
+    print("+-------> C <--------+")
     edges = [
-        ('B', 'D'), ('D', 'E'), ('A', 'B'), ('A', 'C'), ('C', 'D'), ('F', 'C'),
-        ('F', 'E')]
+        ("B", "D"),
+        ("D", "E"),
+        ("A", "B"),
+        ("A", "C"),
+        ("C", "D"),
+        ("F", "C"),
+        ("F", "E"),
+    ]
     print(toposort(edges))
 
-    print('\nSorting graph with cycle:')
-    print('          +---------------+')
-    print('          |               |')
-    print('A--> B--> D--> E <---F <--+')
-    print('|         ^          |')
-    print('|         |          |')
-    print('+-------> C <--------+')
+    print("\nSorting graph with cycle:")
+    print("          +---------------+")
+    print("          |               |")
+    print("A--> B--> D--> E <---F <--+")
+    print("|         ^          |")
+    print("|         |          |")
+    print("+-------> C <--------+")
     # There is a cycle: D->F->C->D
     edges_with_cycle = [
-        ('B', 'D'), ('D', 'E'), ('A', 'B'), ('A', 'C'), ('C', 'D'), ('F', 'C'),
-        ('F', 'E'), ('D', 'F')]
+        ("B", "D"),
+        ("D", "E"),
+        ("A", "B"),
+        ("A", "C"),
+        ("C", "D"),
+        ("F", "C"),
+        ("F", "E"),
+        ("D", "F"),
+    ]
 
     print(toposort(edges_with_cycle))
