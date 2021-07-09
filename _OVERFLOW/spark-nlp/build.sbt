@@ -130,7 +130,7 @@ lazy val utilDependencies = Seq(
 
 lazy val typedDependencyParserDependencies = Seq(
   "net.sf.trove4j" % "trove4j" % "3.0.3",
-  "junit" % "junit" % "4.10" % Test
+  "junit" % "junit" % "4.13.2" % Test
 )
 val tensorflowDependencies: Seq[sbt.ModuleID] =
   if (is_gpu.equals("true"))
