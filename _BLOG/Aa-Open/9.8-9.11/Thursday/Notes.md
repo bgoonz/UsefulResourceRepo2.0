@@ -4,7 +4,7 @@
 
 - **Box Model** : A concept that basically boils down that every DOM element has a box around it.
 
-![boxmodel](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/the-box-model.svg)
+![boxmodel](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/the-box-model.svg)
 
 > Imagine a gift, inside is the gift, wrapped in foam all around (padding), and the giftbox outside of it (border) and then a wrapping paper on the giftbox (margin).
 
@@ -25,11 +25,11 @@
 
 - As per the standard Box Model, the width and height pertains to the content of the box and excludes any additional padding, borders, and margins.
 
-![example](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/standard-box.svg)
+![example](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/standard-box.svg)
 
 - This bothered many programmers so they created the **border box** to include the calculation of the entire box's height and width.
 
-![ex](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/border-box.svg)
+![ex](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/border-box.svg)
 
 **Inline-Block**
 
@@ -81,7 +81,7 @@
 }
 ```
 
-![rel](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/relative-pink-box.png)
+![rel](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/relative-pink-box.png)
 
 **Absolute Positioning**
 
@@ -100,7 +100,7 @@
 }
 ```
 
-![img](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/absolute-pink-box.png)
+![img](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/absolute-pink-box.png)
 
 - Note that the container ele has a relative positioning - this is so that any changes made to the absolute positioned children will be positioned from it's top-left corner.
 - Note that because we removed the pink from the normal page flow, the container has now shifted the blue box to where the pink box should have been - which is why it is now layered beneath the pink.
@@ -121,7 +121,7 @@
 }
 ```
 
-![img](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/absolute-blue-box.png)
+![img](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/absolute-blue-box.png)
 
 - As you can see here, since we have also taken the blue box out of the normal page flow by declaring it as absoutely positioned it now overlaps over the pink box.
 
@@ -138,7 +138,7 @@
 }
 ```
 
-![img](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/relative-parent-absolute-child.png)
+![img](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/relative-parent-absolute-child.png)
 
 - Example where the absolute element has it's bottom property modified.
 
@@ -154,7 +154,7 @@
 }
 ```
 
-![img](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/static-parent-absolute-child.png)
+![img](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/static-parent-absolute-child.png)
 
 - If we removed the container's relative position. Our absolute unit would look for the nearest parent which would be the document itself.
 
@@ -170,7 +170,7 @@
 - Behaves like a relatively positioned element until the point at which you would normally scroll past it's viewport - then it sticks!
 - It is positioned with top, right, bottom, and left.
 - A good example are headers in a scrollable list.
-  ![sticky](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/css-layout-sticky-positioning.gif)
+  ![sticky](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/layout/assets/css-layout-sticky-positioning.gif)
 
 ---
 
@@ -185,7 +185,7 @@
 **Using Flexbox**
 
 - Flexbox automatically resizes a container element to fit the viewport size without needing to use breakpoints.
-  ![flex](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/flexbox/assets/flexbox-elements.png)
+  ![flex](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/flexbox/assets/flexbox-elements.png)
 
 - Flexbox layout applies styles to the parent element, and it's children.
 

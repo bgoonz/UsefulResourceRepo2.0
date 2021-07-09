@@ -25,7 +25,7 @@ if sys.version_info.major < 3:
 
 
 class delBoard:
-    """ A weird object that does nothing while alive,
+    """A weird object that does nothing while alive,
     but solves the n-queens problem when garbage collected.
 
     It uses CPython's garbage collection graph traversal algorithm to explore
@@ -35,10 +35,10 @@ class delBoard:
 
     def __init__(self, nqueens=None):
         self.nqueens = nqueens
-    
+
     def __del__(self):
         global __builtins__
-        if not hasattr(self, 'myPos'):
+        if not hasattr(self, "myPos"):
             if not __name__ == "__main__":
                 __builtins__ = delBoard
             __builtins__.nqueens = self.nqueens if self.nqueens else len(__name__)
@@ -46,18 +46,25 @@ class delBoard:
             __builtins__.collected = 0
             for j in range(__builtins__.nqueens):
                 a = delBoard()
-                a.boardState = ((set(), set(), set()))
+                a.boardState = (set(), set(), set())
                 a.myPos = j
                 a = 0
             print(str(__builtins__.collected), "board states traversed.")
-            print("The number of", __builtins__.nqueens, "-queens solutions is:", __builtins__.ans)
+            print(
+                "The number of",
+                __builtins__.nqueens,
+                "-queens solutions is:",
+                __builtins__.ans,
+            )
             return
 
         __builtins__.collected += 1
 
-        if self.myPos in self.boardState[0] \
-            or self.myPos in self.boardState[1] \
-            or self.myPos in self.boardState[2]:
+        if (
+            self.myPos in self.boardState[0]
+            or self.myPos in self.boardState[1]
+            or self.myPos in self.boardState[2]
+        ):
             return
 
         if len(self.boardState[0]) == __builtins__.nqueens - 1:

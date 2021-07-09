@@ -5,6 +5,7 @@ def say_hi(name):
     """
     print(f"Hello {name}!")
 
+
 print(say_hi("Bryan"))  # Should get the print inside the function, then None
 # Boolean Values
 # Work the same as in JS, except they are title case: True and False
@@ -162,6 +163,7 @@ while True:
 def printCopyright():
     print("Copyright 2021, Bgoonz")
 
+
 # Lambdas are one liners! (Should be at least, you can use parenthesis to disobey)
 avg = lambda num1, num2: print(num1 + num2)
 avg(1, 2)
@@ -172,6 +174,7 @@ printCopyright()
 def greeting(name, saying="Hello"):
     print(saying, name)
 
+
 greeting("Mike")  # Hello Mike
 greeting("Bryan", saying="Hello there...")
 # A common gotcha is using a mutable object for a default parameter
@@ -179,6 +182,7 @@ greeting("Bryan", saying="Hello there...")
 def append_item(item_name, item_list=[]):  # Will it obey and give us a new list?
     item_list.append(item_name)
     return item_list
+
 
 # Uses same item list unless otherwise stated which is counterintuitive
 print(append_item("notebook"))
@@ -199,6 +203,7 @@ def add(a, b, *args):
         total += n
     return total
 
+
 print(add(1, 2))  # args is None, returns 3
 print(add(1, 2, 3, 4, 5, 6))  # args is (3, 4, 5, 6), returns 21
 # Variable Length Keyword Arguments
@@ -207,12 +212,14 @@ def print_names_and_countries(greeting, **kwargs):
     for k, v in kwargs.items():
         print(greeting, k, "from", v)
 
+
 print_names_and_countries(
     "Hey there", Monica="Sweden", Mike="The United States", Mark="China"
 )
 # We can combine all of these together
 def example2(arg1, arg2, *args, kw_1="cheese", kw_2="horse", **kwargs):
     pass
+
 
 # Lists are mutable arrays
 empty_list = []
@@ -270,6 +277,7 @@ print("--" * 20)
 # Map
 def toUpper(str):
     return str.upper()
+
 
 upperCased = map(toUpper, ["a", "b", "c", "d"])
 print(list(upperCased))
@@ -338,6 +346,7 @@ print(dir(user))
 def add(num1, num2):
     return num1 + num2
 
+
 # Notice the . syntax because this package can import it's own submodules.
 # Our __init__.py has the following files
 # This imports the 'add' function
@@ -351,6 +360,7 @@ def add(num1, num2):
 # This will load and execute the 'math/__init__.py' file and give
 # us an object with the exported names in 'math/__init__.py'
 import math
+
 # print(math.add(1,2))
 # This imports JUST the add from 'math/__init__.py'
 # from math import add
@@ -379,28 +389,35 @@ class AngryBird:
         ## Instance Variables
         self._x = x
         self._y = y
+
     # Instance Method
     def move_up_by(self, delta):
         self._y += delta
+
     # Getter
     @property
     def x(self):
         return self._x
+
     # Setter
     @x.setter
     def x(self, value):
         if value < 0:
             value = 0
         self._x = value
+
     @property
     def y(self):
         return self._y
+
     @y.setter
     def y(self, value):
         self._y = value
+
     # Dunder Repr... called by 'print'
     def __repr__(self):
         return f"<AngryBird ({self._x}, {self._y})>"
+
 
 # JS to Python Classes cheat table
 #        JS                    Python

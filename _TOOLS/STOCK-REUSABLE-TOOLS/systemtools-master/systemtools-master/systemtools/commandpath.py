@@ -36,8 +36,14 @@ class CommandPath(object):
 
     def __init__(self):
         """Initialize CommandPath instance with common search paths."""
-        self._dirs = ['/sbin', '/usr/sbin', '/bin', '/usr/bin',
-                      '/usr/local/bin', '/usr/local/sbin']
+        self._dirs = [
+            "/sbin",
+            "/usr/sbin",
+            "/bin",
+            "/usr/bin",
+            "/usr/local/bin",
+            "/usr/local/sbin",
+        ]
         self._path_map = {}
 
     def __len__(self):
@@ -57,7 +63,7 @@ class CommandPath(object):
         if cmd_path is None:
             cmd_path = self.find_path(key)
             if cmd_path is None:
-                raise KeyError('command not found: ' + key)
+                raise KeyError("command not found: " + key)
             self._path_map[key] = cmd_path
         return cmd_path
 
@@ -70,7 +76,7 @@ class CommandPath(object):
         """
         cmd_path = os.path.abspath(cmd_path)
         if not os.path.isfile(cmd_path):
-            raise ValueError('command not found at: ' + cmd_path)
+            raise ValueError("command not found at: " + cmd_path)
         self._path_map[cmd] = cmd_path
 
     def __delitem__(self, key):
@@ -107,20 +113,19 @@ class CommandPath(object):
         """
         loc = os.path.abspath(dir_name)
         if not os.path.isdir(loc):
-            raise ValueError('directory not found: ' + loc)
+            raise ValueError("directory not found: " + loc)
         have_set = set(self._dirs)
         if loc not in have_set:
             self._dirs.append(loc)
         if recursive:
-            for dirpath, dirnames, filenames in os.walk(
-                loc, followlinks=followlinks):
+            for dirpath, dirnames, filenames in os.walk(loc, followlinks=followlinks):
                 for d in dirnames:
                     d_path = os.path.join(dirpath, d)
                     if d_path not in have_set:
                         self._dirs.append(d_path)
 
         # Return list of new locations.
-        return self._dirs[len(have_set):]
+        return self._dirs[len(have_set) :]
 
     def remove_dir(self, dir_name, recursive=False):
         """Remove directories from the list of directories to search.

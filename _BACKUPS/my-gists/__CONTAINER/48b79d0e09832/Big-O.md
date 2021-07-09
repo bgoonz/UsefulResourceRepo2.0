@@ -393,7 +393,7 @@ memo; // => { '2': 2, '3': 6, '4': 24, '5': 120, '6': 720, '7': 5040 }
   - Keep in mind we didn't improve the speed of our algo.
 
 **Memoizing Fibonacci**
-![memofib](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/memoization/images/fib_memoized.png)
+![memofib](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/memoization/images/fib_memoized.png)
 
 - Our time complexity for fibonacci goes from O(2^n) to O(n) after applying memoization.
 
@@ -639,7 +639,7 @@ function bubbleSort(items) {
 - **`Bubbling Up`** : Term that infers that an item _is in motion_, _moving in some direction_, and _has some final resting destination_.
 
 - Bubble sort, sorts an array of integers by bubbling the largest integer to the top.
-  ![bubble](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/naive_sorting_algorithms/bubble_sort/images/BubbleSort.gif)
+  ![bubble](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/naive_sorting_algorithms/bubble_sort/images/BubbleSort.gif)
 
 ```js
 // Bubble Sort
@@ -667,7 +667,7 @@ function bubble(array) {
 ## **Selection Sort**
 
 - Selection sort organizes the smallest elements to the start of the array.
-  ![selection](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/naive_sorting_algorithms/selection_sort/images/SelectionSort.gif)
+  ![selection](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/naive_sorting_algorithms/selection_sort/images/SelectionSort.gif)
 - Summary of how Selection Sort should work:
   1. Set MIN to location 0
   2. Search the minimum element in the list.
@@ -709,7 +709,7 @@ let selectionSort = (arr) => {
 
 - Bubble Sort will always use the same amount of memory regardless of n.
 
-![bubble](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/naive_sorting_algorithms/bubble_sort/images/BubbleSort.gif)
+![bubble](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/naive_sorting_algorithms/bubble_sort/images/BubbleSort.gif)
 ![bub](https://www.w3resource.com/w3r_images/bubble-short.png)
 
 > Class Solution
@@ -766,7 +766,7 @@ function bubbleSort(array) {
 
 - Selection Sort will always use the same amount of memory regardless of n.
 
-![selection](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/naive_sorting_algorithms/selection_sort/images/SelectionSort.gif)
+![selection](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/naive_sorting_algorithms/selection_sort/images/SelectionSort.gif)
 ![se](https://www.w3resource.com/w3r_images/selection-short.png)
 
 > Class Solution
@@ -824,7 +824,7 @@ function selectionSort(array) {
 
 - Because we are creating a subArray for each element in the original input, our Space Comlexity becomes linear.
 
-![insertion](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/naive_sorting_algorithms/insertion_sort/images/InsertionSort.gif)
+![insertion](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/naive_sorting_algorithms/insertion_sort/images/InsertionSort.gif)
 ![insert](https://media.geeksforgeeks.org/wp-content/uploads/insertionsort.png)
 
 > Class Solution
@@ -870,7 +870,7 @@ function insertionSort(arr) {
 - Since our array gets split in half every single time we contribute O(log(n)). The while loop contained in our helper merge function contributes O(n) therefore our time complexity is O(nlog(n));
   **`Space Complexity`**: O(n)
 - We are linear O(n) time because we are creating subArrays.
-  ![nmer](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/efficient_sorting_algorithms/merge_sort/images/MergeSort.gif)
+  ![nmer](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/efficient_sorting_algorithms/merge_sort/images/MergeSort.gif)
   ![dmwio](https://www.geeksforgeeks.org/wp-content/uploads/Merge-Sort-Tutorial.png)
 
 > Class Solution
@@ -910,7 +910,7 @@ function mergeSort(arr) {
 **`Space Complexity`**: O(n)
 
 - Our space complexity is linear O(n) because of the partition arrays we create.
-  ![quick](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/efficient_sorting_algorithms/quick_sort/images/QuickSort.gif)
+  ![quick](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/efficient_sorting_algorithms/quick_sort/images/QuickSort.gif)
   ![qs](https://www.w3resource.com/w3r_images/quick-sort-part-1.png)
 
 ```js
@@ -986,7 +986,7 @@ function binarySearch(array, target) {
 
 ## **Insertion Sort**
 
-![insert](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/naive_sorting_algorithms/insertion_sort/images/InsertionSort.gif)
+![insert](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/naive_sorting_algorithms/insertion_sort/images/InsertionSort.gif)
 
 - Works by building a larger and larger sorted region at the left-most end of the array.
 - Steps:
@@ -1017,7 +1017,7 @@ let insertionSort = (inputArr) => {
 
 ## **Merge Sort**
 
-![merge](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/efficient_sorting_algorithms/merge_sort/images/MergeSort.gif)
+![merge](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/efficient_sorting_algorithms/merge_sort/images/MergeSort.gif)
 
 - Merge sort is nlogn time.
 - We need a function for merging and a function for sorting.
@@ -1058,7 +1058,7 @@ const mergeSort = (arr) => {
 - Some key ideas to keep in mind:
   - It is easy to sort elements of an array relative to a particular target value.
   - An array of 0 or 1 elements is already trivially sorted.
-    ![quicksort](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/efficient_sorting_algorithms/quick_sort/images/QuickSort.gif)
+    ![quicksort](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/efficient_sorting_algorithms/quick_sort/images/QuickSort.gif)
 
 ```js
 function quick_Sort(origArray) {

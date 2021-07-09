@@ -1036,7 +1036,7 @@ React Version
         React.createElement(
           "li",
           { className: "is-selected" },
-          React.createElement("a", { href: "http://appacademy.io" }, "App Academy")
+          React.createElement("a", { href: "http://Lambda.io" }, "App Academy")
         ),
         React.createElement(
           "li",
@@ -1173,12 +1173,12 @@ create Element equivalent
       "a",
       {
         className: "active",
-        href: "https://appacademy.io",
+        href: "https://Lambda.io",
       },
       "App Academy"
     );
     // JSX Version
-    <a className="active" href="https://appacademy.io">
+    <a className="active" href="https://Lambda.io">
       App Academy
     </a>;
 
@@ -1211,7 +1211,7 @@ More Complex JSX Example
 
 ### Using Custom CRA Templates
 
-Using a Custom Template `npx create-react-app my-app --template                   @appacademy/simple`
+Using a Custom Template `npx create-react-app my-app --template                   @Lambda/simple`
 
 -   <span id="9607">Keep in mind that using `create-react-app` automatically initializes a git repository for you!</span>
 -   <span id="f0fe">App Academy custom template for creating a react app.</span>
@@ -2393,7 +2393,7 @@ Since you are writing single page apps, you don’t want to refresh the page eac
 
 Create a simple react project template:
 
-    npx create-react-app my-app --template @appacademy/simple
+    npx create-react-app my-app --template @Lambda/simple
 
 Then install React Router:
 
@@ -3135,7 +3135,7 @@ Today you’re going to get our first experience using React Router. The goal is
 
 Begin by creating a new React project:
 
-    npx create-react-app rainbow-routes --template @appacademy/simple
+    npx create-react-app rainbow-routes --template @Lambda/simple
 
 Now you’ll remove all the contents of your `src` and all the contents from your `public` directory to build the application architecture from scratch! After you have deleted all your files within the directories, create a new `index.html` file in your `public` folder. Use the `html:5` emmet shortcut to generate an HTML template. Title your page "Rainbow Routes" and create a `div` with an `id` of `root` in your DOM's `<body>` element. Create an `index.css` file in your `src` directory with the following code. Now let's create your entry file!
 
@@ -3374,7 +3374,7 @@ In this project, you’ll use Create React App to create a simple React applicat
 
 Begin by using the <a href="https://github.com/facebook/create-react-app" class="markup--anchor markup--p-anchor">create-react-app</a> package to create a React application:
 
-    npx create-react-app exploring-react-builds --template @appacademy/simple
+    npx create-react-app exploring-react-builds --template @Lambda/simple
 
 > *Remember that using the* `create-react-app` *command initializes your project as a Git repository. If you use the* `ls -a` *to view the hidden files in your project, you'll see the *`.git` *file.*
 
@@ -3496,7 +3496,7 @@ CSS Modules is an example of how a front-end build process can be used to modify
 
 Create React App configures webpack with support for loading images (as well as CSS, fonts, and other file types). What this means, for you as the developer, is that you can add an image file to your project, import it directly into a module, and render it in a React component.
 
-Download any image of off the Web or <a href="https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/react-builds/assets/react-builds-cat.png" class="markup--anchor markup--p-anchor">click here</a> to download the below image.
+Download any image of off the Web or <a href="https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/react-builds/assets/react-builds-cat.png" class="markup--anchor markup--p-anchor">click here</a> to download the below image.
 
 <figure><img src="https://cdn-images-1.medium.com/max/800/0*233dNJ6vfgAmEVCD" class="graf-image" /></figure>Then within the `src` folder add a new folder named `image`. Within that folder add a new component file named `Image.js`. Also add your downloaded image file to the `image` folder (so it's a sibling to the `Image.js` file).
 

@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
-import cgitb; cgitb.enable()
+import cgitb
 
-print('Content-type: text/html\n')
+cgitb.enable()
 
-print(1/0)
+print("Content-type: text/html\n")
 
-print('Hello, world!')
+print(1 / 0)
+
+print("Hello, world!")

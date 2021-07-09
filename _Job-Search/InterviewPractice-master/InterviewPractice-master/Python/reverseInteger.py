@@ -30,8 +30,10 @@ def reverse(x):
     else:
         return 0
 
+
 def main():
     x = 1534236469
     print(reverse(x))
+
 
 main()

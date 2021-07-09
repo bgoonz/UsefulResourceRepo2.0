@@ -1,20 +1,21 @@
 #!/usr/bin/env python
 
-print('Content-type: text/html\n')
+print("Content-type: text/html\n")
 
 from os.path import join, abspath
 import cgi, sys
 
-BASE_DIR = abspath('data')
+BASE_DIR = abspath("data")
 
 form = cgi.FieldStorage()
-filename = form.getvalue('filename')
+filename = form.getvalue("filename")
 if not filename:
-    print('Please enter a file name')
+    print("Please enter a file name")
     sys.exit()
 text = open(join(BASE_DIR, filename)).read()
 
-print("""
+print(
+    """
 <html>
     <head>
         <title>Editing...</title>
@@ -31,4 +32,7 @@ print("""
         </form>
     </body>
 </html>
-""".format(filename, filename, text))
+""".format(
+        filename, filename, text
+    )
+)

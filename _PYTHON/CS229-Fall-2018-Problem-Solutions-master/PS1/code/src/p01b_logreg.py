@@ -21,12 +21,12 @@ def main(train_path, eval_path, pred_path):
     model.fit(x_train, y_train)
 
     # Plot data and decision boundary
-    util.plot(x_train, y_train, model.theta, 'output/p01b_{}.png'.format(pred_path[-5]))
+    util.plot(x_train, y_train, model.theta, "output/p01b_{}.png".format(pred_path[-5]))
 
     # Save predictions
     x_eval, y_eval = util.load_dataset(eval_path, add_intercept=True)
     y_pred = model.predict(x_eval)
-    np.savetxt(pred_path, y_pred > 0.5, fmt='%d')
+    np.savetxt(pred_path, y_pred > 0.5, fmt="%d")
 
     # *** END CODE HERE ***
 
@@ -42,7 +42,7 @@ class LogisticRegression(LinearModel):
             y: Training example labels. Shape (m,).
         """
         # *** START CODE HERE ***
-        
+
         # Init theta
         m, n = x.shape
         self.theta = np.zeros(n)
@@ -51,7 +51,7 @@ class LogisticRegression(LinearModel):
         while True:
             # Save old theta
             theta_old = np.copy(self.theta)
-            
+
             # Compute Hessian Matrix
             h_x = 1 / (1 + np.exp(-x.dot(self.theta)))
             H = (x.T * h_x * (1 - h_x)).dot(x) / m
@@ -61,7 +61,7 @@ class LogisticRegression(LinearModel):
             self.theta -= np.linalg.inv(H).dot(gradient_J_theta)
 
             # End training
-            if np.linalg.norm(self.theta-theta_old, ord=1) < self.eps:
+            if np.linalg.norm(self.theta - theta_old, ord=1) < self.eps:
                 break
 
         # *** END CODE HERE ***
@@ -76,7 +76,7 @@ class LogisticRegression(LinearModel):
             Outputs of shape (m,).
         """
         # *** START CODE HERE ***
-        
+
         return 1 / (1 + np.exp(-x.dot(self.theta)))
 
         # *** END CODE HERE ***

@@ -5,6 +5,7 @@ import numpy as np
 import util
 import svm
 
+
 def get_words(message):
     """Get the normalized list of words from a message string.
 
@@ -23,11 +24,12 @@ def get_words(message):
     return message.lower().split()
     # *** END CODE HERE ***
 
+
 def create_dictionary(messages):
     """Create a dictionary mapping words to integer indices.
 
     This function should create a dictionary of word to indices using the provided
-    training messages. Use get_words to process each message. 
+    training messages. Use get_words to process each message.
 
     Rare words are often not useful for modeling. Please only add words to the dictionary
     if they occur in at least five messages.
@@ -49,7 +51,7 @@ def create_dictionary(messages):
                 word_dict[word] += 1
             else:
                 word_dict[word] = 1
-    
+
     # Delete rare word and add index
     index = 0
     for word_key in list(word_dict.keys()):
@@ -61,14 +63,15 @@ def create_dictionary(messages):
     return word_dict
     # *** END CODE HERE ***
 
+
 def transform_text(messages, word_dictionary):
     """Transform a list of text messages into a numpy array for further processing.
 
     This function should create a numpy array that contains the number of times each word
-    appears in each message. Each row in the resulting array should correspond to each 
+    appears in each message. Each row in the resulting array should correspond to each
     message and each column should correspond to a word.
 
-    Use the provided word dictionary to map words to column indices. Ignore words that 
+    Use the provided word dictionary to map words to column indices. Ignore words that
     are not present in the dictionary. Use get_words to get the words for a message.
 
     Args:
@@ -91,6 +94,7 @@ def transform_text(messages, word_dictionary):
     return word_array
     # *** END CODE HERE ***
 
+
 def fit_naive_bayes_model(matrix, labels):
     """Fit a naive bayes model.
 
@@ -110,8 +114,8 @@ def fit_naive_bayes_model(matrix, labels):
     # *** START CODE HERE ***
     n, V = matrix.shape
 
-    matrix_y1 = matrix[labels==1, :].sum(axis=0)
-    matrix_y0 = matrix[labels==0, :].sum(axis=0)
+    matrix_y1 = matrix[labels == 1, :].sum(axis=0)
+    matrix_y0 = matrix[labels == 0, :].sum(axis=0)
 
     phi_k_y1 = (matrix_y1 + 1) / (matrix_y1.sum() + V)
     phi_k_y0 = (matrix_y0 + 1) / (matrix_y0.sum() + V)
@@ -120,6 +124,7 @@ def fit_naive_bayes_model(matrix, labels):
 
     return (phi_k_y1, phi_k_y0, phi_y)
     # *** END CODE HERE ***
+
 
 def predict_from_naive_bayes_model(model, matrix):
     """Use a Naive Bayes model to compute predictions for a target matrix.
@@ -141,12 +146,13 @@ def predict_from_naive_bayes_model(model, matrix):
 
     # predict = p_x_y1 / (p_x_y1 + p_x_y0)
     # return (predict > 0.5).astype(np.int)
-    
+
     sum_log_p_x_y1 = (np.log(phi_k_y1) * matrix).sum(axis=1) + np.log(phi_y)
     sum_log_p_x_y0 = (np.log(phi_k_y0) * matrix).sum(axis=1) + np.log(1 - phi_y)
 
     return (sum_log_p_x_y1 > sum_log_p_x_y0).astype(np.int)
     # *** END CODE HERE ***
+
 
 def get_top_five_naive_bayes_words(model, dictionary):
     """Compute the top five words that are most indicative of the spam (i.e positive) class.
@@ -167,7 +173,10 @@ def get_top_five_naive_bayes_words(model, dictionary):
     return [word_dict[index] for index in word_index]
     # *** END CODE HERE ***
 
-def compute_best_svm_radius(train_matrix, train_labels, val_matrix, val_labels, radius_to_consider):
+
+def compute_best_svm_radius(
+    train_matrix, train_labels, val_matrix, val_labels, radius_to_consider
+):
     """Compute the optimal SVM radius using the provided training and evaluation datasets.
 
     You should only consider radius values within the radius_to_consider list.
@@ -179,14 +188,16 @@ def compute_best_svm_radius(train_matrix, train_labels, val_matrix, val_labels, 
         eval_matrix: The word counts for the validation data
         eval_labels: The spam or not spam labels for the validation data
         radius_to_consider: The radius values to consider
-    
+
     Returns:
         The best radius which maximizes SVM accuracy.
     """
     # *** START CODE HERE ***
     best_accuracy = 0
     for radius in radius_to_consider:
-        val_predict = svm.train_and_predict_svm(train_matrix, train_labels, val_matrix, radius)
+        val_predict = svm.train_and_predict_svm(
+            train_matrix, train_labels, val_matrix, radius
+        )
         accuracy = np.mean(val_predict == val_labels)
         if accuracy > best_accuracy:
             best_accuracy = accuracy
@@ -194,49 +205,65 @@ def compute_best_svm_radius(train_matrix, train_labels, val_matrix, val_labels, 
     return optimal_radius
     # *** END CODE HERE ***
 
+
 def main():
-    train_messages, train_labels = util.load_spam_dataset('../data/ds6_train.tsv')
-    val_messages, val_labels = util.load_spam_dataset('../data/ds6_val.tsv')
-    test_messages, test_labels = util.load_spam_dataset('../data/ds6_test.tsv')
-    
+    train_messages, train_labels = util.load_spam_dataset("../data/ds6_train.tsv")
+    val_messages, val_labels = util.load_spam_dataset("../data/ds6_val.tsv")
+    test_messages, test_labels = util.load_spam_dataset("../data/ds6_test.tsv")
+
     dictionary = create_dictionary(train_messages)
 
-    util.write_json('./output/p06_dictionary', dictionary)
+    util.write_json("./output/p06_dictionary", dictionary)
 
     train_matrix = transform_text(train_messages, dictionary)
 
-    np.savetxt('./output/p06_sample_train_matrix', train_matrix[:100,:])
+    np.savetxt("./output/p06_sample_train_matrix", train_matrix[:100, :])
 
     val_matrix = transform_text(val_messages, dictionary)
     test_matrix = transform_text(test_messages, dictionary)
 
     naive_bayes_model = fit_naive_bayes_model(train_matrix, train_labels)
 
-    naive_bayes_predictions = predict_from_naive_bayes_model(naive_bayes_model, test_matrix)
+    naive_bayes_predictions = predict_from_naive_bayes_model(
+        naive_bayes_model, test_matrix
+    )
 
-    np.savetxt('./output/p06_naive_bayes_predictions', naive_bayes_predictions)
+    np.savetxt("./output/p06_naive_bayes_predictions", naive_bayes_predictions)
 
     naive_bayes_accuracy = np.mean(naive_bayes_predictions == test_labels)
 
-    print('Naive Bayes had an accuracy of {} on the testing set'.format(naive_bayes_accuracy))
+    print(
+        "Naive Bayes had an accuracy of {} on the testing set".format(
+            naive_bayes_accuracy
+        )
+    )
 
     top_5_words = get_top_five_naive_bayes_words(naive_bayes_model, dictionary)
 
-    print('The top 5 indicative words for Naive Bayes are: ', top_5_words)
+    print("The top 5 indicative words for Naive Bayes are: ", top_5_words)
 
-    util.write_json('./output/p06_top_indicative_words', top_5_words)
+    util.write_json("./output/p06_top_indicative_words", top_5_words)
 
-    optimal_radius = compute_best_svm_radius(train_matrix, train_labels, val_matrix, val_labels, [0.01, 0.1, 1, 10])
+    optimal_radius = compute_best_svm_radius(
+        train_matrix, train_labels, val_matrix, val_labels, [0.01, 0.1, 1, 10]
+    )
 
-    util.write_json('./output/p06_optimal_radius', optimal_radius)
+    util.write_json("./output/p06_optimal_radius", optimal_radius)
 
-    print('The optimal SVM radius was {}'.format(optimal_radius))
+    print("The optimal SVM radius was {}".format(optimal_radius))
 
-    svm_predictions = svm.train_and_predict_svm(train_matrix, train_labels, test_matrix, optimal_radius)
+    svm_predictions = svm.train_and_predict_svm(
+        train_matrix, train_labels, test_matrix, optimal_radius
+    )
 
     svm_accuracy = np.mean(svm_predictions == test_labels)
 
-    print('The SVM model had an accuracy of {} on the testing set'.format(svm_accuracy, optimal_radius))
+    print(
+        "The SVM model had an accuracy of {} on the testing set".format(
+            svm_accuracy, optimal_radius
+        )
+    )
+
 
 if __name__ == "__main__":
     main()

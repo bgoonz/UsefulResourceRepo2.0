@@ -18,15 +18,15 @@ def l_to_c(l):
     try:
         return str(int(l))
     except ValueError:
-        return str(10 + ord(l.upper()) - ord('A'))
+        return str(10 + ord(l.upper()) - ord("A"))
 
 
 def check_iban(iban):
     print("\nChecking the IBAN number '%s'..." % iban)
-    ib = iban.replace(' ', '')
+    ib = iban.replace(" ", "")
     ib = ib[4:] + ib[:4]
     print("Of length", len(ib))
-    i = int(''.join(l_to_c(l) for l in ib))
+    i = int("".join(l_to_c(l) for l in ib))
     check = (i % 97) == 1
     if check:
         print("OK '%s' seems to be a valid IBAN number." % iban)
@@ -38,7 +38,7 @@ def check_iban(iban):
 def main(args):
     try:
         if not args:
-            check_iban('HAHA LOL YOU THOUGH I WILL LET A REAL IBAN IN MY SCRIPT')
+            check_iban("HAHA LOL YOU THOUGH I WILL LET A REAL IBAN IN MY SCRIPT")
         else:
             for iban in args:
                 check_iban(iban)
@@ -48,8 +48,9 @@ def main(args):
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from sys import argv, exit
+
     exit(main(argv[1:]))
 
 # End of check_IBAN.py

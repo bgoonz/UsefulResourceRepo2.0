@@ -14,35 +14,36 @@ import logging
 import scrapy
 
 # Trying to disable logging
-logging.getLogger('scrapy').setLevel(logging.WARNING)
-logging.getLogger('scrapy').propagate = False
-logging.getLogger('scrapy.utils').propagate = False
+logging.getLogger("scrapy").setLevel(logging.WARNING)
+logging.getLogger("scrapy").propagate = False
+logging.getLogger("scrapy.utils").propagate = False
 
 
 class QuotesSpider(scrapy.Spider):
     """Small scrapy Spider."""
+
     name = "Watch Later"
-    start_urls = [
-        'file:///tmp/wl.html'
-    ]
+    start_urls = ["file:///tmp/wl.html"]
     custom_settings = {
-    	"LOG_ENABLED": False,
-    	"LOG_LEVEL": 'ERROR',
+        "LOG_ENABLED": False,
+        "LOG_LEVEL": "ERROR",
     }
 
     def parse(self, response):
         """Parse the response to print a JSON file of all videos in /tmp/wl.html"""
         i = 0
-        for item in response.css('td.pl-video-title'):
+        for item in response.css("td.pl-video-title"):
             i += 1  # enumerate(...) was not working!
-            video = item.css('a.pl-video-title-link')[0]
+            video = item.css("a.pl-video-title-link")[0]
             res = {
-                'id': i,
-                'href': video.xpath('@href').extract_first().replace('&index=%i&list=WL'%i, ''),
-                'title': video.css('a::text').extract_first().strip(),
+                "id": i,
+                "href": video.xpath("@href")
+                .extract_first()
+                .replace("&index=%i&list=WL" % i, ""),
+                "title": video.css("a::text").extract_first().strip(),
             }
             print(res)
-            #yield res
+            # yield res
 
 
 # End of youtube_playlist_spider_scrapy.py

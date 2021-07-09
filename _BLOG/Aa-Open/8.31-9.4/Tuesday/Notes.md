@@ -2,7 +2,7 @@
 
 ## **Binary Trees**
 
-![graphs](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/trees/images/graphs.png)
+![graphs](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/trees/images/graphs.png)
 
 - **`Graph`** : A collection of nodes and any edges between those nodes. (Linked Lists and Trees are both considered subclasses of graphs)
 - **`Tree`** : Graph that does not contain any cycles.

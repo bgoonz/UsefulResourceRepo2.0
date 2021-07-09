@@ -2,9 +2,11 @@
 
 import sys
 
+
 def calculate(x):
     # Complete this function
-    return (x%11)
+    return x % 11
+
 
 if __name__ == "__main__":
     x = int(input().strip())

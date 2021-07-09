@@ -12,7 +12,7 @@ Find all the log messages with timestamps within a specified range.
 import sys
 import re
 
-inputfile = open("input.txt","r")
+inputfile = open("input.txt", "r")
 file = inputfile.readlines()
 
 inputVars = []
@@ -21,9 +21,11 @@ timestamps = []
 msgs = []
 num = None
 
+
 def read():
     for line in file:
         inputVars.append(line)
+
 
 def checkSet():
     mySet = inputVars[3:num]
@@ -31,6 +33,7 @@ def checkSet():
         words = i.split("\t")
         msgs.append(words[1].rstrip())
         timestamps.append(words[0])
+
 
 def finder():
     time1 = inputVars[0].rstrip()
@@ -42,13 +45,13 @@ def finder():
         if i == time1:
             bound1 = count
         if i == time2:
-            bound2 = count-1
+            bound2 = count - 1
 
         count += 1
 
     counter = bound1
     while counter <= bound2:
-        #answer = inputVars[counter].rstrip()
+        # answer = inputVars[counter].rstrip()
         # print(answer)
         times = timestamps[counter]
         print(times + "\t" + msgs[counter])
@@ -64,10 +67,8 @@ def main():
     finder()
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
 
 
 """

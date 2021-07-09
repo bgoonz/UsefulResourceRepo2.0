@@ -1,4 +1,4 @@
-'''
+"""
 Word Break (Find the original words)
 
 Given a dictionary of words and a string made up of those words (no spaces), return the original sentence in a list.
@@ -20,7 +20,7 @@ If the end is reached but the last word doesn't exist in the words, go back 1 wo
 * But this solution doesn't give the result with the smallest number of words (gives the first found result)
     Time Complexity:    O(?)    , (worst case, about O(W! * N), for example sentence='aaaaaac', words=['a','aa','aaa','aaaa','aaaaa', 'aaaaaa'])
     Space Complexity:   O(W)
-'''
+"""
 
 
 ############
@@ -28,6 +28,7 @@ If the end is reached but the last word doesn't exist in the words, go back 1 wo
 ############
 
 import math
+
 
 def word_break(sentence, words):
     n, w = len(sentence), len(words)
@@ -39,8 +40,8 @@ def word_break(sentence, words):
     dp[0] = 0
     matched_indices = [0]
 
-    dic = {}        # save all words in dictionary for faster searching
-    max_word = 0    # length of the max word
+    dic = {}  # save all words in dictionary for faster searching
+    max_word = 0  # length of the max word
     for i in range(w):
         dic[words[i]] = i
         max_word = max(max_word, len(words[i]))
@@ -54,7 +55,7 @@ def word_break(sentence, words):
             if matched_index < i - max_word:
                 break
 
-            subsentence = sentence[matched_index: i]
+            subsentence = sentence[matched_index:i]
             # save this result if this subsentence exist in the words and number of words that forms sentence is smaller
             if (subsentence in dic) and (dp[matched_index] + 1 < dp[i]):
                 dp[i] = dp[matched_index] + 1
@@ -69,7 +70,7 @@ def word_break(sentence, words):
         return None
 
     # find the words that compose this sentence
-    result = ['' for i in range(dp[n])]
+    result = ["" for i in range(dp[n])]
     i = n
     j = dp[n] - 1
     while i > 0:
@@ -86,6 +87,7 @@ def word_break(sentence, words):
 
 from collections import deque
 
+
 def word_break_backtracking(sentence, words):
     all_words = set()
 
@@ -95,7 +97,7 @@ def word_break_backtracking(sentence, words):
 
     n = len(sentence)
     i = 0
-    subsentence = ''
+    subsentence = ""
     result = deque()
 
     # go letter by letter and save the new letter in subsentence
@@ -117,7 +119,7 @@ def word_break_backtracking(sentence, words):
         # check if the new word exist in the set
         if subsentence in all_words:
             result.append(subsentence)
-            subsentence = ''
+            subsentence = ""
 
     return list(result)
 
@@ -128,24 +130,53 @@ def word_break_backtracking(sentence, words):
 
 # Test 1
 # Correct result => ['the', 'quick', 'brown', 'fox']
-print(word_break('thequickbrownfox', ['quick', 'brown', 'the', 'fox']))
+print(word_break("thequickbrownfox", ["quick", "brown", "the", "fox"]))
 
 # Test 2
 # Correct result => ['bedbath', 'and', 'beyond']
-print(word_break('bedbathandbeyond', ['bed', 'bath', 'bedbath', 'and', 'beyond']))
+print(word_break("bedbathandbeyond", ["bed", "bath", "bedbath", "and", "beyond"]))
 
 # Test 3
 # Correct result => ['bedbath', 'andbeyond']
-print(word_break('bedbathandbeyond', ['bed', 'and', 'bath', 'bedbath', 'bathand', 'beyond', 'andbeyond']))
+print(
+    word_break(
+        "bedbathandbeyond",
+        ["bed", "and", "bath", "bedbath", "bathand", "beyond", "andbeyond"],
+    )
+)
 
 # Test 4
 # Correct result => None ('beyo' doesn't exist)
-print(word_break('bedbathandbeyo', ['bed', 'bath', 'bedbath', 'bathand', 'beyond']))
+print(word_break("bedbathandbeyo", ["bed", "bath", "bedbath", "bathand", "beyond"]))
 
 # Test 5
 # Correct result => ['314', '15926535897', '9323', '8462643383279']
-print(word_break('3141592653589793238462643383279', ['314', '49', '9001', '15926535897', '14', '9323', '8462643383279', '4', '793']))
+print(
+    word_break(
+        "3141592653589793238462643383279",
+        ["314", "49", "9001", "15926535897", "14", "9323", "8462643383279", "4", "793"],
+    )
+)
 
 # Test 6
 # Correct result => ['i', 'like', 'like', 'i', 'mango', 'i', 'i', 'i']
-print(word_break('ilikelikeimangoiii', ['mobile', 'samsung', 'sam', 'sung', 'man', 'mango', 'icecream', 'and', 'go', 'i', 'like', 'ice', 'cream']))
+print(
+    word_break(
+        "ilikelikeimangoiii",
+        [
+            "mobile",
+            "samsung",
+            "sam",
+            "sung",
+            "man",
+            "mango",
+            "icecream",
+            "and",
+            "go",
+            "i",
+            "like",
+            "ice",
+            "cream",
+        ],
+    )
+)

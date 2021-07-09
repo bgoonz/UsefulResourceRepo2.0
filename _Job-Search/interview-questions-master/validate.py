@@ -12,8 +12,8 @@ import copy
 import yaml
 import jsonschema
 
-__author__ = 'doctorj'
-__date__ = '2016-04-11'
+__author__ = "doctorj"
+__date__ = "2016-04-11"
 
 
 PRIORITY_DEFAULT = 3
@@ -21,7 +21,10 @@ PRIORITY_DEFAULT = 3
 
 class QValidator(object):
     """Validate a single question against the schema."""
-    def __init__(self, schema, field_vals={}):          # pylint: disable=dangerous-default-value
+
+    def __init__(
+        self, schema, field_vals={}
+    ):  # pylint: disable=dangerous-default-value
         """Create a new QValidator with the given `schema` dict.
 
         :param dict(str, list(str)) field_vals: For each key present, ensure the
@@ -39,11 +42,17 @@ class QValidator(object):
         :raises ValueError: If `question` is invalid."""
         issues = list(self.validator.iter_errors(question))
         if issues:
-            raise ValueError('Question "{}":\n{}'.format(question.get('q', '<none>'), issues[0]))
+            raise ValueError(
+                'Question "{}":\n{}'.format(question.get("q", "<none>"), issues[0])
+            )
         for field, valid in self.field_vals.items():
             invalid = frozenset(question.get(field, ())) - valid
             if invalid:
-                raise ValueError('Question "{}":\nInvalid value(s) for "{}" field: {}'.format(question.get('q', '<none>'), field, ', '.join(invalid)))
+                raise ValueError(
+                    'Question "{}":\nInvalid value(s) for "{}" field: {}'.format(
+                        question.get("q", "<none>"), field, ", ".join(invalid)
+                    )
+                )
         return question
 
 
@@ -60,27 +69,27 @@ def listify(value):
 def normalize(question):
     """:Return: (a copy of) the `question` dict with defaults filled in."""
     q = copy.deepcopy(question)
-    q.setdefault('a', None)
-    q.setdefault('pri', PRIORITY_DEFAULT)
-    for val in ('followup', 'ref', 'tags', 'who', 'where'):
+    q.setdefault("a", None)
+    q.setdefault("pri", PRIORITY_DEFAULT)
+    for val in ("followup", "ref", "tags", "who", "where"):
         q[val] = listify(q.get(val))
     return q
 
 
 def main(args):
     """Read YAML on stdin, parse, validate, print JSON objects one to a line on stdout."""
-    if len(args) < 2 or args[1] == '--help' or sys.stdin.isatty():
+    if len(args) < 2 or args[1] == "--help" or sys.stdin.isatty():
         print(__doc__, file=sys.stderr)
         sys.exit(1)
 
     data = yaml.load(sys.stdin)
     with open(args[1]) as schemafile:
         schema = json.load(schemafile)
-    validator = QValidator(schema, {k: v for k, v in data.items() if k != 'qs'})
+    validator = QValidator(schema, {k: v for k, v in data.items() if k != "qs"})
 
-    assert 'qs' in data, "Could not find `qs` key in YAML file."
+    assert "qs" in data, "Could not find `qs` key in YAML file."
     try:
-        questions = tuple(normalize(validator.validate(q)) for q in data['qs'])
+        questions = tuple(normalize(validator.validate(q)) for q in data["qs"])
     except ValueError as err:
         print(str(err), file=sys.stderr)
         sys.exit(1)
@@ -88,5 +97,5 @@ def main(args):
         json.dump(questions, sys.stdout, indent=2, sort_keys=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv)

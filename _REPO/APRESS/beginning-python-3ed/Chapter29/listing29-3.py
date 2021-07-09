@@ -3,6 +3,7 @@ from random import randrange
 
 "This module contains the game objects of the Squish game."
 
+
 class SquishSprite(pygame.sprite.Sprite):
 
     """
@@ -19,6 +20,7 @@ class SquishSprite(pygame.sprite.Sprite):
         screen = pygame.display.get_surface()
         shrink = -config.margin * 2
         self.area = screen.get_rect().inflate(shrink, shrink)
+
 
 class Weight(SquishSprite):
 
@@ -49,6 +51,7 @@ class Weight(SquishSprite):
         """
         self.rect.top += self.speed
         self.landed = self.rect.top >= self.area.bottom
+
 
 class Banana(SquishSprite):
 

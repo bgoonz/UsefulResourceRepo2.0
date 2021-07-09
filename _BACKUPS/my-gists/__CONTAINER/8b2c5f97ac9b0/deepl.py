@@ -26,32 +26,42 @@ try:
     try:
         from ansicolortags import printc
     except ImportError:
-        print("Optional dependancy (ansicolortags) is not available, using regular print function.")
-        print("  You can install it with : 'pip install ansicolortags' (or sudo pip)...")
+        print(
+            "Optional dependancy (ansicolortags) is not available, using regular print function."
+        )
+        print(
+            "  You can install it with : 'pip install ansicolortags' (or sudo pip)..."
+        )
         from ANSIColors import printc
 except ImportError:
-    print("Optional dependancy (ANSIColors) is not available, using regular print function.")
-    print("  You can install it with : 'pip install ANSIColors-balises' (or sudo pip)...")
+    print(
+        "Optional dependancy (ANSIColors) is not available, using regular print function."
+    )
+    print(
+        "  You can install it with : 'pip install ANSIColors-balises' (or sudo pip)..."
+    )
 
     def printc(*a, **kw):
-        """ Fake function printc.
+        """Fake function printc.
 
         ansicolortags or ANSIColors are not installed...
         Install ansicolortags from pypi (with 'pip install ansicolortags')
         """
         print(*a, **kw)
 
-FROM_LANGUAGE = 'EN'
-TO_LANGUAGE = 'FR'
+
+FROM_LANGUAGE = "EN"
+TO_LANGUAGE = "FR"
 
 
 def main(argv, to_language=TO_LANGUAGE, from_language=FROM_LANGUAGE):
-    """ Main function. Use the arguments of the command line (sys.argv). """
+    """Main function. Use the arguments of the command line (sys.argv)."""
     # TODO use docopt to handle the command line arguments! Cf. http://docopt.org/
     # TODO can docopt handle a cli documentation with ansicolortags tags in it? Cf. http://ansicolortags.rtfd.io/
     # Manual handing of the command line arguments
     if "-h" in argv or "--help" in argv:
-        printc("""
+        printc(
+            """
 <green>deepl.py<white> --help|-h | -f file | [--from LANG] [--to LANG] text
 
 A simple Python script translate a text from a language to another language, using DeepL translator (https://www.deepl.com/translator).
@@ -71,7 +81,8 @@ Me gusta usar la línea de comandos para traducir mi texto.
 
 <magenta>Copyleft 2017 Lilian Besson (License MIT)<white>
 <b>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.<reset><white>
-""")
+"""
+        )
         return 0
 
     if "--to" in argv:
@@ -82,7 +93,11 @@ Me gusta usar la línea de comandos para traducir mi texto.
             # printc("<green>Using destination language {}<reset>...".format(to_language))
         except Exception as e:
             print(e)
-            printc("<red>Ignored exception, using default destination language {}...<reset>".format(to_language))
+            printc(
+                "<red>Ignored exception, using default destination language {}...<reset>".format(
+                    to_language
+                )
+            )
 
     if "--from" in argv:
         try:
@@ -92,15 +107,21 @@ Me gusta usar la línea de comandos para traducir mi texto.
             # printc("<green>Using destination language {}<reset>...".format(from_language))
         except Exception as e:
             print(e)
-            printc("<red>Ignored exception, using default source language {}...<reset>".format(from_language))
+            printc(
+                "<red>Ignored exception, using default source language {}...<reset>".format(
+                    from_language
+                )
+            )
 
     if "-f" in argv:
         try:
-            with open(argv[argv.index("-f") + 1], 'r') as filename:
+            with open(argv[argv.index("-f") + 1], "r") as filename:
                 text = "".join(filename.readlines())[:-1]
         except Exception as e:
             print(e)
-            printc("<red>Trying to use the rest of the arguments to send the text message...<white>")
+            printc(
+                "<red>Trying to use the rest of the arguments to send the text message...<white>"
+            )
             text = "".join(argv)
     else:
         if argv:
@@ -110,7 +131,11 @@ Me gusta usar la línea de comandos para traducir mi texto.
             elif isinstance(argv, str):
                 text = argv
             else:
-                printc("<Warning>argv seems to be of unknown type (not list, not str, but {}) ...".format(type(argv)))
+                printc(
+                    "<Warning>argv seems to be of unknown type (not list, not str, but {}) ...".format(
+                        type(argv)
+                    )
+                )
                 text = argv
             text = text.replace("\\n", "\n")
             # Durty hack to have true new lines in the message
@@ -129,5 +154,5 @@ Me gusta usar la línea de comandos para traducir mi texto.
     return result
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1:])

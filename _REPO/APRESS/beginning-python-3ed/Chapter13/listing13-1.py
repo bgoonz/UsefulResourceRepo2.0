@@ -1,16 +1,19 @@
 import sqlite3
 
+
 def convert(value):
-    if value.startswith('~'):
-        return value.strip('~')
+    if value.startswith("~"):
+        return value.strip("~")
     if not value:
-        value = '0'
+        value = "0"
     return float(value)
 
-conn = sqlite3.connect('food.db')
+
+conn = sqlite3.connect("food.db")
 curs = conn.cursor()
 
-curs.execute('''
+curs.execute(
+    """
 CREATE TABLE food (
     id         TEXT PRIMARY KEY,
     desc       TEXT,
@@ -23,13 +26,14 @@ CREATE TABLE food (
     fiber      FLOAT,
     sugar      FLOAT
 )
-''')
+"""
+)
 
-query = 'INSERT INTO food VALUES (?,?,?,?,?,?,?,?,?,?)'
+query = "INSERT INTO food VALUES (?,?,?,?,?,?,?,?,?,?)"
 field_count = 10
 
-for line in open('ABBREV.txt'):
-    fields = line.split('^')
+for line in open("ABBREV.txt"):
+    fields = line.split("^")
     vals = [convert(f) for f in fields[:field_count]]
     curs.execute(query, vals)
 

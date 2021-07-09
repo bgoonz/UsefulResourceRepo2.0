@@ -15,13 +15,14 @@
     3,6,9
 """
 
+
 def transpose(A):
     """
     :type A: List[List[int]]
     :rtype: List[List[int]]
     """
 
-    r =len(A)
+    r = len(A)
     c = len(A[0])
 
     result = [[0] * r for i in range(c)]
@@ -32,9 +33,11 @@ def transpose(A):
 
     return result
 
+
 def main():
-    A = [[1,2,3],[4,5,6],[7,8,9]]
-    B = [[1,2,3],[4,5,6]]
+    A = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    B = [[1, 2, 3], [4, 5, 6]]
     print(transpose(A))
+
 
 main()

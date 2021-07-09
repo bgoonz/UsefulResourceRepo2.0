@@ -7,14 +7,16 @@ class node:
 """
 
 MIN = 0
-MAX = 10**4
+MAX = 10 ** 4
 
 
 def check_subtree(root, min_val, max_val):
     if root is None:
         return True
     elif root.data > min_val and root.data < max_val:
-        return check_subtree(root.left, min_val, root.data) and check_subtree(root.right, root.data, max_val)
+        return check_subtree(root.left, min_val, root.data) and check_subtree(
+            root.right, root.data, max_val
+        )
     else:
         return False
 

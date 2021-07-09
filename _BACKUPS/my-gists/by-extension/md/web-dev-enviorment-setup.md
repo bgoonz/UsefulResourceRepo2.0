@@ -228,7 +228,7 @@ This one is pretty easy. Go to website for [Visual Studio Code](https://code.vis
 
 To verify that the shell commands were installed correctly, run `which code` in your terminal. If `code` is not a recognized command, open the VS Code editor, open the Command Palette (`Cmd+Shift+P` on macOS ,`Ctrl+Shift+P` on Linux) and type `shell command` to find the `Shell Command: Install 'code' command in PATH` command. Then restart the terminal. This will now allow you to easily open files in VS Code from the terminal using the `code` command followed by a file or directory.
 
-Next, we'll want to install a few useful VS Code extensions and configure VS Code to play nice with these extensions. Download [this zip file](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/js-local/setup-vs-code.zip), which contains a script that will do the work for you. Unzip the file and navigate into the directory where the file is located in the terminal (drag and drop the folder over to the terminal icon on macOS or right click in the directory and select `Open in Terminal` on most Linux distributions).
+Next, we'll want to install a few useful VS Code extensions and configure VS Code to play nice with these extensions. Download [this zip file](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/js-local/setup-vs-code.zip), which contains a script that will do the work for you. Unzip the file and navigate into the directory where the file is located in the terminal (drag and drop the folder over to the terminal icon on macOS or right click in the directory and select `Open in Terminal` on most Linux distributions).
 
 To run the script, run the command:
 

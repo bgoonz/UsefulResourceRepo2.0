@@ -8,19 +8,27 @@ class Handler:
     substitution. When called with a name such as 'emphasis', it will
     return a proper substitution function.
     """
+
     def callback(self, prefix, name, *args):
         method = getattr(self, prefix + name, None)
-        if callable(method): return method(*args)
+        if callable(method):
+            return method(*args)
+
     def start(self, name):
-        self.callback('start_', name)
+        self.callback("start_", name)
+
     def end(self, name):
-        self.callback('end_', name)
+        self.callback("end_", name)
+
     def sub(self, name):
         def substitution(match):
-            result = self.callback('sub_', name, match)
-            if result is None: match.group(0)
+            result = self.callback("sub_", name, match)
+            if result is None:
+                match.group(0)
             return result
+
         return substitution
+
 
 class HTMLRenderer(Handler):
     """
@@ -30,35 +38,51 @@ class HTMLRenderer(Handler):
     Handler's start(), end(), and sub() methods. They implement basic
     markup as used in HTML documents.
     """
+
     def start_document(self):
-        print('<html><head><title>...</title></head><body>')
+        print("<html><head><title>...</title></head><body>")
+
     def end_document(self):
-        print('</body></html>')
+        print("</body></html>")
+
     def start_paragraph(self):
-        print('<p>')
+        print("<p>")
+
     def end_paragraph(self):
-        print('</p>')
+        print("</p>")
+
     def start_heading(self):
-        print('<h2>')
+        print("<h2>")
+
     def end_heading(self):
-        print('</h2>')
+        print("</h2>")
+
     def start_list(self):
-        print('<ul>')
+        print("<ul>")
+
     def end_list(self):
-        print('</ul>')
+        print("</ul>")
+
     def start_listitem(self):
-        print('<li>')
+        print("<li>")
+
     def end_listitem(self):
-        print('</li>')
+        print("</li>")
+
     def start_title(self):
-        print('<h1>')
+        print("<h1>")
+
     def end_title(self):
-        print('</h1>')
+        print("</h1>")
+
     def sub_emphasis(self, match):
-        return '<em>{}</em>'.format(match.group(1))
+        return "<em>{}</em>".format(match.group(1))
+
     def sub_url(self, match):
         return '<a href="{}">{}</a>'.format(match.group(1), match.group(1))
+
     def sub_mail(self, match):
         return '<a href="mailto:{}">{}</a>'.format(match.group(1), match.group(1))
+
     def feed(self, data):
         print(data)

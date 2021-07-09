@@ -1,12 +1,13 @@
 import queue
 from collections import defaultdict
 
+
 class Graph:
     def __init__(self, n):
         self.n = n
         self.edges = defaultdict(lambda: [])
 
-    def connect(self,x,y):
+    def connect(self, x, y):
         self.edges[x].append(y)
         self.edges[y].append(x)
 
@@ -31,14 +32,15 @@ class Graph:
 
         distances.pop(root)
 
-        print(" ".join(map(str,distances)))
+        print(" ".join(map(str, distances)))
+
 
 t = int(input())
 for i in range(t):
-    n,m = [int(value) for value in input().split()]
+    n, m = [int(value) for value in input().split()]
     graph = Graph(n)
     for i in range(m):
-        x,y = [int(x) for x in input().split()]
-        graph.connect(x-1,y-1)
+        x, y = [int(x) for x in input().split()]
+        graph.connect(x - 1, y - 1)
     s = int(input())
-    graph.find_all_distances(s-1)
+    graph.find_all_distances(s - 1)

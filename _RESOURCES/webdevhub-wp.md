@@ -7277,7 +7277,7 @@ Each individual request is sent to a server, which handles it and provides an an
 **Structure of an HTTP Request**
 
 ```
-GET / HTTP/1.1Host: appacademy.ioConnection: keep-aliveUpgrade-Insecure-Requests: 1User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3Accept-Encoding: gzip, deflateAccept-Language: en-US,en;q=0.9
+GET / HTTP/1.1Host: Lambda.ioConnection: keep-aliveUpgrade-Insecure-Requests: 1User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3Accept-Encoding: gzip, deflateAccept-Language: en-US,en;q=0.9
 ```
 
 ### Example of a request:
@@ -7319,7 +7319,7 @@ GET / HTTP/1.1Host: appacademy.ioConnection: keep-aliveUpgrade-Insecure-Requests
 
 - **netcat** : (nc) A Utility that comes as part of Unix-line environments such as Ubuntu and macOS.
 - Allows us to open a direct connection with a URL and manually send HTTP requests.
-- `nc -v appacademy.io 80`
+- `nc -v Lambda.io 80`
 - `man nc` to open the netcat manual.
 
 ---

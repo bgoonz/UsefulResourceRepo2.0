@@ -1,4 +1,4 @@
-'''
+"""
 Climbing Staircase
 
 There exists a staircase with N steps, and you can climb up either X different steps at a time.
@@ -18,12 +18,13 @@ Output explanation:
 Dynamic Programing solution.
     Time Complexity:    O(N*S)
     Space Complexity:   O(N)
-'''
+"""
 
 
 ############
 # Solution #
 ############
+
 
 def climbing_staircase(steps, height):
     dp = [0 for i in range(height)]

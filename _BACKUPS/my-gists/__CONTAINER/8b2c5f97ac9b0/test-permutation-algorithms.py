@@ -20,6 +20,7 @@ from itertools import permutations as itertools_permutations
 
 # --- First algorithm : The insert-into-all-positions solution
 
+
 def ins_all_positions(x, l):
     """Return a list of lists obtained from l by inserting x at every possible index."""
     res = []
@@ -38,10 +39,13 @@ def first_permutations(iterable):
         return [[iterable[0]]]
     else:
         x, xs = iterable[0], iterable[1:]
-        return reduce(lambda acc, p: acc + ins_all_positions(x, p), first_permutations(xs), [])
+        return reduce(
+            lambda acc, p: acc + ins_all_positions(x, p), first_permutations(xs), []
+        )
 
 
 # --- Second algorithm : The fixed-head solution
+
 
 def rm(x, l):
     """List l without element x."""
@@ -61,7 +65,11 @@ def second_permutations(iterable):
     elif len(iterable) == 1:
         return [[iterable[0]]]
     else:
-        return reduce(lambda acc, x: acc + head_of_all(x, second_permutations(rm(x, iterable))), iterable, [])
+        return reduce(
+            lambda acc, x: acc + head_of_all(x, second_permutations(rm(x, iterable))),
+            iterable,
+            [],
+        )
 
 
 # --- Third algorithm : Johnson Trotter algorithm
@@ -111,6 +119,7 @@ def move(a, i):
 
 def scan_largest_movable(a):
     """Find the largest movable element."""
+
     def aux(acc, i):
         if i >= len(a):
             return acc
@@ -124,6 +133,7 @@ def scan_largest_movable(a):
                 else:
                     j = acc if x < a[acc][0] else i
                     return aux(j, i + 1)
+
     return aux(None, 0)
 
 
@@ -159,9 +169,14 @@ def third_permutations(iterable):
 
 # --- Function to test and compare them
 
+
 def test(list_of_f, iterable, stopearly=False):
-    """ Test that all functions in list_of_f give the same list of permutation on this iterable."""
-    print("\n\nTesting for the list of functions {} ...".format([f.__name__ for f in list_of_f]))  # DEBUG
+    """Test that all functions in list_of_f give the same list of permutation on this iterable."""
+    print(
+        "\n\nTesting for the list of functions {} ...".format(
+            [f.__name__ for f in list_of_f]
+        )
+    )  # DEBUG
     result = True
     print("Testing for the iterable {} ...".format(iterable))  # DEBUG
     i = iterable
@@ -172,7 +187,11 @@ def test(list_of_f, iterable, stopearly=False):
         for j in range(i + 1, len(allperms)):
             pj = allperms[j]
             if pi != pj:
-                print(" - Function #{} ({.__name__}) gave a different list of permutations as function #{} ({.__name__}) ...".format(i, list_of_f[i], j, list_of_f[j]))  # DEBUG
+                print(
+                    " - Function #{} ({.__name__}) gave a different list of permutations as function #{} ({.__name__}) ...".format(
+                        i, list_of_f[i], j, list_of_f[j]
+                    )
+                )  # DEBUG
                 # print("   - pi =", pi)  # DEBUG
                 # print("   - pj =", pj)  # DEBUG
                 if stopearly:
@@ -180,14 +199,23 @@ def test(list_of_f, iterable, stopearly=False):
                 else:
                     result = False
             else:
-                print(" - Function #{} ({.__name__}) gave the same list of permutations as function #{} ({.__name__}) ...".format(i, list_of_f[i], j, list_of_f[j]))  # DEBUG
+                print(
+                    " - Function #{} ({.__name__}) gave the same list of permutations as function #{} ({.__name__}) ...".format(
+                        i, list_of_f[i], j, list_of_f[j]
+                    )
+                )  # DEBUG
     return result
 
 
 def main():
     # list_of_f = [itertools_permutations, first_permutations]
     # list_of_f = [itertools_permutations, first_permutations, second_permutations]
-    list_of_f = [itertools_permutations, first_permutations, second_permutations, third_permutations]
+    list_of_f = [
+        itertools_permutations,
+        first_permutations,
+        second_permutations,
+        third_permutations,
+    ]
 
     iterable = [1, 2, 3]
     test(list_of_f, iterable)
@@ -199,7 +227,7 @@ def main():
     test(list_of_f, iterable)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
     print("TODO: finish this script !")
 

@@ -223,7 +223,7 @@ h2.subheading {
 **Typography**
 
 - **`font-family`** : change the font.
-  - ![fonts](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/attributes/assets/properties-generic-font-names.png)
+  - ![fonts](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-Responsive-Design/attributes/assets/properties-generic-font-names.png)
   - Remember that not all computers have the same fonts on them.
   - You can import web fonts via an api by using
     - `@import url('https://fonts.googleapis.com/css2?family=Liu+Jian+Mao+Cao&display=swap');` and pasting it st the top of your CSS file.

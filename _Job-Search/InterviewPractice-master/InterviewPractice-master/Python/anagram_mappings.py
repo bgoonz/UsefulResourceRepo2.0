@@ -9,23 +9,25 @@
     because the 1st element of A appears at B[4], and so on.
 """
 
+
 def anagramMappings(A, B):
-        """
-        :type A: List[int]
-        :type B: List[int]
-        :rtype: List[int]
-        """
+    """
+    :type A: List[int]
+    :type B: List[int]
+    :rtype: List[int]
+    """
 
-        results = []
-        mapping = {}
-        
-        for indexB, valueB in enumerate(B):
-            mapping[valueB] = indexB
+    results = []
+    mapping = {}
 
-        for indexA in A:
-            results.append(mapping[indexA])
+    for indexB, valueB in enumerate(B):
+        mapping[valueB] = indexB
 
-        print(results)
+    for indexA in A:
+        results.append(mapping[indexA])
+
+    print(results)
+
 
 def main():
     A = [40, 40]
@@ -33,7 +35,5 @@ def main():
 
     anagramMappings(A, B)
 
+
 main()
-
-
-        

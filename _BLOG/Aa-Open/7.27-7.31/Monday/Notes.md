@@ -112,7 +112,7 @@ setInterval(foo, 1000, "pancakes", "couscous");
 
 ## **Threading**
 
-![pic of thread](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/asynchronous-functions/assets/threading.png)
+![pic of thread](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/asynchronous-functions/assets/threading.png)
 
 - **`Runtime`** : term used to describe the 'lifetime' of a program.
 
@@ -174,7 +174,7 @@ _Javascript is the tool that enables web pages to be interactive and dynamic._
 - Uses the **`queue`** data structure.
 - **`Queue`** : General patten of organizing a collection of things.
 
-![illust of event loop](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/asynchronous-functions/assets/event-loop/03.png)
+![illust of event loop](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/asynchronous-functions/assets/event-loop/03.png)
 
 ---
 

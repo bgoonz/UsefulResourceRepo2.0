@@ -1,5 +1,6 @@
 from functools import cmp_to_key
 
+
 class Player:
     def __init__(self, name, score):
         self.name = name
@@ -15,6 +16,7 @@ class Player:
                 return 1
             else:
                 return -1
+
 
 n = int(input())
 data = []

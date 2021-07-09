@@ -48,12 +48,16 @@ from __future__ import print_function
 
 # Use sys.version to be compatible with Python 2
 import sys
+
 # Use os.getenv to see try to emulate os.path.expanduser if needed
 import os
+
 # Use time to sleep and get string for today current hour
 import time
+
 # Use JSON to pretty print a dictionary
 import json
+
 # Use base64 to not keep plaintext files of the number, username and password in your home
 import base64
 
@@ -62,11 +66,15 @@ today = time.strftime("%H:%M:%S %Y-%m-%d")
 try:
     from os.path import expanduser
 except ImportError:
-    print("Warning, os.path.expanduser is not available, trying to use os.getenv('USER') = {} ...".format(os.getenv("USER")))
+    print(
+        "Warning, os.path.expanduser is not available, trying to use os.getenv('USER') = {} ...".format(
+            os.getenv("USER")
+        )
+    )
 
     def expanduser(s):
-        """ Try to simulate the os.path.expanduser function. """
-        return '/home/' + os.getenv("USER") + '/' + s
+        """Try to simulate the os.path.expanduser function."""
+        return "/home/" + os.getenv("USER") + "/" + s
 
 
 if sys.version_info < (3, 0):
@@ -82,15 +90,23 @@ try:
     try:
         from ansicolortags import printc
     except ImportError:
-        print("Optional dependancy (ansicolortags) is not available, using regular print function.")
-        print("  You can install it with : 'pip install ansicolortags' (or sudo pip)...")
+        print(
+            "Optional dependancy (ansicolortags) is not available, using regular print function."
+        )
+        print(
+            "  You can install it with : 'pip install ansicolortags' (or sudo pip)..."
+        )
         from ANSIColors import printc
 except ImportError:
-    print("Optional dependancy (ANSIColors) is not available, using regular print function.")
-    print("  You can install it with : 'pip install ANSIColors-balises' (or sudo pip)...")
+    print(
+        "Optional dependancy (ANSIColors) is not available, using regular print function."
+    )
+    print(
+        "  You can install it with : 'pip install ANSIColors-balises' (or sudo pip)..."
+    )
 
     def printc(*a, **kw):
-        """ Fake function printc.
+        """Fake function printc.
 
         ansicolortags or ANSIColors are not installed...
         Install ansicolortags from pypi (with 'pip install ansicolortags')
@@ -98,45 +114,76 @@ except ImportError:
         print(*a, **kw)
 
 
-def testSpecialFile(name, number=''):
-    """ Test if the hidden file '~/.smsapifreemobile_name.b64' exists and decodes (base64) correctly.
-    """
-    assert name in ["number", "user", "password"], "Error: unknown or incorrect value for 'name' for the function openSpecialFile(name) ..."
+def testSpecialFile(name, number=""):
+    """Test if the hidden file '~/.smsapifreemobile_name.b64' exists and decodes (base64) correctly."""
+    assert name in [
+        "number",
+        "user",
+        "password",
+    ], "Error: unknown or incorrect value for 'name' for the function openSpecialFile(name) ..."
     # printc("<cyan>Testing the hidden file <white>'<u>~/.smsapifreemobile_{}.b64<U>'<cyan>...<white>".format(name))  # DEBUG
     try:
-        with open(expanduser('~/') + ".smsapifreemobile_" + name + number + ".b64") as f:
+        with open(
+            expanduser("~/") + ".smsapifreemobile_" + name + number + ".b64"
+        ) as f:
             variable = base64.b64decode(f.readline()[:-1])
-            while variable[-1] == '\n':
+            while variable[-1] == "\n":
                 variable = variable[:-1]
             return True
     except OSError:
         return False
 
 
-
-def openSpecialFile(name, number=''):
-    """ Open the hidden file '~/.smsapifreemobile_name.b64', read and decode (base64) and return its content.
-    """
-    assert name in ["number", "user", "password"], "Error: unknown or incorrect value for 'name' for the function openSpecialFile(name) ..."
-    printc("<cyan>Opening the hidden file <white>'<u>~/.smsapifreemobile_{}.b64<U>'<cyan>, read and decode (base64) and return its content...<white>".format(name))
+def openSpecialFile(name, number=""):
+    """Open the hidden file '~/.smsapifreemobile_name.b64', read and decode (base64) and return its content."""
+    assert name in [
+        "number",
+        "user",
+        "password",
+    ], "Error: unknown or incorrect value for 'name' for the function openSpecialFile(name) ..."
+    printc(
+        "<cyan>Opening the hidden file <white>'<u>~/.smsapifreemobile_{}.b64<U>'<cyan>, read and decode (base64) and return its content...<white>".format(
+            name
+        )
+    )
     try:
-        with open(expanduser('~/') + ".smsapifreemobile_" + name + number + ".b64") as f:
+        with open(
+            expanduser("~/") + ".smsapifreemobile_" + name + number + ".b64"
+        ) as f:
             variable = base64.b64decode(f.readline()[:-1])
-            while variable[-1] == '\n':
+            while variable[-1] == "\n":
                 variable = variable[:-1]
             return variable
     except OSError:
-        printc("<red>Error: unable to read the file '~/.smsapifreemobile_{}.b64' ...<white>".format(name))
-        printc("<yellow>Please check that it is present, and if it not there, create it:<white>")
+        printc(
+            "<red>Error: unable to read the file '~/.smsapifreemobile_{}.b64' ...<white>".format(
+                name
+            )
+        )
+        printc(
+            "<yellow>Please check that it is present, and if it not there, create it:<white>"
+        )
         if name == "number":
-            print("To create '~/.smsapifreemobile_number.b64', use your phone number (like '0612345678', not wiht +33), and execute this command line (in a terminal):")
-            printc("<black>echo '0612345678' | base64 > '~/.smsapifreemobile_number.b64'<white>".format())
+            print(
+                "To create '~/.smsapifreemobile_number.b64', use your phone number (like '0612345678', not wiht +33), and execute this command line (in a terminal):"
+            )
+            printc(
+                "<black>echo '0612345678' | base64 > '~/.smsapifreemobile_number.b64'<white>".format()
+            )
         elif name == "user":
-            print("To create '~/.smsapifreemobile_user.b64', use your Free Mobile identifier (a 8 digit number, like '83123456'), and execute this command line (in a terminal):")
-            printc("<black>echo '83123456' | base64 > '~/.smsapifreemobile_user.b64'<white>".format())
+            print(
+                "To create '~/.smsapifreemobile_user.b64', use your Free Mobile identifier (a 8 digit number, like '83123456'), and execute this command line (in a terminal):"
+            )
+            printc(
+                "<black>echo '83123456' | base64 > '~/.smsapifreemobile_user.b64'<white>".format()
+            )
         elif name == "password":
-            print("To create '~/.smsapifreemobile_password.b64', go to this webpage, https://mobile.free.fr/moncompte/index.php?page=options&show=20 (after logging to your Free Mobile account), and copy the API key (a 14-caracters string on [a-zA-Z0-9]*, like 'H6ahkTABEADz5Z'), and execute this command line (in a terminal):")
-            printc("<black>echo 'H6ahkTABEADz5Z' | base64 > '~/.smsapifreemobile_password.b64<white>' ".format())
+            print(
+                "To create '~/.smsapifreemobile_password.b64', go to this webpage, https://mobile.free.fr/moncompte/index.php?page=options&show=20 (after logging to your Free Mobile account), and copy the API key (a 14-caracters string on [a-zA-Z0-9]*, like 'H6ahkTABEADz5Z'), and execute this command line (in a terminal):"
+            )
+            printc(
+                "<black>echo 'H6ahkTABEADz5Z' | base64 > '~/.smsapifreemobile_password.b64<white>' ".format()
+            )
 
 
 numbers = []
@@ -171,8 +218,12 @@ if language == "fr":
         403: """Le service n'est pas activé sur l'espace abonné, ou login / clé incorrect.
 Allez sur '<black>https://mobile.free.fr/moncompte/index.php?page=options&show=20<white>' svp, et activez l'option correspondate.""",
         500: "Erreur côté serveur. Veuillez réessayez ultérieurement.",
-        1:   "Le SMS a été envoyé sur votre mobile ({}).".format(number) if len(numbers) <= 1 else "Le SMS a été envoyé sur vos numéros ({}).".format(numbers),
-        "toolong": "<red>Attention<white> : le message est trop long (+ de <black>{}<white> caracters, soit plus de 3 SMS).".format(STR_MAX_SIZE)
+        1: "Le SMS a été envoyé sur votre mobile ({}).".format(number)
+        if len(numbers) <= 1
+        else "Le SMS a été envoyé sur vos numéros ({}).".format(numbers),
+        "toolong": "<red>Attention<white> : le message est trop long (+ de <black>{}<white> caracters, soit plus de 3 SMS).".format(
+            STR_MAX_SIZE
+        ),
     }
 else:
     errorcodes = {
@@ -181,13 +232,17 @@ else:
         403: """Access denied: the service might not be activated on the online personnal space, or login/password is wrong.
 Please go on '<black>https://mobile.free.fr/moncompte/index.php?page=options&show=20<white>' please, and enable the corresponding option.""",
         500: "Error from the server side. Please try again later.",
-        1:   "The SMS has been sent to your mobile ({}).".format(number) if len(numbers) <= 1 else "The SMS has been sent to all your mobile numbers ({}).".format(numbers),
-        "toolong": "<red>Warning<white>: message is too long (more than <black>{}<white> caracters, so more than 3 SMS).".format(STR_MAX_SIZE)
+        1: "The SMS has been sent to your mobile ({}).".format(number)
+        if len(numbers) <= 1
+        else "The SMS has been sent to all your mobile numbers ({}).".format(numbers),
+        "toolong": "<red>Warning<white>: message is too long (more than <black>{}<white> caracters, so more than 3 SMS).".format(
+            STR_MAX_SIZE
+        ),
     }
 
 
 def send_sms(text="Empty!", secured=True, sleep_duration=0):
-    """ Sens a free SMS to the user identified by [user], with [password].
+    """Sens a free SMS to the user identified by [user], with [password].
 
     :user: Free Mobile id (of the form [0-9]{8}),
     :password: Service password (of the form [a-zA-Z0-9]{14}),
@@ -200,11 +255,21 @@ def send_sms(text="Empty!", secured=True, sleep_duration=0):
     if len(text) > MAX_SIZE:
         printc(errorcodes["toolong"])
         nb_sub_messages = len(text) / MAX_SIZE
-        printc("\n<red>Warning<white>: message will be split in <red>{} piece{}<white> of size smaller than <black>{} characters<white>...".format(nb_sub_messages + 1, 's' if nb_sub_messages > 0 else '', MAX_SIZE))
-        printc("  <magenta>Note that new lines and other information can be lost!<white>")
+        printc(
+            "\n<red>Warning<white>: message will be split in <red>{} piece{}<white> of size smaller than <black>{} characters<white>...".format(
+                nb_sub_messages + 1, "s" if nb_sub_messages > 0 else "", MAX_SIZE
+            )
+        )
+        printc(
+            "  <magenta>Note that new lines and other information can be lost!<white>"
+        )
         for i, index in enumerate(range(0, len(text), MAX_SIZE)):
-            answer = send_sms(text[index: index + MAX_SIZE])
-            printc("For piece #{} of the message, the answer is:\n  <magenta>{}<white>...\n".format(i + 1, answer[1]))
+            answer = send_sms(text[index : index + MAX_SIZE])
+            printc(
+                "For piece #{} of the message, the answer is:\n  <magenta>{}<white>...\n".format(
+                    i + 1, answer[1]
+                )
+            )
         return answer
         # raise ValueError(errorcodes["toolong"])
 
@@ -235,16 +300,30 @@ def send_sms(text="Empty!", secured=True, sleep_duration=0):
     for (user, password) in zip(users, passwords):
         dictQuery = {"user": user, "pass": password, "msg": text}
         string_query = json.dumps(dictQuery, sort_keys=True, indent=4)
-        string_query = string_query.replace(password, '*' * len(password))
-        printc("\nThe web-based query to the Free Mobile API (<u>{}://smsapi.free-mobile.fr/sendmsg?query<U>) will be based on:\n{}.".format(url, string_query))
+        string_query = string_query.replace(password, "*" * len(password))
+        printc(
+            "\nThe web-based query to the Free Mobile API (<u>{}://smsapi.free-mobile.fr/sendmsg?query<U>) will be based on:\n{}.".format(
+                url, string_query
+            )
+        )
         if sleep_duration > 0:
-            printc("\nSleeping for <red>{}<reset><white> seconds before querying the API...".format(sleep_duration))
+            printc(
+                "\nSleeping for <red>{}<reset><white> seconds before querying the API...".format(
+                    sleep_duration
+                )
+            )
             try:
                 time.sleep(sleep_duration)
             except KeyboardInterrupt as e:
-                printc("<red>You interrupted the process of sending this message, skipping to next one (or stopping now)...<reset><white>")
+                printc(
+                    "<red>You interrupted the process of sending this message, skipping to next one (or stopping now)...<reset><white>"
+                )
             else:
-                printc("\nDone sleeping for <red>{}<reset><white> seconds, it's time to query the API !".format(sleep_duration))
+                printc(
+                    "\nDone sleeping for <red>{}<reset><white> seconds, it's time to query the API !".format(
+                        sleep_duration
+                    )
+                )
 
         query = urlencode(dictQuery)
         url += "://smsapi.free-mobile.fr/sendmsg?{}".format(query)
@@ -264,13 +343,13 @@ def send_sms(text="Empty!", secured=True, sleep_duration=0):
 
 
 def main(argv):
-    """ Main function. Use the arguments of the command line (sys.argv).
-    """
+    """Main function. Use the arguments of the command line (sys.argv)."""
     # TODO use docopt to handle the command line arguments! Cf. http://docopt.org/
     # TODO can docopt handle a cli documentation with ansicolortags tags in it? Cf. http://ansicolortags.rtfd.io/
     # Manual handing of the command line arguments
     if "-h" in argv or "--help" in argv:
-        printc("""
+        printc(
+            """
 <green>FreeSMS.py<white> --help|-h | -f file | [--sleep] body of the message
 
 A simple Python script to send a text message to a Free Mobile phone.
@@ -291,7 +370,8 @@ Sleep one minute.
 
 <magenta>Copyright 2014-21 Lilian Besson (License MIT)<white>
 <b>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.<reset><white>
-""")
+"""
+        )
         return [(0, None)]
 
     sleep = False
@@ -303,14 +383,18 @@ Sleep one minute.
             try:
                 sleep_duration = int(argv[index + 1])
             except:
-                printc("<red>Unable to get a sleep duration value from the command line argument ('{}' does not convert to an integer).".format(argv[index + 1]))  # DEBUG
+                printc(
+                    "<red>Unable to get a sleep duration value from the command line argument ('{}' does not convert to an integer).".format(
+                        argv[index + 1]
+                    )
+                )  # DEBUG
             else:
                 argv.pop(index)  # remove sleep_duration
         argv.pop(index)  # remove "--sleep"
 
     if "-f" in argv:
         try:
-            with open(argv[argv.index("-f") + 1], 'r') as filename:
+            with open(argv[argv.index("-f") + 1], "r") as filename:
                 text = "".join(filename.readlines())[:-1]
         except Exception as e:
             print(e)
@@ -324,7 +408,11 @@ Sleep one minute.
             elif isinstance(argv, str):
                 text = argv
             else:
-                printc("<Warning>argv seems to be of unknown type (not list, not str, but {}) ...".format(type(argv)))
+                printc(
+                    "<Warning>argv seems to be of unknown type (not list, not str, but {}) ...".format(
+                        type(argv)
+                    )
+                )
                 text = argv
             text = text.replace("\\n", "\n")
             # Durty hack to have true new lines in the message
@@ -341,7 +429,9 @@ Sleep one minute.
             try:
                 machinename = open("/etc/hostname").readline()[:-1]
             except OSError:
-                print("Warning: unknown machine name (file '/etc/hostname' not readable?)...")
+                print(
+                    "Warning: unknown machine name (file '/etc/hostname' not readable?)..."
+                )
                 machinename = "unknown machine"
             text = text.format(date=today, machinename=machinename)
             text = text.replace("[at]", "@").replace("[dot]", ".")

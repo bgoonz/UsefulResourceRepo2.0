@@ -39,9 +39,11 @@ import os
 import os.path
 import sys
 import pygtk
-pygtk.require('2.0')
+
+pygtk.require("2.0")
 
 import gtk
+
 if gtk.pygtk_version < (2, 10, 0):
     print("PyGtk 2.10 ou supérieur est requis pour cet exemple")
     raise SystemExit
@@ -51,18 +53,16 @@ import pango
 
 
 # global vars
-windows = []    # this list contains all view windows
-MARK_CATEGORY_1 = 'one'
-MARK_CATEGORY_2 = 'two'
-DATADIR = '/usr/share'
+windows = []  # this list contains all view windows
+MARK_CATEGORY_1 = "one"
+MARK_CATEGORY_2 = "two"
+DATADIR = "/usr/share"
 
 
 def error_dialog(parent, msg):
-    dialog = gtk.MessageDialog(parent,
-                               gtk.DIALOG_DESTROY_WITH_PARENT,
-                               gtk.MESSAGE_ERROR,
-                               gtk.BUTTONS_OK,
-                               msg)
+    dialog = gtk.MessageDialog(
+        parent, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, msg
+    )
     dialog.run()
     dialog.destroy()
 
@@ -79,7 +79,7 @@ def load_file(buffer, path):
     except:
         return False
     buffer.set_text(txt)
-    buffer.set_data('filename', path)
+    buffer.set_data("filename", path)
     buffer.end_not_undoable_action()
 
     buffer.set_modified(False)
@@ -90,7 +90,7 @@ def load_file(buffer, path):
 # buffer creation
 def open_file(buffer, filename):
     # get the new language for the file mimetype
-    manager = buffer.get_data('languages-manager')
+    manager = buffer.get_data("languages-manager")
 
     # essai pour charger un style particulier
     # gtk-source-style-scheme-manager-get-default
@@ -98,7 +98,7 @@ def open_file(buffer, filename):
         stylescheme = buffer.get_style_scheme()  # un autre si possible
     except:
         # XXX A modifier si on veut un autre
-        manager2 = buffer.get_data('styles-scheme-manager')
+        manager2 = buffer.get_data("styles-scheme-manager")
         print(manager2)
         stylescheme = manager2.get_scheme("naereen")
     print(stylescheme)
@@ -175,9 +175,9 @@ def print_cb(action, sourceview):
     compositor.set_wrap_mode(gtk.WRAP_CHAR)
     compositor.set_highlight_syntax(True)
     compositor.set_print_line_numbers(5)
-    compositor.set_header_format(False, 'Imprimé dans %A', None, '%F')
-    filename = buffer.get_data('filename')
-    compositor.set_footer_format(True, '%T', filename, 'Page %N/%Q')
+    compositor.set_header_format(False, "Imprimé dans %A", None, "%F")
+    filename = buffer.get_data("filename")
+    compositor.set_footer_format(True, "%T", filename, "Page %N/%Q")
     compositor.set_print_header(True)
     compositor.set_print_footer(True)
 
@@ -187,17 +187,22 @@ def print_cb(action, sourceview):
     res = print_op.run(gtk.PRINT_OPERATION_ACTION_PRINT_DIALOG, window)
 
     if res == gtk.PRINT_OPERATION_RESULT_ERROR:
-        error_dialog(window, "Une erreur est survenue lors de l'impression du fichier :\n\n" + filename)
+        error_dialog(
+            window,
+            "Une erreur est survenue lors de l'impression du fichier :\n\n" + filename,
+        )
     elif res == gtk.PRINT_OPERATION_RESULT_APPLY:
         print('Le fichier suivant a bien été imprimé "%s"' % filename)
 
 
 # Buffer action callbacks
 def open_file_cb(action, buffer):
-    chooser = gtk.FileChooserDialog('Ouvrir un fichier ...', None,
-                                    gtk.FILE_CHOOSER_ACTION_OPEN,
-                                    (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                                     gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+    chooser = gtk.FileChooserDialog(
+        "Ouvrir un fichier ...",
+        None,
+        gtk.FILE_CHOOSER_ACTION_OPEN,
+        (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK),
+    )
     response = chooser.run()
     if response == gtk.RESPONSE_OK:
         filename = chooser.get_filename()
@@ -208,7 +213,7 @@ def open_file_cb(action, buffer):
 
 def update_cursor_position(buffer, view):
     tabwidth = view.get_tab_width()
-    pos_label = view.get_data('pos_label')
+    pos_label = view.get_data("pos_label")
     iter = buffer.get_iter_at_mark(buffer.get_insert())
     nchars = iter.get_offset()
     row = iter.get_line() + 1
@@ -216,12 +221,14 @@ def update_cursor_position(buffer, view):
     start.set_line_offset(0)
     col = 0
     while start.compare(iter) < 0:
-        if start.get_char() == '\t':
+        if start.get_char() == "\t":
             col += tabwidth - col % tabwidth
         else:
             col += 1
         start.forward_char()
-    pos_label.set_text('[Caractère: %d, Ligne: %d, Colonne: %d]' % (nchars, row, col + 1))
+    pos_label.set_text(
+        "[Caractère: %d, Ligne: %d, Colonne: %d]" % (nchars, row, col + 1)
+    )
 
 
 def move_cursor_cb(buffer, cursoriter, mark, view):
@@ -249,13 +256,16 @@ def button_press_cb(view, ev):
             mark_category = MARK_CATEGORY_1
         else:
             mark_category = MARK_CATEGORY_2
-        x_buf, y_buf = view.window_to_buffer_coords(gtk.TEXT_WINDOW_LEFT,
-                                                    int(ev.x), int(ev.y))
+        x_buf, y_buf = view.window_to_buffer_coords(
+            gtk.TEXT_WINDOW_LEFT, int(ev.x), int(ev.y)
+        )
         # get line bounds
         line_start = view.get_line_at_y(y_buf)[0]
 
         # get the markers already in the line
-        mark_list = buffer.get_source_marks_at_line(line_start.get_line(), mark_category)
+        mark_list = buffer.get_source_marks_at_line(
+            line_start.get_line(), mark_category
+        )
         # search for the marker corresponding to the button pressed
         for m in mark_list:
             if m.get_category() == mark_category:
@@ -271,33 +281,87 @@ def button_press_cb(view, ev):
 
 # Actions & UI definition
 buffer_actions = [
-    ('Open', gtk.STOCK_OPEN, '_Ouvre', '<control>O', 'Ouvre un fichier', open_file_cb),
-    ('Quit', gtk.STOCK_QUIT, '_Quitte', '<control>Q', 'Quitte l\'application', gtk.main_quit)
+    ("Open", gtk.STOCK_OPEN, "_Ouvre", "<control>O", "Ouvre un fichier", open_file_cb),
+    (
+        "Quit",
+        gtk.STOCK_QUIT,
+        "_Quitte",
+        "<control>Q",
+        "Quitte l'application",
+        gtk.main_quit,
+    ),
 ]
 
 view_actions = [
-    ('FileMenu', None, '_Fichier'),
-    ('ViewMenu', None, '_Vue'),
-    ('Print', gtk.STOCK_PRINT, '_Impression', '<control>P', 'Print the file', print_cb),
-    ('NewView', gtk.STOCK_NEW, '_Nouvelle Vue', None, 'Create a new view of the file', new_view_cb),
-    ('TabsWidth', None, '_Largeur des tabulations')
+    ("FileMenu", None, "_Fichier"),
+    ("ViewMenu", None, "_Vue"),
+    ("Print", gtk.STOCK_PRINT, "_Impression", "<control>P", "Print the file", print_cb),
+    (
+        "NewView",
+        gtk.STOCK_NEW,
+        "_Nouvelle Vue",
+        None,
+        "Create a new view of the file",
+        new_view_cb,
+    ),
+    ("TabsWidth", None, "_Largeur des tabulations"),
 ]
 
 toggle_actions = [
-    ('ShowNumbers', None, 'Montre les numéros de _lignes', None, 'Toggle visibility of line numbers in the left margin', numbers_toggled_cb, False),
-    ('ShowMarkers', None, 'Montre les _Marqueurs', None, 'Toggle visibility of markers in the left margin', marks_toggled_cb, False),
-    ('ShowMargin', None, 'Montre les M_arges', None, 'Toggle visibility of right margin indicator', margin_toggled_cb, False),
-    ('AutoIndent', None, 'Activer l\'_auto-indentation', None, 'Toggle automatic auto indentation of text', auto_indent_toggled_cb, False),
-    ('InsertSpaces', None, 'Insérer des e_spaces au lieu des tabulations', None, 'Whether to insert space characters when inserting tabulations', insert_spaces_toggled_cb, False)
+    (
+        "ShowNumbers",
+        None,
+        "Montre les numéros de _lignes",
+        None,
+        "Toggle visibility of line numbers in the left margin",
+        numbers_toggled_cb,
+        False,
+    ),
+    (
+        "ShowMarkers",
+        None,
+        "Montre les _Marqueurs",
+        None,
+        "Toggle visibility of markers in the left margin",
+        marks_toggled_cb,
+        False,
+    ),
+    (
+        "ShowMargin",
+        None,
+        "Montre les M_arges",
+        None,
+        "Toggle visibility of right margin indicator",
+        margin_toggled_cb,
+        False,
+    ),
+    (
+        "AutoIndent",
+        None,
+        "Activer l'_auto-indentation",
+        None,
+        "Toggle automatic auto indentation of text",
+        auto_indent_toggled_cb,
+        False,
+    ),
+    (
+        "InsertSpaces",
+        None,
+        "Insérer des e_spaces au lieu des tabulations",
+        None,
+        "Whether to insert space characters when inserting tabulations",
+        insert_spaces_toggled_cb,
+        False,
+    ),
 ]
 
 radio_actions = [
-    ('TabsWidth4', None, '4', None, 'Set tabulation width to 4 spaces', 4),
-    ('TabsWidth6', None, '6', None, 'Set tabulation width to 6 spaces', 6),
-    ('TabsWidth8', None, '8', None, 'Set tabulation width to 8 spaces', 8),
-    ('TabsWidth10', None, '10', None, 'Set tabulation width to 10 spaces', 10),
-    ('TabsWidth12', None, '12', None, 'Set tabulation width to 12 spaces', 12),
-    ('TabsWidth14', None, '14', None, 'Set tabulation width to 14 spaces', 14)
+    ("TabsWidth4", None, "4", None, "Set tabulation width to 4 spaces", 4),
+    ("TabsWidth6", None, "6", None, "Set tabulation width to 6 spaces", 6),
+    ("TabsWidth8", None, "8", None, "Set tabulation width to 8 spaces", 8),
+    ("TabsWidth10", None, "10", None, "Set tabulation width to 10 spaces", 10),
+    ("TabsWidth12", None, "12", None, "Set tabulation width to 12 spaces", 12),
+    ("TabsWidth14", None, "14", None, "Set tabulation width to 14 spaces", 14),
 ]
 
 view_ui_description = """
@@ -352,18 +416,18 @@ def create_view_window(buffer, sourceview=None):
     # window
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     window.set_border_width(0)
-    window.set_title('MOcaml FileViewer [Naereen test]')
+    window.set_title("MOcaml FileViewer [Naereen test]")
     windows.append(window)  # this list contains all view windows
 
     # view
     view = gtksourceview2.View(buffer)
-    buffer.connect('mark_set', move_cursor_cb, view)
-    buffer.connect('changed', update_cursor_position, view)
-    view.connect('button-press-event', button_press_cb)
-    window.connect('delete-event', window_deleted_cb, view)
+    buffer.connect("mark_set", move_cursor_cb, view)
+    buffer.connect("changed", update_cursor_position, view)
+    view.connect("button-press-event", button_press_cb)
+    window.connect("delete-event", window_deleted_cb, view)
 
     # action group and UI manager
-    action_group = gtk.ActionGroup('ViewActions')
+    action_group = gtk.ActionGroup("ViewActions")
     action_group.add_actions(view_actions, view)
     action_group.add_toggle_actions(toggle_actions, view)
     action_group.add_radio_actions(radio_actions, -1, tabs_toggled_cb, view)
@@ -371,7 +435,7 @@ def create_view_window(buffer, sourceview=None):
     ui_manager = gtk.UIManager()
     ui_manager.insert_action_group(action_group, 0)
     # save a reference to the ui manager in the window for later use
-    window.set_data('ui_manager', ui_manager)
+    window.set_data("ui_manager", ui_manager)
     accel_group = ui_manager.get_accel_group()
     window.add_accel_group(accel_group)
     ui_manager.add_ui_from_string(view_ui_description)
@@ -380,9 +444,9 @@ def create_view_window(buffer, sourceview=None):
     vbox = gtk.VBox(0, False)
     sw = gtk.ScrolledWindow()
     sw.set_shadow_type(gtk.SHADOW_IN)
-    pos_label = gtk.Label('Position')
-    view.set_data('pos_label', pos_label)
-    menu = ui_manager.get_widget('/MainMenu')
+    pos_label = gtk.Label("Position")
+    view.set_data("pos_label", pos_label)
+    menu = ui_manager.get_widget("/MainMenu")
 
     # layout widgets
     window.add(vbox)
@@ -392,39 +456,41 @@ def create_view_window(buffer, sourceview=None):
     vbox.pack_start(pos_label, False, False, 0)
 
     # setup view
-    font_desc = pango.FontDescription('monospace 10')
+    font_desc = pango.FontDescription("monospace 10")
     if font_desc:
         view.modify_font(font_desc)
 
     # change view attributes to match those of sourceview
     if sourceview:
-        action = action_group.get_action('ShowNumbers')
+        action = action_group.get_action("ShowNumbers")
         action.set_active(sourceview.get_show_line_numbers())
-        action = action_group.get_action('ShowMarkers')
+        action = action_group.get_action("ShowMarkers")
         action.set_active(sourceview.get_show_line_marks())
-        action = action_group.get_action('ShowMargin')
+        action = action_group.get_action("ShowMargin")
         action.set_active(sourceview.get_show_right_margin())
-        action = action_group.get_action('AutoIndent')
+        action = action_group.get_action("AutoIndent")
         action.set_active(sourceview.get_auto_indent())
-        action = action_group.get_action('InsertSpaces')
+        action = action_group.get_action("InsertSpaces")
         action.set_active(sourceview.get_insert_spaces_instead_of_tabs())
-        action = action_group.get_action('TabsWidth%d' % sourceview.get_tab_width())
+        action = action_group.get_action("TabsWidth%d" % sourceview.get_tab_width())
         if action:
             action.set_active(True)
 
     # add marker pixbufs
-    pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.join(DATADIR,
-                                                       'pixmaps/apple-green.png'))
+    pixbuf = gtk.gdk.pixbuf_new_from_file(
+        os.path.join(DATADIR, "pixmaps/apple-green.png")
+    )
     if pixbuf:
         view.set_mark_category_pixbuf(MARK_CATEGORY_1, pixbuf)
     else:
-        print('could not load marker 1 image.  Spurious messages might get triggered')
-    pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.join(DATADIR,
-                                                       'pixmaps/apple-red.png'))
+        print("could not load marker 1 image.  Spurious messages might get triggered")
+    pixbuf = gtk.gdk.pixbuf_new_from_file(
+        os.path.join(DATADIR, "pixmaps/apple-red.png")
+    )
     if pixbuf:
         view.set_mark_category_pixbuf(MARK_CATEGORY_2, pixbuf)
     else:
-        print('could not load marker 2 image.  Spurious messages might get triggered')
+        print("could not load marker 2 image.  Spurious messages might get triggered")
 
     vbox.show_all()
 
@@ -433,10 +499,10 @@ def create_view_window(buffer, sourceview=None):
 
 def create_main_window(buffer):
     window = create_view_window(buffer)
-    ui_manager = window.get_data('ui_manager')
+    ui_manager = window.get_data("ui_manager")
 
     # buffer action group
-    action_group = gtk.ActionGroup('BufferActions')
+    action_group = gtk.ActionGroup("BufferActions")
     action_group.add_actions(buffer_actions, buffer)
     ui_manager.insert_action_group(action_group, 1)
     # merge buffer ui
@@ -446,17 +512,17 @@ def create_main_window(buffer):
     groups = ui_manager.get_action_groups()
     # retrieve the view action group at position 0 in the list
     action_group = groups[0]
-    action = action_group.get_action('ShowNumbers')
+    action = action_group.get_action("ShowNumbers")
     action.set_active(True)
-    action = action_group.get_action('ShowMarkers')
+    action = action_group.get_action("ShowMarkers")
     action.set_active(True)
-    action = action_group.get_action('ShowMargin')
+    action = action_group.get_action("ShowMargin")
     action.set_active(False)
-    action = action_group.get_action('AutoIndent')
+    action = action_group.get_action("AutoIndent")
     action.set_active(True)
-    action = action_group.get_action('InsertSpaces')
+    action = action_group.get_action("InsertSpaces")
     action.set_active(False)
-    action = action_group.get_action('TabsWidth8')
+    action = action_group.get_action("TabsWidth8")
     action.set_active(True)
 
     return window
@@ -467,8 +533,8 @@ def main(args):
     lm = gtksourceview2.LanguageManager()
     sm = gtksourceview2.StyleSchemeManager()
     buffer = gtksourceview2.Buffer()
-    buffer.set_data('languages-manager', lm)
-    buffer.set_data('styles-scheme-manager', sm)
+    buffer.set_data("languages-manager", lm)
+    buffer.set_data("styles-scheme-manager", sm)
 
     # parse arguments
     if len(args) >= 2:
@@ -487,9 +553,10 @@ def main(args):
     gtk.main()
 
 
-if __name__ == '__main__':
-    if '--debug' in sys.argv:
+if __name__ == "__main__":
+    if "--debug" in sys.argv:
         import pdb
-        pdb.run('main(sys.argv)')
+
+        pdb.run("main(sys.argv)")
     else:
         main(sys.argv)

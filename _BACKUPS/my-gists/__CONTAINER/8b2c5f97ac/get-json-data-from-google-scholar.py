@@ -5,8 +5,10 @@ import urllib.request
 import re
 import json
 import sys
+
 response = urllib.request.urlopen(
-    'https://scholar.google.fr/citations?user={}'.format(sys.argv[1]))
+    "https://scholar.google.fr/citations?user={}".format(sys.argv[1])
+)
 html = response.read()
 m = re.search("<tbody(.*)</tbody>", str(html))
 

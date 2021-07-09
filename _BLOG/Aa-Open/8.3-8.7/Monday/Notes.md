@@ -22,7 +22,7 @@
 
 **The Browser Diagram**
 
-![img of browser diagram](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-DOM-API/browser-basics/assets/browser.png)
+![img of browser diagram](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-DOM-API/browser-basics/assets/browser.png)
 
 - **`User interface`**: Browser interface that the user interacts with such as the address bar, buttons, bookmarks, etc. Includes everything except for the requested page content.
 
@@ -48,7 +48,7 @@
   - An example is an **`HTTP Request`**, where we make a request to the server to fetch a URL.
 
 **The Request Response Cycle Diagram**
-![rr cycle](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-DOM-API/browser-basics/assets/request-response-cycle.png)
+![rr cycle](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-DOM-API/browser-basics/assets/request-response-cycle.png)
 
 - The left side is the **`client`** side, the middle is the **`internet`**, and right side is the **`server`** side.
 

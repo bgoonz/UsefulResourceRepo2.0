@@ -35,6 +35,6 @@ words = open(sys.argv[1])
 word_list = words.readlines()
 json_words = {}
 for count in range(len(word_list)):
-    json_words[word_list[count].rstrip()] = '1'
+    json_words[word_list[count].rstrip()] = "1"
 
 print(json.dumps(json_words, indent=4))

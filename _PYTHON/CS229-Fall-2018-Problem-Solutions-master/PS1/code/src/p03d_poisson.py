@@ -18,7 +18,7 @@ def main(lr, train_path, eval_path, pred_path):
     x_train, y_train = util.load_dataset(train_path, add_intercept=False)
 
     # *** START CODE HERE ***
-    
+
     model = PoissonRegression(step_size=lr, eps=1e-5)
     model.fit(x_train, y_train)
 
@@ -27,10 +27,10 @@ def main(lr, train_path, eval_path, pred_path):
     np.savetxt(pred_path, y_pred)
 
     plt.figure()
-    plt.plot(y_eval, y_pred, 'bx')
-    plt.xlabel('true counts')
-    plt.ylabel('predict counts')
-    plt.savefig('output/p03d.png')
+    plt.plot(y_eval, y_pred, "bx")
+    plt.xlabel("true counts")
+    plt.ylabel("predict counts")
+    plt.savefig("output/p03d.png")
 
     # *** END CODE HERE ***
 
@@ -44,7 +44,7 @@ class PoissonRegression(LinearModel):
             y: Training example labels. Shape (m,).
         """
         # *** START CODE HERE ***
-        
+
         m, n = x.shape
         self.theta = np.zeros(n)
 
@@ -67,7 +67,7 @@ class PoissonRegression(LinearModel):
             Floating-point prediction for each input, shape (m,).
         """
         # *** START CODE HERE ***
-        
+
         return np.exp(x.dot(self.theta))
 
         # *** END CODE HERE ***

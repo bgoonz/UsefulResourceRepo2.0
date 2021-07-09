@@ -10,8 +10,10 @@ WIN_MESSAGE = "Congratulations, you won!"
 LOSE_MESSAGE = "Oh, the computer won. It's ok."
 TIE_MESSAGE = "Oh, it's a tie."
 
+
 def random_choice(options=["rock", "paper", "scissors"]):
     return random.choice(options)
+
 
 def determine_winner(choice1, choice2):
     """
@@ -21,20 +23,20 @@ def determine_winner(choice1, choice2):
     """
 
     winners = {
-        "rock":{
-            "rock": None, # represents a tie
+        "rock": {
+            "rock": None,  # represents a tie
             "paper": "paper",
             "scissors": "rock",
         },
-        "paper":{
+        "paper": {
             "rock": "paper",
-            "paper": None, # represents a tie
+            "paper": None,  # represents a tie
             "scissors": "scissors",
         },
-        "scissors":{
+        "scissors": {
             "rock": "rock",
             "paper": "scissors",
-            "scissors": None, # represents a tie
+            "scissors": None,  # represents a tie
         },
     }
 
@@ -42,6 +44,7 @@ def determine_winner(choice1, choice2):
     winner = winners[choice1][choice2]
 
     return winner
+
 
 if __name__ == "__main__":
 
@@ -56,7 +59,9 @@ if __name__ == "__main__":
     if user_choice in options:
         print("You chose:", user_choice)
     else:
-        print("Expecting one of: 'rock', 'paper', or 'scissors' (lower case, without the quotation marks). Please try again.")
+        print(
+            "Expecting one of: 'rock', 'paper', or 'scissors' (lower case, without the quotation marks). Please try again."
+        )
         exit()
 
     computer_choice = random_choice(options)

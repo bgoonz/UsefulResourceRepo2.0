@@ -1,10 +1,10 @@
-'''
+"""
 Title     : Basic Cryptanalysis
 Subdomain : Cryptography
 Domain    : Security
 Author    : Kalpak Seal
 Created   : 26 September 2016
-'''
+"""
 import sys
 
 alphabets_list = []  # List of lowercase English alphabets
@@ -21,11 +21,11 @@ def get_word_pattern(word):
             letter_dict[letter] = str(number_of_letter)
             number_of_letter += 1
         word_pattern.append(letter_dict[letter])
-    word_pattern_str = '.'.join(word_pattern)
+    word_pattern_str = ".".join(word_pattern)
     return word_pattern_str
 
 
-word_file = open("dictionary.lst", 'r')
+word_file = open("dictionary.lst", "r")
 word_dictionary = dict()
 for line in word_file.readlines():
     word = line.lower().strip()
@@ -51,7 +51,7 @@ for cipher_word in cipher_list:
     else:
         original_word_list = word_dictionary[word_pattern]
         max_score = -90
-        original_word = ''
+        original_word = ""
         for current_word in original_word_list:
             current_score = 0
             for i in range(len(current_word)):
@@ -71,17 +71,17 @@ cnt = 0
 for cipher_word in cipher_list:
     word_pattern = get_word_pattern(cipher_word)
     if cnt != 0:
-        sys.stdout.write(' ')
+        sys.stdout.write(" ")
         cnt = 1
-    if cipher_word == 'qz':
-        sys.stdout.write('ks' + ' ')
+    if cipher_word == "qz":
+        sys.stdout.write("ks" + " ")
     elif len(word_dictionary[word_pattern]) == 1:
         original_word = word_dictionary[word_pattern][0]
-        sys.stdout.write(original_word + ' ')
+        sys.stdout.write(original_word + " ")
     else:
         original_word_list = word_dictionary[word_pattern]
         max_score = -90
-        original_word = ''
+        original_word = ""
         for current_word in original_word_list:
             current_score = 0
             for i in range(len(current_word)):
@@ -93,4 +93,4 @@ for cipher_word in cipher_list:
             if current_score >= max_score:
                 max_score = current_score
                 original_word = current_word
-        sys.stdout.write(original_word + ' ')
+        sys.stdout.write(original_word + " ")

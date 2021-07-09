@@ -1,4 +1,4 @@
-'''
+"""
 Maximum subarray sum
 
 The subarray must be contiguous.
@@ -13,19 +13,20 @@ When the sum is less than 0, reset the sum to 0 and continue with adding. (we ca
 After each addition, check if the current sum is greater than the max sum. (Called Kadane's algorithm)
     Time Complexity:    O(N)
     Space Complexity:   O(1)
-'''
+"""
 
 
 ############
 # Solution #
 ############
 
+
 def max_subarray_sum(a):
     curr_sum = 0
     max_sum = 0
 
     for val in a:
-        # extend the current sum with the curren value; 
+        # extend the current sum with the curren value;
         # reset it to 0 if it is smaller than 0, we care only about non-negative sums
         curr_sum = max(0, curr_sum + val)
 

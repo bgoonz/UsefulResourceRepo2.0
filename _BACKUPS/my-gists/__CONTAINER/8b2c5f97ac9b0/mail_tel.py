@@ -12,6 +12,7 @@ from __future__ import print_function  # Python 2/3 compatibility !
 
 # Import smtplib for the actual sending function
 import smtplib
+
 # Import the email modules we'll need
 from email.mime.text import MIMEText
 import sys
@@ -23,8 +24,14 @@ signature = """\n
 """
 
 
-def send_me_an_email(message, subj="[LOG] no object", me="jarvisATcransDOTorg".replace("AT", "@").replace("DOT", "."), you="0628412257ATsfrDOTfr".replace("AT", "@").replace("DOT", "."), my_identity="jarvis log"):
-    """ Send a message [message] by email.
+def send_me_an_email(
+    message,
+    subj="[LOG] no object",
+    me="jarvisATcransDOTorg".replace("AT", "@").replace("DOT", "."),
+    you="0628412257ATsfrDOTfr".replace("AT", "@").replace("DOT", "."),
+    my_identity="jarvis log",
+):
+    """Send a message [message] by email.
     The content of the email is [message], the subject is [subj].
     The sender is [me], not necessary a valid sender for the SMTP.
     The mail will be sent to [you].
@@ -35,12 +42,12 @@ def send_me_an_email(message, subj="[LOG] no object", me="jarvisATcransDOTorg".r
     """
     msg = MIMEText(message + (signature % me))
     # The order is "important", to act like a real mail client !
-    msg['From'] = my_identity + " <" + me + ">"
-    msg['To'] = you
-    msg['Subject'] = subj
+    msg["From"] = my_identity + " <" + me + ">"
+    msg["To"] = you
+    msg["Subject"] = subj
     # Send the message via our own SMTP server, but don't include the
     # envelope header.
-    s = smtplib.SMTP('smtp.crans.org')
+    s = smtplib.SMTP("smtp.crans.org")
     # s = smtplib.SMTP('localhost')
     s.sendmail(me, [you], msg.as_string())
     s.quit()
@@ -49,8 +56,8 @@ def send_me_an_email(message, subj="[LOG] no object", me="jarvisATcransDOTorg".r
     # print("Content of the email : \n%s" % message)
 
 
-if __name__ == '__main__':
-    if '-h' in sys.argv or '--help' in sys.argv:
+if __name__ == "__main__":
+    if "-h" in sys.argv or "--help" in sys.argv:
         print("  mail.py [message [subject]]\nUSAGE:")
         print(send_me_an_email.__doc__)
         sys.exit(0)

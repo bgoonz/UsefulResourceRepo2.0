@@ -13,10 +13,11 @@ def maxOnes(arr):
         max = max(max, net)
         if net < 0:
             net = 0
-    return(one + max)
+    return one + max
+
 
 arr = []
-n =int(input())
+n = int(input())
 count = 0
 while count < n:
     a = int(input())

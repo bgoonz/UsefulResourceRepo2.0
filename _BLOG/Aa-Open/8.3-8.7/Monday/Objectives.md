@@ -9,7 +9,7 @@
 
 **2. Given a diagram of all the different parts of the Browser identify each part. Use the Window API to change the innerHeight of a user's window.**
 
-![diagramBOM](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-DOM-API/browser-basics/assets/browser.png)
+![diagramBOM](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-DOM-API/browser-basics/assets/browser.png)
 
 - **`User Interface`**: The browser interface that users interact with, includes everything except the requested page content (such as the address bar, bookmarks menu etc)
 - **`Browser Engine`**: Manages the interaction between the UI and the rendering engine.
@@ -79,7 +79,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
 
 **7. Label a diagram on the Request/Response cycle.**
 
-![RRdiagram](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-DOM-API/browser-basics/assets/request-response-cycle.png)
+![RRdiagram](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-DOM-API/browser-basics/assets/request-response-cycle.png)
 
 - The left side contains the **client-side** or **browser**
 - The right side is the **server side** - a database where we can store data.

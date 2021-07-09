@@ -1,4 +1,4 @@
-'''
+"""
 Longest Common Substring
 
 Given two strings X and Y, find the of longest common substring.
@@ -11,12 +11,13 @@ Dynamic Programming Solution.
     Time Complexity:    O(N * M)
     Space Complexity:   O(M)
 * For this problem exists a faster solution, using Suffix tree, Time Complexity O(N + M).
-'''
+"""
 
 
 ############
 # Solution #
 ############
+
 
 def longest_common_substring(str1, str2):
     n, m = len(str1), len(str2)
@@ -41,7 +42,7 @@ def longest_common_substring(str1, str2):
                     max_length = curr[j]
                     max_idx = i
 
-    return str1[max_idx - max_length: max_idx]
+    return str1[max_idx - max_length : max_idx]
 
 
 ###########
@@ -50,16 +51,16 @@ def longest_common_substring(str1, str2):
 
 # Test 1
 # Correct result => BABC
-print(longest_common_substring('ABABC', 'BABCA'))
+print(longest_common_substring("ABABC", "BABCA"))
 
 # Test 2
 # Correct result => Geeks
-print(longest_common_substring('GeeksforGeeks', 'GeeksQuiz'))
+print(longest_common_substring("GeeksforGeeks", "GeeksQuiz"))
 
 # Test 3
 # Correct result => abcd
-print(longest_common_substring('abcdxyz', 'xyzabcd'))
+print(longest_common_substring("abcdxyz", "xyzabcd"))
 
 # Test 4
 # Correct result => abcdez
-print(longest_common_substring('zxabcdezy', 'yzabcdezx'))
+print(longest_common_substring("zxabcdezy", "yzabcdezx"))

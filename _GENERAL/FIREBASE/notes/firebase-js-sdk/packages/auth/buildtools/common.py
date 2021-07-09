@@ -21,24 +21,24 @@ TESTS_BASE_PATH = "./generated/tests/"
 
 
 def cd_to_firebaseauth_root():
-  """Changes the current directory to the firebase-auth root directory.
-  This method assumes that this script is in the buildtools/ directory, which is
-  a direct child of the root directory.
-  This allows us to avoid writing to the wrong files.
-  """
-  root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-  os.chdir(root_dir)
+    """Changes the current directory to the firebase-auth root directory.
+    This method assumes that this script is in the buildtools/ directory, which is
+    a direct child of the root directory.
+    This allows us to avoid writing to the wrong files.
+    """
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    os.chdir(root_dir)
 
 
 def get_files_with_suffix(root, suffix):
-  """Yields file names under a directory with a given suffix.
-  Args:
-    root: The path to the directory where we wish to search.
-    suffix: The suffix we wish to search for.
-  Yields:
-    The paths to files under the directory that have the given suffix.
-  """
-  for root, _, files in os.walk(root):
-    for file_name in files:
-      if file_name.endswith(suffix):
-        yield os.path.join(root, file_name)
+    """Yields file names under a directory with a given suffix.
+    Args:
+      root: The path to the directory where we wish to search.
+      suffix: The suffix we wish to search for.
+    Yields:
+      The paths to files under the directory that have the given suffix.
+    """
+    for root, _, files in os.walk(root):
+        for file_name in files:
+            if file_name.endswith(suffix):
+                yield os.path.join(root, file_name)

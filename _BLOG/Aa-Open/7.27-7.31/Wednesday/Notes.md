@@ -117,7 +117,7 @@ If we ever see a **#** instead of the usual **\$** or **%**, we are logged in as
 - The second purpose is customization of your unique environment - such as using environment variables.
 
 **From the Command Line to the Screen**
-![visual of cl process](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-Unix/cli/assets/cli-shell-breakdown-hc.png)
+![visual of cl process](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-Unix/cli/assets/cli-shell-breakdown-hc.png)
 
 **Customizing your Environment**
 
@@ -145,8 +145,8 @@ Change Visual Studio Code to use zsh as it's shell.
 
 ## **Bash Permissions & Scripting**
 
-![file perm](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-Unix/cli/assets/cli-ls-list-example.png)
-![image of cli](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-Unix/cli/assets/cli-unix-permissions.png)
+![file perm](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-Unix/cli/assets/cli-ls-list-example.png)
+![image of cli](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-Unix/cli/assets/cli-unix-permissions.png)
 
 - The CLI comprises the first ten characters.
 - It goes in order like this: directory indicator, owner, group, others.

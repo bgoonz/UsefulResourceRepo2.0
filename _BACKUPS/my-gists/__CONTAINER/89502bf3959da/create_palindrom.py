@@ -1,4 +1,4 @@
-'''
+"""
 Create Palindrome (Minimum Insertions to Form a Palindrome)
 
 Given a string, find the palindrome that can be made by inserting the fewest number of characters as possible anywhere in the word.
@@ -27,12 +27,13 @@ Recursive count how many insertions are needed, very slow and inefficient.
 Dynamic programming. Count intersections looking in 3 direction in the dp table (diagonally left-up or min(left, up)).
     Time Complexity:    O(N^2)
     Space Complexity:   O(N^2)
-'''
+"""
 
 
 ##############
 # Solution 1 #
 ##############
+
 
 def create_palindrome_1(word):
     n = len(word)
@@ -42,7 +43,7 @@ def create_palindrome_1(word):
         return word
     if n == 2:
         if word[0] != word[1]:
-            word += word[0] # make a palindrom
+            word += word[0]  # make a palindrom
         return word
 
     # check if the first and last chars are same
@@ -53,10 +54,10 @@ def create_palindrome_1(word):
     # if not remove the first and after that the last char
     # and find which result has less chars
     first = create_palindrome_1(word[1:])
-    first = word[0] + first + word[0] # add first char twice
+    first = word[0] + first + word[0]  # add first char twice
 
     last = create_palindrome_1(word[:-1])
-    last = word[-1] + last + word[-1] # add last char twice
+    last = word[-1] + last + word[-1]  # add last char twice
 
     if len(first) < len(last):
         return first
@@ -68,6 +69,7 @@ def create_palindrome_1(word):
 ##############
 
 import math
+
 
 def create_palindrome_2(word):
     n = len(word)
@@ -84,13 +86,14 @@ def create_palindrome_2(word):
             left += 1
 
     # build the palindrome using the dp table
-    return build_palindrome(word, dp, 0, n-1)
+    return build_palindrome(word, dp, 0, n - 1)
+
 
 def build_palindrome(word, dp, left, right):
     # similar like the first solution, but without exponentialy branching
     # this is linear time, we already know the inserting values
     if left > right:
-        return ''
+        return ""
     if left == right:
         return word[left]
 
@@ -109,24 +112,24 @@ def build_palindrome(word, dp, left, right):
 
 # Test 1
 # Correct result => 'ecarace'
-word = 'race'
+word = "race"
 print(create_palindrome_1(word))
 print(create_palindrome_2(word))
 
 # Test 2
 # Correct result => 'elgoogle'
-word = 'google'
+word = "google"
 print(create_palindrome_1(word))
 print(create_palindrome_2(word))
 
 # Test 3
 # Correct result => 'adcbcda'
-word = 'abcda'
+word = "abcda"
 print(create_palindrome_1(word))
 print(create_palindrome_2(word))
 
 # Test 4
 # Correct result => 'abcdefgfedcba'
-word = 'adefgfdcba'
+word = "adefgfdcba"
 print(create_palindrome_1(word))
 print(create_palindrome_2(word))

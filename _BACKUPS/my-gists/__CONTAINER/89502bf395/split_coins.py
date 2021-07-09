@@ -1,4 +1,4 @@
-'''
+"""
 Split Coins
 
 You have a number of coins with various amounts.
@@ -12,12 +12,13 @@ Output explanation: First group 1, 3, 5, 10 (or 1, 1, 3, 5, 10) and second group
 Simple dynamic programming solution. Find the closest sum to the half of the sum of all coins.
     Time Complexity:    O(C*HS)     , C = number of coins, HS = half of the sum of all coins
     Space Complexity:   O(HS)
-'''
+"""
 
 
 ############
 # Solution #
 ############
+
 
 def split_coins(coins):
     if len(coins) == 0:
@@ -26,7 +27,7 @@ def split_coins(coins):
     full_sum = sum(coins)
     half_sum = full_sum // 2 + 1
 
-    dp = [False]*half_sum
+    dp = [False] * half_sum
     dp[0] = True
 
     for c in coins:

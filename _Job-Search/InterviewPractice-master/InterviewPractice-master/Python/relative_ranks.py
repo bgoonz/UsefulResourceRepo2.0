@@ -25,9 +25,11 @@ def findRelativeRanks(nums):
 
     return results
 
+
 def main():
     nums = [5, 4, 3, 2, 1]
 
     print(findRelativeRanks(nums))
+
 
 main()

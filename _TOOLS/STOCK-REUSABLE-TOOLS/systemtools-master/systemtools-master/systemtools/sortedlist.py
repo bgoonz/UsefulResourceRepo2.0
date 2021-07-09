@@ -54,7 +54,7 @@ class SortedList(object):
         i = bisect.bisect_left(a, x)
         if i != len(a) and a[i] == x:
             return i
-        raise ValueError('%s is not inlist' % (x,))
+        raise ValueError("%s is not inlist" % (x,))
 
     def find(self, x):
         a = self._items
@@ -98,7 +98,7 @@ class SortedList(object):
         return bisect.bisect_left(self._items, x)
 
     def get_lines(self, start=None, end=None):
-        return '\n'.join((str(x) for x in self._items[start:end]))
+        return "\n".join((str(x) for x in self._items[start:end]))
 
     def load(self, filename, keep_case=False):
         with open(filename) as infile:
@@ -112,9 +112,8 @@ class SortedList(object):
         return len(items)
 
     def save(self, filename):
-        with open(filename, 'w') as outfile:
+        with open(filename, "w") as outfile:
             outfile.write(str(self))
-
 
 
 class UniqueSortedList(SortedList):
@@ -153,4 +152,3 @@ class UniqueSortedList(SortedList):
         items = sorted(items)
         self._items = items
         return len(items)
-

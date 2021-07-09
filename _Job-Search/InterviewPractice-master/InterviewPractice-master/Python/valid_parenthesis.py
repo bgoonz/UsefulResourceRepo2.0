@@ -8,38 +8,41 @@ Open brackets must be closed in the correct order.
 Note that an empty string is also considered valid.
 """
 
+
 def isValid(s):
-        """
-        :type s: str
-        :rtype: bool
-        """
+    """
+    :type s: str
+    :rtype: bool
+    """
 
-        previous = ""
-        result = ""
+    previous = ""
+    result = ""
 
-        if not s:
-            return True
-        if len(s) == 1:
-            return False
-        else:
-            while s is not None:
-                s = s.split("()")
-                s = result.join(s)
-                s = s.split("[]")
-                s = result.join(s)
-                s = s.split("{}")
-                s = result.join(s)
-                if s == "":
-                    return True
-                elif s == previous:
-                    return False
-                else:
-                    previous = s
-            
-            return True
+    if not s:
+        return True
+    if len(s) == 1:
+        return False
+    else:
+        while s is not None:
+            s = s.split("()")
+            s = result.join(s)
+            s = s.split("[]")
+            s = result.join(s)
+            s = s.split("{}")
+            s = result.join(s)
+            if s == "":
+                return True
+            elif s == previous:
+                return False
+            else:
+                previous = s
+
+        return True
+
 
 def main():
     s = "()"
     print(isValid(s))
+
 
 main()

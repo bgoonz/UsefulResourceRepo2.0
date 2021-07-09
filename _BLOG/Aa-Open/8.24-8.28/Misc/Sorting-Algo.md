@@ -10,7 +10,7 @@
 
 - Bubble Sort will always use the same amount of memory regardless of n.
 
-![bubble](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/naive_sorting_algorithms/bubble_sort/images/BubbleSort.gif)
+![bubble](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/naive_sorting_algorithms/bubble_sort/images/BubbleSort.gif)
 ![bub](https://www.w3resource.com/w3r_images/bubble-short.png)
 
 > Class Solution
@@ -67,7 +67,7 @@ function bubbleSort(array) {
 
 - Selection Sort will always use the same amount of memory regardless of n.
 
-![selection](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/naive_sorting_algorithms/selection_sort/images/SelectionSort.gif)
+![selection](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/naive_sorting_algorithms/selection_sort/images/SelectionSort.gif)
 ![se](https://www.w3resource.com/w3r_images/selection-short.png)
 
 > Class Solution
@@ -125,7 +125,7 @@ function selectionSort(array) {
 
 - Because we are creating a subArray for each element in the original input, our Space Comlexity becomes linear.
 
-![insertion](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/naive_sorting_algorithms/insertion_sort/images/InsertionSort.gif)
+![insertion](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/naive_sorting_algorithms/insertion_sort/images/InsertionSort.gif)
 ![insert](https://media.geeksforgeeks.org/wp-content/uploads/insertionsort.png)
 
 > Class Solution
@@ -171,7 +171,7 @@ function insertionSort(arr) {
 - Since our array gets split in half every single time we contribute O(log(n)). The while loop contained in our helper merge function contributes O(n) therefore our time complexity is O(nlog(n));
   **`Space Complexity`**: O(n)
 - We are linear O(n) time because we are creating subArrays.
-  ![nmer](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/efficient_sorting_algorithms/merge_sort/images/MergeSort.gif)
+  ![nmer](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/efficient_sorting_algorithms/merge_sort/images/MergeSort.gif)
   ![dmwio](https://www.geeksforgeeks.org/wp-content/uploads/Merge-Sort-Tutorial.png)
 
 > Class Solution
@@ -211,7 +211,7 @@ function mergeSort(arr) {
 **`Space Complexity`**: O(n)
 
 - Our space complexity is linear O(n) because of the partition arrays we create.
-  ![quick](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/efficient_sorting_algorithms/quick_sort/images/QuickSort.gif)
+  ![quick](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/efficient_sorting_algorithms/quick_sort/images/QuickSort.gif)
   ![qs](https://www.w3resource.com/w3r_images/quick-sort-part-1.png)
 
 ```js

@@ -1,6 +1,6 @@
 def isPower(a, b):
 
-    if b%a == 0:
+    if b % a == 0:
         return True
     else:
         return False

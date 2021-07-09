@@ -1,6 +1,6 @@
 def is_matched(expression):
     stack = []
-    pairs = {'{': '}', '[': ']', '(': ')'}
+    pairs = {"{": "}", "[": "]", "(": ")"}
     for char in expression:
         if char in pairs.keys():
             stack.append(pairs[char])
@@ -11,7 +11,8 @@ def is_matched(expression):
             if stack == [] or char != stack[-1]:
                 return False
             stack.pop()
-    return (stack == [])
+    return stack == []
+
 
 t = int(input().strip())
 

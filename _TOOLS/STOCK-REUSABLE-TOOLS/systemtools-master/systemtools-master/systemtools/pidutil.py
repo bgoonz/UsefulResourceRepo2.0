@@ -43,11 +43,9 @@ def remove_pid_file(filename):
 
 
 def write_pid_file(filename, remove_at_exit=False):
-    """Write current PID to specified file.  Remove file at exit if indicated.
-
-    """
+    """Write current PID to specified file.  Remove file at exit if indicated."""
     pid = os.getpid()
-    with open(filename, 'w') as pid_file:
+    with open(filename, "w") as pid_file:
         pid_file.write(str(pid))
 
     if remove_at_exit:
@@ -70,7 +68,7 @@ def wait_for_file(filename, timeout):
     while True:
         if os.path.isfile(filename):
             return True
-        time.sleep(.5)
+        time.sleep(0.5)
         if timeout and time.time() >= timeout_at:
             break
 
@@ -84,7 +82,7 @@ def is_process_alive(pid, command):
     be another different process with the same pid.
 
     """
-    is_windows = platform.system() == 'Windows'
+    is_windows = platform.system() == "Windows"
     if not is_windows:
         # Check if there is a running process with the specified pid.
         try:
@@ -121,7 +119,7 @@ def wait_for_pid_to_die(pid, timeout):
     if timeout:
         expiration = time.time() + timeout
     while True:
-        if platform.system() == 'Windows':
+        if platform.system() == "Windows":
             if not is_process_alive(pid, None):
                 return True
         else:
@@ -151,14 +149,14 @@ def get_status(pid_file, command=None):
 
     """
     if not os.path.exists(pid_file):
-        return False, 'no pid file: %s' % (pid_file,)
+        return False, "no pid file: %s" % (pid_file,)
     pid = read_pid_file(pid_file)
     if not pid:
-        return False, 'no pid in file %s' % (pid_file,)
+        return False, "no pid in file %s" % (pid_file,)
     if is_process_alive(pid_file, command):
-        return False, 'pid %s in %s is not running' % (pid, pid_file)
+        return False, "pid %s in %s is not running" % (pid, pid_file)
 
-    return True, 'process running with pid %s' % (pid,)
+    return True, "process running with pid %s" % (pid,)
 
 
 def kill_process(pid):
@@ -168,8 +166,8 @@ def kill_process(pid):
     True if process was running and was killed.  Otherwise, False.
 
     """
-    assert(isinstance(pid, int))
-    if platform.system() == 'Windows':
+    assert isinstance(pid, int)
+    if platform.system() == "Windows":
         sigs = (signal.SIGINT, signal.SIGTERM)
     else:
         sigs = (signal.SIGINT, signal.SIGTERM, signal.SIGKILL)
@@ -187,22 +185,22 @@ def kill_process(pid):
 
 
 def get_pid_command_map():
-    is_windows = platform.system() == 'Windows'
+    is_windows = platform.system() == "Windows"
 
     # Look at processes to see if process with matching pid is running the
     # specified command.  This is necessary because, some other process may
     # have started and been assigned the pid that was saved in the pid file.
     if is_windows:
-        args = ['wmic', 'process', 'get', 'processid,commandline']
+        args = ["wmic", "process", "get", "processid,commandline"]
     else:
-        args = ['ps', 'ww', '-o', 'pid', '-o', 'command']
+        args = ["ps", "ww", "-o", "pid", "-o", "command"]
 
     try:
-        psout = subprocess.check_output(args).decode('utf-8')
+        psout = subprocess.check_output(args).decode("utf-8")
     except Exception:
         return {}
 
-    lines = psout.split('\n')
+    lines = psout.split("\n")
     col_names = lines.pop(0)
     if is_windows:
         col_names = col_names.strip()
@@ -218,9 +216,9 @@ def get_pid_command_map():
 
     # Determine if process ID is in column one or two.
     if is_windows:
-        pid_last = col2.lower() == 'processid'
+        pid_last = col2.lower() == "processid"
     else:
-        pid_last = col2.lower() == 'pid'
+        pid_last = col2.lower() == "pid"
 
     if pid_last:
         get_pid = get_col2
@@ -232,7 +230,7 @@ def get_pid_command_map():
     return {int(get_pid(line)): get_cmd(line) for line in lines if line}
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pid_cmd_map = get_pid_command_map()
     for pid in pid_cmd_map:
-        print('%s:\t\t%s' % (pid, pid_cmd_map[pid]))
+        print("%s:\t\t%s" % (pid, pid_cmd_map[pid]))

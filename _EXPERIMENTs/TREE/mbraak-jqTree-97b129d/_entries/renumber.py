@@ -2,11 +2,11 @@ import os
 import re
 
 
-filenames = os.listdir('.')
+filenames = os.listdir(".")
 
 file_tuples = []
 
-re_file = re.compile(r'^(\d\d)_(.*)$')
+re_file = re.compile(r"^(\d\d)_(.*)$")
 
 for filename in filenames:
     m = re_file.match(filename)
@@ -24,15 +24,15 @@ for i, t in enumerate(file_tuples):
     old_filename = file_tuples[i][1]
 
     m = re_file.match(old_filename)
-  
+
     file_index = int(m.groups()[0])
     filepart = m.groups()[1]
 
     expected_index = i + 1
 
     if file_index != expected_index:
-        new_filename = '%02d_%s' % (expected_index, filepart)
+        new_filename = "%02d_%s" % (expected_index, filepart)
 
-        print('rename %s to %s' % (old_filename, new_filename))
+        print("rename %s to %s" % (old_filename, new_filename))
 
         os.rename(old_filename, new_filename)

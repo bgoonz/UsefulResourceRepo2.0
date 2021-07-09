@@ -21,6 +21,7 @@ except ImportError:
     print("selenium module not found")
     print("Install it, see https://selenium-python.readthedocs.io/installation.html")
     from webbrowser import open_new_tab
+
     open_new_tab("https://selenium-python.readthedocs.io/installation.html")
 
 
@@ -35,16 +36,16 @@ def main(URL, message, success):
     browser.close()
 
     if message in source:
-        print(f"{URL} indique toujours le message recherché :\n\"{message}\"")
+        print(f'{URL} indique toujours le message recherché :\n"{message}"')
         return 0
     else:
-        print(f"{URL} n'indique pas le message recherché :\n\"{message}\"\n{success}")
+        print(f'{URL} n\'indique pas le message recherché :\n"{message}"\n{success}')
         # !FreeSMS.py f"{URL} semble indiquer qu'il y a des disponibilités désormais."
         # exit 1 to quit the "watch" loop
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     URL = "https://partners.doctolib.fr/hopital-public/perigueux/vaccination-covid?speciality_id=5494&enable_cookies_consent=1"
     if len(sys.argv) >= 2:
         URL = sys.argv[1]

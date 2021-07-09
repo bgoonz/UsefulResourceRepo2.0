@@ -9,7 +9,7 @@ def kSub(k, nums):
         sum = 0
         while j < n:
             sum = sum + nums[i]
-            if (sum % k == 0):
+            if sum % k == 0:
                 counter += 1
 
             j += 1
@@ -20,6 +20,5 @@ def kSub(k, nums):
 
 
 def main():
-
 
     kSub()

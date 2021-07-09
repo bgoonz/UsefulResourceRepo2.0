@@ -3,7 +3,7 @@ b = int(input())
 c = int(input())
 
 power = pow(a, b)
-modPower = power%c
+modPower = power % c
 
 print(power)
 print(modPower)

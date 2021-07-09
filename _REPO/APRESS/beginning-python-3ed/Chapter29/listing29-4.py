@@ -4,6 +4,7 @@ import objects, config
 
 "This module contains the main game logic of the Squish game."
 
+
 class State:
 
     """
@@ -51,11 +52,11 @@ class Level(State):
 
         speed = config.drop_speed
         # One speed_increase added for each level above 1:
-        speed += (self.number-1) * config.speed_increase
+        speed += (self.number - 1) * config.speed_increase
         # Create the weight and banana:
         self.weight = objects.Weight(speed)
         self.banana = objects.Banana()
-        both = self.weight, self.banana # This could contain more sprites...
+        both = self.weight, self.banana  # This could contain more sprites...
         self.sprites = pygame.sprite.RenderUpdates(both)
 
     def update(self, game):
@@ -93,9 +94,9 @@ class Paused(State):
     either a keyboard key or the mouse button.
     """
 
-    finished = 0 # Has the user ended the pause?
-    image = None # Set this to a file name if you want an image
-    text = ''    # Set this to some informative text
+    finished = 0  # Has the user ended the pause?
+    image = None  # Set this to a file name if you want an image
+    text = ""  # Set this to some informative text
 
     def handle(self, event):
         """
@@ -154,8 +155,8 @@ class Paused(State):
             # blit the image to the screen:
             screen.blit(image, r)
 
-        antialias = 1   # Smooth the text
-        black = 0, 0, 0 # Render it as black
+        antialias = 1  # Smooth the text
+        black = 0, 0, 0  # Render it as black
 
         # Render all the lines, starting at the calculated top, and
         # move down font.get_linesize() pixels for each line:
@@ -178,12 +179,13 @@ class Info(Paused):
     """
 
     next_state = Level
-    text = '''
+    text = """
     In this game you are a banana,
     trying to survive a course in
     self-defense against fruit, where the
     participants will "defend" themselves
-    against you with a 16 ton weight.'''
+    against you with a 16 ton weight."""
+
 
 class StartUp(Paused):
 
@@ -194,9 +196,9 @@ class StartUp(Paused):
 
     next_state = Info
     image = config.splash_image
-    text = '''
+    text = """
     Welcome to Squish,
-    the game of Fruit Self-Defense'''
+    the game of Fruit Self-Defense"""
 
 
 class LevelCleared(Paused):
@@ -207,11 +209,14 @@ class LevelCleared(Paused):
 
     def __init__(self, number):
         self.number = number
-        self.text = '''Level {} cleared
-        Click to start next level'''.format(self.number)
+        self.text = """Level {} cleared
+        Click to start next level""".format(
+            self.number
+        )
 
     def next_state(self):
         return Level(self.number + 1)
+
 
 class GameOver(Paused):
 
@@ -221,9 +226,10 @@ class GameOver(Paused):
     """
 
     next_state = Level
-    text = '''
+    text = """
     Game Over
-    Click to Restart, Esc to Quit'''
+    Click to Restart, Esc to Quit"""
+
 
 class Game:
 
@@ -249,18 +255,18 @@ class Game:
         This method sets things in motion. It performs some vital
         initialization tasks, and enters the main event loop.
         """
-        pygame.init() # This is needed to initialize all the pygame modules
+        pygame.init()  # This is needed to initialize all the pygame modules
 
         # Decide whether to display the game in a window or to use the
         # full screen:
-        flag = 0                  # Default (window) mode
+        flag = 0  # Default (window) mode
 
         if config.full_screen:
-            flag = FULLSCREEN     # Full screen mode
+            flag = FULLSCREEN  # Full screen mode
         screen_size = config.screen_size
         screen = pygame.display.set_mode(screen_size, flag)
 
-        pygame.display.set_caption('Fruit Self Defense')
+        pygame.display.set_caption("Fruit Self Defense")
         pygame.mouse.set_visible(False)
 
         # The main loop:
@@ -278,6 +284,7 @@ class Game:
             # (4) Display the current state:
             self.state.display(screen)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     game = Game(*sys.argv)
     game.run()

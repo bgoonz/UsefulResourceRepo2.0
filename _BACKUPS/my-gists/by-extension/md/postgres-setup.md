@@ -8,7 +8,7 @@ To install PostgreSQL 12, you need to download the installer from the Internet. 
 
 Open [https://www.enterprisedb.com/downloads/postgres-postgresql-downloads](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads). Click the link for PostgreSQL 12 for Windows x86-64.
 
-![Download PostgreSQL](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-SQL/assets/download-postgresql.png)
+![Download PostgreSQL](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-SQL/assets/download-postgresql.png)
 
 Once that installer downloads, run it. You need to go through the normal steps of installing software.
 
@@ -17,7 +17,7 @@ Once that installer downloads, run it. You need to go through the normal steps o
 - Yeah, that's a good place to install it. Next.
 - I don't want that pgAdmin nor the Stack Builder things. Uncheck. Uncheck. Next.
 
-  ![Deselect pgAdmin 4 and Stack Builder components](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-SQL/assets/postgresql-installation-uncheck-components.png)
+  ![Deselect pgAdmin 4 and Stack Builder components](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-SQL/assets/postgresql-installation-uncheck-components.png)
 
 - Also, great looking directory. Thanks. Next.
 - Oooh! A password! I'll enter **\*\*\*\***. I sure won't forget that because, if I do, I'll have to uninstall and reinstall PostgreSQL and lose all of my hard work. **Seriously, write down this password or use one you will not forget.** Next.
@@ -95,7 +95,7 @@ In that file, you will add this line, which tells it that on localhost for port 
 
 For the curriculum writers' systems, it looks like this in Visual Studio Code.
 
-![pgpass file](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-SQL/assets/windows-pgpass-configuration.png)
+![pgpass file](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-SQL/assets/windows-pgpass-configuration.png)
 
 Once you have that information in the file, save it, and close Visual Studio Code.
 
@@ -103,9 +103,9 @@ The last step you have to take is change the permission on that file so that it 
 
     chmod go-rw ~/.pgpass
 
-You can confirm that only you have read/write permission by typing `ls -al ~/.pgpass`. That should return output that looks like this, **with your Ubuntu user name instead of "appacademy".**
+You can confirm that only you have read/write permission by typing `ls -al ~/.pgpass`. That should return output that looks like this, **with your Ubuntu user name instead of "Lambda".**
 
-    -rw------- 1 appacademy appacademy 37 Mar 28 21:20 /home/appacademy/.pgpass
+    -rw------- 1 Lambda Lambda 37 Mar 28 21:20 /home/Lambda/.pgpass
 
 Now, try connecting to PostreSQL by typing `psql postgres`. Because you added the alias to your startup script, and because you created your **.pgpass** file, it should now connect without prompting you for any credentials! Type `\q` and press Enter to exit the PostgreSQL command line client.
 
@@ -113,17 +113,17 @@ Now, try connecting to PostreSQL by typing `psql postgres`. Because you added th
 
 Head over to the [Postbird releases page on GitHub](https://github.com/Paxa/postbird/releases). Click the installer for Windows which you can recognize because it's the only file in the list that ends with ".exe".
 
-![Download Postbird](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-SQL/assets/download-postbird.png)
+![Download Postbird](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-SQL/assets/download-postbird.png)
 
 After that installer downloads, run it. You will get a warning from Windows that this is from an unidentified developer. If you don't want to install this, find a PostgreSQL GUI client that you do trust and install it or do everything from the command line.
 
-![Postbird installation warning](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-SQL/assets/postbird-installation-warning.png)
+![Postbird installation warning](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-SQL/assets/postbird-installation-warning.png)
 
 You should get used to seeing this because many open-source applications aren't signed with the Microsoft Store for monetary and philosophical reasons.
 
 Otherwise, if you trust Paxa like App Academy and tens of thousands of other developers do, then click the link that reads "More info" and the "Run anyway" button.
 
-![Postbird run anyway](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-SQL/assets/postbird-installation-run-anyway.png)
+![Postbird run anyway](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-SQL/assets/postbird-installation-run-anyway.png)
 
 When it's done installing, it will launch itself. Test it out by typing the "postgres" into the "Username" field and the password from your installation in the "Password" field. Click the Connect button. It should properly connect to the running
 

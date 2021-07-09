@@ -18,7 +18,7 @@ To install, download from the [Google Chrome](https://www.google.com/chrome/brow
 
 We have a custom Chrome Extension for new tabs that provides a dashboard with links to the curriculum, relevant documentation, and, once your cohort starts, links to the day's projects, readings, and homework.
 
-This is not required, but feel free to give it a try. To install, follow the installation instructions on the [App Academy Chrome Tab Repo](https://github.com/appacademy/app-academy-chrome-tab).
+This is not required, but feel free to give it a try. To install, follow the installation instructions on the [App Academy Chrome Tab Repo](https://github.com/Lambda/app-academy-chrome-tab).
 
 ### Xcode
 

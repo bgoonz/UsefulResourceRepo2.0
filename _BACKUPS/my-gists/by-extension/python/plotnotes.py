@@ -11,12 +11,20 @@ try:
     try:
         from ansicolortags import printc as print
     except ImportError as e:
-        print("Optional dependancy (ansicolortags) is not available, using regular print function.")
-        print("  You can install it with : 'pip install ansicolortags' (or sudo pip)...")
+        print(
+            "Optional dependancy (ansicolortags) is not available, using regular print function."
+        )
+        print(
+            "  You can install it with : 'pip install ansicolortags' (or sudo pip)..."
+        )
         from ANSIColors import printc as print
 except ImportError:
-    print("Optional dependancy (ANSIColors) is not available, using regular print function.")
-    print("  You can install it with : 'pip install ANSIColors-balises' (or sudo pip)...")
+    print(
+        "Optional dependancy (ANSIColors) is not available, using regular print function."
+    )
+    print(
+        "  You can install it with : 'pip install ANSIColors-balises' (or sudo pip)..."
+    )
 
 
 import sys
@@ -29,7 +37,7 @@ csv_file = sys.argv[1]
 csv_name = csv_file[:-3]
 
 #: Load in the csv file
-csv_file_object = csv.reader(open(csv_file, 'rb'))
+csv_file_object = csv.reader(open(csv_file, "rb"))
 
 #: Skip the fist line as it is a header
 header = csv_file_object.next()
@@ -54,50 +62,77 @@ noteMax = 20
 
 ###################################################################
 # I want now to produce annex files
-f = file(csv_name + "table", 'w')
+f = file(csv_name + "table", "w")
 f.write("%% Notes from '%s'" % f.name)
 for i in range(nbnotes):
     f.write("\n%s & %g/%i \\\\" % (data[i, 0], notes[i], noteMax))
-    print("I wrote <blue>'%s & %g/%i \\\\'<white> in <u>%s<U>..." % (data[i, 0], notes[i], noteMax, f.name))
+    print(
+        "I wrote <blue>'%s & %g/%i \\\\'<white> in <u>%s<U>..."
+        % (data[i, 0], notes[i], noteMax, f.name)
+    )
 
 minimale = np.min(notes)
-f = file(csv_name + "minimale", 'w')
+f = file(csv_name + "minimale", "w")
 f.write("%g/%i" % (minimale, noteMax))
-print("I wrote the value of minimale (<cyan>%g<white>) to <u>%s<U>..." % (minimale, f.name))
+print(
+    "I wrote the value of minimale (<cyan>%g<white>) to <u>%s<U>..."
+    % (minimale, f.name)
+)
 
 argminimale = data[np.argmin(notes), 0]
-f = file(csv_name + "argminimale", 'w')
+f = file(csv_name + "argminimale", "w")
 f.write("%s" % argminimale)
-print("I wrote the value of argminimale (<cyan>%s<white>) to <u>%s<U>..." % (argminimale, f.name))
+print(
+    "I wrote the value of argminimale (<cyan>%s<white>) to <u>%s<U>..."
+    % (argminimale, f.name)
+)
 
 maximale = np.max(notes)
-f = file(csv_name + "maximale", 'w')
+f = file(csv_name + "maximale", "w")
 f.write("%g/%i" % (maximale, noteMax))
-print("I wrote the value of maximale (<cyan>%g<white>) to <u>%s<U>..." % (maximale, f.name))
+print(
+    "I wrote the value of maximale (<cyan>%g<white>) to <u>%s<U>..."
+    % (maximale, f.name)
+)
 
 argmaximale = data[np.argmax(notes), 0]
-f = file(csv_name + "argmaximale", 'w')
+f = file(csv_name + "argmaximale", "w")
 f.write("%s" % argmaximale)
-print("I wrote the value of argmaximale (<cyan>%s<white>) to <u>%s<U>..." % (argmaximale, f.name))
+print(
+    "I wrote the value of argmaximale (<cyan>%s<white>) to <u>%s<U>..."
+    % (argmaximale, f.name)
+)
 
 moyenne = np.mean(notes)
-f = file(csv_name + "moyenne", 'w')
+f = file(csv_name + "moyenne", "w")
 f.write("%2.2g/%i" % (moyenne, noteMax))
-print("I wrote the value of moyenne (<cyan>%2.2g<white>) to <u>%s<U>..." % (moyenne, f.name))
+print(
+    "I wrote the value of moyenne (<cyan>%2.2g<white>) to <u>%s<U>..."
+    % (moyenne, f.name)
+)
 
 ecarttype = np.std(notes)
-f = file(csv_name + "ecarttype", 'w')
+f = file(csv_name + "ecarttype", "w")
 f.write("%2.2g" % ecarttype)
-print("I wrote the value of ecarttype (<cyan>%2.2g<white>) to <u>%s<U>..." % (ecarttype, f.name))
+print(
+    "I wrote the value of ecarttype (<cyan>%2.2g<white>) to <u>%s<U>..."
+    % (ecarttype, f.name)
+)
 
 variance = np.var(notes)
-f = file(csv_name + "variance", 'w')
+f = file(csv_name + "variance", "w")
 f.write("%2.2g" % variance)
-print("I wrote the value of variance (<cyan>%2.2g<white>) to <u>%s<U>..." % (variance, f.name))
+print(
+    "I wrote the value of variance (<cyan>%2.2g<white>) to <u>%s<U>..."
+    % (variance, f.name)
+)
 
 ###################################################################
 # I want now to plot some graphics about the datas, with matplotlib
-print("\nPloting some graphics from <u>%s<U> (<neg><green>%i student(s)<Neg><white>)..." % (csv_name + "csv", nbnotes))
+print(
+    "\nPloting some graphics from <u>%s<U> (<neg><green>%i student(s)<Neg><white>)..."
+    % (csv_name + "csv", nbnotes)
+)
 
 #: Graph options
 pylab.xlabel(u"Notes (entre $0$ et $%i$)" % noteMax)
@@ -107,7 +142,9 @@ pylab.title(u"Répartition des notes dans la classe")
 pylab.xlim(0, noteMax)
 pylab.xticks(np.arange(noteMax + 1))
 
-xvalues, bins, patches = pylab.hist(notes, np.arange(noteMax + 1), range=(0., 20.), facecolor='blue', alpha=0.0)
+xvalues, bins, patches = pylab.hist(
+    notes, np.arange(noteMax + 1), range=(0.0, 20.0), facecolor="blue", alpha=0.0
+)
 
 pylab.ylim(0, xvalues.max() + 1)
 pylab.yticks(np.arange(xvalues.max() + 1))
@@ -116,7 +153,7 @@ pylab.grid(True, alpha=0.3)
 
 #: Print only little stars for grades really presents
 idc = xvalues > 0
-pylab.plot(bins[:-1][idc], xvalues[idc], 'g*--', linewidth=.5, markersize=18)
+pylab.plot(bins[:-1][idc], xvalues[idc], "g*--", linewidth=0.5, markersize=18)
 
 pylab.xticks(bins[:-1][idc])
 

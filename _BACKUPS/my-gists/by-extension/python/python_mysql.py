@@ -1,21 +1,16 @@
 import mysql.connector
 from mysql.connector import errorcode
 
-config = {
-    'user': 'root',
-    'password': '',
-    'host': 'localhost',
-    'database': 'acme'
-}
+config = {"user": "root", "password": "", "host": "localhost", "database": "acme"}
 
 db = mysql.connector.connect(**config)
 cursor = db.cursor()
 
-DB_NAME = 'acme'
+DB_NAME = "acme"
 
 TABLES = {}
 
-TABLES['logs'] = (
+TABLES["logs"] = (
     "CREATE TABLE `logs` ("
     " `id` int(11) NOT NULL AUTO_INCREMENT,"
     " `text` varchar(250) NOT NULL,"
@@ -28,7 +23,8 @@ TABLES['logs'] = (
 
 def create_database():
     cursor.execute(
-        "CREATE DATABASE IF NOT EXISTS {} DEFAULT CHARACTER SET 'utf8'".format(DB_NAME))
+        "CREATE DATABASE IF NOT EXISTS {} DEFAULT CHARACTER SET 'utf8'".format(DB_NAME)
+    )
     print("Database {} created!".format(DB_NAME))
 
 
@@ -50,16 +46,23 @@ def create_tables():
 create_database()
 create_tables()
 
+
 def add_log(text, user):
-    sql = ("INSERT INTO logs(text, user) VALUES (%s, %s)")
-    cursor.execute(sql, (text, user,))
+    sql = "INSERT INTO logs(text, user) VALUES (%s, %s)"
+    cursor.execute(
+        sql,
+        (
+            text,
+            user,
+        ),
+    )
     db.commit()
     log_id = cursor.lastrowid
     print("Added log {}".format(log_id))
 
 
 def get_logs():
-    sql = ("SELECT * FROM logs ORDER BY created DESC")
+    sql = "SELECT * FROM logs ORDER BY created DESC"
     cursor.execute(sql)
     result = cursor.fetchall()
 
@@ -68,7 +71,7 @@ def get_logs():
 
 
 def get_log(id):
-    sql = ("SELECT * FROM logs WHERE id = %s")
+    sql = "SELECT * FROM logs WHERE id = %s"
     cursor.execute(sql, (id,))
     result = cursor.fetchone()
 
@@ -77,17 +80,18 @@ def get_log(id):
 
 
 def update_log(id, text):
-    sql = ("UPDATE logs SET text = %s WHERE id = %s")
+    sql = "UPDATE logs SET text = %s WHERE id = %s"
     cursor.execute(sql, (text, id))
     db.commit()
     print("Log updated")
 
 
 def delete_log(id):
-    sql = ("DELETE FROM logs WHERE id = %s")
+    sql = "DELETE FROM logs WHERE id = %s"
     cursor.execute(sql, (id,))
     db.commit()
     print("Log removed")
+
 
 # add_log('This is log one', 'Brad')
 # add_log('This is log two', 'Jeff')

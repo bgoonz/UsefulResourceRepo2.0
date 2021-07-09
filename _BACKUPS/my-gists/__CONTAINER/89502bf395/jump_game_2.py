@@ -1,4 +1,4 @@
-'''
+"""
 Jump Game 2
 
 Given an array of non-negative integers, you are initially positioned at the first index of the array.
@@ -16,19 +16,20 @@ Classical 1D Dynamic Programming solution.
 If you analyze the previous solution, you'll see that you don't need the whole DP array.
     Time Complexity:    O(N)
     Space Complexity:   O(1)
-'''
+"""
 
 
 ##############
 # Solution 1 #
 ##############
 
+
 def min_jumps_1(nums):
     n = len(nums)
     if n <= 1:
         return 0
 
-    dp = [-1]*n
+    dp = [-1] * n
     dp[0] = 0
 
     for i in range(n):
@@ -49,6 +50,7 @@ def min_jumps_1(nums):
 ##############
 # Solution 2 #
 ##############
+
 
 def min_jumps_2(nums):
     n = len(nums)

@@ -10,7 +10,7 @@
 
 - **Given a folder structure diagram, a list of 'cd (path)' commands and target files, match the paths to the target files.**
 
-  ![pic of file tree](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/js-local/rose-file-structure.png)
+  ![pic of file tree](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/Module-JavaScript/js-local/rose-file-structure.png)
   **Referencing the above file structure - if you are currently in the Notes directory what would running the command pwd return?**
 
   - `/Desktop/Homework/Notes`

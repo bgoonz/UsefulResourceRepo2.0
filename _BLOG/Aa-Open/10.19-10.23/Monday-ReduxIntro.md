@@ -116,7 +116,7 @@
 
 - `View` : Unit of code that's responsible for rendering the user interface. Used to re-render the application when actions and changes occur.
 
-![graph](https://appacademy-open-assets.s3-us-west-1.amazonaws.com/fullstack/react/assets/flux-loop.png)
+![graph](https://Lambda-open-assets.s3-us-west-1.amazonaws.com/fullstack/react/assets/flux-loop.png)
 
 **Redux**
 

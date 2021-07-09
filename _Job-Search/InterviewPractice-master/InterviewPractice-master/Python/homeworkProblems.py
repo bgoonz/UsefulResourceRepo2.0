@@ -3,11 +3,11 @@ j = 31
 problems = []
 
 while i <= j:
-    if i%2 == 0:
+    if i % 2 == 0:
         pass
-    else: 
+    else:
         problems.append(i)
-    
+
     i = i + 1
 
 print(problems[::2])

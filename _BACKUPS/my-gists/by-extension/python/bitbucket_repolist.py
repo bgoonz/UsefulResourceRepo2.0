@@ -24,10 +24,10 @@ pseudo = argv[1] if len(argv) > 1 else "lbesson"
 jsonfile = "bitbucket_{}.json".format(pseudo)
 system("curl --silent https://bitbucket.org/api/1.0/users/" + pseudo + " > " + jsonfile)
 
-b = load(open(jsonfile, 'r'))
+b = load(open(jsonfile, "r"))
 
 # for i in b['repositories']:
 #     print(i['slug'])
-list_of_repo = sorted([i['slug'] for i in b['repositories']])
+list_of_repo = sorted([i["slug"] for i in b["repositories"]])
 for i in list_of_repo:
     print(i)

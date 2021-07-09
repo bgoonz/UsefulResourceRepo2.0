@@ -6,9 +6,10 @@ def two_sum(m, n, a):
         else:
             tb[val] = i
 
+
 t = int(input().strip())
 for _ in range(t):
     m = int(input().strip())
     n = int(input().strip())
-    a = list(map(int, input().strip().split(' ')))
+    a = list(map(int, input().strip().split(" ")))
     two_sum(m, n, a)

@@ -1,6 +1,7 @@
 from collections import Counter
 from collections import defaultdict
 
+
 def is_anagram(a, b, threshold=1000000):
     """Returns true if one sequence is a permutation of the other.
 
@@ -17,6 +18,7 @@ def is_anagram(a, b, threshold=1000000):
         return sorted(a) == sorted(b)  # O(n log n)
     return Counter(a) == Counter(b)  # O(n)
 
+
 # Or instead of using Counter() and creating two dictionaries for counting,
 # you can use a single dictionary by adding and subtracting count.
 def is_permutation_v1(a, b):
@@ -29,11 +31,16 @@ def is_permutation_v1(a, b):
         if e not in d:
             d[e] = 0
         d[e] -= 1
-    return not any(d.values())  # any() returns True if bool(element) is true for any element. bool(0) -> false.
+    return not any(
+        d.values()
+    )  # any() returns True if bool(element) is true for any element. bool(0) -> false.
+
 
 # Even less lines of code, if we use a default dict.
 def is_permutation_v2(a, b):
-    d = defaultdict(int)  # Set default value to default int value, 0. Use `lambda: 1` for other values.
+    d = defaultdict(
+        int
+    )  # Set default value to default int value, 0. Use `lambda: 1` for other values.
     for e in a:
         d[e] += 1
     for e in b:

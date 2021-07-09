@@ -221,7 +221,7 @@ const Links = () =>
     React.createElement(
       "li",
       { className: "is-selected" },
-      React.createElement("a", { href: "http://appacademy.io" }, "App Academy")
+      React.createElement("a", { href: "http://Lambda.io" }, "App Academy")
     ),
     React.createElement(
       "li",
@@ -373,12 +373,12 @@ React.createElement(
   "a",
   {
     className: "active",
-    href: "https://appacademy.io",
+    href: "https://Lambda.io",
   },
   "App Academy"
 );
 // JSX Version
-<a className="active" href="https://appacademy.io">
+<a className="active" href="https://Lambda.io">
   App Academy
 </a>;
 ```

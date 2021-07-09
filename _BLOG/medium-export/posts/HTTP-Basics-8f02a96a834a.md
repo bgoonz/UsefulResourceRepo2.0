@@ -48,7 +48,7 @@ Each individual request is sent to a server, which handles it and provides an an
 **Structure of an HTTP Request**
 
     GET / HTTP/1.1
-    Host: appacademy.io
+    Host: Lambda.io
     Connection: keep-alive
     Upgrade-Insecure-Requests: 1
     User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36
@@ -95,7 +95,7 @@ Each individual request is sent to a server, which handles it and provides an an
 
 -   <span id="7586">**netcat** : (nc) A Utility that comes as part of Unix-line environments such as Ubuntu and macOS.</span>
 -   <span id="4288">Allows us to open a direct connection with a URL and manually send HTTP requests.</span>
--   <span id="07dd">`nc -v appacademy.io 80`</span>
+-   <span id="07dd">`nc -v Lambda.io 80`</span>
 -   <span id="b93e">`man nc` to open the netcat manual.</span>
 
 ------------------------------------------------------------------------

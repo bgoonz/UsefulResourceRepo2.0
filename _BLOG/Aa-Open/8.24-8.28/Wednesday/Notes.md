@@ -13,7 +13,7 @@
 - **`Bubbling Up`** : Term that infers that an item _is in motion_, _moving in some direction_, and _has some final resting destination_.
 
 - Bubble sort, sorts an array of integers by bubbling the largest integer to the top.
-  ![bubble](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/naive_sorting_algorithms/bubble_sort/images/BubbleSort.gif)
+  ![bubble](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/naive_sorting_algorithms/bubble_sort/images/BubbleSort.gif)
 
 ```js
 // Bubble Sort
@@ -41,7 +41,7 @@ function bubble(array) {
 ## **Selection Sort**
 
 - Selection sort organizes the smallest elements to the start of the array.
-  ![selection](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/naive_sorting_algorithms/selection_sort/images/SelectionSort.gif)
+  ![selection](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/naive_sorting_algorithms/selection_sort/images/SelectionSort.gif)
 - Summary of how Selection Sort should work:
   1. Set MIN to location 0
   2. Search the minimum element in the list.
@@ -73,7 +73,7 @@ let selectionSort = (arr) => {
 
 ## **Insertion Sort**
 
-![insert](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/naive_sorting_algorithms/insertion_sort/images/InsertionSort.gif)
+![insert](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/naive_sorting_algorithms/insertion_sort/images/InsertionSort.gif)
 
 - Works by building a larger and larger sorted region at the left-most end of the array.
 - Steps:
@@ -104,7 +104,7 @@ let insertionSort = (inputArr) => {
 
 ## **Merge Sort**
 
-![merge](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/efficient_sorting_algorithms/merge_sort/images/MergeSort.gif)
+![merge](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/efficient_sorting_algorithms/merge_sort/images/MergeSort.gif)
 
 - Merge sort is nlogn time.
 - We need a function for merging and a function for sorting.
@@ -145,7 +145,7 @@ const mergeSort = (arr) => {
 - Some key ideas to keep in mind:
   - It is easy to sort elements of an array relative to a particular target value.
   - An array of 0 or 1 elements is already trivially sorted.
-    ![quicksort](https://s3-us-west-1.amazonaws.com/appacademy-open-assets/data_structures_algorithms/efficient_sorting_algorithms/quick_sort/images/QuickSort.gif)
+    ![quicksort](https://s3-us-west-1.amazonaws.com/Lambda-open-assets/data_structures_algorithms/efficient_sorting_algorithms/quick_sort/images/QuickSort.gif)
 
 ```js
 function quick_Sort(origArray) {

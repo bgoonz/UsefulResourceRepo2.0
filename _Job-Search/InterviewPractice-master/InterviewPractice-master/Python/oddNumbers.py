@@ -5,11 +5,12 @@
 import sys
 import os
 
-l = (int(input("Enter l value: ")))
-r = (int(input("Enter r value: ")))
+l = int(input("Enter l value: "))
+r = int(input("Enter r value: "))
 oddList = []
 
-def  oddNumbers(l, r):
+
+def oddNumbers(l, r):
     count = l
     if l < r:
         while count != r:
@@ -26,5 +27,6 @@ def  oddNumbers(l, r):
         print(i)
 
     print("There are", len(oddList), "odd numbers between", l, "and", r)
+
 
 oddNumbers(l, r)

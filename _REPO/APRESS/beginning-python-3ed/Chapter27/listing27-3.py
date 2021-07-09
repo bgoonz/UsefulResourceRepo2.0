@@ -7,8 +7,9 @@ from threading import Thread
 from time import sleep
 import sys
 
-HEAD_START = 0.1 # Seconds
+HEAD_START = 0.1  # Seconds
 SECRET_LENGTH = 100
+
 
 def random_string(length):
     """
@@ -20,14 +21,15 @@ def random_string(length):
     while length > 0:
         length -= 1
         chars.append(choice(letters))
-    return ''.join(chars)
+    return "".join(chars)
+
 
 class Client(Cmd):
     """
     A simple text-based interface to the Node class.
     """
 
-    prompt = '> '
+    prompt = "> "
 
     def __init__(self, url, dirname, urlfile):
         """
@@ -52,7 +54,8 @@ class Client(Cmd):
         try:
             self.server.fetch(arg, self.secret)
         except Fault as f:
-            if f.faultCode != UNHANDLED: raise
+            if f.faultCode != UNHANDLED:
+                raise
             print("Couldn't find the file", arg)
 
     def do_exit(self, arg):
@@ -60,11 +63,14 @@ class Client(Cmd):
         print()
         sys.exit()
 
-    do_EOF = do_exit # End-Of-File is synonymous with 'exit'
+    do_EOF = do_exit  # End-Of-File is synonymous with 'exit'
+
 
 def main():
     urlfile, directory, url = sys.argv[1:]
     client = Client(url, directory, urlfile)
     client.cmdloop()
 
-if __name__ == '__main__': main()
+
+if __name__ == "__main__":
+    main()

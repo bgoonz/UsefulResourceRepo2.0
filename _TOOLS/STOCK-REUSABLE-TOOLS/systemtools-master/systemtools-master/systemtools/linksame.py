@@ -36,13 +36,22 @@ import os
 import shutil
 import sys
 import threading
+
 try:
     import queue
 except ImportError:
     import Queue as queue
 
-def link_same_files(roots, pattern=None, link=False, symlink=False,
-                    absolute=False, quiet=False, verbose=False):
+
+def link_same_files(
+    roots,
+    pattern=None,
+    link=False,
+    symlink=False,
+    absolute=False,
+    quiet=False,
+    verbose=False,
+):
     """Replace copies of files with links to a single file.
 
     If identical files are found, then the file with the longest path name is
@@ -64,7 +73,7 @@ def link_same_files(roots, pattern=None, link=False, symlink=False,
         return err
 
     if not quiet:
-        print('Linking identical files in', ', '.join(roots))
+        print("Linking identical files in", ", ".join(roots))
 
     # Walk directory and create map, {size: filepath, ..}.  This allows files,
     # that do not match another file in size, to be eliminated without having
@@ -119,16 +128,23 @@ def link_same_files(roots, pattern=None, link=False, symlink=False,
     if not quiet:
         print()
         if not link:
-            print('If writing links (-w), would have...')
-        print('Replaced', link_count, 'files with links')
-        print('Reduced storage by', size_str(size_saved))
+            print("If writing links (-w), would have...")
+        print("Replaced", link_count, "files with links")
+        print("Reduced storage by", size_str(size_saved))
 
     return None
 
 
-def link_same_update(update_file, roots, pattern=None, link=False,
-                     symlink=False, absolute=False, quiet=False,
-                     verbose=False):
+def link_same_update(
+    update_file,
+    roots,
+    pattern=None,
+    link=False,
+    symlink=False,
+    absolute=False,
+    quiet=False,
+    verbose=False,
+):
     """Replace copies of a specified file with links to a single file.
 
     Return: None if OK.  Otherwise, error string.
@@ -140,15 +156,14 @@ def link_same_update(update_file, roots, pattern=None, link=False,
     if err:
         return err
     if not os.path.isfile(update_file):
-        return '%s is not a file' % (update_file,)
+        return "%s is not a file" % (update_file,)
     update_size = os.path.getsize(update_file)
     if update_size == 0:
-        return '%s is empty' % (update_file,)
+        return "%s is empty" % (update_file,)
     update_hash = _hash_file(update_file)
 
     if not quiet:
-        print('Linking', update_file, 'to identical files in',
-              ', '.join(roots))
+        print("Linking", update_file, "to identical files in", ", ".join(roots))
 
     # Walk directory and find files that are identical to the update file.
     same = [update_file]
@@ -170,15 +185,14 @@ def link_same_update(update_file, roots, pattern=None, link=False,
     size_saved = 0
     if len(same) > 1:
         # Link files that are identical to the update file.
-        link_count, size_saved = _link_files(same, link, symlink, absolute,
-                                             verbose)
+        link_count, size_saved = _link_files(same, link, symlink, absolute, verbose)
 
     if not quiet:
         print()
         if not link:
-            print('If writing links (-w), would have...')
-        print('Replaced', link_count, 'files with links')
-        print('Reduced storage by', size_str(size_saved))
+            print("If writing links (-w), would have...")
+        print("Replaced", link_count, "files with links")
+        print("Reduced storage by", size_str(size_saved))
 
     return None
 
@@ -187,11 +201,11 @@ def _normalize_roots(roots, quiet):
     for i, root_dir in enumerate(roots):
         root_dir = os.path.normpath(os.path.expanduser(root_dir))
         if not os.path.isdir(root_dir):
-            return None, root_dir + ' is not a directory'
+            return None, root_dir + " is not a directory"
         roots[i] = root_dir
 
     if not roots:
-        return ['.'], None
+        return ["."], None
 
     if len(roots) > 1:
         # Remove any root that is the same or a subdirectory of another.
@@ -206,8 +220,9 @@ def _normalize_roots(roots, quiet):
 
                 if roots[i].startswith(roots[j]):
                     if not quiet:
-                        print(roots[i], "already included in", roots[j],
-                              file=sys.stderr)
+                        print(
+                            roots[i], "already included in", roots[j], file=sys.stderr
+                        )
 
                     # This root is a subdirectory of another, so remove it.
                     roots[i] = roots[-1]
@@ -227,7 +242,7 @@ def _hash_file(filename):
     """Calculate SHA1 hash of file."""
     BLOCKSIZE = 65536
     hasher = hashlib.sha1()
-    with open(filename, 'rb') as afile:
+    with open(filename, "rb") as afile:
         buf = afile.read(BLOCKSIZE)
         while len(buf) > 0:
             hasher.update(buf)
@@ -295,21 +310,22 @@ def _link_files(files, link, symlink, absolute, verbose):
                     if absolute:
                         source = base_file
                     else:
-                        rp = os.path.relpath(os.path.dirname(base_file),
-                                             os.path.dirname(f))
-                        if rp == '.':
+                        rp = os.path.relpath(
+                            os.path.dirname(base_file), os.path.dirname(f)
+                        )
+                        if rp == ".":
                             source = os.path.basename(base_file)
                         else:
                             source = os.path.join(rp, os.path.basename(base_file))
-                    print('symlink:', f, '--->', source)
+                    print("symlink:", f, "--->", source)
                 else:
-                    print('link:', f, '<-->', base_file)
+                    print("link:", f, "<-->", base_file)
             continue
 
         try:
             os.unlink(f)
         except OSError:
-            print('cannot remove file:', f, file=sys.stderr)
+            print("cannot remove file:", f, file=sys.stderr)
             continue
 
         create_symlink = symlink
@@ -317,20 +333,18 @@ def _link_files(files, link, symlink, absolute, verbose):
             try:
                 os.link(base_file, f)
                 if verbose:
-                    print('hardlink:', f, '<-->', base_file)
+                    print("hardlink:", f, "<-->", base_file)
             except OSError:
-                create_symlink=True
+                create_symlink = True
                 if verbose:
-                    print('could not create hardlink, symlink instead',
-                          file=sys.stderr)
+                    print("could not create hardlink, symlink instead", file=sys.stderr)
 
         if create_symlink:
             if absolute:
                 source = base_file
             else:
-                rp = os.path.relpath(os.path.dirname(base_file),
-                                     os.path.dirname(f))
-                if rp == '.':
+                rp = os.path.relpath(os.path.dirname(base_file), os.path.dirname(f))
+                if rp == ".":
                     source = os.path.basename(base_file)
                 else:
                     source = os.path.join(rp, os.path.basename(base_file))
@@ -338,13 +352,15 @@ def _link_files(files, link, symlink, absolute, verbose):
             try:
                 os.symlink(source, f)
                 if verbose:
-                    print('symlink:', f, '--->', source)
+                    print("symlink:", f, "--->", source)
             except OSError as e:
-                print('failed to create symlink for %s: %s' % (base_file, e),
-                      file=sys.stderr)
+                print(
+                    "failed to create symlink for %s: %s" % (base_file, e),
+                    file=sys.stderr,
+                )
                 # Restore file.
                 shutil.copy2(base_file, f)
-                continue # skip stats update
+                continue  # skip stats update
 
         size_saved += base_size
         link_count += 1
@@ -355,48 +371,81 @@ def _link_files(files, link, symlink, absolute, verbose):
 def size_str(byte_size):
     """Truncate number to highest significant power of 2 and add suffix."""
     KB = 1024
-    MB = KB*1024
-    GB = MB*1024
+    MB = KB * 1024
+    GB = MB * 1024
     if byte_size > GB:
-        return str(round(float(byte_size) / GB, 1)) + 'G'
+        return str(round(float(byte_size) / GB, 1)) + "G"
     if byte_size > MB:
-        return str(round(float(byte_size) / MB, 1)) + 'M'
+        return str(round(float(byte_size) / MB, 1)) + "M"
     if byte_size > KB:
-        return str(round(float(byte_size) / KB, 1)) + 'K'
-    return str(byte_size) + ' bytes'
+        return str(round(float(byte_size) / KB, 1)) + "K"
+    return str(byte_size) + " bytes"
 
 
 def main():
     import argparse
+
     ap = argparse.ArgumentParser(
-        description='Convert identical files to links to one real file')
-    ap.add_argument('roots', nargs='*', default=['.'],
-                    help='Top-level directory to search for files to link. '
-                    'Current directory if not specified.')
-    ap.add_argument('--write', '-w', action='store_true',
-                    help='Write links to filesystem')
-    ap.add_argument('--symlink', action='store_true',
-                    help='Link files using only symlinks')
-    ap.add_argument('--absolute', '-a', action='store_true',
-                    help='When creating symlink, use absolute instead of '
-                    'relative link.')
-    ap.add_argument('--pattern', '-p', help='Only link files matching pattern')
-    ap.add_argument('--quiet', '-q', action='store_true',
-                    help='Suppress output messages and warnings')
-    ap.add_argument('--verbose', '-v', action='store_true',
-                    help='Print individual link creation messages')
-    ap.add_argument('--update', '-u',
-                    help='Only link files identical to specified update file')
+        description="Convert identical files to links to one real file"
+    )
+    ap.add_argument(
+        "roots",
+        nargs="*",
+        default=["."],
+        help="Top-level directory to search for files to link. "
+        "Current directory if not specified.",
+    )
+    ap.add_argument(
+        "--write", "-w", action="store_true", help="Write links to filesystem"
+    )
+    ap.add_argument(
+        "--symlink", action="store_true", help="Link files using only symlinks"
+    )
+    ap.add_argument(
+        "--absolute",
+        "-a",
+        action="store_true",
+        help="When creating symlink, use absolute instead of " "relative link.",
+    )
+    ap.add_argument("--pattern", "-p", help="Only link files matching pattern")
+    ap.add_argument(
+        "--quiet",
+        "-q",
+        action="store_true",
+        help="Suppress output messages and warnings",
+    )
+    ap.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Print individual link creation messages",
+    )
+    ap.add_argument(
+        "--update", "-u", help="Only link files identical to specified update file"
+    )
     args = ap.parse_args()
 
     if args.update:
         err = link_same_update(
-            args.update, args.roots, args.pattern, args.write, args.symlink,
-            args.absolute, args.quiet, args.verbose)
+            args.update,
+            args.roots,
+            args.pattern,
+            args.write,
+            args.symlink,
+            args.absolute,
+            args.quiet,
+            args.verbose,
+        )
     else:
         err = link_same_files(
-            args.roots, args.pattern, args.write, args.symlink, args.absolute,
-            args.quiet, args.verbose)
+            args.roots,
+            args.pattern,
+            args.write,
+            args.symlink,
+            args.absolute,
+            args.quiet,
+            args.verbose,
+        )
 
     if err:
         print(err, file=sys.stderr)
@@ -405,5 +454,5 @@ def main():
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

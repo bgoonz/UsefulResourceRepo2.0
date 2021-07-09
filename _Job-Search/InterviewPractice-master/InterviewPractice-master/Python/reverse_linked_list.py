@@ -4,7 +4,9 @@ def reverseList(head):
         prev, curr.next, curr = curr, prev, curr.next
     return prev
 
+
 def main():
     reverseList(head)
+
 
 main()

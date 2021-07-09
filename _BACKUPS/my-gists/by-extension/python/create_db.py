@@ -8,6 +8,7 @@ sql_query = """
     );
 """
 
+
 def execute_query(sql_query):
     with sqlite3.connect("todo.db") as conn:
         cur = conn.cursor()
@@ -15,5 +16,6 @@ def execute_query(sql_query):
         conn.commit()
     return result
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     execute_query(sql_query)

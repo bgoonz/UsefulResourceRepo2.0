@@ -11,8 +11,8 @@ import json
 import jinja2
 
 
-__author__ = 'Doctor J'
-__date__ = '2016-04-11'
+__author__ = "Doctor J"
+__date__ = "2016-04-11"
 
 
 #: HTML template string; passed an array called `questions`
@@ -59,5 +59,5 @@ def main(args):
     print(to_html(json.load(sys.stdin)))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv)

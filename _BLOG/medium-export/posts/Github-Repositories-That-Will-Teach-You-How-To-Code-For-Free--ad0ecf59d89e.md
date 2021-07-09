@@ -166,11 +166,11 @@ If you are not a programmer but would like to contribute, check out the <a href=
 
 ------------------------------------------------------------------------
 
-### appacademy/welcome-to-open
+### Lambda/welcome-to-open
 
 ### Welcome to a/A Open
 
-<figure><img src="https://cdn-images-1.medium.com/max/800/0*ST42NNLrPcF8ZAMV.png" class="graf-image" /></figure><a href="https://open.appacademy.io/" class="markup--anchor markup--p-anchor">click here to learn to code for free</a>
+<figure><img src="https://cdn-images-1.medium.com/max/800/0*ST42NNLrPcF8ZAMV.png" class="graf-image" /></figure><a href="https://open.Lambda.io/" class="markup--anchor markup--p-anchor">click here to learn to code for free</a>
 
 ### Overview
 
@@ -178,12 +178,12 @@ With App Academy Open you’ll get free access to App Academy’s entire in-pers
 
 ### How to Get Started
 
-Navigate to <a href="https://open.appacademy.io/" class="markup--anchor markup--p-anchor">App Academy Open</a> and sign up for a free account. All you’ll need to provide is your email address and name. You’ll be redirected to our learning platform where you’ll be starting your first lesson immediately.
+Navigate to <a href="https://open.Lambda.io/" class="markup--anchor markup--p-anchor">App Academy Open</a> and sign up for a free account. All you’ll need to provide is your email address and name. You’ll be redirected to our learning platform where you’ll be starting your first lesson immediately.
 
 The rest of the courses from our legendary Full-Stack curriculum are available to you from the moment you sign up. To switch, simply click the ‘Course Outline’ at the top of the page. The menu should have a ‘Switch’ button which will list all available courses.
 
-<a href="https://github.com/appacademy/welcome-to-open" class="markup--anchor markup--mixtapeEmbed-anchor" title="https://github.com/appacademy/welcome-to-open"><strong>appacademy/welcome-to-open</strong><br />
-<em>tl;dr: click here to learn to code for free With App Academy Open you'll get free access to App Academy's entire…</em>github.com</a><a href="https://github.com/appacademy/welcome-to-open" class="js-mixtapeImage mixtapeImage u-ignoreBlock"></a>
+<a href="https://github.com/Lambda/welcome-to-open" class="markup--anchor markup--mixtapeEmbed-anchor" title="https://github.com/Lambda/welcome-to-open"><strong>Lambda/welcome-to-open</strong><br />
+<em>tl;dr: click here to learn to code for free With App Academy Open you'll get free access to App Academy's entire…</em>github.com</a><a href="https://github.com/Lambda/welcome-to-open" class="js-mixtapeImage mixtapeImage u-ignoreBlock"></a>
 
 ------------------------------------------------------------------------
 

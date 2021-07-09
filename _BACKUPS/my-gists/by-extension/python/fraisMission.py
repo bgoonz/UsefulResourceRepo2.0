@@ -18,7 +18,7 @@ metro = 1.5
 
 
 def main(nbJour=3, nbRepas=None, trains=None, nbNuit=None, totalHotel=None):
-    """ Calcule et affiche les détails des frais de mission.
+    """Calcule et affiche les détails des frais de mission.
 
     Par exemple :
     >>> trains = {
@@ -44,21 +44,43 @@ def main(nbJour=3, nbRepas=None, trains=None, nbNuit=None, totalHotel=None):
     if totalHotel:
         print("\n- Pour l'hôtel, un total de", totalHotel, "€.")
     else:
-        print("\n- Pour l'hôtel : déjà réglé avant, normalement. Sinon, max", hotel, "€ par nuit.")
+        print(
+            "\n- Pour l'hôtel : déjà réglé avant, normalement. Sinon, max",
+            hotel,
+            "€ par nuit.",
+        )
     if nbNuit is None:
         nbNuit = nbJour - 1
-        print("  ", nbJour, "jours sur place, soit", nbNuit, "nuits d'hôtel (par défaut)")
+        print(
+            "  ", nbJour, "jours sur place, soit", nbNuit, "nuits d'hôtel (par défaut)"
+        )
 
     # Taxe de séjour
     print("\n- Taxe de séjour :")
     totalTaxeSejour = taxeSejour * nbNuit
-    print("  ", taxeSejour, "€ par nuit, soit", totalTaxeSejour, "€ pour ces", nbNuit, "nuits.")
+    print(
+        "  ",
+        taxeSejour,
+        "€ par nuit, soit",
+        totalTaxeSejour,
+        "€ pour ces",
+        nbNuit,
+        "nuits.",
+    )
     total += totalTaxeSejour
 
     # Déplacements sur place
     print("\n- Métro :")
     totalMetro = 2 * metro * nbJour
-    print("  ", metro, "€ par trajet, soit", totalMetro, "€ pour ces", nbJour, "jours sur place")
+    print(
+        "  ",
+        metro,
+        "€ par trajet, soit",
+        totalMetro,
+        "€ pour ces",
+        nbJour,
+        "jours sur place",
+    )
     total += totalMetro
 
     # Train
@@ -78,7 +100,7 @@ def main(nbJour=3, nbRepas=None, trains=None, nbNuit=None, totalHotel=None):
     return total
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Mission #4 en mars 2017.
     trains = None  # Payé par l'INRIA
     main(nbJour=11, trains=trains, nbRepas=11, totalHotel=0)

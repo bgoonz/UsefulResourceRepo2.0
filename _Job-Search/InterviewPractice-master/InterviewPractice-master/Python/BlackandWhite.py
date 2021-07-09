@@ -7,17 +7,15 @@ def bwMoves(start, target):
         if start[i] == target[i]:
             if counter != i:
                 action += 1
-            counter +=1
-
+            counter += 1
 
     return action
-
 
 
 def main():
 
     start = "BBWBBWBBBB"
-    
+
     target = "WWWWWBBWWB"
 
     print(bwMoves(start, target))

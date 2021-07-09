@@ -1,4 +1,4 @@
-'''
+"""
 Max Profit With K Transactions
 
 You are given an array of integers representing the prices of a single stock on various days
@@ -22,7 +22,7 @@ The original (not optimized) DP formula is: MAX(dp[t][d-1], price[d] + MAX(dp[t-
 but this is O(K * N^2) Time Complexity, and O(N * K) space complexity.
     Time Complexity:    O(N * К)
     Space Complexity:   O(N)
-'''
+"""
 
 
 ############
@@ -30,6 +30,7 @@ but this is O(K * N^2) Time Complexity, and O(N * K) space complexity.
 ############
 
 import math
+
 
 def max_profit_with_k_transactions(prices, k):
     days = len(prices)

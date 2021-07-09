@@ -4,8 +4,9 @@ def isBijective(n, l):
             if (j + 1) in l:
                 continue
             else:
-                return ("NO")
-    return ("YES")
+                return "NO"
+    return "YES"
+
 
 n = int(input())
 l = list(map(int, input().split()))

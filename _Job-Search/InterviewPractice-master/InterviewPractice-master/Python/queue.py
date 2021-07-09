@@ -1,5 +1,4 @@
 class MyQueue(object):
-
     def __init__(self):
         self.queue = []
 
@@ -11,6 +10,7 @@ class MyQueue(object):
 
     def put(self, value):  # enqueue
         self.queue.append(value)
+
 
 queue = MyQueue()
 t = int(input())

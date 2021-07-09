@@ -32,12 +32,16 @@ import re
 try:
     from markdown import markdown
 except ImportError:
-    print("Error, module 'markdown' was not found, install it with 'pip install markdown' ...")
+    print(
+        "Error, module 'markdown' was not found, install it with 'pip install markdown' ..."
+    )
 
 try:
     import pymdownx.emoji
 except ImportError:
-    print("Error, module 'pymdownx' was not found, install it with 'pip install pymarkdown-extensions' ...")
+    print(
+        "Error, module 'pymdownx' was not found, install it with 'pip install pymarkdown-extensions' ..."
+    )
 
 
 USE_SVG = False
@@ -46,16 +50,11 @@ USE_SVG = False
 def emojize(s, use_svg=USE_SVG):
     """Call markdown.markdown() on s."""
     emoji_generator = pymdownx.emoji.to_svg if use_svg else pymdownx.emoji.to_png
-    extension_configs = {
-        'pymdownx.emoji': {
-            'emoji_generator': emoji_generator
-        }
-    }
-    res = markdown(s,
-                   extensions=['pymdownx.emoji'],
-                   extension_configs=extension_configs
-                  )
-    return res.replace('<p>', '').replace('</p>', '')
+    extension_configs = {"pymdownx.emoji": {"emoji_generator": emoji_generator}}
+    res = markdown(
+        s, extensions=["pymdownx.emoji"], extension_configs=extension_configs
+    )
+    return res.replace("<p>", "").replace("</p>", "")
 
 
 def match_to_emoji(m, use_svg=USE_SVG):
@@ -70,17 +69,18 @@ def emojize_all(s, use_svg=USE_SVG):
 
 def main(path, use_svg=USE_SVG):
     """Handle the file given by its path."""
-    with open(path, 'r') as f:
+    with open(path, "r") as f:
         for line in f.readlines():
-            print(emojize_all(line, use_svg=use_svg), end='')
+            print(emojize_all(line, use_svg=use_svg), end="")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from sys import argv
-    if '--svg' in argv:
+
+    if "--svg" in argv:
         USE_SVG = True
-        while '--svg' in argv:
-            del argv[argv.index('--svg')]
+        while "--svg" in argv:
+            del argv[argv.index("--svg")]
     for arg in argv[1:]:
         main(arg, use_svg=USE_SVG)
 
