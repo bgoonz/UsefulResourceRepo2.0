@@ -1,14 +1,18 @@
-(function() {
-  window.throttle = function(func, wait) {
-    var args, result, thisArg, timeoutId, lastCalled = 0;
+(function () {
+  window.throttle = function (func, wait) {
+    var args,
+      result,
+      thisArg,
+      timeoutId,
+      lastCalled = 0;
 
     function trailingCall() {
-      lastCalled = new Date;
+      lastCalled = new Date();
       timeoutId = null;
       result = func.apply(thisArg, args);
     }
-    return function() {
-      var now = new Date,
+    return function () {
+      var now = new Date(),
         remaining = wait - (now - lastCalled);
 
       args = arguments;

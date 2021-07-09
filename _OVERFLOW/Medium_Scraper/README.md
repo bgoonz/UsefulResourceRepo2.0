@@ -4,16 +4,12 @@
 
 <a href="https://medium.com/">Medium</a> is a blogging platform where writers and readers share their ideas. With a strong following in the tech community, it is a place where people can come to learn from professionals and industry experts. I began writing on Medium very recently, inspired to write about data-science and machine learning. For more information, check out my writing <a href="https://medium.com/@harrisonjansma">here.</a>
 
-
 <a href="https://medium.com/@harrisonjansma">
 <img align="center" src="img/mediumhome.JPG" height=200></a>
 
-
-
 # Scraping Medium with this Repository
 
-
-To use this scraper to collect your own data, you simply have to clone this repository to your local drive, then acquire a few more tools to make the scraper work. 
+To use this scraper to collect your own data, you simply have to clone this repository to your local drive, then acquire a few more tools to make the scraper work.
 
 First you will need to download the <a href="http://chromedriver.chromium.org/downloads">Chrome Driver</a> and place it in the same directory as the "scrape_master.py" and "medium_scraper.py" files. You will also need the following Python libraries you will need: Selenium, Pandas, BeautifulSoup.
 
@@ -27,7 +23,6 @@ Afterwards you should be able to execute a scrape of multiple Medium tags for an
 <br>
 <img src="img/commans.JPG">
 
-
 ## How it works.
 
 This scraper pulls data from Medium's archive pages. Each archive page is associated to a story-tag and is a <b>collection of Medium timeline cards organized by date.</b>
@@ -37,10 +32,10 @@ This scraper pulls data from Medium's archive pages. Each archive page is associ
 
 <img src="img/archive2.png" align="center" width=500>
 
-
 ## Structure of the Scraped Data
+
 - Title -title of article on timeline card
-- Subtitle  -subtitle of article on timeline card
+- Subtitle -subtitle of article on timeline card
 - Image (yes/no)-whether the article has a preview image on its timeline card
 - Author -writer of the story
 - Publication - the name of the publication the article may have been posted in
@@ -51,9 +46,6 @@ This scraper pulls data from Medium's archive pages. Each archive page is associ
 - Comment (yes/no)-whether the entry is a comment on another article
 - Story Url-link to story
 - Author URL-link to Author's Medium homepage
-
-
-
 
 <br>
  <h3 align="center">Example of Data Scraped from a Timeline Card</h3>

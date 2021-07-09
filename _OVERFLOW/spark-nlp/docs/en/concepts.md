@@ -5,7 +5,6 @@ permalink: /docs/en/concepts
 key: docs-concepts
 modify_date: "2019-10-23"
 use_language_switchter: true
-
 ---
 
 ## Annotators Guideline
@@ -39,7 +38,7 @@ import com.johnsnowlabs.nlp.annotator._
 SparkML Pipelines are a uniform structure that helps creating and tuning
 practical machine learning pipelines. Spark NLP integrates with them
 seamlessly so it is important to have this concept handy. Once a
-**Pipeline** is trained with **fit()**, this becomes a **PipelineModel**  
+**Pipeline** is trained with **fit()**, this becomes a **PipelineModel**
 
 **Example:**
 
@@ -79,9 +78,9 @@ new LightPipeline(somePipelineModel).annotate(someStringOrArray))
 **Functions:**
 
 - annotate(string or string\[\]): returns dictionary list of annotation
-results
+  results
 - fullAnnotate(string or string\[\]): returns dictionary list of entire
-annotations content
+  annotations content
 
 ### RecursivePipeline
 
@@ -143,11 +142,11 @@ This applies only to `WordEmbeddings` not `BertEmbeddings`.
 **Functions:**
 
 - load(path, spark, format, reference, dims, caseSensitive) -> Loads
-embeddings from disk in any format possible: 'TEXT', 'BINARY',
-'SPARKNLP'. Makes embeddings available for Annotators without included
-embeddings.
+  embeddings from disk in any format possible: 'TEXT', 'BINARY',
+  'SPARKNLP'. Makes embeddings available for Annotators without included
+  embeddings.
 - save(path, embeddings, spark) -> Saves provided embeddings to path,
-using current SparkSession
+  using current SparkSession
 
 #### Annotator with Word Embeddings
 
@@ -157,18 +156,18 @@ rest annotators don't use this interface anymore, however, for
 developers reference, they still exist and might be used in annotators
 that require random access to word embeddings.
 
-These functions are included in the embedding annotators 
+These functions are included in the embedding annotators
 `WordEmbeddings` and `BertEmbeddings`
 
 **Functions (not all of them listed):**
 
 - setIncludeEmbeddings(bool) -> Param to define whether or not to
-include word embeddings when saving this annotator to disk (single or
-within pipeline)
+  include word embeddings when saving this annotator to disk (single or
+  within pipeline)
 - setEmbeddingsRef(ref) -> Set whether to use annotators under the
-provided name. This means these embeddings will be lookup from the cache
-by the ref name. This allows multiple annotators to utilize same word
-embeddings by ref name.
+  provided name. This means these embeddings will be lookup from the cache
+  by the ref name. This allows multiple annotators to utilize same word
+  embeddings by ref name.
 
 ### Params and Features
 
@@ -179,4 +178,4 @@ we also use Features, which are a way to store parameter maps that are
 larger than just a string or a boolean. These features are serialized
 as either Parquet or RDD objects, allowing much faster and scalable
 annotator information. Features are also broadcasted among executors for
-better performance.  
+better performance.

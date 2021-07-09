@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Release-Process</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<h1 id="express-release-process">Express Release Process</h1>
+<p>This document contains the technical aspects of the Express release process. The intended audience is those who have been authorized by the Express Technical Committee (TC) to create, promote and sign official release builds for Express, as npm packages hosted on https://npmjs.com/package/express.</p>
+<h2 id="who-can-make-releases">Who can make releases?</h2>
+<p>Release authorization is given by the Express TC. Once authorized, an individual must have the following access permissions:</p>
+<h3 id="github-release-access">1. Github release access</h3>
+<p>The individual making the release will need to be a member of the expressjs/express team with Write permission level so they are able to tag the release commit and push changes to the expressjs/express repository (see Steps 4 and 5).</p>
+<h3 id="npmjs.com-release-access">2. npmjs.com release access</h3>
+<p>The individual making the release will need to be made an owner on the <code>express</code> package on npmjs.com so they are able to publish the release (see Step 6).</p>
+<h2 id="how-to-publish-a-release">How to publish a release</h2>
+<p>Before publishing, the following preconditions should be met:</p>
+<ul>
+<li>A release proposal issue or tracking pull request (see “Proposal branch” below) will exist documenting:
+<ul>
+<li>the proposed changes</li>
+<li>the type of release: patch, minor or major</li>
+<li>the version number (according to semantic versioning - http://semver.org)</li>
+</ul></li>
+<li>The proposed changes should be complete.</li>
+</ul>
+<p>There are two main release flows: patch and non-patch.</p>
+<p>The patch flow is for making <strong>patch releases</strong>. As per semantic versioning, patch releases are for simple changes, eg: typo fixes, patch dependency updates, and simple/low-risk bug fixes. Every other type of change is made via the non-patch flow.</p>
+<h3 id="branch-terminology">Branch terminology</h3>
+<p>“Master branch”</p>
+<ul>
+<li>There is a branch in git used for the current major version of Express, named <code>master</code>.</li>
+<li>This branch contains the completed commits for the next patch release of the current major version.</li>
+<li>Releases for the current major version are published from this branch.</li>
+</ul>
+<p>“Version branch”</p>
+<ul>
+<li>For any given major version of Express (current, previous or next) there is a branch in git for that release named <code>&lt;major-version&gt;.x</code> (eg: <code>4.x</code>).</li>
+<li>This branch points to the commit of the latest tag for the given major version.</li>
+</ul>
+<p>“Release branch”</p>
+<ul>
+<li>For any given major version of Express, there is a branch used for publishing releases.</li>
+<li>For the current major version of Express, the release branch is the “Master branch” named <code>master</code>.</li>
+<li>For all other major versions of Express, the release branch is the “Version branch” named <code>&lt;major-version&gt;.x</code>.</li>
+</ul>
+<p>“Proposal branch”</p>
+<ul>
+<li>A branch in git representing a proposed new release of Express. This can be a minor or major release, named <code>&lt;major-version&gt;.0</code> for a major release, <code>&lt;major-version&gt;.&lt;minor-version&gt;</code> for a minor release.</li>
+<li>A tracking pull request should exist to document the proposed release, targeted at the appropriate release branch. Prior to opening the tracking pull request the content of the release may have be discussed in an issue.</li>
+<li>This branch contains the commits accepted so far that implement the proposal in the tracking pull request.</li>
+</ul>
+<h3 id="patch-flow">Patch flow</h3>
+<p>In the patch flow, simple changes are committed to the release branch which acts as an ever-present branch for the next patch release of the associated major version of Express.</p>
+<p>The release branch is usually kept in a state where it is ready to release. Releases are made when sufficient time or change has been made to warrant it. This is usually proposed and decided using a github issue.</p>
+<h3 id="non-patch-flow">Non-patch flow</h3>
+<p>In the non-patch flow, changes are committed to a temporary proposal branch created specifically for that release proposal. The branch is based on the most recent release of the major version of Express that the release targets.</p>
+<p>Releases are made when all the changes on a proposal branch are complete and approved. This is done by merging the proposal branch into the release branch (using a fast-forward merge), tagging it with the new version number and publishing the release package to npmjs.com.</p>
+<h3 id="flow">Flow</h3>
+<p>Below is a detailed description of the steps to publish a release.</p>
+<h4 id="step-1.-check-the-release-is-ready-to-publish">Step 1. Check the release is ready to publish</h4>
+<p>Check any relevant information to ensure the release is ready, eg: any milestone, label, issue or tracking pull request for the release. The release is ready when all proposed code, tests and documentation updates are complete (either merged, closed or re-targeted to another release).</p>
+<h4 id="step-2.-non-patch-flow-only-merge-the-proposal-branch-into-the-release-branch">Step 2. (Non-patch flow only) Merge the proposal branch into the release branch</h4>
+<p>In the patch flow: skip this step.</p>
+<p>In the non-patch flow:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1">$ <span class="fu">git</span> checkout <span class="op">&lt;</span>release-branch<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-2" title="2">$ <span class="fu">git</span> merge --ff-only <span class="op">&lt;</span>proposal-branch<span class="op">&gt;</span></a></code></pre></div>
+<p><release-branch> - see “Release branch” of “Branches” above. <proposal-branch> - see “Proposal branch” of “Non-patch flow” above.</p>
+<p><strong>NOTE:</strong> You may need to rebase the proposal branch to allow a fast-forward merge. Using a fast-forward merge keeps the history clean as it does not introduce merge commits.</p>
+<h3 id="step-3.-update-the-history.md-and-package.json-to-the-new-version-number">Step 3. Update the History.md and package.json to the new version number</h3>
+<p>The changes so far for the release should already be documented under the “unreleased” section at the top of the History.md file, as per the usual development practice. Change “unreleased” to the new release version / date. Example diff fragment:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode diff"><code class="sourceCode diff"><a class="sourceLine" id="cb2-1" title="1"><span class="st">-unreleased</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="st">-==========</span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="va">+4.13.3 / 2015-08-02</span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="va">+===================</span></a></code></pre></div>
+<p>The version property in the package.json should already contain the version of the previous release. Change it to the new release version.</p>
+<p>Commit these changes together under a single commit with the message set to the new release version (eg: <code>4.13.3</code>):</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1">$ <span class="fu">git</span> checkout <span class="op">&lt;</span>release-branch<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="op">&lt;</span><span class="ex">..edit</span> files..<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb3-3" title="3">$ <span class="fu">git</span> add History.md package.json</a>
+<a class="sourceLine" id="cb3-4" title="4">$ <span class="fu">git</span> commit -m <span class="st">&#39;&lt;version-number&gt;&#39;</span></a></code></pre></div>
+<h3 id="step-4.-identify-and-tag-the-release-commit-with-the-new-release-version">Step 4. Identify and tag the release commit with the new release version</h3>
+<p>Create a lightweight tag (rather than an annotated tag) named after the new release version (eg: <code>4.13.3</code>).</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1">$ <span class="fu">git</span> tag <span class="op">&lt;</span>version-number<span class="op">&gt;</span></a></code></pre></div>
+<h3 id="step-5.-push-the-release-branch-changes-and-tag-to-github">Step 5. Push the release branch changes and tag to github</h3>
+<p>The branch and tag should be pushed directly to the main repository (https://github.com/expressjs/express).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" title="1">$ <span class="fu">git</span> push origin <span class="op">&lt;</span>release-branch<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-2" title="2">$ <span class="fu">git</span> push origin <span class="op">&lt;</span>version-number<span class="op">&gt;</span></a></code></pre></div>
+<h3 id="step-6.-publish-to-npmjs.com">Step 6. Publish to npmjs.com</h3>
+<p>Ensure your local working copy is completely clean (no extra or changed files). You can use <code>git status</code> for this purpose.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1">$ <span class="ex">npm</span> login <span class="op">&lt;</span>npm-username<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-2" title="2">$ <span class="ex">npm</span> publish</a></code></pre></div>
+<p><strong>NOTE:</strong> The version number to publish will be picked up automatically from package.json.</p>
+</body>
+</html>

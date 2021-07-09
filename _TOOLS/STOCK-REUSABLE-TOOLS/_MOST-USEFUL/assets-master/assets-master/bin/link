@@ -1,0 +1,176 @@
+#!/usr/bin/env perl
+
+use Modern::Perl;
+
+package basset::Asset;
+
+use Any::Moose;
+
+has name => qw/ is ro required 1 /;
+has [qw/ data uncompressed compressed /] => qw/ is rw /;
+
+sub BUILD {
+    my $self = shift;
+
+    if ( $self->data ) {
+        my $test;
+        defined and $test = 1 for $self->uncompressed, $self->compressed;
+        die "Asset has ->uncompressed/compressed WITH ->data" if $test;
+    }
+}
+
+sub try_compressed {
+    my $self = shift;
+    return $self->data if $self->data;
+    return $self->compressed if $self->compressed;
+    return $self->uncompressed if $self->uncompressed;
+    die "Nothing to return (try compressed)";
+}
+
+sub try_uncompressed {
+    my $self = shift;
+    return $self->data if $self->data;
+    return $self->uncompressed if $self->uncompressed;
+    return $self->compressed if $self->compressed;
+    die "Nothing to return (try uncompressed)";
+}
+
+package basset::MultiAsset;
+
+use Any::Moose;
+
+package main;
+
+use strict;
+use warnings;
+
+use Modern::Perl;
+use Path::Class;
+use App::lntree;
+
+sub declare;
+our ( %asset );
+
+my $asset;
+
+declare "json2.js" => { uncompressed => "source/json2.js" };
+
+declare "jquery.js" => "source/jquery{.min}.js";
+declare "jquery14.js" => "source/jquery14{.min}.js";
+declare "jquery15.js" => "source/jquery15{.min}.js";
+declare "jquery16.js" => "source/jquery16{.min}.js";
+declare "jquery.tmpl.js" => "source/jquery.tmpl{.min}.js";
+
+declare "jquery-ui/jquery-ui.js" => "source/jquery-ui/jquery-ui{.min}.js";
+declare "jquery-ui/base" => { data => "source/jquery-ui/base" };
+declare "jquery-ui/ui-lightness" => { data => "source/jquery-ui/base" };
+
+declare "jquery-ui19";
+
+declare "html5-9743.css" => { uncompressed => "source/html5-9743.css" };
+
+declare "skeleton";
+
+declare "html5-boilerplate";
+
+for (qw/ 960.css reset.css text.css /) {
+    declare "960/$_" => {
+        compressed => "source/960/$_",
+        uncompressed => "source/960/uncompressed/$_",
+    }
+}
+
+$asset = declare "prettify" => {
+    compressed => "source/prettify-small/",
+    uncompressed => "source/prettify/",
+};
+
+declare "qunit";
+
+declare "css3buttons";
+
+declare "zeroclipboard";
+
+declare "tipsy";
+
+declare "underscore.js" => "source/underscore{-min}.js";
+
+my ( $stash );
+
+$stash = dir 'compressed';
+$stash->rmtree;
+for $asset ( values %asset ) {
+    say '# ', $asset->name, ' ', $asset->try_compressed;
+    my $target = file $asset->try_compressed;
+    my $file = $stash->file( $asset->name );
+    my ( $from, $to ) = App::lntree->resolve( $target->parent, $file->parent, $target );
+    $file->parent->mkpath;
+    symlink $from, $file or die "symlink( $from, $to ): $!";
+}
+
+$stash = dir 'uncompressed';
+$stash->rmtree;
+for $asset ( values %asset ) {
+    say '# ', $asset->name, ' ', $asset->try_uncompressed;
+    my $target = file $asset->try_uncompressed;
+    my $file = $stash->file( $asset->name );
+    my ( $from, $to ) = App::lntree->resolve( $target->parent, $file->parent, $target );
+    $file->parent->mkpath;
+    symlink $from, $file or die "symlink( $from, $to ): $!";
+}
+
+sub declare {
+    my $name = shift;
+    my $source = shift;
+    $source = "source/$name" unless defined $source;
+
+    if ( ref $source eq 'HASH' ) {
+    }
+    else {
+        my $_source = $source;
+        if ( $_source =~ s/\{([^}]+)\}/\$__bind__/ ) {
+            my $bind = $1;
+            my ( $bound, $unbound );
+            {
+                my $__bind__ = $bind;
+                $bound = eval "\"$_source\"";
+            }
+            {
+                my $__bind__ = '';
+                $unbound = eval "\"$_source\"";
+            }
+
+            my %source;
+            if ( $bound =~ m/[\.\-\_]min\b/ ) {
+                %source = (
+                    compressed => $bound,
+                    uncompressed => $unbound,
+                );
+            }
+            else {
+                die "Unknown ($source) bind:$bind bound:($bound) unbound:($unbound)";
+            }
+            $source = \%source;
+        }
+        else {
+            $source = {
+                compressed => $source,
+                uncompressed => $source,
+            };
+        }
+    }
+
+    my $asset = basset::Asset->new(
+        name => $name,
+        %$source,
+    );
+
+    $asset{ $asset->name } = $asset;
+
+    say "(", $asset->name, ")";
+    $asset->$_ and say "$_: ", $asset->$_ for qw/ uncompressed compressed data /;
+    say '---';
+
+    return $asset;
+}
+
