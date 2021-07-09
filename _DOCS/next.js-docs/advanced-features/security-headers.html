@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>security-headers</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="security-headers">Security Headers</h1>
+    <p>
+      To improve the security of your application, you can use
+      <a href="/docs/api-reference/next.config.js/headers.md"
+        ><code>headers</code></a
+      >
+      in <code>next.config.js</code> to apply HTTP response headers to all
+      routes in your application.
+    </p>
+    <pre class="jsx"><code>// next.config.js
+
+// You can choose which headers to add to the list
+// after learning more below.
+const securityHeaders = []
+
+module.exports = {
+  async headers() {
+    return [
+      {
+        // Apply these headers to all routes in your application.
+        source: &#39;/(.*)&#39;,
+        headers: securityHeaders,
+      },
+    ]
+  },
+}</code></pre>
+    <h2 id="options">Options</h2>
+    <h3 id="x-dns-prefetch-control">
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-DNS-Prefetch-Control"
+        >X-DNS-Prefetch-Control</a
+      >
+    </h3>
+    <p>
+      This header controls DNS prefetching, allowing browsers to proactively
+      perform domain name resolution on external links, images, CSS, JavaScript,
+      and more. This prefetching is performed in the background, so the <a
+        href="https://developer.mozilla.org/en-US/docs/Glossary/DNS"
+        >DNS</a
+      > is more likely to be resolved by the time the referenced items are
+      needed. This reduces latency when the user clicks a link.
+    </p>
+    <pre class="jsx"><code>{
+  key: &#39;X-DNS-Prefetch-Control&#39;,
+  value: &#39;on&#39;
+}</code></pre>
+    <h3 id="strict-transport-security">
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security"
+        >Strict-Transport-Security</a
+      >
+    </h3>
+    <p>
+      This header informs browsers it should only be accessed using HTTPS,
+      instead of using HTTP. Using the configuration below, all present and
+      future subdomains will use HTTPS for a <code>max-age</code> of 2 years.
+      This blocks access to pages or subdomains that can only be served over
+      HTTP.
+    </p>
+    <p>
+      If you’re deploying to
+      <a
+        href="https://vercel.com/docs/edge-network/headers#strict-transport-security"
+        >Vercel</a
+      >, this header is not necessary as it’s automatically added to all
+      deployments.
+    </p>
+    <pre class="jsx"><code>{
+  key: &#39;Strict-Transport-Security&#39;,
+  value: &#39;max-age=31536000; includeSubDomains; preload&#39;
+}</code></pre>
+    <h3 id="x-xss-protection">
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection"
+        >X-XSS-Protection</a
+      >
+    </h3>
+    <p>
+      This header stops pages from loading when they detect reflected cross-site
+      scripting (XSS) attacks. Although this protection is not necessary when
+      sites implement a strong
+      <a href="#content-security-policy"
+        ><code>Content-Security-Policy</code></a
+      >
+      disabling the use of inline JavaScript (<code>'unsafe-inline'</code>), it
+      can still provide protection for older web browsers that don’t support
+      CSP.
+    </p>
+    <pre class="jsx"><code>{
+  key: &#39;X-XSS-Protection&#39;,
+  value: &#39;1; mode=block&#39;
+}</code></pre>
+    <h3 id="x-frame-options">
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options"
+        >X-Frame-Options</a
+      >
+    </h3>
+    <p>
+      This header indicates whether the site should be allowed to be displayed
+      within an <code>iframe</code>. This can prevent against clickjacking
+      attacks. This header has been superseded by CSP’s
+      <code>frame-ancestors</code> option, which has better support in modern
+      browsers.
+    </p>
+    <pre class="jsx"><code>{
+  key: &#39;X-Frame-Options&#39;,
+  value: &#39;SAMEORIGIN&#39;
+}</code></pre>
+    <h3 id="permissions-policy">
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Feature-Policy"
+        >Permissions-Policy</a
+      >
+    </h3>
+    <p>
+      This header allows you to control which features and APIs can be used in
+      the browser. It was previously named <code>Feature-Policy</code>. You can
+      view the full list of permission options
+      <a href="https://www.w3.org/TR/permissions-policy-1/">here</a>.
+    </p>
+    <pre class="jsx"><code>{
+  key: &#39;Permissions-Policy&#39;,
+  value: &#39;camera=(), microphone=(), geolocation=(), interest-cohort=()&#39;
+}</code></pre>
+    <h3 id="x-content-type-options">
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options"
+        >X-Content-Type-Options</a
+      >
+    </h3>
+    <p>
+      This header prevents the browser from attempting to guess the type of
+      content if the <code>Content-Type</code> header is not explicitly set.
+      This can prevent XSS exploits for websites that allow users to upload and
+      share files. For example, a user trying to download an image, but having
+      it treated as a different <code>Content-Type</code> like an executable,
+      which could be malicious. This header also applies to downloading browser
+      extensions. The only valid value for this header is <code>nosniff</code>.
+    </p>
+    <pre class="jsx"><code>{
+  key: &#39;X-Content-Type-Options&#39;,
+  value: &#39;nosniff&#39;
+}</code></pre>
+    <h3 id="referrer-policy">
+      <a href="https://scotthelme.co.uk/a-new-security-header-referrer-policy/"
+        >Referrer-Policy</a
+      >
+    </h3>
+    <p>
+      This header controls how much information the browser includes when
+      navigating from the current website (origin) to another. You can read
+      about the different options
+      <a href="https://scotthelme.co.uk/a-new-security-header-referrer-policy/"
+        >here</a
+      >.
+    </p>
+    <pre class="jsx"><code>{
+  key: &#39;Referrer-Policy&#39;,
+  value: &#39;origin-when-cross-origin&#39;
+}</code></pre>
+    <h3 id="content-security-policy">
+      <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP"
+        >Content-Security-Policy</a
+      >
+    </h3>
+    <p>
+      This header helps prevent cross-site scripting (XSS), clickjacking and
+      other code injection attacks. Content Security Policy (CSP) can specify
+      allowed origins for content including scripts, stylesheets, images, fonts,
+      objects, media (audio, video), iframes, and more.
+    </p>
+    <p>
+      You can read about the many different CSP options
+      <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP">here</a>.
+    </p>
+    <pre class="jsx"><code>{
+  key: &#39;Content-Security-Policy&#39;,
+  value: // Your CSP Policy
+}</code></pre>
+    <h3 id="references">References</h3>
+    <ul>
+      <li><a href="https://developer.mozilla.org">MDN</a></li>
+      <li>
+        <a href="https://blog.vnaik.com/posts/web-attacks.html">Varun Naik</a>
+      </li>
+      <li><a href="https://scotthelme.co.uk">Scott Helme</a></li>
+      <li>
+        <a href="https://observatory.mozilla.org/">Mozilla Observatory</a>
+      </li>
+    </ul>
+    <h2 id="related">Related</h2>
+    <p>For more information, we recommend the following sections:</p>
+    <div class="card">
+      <p>
+        <a href="/docs/api-reference/next.config.js/headers.md">
+          <b>Headers:</b>
+          <small>Add custom HTTP headers to your Next.js app.</small>
+        </a>
+      </p>
+    </div>
+  </body>
+</html>

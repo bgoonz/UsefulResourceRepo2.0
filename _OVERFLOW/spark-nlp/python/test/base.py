@@ -46,21 +46,18 @@ class SomeModelTest(override val uid: String) extends AnnotatorModel[SomeModelTe
 
 
 class SomeAnnotatorTest(AnnotatorApproach, HasRecursiveFit):
-
     def __init__(self):
-        super(SomeAnnotatorTest, self).__init__(classname="com.johnsnowlabs.nlp.SomeApproachTest")
+        super(SomeAnnotatorTest, self).__init__(
+            classname="com.johnsnowlabs.nlp.SomeApproachTest"
+        )
 
     def _create_model(self, java_model):
         return SomeModelTest(java_model=java_model)
 
 
 class SomeModelTest(AnnotatorModel, HasRecursiveTransform):
-
     def __init__(self, classname="com.johnsnowlabs.nlp.SomeModelTest", java_model=None):
-        super(SomeModelTest, self).__init__(
-            classname=classname,
-            java_model=java_model
-        )
+        super(SomeModelTest, self).__init__(classname=classname, java_model=java_model)
 
 
 class RecursiveTestSpec(unittest.TestCase):
@@ -68,15 +65,15 @@ class RecursiveTestSpec(unittest.TestCase):
         self.data = SparkContextForTest.data
 
     def runTest(self):
-        document_assembler = DocumentAssembler() \
-            .setInputCol("text") \
-            .setOutputCol("document")
-        tokenizer = Tokenizer() \
-            .setInputCols(["document"]) \
-            .setOutputCol("token")
-        some_annotator = SomeAnnotatorTest() \
-            .setInputCols(['token']) \
-            .setOutputCol('baaar')
-        pipeline = RecursivePipeline().setStages([document_assembler, tokenizer, some_annotator])
+        document_assembler = (
+            DocumentAssembler().setInputCol("text").setOutputCol("document")
+        )
+        tokenizer = Tokenizer().setInputCols(["document"]).setOutputCol("token")
+        some_annotator = (
+            SomeAnnotatorTest().setInputCols(["token"]).setOutputCol("baaar")
+        )
+        pipeline = RecursivePipeline().setStages(
+            [document_assembler, tokenizer, some_annotator]
+        )
         model = pipeline.fit(self.data)
         RecursivePipelineModel(model).transform(self.data).show()

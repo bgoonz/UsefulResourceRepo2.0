@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>smalltalk.html</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <ul>
+      <li>
+        Smalltalk is a fully object-oriented, dynamically typed, reflective
+        programming language with no ‘non-object’ types.
+      </li>
+      <li>
+        Smalltalk was created as the language to underpin the “new world” of
+        computing exemplified by “human–computer symbiosis.”
+      </li>
+      <li>
+        It was designed and created in part for educational use, more so for
+        constructionist learning, at the Learning Research Group (LRG) of Xerox
+        PARC by Alan Kay, Dan Ingalls, Adele Goldberg, Ted Kaehler, Scott
+        Wallace, and others during the 1970s.
+      </li>
+    </ul>
+    <p>
+      <code
+        >Feedback highly appreciated! Reach me at
+        [@jigyasa_grover](https://twitter.com/jigyasa_grover) or send me an
+        e-mail at grover.jigyasa1@gmail.com.</code
+      >
+    </p>
+    <h2 id="the-basics">The Basics</h2>
+    <h3 id="everything-is-an-object">Everything is an object</h3>
+    <p>
+      Yes, everything. Integers are instances of one of the numeric classes.
+      Classes are instances of the class Metaclass and are just as manipulable
+      as any other object. All classes are part of a single class tree; no
+      disjoint class trees. Stack frames are objects and can be manipulated,
+      which is how the debugger works. There are no pointers into memory
+      locations that you can dereference and mess with.
+    </p>
+    <h3 id="functions-are-not-called-messages-are-sent-to-objects">
+      Functions are not called; messages are sent to objects
+    </h3>
+    <ul>
+      <li>
+        Work is done by sending messages to objects, which decide how to respond
+        to that message and run a method as a result, which eventually returns
+        some object to the original message sending code.
+      </li>
+      <li>
+        The system knows the class of the object receiving a message and looks
+        up the message in that class’s list of methods. If it is not found, the
+        lookup continues in the super class until either it is found or the root
+        of the classes is reached and there is still no relevant method.
+      </li>
+      <li>
+        If a suitable method is found the code is run, and the same process
+        keeps on going with all the methods sent by that method and so on
+        forever.
+      </li>
+      <li>
+        If no suitable method is found an exception is raised, which typically
+        results in a user interface notifier to tell the user that the message
+        was not understood. It is entirely possible to catch the exception and
+        do something to fix the problem, which might range from ‘ignore it’ to
+        ‘load some new packages for this class and try again’.
+      </li>
+      <li>
+        A method (more strictly an instance of the class CompiledMethod) is a
+        chunk of Smalltalk code that has been compiled into bytecodes. Executing
+        methods start at the beginning and return to the sender when a return is
+        encountered (we use ^ to signify ‘return the following object’) or the
+        end of the code is reached, in which case the current object running the
+        code is returned.
+      </li>
+    </ul>
+    <h3 id="simple-syntax">Simple syntax</h3>
+    <p>
+      Smalltalk has a simple syntax with very few rules. The most basic
+      operation is to send a message to an object <code>anObject aMessage</code>
+    </p>
+    <p>There are three sorts of messages</p>
+    <ul>
+      <li>
+        unary - a single symbol that may be several words conjoined in what we
+        call camelcase form, with no arguments. For example ‘size’,
+        ‘reverseBytes’, ‘convertToLargerFormatPixels’
+      </li>
+      <li>
+        binary - a small set of symbols of the sort often used for arithmetic
+        operations in most languages, requiring a single argument. For example
+        ‘+’, ‘//’, ‘@’. We do not use traditional arithmetic precedence,
+        something to keep an eye on.
+      </li>
+      <li>
+        keyword - the general form where multiple arguments can be passed. As
+        with the unary form we use camelcase to join words together but
+        arguments are inserted in the midst of the message with colons used to
+        separate them lexically. For example ‘setTemperature:’, ‘at:put:’,
+        ‘drawFrom:to:lineWidth:fillColor:’
+      </li>
+    </ul>
+    <h4 id="an-example">An example</h4>
+    <p>
+      <code>result := myObject doSomethingWith: thatObject</code> We are sending
+      the message ‘doSomethingWith:’ to myObject. This happens to be a message
+      that has a single argument but that’s not important yet. ‘myObject’ is a
+      ‘MyExampleClass’ instance so the system looks at the list of messages
+      understood by MyExampleClass
+    </p>
+    <ul>
+      <li>beClever</li>
+      <li>doWeirdThing:</li>
+      <li>doSomethingWith</li>
+    </ul>
+    <p>
+      In searching we see what initially looks like a match - but no, it lacks
+      the final colon. So we find the super class of MyExampleClass -
+      BigExampleClass. Which has a list of known messages of its own
+    </p>
+    <ul>
+      <li>beClever</li>
+      <li>doSomethingWith:</li>
+      <li>buildCastleInAir</li>
+      <li>annoyUserByDoing:</li>
+    </ul>
+    <p>We find a proper exact match and start to execute the code:</p>
+    <pre class="smalltalk"><code>doSomethingWith: argumentObject
+    self size &gt; 4 ifTrue: [^argumentObject sizeRelatingTo: self].</code></pre>
+    <p>
+      Everything here except the <code>^</code> involves sending more messages.
+      Event the <code>ifTrue:</code> that you might think is a language control
+      structure is just Smalltalk code.
+    </p>
+    <p>
+      We start by sending <code>size</code> to <code>self</code>.
+      <code>self</code> is the object currently running the code - so in this
+      case it is the myObject we started with. <code>size</code> is a very
+      common message that we might anticipate tells us something about how big
+      an object is; you could look it up with the Smalltalk tools very simply.
+      The result we get is then sent the message <code>&gt;</code> with the
+      plain old integer 4 (which is an object too; no strange primitive types to
+      pollute the system here) and nobody should be surprised the
+      <code>&gt;</code> is a comparison that answers true or false. That boolean
+      (which is actually a Boolean object in Smalltalk) is sent the message
+      <code>ifTrue:</code> with the block of code between the <code>[]</code> as
+      its argument; obvioulsy a true boolean might be expected to run that block
+      of code and a false to ignore it.
+    </p>
+    <p>
+      If the block is run then we do some more message sending to the argument
+      object and noting the <code>^</code> we return the answer back to our
+      starting point and it gets assigned to <code>result</code>. If the block
+      is ignored we seem to run out of code and so <code>self</code> is returned
+      and assigned to <code>result</code>.
+    </p>
+    <h2 id="smalltalk-quick-reference-cheat-sheet">
+      Smalltalk quick reference cheat-sheet
+    </h2>
+    <p>
+      Taken from
+      <a href="http://www.angelfire.com/tx4/cus/notes/smalltalk.html"
+        >Smalltalk Cheatsheet</a
+      >
+    </p>
+    <h4 id="allowable-characters">Allowable characters:</h4>
+    <ul>
+      <li>a-z</li>
+      <li>A-Z</li>
+      <li>0-9</li>
+      <li>.+/*~&lt;&gt;@%|&amp;?</li>
+      <li>blank, tab, cr, ff, lf</li>
+    </ul>
+    <h4 id="variables">Variables:</h4>
+    <ul>
+      <li>variable names must be declared before use but are untyped</li>
+      <li>
+        shared vars (globals, class vars) conventionally begin with uppercase
+        (except the reserved names shown below)
+      </li>
+      <li>
+        local vars (instance vars, temporaries, method &amp; block arguments)
+        conventionally begin with lowercase
+      </li>
+      <li>
+        reserved names: <code>nil</code>, <code>true</code>, <code>false</code>,
+        <code>self</code>, <code>super</code>, and <code>thisContext</code>
+      </li>
+    </ul>
+    <h4 id="variable-scope">Variable scope:</h4>
+    <ul>
+      <li>
+        Global: defined in a Dictionary named ‘Smalltalk’ and accessible by all
+        objects in system
+      </li>
+      <li>
+        Special: (reserved) <code>Smalltalk</code>, <code>super</code>,
+        <code>self</code>, <code>true</code>, <code>false</code>, &amp;
+        <code>nil</code>
+      </li>
+      <li>Method Temporary: local to a method</li>
+      <li>Block Temporary: local to a block</li>
+      <li>
+        Pool: variables in a Dictionary object, possibly shared with classes not
+        directly related by inheritance
+      </li>
+      <li>
+        Method Parameters: automatic method temp vars that name the incoming
+        parameters. Cannot be assigned to
+      </li>
+      <li>
+        Block Parameters: automatic block temp vars that name the incoming
+        parameters. Cannot be assigned to
+      </li>
+      <li>Class: shared with all instances of a class &amp; its subclasses</li>
+      <li>
+        Class Instance: unique to each instance of a class. Too commonly
+        confused with class variables
+      </li>
+      <li>Instance Variables: unique to each instance of a class</li>
+    </ul>
+    <p>
+      <code>"Comments are enclosed in quotes and may be arbitrary length"</code>
+    </p>
+    <p>
+      <code
+        >"Period (.) is the statement separator. Not required on last line of a
+        method"</code
+      >
+    </p>
+    <h4 id="transcript">Transcript:</h4>
+    <pre
+      class="smalltalk"
+    ><code>Transcript clear.                        &quot;clear to transcript window&quot;
+Transcript show: &#39;Hello World&#39;.          &quot;output string in transcript window&quot;
+Transcript nextPutAll: &#39;Hello World&#39;.    &quot;output string in transcript window&quot;
+Transcript nextPut: $A.                  &quot;output character in transcript window&quot;
+Transcript space.                        &quot;output space character in transcript window&quot;
+Transcript tab.                          &quot;output tab character in transcript window&quot;
+Transcript cr.                           &quot;carriage return / linefeed&quot;
+&#39;Hello&#39; printOn: Transcript.             &quot;append print string into the window&quot;
+&#39;Hello&#39; storeOn: Transcript.             &quot;append store string into the window&quot;
+Transcript endEntry.                     &quot;flush the output buffer&quot;</code></pre>
+    <h4 id="assignment">Assignment:</h4>
+    <pre class="smalltalk"><code>| x y |
+x _ 4.                            &quot;assignment (Squeak) &lt;-&quot;
+x := 5.                           &quot;assignment&quot;
+x := y := z := 6.                 &quot;compound assignment&quot;
+x := (y := 6) + 1.
+x := Object new.                  &quot;bind to allocated instance of a class&quot;</code></pre>
+    <h4 id="constants">Constants:</h4>
+    <pre class="smalltalk"><code>| b |
+b := true.                &quot;true constant&quot;
+b := false.               &quot;false constant&quot;
+x := nil.                 &quot;nil object constant&quot;
+x := 1.                   &quot;integer constants&quot;
+x := 3.14.                &quot;float constants&quot;
+x := 2e-2.                &quot;fractional constants&quot;
+x := 16r0F.               &quot;hex constant&quot;.
+x := -1.                  &quot;negative constants&quot;
+x := &#39;Hello&#39;.             &quot;string constant&quot;
+x := &#39;I&#39;&#39;m here&#39;.         &quot;single quote escape&quot;
+x := $A.                  &quot;character constant&quot;
+x := $ .                  &quot;character constant (space)&quot;
+x := #aSymbol.            &quot;symbol constants&quot;
+x := #(3 2 1).            &quot;array constants&quot;
+x := #(&#39;abc&#39; 2 $a).       &quot;mixing of types allowed&quot;</code></pre>
+    <h4 id="booleans">Booleans:</h4>
+    <pre class="smalltalk"><code>| b x y |
+x := 1. y := 2.
+b := (x = y).                         &quot;equals&quot;
+b := (x ~= y).                         &quot;not equals&quot;
+b := (x == y).                         &quot;identical&quot;
+b := (x ~~ y).                         &quot;not identical&quot;
+b := (x &gt; y).                          &quot;greater than&quot;
+b := (x &lt; y).                          &quot;less than&quot;
+b := (x &gt;= y).                         &quot;greater than or equal&quot;
+b := (x &lt;= y).                         &quot;less than or equal&quot;
+b := b not.                            &quot;boolean not&quot;
+b := (x &lt; 5) &amp; (y &gt; 1).                &quot;boolean and&quot;
+b := (x &lt; 5) | (y &gt; 1).                &quot;boolean or&quot;
+b := (x &lt; 5) and: [y &gt; 1].             &quot;boolean and (short-circuit)&quot;
+b := (x &lt; 5) or: [y &gt; 1].              &quot;boolean or (short-circuit)&quot;
+b := (x &lt; 5) eqv: (y &gt; 1).             &quot;test if both true or both false&quot;
+b := (x &lt; 5) xor: (y &gt; 1).             &quot;test if one true and other false&quot;
+b := 5 between: 3 and: 12.             &quot;between (inclusive)&quot;
+b := 123 isKindOf: Number.             &quot;test if object is class or subclass of&quot;
+b := 123 isMemberOf: SmallInteger.     &quot;test if object is type of class&quot;
+b := 123 respondsTo: sqrt.             &quot;test if object responds to message&quot;
+b := x isNil.                          &quot;test if object is nil&quot;
+b := x isZero.                         &quot;test if number is zero&quot;
+b := x positive.                       &quot;test if number is positive&quot;
+b := x strictlyPositive.               &quot;test if number is greater than zero&quot;
+b := x negative.                       &quot;test if number is negative&quot;
+b := x even.                           &quot;test if number is even&quot;
+b := x odd.                            &quot;test if number is odd&quot;
+b := x isLiteral.                      &quot;test if literal constant&quot;
+b := x isInteger.                      &quot;test if object is integer&quot;
+b := x isFloat.                        &quot;test if object is float&quot;
+b := x isNumber.                       &quot;test if object is number&quot;
+b := $A isUppercase.                   &quot;test if upper case character&quot;
+b := $A isLowercase.                   &quot;test if lower case character&quot;</code></pre>
+    <h4 id="arithmetic-expressions">Arithmetic expressions:</h4>
+    <pre class="smalltalk"><code>| x |
+x := 6 + 3.                             &quot;addition&quot;
+x := 6 - 3.                             &quot;subtraction&quot;
+x := 6 * 3.                             &quot;multiplication&quot;
+x := 1 + 2 * 3.                         &quot;evaluation always left to right (1 + 2) * 3&quot;
+x := 5 / 3.                             &quot;division with fractional result&quot;
+x := 5.0 / 3.0.                         &quot;division with float result&quot;
+x := 5.0 // 3.0.                        &quot;integer divide&quot;
+x := 5.0 \\ 3.0.                        &quot;integer remainder&quot;
+x := -5.                                &quot;unary minus&quot;
+x := 5 sign.                            &quot;numeric sign (1, -1 or 0)&quot;
+x := 5 negated.                         &quot;negate receiver&quot;
+x := 1.2 integerPart.                   &quot;integer part of number (1.0)&quot;
+x := 1.2 fractionPart.                  &quot;fractional part of number (0.2)&quot;
+x := 5 reciprocal.                      &quot;reciprocal function&quot;
+x := 6 * 3.1.                           &quot;auto convert to float&quot;
+x := 5 squared.                         &quot;square function&quot;
+x := 25 sqrt.                           &quot;square root&quot;
+x := 5 raisedTo: 2.                     &quot;power function&quot;
+x := 5 raisedToInteger: 2.              &quot;power function with integer&quot;
+x := 5 exp.                             &quot;exponential&quot;
+x := -5 abs.                            &quot;absolute value&quot;
+x := 3.99 rounded.                      &quot;round&quot;
+x := 3.99 truncated.                    &quot;truncate&quot;
+x := 3.99 roundTo: 1.                   &quot;round to specified decimal places&quot;
+x := 3.99 truncateTo: 1.                &quot;truncate to specified decimal places&quot;
+x := 3.99 floor.                        &quot;truncate&quot;
+x := 3.99 ceiling.                      &quot;round up&quot;
+x := 5 factorial.                       &quot;factorial&quot;
+x := -5 quo: 3.                         &quot;integer divide rounded toward zero&quot;
+x := -5 rem: 3.                         &quot;integer remainder rounded toward zero&quot;
+x := 28 gcd: 12.                        &quot;greatest common denominator&quot;
+x := 28 lcm: 12.                        &quot;least common multiple&quot;
+x := 100 ln.                            &quot;natural logarithm&quot;
+x := 100 log.                           &quot;base 10 logarithm&quot;
+x := 100 log: 10.                       &quot;floor of the log&quot;
+x := 180 degreesToRadians.              &quot;convert degrees to radians&quot;
+x := 3.14 radiansToDegrees.             &quot;convert radians to degrees&quot;
+x := 0.7 sin.                           &quot;sine&quot;
+x := 0.7 cos.                           &quot;cosine&quot;
+x := 0.7 tan.                           &quot;tangent&quot;
+x := 0.7 arcSin.                        &quot;arcsine&quot;
+x := 0.7 arcCos.                        &quot;arccosine&quot;
+x := 0.7 arcTan.                        &quot;arctangent&quot;
+x := 10 max: 20.                        &quot;get maximum of two numbers&quot;
+x := 10 min: 20.                        &quot;get minimum of two numbers&quot;
+x := Float pi.                          &quot;pi&quot;
+x := Float e.                           &quot;exp constant&quot;
+x := Float infinity.                    &quot;infinity&quot;
+x := Float nan.                         &quot;not-a-number&quot;
+x := Random new next; yourself. x next. &quot;random number stream (0.0 to 1.0)&quot;
+x := 100 atRandom.                      &quot;quick random number&quot;</code></pre>
+    <h4 id="bitwise-manipulation">Bitwise Manipulation:</h4>
+    <pre class="smalltalk"><code>| b x |
+x := 16rFF bitAnd: 16r0F.           &quot;and bits&quot;
+x := 16rF0 bitOr: 16r0F.            &quot;or bits&quot;
+x := 16rFF bitXor: 16r0F.           &quot;xor bits&quot;
+x := 16rFF bitInvert.               &quot;invert bits&quot;
+x := 16r0F bitShift: 4.             &quot;left shift&quot;
+x := 16rF0 bitShift: -4.            &quot;right shift&quot;
+&quot;x := 16r80 bitAt: 7.&quot;              &quot;bit at position (0|1) [!Squeak]&quot;
+x := 16r80 highbit.                 &quot;position of highest bit set&quot;
+b := 16rFF allMask: 16r0F.          &quot;test if all bits set in mask set in receiver&quot;
+b := 16rFF anyMask: 16r0F.          &quot;test if any bits set in mask set in receiver&quot;
+b := 16rFF noMask: 16r0F.           &quot;test if all bits set in mask clear in receiver&quot;</code></pre>
+    <h4 id="conversion">Conversion:</h4>
+    <pre class="smalltalk"><code>| x |
+x := 3.99 asInteger.               &quot;convert number to integer (truncates in Squeak)&quot;
+x := 3.99 asFraction.              &quot;convert number to fraction&quot;
+x := 3 asFloat.                    &quot;convert number to float&quot;
+x := 65 asCharacter.               &quot;convert integer to character&quot;
+x := $A asciiValue.                &quot;convert character to integer&quot;
+x := 3.99 printString.             &quot;convert object to string via printOn:&quot;
+x := 3.99 storeString.             &quot;convert object to string via storeOn:&quot;
+x := 15 radix: 16.                 &quot;convert to string in given base&quot;
+x := 15 printStringBase: 16.
+x := 15 storeStringBase: 16.</code></pre>
+    <h4 id="blocks">Blocks:</h4>
+    <ul>
+      <li>blocks are objects and may be assigned to a variable</li>
+      <li>value is last expression evaluated unless explicit return</li>
+      <li>blocks may be nested</li>
+      <li>specification [ arguments | | localvars | expressions ]</li>
+      <li>Squeak does not currently support localvars in blocks</li>
+      <li>max of three arguments allowed</li>
+      <li>
+        <code>^</code>expression terminates block &amp; method (exits all nested
+        blocks)
+      </li>
+      <li>
+        blocks intended for long term storage should not contain <code>^</code>
+      </li>
+    </ul>
+    <pre class="smalltalk"><code>| x y z |
+x := [ y := 1. z := 2. ]. x value.                          &quot;simple block usage&quot;
+x := [ :argOne :argTwo |   argOne, &#39; and &#39; , argTwo.].      &quot;set up block with argument passing&quot;
+Transcript show: (x value: &#39;First&#39; value: &#39;Second&#39;); cr.    &quot;use block with argument passing&quot;
+
+&quot;x := [ | z | z := 1.]. *** localvars not available in squeak blocks&quot;</code></pre>
+    <h4 id="method-calls">Method calls:</h4>
+    <ul>
+      <li>unary methods are messages with no arguments</li>
+      <li>binary methods</li>
+      <li>
+        keyword methods are messages with selectors including colons standard
+        categories/protocols:
+      </li>
+      <li>initialize-release (methods called for new instance)</li>
+      <li>accessing (get/set methods)</li>
+      <li>testing (boolean tests - is)</li>
+      <li>comparing (boolean tests with parameter</li>
+      <li>displaying (gui related methods)</li>
+      <li>printing (methods for printing)</li>
+      <li>updating (receive notification of changes)</li>
+      <li>private (methods private to class)</li>
+      <li>instance-creation (class methods for creating instance)</li>
+    </ul>
+    <pre class="smalltalk"><code>| x |
+x := 2 sqrt.                                  &quot;unary message&quot;
+x := 2 raisedTo: 10.                          &quot;keyword message&quot;
+x := 194 * 9.                                 &quot;binary message&quot;
+Transcript show: (194 * 9) printString; cr.   &quot;combination (chaining)&quot;
+x := 2 perform: #sqrt.                        &quot;indirect method invocation&quot;
+Transcript                                    &quot;Cascading - send multiple messages to receiver&quot;
+   show: &#39;hello &#39;;
+   show: &#39;world&#39;;
+   cr.
+x := 3 + 2; * 100.                            &quot;result=300. Sends message to same receiver (3)&quot;</code></pre>
+    <h4 id="conditional-statements">Conditional Statements:</h4>
+    <pre class="smalltalk"><code>| x |
+x &gt; 10 ifTrue: [Transcript show: &#39;ifTrue&#39;; cr].     &quot;if then&quot;
+x &gt; 10 ifFalse: [Transcript show: &#39;ifFalse&#39;; cr].   &quot;if else&quot;
+
+&quot;if then else&quot;
+x &gt; 10                                                      
+   ifTrue: [Transcript show: &#39;ifTrue&#39;; cr]
+   ifFalse: [Transcript show: &#39;ifFalse&#39;; cr].
+
+&quot;if else then&quot;
+x &gt; 10                                                      
+   ifFalse: [Transcript show: &#39;ifFalse&#39;; cr]
+   ifTrue: [Transcript show: &#39;ifTrue&#39;; cr].
+Transcript
+   show:
+      (x &gt; 10
+         ifTrue: [&#39;ifTrue&#39;]
+         ifFalse: [&#39;ifFalse&#39;]);
+   cr.
+
+&quot;nested if then else&quot;
+Transcript                                                  
+   show:
+      (x &gt; 10
+         ifTrue: [x &gt; 5
+            ifTrue: [&#39;A&#39;]
+            ifFalse: [&#39;B&#39;]]
+         ifFalse: [&#39;C&#39;]);
+   cr.
+
+&quot;switch functionality&quot;
+switch := Dictionary new.     
+switch at: $A put: [Transcript show: &#39;Case A&#39;; cr].
+switch at: $B put: [Transcript show: &#39;Case B&#39;; cr].
+switch at: $C put: [Transcript show: &#39;Case C&#39;; cr].
+result := (switch at: $B) value.</code></pre>
+    <h4 id="iteration-statements">Iteration statements:</h4>
+    <pre class="smalltalk"><code>| x y |
+x := 4. y := 1.
+[x &gt; 0] whileTrue: [x := x - 1. y := y * 2].     &quot;while true loop&quot;
+[x &gt;= 4] whileFalse: [x := x + 1. y := y * 2].   &quot;while false loop&quot;
+x timesRepeat: [y := y * 2].                     &quot;times repeat loop (i := 1 to x)&quot;
+1 to: x do: [:a | y := y * 2].                   &quot;for loop&quot;
+1 to: x by: 2 do: [:a | y := y / 2].             &quot;for loop with specified increment&quot;
+#(5 4 3) do: [:a | x := x + a].                  &quot;iterate over array elements&quot;</code></pre>
+    <h4 id="character">Character:</h4>
+    <pre class="smalltalk"><code>| x y |
+x := $A.                         &quot;character assignment&quot;
+y := x isLowercase.              &quot;test if lower case&quot;
+y := x isUppercase.              &quot;test if upper case&quot;
+y := x isLetter.                 &quot;test if letter&quot;
+y := x isDigit.                  &quot;test if digit&quot;
+y := x isAlphaNumeric.           &quot;test if alphanumeric&quot;
+y := x isSeparator.              &quot;test if separator char&quot;
+y := x isVowel.                  &quot;test if vowel&quot;
+y := x digitValue.               &quot;convert to numeric digit value&quot;
+y := x asLowercase.              &quot;convert to lower case&quot;
+y := x asUppercase.              &quot;convert to upper case&quot;
+y := x asciiValue.               &quot;convert to numeric ascii value&quot;
+y := x asString.                 &quot;convert to string&quot;
+b := $A &lt;= $B.                   &quot;comparison&quot;
+y := $A max: $B.</code></pre>
+    <h4 id="symbol">Symbol:</h4>
+    <pre class="smalltalk"><code>| b x y |
+x := #Hello.                                      &quot;symbol assignment&quot;
+y := #Symbol, #Concatenation.                     &quot;symbol concatenation (result is string)&quot;
+b := x isEmpty.                                   &quot;test if symbol is empty&quot;
+y := x size.                                      &quot;string size&quot;
+y := x at: 2.                                     &quot;char at location&quot;
+y := x copyFrom: 2 to: 4.                         &quot;substring&quot;
+y := x indexOf: $e ifAbsent: [0].                 &quot;first position of character within string&quot;
+x do: [:a | Transcript show: a printString; cr].  &quot;iterate over the string&quot;
+b := x conform: [:a | (a &gt;= $a) &amp; (a &lt;= $z)].     &quot;test if all elements meet condition&quot;
+y := x select: [:a | a &gt; $a].                     &quot;return all elements that meet condition&quot;
+y := x asString.                                  &quot;convert symbol to string&quot;
+y := x asText.                                    &quot;convert symbol to text&quot;
+y := x asArray.                                   &quot;convert symbol to array&quot;
+y := x asOrderedCollection.                       &quot;convert symbol to ordered collection&quot;
+y := x asSortedCollection.                        &quot;convert symbol to sorted collection&quot;
+y := x asBag.                                     &quot;convert symbol to bag collection&quot;
+y := x asSet.                                     &quot;convert symbol to set collection&quot;</code></pre>
+    <h4 id="string">String:</h4>
+    <pre class="smalltalk"><code>| b x y |
+x := &#39;This is a string&#39;.                           &quot;string assignment&quot;
+x := &#39;String&#39;, &#39;Concatenation&#39;.                    &quot;string concatenation&quot;
+b := x isEmpty.                                    &quot;test if string is empty&quot;
+y := x size.                                       &quot;string size&quot;
+y := x at: 2.                                      &quot;char at location&quot;
+y := x copyFrom: 2 to: 4.                          &quot;substring&quot;
+y := x indexOf: $a ifAbsent: [0].                  &quot;first position of character within string&quot;
+x := String new: 4.                                &quot;allocate string object&quot;
+x                                                  &quot;set string elements&quot;
+   at: 1 put: $a;
+   at: 2 put: $b;
+   at: 3 put: $c;
+   at: 4 put: $e.
+x := String with: $a with: $b with: $c with: $d.  &quot;set up to 4 elements at a time&quot;
+x do: [:a | Transcript show: a printString; cr].  &quot;iterate over the string&quot;
+b := x conform: [:a | (a &gt;= $a) &amp; (a &lt;= $z)].     &quot;test if all elements meet condition&quot;
+y := x select: [:a | a &gt; $a].                     &quot;return all elements that meet condition&quot;
+y := x asSymbol.                                  &quot;convert string to symbol&quot;
+y := x asArray.                                   &quot;convert string to array&quot;
+x := &#39;ABCD&#39; asByteArray.                          &quot;convert string to byte array&quot;
+y := x asOrderedCollection.                       &quot;convert string to ordered collection&quot;
+y := x asSortedCollection.                        &quot;convert string to sorted collection&quot;
+y := x asBag.                                     &quot;convert string to bag collection&quot;
+y := x asSet.                                     &quot;convert string to set collection&quot;
+y := x shuffled.                                  &quot;randomly shuffle string&quot;</code></pre>
+    <h4 id="array">Array:</h4>
+    <p>
+      Fixed length collection - ByteArray: Array limited to byte elements
+      (0-255) - WordArray: Array limited to word elements (0-2^32)
+    </p>
+    <pre class="smalltalk"><code>| b x y sum max |
+x := #(4 3 2 1).                                 &quot;constant array&quot;
+x := Array with: 5 with: 4 with: 3 with: 2.      &quot;create array with up to 4 elements&quot;
+x := Array new: 4.                               &quot;allocate an array with specified size&quot;
+x                                                &quot;set array elements&quot;
+   at: 1 put: 5;
+   at: 2 put: 4;
+   at: 3 put: 3;
+   at: 4 put: 2.
+b := x isEmpty.                                  &quot;test if array is empty&quot;
+y := x size.                                     &quot;array size&quot;
+y := x at: 4.                                    &quot;get array element at index&quot;
+b := x includes: 3.                              &quot;test if element is in array&quot;
+y := x copyFrom: 2 to: 4.                        &quot;subarray&quot;
+y := x indexOf: 3 ifAbsent: [0].                 &quot;first position of element within array&quot;
+y := x occurrencesOf: 3.                         &quot;number of times object in collection&quot;
+x do: [:a | Transcript show: a printString; cr]. &quot;iterate over the array&quot;
+b := x conform: [:a | (a &gt;= 1) &amp; (a &lt;= 4)].      &quot;test if all elements meet condition&quot;
+y := x select: [:a | a &gt; 2].                     &quot;return collection of elements that pass test&quot;
+y := x reject: [:a | a &lt; 2].                     &quot;return collection of elements that fail test&quot;
+y := x collect: [:a | a + a].                    &quot;transform each element for new collection&quot;
+y := x detect: [:a | a &gt; 3] ifNone: [].          &quot;find position of first element that passes test&quot;
+sum := 0. x do: [:a | sum := sum + a]. sum.      &quot;sum array elements&quot;
+sum := 0. 1 to: (x size) 
+            do: [:a | sum := sum + (x at: a)].   &quot;sum array elements&quot;
+sum := x inject: 0 into: [:a :c | a + c].        &quot;sum array elements&quot;
+max := x inject: 0 into: [:a :c | (a &gt; c)        &quot;find max element in array&quot;
+   ifTrue: [a]
+   ifFalse: [c]].
+y := x shuffled.                                 &quot;randomly shuffle collection&quot;
+y := x asArray.                                  &quot;convert to array&quot;
+&quot;y := x asByteArray.&quot;                            &quot;note: this instruction not available on Squeak&quot;
+y := x asWordArray.                              &quot;convert to word array&quot;
+y := x asOrderedCollection.                      &quot;convert to ordered collection&quot;
+y := x asSortedCollection.                       &quot;convert to sorted collection&quot;
+y := x asBag.                                    &quot;convert to bag collection&quot;
+y := x asSet.                                    &quot;convert to set collection&quot;</code></pre>
+    <h4 id="orderedcollection">OrderedCollection:</h4>
+    <p>acts like an expandable array</p>
+    <pre class="smalltalk"><code>| b x y sum max |
+x := OrderedCollection 
+     with: 4 with: 3 with: 2 with: 1.            &quot;create collection with up to 4 elements&quot;
+x := OrderedCollection new.                      &quot;allocate collection&quot;
+x add: 3; add: 2; add: 1; add: 4; yourself.      &quot;add element to collection&quot;
+y := x addFirst: 5.                              &quot;add element at beginning of collection&quot;
+y := x removeFirst.                              &quot;remove first element in collection&quot;
+y := x addLast: 6.                               &quot;add element at end of collection&quot;
+y := x removeLast.                               &quot;remove last element in collection&quot;
+y := x addAll: #(7 8 9).                         &quot;add multiple elements to collection&quot;
+y := x removeAll: #(7 8 9).                      &quot;remove multiple elements from collection&quot;
+x at: 2 put: 3.                                  &quot;set element at index&quot;
+y := x remove: 5 ifAbsent: [].                   &quot;remove element from collection&quot;
+b := x isEmpty.                                  &quot;test if empty&quot;
+y := x size.                                     &quot;number of elements&quot;
+y := x at: 2.                                    &quot;retrieve element at index&quot;
+y := x first.                                    &quot;retrieve first element in collection&quot;
+y := x last.                                     &quot;retrieve last element in collection&quot;
+b := x includes: 5.                              &quot;test if element is in collection&quot;
+y := x copyFrom: 2 to: 3.                        &quot;subcollection&quot;
+y := x indexOf: 3 ifAbsent: [0].                 &quot;first position of element within collection&quot;
+y := x occurrencesOf: 3.                         &quot;number of times object in collection&quot;
+x do: [:a | Transcript show: a printString; cr]. &quot;iterate over the collection&quot;
+b := x conform: [:a | (a &gt;= 1) &amp; (a &lt;= 4)].      &quot;test if all elements meet condition&quot;
+y := x select: [:a | a &gt; 2].                     &quot;return collection of elements that pass test&quot;
+y := x reject: [:a | a &lt; 2].                     &quot;return collection of elements that fail test&quot;
+y := x collect: [:a | a + a].                    &quot;transform each element for new collection&quot;
+y := x detect: [:a | a &gt; 3] ifNone: [].          &quot;find position of first element that passes test&quot;
+sum := 0. x do: [:a | sum := sum + a]. sum.      &quot;sum elements&quot;
+sum := 0. 1 to: (x size) 
+            do: [:a | sum := sum + (x at: a)].   &quot;sum elements&quot;
+sum := x inject: 0 into: [:a :c | a + c].        &quot;sum elements&quot;
+max := x inject: 0 into: [:a :c | (a &gt; c)        &quot;find max element in collection&quot;
+   ifTrue: [a]
+   ifFalse: [c]].
+y := x shuffled.                                 &quot;randomly shuffle collection&quot;
+y := x asArray.                                  &quot;convert to array&quot;
+y := x asOrderedCollection.                      &quot;convert to ordered collection&quot;
+y := x asSortedCollection.                       &quot;convert to sorted collection&quot;
+y := x asBag.                                    &quot;convert to bag collection&quot;
+y := x asSet.                                    &quot;convert to set collection&quot;</code></pre>
+    <h4 id="sortedcollection">SortedCollection:</h4>
+    <p>
+      like OrderedCollection except order of elements determined by sorting
+      criteria
+    </p>
+    <pre class="smalltalk"><code>| b x y sum max |
+x := SortedCollection 
+     with: 4 with: 3 with: 2 with: 1.              &quot;create collection with up to 4 elements&quot;
+x := SortedCollection new.                         &quot;allocate collection&quot;
+x := SortedCollection sortBlock: [:a :c | a &gt; c].  &quot;set sort criteria&quot;
+x add: 3; add: 2; add: 1; add: 4; yourself.        &quot;add element to collection&quot;
+y := x addFirst: 5.                                &quot;add element at beginning of collection&quot;
+y := x removeFirst.                                &quot;remove first element in collection&quot;
+y := x addLast: 6.                                 &quot;add element at end of collection&quot;
+y := x removeLast.                                 &quot;remove last element in collection&quot;
+y := x addAll: #(7 8 9).                           &quot;add multiple elements to collection&quot;
+y := x removeAll: #(7 8 9).                        &quot;remove multiple elements from collection&quot;
+y := x remove: 5 ifAbsent: [].                     &quot;remove element from collection&quot;
+b := x isEmpty.                                    &quot;test if empty&quot;
+y := x size.                                       &quot;number of elements&quot;
+y := x at: 2.                                      &quot;retrieve element at index&quot;
+y := x first.                                      &quot;retrieve first element in collection&quot;
+y := x last.                                       &quot;retrieve last element in collection&quot;
+b := x includes: 4.                                &quot;test if element is in collection&quot;
+y := x copyFrom: 2 to: 3.                          &quot;subcollection&quot;
+y := x indexOf: 3 ifAbsent: [0].                   &quot;first position of element within collection&quot;
+y := x occurrencesOf: 3.                           &quot;number of times object in collection&quot;
+x do: [:a | Transcript show: a printString; cr].   &quot;iterate over the collection&quot;
+b := x conform: [:a | (a &gt;= 1) &amp; (a &lt;= 4)].        &quot;test if all elements meet condition&quot;
+y := x select: [:a | a &gt; 2].                       &quot;return collection of elements that pass test&quot;
+y := x reject: [:a | a &lt; 2].                       &quot;return collection of elements that fail test&quot;
+y := x collect: [:a | a + a].                      &quot;transform each element for new collection&quot;
+y := x detect: [:a | a &gt; 3] ifNone: [].            &quot;find position of first element that passes test&quot;
+sum := 0. x do: [:a | sum := sum + a]. sum.        &quot;sum elements&quot;
+sum := 0. 1 to: (x size) 
+            do: [:a | sum := sum + (x at: a)].     &quot;sum elements&quot;
+sum := x inject: 0 into: [:a :c | a + c].          &quot;sum elements&quot;
+max := x inject: 0 into: [:a :c | (a &gt; c)          &quot;find max element in collection&quot;
+   ifTrue: [a]
+   ifFalse: [c]].
+y := x asArray.                                     &quot;convert to array&quot;
+y := x asOrderedCollection.                         &quot;convert to ordered collection&quot;
+y := x asSortedCollection.                          &quot;convert to sorted collection&quot;
+y := x asBag.                                       &quot;convert to bag collection&quot;
+y := x asSet.                                       &quot;convert to set collection&quot;</code></pre>
+    <h4 id="bag">Bag:</h4>
+    <p>like OrderedCollection except elements are in no particular order</p>
+    <pre class="smalltalk"><code>| b x y sum max |
+x := Bag with: 4 with: 3 with: 2 with: 1.        &quot;create collection with up to 4 elements&quot;
+x := Bag new.                                    &quot;allocate collection&quot;
+x add: 4; add: 3; add: 1; add: 2; yourself.      &quot;add element to collection&quot;
+x add: 3 withOccurrences: 2.                     &quot;add multiple copies to collection&quot;
+y := x addAll: #(7 8 9).                         &quot;add multiple elements to collection&quot;
+y := x removeAll: #(7 8 9).                      &quot;remove multiple elements from collection&quot;
+y := x remove: 4 ifAbsent: [].                   &quot;remove element from collection&quot;
+b := x isEmpty.                                  &quot;test if empty&quot;
+y := x size.                                     &quot;number of elements&quot;
+b := x includes: 3.                              &quot;test if element is in collection&quot;
+y := x occurrencesOf: 3.                         &quot;number of times object in collection&quot;
+x do: [:a | Transcript show: a printString; cr]. &quot;iterate over the collection&quot;
+b := x conform: [:a | (a &gt;= 1) &amp; (a &lt;= 4)].      &quot;test if all elements meet condition&quot;
+y := x select: [:a | a &gt; 2].                     &quot;return collection of elements that pass test&quot;
+y := x reject: [:a | a &lt; 2].                     &quot;return collection of elements that fail test&quot;
+y := x collect: [:a | a + a].                    &quot;transform each element for new collection&quot;
+y := x detect: [:a | a &gt; 3] ifNone: [].          &quot;find position of first element that passes test&quot;
+sum := 0. x do: [:a | sum := sum + a]. sum.      &quot;sum elements&quot;
+sum := x inject: 0 into: [:a :c | a + c].        &quot;sum elements&quot;
+max := x inject: 0 into: [:a :c | (a &gt; c)        &quot;find max element in collection&quot;
+   ifTrue: [a]
+   ifFalse: [c]].
+y := x asOrderedCollection.                       &quot;convert to ordered collection&quot;
+y := x asSortedCollection.                        &quot;convert to sorted collection&quot;
+y := x asBag.                                     &quot;convert to bag collection&quot;
+y := x asSet.                                     &quot;convert to set collection&quot;</code></pre>
+    <h4 id="set">Set:</h4>
+    <p>like Bag except duplicates not allowed</p>
+    <h4 id="identityset">IdentitySet:</h4>
+    <p>uses identity test (== rather than =)</p>
+    <pre class="smalltalk"><code>| b x y sum max |
+x := Set with: 4 with: 3 with: 2 with: 1.        &quot;create collection with up to 4 elements&quot;
+x := Set new.                                    &quot;allocate collection&quot;
+x add: 4; add: 3; add: 1; add: 2; yourself.      &quot;add element to collection&quot;
+y := x addAll: #(7 8 9).                         &quot;add multiple elements to collection&quot;
+y := x removeAll: #(7 8 9).                      &quot;remove multiple elements from collection&quot;
+y := x remove: 4 ifAbsent: [].                   &quot;remove element from collection&quot;
+b := x isEmpty.                                  &quot;test if empty&quot;
+y := x size.                                     &quot;number of elements&quot;
+x includes: 4.                                   &quot;test if element is in collection&quot;
+x do: [:a | Transcript show: a printString; cr]. &quot;iterate over the collection&quot;
+b := x conform: [:a | (a &gt;= 1) &amp; (a &lt;= 4)].      &quot;test if all elements meet condition&quot;
+y := x select: [:a | a &gt; 2].                     &quot;return collection of elements that pass test&quot;
+y := x reject: [:a | a &lt; 2].                     &quot;return collection of elements that fail test&quot;
+y := x collect: [:a | a + a].                    &quot;transform each element for new collection&quot;
+y := x detect: [:a | a &gt; 3] ifNone: [].          &quot;find position of first element that passes test&quot;
+sum := 0. x do: [:a | sum := sum + a]. sum.      &quot;sum elements&quot;
+sum := x inject: 0 into: [:a :c | a + c].        &quot;sum elements&quot;
+max := x inject: 0 into: [:a :c | (a &gt; c)        &quot;find max element in collection&quot;
+   ifTrue: [a]
+   ifFalse: [c]].
+y := x asArray.                                  &quot;convert to array&quot;
+y := x asOrderedCollection.                      &quot;convert to ordered collection&quot;
+y := x asSortedCollection.                       &quot;convert to sorted collection&quot;
+y := x asBag.                                    &quot;convert to bag collection&quot;
+y := x asSet.                                    &quot;convert to set collection&quot;</code></pre>
+    <h4 id="interval">Interval:</h4>
+    <pre class="smalltalk"><code>| b x y sum max |
+x := Interval from: 5 to: 10.                     &quot;create interval object&quot;
+x := 5 to: 10.
+x := Interval from: 5 to: 10 by: 2.               &quot;create interval object with specified increment&quot;
+x := 5 to: 10 by: 2.
+b := x isEmpty.                                   &quot;test if empty&quot;
+y := x size.                                      &quot;number of elements&quot;
+x includes: 9.                                    &quot;test if element is in collection&quot;
+x do: [:k | Transcript show: k printString; cr].  &quot;iterate over interval&quot;
+b := x conform: [:a | (a &gt;= 1) &amp; (a &lt;= 4)].       &quot;test if all elements meet condition&quot;
+y := x select: [:a | a &gt; 7].                      &quot;return collection of elements that pass test&quot;
+y := x reject: [:a | a &lt; 2].                      &quot;return collection of elements that fail test&quot;
+y := x collect: [:a | a + a].                     &quot;transform each element for new collection&quot;
+y := x detect: [:a | a &gt; 3] ifNone: [].           &quot;find position of first element that passes test&quot;
+sum := 0. x do: [:a | sum := sum + a]. sum.       &quot;sum elements&quot;
+sum := 0. 1 to: (x size) 
+            do: [:a | sum := sum + (x at: a)].    &quot;sum elements&quot;
+sum := x inject: 0 into: [:a :c | a + c].         &quot;sum elements&quot;
+max := x inject: 0 into: [:a :c | (a &gt; c)         &quot;find max element in collection&quot;
+   ifTrue: [a]
+   ifFalse: [c]].
+y := x asArray.                                   &quot;convert to array&quot;
+y := x asOrderedCollection.                       &quot;convert to ordered collection&quot;
+y := x asSortedCollection.                        &quot;convert to sorted collection&quot;
+y := x asBag.                                     &quot;convert to bag collection&quot;
+y := x asSet.                                     &quot;convert to set collection&quot;</code></pre>
+    <h4 id="associations">Associations:</h4>
+    <pre class="smalltalk"><code>| x y |
+x := #myVar-&gt;&#39;hello&#39;.
+y := x key.
+y := x value.</code></pre>
+    <h4 id="dictionary">Dictionary:</h4>
+    <h4 id="identitydictionary">IdentityDictionary:</h4>
+    <p>uses identity test (== rather than =)</p>
+    <pre class="smalltalk"><code>| b x y |
+x := Dictionary new.                   &quot;allocate collection&quot;
+x add: #a-&gt;4; 
+  add: #b-&gt;3; 
+  add: #c-&gt;1; 
+  add: #d-&gt;2; yourself.                &quot;add element to collection&quot;
+x at: #e put: 3.                       &quot;set element at index&quot;
+b := x isEmpty.                        &quot;test if empty&quot;
+y := x size.                           &quot;number of elements&quot;
+y := x at: #a ifAbsent: [].            &quot;retrieve element at index&quot;
+y := x keyAtValue: 3 ifAbsent: [].     &quot;retrieve key for given value with error block&quot;
+y := x removeKey: #e ifAbsent: [].     &quot;remove element from collection&quot;
+b := x includes: 3.                    &quot;test if element is in values collection&quot;
+b := x includesKey: #a.                &quot;test if element is in keys collection&quot;
+y := x occurrencesOf: 3.               &quot;number of times object in collection&quot;
+y := x keys.                           &quot;set of keys&quot;
+y := x values.                         &quot;bag of values&quot;
+x do: [:a | Transcript show: a printString; cr].            &quot;iterate over the values collection&quot;
+x keysDo: [:a | Transcript show: a printString; cr].        &quot;iterate over the keys collection&quot;
+x associationsDo: [:a | Transcript show: a printString; cr].&quot;iterate over the associations&quot;
+x keysAndValuesDo: [:aKey :aValue | Transcript              &quot;iterate over keys and values&quot;
+   show: aKey printString; space;
+   show: aValue printString; cr].
+b := x conform: [:a | (a &gt;= 1) &amp; (a &lt;= 4)].      &quot;test if all elements meet condition&quot;
+y := x select: [:a | a &gt; 2].                     &quot;return collection of elements that pass test&quot;
+y := x reject: [:a | a &lt; 2].                     &quot;return collection of elements that fail test&quot;
+y := x collect: [:a | a + a].                    &quot;transform each element for new collection&quot;
+y := x detect: [:a | a &gt; 3] ifNone: [].          &quot;find position of first element that passes test&quot;
+sum := 0. x do: [:a | sum := sum + a]. sum.      &quot;sum elements&quot;
+sum := x inject: 0 into: [:a :c | a + c].        &quot;sum elements&quot;
+max := x inject: 0 into: [:a :c | (a &gt; c)        &quot;find max element in collection&quot;
+   ifTrue: [a]
+   ifFalse: [c]].
+y := x asArray.                                   &quot;convert to array&quot;
+y := x asOrderedCollection.                       &quot;convert to ordered collection&quot;
+y := x asSortedCollection.                        &quot;convert to sorted collection&quot;
+y := x asBag.                                     &quot;convert to bag collection&quot;
+y := x asSet.                                     &quot;convert to set collection&quot;
+
+Smalltalk at: #CMRGlobal put: &#39;CMR entry&#39;.        &quot;put global in Smalltalk Dictionary&quot;
+x := Smalltalk at: #CMRGlobal.                    &quot;read global from Smalltalk Dictionary&quot;
+Transcript show: (CMRGlobal printString).         &quot;entries are directly accessible by name&quot;
+Smalltalk keys do: [ :k |                         &quot;print out all classes&quot;
+   ((Smalltalk at: k) isKindOf: Class)
+      ifFalse: [Transcript show: k printString; cr]].
+Smalltalk at: #CMRDictionary put: (Dictionary new). &quot;set up user defined dictionary&quot;
+CMRDictionary at: #MyVar1 put: &#39;hello1&#39;.            &quot;put entry in dictionary&quot;
+CMRDictionary add: #MyVar2-&gt;&#39;hello2&#39;.               &quot;add entry to dictionary use key-&gt;value combo&quot;
+CMRDictionary size.                                 &quot;dictionary size&quot;
+CMRDictionary keys do: [ :k |                       &quot;print out keys in dictionary&quot;
+   Transcript show: k printString; cr].
+CMRDictionary values do: [ :k |                     &quot;print out values in dictionary&quot;
+   Transcript show: k printString; cr].
+CMRDictionary keysAndValuesDo: [:aKey :aValue |     &quot;print out keys and values&quot;
+   Transcript
+      show: aKey printString;
+      space;
+      show: aValue printString;
+      cr].
+CMRDictionary associationsDo: [:aKeyValue |           &quot;another iterator for printing key values&quot;
+   Transcript show: aKeyValue printString; cr].
+Smalltalk removeKey: #CMRGlobal ifAbsent: [].         &quot;remove entry from Smalltalk dictionary&quot;
+Smalltalk removeKey: #CMRDictionary ifAbsent: [].     &quot;remove user dictionary from Smalltalk dictionary&quot;</code></pre>
+    <h4 id="internal-stream">Internal Stream:</h4>
+    <pre class="smalltalk"><code>| b x ios |
+ios := ReadStream on: &#39;Hello read stream&#39;.
+ios := ReadStream on: &#39;Hello read stream&#39; from: 1 to: 5.
+[(x := ios nextLine) notNil] whileTrue: [Transcript show: x; cr].
+ios position: 3.
+ios position.
+x := ios next.
+x := ios peek.
+x := ios contents.
+b := ios atEnd.
+
+ios := ReadWriteStream on: &#39;Hello read stream&#39;.
+ios := ReadWriteStream on: &#39;Hello read stream&#39; from: 1 to: 5.
+ios := ReadWriteStream with: &#39;Hello read stream&#39;.
+ios := ReadWriteStream with: &#39;Hello read stream&#39; from: 1 to: 10.
+ios position: 0.
+[(x := ios nextLine) notNil] whileTrue: [Transcript show: x; cr].
+ios position: 6.
+ios position.
+ios nextPutAll: &#39;Chris&#39;.
+x := ios next.
+x := ios peek.
+x := ios contents.
+b := ios atEnd.</code></pre>
+    <h4 id="filestream">FileStream:</h4>
+    <pre class="smalltalk"><code>| b x ios |
+ios := FileStream newFileNamed: &#39;ios.txt&#39;.
+ios nextPut: $H; cr.
+ios nextPutAll: &#39;Hello File&#39;; cr.
+&#39;Hello File&#39; printOn: ios.
+&#39;Hello File&#39; storeOn: ios.
+ios close.
+
+ios := FileStream oldFileNamed: &#39;ios.txt&#39;.
+[(x := ios nextLine) notNil] whileTrue: [Transcript show: x; cr].
+ios position: 3.
+x := ios position.
+x := ios next.
+x := ios peek.
+b := ios atEnd.
+ios close.</code></pre>
+    <h4 id="date">Date:</h4>
+    <pre class="smalltalk"><code>| x y |
+x := Date today.                                &quot;create date for today&quot;
+x := Date dateAndTimeNow.                       &quot;create date from current time/date&quot;
+x := Date readFromString: &#39;01/02/1999&#39;.         &quot;create date from formatted string&quot;
+x := Date newDay: 12 month: #July year: 1999    &quot;create date from parts&quot;
+x := Date fromDays: 36000.                      &quot;create date from elapsed days since 1/1/1901&quot;
+y := Date dayOfWeek: #Monday.                   &quot;day of week as int (1-7)&quot;
+y := Date indexOfMonth: #January.               &quot;month of year as int (1-12)&quot;
+y := Date daysInMonth: 2 forYear: 1996.         &quot;day of month as int (1-31)&quot;
+y := Date daysInYear: 1996.                     &quot;days in year (365|366)&quot;
+y := Date nameOfDay: 1                          &quot;weekday name (#Monday,...)&quot;
+y := Date nameOfMonth: 1.                       &quot;month name (#January,...)&quot;
+y := Date leapYear: 1996.                       &quot;1 if leap year; 0 if not leap year&quot;
+y := x weekday.                                 &quot;day of week (#Monday,...)&quot;
+y := x previous: #Monday.                       &quot;date for previous day of week&quot;
+y := x dayOfMonth.                              &quot;day of month (1-31)&quot;
+y := x day.                                     &quot;day of year (1-366)&quot;
+y := x firstDayOfMonth.                         &quot;day of year for first day of month&quot;
+y := x monthName.                               &quot;month of year (#January,...)&quot;
+y := x monthIndex.                              &quot;month of year (1-12)&quot;
+y := x daysInMonth.                             &quot;days in month (1-31)&quot;
+y := x year.                                    &quot;year (19xx)&quot;
+y := x daysInYear.                              &quot;days in year (365|366)&quot;
+y := x daysLeftInYear.                          &quot;days left in year (364|365)&quot;
+y := x asSeconds.                               &quot;seconds elapsed since 1/1/1901&quot;
+y := x addDays: 10.                             &quot;add days to date object&quot;
+y := x subtractDays: 10.                        &quot;subtract days to date object&quot;
+y := x subtractDate: (Date today).              &quot;subtract date (result in days)&quot;
+y := x printFormat: #(2 1 3 $/ 1 1).            &quot;print formatted date&quot;
+b := (x &lt;= Date today).                         &quot;comparison&quot;</code></pre>
+    <h4 id="time">Time:</h4>
+    <pre class="smalltalk"><code>| x y |
+x := Time now.                                      &quot;create time from current time&quot;
+x := Time dateAndTimeNow.                           &quot;create time from current time/date&quot;
+x := Time readFromString: &#39;3:47:26 pm&#39;.             &quot;create time from formatted string&quot;
+x := Time fromSeconds: (60 * 60 * 4).               &quot;create time from elapsed time from midnight&quot;
+y := Time millisecondClockValue.                    &quot;milliseconds since midnight&quot;
+y := Time totalSeconds.                             &quot;total seconds since 1/1/1901&quot;
+y := x seconds.                                     &quot;seconds past minute (0-59)&quot;
+y := x minutes.                                     &quot;minutes past hour (0-59)&quot;
+y := x hours.                                       &quot;hours past midnight (0-23)&quot;
+y := x addTime: (Time now).                         &quot;add time to time object&quot;
+y := x subtractTime: (Time now).                    &quot;subtract time to time object&quot;
+y := x asSeconds.                                   &quot;convert time to seconds&quot;
+x := Time millisecondsToRun: [                      &quot;timing facility&quot;
+   1 to: 1000 do: [:index | y := 3.14 * index]].
+b := (x &lt;= Time now).                               &quot;comparison&quot;</code></pre>
+    <h4 id="point">Point:</h4>
+    <pre class="smalltalk"><code>| x y |
+x := 200@100.                            &quot;obtain a new point&quot;
+y := x x.                                &quot;x coordinate&quot;
+y := x y.                                &quot;y coordinate&quot;
+x := 200@100 negated.                    &quot;negates x and y&quot;
+x := (-200@-100) abs.                    &quot;absolute value of x and y&quot;
+x := (200.5@100.5) rounded.              &quot;round x and y&quot;
+x := (200.5@100.5) truncated.            &quot;truncate x and y&quot;
+x := 200@100 + 100.                      &quot;add scale to both x and y&quot;
+x := 200@100 - 100.                      &quot;subtract scale from both x and y&quot;
+x := 200@100 * 2.                        &quot;multiply x and y by scale&quot;
+x := 200@100 / 2.                        &quot;divide x and y by scale&quot;
+x := 200@100 // 2.                       &quot;divide x and y by scale&quot;
+x := 200@100 \\ 3.                       &quot;remainder of x and y by scale&quot;
+x := 200@100 + 50@25.                    &quot;add points&quot;
+x := 200@100 - 50@25.                    &quot;subtract points&quot;
+x := 200@100 * 3@4.                      &quot;multiply points&quot;
+x := 200@100 // 3@4.                     &quot;divide points&quot;
+x := 200@100 max: 50@200.                &quot;max x and y&quot;
+x := 200@100 min: 50@200.                &quot;min x and y&quot;
+x := 20@5 dotProduct: 10@2.              &quot;sum of product (x1*x2 + y1*y2)&quot;</code></pre>
+    <h4 id="rectangle">Rectangle:</h4>
+    <pre class="smalltalk"><code>Rectangle fromUser.</code></pre>
+    <h4 id="pen">Pen:</h4>
+    <pre class="smalltalk"><code>| myPen |
+Display restoreAfter: [
+   Display fillWhite.
+
+myPen := Pen new.                            &quot;get graphic pen&quot;
+myPen squareNib: 1.
+myPen color: (Color blue).                   &quot;set pen color&quot;
+myPen home.                                  &quot;position pen at center of display&quot;
+myPen up.                                    &quot;makes nib unable to draw&quot;
+myPen down.                                  &quot;enable the nib to draw&quot;
+myPen north.                                 &quot;points direction towards top&quot;
+myPen turn: -180.                            &quot;add specified degrees to direction&quot;
+myPen direction.                             &quot;get current angle of pen&quot;
+myPen go: 50.                                &quot;move pen specified number of pixels&quot;
+myPen location.                              &quot;get the pen position&quot;
+myPen goto: 200@200.                         &quot;move to specified point&quot;
+myPen place: 250@250.                        &quot;move to specified point without drawing&quot;
+myPen print: &#39;Hello World&#39; 
+      withFont: (TextStyle default fontAt: 1).
+Display extent.                              &quot;get display width@height&quot;
+Display width.                               &quot;get display width&quot;
+Display height.                              &quot;get display height&quot;
+
+].</code></pre>
+    <h4 id="dynamic-message-callingcompiling">
+      Dynamic Message Calling/Compiling:
+    </h4>
+    <pre
+      class="smalltalk"
+    ><code>| receiver message result argument keyword1 keyword2 argument1 argument2 |
+
+&quot;unary message&quot;
+receiver := 5.
+message := &#39;factorial&#39; asSymbol.
+result := receiver perform: message.
+result := Compiler evaluate: ((receiver storeString), &#39; &#39;, message).
+result := (Message new setSelector: message arguments: #()) sentTo: receiver.
+
+&quot;binary message&quot;
+receiver := 1.
+message := &#39;+&#39; asSymbol.
+argument := 2.
+result := receiver perform: message withArguments: (Array with: argument).
+result := Compiler evaluate: ((receiver storeString), &#39; &#39;, message, &#39; &#39;, (argument storeString)).
+result := (Message new setSelector: message arguments: (Array with: argument)) sentTo: receiver.
+
+&quot;keyword messages&quot;
+receiver := 12.
+keyword1 := &#39;between:&#39; asSymbol.
+keyword2 := &#39;and:&#39; asSymbol.
+argument1 := 10.
+argument2 := 20.
+
+result := receiver
+   perform: (keyword1, keyword2) asSymbol
+   withArguments: (Array with: argument1 with: argument2).
+   
+result := Compiler evaluate:
+   ((receiver storeString), &#39; &#39;, keyword1, (argument1 storeString) , &#39; &#39;, keyword2, (argument2 storeString)).
+   
+result := (Message
+   new
+      setSelector: (keyword1, keyword2) asSymbol
+      arguments: (Array with: argument1 with: argument2))
+   sentTo: receiver.</code></pre>
+    <h4 id="classmeta-class">Class/Meta-Class:</h4>
+    <pre class="smalltalk"><code>| b x |
+x := String name.                     &quot;class name&quot;
+x := String category.                 &quot;organization category&quot;
+x := String comment.                  &quot;class comment&quot;
+x := String kindOfSubclass.           &quot;subclass type - subclass: variableSubclass, etc&quot;
+x := String definition.               &quot;class definition&quot;
+x := String instVarNames.             &quot;immediate instance variable names&quot;
+x := String allInstVarNames.          &quot;accumulated instance variable names&quot;
+x := String classVarNames.            &quot;immediate class variable names&quot;
+x := String allClassVarNames.         &quot;accumulated class variable names&quot;
+x := String sharedPools.              &quot;immediate dictionaries used as shared pools&quot;
+x := String allSharedPools.           &quot;accumulated dictionaries used as shared pools&quot;
+x := String selectors.                &quot;message selectors for class&quot;
+x := String sourceCodeAt: #size.      &quot;source code for specified method&quot;
+x := String allInstances.             &quot;collection of all instances of class&quot;
+x := String superclass.               &quot;immediate superclass&quot;
+x := String allSuperclasses.          &quot;accumulated superclasses&quot;
+x := String withAllSuperclasses.      &quot;receiver class and accumulated superclasses&quot;
+x := String subclasses.               &quot;immediate subclasses&quot;
+x := String allSubclasses.            &quot;accumulated subclasses&quot;
+x := String withAllSubclasses.        &quot;receiver class and accumulated subclasses&quot;
+b := String instSize.                 &quot;number of named instance variables&quot;
+b := String isFixed.                  &quot;true if no indexed instance variables&quot;
+b := String isVariable.               &quot;true if has indexed instance variables&quot;
+b := String isPointers.               &quot;true if index instance vars contain objects&quot;
+b := String isBits.                   &quot;true if index instance vars contain bytes/words&quot;
+b := String isBytes.                  &quot;true if index instance vars contain bytes&quot;
+b := String isWords.                  &quot;true if index instance vars contain words&quot;
+Object withAllSubclasses size.        &quot;get total number of class entries&quot;</code></pre>
+    <h4 id="debugging">Debugging:</h4>
+    <pre class="smalltalk"><code>| a b x |
+x yourself.                             &quot;returns receiver&quot;
+String browse.                          &quot;browse specified class&quot;
+x inspect.                              &quot;open object inspector window&quot;
+x confirm: &#39;Is this correct?&#39;.
+x halt.                                 &quot;breakpoint to open debugger window&quot;
+x halt: &#39;Halt message&#39;.
+x notify: &#39;Notify text&#39;.
+x error: &#39;Error string&#39;.                &quot;open up error window with title&quot;
+x doesNotUnderstand: #cmrMessage.       &quot;flag message is not handled&quot;
+x shouldNotImplement.                   &quot;flag message should not be implemented&quot;
+x subclassResponsibility.               &quot;flag message as abstract&quot;
+x errorImproperStore.                   &quot;flag an improper store into indexable object&quot;
+x errorNonIntegerIndex.                 &quot;flag only integers should be used as index&quot;
+x errorSubscriptBounds.                 &quot;flag subscript out of bounds&quot;
+x primitiveFailed.                      &quot;system primitive failed&quot;
+
+a := &#39;A1&#39;. b := &#39;B2&#39;. a become: b.      &quot;switch two objects&quot;
+Transcript show: a, b; cr.</code></pre>
+    <h4 id="miscellaneous">Miscellaneous</h4>
+    <pre class="smalltalk"><code>| x |
+x := 1.2 hash.                                  &quot;hash value for object&quot;
+y := x copy.                                    &quot;copy object&quot;
+y := x shallowCopy.                             &quot;copy object (not overridden)&quot;
+y := x deepCopy.                                &quot;copy object and instance vars&quot;
+y := x veryDeepCopy.                            &quot;complete tree copy using a dictionary&quot;
+&quot;Smalltalk condenseChanges.&quot;                    &quot;compress the change file&quot;
+x := FillInTheBlank request: &#39;Prompt Me&#39;.       &quot;prompt user for input&quot;
+Utilities openCommandKeyHelp</code></pre>
+    <h2 id="ready-for-more">Ready For More?</h2>
+    <h3 id="online-smalltalk-systems">Online Smalltalk systems</h3>
+    <p>
+      Most Smalltalks are either free as in OSS or have a free downloadable
+      version with some payment required for commercial usage. *
+      <a href="https://www.squeak.org">Squeak</a> *
+      <a href="http://pharo.org">Pharo</a> *
+      <a href="https://www.exept.de/en/smalltalk-x.html">Smalltalk/X</a> *
+      <a href="http://gemtalksystems.com/">Gemstone</a> *
+      <a href="http://www.instantiations.com/products/vasmalltalk/"
+        >VA Smalltalk</a
+      >
+      * <a href="http://www.cincomsmalltalk.com/">VisualWorks Smalltalk</a>
+    </p>
+    <h3 id="online-smalltalk-books-and-articles">
+      Online Smalltalk books and articles
+    </h3>
+    <ul>
+      <li>
+        <a href="http://www.whoishostingthis.com/resources/smalltalk/"
+          >Smalltalk Programming Resources</a
+        >
+      </li>
+      <li>
+        <a href="http://www.angelfire.com/tx4/cus/notes/smalltalk.html"
+          >Smalltalk Cheatsheet</a
+        >
+      </li>
+      <li>
+        <a
+          href="http://www.bitsavers.org/pdf/xerox/parc/techReports/Smalltalk-72_Instruction_Manual_Mar76.pdf"
+          >Smalltalk-72 Manual</a
+        >
+      </li>
+      <li>
+        <a
+          href="https://www.gnu.org/software/smalltalk/manual/html_node/Tutorial.html"
+          >GNU Smalltalk User’s Guide</a
+        >
+      </li>
+    </ul>
+    <h4 id="historical-documentations">Historical Documentation(s)</h4>
+    <ul>
+      <li>
+        <a href="https://archive.org/details/byte-magazine-1981-08"
+          >BYTE: A Special issue on Smalltalk</a
+        >
+      </li>
+      <li>
+        <a
+          href="http://www.bitsavers.org/pdf/xerox/parc/techReports/Smalltalk-72_Instruction_Manual_Mar76.pdf"
+          >Smalltalk-72 Manual</a
+        >
+      </li>
+      <li>
+        <a
+          href="https://books.google.co.in/books?id=W8_Une9cbbgC&amp;printsec=frontcover&amp;dq=smalltalk&amp;hl=en&amp;sa=X&amp;ved=0CCIQ6AEwAWoVChMIw63Vo6CpyAIV0HGOCh3S2Alf#v=onepage&amp;q=smalltalk&amp;f=false"
+          >Smalltalk, Objects, and Design</a
+        >
+      </li>
+      <li>
+        <a
+          href="https://books.google.co.in/books?id=zalQAAAAMAAJ&amp;q=smalltalk&amp;dq=smalltalk&amp;hl=en&amp;sa=X&amp;ved=0CCgQ6AEwAmoVChMIw63Vo6CpyAIV0HGOCh3S2Alf/"
+          >Smalltalk: An Introduction to Application Development Using
+          VisualWorks</a
+        >
+      </li>
+    </ul>
+  </body>
+</html>

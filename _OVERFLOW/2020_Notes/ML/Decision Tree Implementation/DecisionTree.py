@@ -1,8 +1,6 @@
 from __future__ import print_function
-import  math
+import math
 import copy
-
-
 
 
 def class_counts(rows):
@@ -16,20 +14,24 @@ def class_counts(rows):
         counts[label] += 1
     return counts
 
+
 #######
 # Demo:
-#class_counts(training_data)
+# class_counts(training_data)
 #######
+
 
 def is_numeric(value):
     """Test if a value is numeric."""
     return isinstance(value, int) or isinstance(value, float)
+
 
 #######
 # Demo:
 is_numeric(7)
 is_numeric("Red")
 #######
+
 
 class Question:
     """A Question is used to partition a dataset.
@@ -60,8 +62,7 @@ class Question:
         condition = "=="
         if is_numeric(self.value):
             condition = ">="
-        return "Is %s %s %s?" % (
-            self.header[self.column], condition, str(self.value))
+        return "Is %s %s %s?" % (self.header[self.column], condition, str(self.value))
 
 
 def partition(rows, question):
@@ -78,14 +79,15 @@ def partition(rows, question):
             false_rows.append(row)
     return true_rows, false_rows
 
+
 def entropy(rows):
     """
     Calculate entropy for a list of rows
     """
     n = len(rows)
-    probs = [count[1]/n for count in class_counts(rows).items()]
-    ents = [p*math.log2(p) for p in probs]
-    return -1*sum(ents)
+    probs = [count[1] / n for count in class_counts(rows).items()]
+    ents = [p * math.log2(p) for p in probs]
+    return -1 * sum(ents)
 
 
 def info_gain(left, right, current_uncertainty):
@@ -133,6 +135,7 @@ def find_best_split(rows, header):
 
     return best_gain, best_question
 
+
 class Leaf:
     """A Leaf node classifies data.
 
@@ -143,9 +146,9 @@ class Leaf:
     def __init__(self, rows, id, depth):
         self.predictions = class_counts(rows)
         max_ = -999
-        #getmax
+        # getmax
         for vals in self.predictions.items():
-            if vals[1]>max_:
+            if vals[1] > max_:
                 max_ = vals[1]
                 key = vals[0]
         self.predicted_class_label = key
@@ -159,22 +162,13 @@ class Decision_Node:
     This holds a reference to the question, and to the two child nodes.
     """
 
-    def __init__(self,
-                 question,
-                 true_branch,
-                 false_branch,
-                 depth,
-                 id,
-                 rows,
-                 pruned=0):
+    def __init__(self, question, true_branch, false_branch, depth, id, rows, pruned=0):
         self.question = question
         self.depth = depth
         self.id = id
         self.rows = rows
         self.true_branch = true_branch
         self.false_branch = false_branch
-
-
 
 
 def build_tree(rows, depth, id, header):
@@ -185,7 +179,7 @@ def build_tree(rows, depth, id, header):
     2) Start by checking for the base case (no further information gain).
     3) Prepare for giant stack traces.
     """
-    if len(class_counts(rows))==1:
+    if len(class_counts(rows)) == 1:
         return Leaf(rows, id, depth)
 
     # depth = 0
@@ -208,7 +202,7 @@ def build_tree(rows, depth, id, header):
     true_rows, false_rows = partition(rows, question)
 
     # Recursively build the true branch.
-    true_branch = build_tree(true_rows, depth + 1, 2 * id + 2, header )
+    true_branch = build_tree(true_rows, depth + 1, 2 * id + 2, header)
 
     # Recursively build the false branch.
     false_branch = build_tree(false_rows, depth + 1, 2 * id + 1, header)
@@ -235,25 +229,27 @@ def classify(row, node):
     else:
         return classify(row, node.false_branch)
 
+
 def print_tree(node, spacing=""):
     """World's most elegant tree printing function."""
 
     # Base case: we've reached a leaf
     if isinstance(node, Leaf):
-        print (spacing + "Predict:", node.predicted_class_label)
+        print(spacing + "Predict:", node.predicted_class_label)
         return
 
-    print(spacing + "DEPTH:", node.depth, " (Node id:"+str(node.id)+')')
+    print(spacing + "DEPTH:", node.depth, " (Node id:" + str(node.id) + ")")
     # Print the question at this node
-    print (spacing + str(node.question))
+    print(spacing + str(node.question))
 
     # Call this function recursively on the true branch
-    print (spacing + '--> True:')
+    print(spacing + "--> True:")
     print_tree(node.true_branch, spacing + "  ")
 
     # Call this function recursively on the false branch
-    print (spacing + '--> False:')
+    print(spacing + "--> False:")
     print_tree(node.false_branch, spacing + "  ")
+
 
 """def print_leaf(counts):
     total = sum(counts.values()) * 1.0
@@ -265,7 +261,7 @@ def print_tree(node, spacing=""):
 """
 
 
-def getLeafNodes(node, leafNodes =[]):
+def getLeafNodes(node, leafNodes=[]):
     # Returns a list of all leaf nodes of a tree
     if isinstance(node, Leaf):
         leafNodes.append(node)
@@ -276,9 +272,9 @@ def getLeafNodes(node, leafNodes =[]):
     return leafNodes
 
 
-def getInnerNodes(node, innerNodes = set()):
+def getInnerNodes(node, innerNodes=set()):
     # Returns a list of all non-leaf nodes of a tree
-        # Returns a list of all leaf nodes of a tree
+    # Returns a list of all leaf nodes of a tree
     if isinstance(node, Leaf):
         return innerNodes
 
@@ -289,15 +285,13 @@ def getInnerNodes(node, innerNodes = set()):
 
 
 def computeAccuracy(rows, node):
-    totalRows = len (rows)
+    totalRows = len(rows)
     numAccurate = 0
-    for row in rows :
+    for row in rows:
         pred = classify(row, node)
         if pred == row[-1]:
             numAccurate = numAccurate + 1
-    return round(numAccurate/totalRows , 2)
-
-
+    return round(numAccurate / totalRows, 2)
 
 
 def prune_tree(node, prunedList):
@@ -323,24 +317,25 @@ def prune_tree(node, prunedList):
 
     return node
 
+
 def post_pruning(rows, node):
     print()
     print("STARTING PRUNING ALGORITHM")
     fallback = copy.deepcopy(node)
-    #all decision nodes to be pruned
-    dnode_ids = sorted([dnode.id for dnode in getInnerNodes(node)],reverse=True)
+    # all decision nodes to be pruned
+    dnode_ids = sorted([dnode.id for dnode in getInnerNodes(node)], reverse=True)
     prev_results = computeAccuracy(rows, node)
     for i in dnode_ids:
         prune_tree(node, [i])
         res = computeAccuracy(rows, node)
-        #print("Pruning node:", i, " results:", res)
-        #accuracy does not improve -> revert change
+        # print("Pruning node:", i, " results:", res)
+        # accuracy does not improve -> revert change
         if res < prev_results:
-            #print("Accuracy did not improve.... Reverting to prior state")
-            #print()
+            # print("Accuracy did not improve.... Reverting to prior state")
+            # print()
             node = copy.deepcopy(fallback)
             continue
-        print(i,', ',end='')
+        print(i, ", ", end="")
         fallback = copy.deepcopy(node)
         prev_results = res
     return node

@@ -1,0 +1,400 @@
+let transliterate = require('./transliterate');
+
+module.exports = function(title) {
+  let anchor = title.trim()
+    .replace(/<\/?[a-z].*?>/gim, '')  // strip tags, leave /<DIGIT/ like: "IE<123"
+    .replace(/[ \t\n!"#$%&'()*+,\-.\/:;<=>?@[\\\]^_`{|}~]/g, '-') // пунктуация, пробелы -> дефис
+    .replace(/-+/gi, '-') // слить дефисы вместе
+    .replace(/^-|-$/g, ''); // убрать дефисы с концов
+
+  anchor = transliterate(anchor);
+
+  anchor = anchor.toLowerCase();
+  anchor = anchor.replace(/[^a-z0-9-]/gi, ''); // убрать любые символы, кроме [слов цифр дефиса])
+
+  return anchor;
+};
+
+
+function getPluralType(n) {
+  if ((n % 10) == 1 && (n % 100) != 11) {
+    return 'one';
+  }
+  if ((n % 10) >= 2 && (n % 10) <= 4 && ((n % 100) < 12 || (n % 100) > 14) && n == Math.floor(n)) {
+    return 'few';
+  }
+  if ((n % 10) === 0 || ((n % 10) >= 5 && (n % 10) <= 9) || ((n % 100) >= 11 && (n % 100) <= 14) && n == Math.floor(n)) {
+    return 'many';
+  }
+  return 'other';
+}
+
+// pluralize(10, 'груша', 'груши', 'груш')
+function pluralize(count, string) {
+  var type = getPluralType(count);
+  var values = string.split(',');
+
+  switch (type) {
+    case 'one':
+      return values[0];
+    case 'few':
+      return values[1];
+    case 'many':
+      return values[2];
+    default:
+      throw new Error("Unsupported count: " + count);
+  }
+
+}
+
+module.exports = pluralize;
+
+
+function stripFirstEmptyLines(text) {
+  return text.replace(/^\n+/, ''); // no 'm' flag!
+}
+// strip first empty lines
+function rtrim(text) {
+  return text.replace(/\s+$/, '');  // no 'm' flag!
+}
+
+function rtrimLines(text) {
+  return text.replace(/[ \t]+$/gim, '');
+}
+
+function stripSpaceIndent(text) {
+
+  if (!text) return text;
+
+  let stripPattern = /^ *(?=\S+)/gm;
+
+  let match = text.match(stripPattern);
+  if (!match) return text;
+  
+  let indentLen = match
+    .reduce(function (min, line) {
+      return Math.min(min, line.length);
+    }, Infinity);
+
+  let indent = new RegExp('^ {' + indentLen + '}', 'gm');
+  return indentLen > 0 ? text.replace(indent, '') : text;
+}
+
+function stripTabIndent(text) {
+  if (!text) return text;
+
+  let stripPattern = /^\t*(?=\S+)/gm;
+
+  let indentLen = text.match(stripPattern);
+  if (!indentLen) return text;
+  
+  indentLen = indentLen.reduce(function (min, line) {
+    return Math.min(min, line.length);
+  }, Infinity);
+
+  let indent = new RegExp('^\t{' + indentLen + '}', 'gm');
+  return indentLen > 0 ? text.replace(indent, '') : text;
+}
+
+// same as Ruby strip_heredoc + rtrim every line + strip first lines and rtrim
+module.exports = function(text) {
+  text = rtrim(text);
+  text = rtrimLines(text);
+  text = stripFirstEmptyLines(text);
+
+  text = stripSpaceIndent(text);
+  text = stripTabIndent(text);
+
+  return text;
+};
+
+module.exports = function(text) {
+  return text.replace(/<\/?[a-z].*?>/gim, '');
+};
+
+'use strict';
+
+module.exports = function ucWordStart(cityOrCountry) {
+  if (!cityOrCountry) return cityOrCountry;
+
+  return cityOrCountry.trim().toLowerCase().replace(/(^| |-)./g, function(match) {
+    return match.toUpperCase();
+  });
+};
+
+'use strict';
+
+let fs = require('fs');
+let path = require('path');
+let log = require('engine/log')();
+let glob = require('glob');
+let beautify = require('js-beautify');
+let readlineSync = require('readline-sync');
+
+module.exports = async function() {
+
+  let args = require('yargs')
+    .usage("Path to tutorial root is required.")
+    .demand(['root'])
+    .argv;
+
+  let root = fs.realpathSync(args.root);
+
+  let options = {
+    indent_size:                2,
+    selector_separator_newline: true,
+    newline_between_rules:      true,
+    preserve_newlines:          true
+    //space_in_paren: true
+  };
+
+  let jsFiles = glob.sync(path.join(root, '**', '*.js'));
+
+  for (let i = 0; i < jsFiles.length; i++) {
+    let jsFile = jsFiles[i];
+    let content = fs.readFileSync(jsFile, 'utf8');
+
+    fs.writeFileSync(jsFile, beautify.js(content, options), 'utf8');
+  }
+
+  let cssFiles = glob.sync(path.join(root, '**', '*.css'));
+
+  for (let i = 0; i < cssFiles.length; i++) {
+    let cssFile = cssFiles[i];
+    let content = fs.readFileSync(cssFile, 'utf8');
+    fs.writeFileSync(cssFile, beautify.css(content, options), 'utf8');
+  }
+
+
+  let htmlFiles = glob.sync(path.join(root, '**', '*.html'));
+
+  for (let i = 0; i < htmlFiles.length; i++) {
+    let htmlFile = htmlFiles[i];
+    let content = fs.readFileSync(htmlFile, 'utf8');
+    fs.writeFileSync(htmlFile, beautify.html(content, options), 'utf8');
+  }
+
+  let mdFiles = glob.sync(path.join(root, '**', '*.md'));
+
+  for (let i = 0; i < mdFiles.length; i++) {
+    let mdFile = mdFiles[i];
+    let content = fs.readFileSync(mdFile, 'utf8');
+    console.log(mdFile);
+    fs.writeFileSync(mdFile, beautifyMd(content, mdFile, options), 'utf8');
+  }
+
+};
+
+function beautifyMd(content, mdFile, options) {
+
+  let contentNew;
+
+  contentNew = content.replace(/```(js|html|css)\n(.*?)\n```/gims, function(match, lang, code) {
+    let codeOpts = code.match(/^\/\/\+.*\n/) || code.match(/^<!--\+.*\n/) || code.match(/^\/\*\+.*\n/);
+    if (!codeOpts) codeOpts = ''; // for str methods to work
+
+    let codeNoOpts;
+
+    if (codeOpts) {
+      codeOpts = codeOpts[0];
+      codeNoOpts = code.replace(codeOpts, '');
+    } else {
+      codeNoOpts = code;
+    }
+    // skip the code which doesn't need beautification
+    if (~codeOpts.indexOf('no-beautify')) return match;
+
+    // contains *!*...*/!*, will be beautified incorrectly
+    if (codeNoOpts.match(/\*!\*.*\*\/!\*/)) {
+      console.log("SKIP INLINE MARKUP " + mdFile);
+      return match;
+    }
+
+    let beautified = codeNoOpts;
+    beautified = beautified.replace(/^[ \t]*\*!\*/gim, lang == 'html' ? '<!--*!*-->' : '/**!**/');
+    beautified = beautified.replace(/^[ \t]*\*\/!\*/gim, lang == 'html' ? '<!--*/!*-->' : '/**-!**/');
+
+    //console.log(beautified);
+    beautified = beautify[lang](beautified, options);
+
+    //console.log(beautified);
+    beautified = beautified.replace(/^[ \t]*<!--\*!\*-->/gim, '*!*');
+    beautified = beautified.replace(/^[ \t]*<!--\*\/!\*-->/gim, '*/!*');
+    beautified = beautified.replace(/^[ \t]*\/\*\*!\*\*\//gim, '*!*');
+    beautified = beautified.replace(/^[ \t]*\/\*\*-!\*\*\//gim, '*/!*');
+
+    beautified = beautified.replace(/alert\((\S.*?)\);/gim, 'alert( $1 );');
+
+    if (beautified === codeNoOpts) {
+      return match; // nothing changed (already beautified?), skip
+    }
+
+    // clear console
+    process.stdout.write('\u001B[2J\u001B[0;0f');
+    console.log("\n" + mdFile);
+    console.log("=======================================================\n");
+    console.log(codeNoOpts);
+    console.log("-------------------------------------------------------");
+    console.log(beautified);
+
+    let keep = readlineSync.question('Beautify [y]?');
+
+    let result;
+    if (keep == 'y' || keep === '') {
+      result = codeOpts + beautified;
+    } else {
+      let codeOptsNoBeautify = codeOpts.slice(0, 2) == '//' ? codeOpts.replace("\n", " no-beautify\n") :
+        codeOpts.slice(0, 2) == '/*' ? codeOpts.replace("*/", " no-beautify */") :
+          codeOpts.slice(0, 2) == '<!' ? codeOpts.replace("-->", " no-beautify -->") :
+            lang == 'html' ? '<!--+ no-beautify -->\n' :
+              lang == 'css' ? '/*+ no-beautify */\n' :
+                '//+ no-beautify\n';
+
+      result = codeOptsNoBeautify + codeNoOpts;
+    }
+
+    result = "```" + lang + "\n" + result + "\n```";
+    return result;
+  });
+
+
+  return contentNew;
+
+}
+
+
+
+function capitalizeKeys(obj, mapper) {
+
+  if (Array.isArray(obj)) {
+    let arr = obj;
+    return arr.map(item => capitalizeKeys(item, mapper));
+  }
+
+  if (Object.prototype.toString.apply(obj) !== '[object Object]') {
+    return obj;
+  }
+
+  let output = {};
+
+  for (var key in obj) {
+    var keyCapitalized = key.replace(/_(\w)/g, (match, letter) => letter.toUpperCase());
+    if (mapper) keyCapitalized = mapper(keyCapitalized);
+    output[keyCapitalized] = capitalizeKeys(obj[key], mapper);
+  }
+  return output;
+}
+
+module.exports = capitalizeKeys;
+
+
+
+const t = require('engine/i18n/t');
+
+const LANG = require('config').lang;
+
+t.i18n.add('cut', require('./locales/cut/' + LANG + '.yml'));
+
+const trimHtml = require('trim-html');
+
+module.exports = function (text, options, parseCallback) {
+  if (!options) return parseCallback(text);
+
+  let {mode = 'cut', length: maxCutLength = 600} = options;
+
+  let CUT_REGEX = /(^|\n)\[cut\](\n|$)/i;
+
+  let cutTagPos = text.search(CUT_REGEX);
+  let isValidCutPos = cutTagPos >= 0 && cutTagPos <= maxCutLength;
+
+  if (mode === "cut") {
+    // only leave text before cut
+
+    if (isValidCutPos) {
+      // valid cut => cut before HTML processing
+      text = trimHtml(text, {limit: cutTagPos}).html;
+      return parseCallback(text);
+    } else {
+      // invalid cut => cut after HTML processing
+      text = parseCallback(text);
+
+      text = trimHtml(text, {limit: maxCutLength}).html;
+
+      return text;
+    }
+
+  } else if (mode === 'full-preview') {
+    text = text.replace(CUT_REGEX, isValidCutPos ? '\n' : '\n' + t('cut.cut_too_low') + '\n');
+    return parseCallback(text);
+  } else if (mode === 'full') {
+    // in full mode even invalid cut is removed
+    // (we don't need it, it dirties the output anyway)
+    text = text.replace(CUT_REGEX, '\n');
+    return parseCallback(text);
+  }
+};
+
+
+
+
+module.exports = function(text) {
+  return text.toString().replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+};
+
+
+module.exports = function(text) {
+  // need toString to escape numbers
+  return String(text).replace(/&([^#]|#[^0-9]?|#x[^0-9]?|$)/g, '&amp;$1').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+};
+
+const functions = require( 'firebase-functions' );
+
+exports.makeUppercase = functions.firestore.document( '/messages/{documentId}' )
+    .onCreate( ( snap, context ) => {
+        const original = snap.data().original;
+        console.log( 'Uppercasing', context.params.documentId, original );
+        const uppercase = original.toUpperCase();
+        return snap.ref.set( { uppercase }, { merge: true } );
+    } );
+
+module.exports = class LocalStorage {
+  constructor() {
+    this.storage = Object.create(null);
+  }
+
+  set(key, value) {
+    this.storage[key] = value;
+  }
+
+  get(key) {
+    return this.storage[key];
+  }
+
+  has(key) {
+    return (key in this.storage);
+  }
+
+  clear(regexp) {
+    for(let key in this.storage) {
+      if (!regexp  || regexp.test(key)) {
+        delete this.storage[key];
+      }
+    }
+  }
+
+  static instance() {
+    if (!this._instance) {
+      this._instance = new LocalStorage();
+    }
+    return this._instance;
+  }
+
+  async getOrGenerate(key, func, skipCache) {
+    if (skipCache) return await func();
+
+    if (!this.has(key)) {
+      this.set(key, await func());
+    }
+    return this.get(key);
+  }
+};

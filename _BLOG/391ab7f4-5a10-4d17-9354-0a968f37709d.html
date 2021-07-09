@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>391ab7f4-5a10-4d17-9354-0a968f37709d</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <h3 id="introduction">Introduction</h3>
+    <p>
+      <em>Server-side rendering</em> (SSR) is a popular technique for rendering
+      a client-side <em>single page application</em> (SPA) on the server and
+      then sending a fully rendered page to the client. This allows for dynamic
+      components to be served as static HTML markup.
+    </p>
+    <p>
+      This approach can be useful for search engine optimization (SEO) when
+      indexing does not handle JavaScript properly. It may also be beneficial in
+      situations where downloading a large JavaScript bundle is impaired by a
+      slow network.
+    </p>
+    <p>
+      In this tutorial, you will initialize a React app using
+      <a
+        href="https://www.digitalocean.com/community/tutorials/react-create-react-app"
+        >Create React App</a
+      >
+      and then modify the project to enable server-side rendering.
+    </p>
+    <p>
+      <strong>Warning:</strong> The code provided in this tutorial is for
+      educational purposes and is not intended for production use.
+      Alternatively, <a href="https://nextjs.org/">Next.js</a> offers a modern
+      approach to creating static and server-rendered applications built with
+      React.
+    </p>
+    <p>
+      At the end of this tutorial, you will have a working project with a
+      client-side React application and a server-side Express application.
+    </p>
+    <h2 id="prerequisites">Prerequisites</h2>
+    <p>To complete this tutorial, you will need:</p>
+    <ul>
+      <li>
+        Node.js installed locally, which you can do by following
+        <a
+          href="https://www.digitalocean.com/community/tutorial_series/how-to-install-node-js-and-create-a-local-development-environment"
+          >How to Install Node.js and Create a Local Development Environment</a
+        >.
+      </li>
+    </ul>
+    <p>
+      This tutorial was verified with Node v14.4.0, <code>npm</code> v6.14.5,
+      <code>react</code> v16.13.1, <code>@babel/core</code> v7.10.4,
+      <code>webpack</code> v4.42.0, <code>express</code> v4.17.1,
+      <code>nodemon</code> v2.0.4, and <code>npm-run-all</code> v4.1.5.
+    </p>
+    <h2 id="step-1-creating-the-react-app-and-modifying-the-app-component">
+      Step 1 — Creating the React App and Modifying the App Component
+    </h2>
+    <p>
+      First, we use
+      <a href="https://www.digitalocean.com/community/tutorials/workflow-npx"
+        >npx</a
+      >
+      to start up a new React app using the latest version of Create React App.
+    </p>
+    <p>Let’s call our app my-ssr-app:</p>
+    <p>Then, we <code>cd</code> into the new directory:</p>
+    <pre><code>cd my-ssr-app</code></pre>
+    <p>
+      Finally, we start our new client-side app in order to verify the
+      installation:
+    </p>
+    <p>You should see an example React app display in your browser window.</p>
+    <p>Now, let’s create a <code>&lt;Home&gt;</code> component:</p>
+    <p>Next, add the following code to the <code>Home.js</code> file:</p>
+    <p>src/Home.js</p>
+    <p>
+      This will create a <code>&lt;h1&gt;</code> heading with a
+      <code>"Hello"</code> message directed to a name.
+    </p>
+    <p>
+      Next, let’s render the <code>&lt;Home&gt;</code> in the
+      <code>&lt;App&gt;</code> component. Open the <code>App.js</code> file:
+    </p>
+    <p>
+      Then, replace the existing lines of code with these new lines of code:
+    </p>
+    <p>src/App.js</p>
+    <p>
+      This passes along a <code>name</code> to
+      <code>&lt;Home&gt;</code> component so the message that we expect to
+      display is <code>"Hello Sammy!"</code>.
+    </p>
+    <p>
+      In our app’s <code>index.js</code> file, we’ll use ReactDOM’s
+      <a href="https://reactjs.org/docs/react-dom.html#hydrate"
+        ><code>hydrate</code> method</a
+      >
+      instead of <code>render</code> to indicate to the DOM renderer that we’re
+      rehydrating the app after a server-side render.
+    </p>
+    <p>Let’s open the <code>index.js</code> file:</p>
+    <p>
+      Then, replace the contents of the <code>index.js</code> file with the
+      following code:
+    </p>
+    <p>index.js</p>
+    <p>
+      That concludes setting up the client-side, we can move on to setting up
+      the server-side.
+    </p>
+    <h2 id="step-2-creating-an-express-server-and-rendering-the-app-component">
+      Step 2 — Creating an Express Server and Rendering the App Component
+    </h2>
+    <p>
+      Now that we have our app in place, let’s set up a server that will send
+      along a rendered version. We’ll use
+      <a
+        href="https://www.digitalocean.com/community/tutorials/nodejs-express-basics"
+        >Express for our server</a
+      >. Let’s add it to the project by entering the following command in your
+      terminal window:
+    </p>
+    <p>Or, using yarn:</p>
+    <p>
+      Next, create a <code>server</code> directory next to the app’s
+      <code>src</code> directory:
+    </p>
+    <p>
+      Then, create a new <code>index.js</code> file that will contain the
+      Express server code:
+    </p>
+    <p>Add the imports that will need and define some constants:</p>
+    <p>server/index.js</p>
+    <p>Next, add the server code with some error handling:</p>
+    <p>server/index.js</p>
+    <p>
+      As you may see, we can import our <code>&lt;App&gt;</code> component from
+      the client app directly from the server.
+    </p>
+    <p>Three important things are taking place here:</p>
+    <ul>
+      <li>
+        We tell Express to serve contents from the <code>build</code> directory
+        as static files.
+      </li>
+      <li>
+        We use a method from <code>ReactDOMServer</code>,
+        <code>renderToString</code>, to render our app to a static HTML string.
+      </li>
+      <li>
+        We then read the static <code>index.html</code> file from the built
+        client app, inject our app’s static content in the
+        <code>&lt;div&gt;</code> with an <code>id</code> of <code>"root"</code>,
+        and send that as the response to the request.
+      </li>
+    </ul>
+    <h2 id="step-3-configuring-webpack-babel-and-npm-scripts">
+      Step 3 — Configuring webpack, Babel, and <code>npm</code> Scripts
+    </h2>
+    <p>
+      For our server code to work, we’ll need to bundle and transpile it, using
+      <a href="https://webpack.js.org/">webpack</a> and
+      <a href="https://babeljs.io/">Babel</a>. To accomplish this, let’s add the
+      dev dependencies to the project by entering the following command in your
+      terminal window:
+    </p>
+    <p>Or, using yarn:</p>
+    <p>
+      <strong>Note:</strong> An earlier version of this tutorial installed
+      <code>babel-core</code>, <code>babel-preset-env</code>, and
+      <code>babel-preset-react-app</code>. These packages have since been
+      archived, and the mono repo versions are utilized instead.
+    </p>
+    <p>
+      Next, create a Babel configuration file in your project’s root directory:
+    </p>
+    <p>Then, add the <code>env</code> and <code>react-app</code> presets:</p>
+    <p>.babelrc.json</p>
+    <p>
+      <strong>Note:</strong> An earlier version of this tutorial used a
+      <code>.babelrc</code> file (no <code>.json</code> file extension). This
+      was a configuration file for Babel 6, but this is no longer the case for
+      Babel 7.
+    </p>
+    <p>
+      Now, we will create a webpack config for the server that uses Babel Loader
+      to transpile the code. Start by creating the
+      <code>webpack.server.js</code> file in your project root directory:
+    </p>
+    <p>
+      Then, add the following configurations to the
+      <code>webpack.server.js</code> file:
+    </p>
+    <p>webpack.server.js</p>
+    <p>
+      With this configuration, our transpiled server bundle will be output to
+      the <code>server-build</code> folder in a file called
+      <code>index.js</code>.
+    </p>
+    <p>
+      Note the use of <code>target: 'node'</code> and
+      <code>externals: [nodeExternals()]</code> from
+      <code>webpack-node-externals</code>, which will omit the files from
+      <code>node_modules</code> in the bundle; the server can access these files
+      directly.
+    </p>
+    <p>
+      This completes the dependency installation and webpack and Babel
+      configuration.
+    </p>
+    <p>
+      Now, we will revisit <code>package.json</code> to add helper
+      <code>npm</code> scripts:
+    </p>
+    <p>
+      We will add <code>dev:build-server</code>, <code>dev:start</code>, and
+      <code>dev</code> scripts to the <code>package.json</code> file to build
+      and serve our SSR application easily:
+    </p>
+    <p>package.json</p>
+    <p>
+      The <code>dev:build-server</code> script sets the environment to
+      <code>"development"</code> and invokes <code>webpack</code> with the
+      configuration file we created earlier. The <code>dev:start</code> script
+      invokes <code>nodemon</code> to serve the built output.
+    </p>
+    <p>
+      The <code>dev</code> script invokes <code>npm-run-all</code> to run in
+      <code>parallel</code> the <code>build</code> script and all scripts that
+      start with <code>dev:*</code> - including
+      <code>dev:build-server</code> and <code>dev:start</code>.
+    </p>
+    <p>
+      <strong>Note:</strong> You will not need to modify the existing
+      <code>"start"</code>, <code>"build"</code>, <code>"test"</code>, and
+      <code>"eject"</code> scripts in the <code>package.json</code> file.
+    </p>
+    <p>
+      We use <code>nodemon</code> to restart the server when we make changes to
+      it. And we use <code>npm-run-all</code> to run multiple commands in
+      parallel.
+    </p>
+    <p>
+      Let’s install those packages now by entering the following commands in
+      your terminal window:
+    </p>
+    <p>Or, using yarn:</p>
+    <p>
+      With this in place, you can run the following to build the client-side
+      app, bundle and transpile the server code, and start up the server on
+      <code>:3006</code>:
+    </p>
+    <p>Or, using yarn:</p>
+    <p>
+      Our server webpack config will watch for changes and our server will
+      restart on changes. For the client app, however, we currently still need
+      to build it each time we make changes. There’s an
+      <a href="https://github.com/facebook/create-react-app/issues/1070"
+        >open issue for that here</a
+      >.
+    </p>
+    <p>
+      Now, open <code>http://localhost:3006/</code> in your web browser and you
+      will see your server-side rendered app.
+    </p>
+    <p>Previously, the source code revealed:</p>
+    <p>But now, with the changes you made, the source code reveals:</p>
+    <p>
+      The server-side rendering successfully converted the
+      <code>&lt;App&gt;</code> component into HTML.
+    </p>
+    <h2 id="conclusion">Conclusion</h2>
+    <p>
+      In this tutorial, you initialized a React application and enabled
+      server-side rendering.
+    </p>
+    <p>
+      With this post, we just scratched the surface at what’s possible. Things
+      tend to get a bit more complicated once routing, data fetching, or Redux
+      also need to be part of a server-side rendered app.
+    </p>
+    <p>
+      One major benefit of using SSR is having an app that can be crawled for
+      its content, even for crawlers that don’t execute JavaScript code. This
+      can help with search engine optimization (SEO) and providing metadata to
+      social media channels.
+    </p>
+    <p>
+      SSR can also often help with performance because a fully loaded app is
+      sent down from the server on the first request. For non-trivial apps, your
+      mileage may vary because SSR requires a setup that can get a bit
+      complicated, and it creates a bigger load on the server. Whether to use
+      server-side rendering for your React app depends on your specific needs
+      and on which trade-offs make the most sense for your use case.
+    </p>
+    <p>
+      If you’d like to learn more about React, take a look at our
+      <a
+        href="https://www.digitalocean.com/community/tutorial_series/how-to-code-in-react-js"
+        >How To Code in React.js</a
+      >
+      series, or check out
+      <a href="https://www.digitalocean.com/community/tags/react"
+        >our React topic page</a
+      >
+      for exercises and programming projects.
+    </p>
+  </body>
+</html>

@@ -17,8 +17,12 @@ class ParamsGettersSetters(Params):
         super(ParamsGettersSetters, self).__init__()
         for param in self.params:
             param_name = param.name
-            fg_attr = "get" + re.sub(r"(?:^|_)(.)", lambda m: m.group(1).upper(), param_name)
-            fs_attr = "set" + re.sub(r"(?:^|_)(.)", lambda m: m.group(1).upper(), param_name)
+            fg_attr = "get" + re.sub(
+                r"(?:^|_)(.)", lambda m: m.group(1).upper(), param_name
+            )
+            fs_attr = "set" + re.sub(
+                r"(?:^|_)(.)", lambda m: m.group(1).upper(), param_name
+            )
             # Generates getter and setter only if not exists
             try:
                 getattr(self, fg_attr)
@@ -35,12 +39,14 @@ class ParamsGettersSetters(Params):
                 return self.getOrDefault(paramName)
             except KeyError:
                 return None
+
         return r
 
     def setParamValue(self, paramName):
         def r(v):
             self.set(self.getParam(paramName), v)
             return self
+
         return r
 
 
@@ -54,26 +60,27 @@ class AnnotatorJavaMLReadable(JavaMLReadable):
 class AnnotatorJavaMLReader(JavaMLReader):
     @classmethod
     def _java_loader_class(cls, clazz):
-        if hasattr(clazz, '_java_class_name') and clazz._java_class_name is not None:
+        if hasattr(clazz, "_java_class_name") and clazz._java_class_name is not None:
             return clazz._java_class_name
         else:
             return JavaMLReader._java_loader_class(clazz)
 
 
-class AnnotatorTransformer(JavaTransformer, AnnotatorJavaMLReadable, JavaMLWritable, ParamsGettersSetters):
+class AnnotatorTransformer(
+    JavaTransformer, AnnotatorJavaMLReadable, JavaMLWritable, ParamsGettersSetters
+):
     @keyword_only
     def __init__(self, classname):
         super(AnnotatorTransformer, self).__init__()
         kwargs = self._input_kwargs
-        if 'classname' in kwargs:
-            kwargs.pop('classname')
+        if "classname" in kwargs:
+            kwargs.pop("classname")
         self.setParams(**kwargs)
         self.__class__._java_class_name = classname
         self._java_obj = self._new_java_obj(classname, self.uid)
 
 
 class RecursiveEstimator(JavaEstimator, ABC):
-
     def _fit_java(self, dataset, pipeline=None):
         self._transfer_params_to_java()
         if pipeline:
@@ -100,22 +107,30 @@ class RecursiveEstimator(JavaEstimator, ABC):
             else:
                 return self._fit(dataset, pipeline=pipeline)
         else:
-            raise ValueError("Params must be either a param map or a list/tuple of param maps, "
-                             "but got %s." % type(params))
+            raise ValueError(
+                "Params must be either a param map or a list/tuple of param maps, "
+                "but got %s." % type(params)
+            )
 
 
 class RecursiveTransformer(JavaModel):
-
     def _transform_recursive(self, dataset, recursive_pipeline):
         self._transfer_params_to_java()
-        return DataFrame(self._java_obj.recursiveTransform(dataset._jdf, recursive_pipeline._to_java()), dataset.sql_ctx)
+        return DataFrame(
+            self._java_obj.recursiveTransform(
+                dataset._jdf, recursive_pipeline._to_java()
+            ),
+            dataset.sql_ctx,
+        )
 
     def transform_recursive(self, dataset, recursive_pipeline, params=None):
         if params is None:
             params = dict()
         if isinstance(params, dict):
             if params:
-                return self.copy(params)._transform_recursive(dataset, recursive_pipeline)
+                return self.copy(params)._transform_recursive(
+                    dataset, recursive_pipeline
+                )
             else:
                 return self._transform_recursive(dataset, recursive_pipeline)
         else:
@@ -152,62 +167,96 @@ class ExtendedJavaWrapper(JavaWrapper):
         return java_array
 
     def new_java_array_integer(self, pylist):
-        java_array = self._new_java_array(pylist, self.sc._gateway.jvm.java.lang.Integer)
+        java_array = self._new_java_array(
+            pylist, self.sc._gateway.jvm.java.lang.Integer
+        )
         return java_array
 
 
 class _RegexRule(ExtendedJavaWrapper):
     def __init__(self, rule, identifier):
-        super(_RegexRule, self).__init__("com.johnsnowlabs.nlp.util.regex.RegexRule", rule, identifier)
+        super(_RegexRule, self).__init__(
+            "com.johnsnowlabs.nlp.util.regex.RegexRule", rule, identifier
+        )
 
 
 class _ExternalResource(ExtendedJavaWrapper):
     def __init__(self, path, read_as, options):
-        super(_ExternalResource, self).__init__("com.johnsnowlabs.nlp.util.io.ExternalResource.fromJava", path, read_as, options)
+        super(_ExternalResource, self).__init__(
+            "com.johnsnowlabs.nlp.util.io.ExternalResource.fromJava",
+            path,
+            read_as,
+            options,
+        )
 
 
 class _ConfigLoaderGetter(ExtendedJavaWrapper):
     def __init__(self):
-        super(_ConfigLoaderGetter, self).__init__("com.johnsnowlabs.util.ConfigLoader.getConfigPath")
+        super(_ConfigLoaderGetter, self).__init__(
+            "com.johnsnowlabs.util.ConfigLoader.getConfigPath"
+        )
 
 
 class _DownloadModel(ExtendedJavaWrapper):
     def __init__(self, reader, name, language, remote_loc, validator):
-        super(_DownloadModel, self).__init__("com.johnsnowlabs.nlp.pretrained."+validator+".downloadModel", reader, name, language, remote_loc)
+        super(_DownloadModel, self).__init__(
+            "com.johnsnowlabs.nlp.pretrained." + validator + ".downloadModel",
+            reader,
+            name,
+            language,
+            remote_loc,
+        )
 
 
 class _DownloadPipeline(ExtendedJavaWrapper):
     def __init__(self, name, language, remote_loc):
-        super(_DownloadPipeline, self).__init__("com.johnsnowlabs.nlp.pretrained.PythonResourceDownloader.downloadPipeline", name, language, remote_loc)
+        super(_DownloadPipeline, self).__init__(
+            "com.johnsnowlabs.nlp.pretrained.PythonResourceDownloader.downloadPipeline",
+            name,
+            language,
+            remote_loc,
+        )
 
 
 class _ClearCache(ExtendedJavaWrapper):
     def __init__(self, name, language, remote_loc):
-        super(_ClearCache, self).__init__("com.johnsnowlabs.nlp.pretrained.PythonResourceDownloader.clearCache", name, language, remote_loc)
+        super(_ClearCache, self).__init__(
+            "com.johnsnowlabs.nlp.pretrained.PythonResourceDownloader.clearCache",
+            name,
+            language,
+            remote_loc,
+        )
 
 
 class _GetResourceSize(ExtendedJavaWrapper):
     def __init__(self, name, language, remote_loc):
         super(_GetResourceSize, self).__init__(
-            "com.johnsnowlabs.nlp.pretrained.PythonResourceDownloader.getDownloadSize", name, language, remote_loc)
+            "com.johnsnowlabs.nlp.pretrained.PythonResourceDownloader.getDownloadSize",
+            name,
+            language,
+            remote_loc,
+        )
 
 
 class _ShowUnCategorizedResources(ExtendedJavaWrapper):
     def __init__(self):
         super(_ShowUnCategorizedResources, self).__init__(
-            "com.johnsnowlabs.nlp.pretrained.PythonResourceDownloader.showUnCategorizedResources")
+            "com.johnsnowlabs.nlp.pretrained.PythonResourceDownloader.showUnCategorizedResources"
+        )
 
 
 class _ShowPublicPipelines(ExtendedJavaWrapper):
     def __init__(self):
         super(_ShowPublicPipelines, self).__init__(
-            "com.johnsnowlabs.nlp.pretrained.PythonResourceDownloader.showPublicPipelines")
+            "com.johnsnowlabs.nlp.pretrained.PythonResourceDownloader.showPublicPipelines"
+        )
 
 
 class _ShowPublicModels(ExtendedJavaWrapper):
     def __init__(self):
         super(_ShowPublicModels, self).__init__(
-            "com.johnsnowlabs.nlp.pretrained.PythonResourceDownloader.showPublicModels")
+            "com.johnsnowlabs.nlp.pretrained.PythonResourceDownloader.showPublicModels"
+        )
 
 
 # predefined pipelines
@@ -218,7 +267,12 @@ class _DownloadPredefinedPipeline(ExtendedJavaWrapper):
 
 class _LightPipeline(ExtendedJavaWrapper):
     def __init__(self, pipelineModel, parse_embeddings):
-        super(_LightPipeline, self).__init__("com.johnsnowlabs.nlp.LightPipeline", pipelineModel._to_java(), parse_embeddings)
+        super(_LightPipeline, self).__init__(
+            "com.johnsnowlabs.nlp.LightPipeline",
+            pipelineModel._to_java(),
+            parse_embeddings,
+        )
+
 
 # ==================
 # Utils
@@ -227,7 +281,14 @@ class _LightPipeline(ExtendedJavaWrapper):
 
 class _StorageHelper(ExtendedJavaWrapper):
     def __init__(self, path, spark, database, storage_ref, within_storage):
-        super(_StorageHelper, self).__init__("com.johnsnowlabs.storage.StorageHelper.load", path, spark._jsparkSession, database, storage_ref, within_storage)
+        super(_StorageHelper, self).__init__(
+            "com.johnsnowlabs.storage.StorageHelper.load",
+            path,
+            spark._jsparkSession,
+            database,
+            storage_ref,
+            within_storage,
+        )
 
 
 class _CoNLLGeneratorExport(ExtendedJavaWrapper):
@@ -235,38 +296,70 @@ class _CoNLLGeneratorExport(ExtendedJavaWrapper):
         if type(pipeline) == PipelineModel:
             pipeline = pipeline._to_java()
         if type(target) == DataFrame:
-            super(_CoNLLGeneratorExport, self).__init__("com.johnsnowlabs.util.CoNLLGenerator.exportConllFiles", target._jdf, pipeline, output_path)
+            super(_CoNLLGeneratorExport, self).__init__(
+                "com.johnsnowlabs.util.CoNLLGenerator.exportConllFiles",
+                target._jdf,
+                pipeline,
+                output_path,
+            )
         else:
-            super(_CoNLLGeneratorExport, self).__init__("com.johnsnowlabs.util.CoNLLGenerator.exportConllFiles", spark._jsparkSession, target, pipeline, output_path)
+            super(_CoNLLGeneratorExport, self).__init__(
+                "com.johnsnowlabs.util.CoNLLGenerator.exportConllFiles",
+                spark._jsparkSession,
+                target,
+                pipeline,
+                output_path,
+            )
 
 
 class _EmbeddingsOverallCoverage(ExtendedJavaWrapper):
     def __init__(self, dataset, embeddings_col):
-        super(_EmbeddingsOverallCoverage, self).__init__("com.johnsnowlabs.nlp.embeddings.WordEmbeddingsModel.overallCoverage", dataset._jdf, embeddings_col)
+        super(_EmbeddingsOverallCoverage, self).__init__(
+            "com.johnsnowlabs.nlp.embeddings.WordEmbeddingsModel.overallCoverage",
+            dataset._jdf,
+            embeddings_col,
+        )
 
 
 class _EmbeddingsCoverageColumn(ExtendedJavaWrapper):
     def __init__(self, dataset, embeddings_col, output_col):
-        super(_EmbeddingsCoverageColumn, self).__init__("com.johnsnowlabs.nlp.embeddings.WordEmbeddingsModel.withCoverageColumn", dataset._jdf, embeddings_col, output_col)
+        super(_EmbeddingsCoverageColumn, self).__init__(
+            "com.johnsnowlabs.nlp.embeddings.WordEmbeddingsModel.withCoverageColumn",
+            dataset._jdf,
+            embeddings_col,
+            output_col,
+        )
 
 
 class _CoverageResult(ExtendedJavaWrapper):
     def __init__(self, covered, total, percentage):
-        super(_CoverageResult, self).__init__("com.johnsnowlabs.nlp.embeddings.CoverageResult", covered, total, percentage)
+        super(_CoverageResult, self).__init__(
+            "com.johnsnowlabs.nlp.embeddings.CoverageResult", covered, total, percentage
+        )
 
 
 class _BertLoader(ExtendedJavaWrapper):
     def __init__(self, path, jspark):
-        super(_BertLoader, self).__init__("com.johnsnowlabs.nlp.embeddings.BertEmbeddings.loadSavedModel", path, jspark)
+        super(_BertLoader, self).__init__(
+            "com.johnsnowlabs.nlp.embeddings.BertEmbeddings.loadSavedModel",
+            path,
+            jspark,
+        )
 
 
 class _USELoader(ExtendedJavaWrapper):
     def __init__(self, path, jspark):
-        super(_USELoader, self).__init__("com.johnsnowlabs.nlp.embeddings.UniversalSentenceEncoder.loadSavedModel",
-                                         path,
-                                         jspark)
+        super(_USELoader, self).__init__(
+            "com.johnsnowlabs.nlp.embeddings.UniversalSentenceEncoder.loadSavedModel",
+            path,
+            jspark,
+        )
 
 
 class _ElmoLoader(ExtendedJavaWrapper):
     def __init__(self, path, jspark):
-        super(_ElmoLoader, self).__init__("com.johnsnowlabs.nlp.embeddings.ElmoEmbeddings.loadSavedModel", path, jspark)
+        super(_ElmoLoader, self).__init__(
+            "com.johnsnowlabs.nlp.embeddings.ElmoEmbeddings.loadSavedModel",
+            path,
+            jspark,
+        )

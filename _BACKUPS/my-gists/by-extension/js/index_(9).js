@@ -1,0 +1,1 @@
+function(s){return(s=new Audio(s)).play(),s}

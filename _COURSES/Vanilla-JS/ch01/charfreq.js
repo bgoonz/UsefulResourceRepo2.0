@@ -9,6 +9,12 @@
 
 // This class extends Map so that the get() method returns the specified
 // value instead of null when the key is not in the map
+/**
+ *
+ *
+ * @class DefaultMap
+ * @extends {Map}
+ */
 class DefaultMap extends Map {
   constructor(defaultValue) {
     super(); // Invoke superclass constructor

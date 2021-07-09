@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>context-docs</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="context-react">Context – React</h1>
+    <blockquote>
+      <p>A JavaScript library for building user interfaces</p>
+    </blockquote>
+    <p>
+      Context provides a way to pass data through the component tree without
+      having to pass props down manually at every level.
+    </p>
+    <p>
+      In a typical React application, data is passed top-down (parent to child)
+      via props, but such usage can be cumbersome for certain types of props
+      (e.g. locale preference, UI theme) that are required by many components
+      within an application. Context provides a way to share values like these
+      between components without having to explicitly pass a prop through every
+      level of the tree.
+    </p>
+    <ul>
+      <li><a href="#when-to-use-context">When to Use Context</a></li>
+      <li><a href="#before-you-use-context">Before You Use Context</a></li>
+      <li>
+        <p><a href="#api">API</a></p>
+        <ul>
+          <li><a href="#reactcreatecontext">React.createContext</a></li>
+          <li><a href="#contextprovider">Context.Provider</a></li>
+          <li><a href="#classcontexttype">Class.contextType</a></li>
+          <li><a href="#contextconsumer">Context.Consumer</a></li>
+          <li><a href="#contextdisplayname">Context.displayName</a></li>
+        </ul>
+      </li>
+      <li>
+        <p><a href="#examples">Examples</a></p>
+        <ul>
+          <li><a href="#dynamic-context">Dynamic Context</a></li>
+          <li>
+            <a href="#updating-context-from-a-nested-component"
+              >Updating Context from a Nested Component</a
+            >
+          </li>
+          <li>
+            <a href="#consuming-multiple-contexts"
+              >Consuming Multiple Contexts</a
+            >
+          </li>
+        </ul>
+      </li>
+      <li><a href="#caveats">Caveats</a></li>
+      <li>
+        <p><a href="#legacy-api">Legacy API</a></p>
+      </li>
+    </ul>
+    <h2 id="when-to-use-context">
+      <a href="#when-to-use-context"></a>When to Use Context
+    </h2>
+    <p>
+      Context is designed to share data that can be considered “global” for a
+      tree of React components, such as the current authenticated user, theme,
+      or preferred language. For example, in the code below we manually thread
+      through a “theme” prop in order to style the Button component:
+    </p>
+    <pre><code>class App extends React.Component {
+  render() {
+    return &lt;Toolbar theme=&quot;dark&quot; /&gt;;
+  }
+}
+
+function Toolbar(props) {
+          return (
+    &lt;div&gt;
+      &lt;ThemedButton theme={props.theme} /&gt;    &lt;/div&gt;
+  );
+}
+
+class ThemedButton extends React.Component {
+  render() {
+    return &lt;Button theme={this.props.theme} /&gt;;
+  }
+}</code></pre>
+    <p>
+      Using context, we can avoid passing props through intermediate elements:
+    </p>
+    <pre><code>const ThemeContext = React.createContext(&#39;light&#39;);
+class App extends React.Component {
+  render() {
+                return (
+      &lt;ThemeContext.Provider value=&quot;dark&quot;&gt;        &lt;Toolbar /&gt;
+      &lt;/ThemeContext.Provider&gt;
+    );
+  }
+}
+
+function Toolbar() {
+  return (
+    &lt;div&gt;
+      &lt;ThemedButton /&gt;
+    &lt;/div&gt;
+  );
+}
+
+class ThemedButton extends React.Component {
+        static contextType = ThemeContext;
+  render() {
+    return &lt;Button theme={this.context} /&gt;;  }
+}</code></pre>
+    <h2 id="before-you-use-context">
+      <a href="#before-you-use-context"></a>Before You Use Context
+    </h2>
+    <p>
+      Context is primarily used when some data needs to be accessible by
+      <em>many</em> components at different nesting levels. Apply it sparingly
+      because it makes component reuse more difficult.
+    </p>
+    <p>
+      <strong
+        >If you only want to avoid passing some props through many levels,
+        <a
+          href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/docs/composition-vs-inheritance.html"
+          >component composition</a
+        >
+        is often a simpler solution than context.</strong
+      >
+    </p>
+    <p>
+      For example, consider a <code>Page</code> component that passes a
+      <code>user</code> and <code>avatarSize</code> prop several levels down so
+      that deeply nested <code>Link</code> and <code>Avatar</code> components
+      can read it:
+    </p>
+    <pre><code>&lt;Page user={user} avatarSize={avatarSize} /&gt;
+
+&lt;PageLayout user={user} avatarSize={avatarSize} /&gt;
+
+&lt;NavigationBar user={user} avatarSize={avatarSize} /&gt;
+
+&lt;Link href={user.permalink}&gt;
+  &lt;Avatar user={user} size={avatarSize} /&gt;
+&lt;/Link&gt;</code></pre>
+    <p>
+      It might feel redundant to pass down the <code>user</code> and
+      <code>avatarSize</code> props through many levels if in the end only the
+      <code>Avatar</code> component really needs it. It’s also annoying that
+      whenever the <code>Avatar</code> component needs more props from the top,
+      you have to add them at all the intermediate levels too.
+    </p>
+    <p>
+      One way to solve this issue <strong>without context</strong> is to
+      <a
+        href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/docs/composition-vs-inheritance.html#containment"
+        >pass down the <code>Avatar</code> component itself</a
+      >
+      so that the intermediate components don’t need to know about the
+      <code>user</code> or <code>avatarSize</code> props:
+    </p>
+    <pre><code>function Page(props) {
+  const user = props.user;
+  const userLink = (
+    &lt;Link href={user.permalink}&gt;
+      &lt;Avatar user={user} size={props.avatarSize} /&gt;
+    &lt;/Link&gt;
+  );
+  return &lt;PageLayout userLink={userLink} /&gt;;
+}
+
+
+&lt;Page user={user} avatarSize={avatarSize} /&gt;
+
+&lt;PageLayout userLink={...} /&gt;
+
+&lt;NavigationBar userLink={...} /&gt;
+
+{props.userLink}</code></pre>
+    <p>
+      With this change, only the top-most Page component needs to know about the
+      <code>Link</code> and <code>Avatar</code> components’ use of
+      <code>user</code> and <code>avatarSize</code>.
+    </p>
+    <p>
+      This <em>inversion of control</em> can make your code cleaner in many
+      cases by reducing the amount of props you need to pass through your
+      application and giving more control to the root components. Such
+      inversion, however, isn’t the right choice in every case; moving more
+      complexity higher in the tree makes those higher-level components more
+      complicated and forces the lower-level components to be more flexible than
+      you may want.
+    </p>
+    <p>
+      You’re not limited to a single child for a component. You may pass
+      multiple children, or even have multiple separate “slots” for children,
+      <a
+        href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/docs/composition-vs-inheritance.html#containment"
+        >as documented here</a
+      >:
+    </p>
+    <pre><code>function Page(props) {
+  const user = props.user;
+  const content = &lt;Feed user={user} /&gt;;
+  const topBar = (
+    &lt;NavigationBar&gt;
+      &lt;Link href={user.permalink}&gt;
+        &lt;Avatar user={user} size={props.avatarSize} /&gt;
+      &lt;/Link&gt;
+    &lt;/NavigationBar&gt;
+  );
+  return (
+    &lt;PageLayout
+      topBar={topBar}
+      content={content}
+    /&gt;
+  );
+}</code></pre>
+    <p>
+      This pattern is sufficient for many cases when you need to decouple a
+      child from its immediate parents. You can take it even further with
+      <a
+        href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/docs/render-props.html"
+        >render props</a
+      >
+      if the child needs to communicate with the parent before rendering.
+    </p>
+    <p>
+      However, sometimes the same data needs to be accessible by many components
+      in the tree, and at different nesting levels. Context lets you “broadcast”
+      such data, and changes to it, to all components below. Common examples
+      where using context might be simpler than the alternatives include
+      managing the current locale, theme, or a data cache.
+    </p>
+    <h2 id="api"><a href="#api"></a>API</h2>
+    <h3 id="react.createcontext">
+      <a href="#reactcreatecontext"></a><code>React.createContext</code>
+    </h3>
+    <pre><code>const MyContext = React.createContext(defaultValue);</code></pre>
+    <p>
+      Creates a Context object. When React renders a component that subscribes
+      to this Context object it will read the current context value from the
+      closest matching <code>Provider</code> above it in the tree.
+    </p>
+    <p>
+      The <code>defaultValue</code> argument is <strong>only</strong> used when
+      a component does not have a matching Provider above it in the tree. This
+      default value can be helpful for testing components in isolation without
+      wrapping them. Note: passing <code>undefined</code> as a Provider value
+      does not cause consuming components to use <code>defaultValue</code>.
+    </p>
+    <h3 id="context.provider">
+      <a href="#contextprovider"></a><code>Context.Provider</code>
+    </h3>
+    <pre><code>&lt;MyContext.Provider value={}&gt;</code></pre>
+    <p>
+      Every Context object comes with a Provider React component that allows
+      consuming components to subscribe to context changes.
+    </p>
+    <p>
+      The Provider component accepts a <code>value</code> prop to be passed to
+      consuming components that are descendants of this Provider. One Provider
+      can be connected to many consumers. Providers can be nested to override
+      values deeper within the tree.
+    </p>
+    <p>
+      All consumers that are descendants of a Provider will re-render whenever
+      the Provider’s <code>value</code> prop changes. The propagation from
+      Provider to its descendant consumers (including
+      <a href="#classcontexttype"><code>.contextType</code></a> and
+      <a
+        href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/docs/hooks-reference.html#usecontext"
+        ><code>useContext</code></a
+      >) is not subject to the <code>shouldComponentUpdate</code> method, so the
+      consumer is updated even when an ancestor component skips an update.
+    </p>
+    <p>
+      Changes are determined by comparing the new and old values using the same
+      algorithm as
+      <a
+        href="chrome-extension://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is#Description"
+        ><code>Object.is</code></a
+      >.
+    </p>
+    <blockquote>
+      <p>Note</p>
+      <p>
+        The way changes are determined can cause some issues when passing
+        objects as <code>value</code>: see <a href="#caveats">Caveats</a>.
+      </p>
+    </blockquote>
+    <h3 id="class.contexttype">
+      <a href="#classcontexttype"></a><code>Class.contextType</code>
+    </h3>
+    <pre><code>class MyClass extends React.Component {
+  componentDidMount() {
+    let value = this.context;
+    
+  }
+  componentDidUpdate() {
+    let value = this.context;
+    
+  }
+  componentWillUnmount() {
+    let value = this.context;
+    
+  }
+  render() {
+    let value = this.context;
+    
+  }
+}
+MyClass.contextType = MyContext;</code></pre>
+    <p>
+      The <code>contextType</code> property on a class can be assigned a Context
+      object created by
+      <a href="#reactcreatecontext"><code>React.createContext()</code></a
+      >. Using this property lets you consume the nearest current value of that
+      Context type using <code>this.context</code>. You can reference this in
+      any of the lifecycle methods including the render function.
+    </p>
+    <blockquote>
+      <p>Note:</p>
+      <p>
+        You can only subscribe to a single context using this API. If you need
+        to read more than one see
+        <a href="#consuming-multiple-contexts">Consuming Multiple Contexts</a>.
+      </p>
+      <p>
+        If you are using the experimental
+        <a href="https://babeljs.io/docs/plugins/transform-class-properties/"
+          >public class fields syntax</a
+        >, you can use a <strong>static</strong> class field to initialize your
+        <code>contextType</code>.
+      </p>
+    </blockquote>
+    <pre><code>class MyClass extends React.Component {
+  static contextType = MyContext;
+  render() {
+    let value = this.context;
+    
+  }
+}</code></pre>
+    <h3 id="context.consumer">
+      <a href="#contextconsumer"></a><code>Context.Consumer</code>
+    </h3>
+    <pre><code>&lt;MyContext.Consumer&gt;
+  {value =&gt; }
+&lt;/MyContext.Consumer&gt;</code></pre>
+    <p>
+      A React component that subscribes to context changes. Using this component
+      lets you subscribe to a context within a
+      <a
+        href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/docs/components-and-props.html#function-and-class-components"
+        >function component</a
+      >.
+    </p>
+    <p>
+      Requires a
+      <a
+        href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/docs/render-props.html#using-props-other-than-render"
+        >function as a child</a
+      >. The function receives the current context value and returns a React
+      node. The <code>value</code> argument passed to the function will be equal
+      to the <code>value</code> prop of the closest Provider for this context
+      above in the tree. If there is no Provider for this context above, the
+      <code>value</code> argument will be equal to the
+      <code>defaultValue</code> that was passed to <code>createContext()</code>.
+    </p>
+    <blockquote>
+      <p>Note</p>
+      <p>
+        For more information about the ‘function as a child’ pattern, see
+        <a
+          href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/docs/render-props.html"
+          >render props</a
+        >.
+      </p>
+    </blockquote>
+    <h3 id="context.displayname">
+      <a href="#contextdisplayname"></a><code>Context.displayName</code>
+    </h3>
+    <p>
+      Context object accepts a <code>displayName</code> string property. React
+      DevTools uses this string to determine what to display for the context.
+    </p>
+    <p>
+      For example, the following component will appear as MyDisplayName in the
+      DevTools:
+    </p>
+    <pre><code>const MyContext = React.createContext();
+MyContext.displayName = &#39;MyDisplayName&#39;;
+&lt;MyContext.Provider&gt; // &quot;MyDisplayName.Provider&quot; in DevTools
+&lt;MyContext.Consumer&gt; // &quot;MyDisplayName.Consumer&quot; in DevTools</code></pre>
+    <h2 id="examples"><a href="#examples"></a>Examples</h2>
+    <h3 id="dynamic-context"><a href="#dynamic-context"></a>Dynamic Context</h3>
+    <p>A more complex example with dynamic values for the theme:</p>
+    <p><strong>theme-context.js</strong></p>
+    <pre><code>export const themes = {
+  light: {
+    foreground: &#39;#000000&#39;,
+    background: &#39;#eeeeee&#39;,
+  },
+  dark: {
+    foreground: &#39;#ffffff&#39;,
+    background: &#39;#222222&#39;,
+  },
+};
+
+export const ThemeContext = React.createContext(  themes.dark );</code></pre>
+    <p><strong>themed-button.js</strong></p>
+    <pre><code>import {ThemeContext} from &#39;./theme-context&#39;;
+
+class ThemedButton extends React.Component {
+  render() {
+    let props = this.props;
+    let theme = this.context;    return (
+      &lt;button
+        {...props}
+        style={{backgroundColor: theme.background}}
+      /&gt;
+    );
+  }
+}
+ThemedButton.contextType = ThemeContext;
+export default ThemedButton;</code></pre>
+    <p><strong>app.js</strong></p>
+    <pre><code>import {ThemeContext, themes} from &#39;./theme-context&#39;;
+import ThemedButton from &#39;./themed-button&#39;;
+
+
+function Toolbar(props) {
+  return (
+    &lt;ThemedButton onClick={props.changeTheme}&gt;
+      Change Theme
+    &lt;/ThemedButton&gt;
+  );
+}
+
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      theme: themes.light,
+    };
+
+    this.toggleTheme = () =&gt; {
+      this.setState(state =&gt; ({
+        theme:
+          state.theme === themes.dark
+            ? themes.light
+            : themes.dark,
+      }));
+    };
+  }
+
+  render() {
+                return (
+      &lt;Page&gt;
+        &lt;ThemeContext.Provider value={this.state.theme}&gt;          &lt;Toolbar changeTheme={this.toggleTheme} /&gt;        &lt;/ThemeContext.Provider&gt;        &lt;Section&gt;
+          &lt;ThemedButton /&gt;        &lt;/Section&gt;
+      &lt;/Page&gt;
+    );
+  }
+}
+
+ReactDOM.render(&lt;App /&gt;, document.root);</code></pre>
+    <h3 id="updating-context-from-a-nested-component">
+      <a href="#updating-context-from-a-nested-component"></a>Updating Context
+      from a Nested Component
+    </h3>
+    <p>
+      It is often necessary to update the context from a component that is
+      nested somewhere deeply in the component tree. In this case you can pass a
+      function down through the context to allow consumers to update the
+      context:
+    </p>
+    <p><strong>theme-context.js</strong></p>
+    <pre><code>export const ThemeContext = React.createContext({
+  theme: themes.dark,  toggleTheme: () =&gt; {},});</code></pre>
+    <p><strong>theme-toggler-button.js</strong></p>
+    <pre><code>import {ThemeContext} from &#39;./theme-context&#39;;
+
+function ThemeTogglerButton() {
+      return (
+    &lt;ThemeContext.Consumer&gt;
+      {({theme, toggleTheme}) =&gt; (        &lt;button
+          onClick={toggleTheme}
+          style={{backgroundColor: theme.background}}&gt;
+          Toggle Theme
+        &lt;/button&gt;
+      )}
+    &lt;/ThemeContext.Consumer&gt;
+  );
+}
+
+export default ThemeTogglerButton;</code></pre>
+    <p><strong>app.js</strong></p>
+    <pre><code>import {ThemeContext, themes} from &#39;./theme-context&#39;;
+import ThemeTogglerButton from &#39;./theme-toggler-button&#39;;
+
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.toggleTheme = () =&gt; {
+      this.setState(state =&gt; ({
+        theme:
+          state.theme === themes.dark
+            ? themes.light
+            : themes.dark,
+      }));
+    };
+
+            this.state = {
+      theme: themes.light,
+      toggleTheme: this.toggleTheme,    };
+  }
+
+  render() {
+        return (
+      &lt;ThemeContext.Provider value={this.state}&gt;        &lt;Content /&gt;
+      &lt;/ThemeContext.Provider&gt;
+    );
+  }
+}
+
+function Content() {
+  return (
+    &lt;div&gt;
+      &lt;ThemeTogglerButton /&gt;
+    &lt;/div&gt;
+  );
+}
+
+ReactDOM.render(&lt;App /&gt;, document.root);</code></pre>
+    <h3 id="consuming-multiple-contexts">
+      <a href="#consuming-multiple-contexts"></a>Consuming Multiple Contexts
+    </h3>
+    <p>
+      To keep context re-rendering fast, React needs to make each context
+      consumer a separate node in the tree.
+    </p>
+    <pre><code>const ThemeContext = React.createContext(&#39;light&#39;);
+
+
+const UserContext = React.createContext({
+  name: &#39;Guest&#39;,
+});
+
+class App extends React.Component {
+  render() {
+    const {signedInUser, theme} = this.props;
+
+    
+    return (
+      &lt;ThemeContext.Provider value={theme}&gt;        &lt;UserContext.Provider value={signedInUser}&gt;          &lt;Layout /&gt;
+        &lt;/UserContext.Provider&gt;      &lt;/ThemeContext.Provider&gt;    );
+  }
+}
+
+function Layout() {
+  return (
+    &lt;div&gt;
+      &lt;Sidebar /&gt;
+      &lt;Content /&gt;
+    &lt;/div&gt;
+  );
+}
+
+
+function Content() {
+  return (
+    &lt;ThemeContext.Consumer&gt;      {theme =&gt; (        &lt;UserContext.Consumer&gt;          {user =&gt; (            &lt;ProfilePage user={user} theme={theme} /&gt;          )}        &lt;/UserContext.Consumer&gt;      )}    &lt;/ThemeContext.Consumer&gt;  );
+}</code></pre>
+    <p>
+      If two or more context values are often used together, you might want to
+      consider creating your own render prop component that provides both.
+    </p>
+    <h2 id="caveats"><a href="#caveats"></a>Caveats</h2>
+    <p>
+      Because context uses reference identity to determine when to re-render,
+      there are some gotchas that could trigger unintentional renders in
+      consumers when a provider’s parent re-renders. For example, the code below
+      will re-render all consumers every time the Provider re-renders because a
+      new object is always created for <code>value</code>:
+    </p>
+    <pre><code>class App extends React.Component {
+  render() {
+    return (
+      &lt;MyContext.Provider value={{something: &#39;something&#39;}}&gt;        &lt;Toolbar /&gt;
+      &lt;/MyContext.Provider&gt;
+    );
+  }
+}</code></pre>
+    <p>To get around this, lift the value into the parent’s state:</p>
+    <pre><code>class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: {something: &#39;something&#39;},    };
+  }
+
+  render() {
+    return (
+      &lt;MyContext.Provider value={this.state.value}&gt;        &lt;Toolbar /&gt;
+      &lt;/MyContext.Provider&gt;
+    );
+  }
+}</code></pre>
+    <h2 id="legacy-api"><a href="#legacy-api"></a>Legacy API</h2>
+    <blockquote>
+      <p>Note</p>
+      <p>
+        React previously shipped with an experimental context API. The old API
+        will be supported in all 16.x releases, but applications using it should
+        migrate to the new version. The legacy API will be removed in a future
+        major React version. Read the
+        <a
+          href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/docs/legacy-context.html"
+          >legacy context docs here</a
+        >.
+      </p>
+    </blockquote>
+    <p><a href="https://reactjs.org/docs/context.html">Source</a></p>
+  </body>
+</html>
