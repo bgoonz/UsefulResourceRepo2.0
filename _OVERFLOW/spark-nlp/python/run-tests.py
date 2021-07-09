@@ -37,4 +37,3 @@ unittest.TextTestRunner().run(EmbeddingsFinisherTestSpec())
 # Misc tests
 unittest.TextTestRunner().run(UtilitiesTestSpec())
 unittest.TextTestRunner().run(SerializersTestSpec())
-

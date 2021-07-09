@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>set_hostname_fqdn_on_ubuntu_centos</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="setting-the-hostname-fully-qualified-domain-name-fqdn-on-ubuntu-12.04-or-centos-6.4">Setting the Hostname &amp; Fully Qualified Domain Name (FQDN) on Ubuntu 12.04 or CentOS 6.4</h1>
+<h3 id="introduction">Introduction</h3>
+<p>A hostname is a label or nickname that is assigned to a computer connected to a network and that is used to identify the machine in various forms of electronic communication within an internal network. Hostnames are also important because they form part of a computer’s Fully Qualified Domain Name (FQDN). Assigning a FQDN to a computer makes it reachable via the public <a href="http://en.wikipedia.org/wiki/Domain_Name_System">Domain Name System (DNS)</a>, i.e. the Internet.</p>
+<h2 id="hostname-requirements">Hostname Requirements</h2>
+<p>Internet standards for protocols mandate that component local host names may contain, <strong>only</strong>:</p>
+<ul>
+<li>the <a href="http://en.wikipedia.org/wiki/ASCII">ASCII</a> letters <code>a</code> through <code>z</code> (in a case-insensitive manner);</li>
+<li>the digits <code>0</code> through <code>9</code>; and</li>
+<li>the hyphen (<code>-</code>).</li>
+</ul>
+<p>No other symbols, punctuation characters, or white space are permitted.</p>
+<p><strong>Practice Tip:</strong> In addition to the above technical requirements, the only practical requirement of a server’s hostname, for your environment(s), is that it should be something unique to the other servers within a particular domain.</p>
+<h3 id="restrictions-on-valid-host-names">Restrictions on valid host names</h3>
+<p>Hostnames are composed of series of labels concatenated with dots, as are all domain names. For example, let’s break <code>mail.google.com</code> into its component parts:</p>
+<ul>
+<li><code>mail</code> is the host or local hostname; and</li>
+<li><code>google.com</code> is the domain or parent domain name.</li>
+</ul>
+<p>Each label <strong>must</strong>:</p>
+<ul>
+<li>be between 1 and 63 characters long; and</li>
+<li>the entire hostname (including the domain &amp; delimiting dots) has a maximum of 255 characters.</li>
+</ul>
+<h2 id="checking-current-hostname-fqdn">Checking Current Hostname &amp; FQDN</h2>
+<p>This article assumes that you are familiar with <code>Step Seven — Log In To Your Droplet</code> of <a href="https://www.digitalocean.com/community/articles/how-to-create-your-first-digitalocean-droplet-virtual-server">How To Create Your First DigitalOcean Droplet Virtual Server</a>.</p>
+<p>To check your hostname, open a terminal or shell session and execute:</p>
+<pre><code>hostname</code></pre>
+<p>The current hostname, if any, will be displayed. Then, to check the existing FQDN, if any, execute:</p>
+<pre><code>hostname -f</code></pre>
+<p>which should yield a result such as <code>localhost</code> (which signifies that no FQDN is set) or <code>pbx.yourdomain.tld</code>.</p>
+<h2 id="naming-conventions">Naming Conventions</h2>
+<p>So long as the above parameters are complied with, one can use just about any name as a hostname. Many server admins. use planets, places or loosely-labeled abbreviations of a particular server’s basic purpose, e.g., <code>pbx</code>, <code>web1</code>, <code>web2</code>, <code>mail</code>, <code>ns1</code> (for nameserver) and so on. Feel free to have fun with hostnames, if you’d like.</p>
+<h2 id="setting-the-hostname">Setting the Hostname</h2>
+<p>A particular computer’s hostname can be changed at any time. To set the initial hostname or subsequently change it, execute the following commands in a terminal or shell session (obviously, you can use whichever text editor you wish; but this guide assumes that you have installed the <a href="https://www.digitalocean.com/community/articles/installing-and-using-the-vim-text-editor-on-a-cloud-server">vim text editor</a>):</p>
+<h4 id="ubuntu-12.04">Ubuntu 12.04</h4>
+<pre><code>sudo vim /etc/hostname</code></pre>
+<h4 id="centos-6.4">CentOS 6.4</h4>
+<pre><code>sudo vim /etc/sysconfig/network</code></pre>
+<ul>
+<li>Then, tap on the <code>i</code> key and use the arrow keys on your keyboard to navigate the text area;</li>
+<li>Next, enter the hostname of your choice; and</li>
+<li>To save &amp; exit, tap the <code>Esc</code> key, on your keyboard, followed by these keystrokes: <code>:</code>, <code>w</code>, <code>q</code>, and, finally, <code>Enter</code>.</li>
+</ul>
+<blockquote>
+<p><em>If</em> it exists, edit the file <code>/etc/default/dhcpcd</code> and comment out the <code>SET_HOSTNAME</code> directive, by executing:</p>
+<p>sudo vim /etc/default/dhcpcd</p>
+<p>Then, insert the <code>#</code> symbol at the beginning of the line that begins with <code>SET_HOSTNAME=</code>, as shown, below:</p>
+<p>#SET_HOSTNAME=‘yes’</p>
+</blockquote>
+<p>Finally, execute:</p>
+<pre><code>sudo service hostname restart</code></pre>
+<p>You can verify that the hostname was properly set by, again, executing:</p>
+<pre><code>hostname</code></pre>
+<h2 id="setting-the-fully-qualified-domain-name-fqdn">Setting the Fully Qualified Domain Name (FQDN)</h2>
+<p>In a terminal or shell, execute:</p>
+<pre><code>sudo vim /etc/hosts</code></pre>
+<p>Then, tap on the <code>i</code> key and use the arrow keys on your keyboard to navigate the text area. Modify your <code>hosts</code> file so that it resembles the following (<strong>obviously,</strong> substituting the <code>hostname</code>, <code>yourdomain</code>, <code>tld</code>, and <code>YourIP</code> values with your own):</p>
+<pre><code>127.0.0.1   localhost.localdomain   localhost
+127.0.1.1   hostname.yourdomain.tld hostname
+YourIP      hostname.yourdomain.tld hostname</code></pre>
+<p>To save &amp; exit, tap the <code>Esc</code> key, on your keyboard, followed by these keystrokes: <code>:</code>, <code>w</code>, <code>q</code>, and, finally, <code>Enter</code>.</p>
+<p>You can verify that the FQDN was properly set by, again, executing:</p>
+<pre><code>hostname -f</code></pre>
+<h2 id="dns-records">DNS Records</h2>
+<p>If you want your remote server to be reachable over the internet via its FQDN, then you need to create the relevant DNS records. <em>See</em> <a href="https://www.digitalocean.com/community/articles/how-to-set-up-a-host-name-with-digitalocean">How To Set Up a Host Name with DigitalOcean</a>.</p>
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li><a href="https://www.digitalocean.com/community/articles/initial-server-setup-with-ubuntu-12-04">Initial Server Setup with Ubuntu 12.04 | DigitalOcean</a></li>
+<li><a href="https://help.ubuntu.com/12.04/serverguide/index.html">Ubuntu Server 12.04 LTS Guide</a></li>
+<li><a href="https://www.digitalocean.com/community/articles/initial-server-setup-with-centos-6">Initial Server Setup with CentOS 6</a></li>
+<li><a href="http://wiki.centos.org/">CentOS Wiki</a></li>
+</ul>
+<p>
+<div style="text-align: right; font-size:smaller;">
+Article submitted by: <a href="https://plus.google.com/107285164064863645881?rel=author" target="_blank">Pablo Carranza</a> • Updated November 12, 2013
+</div>
+</p>
+</body>
+</html>

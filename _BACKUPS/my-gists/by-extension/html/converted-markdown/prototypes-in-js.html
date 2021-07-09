@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>prototypes-in-js</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="prototypes-in-js">Prototypes in JS</h1>
+<h2 id="initial-steps">Initial steps</h2>
+<p>Let’s review the basics of objects in JavaScript.</p>
+<figure>
+<img src="img/1.jpg" alt="First Example" /><figcaption>First Example</figcaption>
+</figure>
+<p>This way of making an object is simplest. You can just read the code for an object like this and immediately understand it. Its defining curly brackets contain properties, which follow the format <code>key: value</code>. Objects help us label and group together data in a way that other data structures can’t. Arrays, for instance, would have a hard time accounting for the color, model, VIN number, and tire size of a car. They were designed for sequence-oriented data, not description-oriented data.</p>
+<p>Now we encounter a conundrum. Let’s say that we want to make an object with the same fields but different values. How could we make <code>student_2</code>? Let’s say <code>student_2</code> is for Mary Jane Bukowski, to pick a name at random. How would we do this? One way would be to copy and paste the properties from <code>student_1</code> into a new <code>student_2</code>, replacing George’s properties with Mary’s new ones. This method is inefficient, non-programmatic, and likely to create errors. Luckily, JS has a good solution.</p>
+<figure>
+<img src="img/2.jpg" alt="Second Example" /><figcaption>Second Example</figcaption>
+</figure>
+<p>Let’s think for a second. What is it that <code>student_1</code> and <code>student_2</code> would have in common? Their keys! So we need something that can store the names of keys that we want to apply to different objects with different values. This is exactly the purpose that a constructor in JavaScript serves. A constructor is just a function like any other. There is no magic going on in the constructor function itself. The magic takes place outside it. Take a look at line 15 in the second image above. We’re passing in a bunch of values into something called <code>new Student</code>. What this evaluates to is an empty object (at least initially). The <code>this</code> keyword (which is just a placeholder for some kind of containing object) in each assignment line of the constructor function gets changed to this new object, and properties are then assigned to it like you would manually assign them.</p>
+<p>Constructors emulate the basic behavior of classes and instances in other languages. But be careful! A constructor is not literally a class. It’s just a function that <em>constructs</em> a new object according to the blueprint described in its code block.</p>
+<h2 id="prototypes">Prototypes</h2>
+<p>Constructors actually write properties onto the objects they create. <code>student_1</code> in the second image above truly has a property of its own called <code>first_name</code>, as we can see in the results on line 16. And really the only thing that you need to understand about prototype inheritance is that it works differently. So how does it work?</p>
+<p>Prototype inheritance, in contrast to a property writing system, is an object referencing system. (This referencing is formally known as delegation.) In order to understand this better, let’s look at a crazy object.</p>
+<figure>
+<img src="img/3.jpg" alt="Third Example" /><figcaption>Third Example</figcaption>
+</figure>
+<p>In <code>crazyObj</code> we don’t have a bunch of keys that we’d like to see in other objects with different values. We have a pile of data. Imagine that each return statement in each crazy function was replaced with 200 lines of unbearably complex calculations and assignments. Imagine that <code>crazyArray1</code> is actually filled with millions of elements. Now imagine a constructor whose job it is to just assign these ridiculous values to the crazy functions and the crazy array of a new object. Imagine how long it might take to go through this process for 100 separate objects, and how much memory it would require! This is the kind of thing that makes browsers crash and computers lag, so a browser-oriented language like JS has to have a good way of dealing with this issue.</p>
+<p>Put simply, the solution is just to reference <code>crazyObj</code>. Instead of copying over <em>all</em> that data, it is just referenced from within an object that is associated with <code>crazyObj</code>. Let’s look at a separate example of prototypal inheritance in action to understand this better.</p>
+<figure>
+<img src="img/4.jpg" alt="Fourth Example" /><figcaption>Fourth Example</figcaption>
+</figure>
+<p><code>a</code> is defined as an empty object. It has no properties of its own. <code>b</code> and <code>c</code> have properties. So first we’re specifying that <code>b</code> is the prototype of <code>a</code>. We do this by <code>Object.setPrototypeOf(a, b);</code>. This is the functional equivalent of saying that <code>a.__proto__ = b;</code>. So here’s what will happen if we provide <code>a.name</code>. First, it will look for the <code>name</code> value in <code>a</code> itself. Since it’s empty it’s not there. Then, it will find out which object the <code>__proto__</code> of <code>a</code> refers to. Then it will look for the property (in this case, <code>name</code>) in the prototype. And, voila! Through this mechanism <code>a.name</code> is a valid expression, even though <code>a</code> doesn’t actually have any properties. <code>__proto__</code> is the property that can be set to provide a reference to another object. The properties of the prototype can be referenced (using dot or bracket notation) in the same way that we reference the actual properties of an object.</p>
+<p>In this example we have a prototype chain. <code>c</code> is the prototype of <code>b</code>, and <code>b</code> is the prototype of <code>a</code>. Therefore, <code>a</code> can access all the properties of <code>b</code> and <code>c</code>. And therefore, <code>a.color</code> is a perfectly valid expression.</p>
+<h2 id="bringing-it-all-together">Bringing it all together</h2>
+<p>Now I’m going to blow your mind. Wait for it… A constructor is something that facilitates both the property writing scheme and the object referencing scheme. It’s a two-in-one. But how is this possible? It’s possible because a constructor is just a function. Every function in JS has a property called <code>prototype</code>. You can think of this like a built-in place for all the stuff we don’t want to pass into each new object, but would rather reference for efficiency’s sake. There’s no conceptual difference between <code>&lt;constructor&gt;.prototype</code> and <code>b</code> in the last example. They’re both objects that we’re using to contain referenced data. Any object made by a constructor will automatically have a <code>__proto__</code> property. This property points to <code>&lt;constructor&gt;.prototype</code>.</p>
+<p>So now, hopefully, you can fully understand code that looks like</p>
+<pre><code>function testConstructor() {
+    this.bananas = false;    // instance stamping part
+    this.strawberries = true; }
+testConstructor.prototype.meow = function () {    // object referencing part
+    return &quot;Meow!&quot;; };
+const newObj = new testConstructor();</code></pre>
+<p>For whatever reason we might have, we decided to put the <code>meow</code> function in the prototype of the constructor rather than stamping it as a value onto a new object. Methods are customarily added to the constructor’s prototype, but it won’t break the system to add <code>this.meow = function...</code> to the constructor’s code block. In production, some methods could be hundreds of lines long, so this custom makes some sense.</p>
+<h2 id="making-sense-of-array.prototype.slice.callarguments">Making sense of <code>Array.prototype.slice.call(arguments)</code></h2>
+<p>So what does this do? It has a lot of elements, and at first glance its purpose is not clear. Let’s look closely at each piece of it.</p>
+<p><strong>slice()</strong> &gt; The slice() method returns a shallow copy of a portion of an array into a new array object selected from <code>begin</code> to <code>end</code> (<code>end</code> not included). The original array will not be modified… If <code>begin</code> is undefined, slice begins from index 0… If <code>end</code> is omitted, slice extracts through the end of the sequence (<code>arr.length</code>). <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice">[MDN Documentation]</a></p>
+<p>So <code>a.slice()</code> will just return an array copy of the array <code>a</code>. We’re not specifying a start or end index for the slicing, so it’ll give us the whole kebab.</p>
+<p><strong>arguments</strong> &gt; The arguments object is an Array-like object corresponding to the arguments passed to a function. <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments">[MDN Documentation]</a></p>
+<p>So if we have some code like this</p>
+<pre><code>function testMeow(age, breed) {
+    console.log(`Your cat is ${age} years old and is a ${breed}`);
+    console.log(arguments);       // { 0: &#39;10&#39;, 1: &#39;Maine Coon&#39; }
+}
+testMeow(&quot;10&quot;, &quot;Maine Coon&quot;);</code></pre>
+<p><code>arguments</code> is going to be <code>{ 0: '10', 1: 'Maine Coon' }</code>. It’s an indexed object with a <code>length</code> property. Notice how its keys are numeric and correspond to the order of arguments as they were passed into <code>testMeow</code>. <code>arguments[0]</code> is a valid expression here.</p>
+<p><strong>call</strong> &gt;The call() method calls a function with a given <code>this</code> value and arguments provided individually. <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call">[MDN Documentation]</a></p>
+<p>It takes the form <code>function.call(thisArg, arg1, arg2, ...)</code>, where <code>thisArg</code> refers to the <code>this</code> value and the subsequent arguments are actually arguments for the main function (<code>function</code> here). Take a look at this non-bewildering example from MDN</p>
+<pre><code>function greet() {
+    var reply = [this.person, &#39;Is An Awesome&#39;, this.role].join(&#39; &#39;);
+    console.log(reply);
+}
+var i = {
+person: &#39;Douglas Crockford&#39;, role: &#39;Javascript Developer&#39;
+};
+greet.call(i); // Douglas Crockford Is An Awesome Javascript Developer</code></pre>
+<p>As you can see, <code>call</code> sets the value of <code>this</code> in <code>greet()</code> to <code>i</code>.</p>
+<p>So let’s put all of this together for <code>Array.prototype.slice.call(arguments)</code>. <code>Arguments</code> is an indexed object; it doesn’t have access to <code>Array.prototype</code> by default. It has access to <code>Object.prototype</code> instead. The problem is that <code>Object.prototype</code> has no methods for making arrays out of stuff. So we have to change the <code>this</code> of a method in <code>Array.prototype</code> to <code>arguments</code>. We do that using <code>call</code>. Since we want a new array, we can take advantage of the array-producing functionality of <code>slice()</code> on the indexes in <code>arguments</code>. So… to put it all together… we’re taking an indexed object and turning it into an array. This way, we can use all the nifty array methods on it, if need be.</p>
+<p>Hope that helps!</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="http://beej.us/blog/data/javascript-prototypes-inheritance/">Beej’s blog post on JS prototypes</a></li>
+<li><a href="https://github.com/LambdaSchool/BeejWiki/wiki/Arrays,-prototypes,-slices,-calls">Beej’s internal wiki article on Array.prototype.slice.call(arguments)</a></li>
+<li><a href="https://www.youtube.com/watch?v=hS_WqkyUah8">YouTube: Prototypes in Javascript - p5.js Tutorial</a></li>
+<li><a href="https://www.youtube.com/watch?v=DqGwxR_0d1M">YouTube: proto vs prototype - Object Creation in JavaScript P5</a></li>
+<li><a href="http://adripofjavascript.com/blog/drips/constructors-in-javascript.html">Constructors in JS</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Prototype-based_programming">Wikipedia: Prototype-based programming</a></li>
+</ul>
+</body>
+</html>

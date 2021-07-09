@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Implementing_the_functions_of_a_calculator</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="dismantling-complex-problems-implementing-the-functions-of-a-calculator">Dismantling complex problems: Implementing the functions of a calculator</h1>
+<p><strong>Translator: <a href="https://github.com/Mr2er0">Zero</a></strong></p>
+<p><strong>Author: <a href="https://github.com/labuladong">labuladong</a></strong></p>
+<p>The calculator function we will eventually implement is as follows:</p>
+<p>1、Enter a string that can include <code>+-* /</code>, numbers, brackets, and spaces. Your algorithm returns the structure of the operation.</p>
+<p>2、To comply with the algorithm, parentheses have the highest priority, multiply and divide first, then add and subtract.</p>
+<p>3、The division sign is an integer division, rounded to zero regardless of the sign (5/2 = 2, -5 / 2 = -2).</p>
+<p>4、It can be assumed that the input formula must be legal, and there will be no integer overflow in the calculation process, and there will be no unexpected situation where the divisor is 0.</p>
+<p>For example, if you enter the following string, the algorithm will return 9:</p>
+<p><code>3 * (2-6 /(3 -7))</code></p>
+<p>As you can see, this is very close to the calculator we use in real life. Although we have definitely used the calculator before, if we think about its algorithm implementation, we will find that it is not easy to implment:</p>
+<p>1、To handle parentheses according to common sense, first calculate the innermost parentheses, and then gradually simplify them outward. This process is easy to make mistakes, let alone write algorithms!</p>
+<p>2、It is not difficult to teach children to multiply and divide first, then add and subtract, but it may be difficult to teach computers.</p>
+<p>3、To handle spaces. For the sake of beauty, we habitually put spaces between numbers and operators, but we have to figure out ways to ignore these spaces.</p>
+<p>I remember a lot of textbooks on university data structure. When talking about data structures like stacks, they may use calculators as examples, but most can’t make it clear. I don’t know how many future computer scientists may quit because of such a simple data structure .</p>
+<p>Then this article talks about how to implement one of the above-mentioned full-featured calculator functions.<strong>The key lies in dismantling the problems layer by layer and solving the problems one by one</strong>, I believe that this way of thinking can help everyone solve various complex problems.</p>
+<p>Let’s take apart. Starting with the simplest question.</p>
+<h3 id="convert-string-to-integer">1.Convert string to integer</h3>
+<p>Yes, it is such a simple question. First tell me, how to convert a <strong>positive</strong> integer in the form of a string into an int?</p>
+<pre><code>string s = &quot;458&quot;;
+
+int n = 0;
+for (int i = 0; i &lt; s.size(); i++) {
+    char c = s[i];
+    n = 10 * n + (c - &#39;0&#39;);
+}
+// n is now equal to 458</code></pre>
+<p>This is still very simple, old-fashioned. But even so simple, there are still issues that need attention: <strong>This bracket in <code>(c - '0')</code> cannot be omitted, otherwise it may cause integer overflow</strong></p>
+<p>Because the variable <code>c</code> is an ASCII code, if there is no parentheses, it will be added first and then subtracted. Imagine that<code>s</code> will overflow if it approaches INT_MAX. So use parentheses to ensure that you subtract before adding.</p>
+<h3 id="processing-addition-and-subtraction">2.Processing addition and subtraction</h3>
+<p>Now further more, <strong>If the input formula only contains addition and subtraction, and there are no spaces</strong>, how do you calculate the result? Let’s take the string expression <code>1-12 + 3</code> as an example. A very simple idea is implemented below:</p>
+<p>1、First add a default symbol <code>+</code> to the first number and change it to <code>+ 1-12 + 3</code>.</p>
+<p>2、Combine an operator and a number into a pair, that is, three pairs of <code>+ 1</code>,<code>-12</code>, <code>+ 3</code>, convert them into numbers, and put them on a stack.</p>
+<p>3、Summing all the numbers in the stack , which is the result of the original calculation.</p>
+<p>Let’s look directly at the code and see it in combination with a picture:</p>
+<pre><code>int calculate(string s) {
+    stack&lt;int&gt; stk;
+    // Record numbers in calculations
+    int num = 0;
+    // Record the sign before num, initialized to +
+    char sign = &#39;+&#39;;
+    for (int i = 0; i &lt; s.size(); i++) {
+        char c = s[i];
+        // If it is a number, assign it continuously to num
+        if (isdigit(c)) 
+            num = 10 * num + (c - &#39;0&#39;);
+        // If it&#39;s not a number, it must be the next symbol,
+        // the previous numbers and symbols should be stored on the stack
+        if (!isdigit(c) || i == s.size() - 1) {
+            switch (sign) {
+                case &#39;+&#39;:
+                    stk.push(num); break;
+                case &#39;-&#39;:
+                    stk.push(-num); break;
+            }
+            // Update the symbol to the current symbol and clear the number
+            sign = c;
+            num = 0;
+        }
+    }
+    // Sum all the results in the stack is the answer
+    int res = 0;
+    while (!stk.empty()) {
+        res += stk.top();
+        stk.pop();
+    }
+    return res;
+}</code></pre>
+<p>I guess the part with the <code>switch</code> statement in the middle is a bit hard to understand. <code>i</code> is scanned from left to right, and <code>sign</code> and <code>num</code> follow it. When <code>s [i]</code> encounters an operator, the situation is this:</p>
+<p><img src="../pictures/calculator/1.jpg" /></p>
+<p>Therefore, at this time, the sign of <code>nums</code> should be selected according to the case of<code>sign</code>, stored in the stack, and then <code>sign</code> is updated and the<code>nums</code> is cleared to record the next pair of sign and numbers.</p>
+<p>Also note that not only the new symbol will trigger the stack. When <code>i</code> reaches the end of the expression (<code>i == s.size ()-1</code>), the previous number should also be pushed on the stack for subsequent calculate the final result.</p>
+<p><img src="../pictures/calculator/2.jpg" /></p>
+<p>At this point, the algorithm for processing only the compact addition and subtraction strings is complete. Please ensure that you understand the above. The subsequent content will be modified based on this framework.</p>
+<h3 id="multiplication-and-division">3.Multiplication and division</h3>
+<p>In fact, the idea is no different from just adding and subtracting. Take the string <code>2-3 * 4 + 5</code> as an example. The core idea is still to decompose the string into a combination of symbols and numbers.</p>
+<p>For example, the above example can be decomposed into <code>+ 2</code>,<code>-3</code>, <code>* 4</code>,<code>+ 5</code>. We have not dealt with the multiplication and division signs just now. It is very simple. <strong>No other parts need to be changed</strong>, add the corresponding case to the <code>switch</code> section:</p>
+<pre><code>for (int i = 0; i &lt; s.size(); i++) {
+    char c = s[i];
+    if (isdigit(c)) 
+        num = 10 * num + (c - &#39;0&#39;);
+
+    if (!isdigit(c) || i == s.size() - 1) {
+        switch (sign) {
+            int pre;
+            case &#39;+&#39;:
+                stk.push(num); break;
+            case &#39;-&#39;:
+                stk.push(-num); break;
+            // Just take out the previous number and do the corresponding operation
+            case &#39;*&#39;:
+                pre = stk.top();
+                stk.pop();
+                stk.push(pre * num);
+                break;
+            case &#39;/&#39;:
+                pre = stk.top();
+                stk.pop();
+                stk.push(pre / num);
+                break;
+        }
+        // Update the symbol to the current symbol and clear the number
+        sign = c;
+        num = 0;
+    }
+}</code></pre>
+<p><img src="../pictures/calculator/3.jpg" /></p>
+<p>** Multiplication and division take precedence over addition and subtraction in that multiplication and division can be combined with numbers on the top of the stack, and addition and subtraction can only put themselves on the stack **.</p>
+<p>Now let’s think about <strong>how to deal with the possible space characters in a string</strong>. In fact, it is very simple. Think about what part of our existing code whil be affected by the appearance of the space character.</p>
+<pre><code>// If c is not a number
+if (!isdigit(c) || i == s.size() - 1) {
+    switch (c) {...}
+    sign = c;
+    num = 0;
+}</code></pre>
+<p>Obviously spaces will enter this if statement, but we don’t want to let spaces enter this if, because <code>sign</code> will be updated and <code>nums</code> will be cleared. Spaces are not operators at all and should be ignored.</p>
+<p>Then just add one more condition:</p>
+<pre><code>if ((!isdigit(c) &amp;&amp; c != &#39; &#39;) || i == s.size() - 1) {
+    ...
+}</code></pre>
+<p>Well, now our algorithm can calculate addition, subtraction, multiplication and division according to the correct rules, and automatically ignore the space characters. The rest is how to make the algorithm recognize the brackets correctly.</p>
+<h3 id="handling-parentheses">4.Handling parentheses</h3>
+<p>Dealing with parentheses in calculations should seem the hardest, but it’s not as difficult as it seems.</p>
+<p>To avoid the tedious details of the programming language, I translated the previous solution code into a Python version:</p>
+<pre><code>def calculate(s: str) -&gt; int:
+        
+    def helper(s: List) -&gt; int:
+        stack = []
+        sign = &#39;+&#39;
+        num = 0
+
+        while len(s) &gt; 0:
+            c = s.pop(0)
+            if c.isdigit():
+                num = 10 * num + int(c)
+
+            if (not c.isdigit() and c != &#39; &#39;) or len(s) == 0:
+                if sign == &#39;+&#39;:
+                    stack.append(num)
+                elif sign == &#39;-&#39;:
+                    stack.append(-num)
+                elif sign == &#39;*&#39;:
+                    stack[-1] = stack[-1] * num
+                elif sign == &#39;/&#39;:
+                    # Python division to 0 rounding
+                    stack[-1] = int(stack[-1] / float(num))                    
+                num = 0
+                sign = c
+
+        return sum(stack)
+    # Need to turn strings into lists for easy operation
+    return helper(list(s))</code></pre>
+<p>This code is exactly the same as the C ++ code just now. The only difference is that instead of traversing the string from left to right, it continues to pop out characters from the left.</p>
+<p>So why isn’t it so hard to deal with parentheses, <strong>because parentheses are recursive</strong> Let’s take the string <code>3 * (4-5 / 2) -6</code> as an example:</p>
+<p>calculate(<code>3*(4-5/2)-6</code>) = 3 * calculate(<code>4-5/2</code>) - 6 = 3 * 2 - 6 = 0</p>
+<p>In fact, no matter how many levels of parentheses are nested, you can reduce the calculation in the parentheses to a number by calling itself recursively through the calculate function. <strong>In other words, the calculations in parentheses are just a number.</strong></p>
+<p>The question is, what are the start and end conditions for recursion? <strong>Meet <code>(</code> begin recursion, encounter <code>)</code> end recursion</strong>:</p>
+<pre><code>def calculate(s: str) -&gt; int:
+        
+    def helper(s: List) -&gt; int:
+        stack = []
+        sign = &#39;+&#39;
+        num = 0
+
+        while len(s) &gt; 0:
+            c = s.pop(0)
+            if c.isdigit():
+                num = 10 * num + int(c)
+            # Meet the left parenthesis and start recursive calculation of num
+            if c == &#39;(&#39;:
+                num = helper(s)
+
+            if (not c.isdigit() and c != &#39; &#39;) or len(s) == 0:
+                if sign == &#39;+&#39;: ...
+                elif sign == &#39;-&#39;: ... 
+                elif sign == &#39;*&#39;: ...
+                elif sign == &#39;/&#39;: ...
+                num = 0
+                sign = c
+            # Return recursive result when encountering right parenthesis
+            if c == &#39;)&#39;: break
+        return sum(stack)
+
+    return helper(list(s))</code></pre>
+<p><img src="../pictures/calculator/4.jpg" /></p>
+<p><img src="../pictures/calculator/5.jpg" /></p>
+<p><img src="../pictures/calculator/6.jpg" /></p>
+<p>As you can see, with two or three lines of code, you can handle parentheses, which is the charm of recursion. At this point, all the functions of the calculator have been realized. By dismantling the problem layer by layer and solving the problems one by one, the problem does not seem so complicated. ### 5. Final summary</p>
+<p>In this article, I want to express the idea of ​​dealing with complex problems by implementing the functions of a calculator.</p>
+<p>We start with the simple problem of converting strings to numbers, and then work with expressions that only include addition and subtraction, then work with expressions that include four operations: addition, subtraction, multiplication, and division, then space characters, and then expressions that include parentheses.</p>
+<p><strong>It can be seen that for some difficult problems, the solution is not achieved overnight, but it is advanced step by step and spirally rises</strong>. If you give you the original question at the beginning, you may fail to handel it, and you even can’t understand the answer. It ’s normal. The key lies in how we simplify the problem ourselves and how to retreat for the sake of advancing.</p>
+<p><strong>It’s a very clever strategy to retreat and take the second best</strong>。Think about it, assuming this is an exam question, you won’t implement this calculator, but you wrote the string to integer algorithm and pointed out the easy-to-overflow trap, then at least you can get 20 points; if you can handle addition and subtraction, you can get 40 points; if you can handle addition, subtraction, multiplication and division, that is at least 70 points; plus the space character, 80. I just don’t handle parentheses, so forget it, 80 is OK, OK?</p>
+</body>
+</html>

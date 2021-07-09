@@ -33,7 +33,7 @@ The default language is `en`, so for other laguages you should set the language:
 val french_pos = PerceptronModel.pretrained("pos_ud_gsd", lang="fr")
 // load Italain LemmatizerModel
 val italian_lemma = LemmatizerModel.pretrained("lemma_dxc", lang="it")
-````
+```
 
 ### Offline
 
@@ -41,7 +41,7 @@ If you have any trouble using online pipelines or models in your environment (ma
 
 After downloading offline models/pipelines and extracting them, here is how you can use them iside your code (the path could be a shared storage like HDFS in a cluster):
 
-* Loading `PerceptronModel` annotator model inside Spark NLP Pipeline
+- Loading `PerceptronModel` annotator model inside Spark NLP Pipeline
 
 ```scala
 val french_pos = PerceptronModel.load("/tmp/pos_ud_gsd_fr_2.0.2_2.4_1556531457346/")

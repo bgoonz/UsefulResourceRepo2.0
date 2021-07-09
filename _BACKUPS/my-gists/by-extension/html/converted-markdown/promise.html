@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>promise</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<h2 id="intro">intro</h2>
+<p>A Promise is a programming construct that can reduce some of the pains of asynchronous programming. Using Promises can help produce code that is leaner, easier to maintain, and easier to build on.</p>
+<p>This lesson will mostly focus on ES6 Promise syntax, but will use <a href="https://github.com/petkaantonov/bluebird">Bluebird</a> since it provides excellent error handling in the browser. The CommonJS syntax will need a bundler like <a href="https://github.com/substack/node-browserify">browserify</a> or <a href="http://webpack.github.io/">webpack</a>. See <a href="https://github.com/Jam3/jam3-lesson-module-basics">jam3-lesson-module-basics</a> for an introduction to CommonJS and browserify.</p>
+<h2 id="the-problem">the problem</h2>
+<p>To demonstrate, let’s take the problem of loading images in the browser. The following shows an implementation using a Node style (error-first) callback:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">function</span> <span class="at">loadImage</span>(url<span class="op">,</span> callback) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="kw">var</span> image <span class="op">=</span> <span class="kw">new</span> <span class="at">Image</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="va">image</span>.<span class="at">onload</span> <span class="op">=</span> <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="at">callback</span>(<span class="kw">null</span><span class="op">,</span> image)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-6" title="6">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb1-7" title="7"></a>
+<a class="sourceLine" id="cb1-8" title="8">  <span class="va">image</span>.<span class="at">onerror</span> <span class="op">=</span> <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-9" title="9">    <span class="at">callback</span>(<span class="kw">new</span> <span class="at">Error</span>(<span class="st">&quot;Could not load image at &quot;</span> <span class="op">+</span> url))<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-10" title="10">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb1-11" title="11"></a>
+<a class="sourceLine" id="cb1-12" title="12">  <span class="va">image</span>.<span class="at">src</span> <span class="op">=</span> url<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-13" title="13"><span class="op">}</span></a></code></pre></div>
+<p><sub><em>Tip:</em> The above is implemented on npm as <a href="https://www.npmjs.com/package/img">img</a>.</sub></p>
+<p>Loading a single image is relatively easy, and looks like this:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="at">loadImage</span>(<span class="st">&quot;one.png&quot;</span><span class="op">,</span> <span class="kw">function</span> (err<span class="op">,</span> image) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="cf">if</span> (err) <span class="cf">throw</span> err<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;Image loaded&quot;</span><span class="op">,</span> image)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>However, as our application grows in complexity, so too does the code. If we were to take the same approach, but load three images, things get a little unwieldy:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="at">loadImage</span>(<span class="st">&quot;one.png&quot;</span><span class="op">,</span> <span class="kw">function</span> (err<span class="op">,</span> image1) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="cf">if</span> (err) <span class="cf">throw</span> err<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-3" title="3"></a>
+<a class="sourceLine" id="cb3-4" title="4">  <span class="at">loadImage</span>(<span class="st">&quot;two.png&quot;</span><span class="op">,</span> <span class="kw">function</span> (err<span class="op">,</span> image2) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="cf">if</span> (err) <span class="cf">throw</span> err<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-6" title="6"></a>
+<a class="sourceLine" id="cb3-7" title="7">    <span class="at">loadImage</span>(<span class="st">&quot;three.png&quot;</span><span class="op">,</span> <span class="kw">function</span> (err<span class="op">,</span> image3) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-8" title="8">      <span class="cf">if</span> (err) <span class="cf">throw</span> err<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-9" title="9"></a>
+<a class="sourceLine" id="cb3-10" title="10">      <span class="kw">var</span> images <span class="op">=</span> [image1<span class="op">,</span> image2<span class="op">,</span> image3]<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-11" title="11">      <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;All images loaded&quot;</span><span class="op">,</span> images)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-12" title="12">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-13" title="13">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-14" title="14"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>This tends to create a “Christmas Tree” of functions; and leads to code that is difficult to read and maintain. Further, if we wanted the images to load in parallel, it would need a <a href="https://gist.github.com/mattdesl/7b2afa86481fbce87098">more complex solution</a>.</p>
+<h2 id="async">async</h2>
+<p>There are numerous abstractions built around the error-first callbacks, sometimes called “errbacks.”</p>
+<p>One way to solve the problem is with the <a href="https://github.com/caolan/async">async</a> module:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">var</span> mapAsync <span class="op">=</span> <span class="at">require</span>(<span class="st">&quot;async&quot;</span>).<span class="at">map</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="kw">var</span> urls <span class="op">=</span> [<span class="st">&quot;one.png&quot;</span><span class="op">,</span> <span class="st">&quot;two.png&quot;</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="at">mapAsync</span>(urls<span class="op">,</span> loadImage<span class="op">,</span> <span class="kw">function</span> (err<span class="op">,</span> images) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-5" title="5">  <span class="cf">if</span> (err) <span class="cf">throw</span> err<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-6" title="6">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;All images loaded&quot;</span><span class="op">,</span> images)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Similar abstractions exist independently on npm, such as:</p>
+<ul>
+<li><a href="https://www.npmjs.com/package/async-each">async-each</a></li>
+<li><a href="https://www.npmjs.com/package/async-each-series">async-each-series</a></li>
+<li><a href="https://www.npmjs.com/package/run-series">run-series</a></li>
+<li><a href="https://www.npmjs.com/package/run-waterfall">run-waterfall</a></li>
+<li><a href="https://www.npmjs.com/package/map-limit">map-limit</a></li>
+</ul>
+<p>This approach is very powerful. It’s <a href="#promises-in-small-modules">a great fit for small modules</a> as it does not introduce additional bloat or vendor lock-in, and does not have some of the other <a href="#pitfalls">pitfalls of promises</a>.</p>
+<p>However, in a larger scope, promises can provide a unified and composable structure throughout your application. They will also lay the groundwork for <a href="https://jakearchibald.com/2014/es7-async-functions/">ES7 async/await</a>.</p>
+<h2 id="promises">promises</h2>
+<p>Let’s re-implement the above with promises for our control flow. At first this may seem like more overhead, but the benefits will become clear shortly.</p>
+<h3 id="new-promisefunctionresolve-reject-..."><code>new Promise(function(resolve, reject) { ... })</code></h3>
+<p>Below is how the image loading function would be implemented with promises. We’ll call it <code>loadImageAsync</code> to distinguish it from the earlier example.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">var</span> Promise <span class="op">=</span> <span class="at">require</span>(<span class="st">&quot;bluebird&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="kw">function</span> <span class="at">loadImageAsync</span>(url) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="cf">return</span> <span class="kw">new</span> <span class="at">Promise</span>(<span class="kw">function</span> (resolve<span class="op">,</span> reject) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-5" title="5">    <span class="kw">var</span> image <span class="op">=</span> <span class="kw">new</span> <span class="at">Image</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-6" title="6"></a>
+<a class="sourceLine" id="cb5-7" title="7">    <span class="va">image</span>.<span class="at">onload</span> <span class="op">=</span> <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-8" title="8">      <span class="at">resolve</span>(image)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-9" title="9">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb5-10" title="10"></a>
+<a class="sourceLine" id="cb5-11" title="11">    <span class="va">image</span>.<span class="at">onerror</span> <span class="op">=</span> <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-12" title="12">      <span class="at">reject</span>(<span class="kw">new</span> <span class="at">Error</span>(<span class="st">&quot;Could not load image at &quot;</span> <span class="op">+</span> url))<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-13" title="13">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb5-14" title="14"></a>
+<a class="sourceLine" id="cb5-15" title="15">    <span class="va">image</span>.<span class="at">src</span> <span class="op">=</span> url<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-16" title="16">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-17" title="17"><span class="op">}</span></a></code></pre></div>
+<p>The function returns a new instance of <code>Promise</code> which is <em>resolved</em> to <code>image</code> if the load succeeds, or <em>rejected</em> with a new <code>Error</code> if it fails. In our case, we <code>require('bluebird')</code> for the Promise implementation.</p>
+<p>The <code>Promise</code> constructor is typically only needed for edge cases like this, where we are converting a callback-style API into a promise-style API. In many cases it is preferable to use a <code>promisify</code> or <code>denodeify</code> utility which converts Node style (error-first) functions into their <code>Promise</code> counterpart.</p>
+<p>For example, the above becomes very concise with our <a href="#the-problem">earlier <code>loadImage</code></a> function:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">var</span> Promise <span class="op">=</span> <span class="at">require</span>(<span class="st">&quot;bluebird&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="kw">var</span> loadImageAsync <span class="op">=</span> <span class="va">Promise</span>.<span class="at">promisify</span>(loadImage)<span class="op">;</span></a></code></pre></div>
+<p>Or with the <a href="https://www.npmjs.com/package/img">img</a> module:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">var</span> Promise <span class="op">=</span> <span class="at">require</span>(<span class="st">&quot;bluebird&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="kw">var</span> loadImage <span class="op">=</span> <span class="at">require</span>(<span class="st">&quot;img&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="kw">var</span> loadImageAsync <span class="op">=</span> <span class="va">Promise</span>.<span class="at">promisify</span>(loadImage)<span class="op">;</span></a></code></pre></div>
+<p>If you aren’t using Bluebird, you can use <a href="https://www.npmjs.com/package/es6-denodeify">es6-denodeify</a> for this.</p>
+<h3 id="thenresolved-rejected"><code>.then(resolved, rejected)</code></h3>
+<p>Each <code>Promise</code> instance has a <code>then()</code> method on its prototype. This allows us to handle the result of the async task.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="at">loadImageAsync</span>(<span class="st">&quot;one.png&quot;</span>).<span class="at">then</span>(</a>
+<a class="sourceLine" id="cb8-2" title="2">  <span class="kw">function</span> (image) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-3" title="3">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;Image loaded&quot;</span><span class="op">,</span> image)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-4" title="4">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb8-5" title="5">  <span class="kw">function</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-6" title="6">    <span class="va">console</span>.<span class="at">error</span>(<span class="st">&quot;Error loading image&quot;</span><span class="op">,</span> err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-7" title="7">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-8" title="8">)<span class="op">;</span></a></code></pre></div>
+<p><code>then</code> takes two functions, either of which can be <code>null</code> or undefined. The <code>resolved</code> callback is called when the promise succeeds, and it is passed the resolved value (in this case <code>image</code>). The <code>rejected</code> callback is called when the promise fails, and it is passed the <code>Error</code> object we created earlier.</p>
+<h3 id="catcherr"><code>.catch(err)</code></h3>
+<p>Promises also have a <code>.catch(func)</code> to handle errors, which is the same as <code>.then(null, func)</code> but provides clearer intent.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="at">loadImageAsync</span>(<span class="st">&quot;one.png&quot;</span>).<span class="at">catch</span>(<span class="kw">function</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-2" title="2">  <span class="va">console</span>.<span class="at">error</span>(<span class="st">&quot;Could not load image&quot;</span><span class="op">,</span> err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h3 id="chaining">chaining</h3>
+<p>The <code>.then()</code> method <em>always returns a Promise</em>, which means it can be chained. The above could be re-written like so. If a promise is rejected, the next <code>catch()</code> or <code>then(null, rejected)</code> will be called.</p>
+<p>In the following example, if the <code>loadImageAsync</code> method is rejected, the only output to the console will be the error message.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1"><span class="at">loadImageAsync</span>(<span class="st">&quot;one.png&quot;</span>)</a>
+<a class="sourceLine" id="cb10-2" title="2">  .<span class="at">then</span>(<span class="kw">function</span> (image) <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-3" title="3">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;Image loaded&quot;</span><span class="op">,</span> image)<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-4" title="4">    <span class="cf">return</span> <span class="op">{</span> <span class="dt">width</span><span class="op">:</span> <span class="va">image</span>.<span class="at">width</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="va">image</span>.<span class="at">height</span> <span class="op">};</span></a>
+<a class="sourceLine" id="cb10-5" title="5">  <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb10-6" title="6">  .<span class="at">then</span>(<span class="kw">function</span> (size) <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-7" title="7">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;Image size:&quot;</span><span class="op">,</span> size)<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-8" title="8">  <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb10-9" title="9">  .<span class="at">catch</span>(<span class="kw">function</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-10" title="10">    <span class="va">console</span>.<span class="at">error</span>(<span class="st">&quot;Error in promise chain&quot;</span><span class="op">,</span> err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-11" title="11">  <span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>In general, you should be wary of long promise chains. They can be difficult to maintain and it would be better to split the tasks into smaller, named functions.</p>
+<h3 id="resolving-values">resolving values</h3>
+<p>Your <code>then()</code> and <code>catch()</code> callbacks can return a value to pass it along to the next method in the chain. For example, here we resolve errors to a default image:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" title="1"><span class="at">loadImageAsync</span>(<span class="st">&quot;one.png&quot;</span>)</a>
+<a class="sourceLine" id="cb11-2" title="2">  .<span class="at">catch</span>(<span class="kw">function</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb11-3" title="3">    <span class="va">console</span>.<span class="at">warn</span>(<span class="va">err</span>.<span class="at">message</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb11-4" title="4">    <span class="cf">return</span> notFoundImage<span class="op">;</span></a>
+<a class="sourceLine" id="cb11-5" title="5">  <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb11-6" title="6">  .<span class="at">then</span>(<span class="kw">function</span> (image) <span class="op">{</span></a>
+<a class="sourceLine" id="cb11-7" title="7">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;Resolved image&quot;</span><span class="op">,</span> image)<span class="op">;</span></a>
+<a class="sourceLine" id="cb11-8" title="8">  <span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>The above code will try to load <code>'one.png'</code>, but will fall back to using <code>notFoundImage</code> if the load failed.</p>
+<p>The cool thing is, you can return a <code>Promise</code> instance, and it will be resolved before the next <code>.then()</code> is triggered. The value resolved by that promise will also get passed to the next <code>.then()</code>.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" title="1"><span class="at">loadImageAsync</span>(<span class="st">&quot;one.png&quot;</span>)</a>
+<a class="sourceLine" id="cb12-2" title="2">  .<span class="at">catch</span>(<span class="kw">function</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-3" title="3">    <span class="va">console</span>.<span class="at">warn</span>(<span class="va">err</span>.<span class="at">message</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-4" title="4">    <span class="cf">return</span> <span class="at">loadImageAsync</span>(<span class="st">&quot;not-found.png&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-5" title="5">  <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb12-6" title="6">  .<span class="at">then</span>(<span class="kw">function</span> (image) <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-7" title="7">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;Resolved image&quot;</span><span class="op">,</span> image)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-8" title="8">  <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb12-9" title="9">  .<span class="at">catch</span>(<span class="kw">function</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-10" title="10">    <span class="va">console</span>.<span class="at">error</span>(<span class="st">&quot;Could not load any images&quot;</span><span class="op">,</span> err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-11" title="11">  <span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>The above tries to load <code>'one.png'</code>, but if that fails it will then load <code>'not-found.png'</code>.</p>
+<h3 id="promise.all"><code>Promise.all()</code></h3>
+<p>Let’s go back to our original task of loading multiple images.</p>
+<p>The <code>Promise.all()</code> method accepts an array of values or promises and returns a new <code>Promise</code> that is only resolved once <em>all</em> the promises are resolved. Here we map each URL to a new Promise using <code>loadImageAsync</code>, and then pass those promises to <code>all()</code>.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">var</span> urls <span class="op">=</span> [<span class="st">&quot;one.png&quot;</span><span class="op">,</span> <span class="st">&quot;two.png&quot;</span><span class="op">,</span> <span class="st">&quot;three.png&quot;</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-2" title="2"><span class="kw">var</span> promises <span class="op">=</span> <span class="va">urls</span>.<span class="at">map</span>(loadImageAsync)<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-3" title="3"></a>
+<a class="sourceLine" id="cb13-4" title="4"><span class="va">Promise</span>.<span class="at">all</span>(promises)</a>
+<a class="sourceLine" id="cb13-5" title="5">  .<span class="at">then</span>(<span class="kw">function</span> (images) <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-6" title="6">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;All images loaded&quot;</span><span class="op">,</span> images)<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-7" title="7">  <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb13-8" title="8">  .<span class="at">catch</span>(<span class="kw">function</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-9" title="9">    <span class="va">console</span>.<span class="at">error</span>(err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-10" title="10">  <span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Finally, things are starting to look a bit cleaner.</p>
+<h3 id="passing-the-buck">passing the buck</h3>
+<p>You may still be wondering where promises improve on the <code>async</code> approach. The real benefits come from composing promises across your application.</p>
+<p>We can “pass the buck” by making named functions that return promises, and let errors bubble upstream. The above code would look like this:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">function</span> <span class="at">loadImages</span>(urls) <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-2" title="2">  <span class="kw">var</span> promises <span class="op">=</span> <span class="va">urls</span>.<span class="at">map</span>(loadImageAsync)<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-3" title="3">  <span class="cf">return</span> <span class="va">Promise</span>.<span class="at">all</span>(promises)<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-4" title="4"><span class="op">}</span></a></code></pre></div>
+<p>A more complex example might look like this:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">function</span> <span class="at">getUserImages</span>(user) <span class="op">{</span></a>
+<a class="sourceLine" id="cb15-2" title="2">  <span class="cf">return</span> <span class="at">loadUserData</span>(user).<span class="at">then</span>(<span class="kw">function</span> (userData) <span class="op">{</span></a>
+<a class="sourceLine" id="cb15-3" title="3">    <span class="cf">return</span> <span class="at">loadImages</span>(<span class="va">userData</span>.<span class="at">imageUrls</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb15-4" title="4">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb15-5" title="5"><span class="op">}</span></a>
+<a class="sourceLine" id="cb15-6" title="6"></a>
+<a class="sourceLine" id="cb15-7" title="7"><span class="kw">function</span> <span class="at">showUserImages</span>(user) <span class="op">{</span></a>
+<a class="sourceLine" id="cb15-8" title="8">  <span class="cf">return</span> <span class="at">getUserImages</span>(user).<span class="at">then</span>(renderGallery).<span class="at">catch</span>(renderEmptyGallery)<span class="op">;</span></a>
+<a class="sourceLine" id="cb15-9" title="9"><span class="op">}</span></a>
+<a class="sourceLine" id="cb15-10" title="10"></a>
+<a class="sourceLine" id="cb15-11" title="11"><span class="at">showUserImages</span>(<span class="st">&quot;mattdesl&quot;</span>).<span class="at">catch</span>(<span class="kw">function</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb15-12" title="12">  <span class="at">showError</span>(err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb15-13" title="13"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h3 id="throw-and-implicit-catch"><code>throw</code> and implicit catch</h3>
+<p>If you <code>throw</code> inside your promise chain, the error will be impliticly caught by the underlying Promise implementation and treated as a call to <code>reject(err)</code>.</p>
+<p>In the following example, if the user has not activated their account, the promise will be rejected and the <code>showError</code> method will be called.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb16-1" title="1"><span class="at">loadUser</span>()</a>
+<a class="sourceLine" id="cb16-2" title="2">  .<span class="at">then</span>(<span class="kw">function</span> (user) <span class="op">{</span></a>
+<a class="sourceLine" id="cb16-3" title="3">    <span class="cf">if</span> (<span class="op">!</span><span class="va">user</span>.<span class="at">activated</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb16-4" title="4">      <span class="cf">throw</span> <span class="kw">new</span> <span class="at">Error</span>(<span class="st">&quot;user has not activated their account&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb16-5" title="5">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb16-6" title="6">    <span class="cf">return</span> <span class="at">showUserGallery</span>(user)<span class="op">;</span></a>
+<a class="sourceLine" id="cb16-7" title="7">  <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb16-8" title="8">  .<span class="at">catch</span>(<span class="kw">function</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb16-9" title="9">    <span class="at">showError</span>(<span class="va">err</span>.<span class="at">message</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb16-10" title="10">  <span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>This part of the specification is often viewed as a pitfall of promises. It conflates the semantics of error handling by combining syntax errors, programmer error (e.g. invalid parameters), and connection errors into the same logic.</p>
+<p>It leads to frustrations during browser development: you might lose debugger capabilities, stack traces, and source map details.</p>
+<figure>
+<img src="http://i.imgur.com/Y6RH8ke.png" alt="debugging" /><figcaption>debugging</figcaption>
+</figure>
+<p>For many developers, this is enough reason to eschew promises in favour of error-first callbacks and abstractions like <a href="#async">async</a>.</p>
+<h2 id="common-patterns">common patterns</h2>
+<h3 id="memoization">memoization</h3>
+<p>We can use <code>.then()</code> on a promise even after the asynchronous task is long complete. For example, instead of always requesting the same <code>'not-found.png'</code> image, we can cache the result of the first request and just resolve to the same <code>Image</code> object.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">var</span> notFound<span class="op">;</span></a>
+<a class="sourceLine" id="cb17-2" title="2"></a>
+<a class="sourceLine" id="cb17-3" title="3"><span class="kw">function</span> <span class="at">getNotFoundImage</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb17-4" title="4">  <span class="cf">if</span> (notFound) <span class="op">{</span></a>
+<a class="sourceLine" id="cb17-5" title="5">    <span class="cf">return</span> notFound<span class="op">;</span></a>
+<a class="sourceLine" id="cb17-6" title="6">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb17-7" title="7">  notFound <span class="op">=</span> <span class="at">loadImageAsync</span>(<span class="st">&quot;not-found.png&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb17-8" title="8">  <span class="cf">return</span> notFound<span class="op">;</span></a>
+<a class="sourceLine" id="cb17-9" title="9"><span class="op">}</span></a></code></pre></div>
+<p>This is more useful for server requests, since the browser already has a caching layer in place for image loading.</p>
+<h3 id="promise.resolve-promise.reject"><code>Promise.resolve</code> / <code>Promise.reject</code></h3>
+<p>The <code>Promise</code> class also provides a <code>resolve</code> and <code>reject</code> method. When called, these will return a new promise that resolves or rejects to the (optional) value given to them.</p>
+<p>For example:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">var</span> thumbnail <span class="op">=</span> <span class="va">Promise</span>.<span class="at">resolve</span>(defaultThumbnail)<span class="op">;</span></a>
+<a class="sourceLine" id="cb18-2" title="2"></a>
+<a class="sourceLine" id="cb18-3" title="3"><span class="co">//query the DB</span></a>
+<a class="sourceLine" id="cb18-4" title="4"><span class="cf">if</span> (userLoggedIn) <span class="op">{</span></a>
+<a class="sourceLine" id="cb18-5" title="5">  thumbnail <span class="op">=</span> <span class="at">loadUserThumbnail</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb18-6" title="6"><span class="op">}</span></a>
+<a class="sourceLine" id="cb18-7" title="7"></a>
+<a class="sourceLine" id="cb18-8" title="8"><span class="co">//add the image to the DOM when it&#39;s ready</span></a>
+<a class="sourceLine" id="cb18-9" title="9"><span class="va">thumbnail</span>.<span class="at">then</span>(<span class="kw">function</span> (image) <span class="op">{</span></a>
+<a class="sourceLine" id="cb18-10" title="10">  <span class="va">document</span>.<span class="va">body</span>.<span class="at">appendChild</span>(image)<span class="op">;</span></a>
+<a class="sourceLine" id="cb18-11" title="11"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Here <code>loadUserThumbnail</code> returns a <code>Promise</code> that resolves to an image. With <code>Promise.resolve</code> we can treat <code>thumbnail</code> the same even if it doesn’t involve a database query.</p>
+<h3 id="handling-user-errors">handling user errors</h3>
+<p>Functions that return promises should <em>always</em> return promises, so the user does not need to wrap them in a <code>try/catch</code> block.</p>
+<p>Instead of throwing errors on invalid user arguments, you should return a promise that rejects with an error. <a href="#promiseresolve--promisereject">Promise.reject()</a> can be convenient here.</p>
+<p>For example, using our earlier <a href="#new-promise"><code>loadImageAsync</code></a>:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb19-1" title="1"><span class="kw">function</span> <span class="at">loadImageAsync</span>(url) <span class="op">{</span></a>
+<a class="sourceLine" id="cb19-2" title="2">  <span class="cf">if</span> (<span class="kw">typeof</span> url <span class="op">!==</span> <span class="st">&quot;string&quot;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb19-3" title="3">    <span class="cf">return</span> <span class="va">Promise</span>.<span class="at">reject</span>(<span class="kw">new</span> <span class="at">TypeError</span>(<span class="st">&quot;must specify a string&quot;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb19-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb19-5" title="5"></a>
+<a class="sourceLine" id="cb19-6" title="6">  <span class="cf">return</span> <span class="kw">new</span> <span class="at">Promise</span>(<span class="kw">function</span> (resolve<span class="op">,</span> reject) <span class="op">{</span></a>
+<a class="sourceLine" id="cb19-7" title="7">    <span class="co">/* async code */</span></a>
+<a class="sourceLine" id="cb19-8" title="8">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb19-9" title="9"><span class="op">}</span></a></code></pre></div>
+<p>Alternatively, you could use <code>throw</code> inside the promise function:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">function</span> <span class="at">loadImageAsync</span>(url) <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-2" title="2">  <span class="cf">return</span> <span class="kw">new</span> <span class="at">Promise</span>(<span class="kw">function</span> (resolve<span class="op">,</span> reject) <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-3" title="3">    <span class="cf">if</span> (<span class="kw">typeof</span> url <span class="op">!==</span> <span class="st">&quot;string&quot;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-4" title="4">      <span class="cf">throw</span> <span class="kw">new</span> <span class="at">TypeError</span>(<span class="st">&quot;must specify a string&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-5" title="5">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb20-6" title="6"></a>
+<a class="sourceLine" id="cb20-7" title="7">    <span class="co">/* async code */</span></a>
+<a class="sourceLine" id="cb20-8" title="8">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-9" title="9"><span class="op">}</span></a></code></pre></div>
+<p>See <a href="https://www.w3.org/2001/tag/doc/promises-guide#always-return-promises">here</a> for details.</p>
+<h3 id="promise-in-es2015"><code>Promise</code> in ES2015</h3>
+<p>Although this guide uses <a href="https://github.com/petkaantonov/bluebird">bluebird</a>, it should work in any standard Promise implementation. For example, using <a href="https://babeljs.io/docs/learn-es2015/#promises">Babel</a>.</p>
+<p>Some other implementations:</p>
+<ul>
+<li><a href="https://github.com/floatdrop/pinkie-promise">pinkie-promise</a></li>
+<li><a href="https://www.npmjs.com/package/es6-promise">es6-promise</a></li>
+</ul>
+<p>For example, in Node/browserify:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb21-1" title="1"><span class="co">// use native promise if it exists</span></a>
+<a class="sourceLine" id="cb21-2" title="2"><span class="co">// otherwise fall back to polyfill</span></a>
+<a class="sourceLine" id="cb21-3" title="3"><span class="kw">var</span> Promise <span class="op">=</span> <span class="va">global</span>.<span class="at">Promise</span> <span class="op">||</span> <span class="at">require</span>(<span class="st">&quot;es6-promise&quot;</span>).<span class="at">Promise</span><span class="op">;</span></a></code></pre></div>
+<h2 id="pitfalls">pitfalls</h2>
+<p>In addition to the the issues mentioned in <a href="#throw-and-implicit-catch"><code>throw</code> and implicit catch</a>, there are some other problems to keep in mind when choosing promises. Some developers choose not to use promises for these reasons.</p>
+<h3 id="promises-in-small-modules">promises in small modules</h3>
+<p>One situation where promises are not yet a good fit is in small, self-contained <a href="https://www.npmjs.com/">npm</a> modules.</p>
+<ul>
+<li>Depending on <code>bluebird</code> or <code>es6-promise</code> is a form of vendor lock-in. It can be a problem for frontend developers, where bundle size is a constraint.</li>
+<li>Expecting the native <code>Promise</code> (ES2015) constructor is also a problem, since it creates a peer dependency on these polyfills.</li>
+<li>Mixing different promise implementations across modules may lead to subtle bugs and debugging irks.</li>
+</ul>
+<p>Until native Promise support is widespread, it is often easier to use Node-style callbacks and independent <a href="#async">async modules</a> for control flow and smaller bundle size.</p>
+<p>Consumers can then “promisify” your API with their favourite implementation. For example, using the <a href="https://www.npmjs.com/package/xhr">xhr</a> module in Bluebird might look like this:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">var</span> Promise <span class="op">=</span> <span class="at">require</span>(<span class="st">&quot;bluebird&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb22-2" title="2"><span class="kw">var</span> xhrAsync <span class="op">=</span> <span class="va">Promise</span>.<span class="at">promisify</span>(<span class="at">require</span>(<span class="st">&quot;xhr&quot;</span>))<span class="op">;</span></a></code></pre></div>
+<h3 id="complexity">complexity</h3>
+<p>Promises can introduce a lot of complexity and mental overhead into a codebase (evident by the need for this guide). In real-world projects, developers will often work with promise-based code without fully understanding how promises work.</p>
+<p>See Nolan Lawson’s <a href="http://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html">“We Have a Problem With Promises”</a> for an example of this.</p>
+<h3 id="lock-in">lock-in</h3>
+<p>Another frustration is that promises tend to work best once <em>everything</em> in your codebase is using them. In practice, you might find yourself refactoring and “promisifying” a lot of code before you can reap the benefits of promises. It also means that new code must be written with promises in mind — you are now stuck with them!</p>
+<h2 id="further-reading">further reading</h2>
+<p>For a comprehensive list of Promise resources and small modules to avoid library lock-in, check out <a href="https://github.com/wbinnssmith/awesome-promises">Awesome Promises</a>.</p>
+<ul>
+<li><a href="http://www.html5rocks.com/en/tutorials/es6/promises/">JavaScript Promises: There and back again</a></li>
+<li><a href="http://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html">We Have a Problem With Promises</a></li>
+<li><a href="https://blog.domenic.me/youre-missing-the-point-of-promises/">You’re Missing the Point of Promises</a></li>
+</ul>
+</body>
+</html>

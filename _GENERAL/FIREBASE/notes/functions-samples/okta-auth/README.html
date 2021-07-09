@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>README</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="authenticate-with-firebase-using-okta">Authenticate with Firebase using Okta</h1>
+<p>Sample app that demonstrates how to authenticate with Firebase using Okta.</p>
+<h2 id="overview">Overview</h2>
+<p>This sample has two parts:</p>
+<ul>
+<li>A Node.js backend that “exchanges” Okta access tokens for Firebase custom authentication tokens. The backend is intended to be deployed as a Cloud Function, but because its just an Express.js app, you can also run on it on your own infrastructure.</li>
+<li>A web frontend that signs users in with Okta, gets a Firebase custom authentication token from your backend, and authenticates with Firebase using the custom token.</li>
+</ul>
+<h2 id="setup">Setup</h2>
+<p>Before you try the demo with the Firebase emulator suite or deploy it to Firebase Hosting and Cloud Functions, set up your Okta and Firebase projects, and install the Firebase CLI tool:</p>
+<ol type="1">
+<li><p>On the <a href="https://developer.okta.com/">Okta Developer site</a>:</p>
+<ol type="1">
+<li>Sign in or sign up.</li>
+<li>Take note of your <strong>Org URL</strong> (top-right of the dashboard) for later.</li>
+<li>Create a user with a password in your Okta project. (This demo doesn’t have a sign-up flow.)</li>
+<li>On the Applications page, add a Single-Page App:
+<ol type="1">
+<li>Set the <strong>Base URIs</strong> to <code>http://localhost:5000</code>.</li>
+<li>Set the <strong>Login redirect URIs</strong> to <code>http://localhost:5000</code>.</li>
+<li>Enable the <strong>Authorization Code</strong> grant type.</li>
+<li>Click <strong>Done</strong>. Take note of the app’s <strong>Client ID</strong> for later.</li>
+</ol></li>
+<li>In <strong>API &gt; Trusted Origins</strong>, confirm that <code>http://localhost:5000</code> is listed, with <strong>CORS</strong> and <strong>Redirect</strong> enabled.</li>
+</ol></li>
+<li><p>In the <a href="https://console.firebase.google.com/">Firebase console</a>:</p>
+<ol type="1">
+<li>Create a new Firebase project. Take note of your <strong>project ID</strong> for later.</li>
+<li>On the Project Overview page, add a new web app. Be sure <strong>Also set up Firebase Hosting for this app</strong> is selected.</li>
+<li>On the Project Settings page, open the <a href="https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk">Service Accounts</a> section and take note of your Admin SDK service account ID (it looks like an email address). If you plan to try the demo in the emulator, also generate and download a service account key file.</li>
+</ol></li>
+<li><p>If you don’t already have a Node.js 10 (or newer) environment, <a href="https://nodejs.org/">install Node.js</a>.</p></li>
+<li><p>If you haven’t already installed the Firebase CLI tool, do it now:</p>
+<pre><code>$ npm install --global firebase-tools</code></pre></li>
+</ol>
+<h2 id="try-the-demo-with-the-firebase-emulator-suite">Try the demo with the Firebase emulator suite</h2>
+<ol type="1">
+<li><p>Make sure the Firebase CLI tool is set to use your Firebase project:</p>
+<pre><code>$ cd functions-samples/okta-auth
+okta-auth$ firebase login
+okta-auth$ firebase use &lt;YOUR_FIREBASE_PROJECT_ID&gt;</code></pre></li>
+<li><p>Run <code>setup.js</code> from the Firebase project directory:</p>
+<pre><code>okta-auth$ node setup.js</code></pre>
+<p>The script will prompt you for some of your Okta and Firebase configuration values and create configurations files from them. The script won’t overwrite existing files.</p></li>
+<li><p>Start the emulators:</p>
+<pre><code>okta-auth$ firebase emulators:start</code></pre></li>
+<li><p>Open the web app: <a href="http://localhost:5000"><code>http://localhost:5000</code></a>.</p></li>
+</ol>
+<h2 id="deploy-the-demo-to-firebase-hosting-and-cloud-functions">Deploy the demo to Firebase Hosting and Cloud Functions</h2>
+<ol type="1">
+<li><p><a href="https://console.firebase.google.com/project/_/overview?purchaseBillingPlan=metered">Upgrade your Firebase project to the Blaze (pay as you go) plan</a>. The Blaze plan is required to access external services (in this case, Okta) from Cloud Functions.</p></li>
+<li><p>Make sure the Firebase CLI tool is set to use your Firebase project:</p>
+<pre><code>$ cd functions-samples/okta-auth
+okta-auth$ firebase login
+okta-auth$ firebase use &lt;YOUR_FIREBASE_PROJECT_ID&gt;</code></pre></li>
+<li><p>Optional: If you have configuration files from local testing, delete them:</p>
+<pre><code>okta-auth$ rm public/okta-config.js ; rm functions/.env ; rm .runtimeconfig.json</code></pre></li>
+<li><p>Run <code>setup.js -d</code> from the Firebase project directory. The <code>-d</code> flag configures the web app and backend for deployment.</p>
+<pre><code>okta-auth$ node setup.js -d</code></pre>
+<p>The script will prompt you for some of your Okta and Firebase configuration values, create configurations files from them, and set some Cloud Funcions environment settings. The script won’t overwrite existing files or Cloud Functions environment settings.</p></li>
+<li><p>Deploy the project:</p>
+<pre><code>okta-auth$ firebase deploy</code></pre></li>
+<li><p>In the Google Cloud console:</p>
+<ol type="1">
+<li><a href="https://console.cloud.google.com/apis/api/iamcredentials.googleapis.com/overview?project=_">Enable the IAM Service Account Credentials API</a>.</li>
+<li>On the <a href="https://console.cloud.google.com/functions/list?project=_">Cloud Functions</a> page,
+<ol type="1">
+<li>Click the name of your Cloud Function (<strong><code>api</code></strong>) to open the Function Details page.</li>
+<li>Click <strong>Edit</strong>.</li>
+<li>Set the service account to your Admin SDK service account.</li>
+<li>Click <strong>Deploy</strong> to redeploy your Cloud Function to run as the updated service account.</li>
+</ol></li>
+</ol></li>
+<li><p>Open the web app at: <code>https://&lt;YOUR_FIREBASE_PROJECT_ID&gt;.web.app</code></p></li>
+</ol>
+</body>
+</html>

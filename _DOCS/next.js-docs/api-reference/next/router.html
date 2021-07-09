@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>router</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="nextrouter">next/router</h1>
+    <blockquote>
+      <p>
+        Before moving forward, we recommend you to read
+        <a href="/docs/routing/introduction.md">Routing Introduction</a> first.
+      </p>
+    </blockquote>
+    <h2 id="userouter">useRouter</h2>
+    <p>
+      If you want to access the
+      <a href="#router-object"><code>router</code> object</a> inside any
+      function component in your app, you can use the
+      <code>useRouter</code> hook, take a look at the following example:
+    </p>
+    <pre class="jsx"><code>import { useRouter } from &#39;next/router&#39;
+
+function ActiveLink({ children, href }) {
+  const router = useRouter()
+  const style = {
+    marginRight: 10,
+    color: router.asPath === href ? &#39;red&#39; : &#39;black&#39;,
+  }
+
+  const handleClick = (e) =&gt; {
+    e.preventDefault()
+    router.push(href)
+  }
+
+  return (
+    &lt;a href={href} onClick={handleClick} style={style}&gt;
+      {children}
+    &lt;/a&gt;
+  )
+}
+
+export default ActiveLink</code></pre>
+    <blockquote>
+      <p>
+        <code>useRouter</code> is a
+        <a href="https://reactjs.org/docs/hooks-intro.html">React Hook</a>,
+        meaning it cannot be used with classes. You can either use
+        <a href="#withRouter">withRouter</a> or wrap your class in a function
+        component.
+      </p>
+    </blockquote>
+    <h2 id="router-object"><code>router</code> object</h2>
+    <p>
+      The following is the definition of the <code>router</code> object returned
+      by both <a href="#useRouter"><code>useRouter</code></a> and
+      <a href="#withRouter"><code>withRouter</code></a
+      >:
+    </p>
+    <ul>
+      <li>
+        <code>pathname</code>: <code>String</code> - Current route. That is the
+        path of the page in <code>/pages</code>, the configured
+        <code>basePath</code> or <code>locale</code> is not included.
+      </li>
+      <li>
+        <code>query</code>: <code>Object</code> - The query string parsed to an
+        object. It will be an empty object during prerendering if the page
+        doesn’t have
+        <a href="/docs/basic-features/data-fetching.md"
+          >data fetching requirements</a
+        >. Defaults to <code>{}</code>
+      </li>
+      <li>
+        <code>asPath</code>: <code>String</code> - The path (including the
+        query) shown in the browser without the configured
+        <code>basePath</code> or <code>locale</code>.
+      </li>
+      <li>
+        <code>isFallback</code>: <code>boolean</code> - Whether the current page
+        is in
+        <a href="/docs/basic-features/data-fetching.md#fallback-pages"
+          >fallback mode</a
+        >.
+      </li>
+      <li>
+        <code>basePath</code>: <code>String</code> - The active
+        <a href="/docs/api-reference/next.config.js/basepath.md">basePath</a>
+        (if enabled).
+      </li>
+      <li>
+        <code>locale</code>: <code>String</code> - The active locale (if
+        enabled).
+      </li>
+      <li>
+        <code>locales</code>: <code>String[]</code> - All supported locales (if
+        enabled).
+      </li>
+      <li>
+        <code>defaultLocale</code>: <code>String</code> - The current default
+        locale (if enabled).
+      </li>
+      <li>
+        <code>domainLocales</code>:
+        <code>Array&lt;{domain, defaultLocale, locales}&gt;</code> - Any
+        configured domain locales.
+      </li>
+      <li>
+        <code>isReady</code>: <code>boolean</code> - Whether the router fields
+        are updated client-side and ready for use. Should only be used inside of
+        <code>useEffect</code> methods and not for conditionally rendering on
+        the server.
+      </li>
+      <li>
+        <code>isPreview</code>: <code>boolean</code> - Whether the application
+        is currently in
+        <a href="/docs/advanced-features/preview-mode.md">preview mode</a>.
+      </li>
+    </ul>
+    <p>
+      Additionally, the following methods are also included inside
+      <code>router</code>:
+    </p>
+    <h3 id="router.push">router.push</h3>
+    <details>
+      <summary><b>Examples</b></summary>
+      <ul>
+        <li>
+          <a
+            href="https://github.com/vercel/next.js/tree/canary/examples/using-router"
+            >Using Router</a
+          >
+        </li>
+      </ul>
+    </details>
+    <p>
+      Handles client-side transitions, this method is useful for cases where
+      <a href="/docs/api-reference/next/link.md"><code>next/link</code></a> is
+      not enough.
+    </p>
+    <pre class="jsx"><code>router.push(url, as, options)</code></pre>
+    <ul>
+      <li><code>url</code> - The URL to navigate to</li>
+      <li>
+        <code>as</code> - Optional decorator for the URL that will be shown in
+        the browser. Before Next.js 9.5.3 this was used for dynamic routes,
+        check our
+        <a
+          href="https://nextjs.org/docs/tag/v9.5.2/api-reference/next/link#dynamic-routes"
+          >previous docs</a
+        >
+        to see how it worked
+      </li>
+      <li>
+        <code>options</code> - Optional object with the following configuration
+        options:
+        <ul>
+          <li>
+            <code>scroll</code> - Optional boolean, controls scrolling to the
+            top of the page after navigation. Defaults to <code>true</code>
+          </li>
+          <li>
+            <a href="/docs/routing/shallow-routing.md"><code>shallow</code></a
+            >: Update the path of the current page without rerunning
+            <a
+              href="/docs/basic-features/data-fetching.md#getstaticprops-static-generation"
+              ><code>getStaticProps</code></a
+            >,
+            <a
+              href="/docs/basic-features/data-fetching.md#getserversideprops-server-side-rendering"
+              ><code>getServerSideProps</code></a
+            >
+            or
+            <a href="/docs/api-reference/data-fetching/getInitialProps.md"
+              ><code>getInitialProps</code></a
+            >. Defaults to <code>false</code>
+          </li>
+          <li>
+            <code>locale</code> - Optional string, indicates locale of the new
+            page
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <blockquote>
+      <p>
+        You don’t need to use <code>router.push</code> for external URLs.
+        <a
+          href="https://developer.mozilla.org/en-US/docs/Web/API/Window/location"
+          >window.location</a
+        >
+        is better suited for those cases.
+      </p>
+    </blockquote>
+    <h4 id="usage">Usage</h4>
+    <p>
+      Navigating to <code>pages/about.js</code>, which is a predefined route:
+    </p>
+    <pre class="jsx"><code>import { useRouter } from &#39;next/router&#39;
+
+export default function Page() {
+  const router = useRouter()
+
+  return (
+    &lt;button type=&quot;button&quot; onClick={() =&gt; router.push(&#39;/about&#39;)}&gt;
+      Click me
+    &lt;/button&gt;
+  )
+}</code></pre>
+    <p>
+      Navigating <code>pages/post/[pid].js</code>, which is a dynamic route:
+    </p>
+    <pre class="jsx"><code>import { useRouter } from &#39;next/router&#39;
+
+export default function Page() {
+  const router = useRouter()
+
+  return (
+    &lt;button type=&quot;button&quot; onClick={() =&gt; router.push(&#39;/post/abc&#39;)}&gt;
+      Click me
+    &lt;/button&gt;
+  )
+}</code></pre>
+    <blockquote>
+      <p>
+        <strong>Note:</strong> When navigating to the same page in Next.js, the
+        page’s state <strong>will not</strong> be reset by default, as the
+        top-level React component is the same. You can manually ensure the state
+        is updated using <code>useEffect</code>.
+      </p>
+    </blockquote>
+    <p>
+      Redirecting the user to <code>pages/login.js</code>, useful for pages
+      behind <a href="/docs/authentication">authentication</a>:
+    </p>
+    <pre class="jsx"><code>import { useEffect } from &#39;react&#39;
+import { useRouter } from &#39;next/router&#39;
+
+// Here you would fetch and return the user
+const useUser = () =&gt; ({ user: null, loading: false })
+
+export default function Page() {
+  const { user, loading } = useUser()
+  const router = useRouter()
+
+  useEffect(() =&gt; {
+    if (!(user || loading)) {
+      router.push(&#39;/login&#39;)
+    }
+  }, [user, loading])
+
+  return &lt;p&gt;Redirecting...&lt;/p&gt;
+}</code></pre>
+    <h4 id="with-url-object">With URL object</h4>
+    <p>
+      You can use a URL object in the same way you can use it for
+      <a href="/docs/api-reference/next/link.md#with-url-object"
+        ><code>next/link</code></a
+      >. Works for both the <code>url</code> and <code>as</code> parameters:
+    </p>
+    <pre class="jsx"><code>import { useRouter } from &#39;next/router&#39;
+
+export default function ReadMore({ post }) {
+  const router = useRouter()
+
+  return (
+    &lt;button
+      type=&quot;button&quot;
+      onClick={() =&gt; {
+        router.push({
+          pathname: &#39;/post/[pid]&#39;,
+          query: { pid: post.id },
+        })
+      }}
+    &gt;
+      Click here to read more
+    &lt;/button&gt;
+  )
+}</code></pre>
+    <h3 id="router.replace">router.replace</h3>
+    <p>
+      Similar to the <code>replace</code> prop in
+      <a href="/docs/api-reference/next/link.md"><code>next/link</code></a
+      >, <code>router.replace</code> will prevent adding a new URL entry into
+      the <code>history</code> stack.
+    </p>
+    <pre class="jsx"><code>router.replace(url, as, options)</code></pre>
+    <ul>
+      <li>
+        The API for <code>router.replace</code> is exactly the same as the API
+        for <a href="#router.push"><code>router.push</code></a
+        >.
+      </li>
+    </ul>
+    <h4 id="usage-1">Usage</h4>
+    <p>Take a look at the following example:</p>
+    <pre class="jsx"><code>import { useRouter } from &#39;next/router&#39;
+
+export default function Page() {
+  const router = useRouter()
+
+  return (
+    &lt;button type=&quot;button&quot; onClick={() =&gt; router.replace(&#39;/home&#39;)}&gt;
+      Click me
+    &lt;/button&gt;
+  )
+}</code></pre>
+    <h3 id="router.prefetch">router.prefetch</h3>
+    <p>
+      Prefetch pages for faster client-side transitions. This method is only
+      useful for navigations without
+      <a href="/docs/api-reference/next/link.md"><code>next/link</code></a
+      >, as <code>next/link</code> takes care of prefetching pages
+      automatically.
+    </p>
+    <blockquote>
+      <p>
+        This is a production only feature. Next.js doesn’t prefetch pages on
+        development.
+      </p>
+    </blockquote>
+    <pre class="jsx"><code>router.prefetch(url, as)</code></pre>
+    <ul>
+      <li>
+        <code>url</code> - The URL to prefetch, that is, a path with a matching
+        page
+      </li>
+      <li>
+        <code>as</code> - Optional decorator for <code>url</code>. Before
+        Next.js 9.5.3 this was used to prefetch dynamic routes, check our
+        <a
+          href="https://nextjs.org/docs/tag/v9.5.2/api-reference/next/link#dynamic-routes"
+          >previous docs</a
+        >
+        to see how it worked
+      </li>
+    </ul>
+    <h4 id="usage-2">Usage</h4>
+    <p>
+      Let’s say you have a login page, and after a login, you redirect the user
+      to the dashboard. For that case, we can prefetch the dashboard to make a
+      faster transition, like in the following example:
+    </p>
+    <pre
+      class="jsx"
+    ><code>import { useCallback, useEffect } from &#39;react&#39;
+import { useRouter } from &#39;next/router&#39;
+
+export default function Login() {
+  const router = useRouter()
+  const handleSubmit = useCallback((e) =&gt; {
+    e.preventDefault()
+
+    fetch(&#39;/api/login&#39;, {
+      method: &#39;POST&#39;,
+      headers: { &#39;Content-Type&#39;: &#39;application/json&#39; },
+      body: JSON.stringify({
+        /* Form data */
+      }),
+    }).then((res) =&gt; {
+      // Do a fast client-side transition to the already prefetched dashboard page
+      if (res.ok) router.push(&#39;/dashboard&#39;)
+    })
+  }, [])
+
+  useEffect(() =&gt; {
+    // Prefetch the dashboard page
+    router.prefetch(&#39;/dashboard&#39;)
+  }, [])
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      {/* Form fields */}
+      &lt;button type=&quot;submit&quot;&gt;Login&lt;/button&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+    <h3 id="router.beforepopstate">router.beforePopState</h3>
+    <p>
+      In some cases (for example, if using a
+      <a href="/docs/advanced-features/custom-server.md">Custom Server</a>), you
+      may wish to listen to
+      <a href="https://developer.mozilla.org/en-US/docs/Web/Events/popstate"
+        >popstate</a
+      >
+      and do something before the router acts on it.
+    </p>
+    <pre class="jsx"><code>router.beforePopState(cb)</code></pre>
+    <ul>
+      <li>
+        <code>cb</code> - The function to run on incoming
+        <code>popstate</code> events. The function receives the state of the
+        event as an object with the following props:
+        <ul>
+          <li>
+            <code>url</code>: <code>String</code> - the route for the new state.
+            This is usually the name of a <code>page</code>
+          </li>
+          <li>
+            <code>as</code>: <code>String</code> - the url that will be shown in
+            the browser
+          </li>
+          <li>
+            <code>options</code>: <code>Object</code> - Additional options sent
+            by <a href="#router.push">router.push</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <p>
+      If <code>cb</code> returns <code>false</code>, the Next.js router will not
+      handle <code>popstate</code>, and you’ll be responsible for handling it in
+      that case. See
+      <a
+        href="/docs/advanced-features/custom-server.md#disabling-file-system-routing"
+        >Disabling file-system routing</a
+      >.
+    </p>
+    <h4 id="usage-3">Usage</h4>
+    <p>
+      You could use <code>beforePopState</code> to manipulate the request, or
+      force a SSR refresh, as in the following example:
+    </p>
+    <pre class="jsx"><code>import { useEffect } from &#39;react&#39;
+import { useRouter } from &#39;next/router&#39;
+
+export default function Page() {
+  const router = useRouter()
+
+  useEffect(() =&gt; {
+    router.beforePopState(({ url, as, options }) =&gt; {
+      // I only want to allow these two routes!
+      if (as !== &#39;/&#39; &amp;&amp; as !== &#39;/other&#39;) {
+        // Have SSR render bad routes as a 404.
+        window.location.href = as
+        return false
+      }
+
+      return true
+    })
+  }, [])
+
+  return &lt;p&gt;Welcome to the page&lt;/p&gt;
+}</code></pre>
+    <h3 id="router.back">router.back</h3>
+    <p>
+      Navigate back in history. Equivalent to clicking the browser’s back
+      button. It executes <code>window.history.back()</code>.
+    </p>
+    <h4 id="usage-4">Usage</h4>
+    <pre class="jsx"><code>import { useRouter } from &#39;next/router&#39;
+
+export default function Page() {
+  const router = useRouter()
+
+  return (
+    &lt;button type=&quot;button&quot; onClick={() =&gt; router.back()}&gt;
+      Click here to go back
+    &lt;/button&gt;
+  )
+}</code></pre>
+    <h3 id="router.reload">router.reload</h3>
+    <p>
+      Reload the current URL. Equivalent to clicking the browser’s refresh
+      button. It executes <code>window.location.reload()</code>.
+    </p>
+    <h4 id="usage-5">Usage</h4>
+    <pre class="jsx"><code>import { useRouter } from &#39;next/router&#39;
+
+export default function Page() {
+  const router = useRouter()
+
+  return (
+    &lt;button type=&quot;button&quot; onClick={() =&gt; router.reload()}&gt;
+      Click here to reload
+    &lt;/button&gt;
+  )
+}</code></pre>
+    <h3 id="router.events">router.events</h3>
+    <details>
+      <summary><b>Examples</b></summary>
+      <ul>
+        <li>
+          <a
+            href="https://github.com/vercel/next.js/tree/canary/examples/with-loading"
+            >With a page loading indicator</a
+          >
+        </li>
+      </ul>
+    </details>
+    <p>
+      You can listen to different events happening inside the Next.js Router.
+      Here’s a list of supported events:
+    </p>
+    <ul>
+      <li>
+        <code>routeChangeStart(url, { shallow })</code> - Fires when a route
+        starts to change
+      </li>
+      <li>
+        <code>routeChangeComplete(url, { shallow })</code> - Fires when a route
+        changed completely
+      </li>
+      <li>
+        <code>routeChangeError(err, url, { shallow })</code> - Fires when
+        there’s an error when changing routes, or a route load is cancelled
+        <ul>
+          <li>
+            <code>err.cancelled</code> - Indicates if the navigation was
+            cancelled
+          </li>
+        </ul>
+      </li>
+      <li>
+        <code>beforeHistoryChange(url, { shallow })</code> - Fires before
+        changing the browser’s history
+      </li>
+      <li>
+        <code>hashChangeStart(url, { shallow })</code> - Fires when the hash
+        will change but not the page
+      </li>
+      <li>
+        <code>hashChangeComplete(url, { shallow })</code> - Fires when the hash
+        has changed but not the page
+      </li>
+    </ul>
+    <blockquote>
+      <p>
+        <strong>Note:</strong> Here <code>url</code> is the URL shown in the
+        browser, including the
+        <a href="/docs/api-reference/next.config.js/basepath.md"
+          ><code>basePath</code></a
+        >.
+      </p>
+    </blockquote>
+    <h4 id="usage-6">Usage</h4>
+    <p>
+      For example, to listen to the router event <code>routeChangeStart</code>,
+      open or create <code>pages/_app.js</code> and subscribe to the event, like
+      so:
+    </p>
+    <pre class="jsx"><code>import { useEffect } from &#39;react&#39;
+import { useRouter } from &#39;next/router&#39;
+
+export default function MyApp({ Component, pageProps }) {
+  const router = useRouter()
+
+  useEffect(() =&gt; {
+    const handleRouteChange = (url, { shallow }) =&gt; {
+      console.log(
+        `App is changing to ${url} ${
+          shallow ? &#39;with&#39; : &#39;without&#39;
+        } shallow routing`
+      )
+    }
+
+    router.events.on(&#39;routeChangeStart&#39;, handleRouteChange)
+
+    // If the component is unmounted, unsubscribe
+    // from the event with the `off` method:
+    return () =&gt; {
+      router.events.off(&#39;routeChangeStart&#39;, handleRouteChange)
+    }
+  }, [])
+
+  return &lt;Component {...pageProps} /&gt;
+}</code></pre>
+    <blockquote>
+      <p>
+        We use a
+        <a href="/docs/advanced-features/custom-app.md">Custom App</a>
+        (<code>pages/_app.js</code>) for this example to subscribe to the event
+        because it’s not unmounted on page navigations, but you can subscribe to
+        router events on any component in your application.
+      </p>
+    </blockquote>
+    <p>
+      Router events should be registered when a component mounts (<a
+        href="https://reactjs.org/docs/hooks-effect.html"
+        >useEffect</a
+      >
+      or
+      <a href="https://reactjs.org/docs/react-component.html#componentdidmount"
+        >componentDidMount</a
+      >
+      /
+      <a
+        href="https://reactjs.org/docs/react-component.html#componentwillunmount"
+        >componentWillUnmount</a
+      >) or imperatively when an event happens.
+    </p>
+    <p>
+      If a route load is cancelled (for example, by clicking two links rapidly
+      in succession), <code>routeChangeError</code> will fire. And the passed
+      <code>err</code> will contain a <code>cancelled</code> property set to
+      <code>true</code>, as in the following example:
+    </p>
+    <pre class="jsx"><code>import { useEffect } from &#39;react&#39;
+import { useRouter } from &#39;next/router&#39;
+
+export default function MyApp({ Component, pageProps }) {
+  const router = useRouter()
+
+  useEffect(() =&gt; {
+    const handleRouteChangeError = (err, url) =&gt; {
+      if (err.cancelled) {
+        console.log(`Route to ${url} was cancelled!`)
+      }
+    }
+
+    router.events.on(&#39;routeChangeError&#39;, handleRouteChangeError)
+
+    // If the component is unmounted, unsubscribe
+    // from the event with the `off` method:
+    return () =&gt; {
+      router.events.off(&#39;routeChangeError&#39;, handleRouteChangeError)
+    }
+  }, [])
+
+  return &lt;Component {...pageProps} /&gt;
+}</code></pre>
+    <h2 id="withrouter">withRouter</h2>
+    <p>
+      If <a href="#useRouter"><code>useRouter</code></a> is not the best fit for
+      you, <code>withRouter</code> can also add the same
+      <a href="#router-object"><code>router</code> object</a> to any component.
+    </p>
+    <h3 id="usage-7">Usage</h3>
+    <pre class="jsx"><code>import { withRouter } from &#39;next/router&#39;
+
+function Page({ router }) {
+  return &lt;p&gt;{router.pathname}&lt;/p&gt;
+}
+
+export default withRouter(Page)</code></pre>
+    <h3 id="typescript">TypeScript</h3>
+    <p>
+      To use class components with <code>withRouter</code>, the component needs
+      to accept a router prop:
+    </p>
+    <pre class="tsx"><code>import React from &#39;react&#39;
+import { withRouter, NextRouter } from &#39;next/router&#39;
+
+interface WithRouterProps {
+  router: NextRouter
+}
+
+interface MyComponentProps extends WithRouterProps {}
+
+class MyComponent extends React.Component&lt;MyComponentProps&gt; {
+  render() {
+    return &lt;p&gt;{this.props.router.pathname}&lt;/p&gt;
+  }
+}
+
+export default withRouter(MyComponent)</code></pre>
+  </body>
+</html>
