@@ -1,8 +1,6 @@
-React Tips
-==========
+# React Tips
 
-Replace Redux with React Query
-------------------------------
+## Replace Redux with React Query
 
 As our application gets larger it becomes harder to manage state across our components, we may reach for a state management library like Redux.
 
@@ -66,8 +64,7 @@ const { data } = useQuery(‘user’);
 
 }
 
-Make React Context Easier with a Custom Hook
---------------------------------------------
+## Make React Context Easier with a Custom Hook
 
 React Context is a great way to pass data across our component tree. It allows us to pass data into whatever component we like without having to use props.
 
@@ -112,8 +109,7 @@ In this example, we are passing down user data on our custom UserProvider compon
 
 We have a `useUser` hook to more easily consume that context. We only need to import that hook itself to consume our User Context in any component we like, such as our Main component.
 
-Manage Context Providers in a Custom Component
-----------------------------------------------
+## Manage Context Providers in a Custom Component
 
 In almost any React application that you create, you will need a number of Context providers.
 
@@ -166,8 +162,7 @@ src/index.js
       rootElement
     );
 
-Pass props easier using the object spread operator
---------------------------------------------------
+## Pass props easier using the object spread operator
 
 When it comes to working with components, we normally pass down data with the help of props. We create a prop name and setting it equal to its appropriate value.
 
@@ -199,8 +194,7 @@ This involves putting all of our prop data in an object and spreading all of tho
       );
     }
 
-Map over fragments with React fragment
---------------------------------------
+## Map over fragments with React fragment
 
 The `.map()` function in React allows us to take an array and iterate over it, then display each elements data within some JSX.
 

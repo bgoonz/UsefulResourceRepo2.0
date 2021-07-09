@@ -1,5 +1,4 @@
-How to Remember More of What You Learn with Spaced Repetition
-=============================================================
+# How to Remember More of What You Learn with Spaced Repetition
 
 > Using spaced repetition in conjunction with other study techniques can help you memorize information much, much more quickly. Here’s how to do it.
 
@@ -7,17 +6,17 @@ I’ll just say what we’re all thinking: studying takes too much time.
 
 There are only 24 hours in a day, and naturally you’d like to use as many of them as possible for sleeping and, I don’t know, drawing pictures of robot bears or something. To achieve that goal, you need to find a method that lets you spend less time studying while retaining the same amount of information.
 
-Here’s the solution: **space out your studying**. By introducing time intervals between study sessions, you can remember more – even if you spend *fewer actual hours* studying.
+Here’s the solution: **space out your studying**. By introducing time intervals between study sessions, you can remember more – even if you spend _fewer actual hours_ studying.
 
 This is called **spaced repetition**, and it may be the most powerful technique in existence for improving your brain’s ability to recall what you study.
 
-Today we’re going to dig into *why* it’s so powerful, and I’m going to show you how you can use it – both with [paper flashcards](https://collegeinfogeek.com/flash-card-study-tips/) and with apps. I’ll also show you the time intervals that have been scientifically proven to help you [remember the most information](https://collegeinfogeek.com/how-to-improve-memory/).
+Today we’re going to dig into _why_ it’s so powerful, and I’m going to show you how you can use it – both with [paper flashcards](https://collegeinfogeek.com/flash-card-study-tips/) and with apps. I’ll also show you the time intervals that have been scientifically proven to help you [remember the most information](https://collegeinfogeek.com/how-to-improve-memory/).
 
 But first, let’s look at the history behind this technique.
 
 Spaced repetition leverages a memory phenomenon called the **spacing effect**, which describes how our brains learn more effectively when we space out our learning over time.
 
-Here’s how Pierce J. Howard, the author of my least favorite book to haul into coffee shops – *[The Owner’s Manual for the Brain](https://www.amazon.com/dp/0062227351?tag=colinfgee-20) –* explains it:
+Here’s how Pierce J. Howard, the author of my least favorite book to haul into coffee shops – _[The Owner’s Manual for the Brain](https://www.amazon.com/dp/0062227351?tag=colinfgee-20) –_ explains it:
 
 > “Work involving higher mental functions, such as analysis and synthesis, needs to be spaced out to allow new neural connections to solidify. New learning drives out old learning when insufficient time intervenes.”
 
@@ -25,7 +24,7 @@ You can think of learning as being kind of like building a brick wall; if you st
 
 ![](https://collegeinfogeek.com/wp-content/uploads/2020/02/brady-frieden-AupdmQ4w_M4-unsplash-650x434.jpg)
 
-In fact, *any* kind of information benefits from this kind of spaced practice – which is something that we’ve known since the the birth of memory science over a 130 years ago.
+In fact, _any_ kind of information benefits from this kind of spaced practice – which is something that we’ve known since the the birth of memory science over a 130 years ago.
 
 Back in the late 1880’s, a psychologist named [Hermann Ebbinghaus](https://en.wikipedia.org/wiki/Hermann_Ebbinghaus#Contributions_to_memory) became the first to systematically tackle the analysis of memory, and he did this by spending years memorizing lists of nonsensical syllables that he made up.
 
@@ -37,15 +36,14 @@ The Forgetting Curve was incredibly influential to the field of memory science, 
 
 For example: why do we sometimes remember mundane things – old street addresses, random conversations – that we haven’t thought about for *years?*
 
-[](#a-new-theory-of-forgetting)A New Theory of Forgetting
----------------------------------------------------------
+## [](#a-new-theory-of-forgetting)A New Theory of Forgetting
 
 In his book *[How We Learn](https://www.amazon.com/How-We-Learn-Surprising-Happens/dp/0812984293?tag=colinfgee-20),* author Benedict Carey describes the new theory of disuse (what he calls the **“Forget to Learn”** theory), which better explains why these memories seem to stick around, even as many others seemingly go the way of the dodo.
 
 The first principle of this theory is that memories have two different strengths – **storage strength** and **retrieval strength.**
 
--   **Storage strength** doesn’t fade over time. Once information has been acquired and the brain deems it to have met some threshold of importance, it stays stored. Storage strength can only increase through repeated recall or use.
--   **Retrieval strength** – the ability to *access* the memory – does fade. It’s fickle, not as voluminous as storage strength, and needs regular maintenance.
+- **Storage strength** doesn’t fade over time. Once information has been acquired and the brain deems it to have met some threshold of importance, it stays stored. Storage strength can only increase through repeated recall or use.
+- **Retrieval strength** – the ability to *access* the memory – does fade. It’s fickle, not as voluminous as storage strength, and needs regular maintenance.
 
 As a result, “forgetting” is an *accessibility problem.* The memory exists in storage, but **you can’t find it.**
 
@@ -73,8 +71,7 @@ As Ebbinghaus put it:
 
 > “With any considerable number of repetitions, a suitable distribution of them over a space of time is decidedly more advantageous than the massing of them at a single time.”
 
-[](#the-best-spaced-repetition-time-intervals)The Best Spaced Repetition Time Intervals
----------------------------------------------------------------------------------------
+## [](#the-best-spaced-repetition-time-intervals)The Best Spaced Repetition Time Intervals
 
 Of course, we don’t just want a suitable distribution… we want the **best distribution.** After all, if spacing out your studying helps, there must be some *optimal* amount of space, right?
 
@@ -82,14 +79,14 @@ Of course, we don’t just want a suitable distribution… we want the **best d
 
 He eventually integrated what he found into the first spaced repetition computer software, which he called [SuperMemo](https://www.supermemo.com/). The algorithm that determines SuperMemo’s intervals is [quite complex](https://www.supermemo.com/help/smalg.htm), but here’s a simplified, nutshell-version of some of his first optimal intervals:
 
--   First repetition: 1 day
--   Second repetition: 7 days
--   Third repetition: 16 days
--   Fourth repetition: 35 days
+- First repetition: 1 day
+- Second repetition: 7 days
+- Third repetition: 16 days
+- Fourth repetition: 35 days
 
 [A study published in 2008](http://escholarship.org/uc/item/0kp5q19x) with over 1,300 subjects also attempted to answer this question, but this time with respect to a *given test date.* What they found is that the optimal gap between the first and second study sessions increases in relation to how far away the test is.
 
-Benedict Carey interpreted their data in [*How We Learn*](https://www.amazon.com/dp/0812984293?tag=colinfgee-20) and came up with the following optimal intervals based on different test dates:
+Benedict Carey interpreted their data in [_How We Learn_](https://www.amazon.com/dp/0812984293?tag=colinfgee-20) and came up with the following optimal intervals based on different test dates:
 
 So if you’ve got a test coming up in a week, you should do your first session today, and then do the next session either tomorrow or the day after. I’d also recommend adding a 3rd session the day before the test.
 
@@ -103,8 +100,7 @@ So why tell you about the optimal intervals at all? Well, that’s because you c
 
 If you do creative work—writing, taking photos, making videos and music, etc.—then this class will help you boost your output and take that work to the next level.
 
-[](#the-analog-spaced-repetition-system)The Analog Spaced Repetition System
----------------------------------------------------------------------------
+## [](#the-analog-spaced-repetition-system)The Analog Spaced Repetition System
 
 [![The Leitner System for Spaced Repetition](https://collegeinfogeek.com/wp-content/uploads/2016/08/Leitner-System-650x366.jpg)](https://collegeinfogeek.com/wp-content/uploads/2016/08/Leitner-System.jpg)
 
@@ -124,10 +120,9 @@ Every card starts out in Box 1. When you get a card right, it graduates to the n
 
 After your boxes are set up, all you need to do is create recurring events on your [calendar](https://collegeinfogeek.com/efficient-calendar-use/) so you’ll know when to study each box. Pretty simple, right?
 
-But, perhaps the analog lifestyle isn’t for you. Well, come along my computer-loving brethren. We can’t upload our consciousnesses and become robots *yet*, but we can at least use…
+But, perhaps the analog lifestyle isn’t for you. Well, come along my computer-loving brethren. We can’t upload our consciousnesses and become robots _yet_, but we can at least use…
 
-[](#spaced-repetition-app-recommendations)Spaced Repetition App Recommendations
--------------------------------------------------------------------------------
+## [](#spaced-repetition-app-recommendations)Spaced Repetition App Recommendations
 
 The SRS (spaced repetition software) arena has a ton of contenders, including the aforementioned [SuperMemo](https://www.supermemo.com/).
 
@@ -135,9 +130,9 @@ However, the most popular one these days is probably [Anki](https://apps.ankiweb
 
 Anki is popular for good reason; it has a huge community of people who share decks (though you’ll learn better by making your own), it’s insanely customizable, and there are **free** (with one caveat) apps for it on almost every platform, including
 
--   [Windows, OS X, Linux](https://apps.ankiweb.net/#download)
--   [iPhone](https://itunes.apple.com/us/app/ankimobile-flashcards/id373493387?mt=8&ign-mpt=uo%3D4) (see below)
--   [Android](https://play.google.com/store/apps/details?id=com.ichi2.anki)
+- [Windows, OS X, Linux](https://apps.ankiweb.net/#download)
+- [iPhone](https://itunes.apple.com/us/app/ankimobile-flashcards/id373493387?mt=8&ign-mpt=uo%3D4) (see below)
+- [Android](https://play.google.com/store/apps/details?id=com.ichi2.anki)
 
 There’s also a [web client](https://ankiweb.net/about), so you can also do your studying straight from the browser.
 
@@ -159,8 +154,8 @@ If you got it straight-up wrong, you’ll see it again during the same study ses
 
 This system of rating your answers really helps you get the most out of spaced repetition’s two main benefits:
 
--   Maximizing the **learning improvement** through the spacing effect
--   Studying **more efficiently** by not wasting time on cards you already know really well
+- Maximizing the **learning improvement** through the spacing effect
+- Studying **more efficiently** by not wasting time on cards you already know really well
 
 There are tons of alternatives to Anki, though. If you’re looking for even more flashcard apps to help with your studies, [check out our list of the best flashcard apps](https://collegeinfogeek.com/flashcard-apps/).
 
@@ -168,17 +163,17 @@ And if you’re wondering *what* to learn, have a look at this [list of essenti
 
 ### Notes from the Video
 
--   *[How We Learn](https://www.amazon.com/dp/0812984293?tag=colinfgee-20)* by Benedict Carey
--   *[The Owner’s Manual for the Brain](https://www.amazon.com/dp/0062227351?tag=colinfgee-20)* by Pierce J. Howard, Ph.D.
--   [Memory: A Contribution to Experimental Psychology](http://nwkpsych.rutgers.edu/~jose/courses/578_mem_learn/2012/readings/Ebbinghaus_1885.pdf) by Hermann Ebbinghaus
--   [Original SuperMemo algorithm](https://www.supermemo.com/english/ol/beginning.htm#Algorithm)
--   [Latest SuperMemo algorithm – SM15](https://www.supermemo.com/help/smalg.htm)
--   [What’s the best spaced repetition schedule? on Quora](https://www.quora.com/Whats-the-best-spaced-repetition-schedule)
--   [More detail on the Leitner system](http://leitnerportal.com/LearnMore.aspx)
--   [Details on Anki’s algorithm](http://ankisrs.net/docs/manual.html#what-algorithm)
+- _[How We Learn](https://www.amazon.com/dp/0812984293?tag=colinfgee-20)_ by Benedict Carey
+- _[The Owner’s Manual for the Brain](https://www.amazon.com/dp/0062227351?tag=colinfgee-20)_ by Pierce J. Howard, Ph.D.
+- [Memory: A Contribution to Experimental Psychology](http://nwkpsych.rutgers.edu/~jose/courses/578_mem_learn/2012/readings/Ebbinghaus_1885.pdf) by Hermann Ebbinghaus
+- [Original SuperMemo algorithm](https://www.supermemo.com/english/ol/beginning.htm#Algorithm)
+- [Latest SuperMemo algorithm – SM15](https://www.supermemo.com/help/smalg.htm)
+- [What’s the best spaced repetition schedule? on Quora](https://www.quora.com/Whats-the-best-spaced-repetition-schedule)
+- [More detail on the Leitner system](http://leitnerportal.com/LearnMore.aspx)
+- [Details on Anki’s algorithm](http://ankisrs.net/docs/manual.html#what-algorithm)
 
-*If you liked this video, **[subscribe on YouTube](https://www.youtube.com/user/electrickeye91?sub_confirmation=1)** to stay updated and get notified when new ones are out!*
+_If you liked this video, **[subscribe on YouTube](https://www.youtube.com/user/electrickeye91?sub_confirmation=1)** to stay updated and get notified when new ones are out!_
 
-*Image Credits: [brick wall](https://unsplash.com/photos/AupdmQ4w_M4), [library](https://unsplash.com/photos/GWOTvo3qq7U)*
+_Image Credits: [brick wall](https://unsplash.com/photos/AupdmQ4w_M4), [library](https://unsplash.com/photos/GWOTvo3qq7U)_
 
 [Source](https://collegeinfogeek.com/spaced-repetition-memory-technique/)

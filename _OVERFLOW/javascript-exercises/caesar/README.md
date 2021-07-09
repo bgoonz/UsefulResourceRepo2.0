@@ -9,25 +9,29 @@ Hint: You may need to convert letters to their unicode values. Be sure to read t
 write a function that takes a string to be encoded and a shift factor and then returns the encoded string:
 
 ```javascript
-caesar('A', 1) // simply shifts the letter by 1: returns 'B'
+caesar("A", 1); // simply shifts the letter by 1: returns 'B'
 ```
 
 the cipher should retain capitalization:
+
 ```javascript
-caesar('Hey', 5) // returns 'Mjd;
+caesar("Hey", 5); // returns 'Mjd;
 ```
 
 should _not_ shift punctuation:
+
 ```javascript
-caesar('Hello, World!', 5) //returns 'Mjqqt, Btwqi!'
+caesar("Hello, World!", 5); //returns 'Mjqqt, Btwqi!'
 ```
 
 the shift should wrap around the alphabet:
+
 ```javascript
-caesar('Z', 1) // returns 'A'
+caesar("Z", 1); // returns 'A'
 ```
 
 negative numbers should work as well:
+
 ```javascript
-caesar('Mjqqt, Btwqi!', -5) // returns 'Hello, World!'
+caesar("Mjqqt, Btwqi!", -5); // returns 'Hello, World!'
 ```

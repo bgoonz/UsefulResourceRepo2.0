@@ -4,7 +4,6 @@
  * Licensed under MIT
  * https://github.com/flesler/jquery.scrollTo
  * @projectDescription Lightweight, cross-browser and highly customizable animated scrolling with jQuery
- * @author Ariel Flesler
  * @version 2.1.2
  */
 (function (factory) {

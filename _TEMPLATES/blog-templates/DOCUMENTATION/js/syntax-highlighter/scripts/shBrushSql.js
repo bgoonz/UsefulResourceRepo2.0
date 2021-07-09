@@ -27,7 +27,6 @@
       "session_user space substring sum system_user upper user year";
 
     const keywords =
-      "absolute action add after alter as asc at authorization begin bigint " +
       "binary bit by cascade char character check checkpoint close collate " +
       "column commit committed connect connection constraint contains continue " +
       "create cube current current_date current_time cursor database date " +

@@ -1,6 +1,5 @@
 /**
  * @fileoverview Translates tokens between Acorn format and Esprima format.
- * @author Nicholas C. Zakas
  */
 /* eslint no-underscore-dangle: 0 */
 

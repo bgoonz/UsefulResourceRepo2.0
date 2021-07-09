@@ -1,6 +1,5 @@
 /**
  * @fileoverview The visitor keys for the node types Espree supports
- * @author Nicholas C. Zakas
  *
  * This file contains code from estraverse-fb.
  *

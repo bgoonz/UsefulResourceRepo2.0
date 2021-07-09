@@ -26,7 +26,6 @@ var description$1 = "Prettier is an opinionated code formatter";
 var bin = "./bin/prettier.js";
 var repository$1 = "prettier/prettier";
 var homepage = "https://prettier.io";
-var author$1 = "James Long";
 var license$1 = "MIT";
 var main$1 = "./index.js";
 var browser = "./standalone.js";
@@ -186,7 +185,6 @@ var require$$0$8 = {
 	bin: bin,
 	repository: repository$1,
 	homepage: homepage,
-	author: author$1,
 	license: license$1,
 	main: main$1,
 	browser: browser,
@@ -26530,7 +26528,6 @@ var repository = {
 	url: "git://github.com/editorconfig/editorconfig-core-js.git"
 };
 var bugs = "https://github.com/editorconfig/editorconfig-core-js/issues";
-var author = "EditorConfig Team";
 var license = "MIT";
 var dependencies = {
 	commander: "^2.19.0",
@@ -26561,7 +26558,6 @@ var require$$4$1 = {
 	scripts: scripts,
 	repository: repository,
 	bugs: bugs,
-	author: author,
 	license: license,
 	dependencies: dependencies,
 	devDependencies: devDependencies

@@ -1,7 +1,10 @@
 (function () {
-	'use strict';
+  "use strict";
 
-	angular.module('app').factory('favoritesService', ['$resource', function($resource){
-		return $resource('/api/books/favorites');
-	}]);
-}());
+  angular.module("app").factory("favoritesService", [
+    "$resource",
+    function ($resource) {
+      return $resource("/api/books/favorites");
+    },
+  ]);
+})();

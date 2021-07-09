@@ -7,7 +7,6 @@
  * @description Paginate, search and order HTML tables
  * @version     1.10.0-dev
  * @file        jquery.dataTables.js
- * @author      SpryMedia Ltd (www.sprymedia.co.uk)
  * @contact     www.sprymedia.co.uk/contact
  * @copyright   Copyright 2008-2013 SpryMedia Ltd.
  *
@@ -9800,7 +9799,6 @@
          * Callback which allows modification of the saved state prior to loading that state.
          * This callback is called when the table is loading state from the stored data, but
          * prior to the settings object being modified by the saved state. Note that for
-         * plug-in authors, you should use the `stateLoadParams` event to load parameters for
          * a plug-in.
          *  @type function
          *  @param {object} settings DataTables settings object
@@ -9901,7 +9899,6 @@
          * Callback which allows modification of the state to be saved. Called when the table
          * has changed state a new state save is required. This method allows modification of
          * the state saving object prior to actually doing the save, including addition or
-         * other state properties or modification. Note that for plug-in authors, you should
          * use the `stateSaveParams` event to save parameters for a plug-in.
          *  @type function
          *  @param {object} settings DataTables settings object

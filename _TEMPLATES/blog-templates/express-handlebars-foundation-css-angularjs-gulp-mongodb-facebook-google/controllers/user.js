@@ -24,7 +24,6 @@ exports.ensureAuthenticated = function (req, res, next) {
   if (req.isAuthenticated()) {
     next();
   } else {
-    res.status(401).send({ msg: "Unauthorized" });
   }
 };
 /**
@@ -329,7 +328,6 @@ exports.authFacebook = function (req, res) {
     redirect_uri: req.body.redirectUri,
   };
 
-  // Step 1. Exchange authorization code for access token.
   request.get(
     { url: accessTokenUrl, qs: params, json: true },
     function (err, response, accessToken) {
@@ -420,10 +418,8 @@ exports.authGoogle = function (req, res) {
     client_id: req.body.clientId,
     client_secret: process.env.GOOGLE_SECRET,
     redirect_uri: req.body.redirectUri,
-    grant_type: "authorization_code",
   };
 
-  // Step 1. Exchange authorization code for access token.
   request.post(
     accessTokenUrl,
     { json: true, form: params },

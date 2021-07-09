@@ -1171,7 +1171,6 @@
   var bin = "./bin/prettier.js";
   var repository = "prettier/prettier";
   var homepage = "https://prettier.io";
-  var author = "James Long";
   var license = "MIT";
   var main = "./index.js";
   var browser = "./standalone.js";
@@ -1331,7 +1330,6 @@
   	bin: bin,
   	repository: repository,
   	homepage: homepage,
-  	author: author,
   	license: license,
   	main: main,
   	browser: browser,

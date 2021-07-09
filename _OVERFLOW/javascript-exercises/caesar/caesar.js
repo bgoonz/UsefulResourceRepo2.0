@@ -1,5 +1,3 @@
-const caesar = function() {
-
-};
+const caesar = function () {};
 
 module.exports = caesar;

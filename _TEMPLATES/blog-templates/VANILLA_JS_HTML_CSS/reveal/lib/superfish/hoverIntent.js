@@ -27,7 +27,6 @@
  * @param  handlerIn   function OR configuration object
  * @param  handlerOut  function OR selector for delegation OR undefined
  * @param  selector    selector OR undefined
- * @author Brian Cherne <brian(at)cherne(dot)net>
  */
 
 (function (factory) {

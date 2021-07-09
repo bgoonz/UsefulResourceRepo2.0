@@ -90,7 +90,6 @@ an object containing any of these fields:
 - **allowImportExportEverywhere**: By default, `import` and `export`
   declarations can only appear at a program's top level. Setting this
   option to `true` allows them anywhere where a statement is allowed.
-  
 - **allowAwaitOutsideFunction**: By default, `await` expressions can
   only appear inside `async` functions. Setting this option to
   `true` allows to have top-level `await` expressions. They are
@@ -184,8 +183,7 @@ expression in a string, and return its AST. It will not complain if
 there is more of the string left after the expression.
 
 **tokenizer**`(input, options)` returns an object with a `getToken`
-method that can be called repeatedly to get the next token, a `{start,
-end, type, value}` object (with added `loc` property when the
+method that can be called repeatedly to get the next token, a `{start, end, type, value}` object (with added `loc` property when the
 `locations` option is enabled and `range` property when the `ranges`
 option is enabled). When the token's type is `tokTypes.eof`, you
 should stop calling the method, since it will keep returning that same
@@ -206,8 +204,7 @@ var tokens = [...acorn.tokenizer(str)];
 **tokTypes** holds an object mapping names to the token type objects
 that end up in the `type` properties of tokens.
 
-**getLineInfo**`(input, offset)` can be used to get a `{line,
-column}` object for a given program string and offset.
+**getLineInfo**`(input, offset)` can be used to get a `{line, column}` object for a given program string and offset.
 
 ### The `Parser` class
 
@@ -259,11 +256,11 @@ The utility spits out the syntax tree as JSON data.
 
 ## Existing plugins
 
- - [`acorn-jsx`](https://github.com/RReverser/acorn-jsx): Parse [Facebook JSX syntax extensions](https://github.com/facebook/jsx)
- 
+- [`acorn-jsx`](https://github.com/RReverser/acorn-jsx): Parse [Facebook JSX syntax extensions](https://github.com/facebook/jsx)
+
 Plugins for ECMAScript proposals:
- 
- - [`acorn-stage3`](https://github.com/acornjs/acorn-stage3): Parse most stage 3 proposals, bundling:
-   - [`acorn-class-fields`](https://github.com/acornjs/acorn-class-fields): Parse [class fields proposal](https://github.com/tc39/proposal-class-fields)
-   - [`acorn-import-meta`](https://github.com/acornjs/acorn-import-meta): Parse [import.meta proposal](https://github.com/tc39/proposal-import-meta)
-   - [`acorn-private-methods`](https://github.com/acornjs/acorn-private-methods): parse [private methods, getters and setters proposal](https://github.com/tc39/proposal-private-methods)n
+
+- [`acorn-stage3`](https://github.com/acornjs/acorn-stage3): Parse most stage 3 proposals, bundling:
+  - [`acorn-class-fields`](https://github.com/acornjs/acorn-class-fields): Parse [class fields proposal](https://github.com/tc39/proposal-class-fields)
+  - [`acorn-import-meta`](https://github.com/acornjs/acorn-import-meta): Parse [import.meta proposal](https://github.com/tc39/proposal-import-meta)
+  - [`acorn-private-methods`](https://github.com/acornjs/acorn-private-methods): parse [private methods, getters and setters proposal](https://github.com/tc39/proposal-private-methods)n

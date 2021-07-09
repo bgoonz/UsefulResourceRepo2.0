@@ -197,7 +197,6 @@
  *
  *
  * @cat Plugins/Image Gallery
- * @author Ganeshji Marwaha/ganeshread@gmail.com
  */
 
 (function ($) {

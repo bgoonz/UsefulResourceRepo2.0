@@ -24,13 +24,13 @@ acorn.Parser.extend(jsx()).parse("my(<jsx/>, 'code');");
 Note that official spec doesn't support mix of XML namespaces and object-style access in tag names (#27) like in `<namespace:Object.Property />`, so it was deprecated in `acorn-jsx@3.0`. If you still want to opt-in to support of such constructions, you can pass the following option:
 
 ```javascript
-acorn.Parser.extend(jsx({ allowNamespacedObjects: true }))
+acorn.Parser.extend(jsx({ allowNamespacedObjects: true }));
 ```
 
 Also, since most apps use pure React transformer, a new option was introduced that allows to prohibit namespaces completely:
 
 ```javascript
-acorn.Parser.extend(jsx({ allowNamespaces: false }))
+acorn.Parser.extend(jsx({ allowNamespaces: false }));
 ```
 
 Note that by default `allowNamespaces` is enabled for spec compliancy.

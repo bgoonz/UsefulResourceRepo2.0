@@ -9,7 +9,6 @@ export function twitterLogin() {
   const twitter = {
     url: "http://localhost:3000/auth/twitter",
     redirectUri: "http://localhost:3000/auth/twitter/callback",
-    authorizationUrl: "https://api.twitter.com/oauth/authenticate",
   };
 
   return (dispatch) => {
@@ -68,7 +67,6 @@ function oauth2(config, dispatch) {
       display: "popup",
       response_type: "code",
     };
-    const url = config.authorizationUrl + "?" + qs.stringify(params);
     resolve({ url: url, config: config, dispatch: dispatch });
   });
 }
@@ -129,7 +127,6 @@ function pollPopup({ window, config, requestToken, dispatch }) {
 
     if (requestToken) {
       window.location =
-        config.authorizationUrl + "?" + qs.stringify(requestToken);
     }
 
     const polling = setInterval(() => {

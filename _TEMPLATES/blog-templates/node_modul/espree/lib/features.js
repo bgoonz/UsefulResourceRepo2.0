@@ -1,7 +1,6 @@
 /**
  * @fileoverview The list of feature flags supported by the parser and their default
  *      settings.
- * @author Nicholas C. Zakas
  */
 
 "use strict";

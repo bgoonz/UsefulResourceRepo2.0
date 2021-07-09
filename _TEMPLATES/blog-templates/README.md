@@ -4780,7 +4780,6 @@
 │       │   │   ├── appify-timeline-thumb.jpg
 │       │   │   ├── appify-widgets.jpg
 │       │   │   ├── appify-widgets-thumb.jpg
-│       │   │   ├── author-profile.png
 │       │   │   ├── elegant-icon-font.jpg
 │       │   │   ├── fontawesome-icons.png
 │       │   │   ├── instance-promo.jpg

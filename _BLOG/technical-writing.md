@@ -10,11 +10,11 @@ Let’s dive in.
 
 Let’s define some terms we are going to use throughout this document:
 
--   **Nouns** are used to name something such as **Mrs Kay**, **Eiffel Tower** or **manager**.
--   **Pronouns** are used instead of a noun such as **I**, **you**, **we**, **them**, **he**, or **it**.
--   **Adjectives** are used to describe nouns such as **friendly** Mrs Kay, the **rusty** Eiffel Tower or the **good** manager.
--   **Verbs** are doing words such as **fight**, **run**, **type** and **eat**.
--   **Adverbs** describe verbs such as **strongly** fight, **cowardly** run, **aggressively** type and **timidly** eat.
+- **Nouns** are used to name something such as **Mrs Kay**, **Eiffel Tower** or **manager**.
+- **Pronouns** are used instead of a noun such as **I**, **you**, **we**, **them**, **he**, or **it**.
+- **Adjectives** are used to describe nouns such as **friendly** Mrs Kay, the **rusty** Eiffel Tower or the **good** manager.
+- **Verbs** are doing words such as **fight**, **run**, **type** and **eat**.
+- **Adverbs** describe verbs such as **strongly** fight, **cowardly** run, **aggressively** type and **timidly** eat.
 
 Clarity describes how clear your point is in your writing. Your number one priority in technical writing is clarity.
 
@@ -42,9 +42,9 @@ No one understands what **walking around the porridge, chewing the fat**, or **i
 
 Good software engineers spend as much time deleting code as writing it when polishing their work. It’s the same in writing. Shorter code generally:
 
--   Makes it easier for others to read
--   Makes code easier to maintain
--   Extra lines of code add extra points of failure
+- Makes it easier for others to read
+- Makes code easier to maintain
+- Extra lines of code add extra points of failure
 
 All of these points also apply to your technical writing.
 
@@ -58,13 +58,13 @@ As you go through your writing, “**there is**” and “**there are**” can a
 
 Both terms are generally very generic and bore readers. Rework the sentence. Here are some examples:
 
--   There is a lot of overlap between software and hardware.
--   There are not multiple threads in JavaScript.
+- There is a lot of overlap between software and hardware.
+- There are not multiple threads in JavaScript.
 
 I hope you agree how much better these now read:
 
--   Software and hardware have a lot of overlap.
--   JavaScript does not have multiple threads.
+- Software and hardware have a lot of overlap.
+- JavaScript does not have multiple threads.
 
 ### Minimise use of adjectives and adverbs
 
@@ -86,9 +86,9 @@ I hope you agree the second is more precise and quantifiable.
 
 When you have a long sentence with lots of elements in it, you should split it up into a list. For example, if you’re listing the benefits of a particular technology, you could say, X is a great choice because:
 
--   It’s lightweight
--   It’s fast
--   It’s easy to use
+- It’s lightweight
+- It’s fast
+- It’s easy to use
 
 While this is a simple example, you get the idea. This is now far more readable than an overly long sentence and you won’t lose readers or your flow.
 
@@ -101,8 +101,8 @@ If you do find a good place to use a list, it’s important to use the right lis
 
 Or you can use a bulleted list, like this:
 
--   Here’s my bulleted list
--   Different, but still cool
+- Here’s my bulleted list
+- Different, but still cool
 
 **So which one should you use?**
 
@@ -119,16 +119,16 @@ Now you’re hopefully using the right lists! The next step to help you use list
 
 Your list items should all have the same:
 
--   Grammar and punctuation
--   Logical categorisation (the list items reasonably all belong together)
--   Capitalisation
+- Grammar and punctuation
+- Logical categorisation (the list items reasonably all belong together)
+- Capitalisation
 
 Let’s provide a bad example:
 
--   c++
--   JAVASCRIPT?
--   Rust!
--   chocolate chip cookies
+- c++
+- JAVASCRIPT?
+- Rust!
+- chocolate chip cookies
 
 All of the above rules have been broken. The item “chocolate chip cookies” doesn’t logically belong in the list, the capitalisation/casing of each element is different, and the punctuation isn’t consistently applied (It’s not clear why “JAVASCRIPT” ends in a “?”, and “Rust” with an “!”)
 
@@ -142,22 +142,22 @@ Sentences are generally made up of **subject**, **object** and **verb**. Let’s
 
 **I** am the subject, **Jake** is the object and **admire** is the verb.
 
--   The subject is the one doing the thing.
--   The object is the thing being done to.
--   The verb is what is being done to the object by the subject.
+- The subject is the one doing the thing.
+- The object is the thing being done to.
+- The verb is what is being done to the object by the subject.
 
 All of the above examples use **active voice** because the subject does the verb to the object. So let’s flip those above examples to **passive voice**:
 
 > The story was written by me
 
-> Jake’s work has my admiration *(or Jake’s work is admired by me)*
+> Jake’s work has my admiration _(or Jake’s work is admired by me)_
 
 You should use **active voice** because, in addition to being more powerful and direct:
 
--   It’s much easier to understand. Whenever people read the **passive voice** they have to make the mental effort to transfer **passive voice** to **active voice.** So for ease of reading, skip that step and write in the **active voice**.
--   **Active voice** is far more familiar to the reader, as we read active voice writing most of the time
--   **Passive voice** sometimes forces the reader to guess who did what in the sentence and obscures the meaning
--   **Active voice** is generally shorter than passive voice.
+- It’s much easier to understand. Whenever people read the **passive voice** they have to make the mental effort to transfer **passive voice** to **active voice.** So for ease of reading, skip that step and write in the **active voice**.
+- **Active voice** is far more familiar to the reader, as we read active voice writing most of the time
+- **Passive voice** sometimes forces the reader to guess who did what in the sentence and obscures the meaning
+- **Active voice** is generally shorter than passive voice.
 
 Let’s look at how to maximise each component of a well crafted written piece.
 
@@ -173,9 +173,9 @@ Paragraphs should have a clear opening sentence to explain the paragraph’s cen
 
 You also should clearly answer:
 
--   What are you trying to convey?
--   Why is it important?
--   How should the reader use this knowledge?
+- What are you trying to convey?
+- Why is it important?
+- How should the reader use this knowledge?
 
 Let’s have an example that does all the above:
 
@@ -217,18 +217,18 @@ Sometime you may not even be writing for technical people, and you’ll need to 
 
 Let’s do a brief overview of what we covered:
 
--   Try to be consistent through your writing
--   Avoid ambiguous pronouns
--   Prefer active voice
--   Be succinct.
--   Focus each sentence on one idea
--   Make use of lists
--   Focus on deleting unnecessary words
--   Don’t use complex English or jargon
--   Keep lists parallel
--   Open paragraphs with an overview of what you’re covering
--   Scope your document to your audience.
--   Establish your key points at the start of your writing.
+- Try to be consistent through your writing
+- Avoid ambiguous pronouns
+- Prefer active voice
+- Be succinct.
+- Focus each sentence on one idea
+- Make use of lists
+- Focus on deleting unnecessary words
+- Don’t use complex English or jargon
+- Keep lists parallel
+- Open paragraphs with an overview of what you’re covering
+- Scope your document to your audience.
+- Establish your key points at the start of your writing.
 
 I hope this article has explained some helpful concepts Google taught me when I completed their technical writing course.
 
@@ -238,8 +238,8 @@ The course I referred to throughout this article can be found [here](https://dev
 
 I share my writing on [Twitter](https://twitter.com/kealanparr) if you enjoyed this article and want to see more.
 
-------------------------------------------------------------------------
+---
 
-------------------------------------------------------------------------
+---
 
 Learn to code for free. freeCodeCamp’s open source curriculum has helped more than 40,000 people get jobs as developers. [Get started](https://www.freecodecamp.org/learn/)

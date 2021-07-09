@@ -24,7 +24,6 @@ exports.ensureAuthenticated = function (req, res, next) {
   if (req.isAuthenticated()) {
     next();
   } else {
-    res.status(401).send({ msg: "Unauthorized" });
   }
 };
 /**
@@ -338,7 +337,6 @@ exports.authTwitter = function (req, res) {
       callback: req.body.redirectUri,
     };
 
-    // Step 1. Obtain request token to initiate app authorization.
     // At this point nothing is happening inside a popup yet.
     request.post(
       { url: requestTokenUrl, oauth: requestTokenOauthSignature },
@@ -346,7 +344,6 @@ exports.authTwitter = function (req, res) {
         var oauthToken = qs.parse(body);
 
         // Step 2. Send OAuth token back.
-        // After request token is sent back, a popup will redirect to the Twitter app authorization screen.
         // Unlike Facebook and Google (OAuth 2.0), we have to do this extra step for Twitter (OAuth 1.0).
         res.send(oauthToken);
       }
