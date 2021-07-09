@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Deploy-MERN-2-HEROKU</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="how-to-deploy-a-full-stack-mern-app-with-herokunetlify">How To Deploy a Full-Stack MERN App with Heroku/Netlify</h1>
+<blockquote>
+<p>This post is intended to be a guide for those that want to deploy a full-stack MERN app. It will be v…</p>
+</blockquote>
+<figure>
+<img src="https://res.cloudinary.com/practicaldev/image/fetch/s--y8i0Pv96--/c_imagga_scale,f_auto,fl_progressive,h_420,q_auto,w_1000/https://dev-to-uploads.s3.amazonaws.com/i/jy1eavpf2fm467w8uopz.jpeg" alt="Cover image for How To Deploy a Full-Stack MERN App with Heroku/Netlify" /><figcaption>Cover image for How To Deploy a Full-Stack MERN App with Heroku/Netlify</figcaption>
+</figure>
+<p><a href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/stlnick"><img src="https://res.cloudinary.com/practicaldev/image/fetch/s--l5ouojJb--/c_fill,f_auto,fl_progressive,h_50,q_auto,w_50/https://dev-to-uploads.s3.amazonaws.com/uploads/user/profile_image/420087/17853aea-aa22-4f9f-ac6a-6ceb9a501d3e.jpg" alt="stlnick profile image" /> Nick</a> Aug 29, 2020 ・<em>Updated on Aug 31, 2020</em> ・12 min read</p>
+<p>This post is intended to be a guide for those that want to deploy a full-stack MERN app. It will be very specific on steps so it’s a bit of a read, however, it will ensure there is minimal to no confusion on how to get from point A to point B.</p>
+<p>Feel free to hop around if you’ve got some of these steps done, know how to do them already, what have you.</p>
+<p>If this is your first time <em>don’t intimidate yourself!</em> Just read and complete each step <strong>one at a time</strong>.</p>
+<p><strong>NOTE</strong>: This guide is based on <em>my specific project structure</em> and this works well for it. There are definitely other ways to deploy <em>and</em> other ways people prefer to have their project structured.</p>
+<h2 id="project-context"><a href="#project-context"></a>Project Context</h2>
+<p>So you’ve got a cool project you’d like to show off to the world, how do we deploy a full-stack MERN app?</p>
+<p>Let’s first get some basics out of the way and context on how I did this: my project structure, basic configuration, and why I chose this way of deployment.</p>
+<h3 id="what-is-mern"><a href="#what-is-mern"></a><strong>What is MERN</strong>?</h3>
+<p>MERN stands for <strong>MongoDB - Express - React - Node</strong>.</p>
+<ul>
+<li>MongoDB for the database</li>
+<li>Node &amp; Express for the server-side</li>
+<li>React for the client-side</li>
+</ul>
+<p>There’s also the MEAN stack, which uses Angular instead of React, and the… MEVN(?) stack… whatever, it uses Vue instead of React or Angular.</p>
+<h3 id="project-structure"><a href="#project-structure"></a><strong>Project Structure</strong></h3>
+<p>One thing that is definitely dev to dev, company to company, is how we structure our project as a whole. By this I mean where our directories are in relation to each other. Here is my fully collapsed root directory to show you the top-level:</p>
+<p><a href="https://res.cloudinary.com/practicaldev/image/fetch/s--z8m6KIip--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/r5a5u5mpha2066whz3gl.png"><img src="https://res.cloudinary.com/practicaldev/image/fetch/s--z8m6KIip--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/r5a5u5mpha2066whz3gl.png" alt="Root directory structure" /></a></p>
+<p>Just three things:</p>
+<ul>
+<li>My VS Code settings and extensions JSON files</li>
+<li>Client-Side Code</li>
+<li>Server-Side Code</li>
+</ul>
+<p>I like this structure because to me there’s a clear separation of responsibilities. It makes it easier for me to work on one or the other by just collapsing that whole folder. For instance if there’s some UI feature I want to add/fix/alter then I have no reason to open my <code>server</code> directory.</p>
+<p>I feel it makes it logical and simple to work with. Again, this is absolutely personal preference. This is also a big reason why this project was deployed in the way this guide will describe.</p>
+<h3 id="some-options-for-deployment"><a href="#some-options-for-deployment"></a><strong>Some Options for Deployment</strong></h3>
+<p>Credit to Dave Ceddia for putting this list together - this was found <a href="https://daveceddia.com/deploy-react-express-app-heroku/">in a blog post</a> of his.</p>
+<ol type="1">
+<li>Keep <code>client</code> and <code>server</code> together
+<ul>
+<li>Your Express and React files will live on the same machine and Express will both serve your API requests <strong>and</strong> the React files as well</li>
+</ul></li>
+<li>Put your API behind a proxy
+<ul>
+<li>This will allow your Express and React files to still live on one machine but each will be served by a different server</li>
+</ul></li>
+<li>Split <code>client</code> and <code>server</code> apart <em>(the option for this guide)</em>
+<ul>
+<li>Host your Express API on one machine and the React App on another</li>
+</ul></li>
+</ol>
+<p>Deployment is not something I have a ton of experience with so the first two options I’ve never attempted.</p>
+<p>I do know that in some cases for deployment on one machine a lot of devs must nest their entire <code>client</code> directory <strong>inside of</strong> <code>server</code>. This was a big reason I went the route I did for deployment because for me I wanted to keep the structure pictured above with a clear separation of client-side code and server-side code.</p>
+<h3 id="project-configuration"><a href="#project-configuration"></a><strong>Project Configuration</strong></h3>
+<p>The base of the project I deployed was the Create-React-App, which comes with a <code>webpack.config.js</code> and other basic configurations out of the box, for the front-end.</p>
+<p>I also used Webpack for the <code>server</code> directory as well to allow all those beautiful <code>import</code>s and <code>export</code>s to work for me and allow me to separate responsibilities on the server-side.</p>
+<p>Here’s a shot of the <code>client</code> and <code>server</code> directories expanded just to show you how I have it setup. There’s only a couple things that will <em>need to be there</em> for this project structure to work which I’ll point out.</p>
+<p><a href="https://res.cloudinary.com/practicaldev/image/fetch/s--K1tSNzwe--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/n4igseg6h83wfz3vyzwv.png"><img src="https://res.cloudinary.com/practicaldev/image/fetch/s--K1tSNzwe--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/n4igseg6h83wfz3vyzwv.png" alt="Expanded root directory" /></a></p>
+<p>Each directory, <code>client</code> and <code>server</code>, needs:</p>
+<ul>
+<li><code>.gitignore</code>
+<ul>
+<li>To ignore the files and directories we don’t want stored in our repo</li>
+</ul></li>
+<li><code>package.json</code>
+<ul>
+<li>To specify our separate <code>dependencies</code> and <code>devDependencies</code></li>
+</ul></li>
+<li><code>webpack.config.js</code>
+<ul>
+<li>The <code>client</code> <strong>doesn’t have one</strong> because Create-React-App again provides one out of the box so I didn’t need to specify it there</li>
+</ul></li>
+</ul>
+<p>You may have noticed I have a <code>yarn.lock</code> inside <code>client</code> and a <code>package-lock.json</code> inside <code>server</code>. I intentionally use <code>yarn</code> for client-side and <code>npm</code> for server-side because it helps me just keep those separate in my mind. I know if I’m using <code>yarn</code> then I’m in <code>client</code> and if I’m using <code>npm</code> I’m in <code>server</code>. Once again just a personal preference - you could use <code>yarn</code> or <code>npm</code> for both and have no issues.</p>
+<p>You may have also noticed the <code>Procfile</code> which we’ll get to later in the guide. As a teaser this will be needed by Heroku to deploy our <code>server</code> code which is why it lives inside of <code>server</code>.</p>
+<p>Now that we have some context on how my project is setup let’s talk about the actual process of deploying.</p>
+<h2 id="deployment-process"><a href="#deployment-process"></a>Deployment Process</h2>
+<p>What we’re going to do specifically is host our <code>server</code> code on Heroku and our <code>client</code> code on Netlify. So our React App hosted on Netlify will make API requests to our Express API hosted on Heroku.</p>
+<p>This will assume that you have both <code>client</code> and <code>server</code> running correctly and that you have <em>already connected your app to a hosted database on MongoDB</em>.</p>
+<h3 id="steps"><a href="#steps"></a><strong>Steps</strong></h3>
+<ol type="1">
+<li><a href="https://app.netlify.com/signup">Create a Netlify account</a> or sign in if you have one</li>
+<li><a href="https://signup.heroku.com/login">Create a Heroku account</a> or sign in if you have one</li>
+<li><p><a href="https://devcenter.heroku.com/articles/heroku-cli#download-and-install">Install the Heroku CLI</a></p>
+<ul>
+<li>There is instructions on how to do this for both Mac and Windows in this linked article</li>
+</ul></li>
+<li><p>Go to your terminal and type <code>heroku login</code></p>
+<ul>
+<li>This will prompt you to press any key, once you do it will take you to your browser where you will just need to click ‘Log In’.</li>
+<li>Once this is successful you can close that browser window and <strong>navigate to your text editor now with your project open</strong></li>
+</ul></li>
+<li><p>Create a file named <code>Procfile</code>, <strong>no file extension</strong>, in <code>/server</code> directory.</p>
+<ul>
+<li>Include this text and <strong>this text only</strong> in the <code>Procfile</code>
+<ul>
+<li><code>web: node dist/main.js</code></li>
+</ul></li>
+<li>This tells Heroku what to do after building our app - which specifically is to run our bundled file from webpack with all of our server logic inside it</li>
+<li>If we didn’t include this it would likely build just fine but never actually start our server</li>
+</ul></li>
+<li><p>Now we must add to our <code>server/package.json</code> the following block:</p>
+<ul>
+<li>You can more than likely add this anywhere (not nested in any other property) but I added it right below the <code>"main"</code> property near the top in the <code>server/package.json</code>.</li>
+<li>Recommended to check your node and npm versions first to know which versions to put in this next block. While it likely won’t break your app with a slightly different version it is safer to specify the versions you used in development to prevent unexpected behavior.</li>
+<li><code>node -v</code> or <code>node --version</code> to check your Node version</li>
+<li><code>npm -v</code> or <code>npm --version</code> to check your npm version</li>
+<li>Add those versions that return to this <code>engines</code> property if they’re different than mine.</li>
+<li><p>I used <code>"14.x"</code> for <code>node</code> to say, "As long as the major version of Node is 14 then use the latest minor version. Major version releases are when they’re likely to be <em>breaking changes</em> which we want to avoid.</p>
+<p>“engines”: { “node”: “14.x”, “npm”: “6.14.7” },</p></li>
+</ul></li>
+<li>We need to allow access to your MongoDB database now from a new IP address. For simplicity, I added all IP addresses to be allowed.</li>
+<li><p>In development I had the express server listen to <code>localhost:5000</code> to run there and my react app ran on port <code>3000</code>. We must change what this Express server will listen for to <code>app.listen(process.env.PORT || 5000)</code></p>
+<ul>
+<li>So this will tell the server to listen to the <code>.env</code> environment variable <code>PORT</code> which <strong><em>we should not have set in our own</em></strong> <code>.env</code> <em>file</em>. OR it will listen to port 5000.</li>
+<li>The <code>process.env.PORT</code> will be set by Heroku’s <code>.env</code> - they essentially will tell our server which port to listen to.</li>
+<li><p>If there is no such <code>process.env.PORT</code>, in other words there is no <code>.env</code> file that has been configured, then it will default to <code>5000</code>. This will allow us to keep that code in <em>and</em> be able to run it in our local development environment on port <code>5000</code> because we <em>do not</em> have a <code>.env</code> variable <code>PORT</code>.</p>
+<p>// server.js</p>
+<p>/<em> Other code… </em>/</p>
+<p>app.listen(process.env.PORT || 3000);</p></li>
+</ul>
+<hr />
+<p><strong>Ensure in your terminal that you are inside the <em>root</em> of the project you are deploying for these next two steps</strong></p>
+<hr /></li>
+<li><p>Now back inside your Terminal the next command we type is <code>heroku git:remote -a &lt;project-name&gt;</code>. Replace <code>&lt;project-name&gt;</code> with really whatever name you want - I recommend the name of your project to keep it simple. So for example it will look like <code>heroku git:remote -a my-project</code>.</p>
+<ul>
+<li><p>This is going to create a remote connection with Heroku specifically and also create a branch on that remote for you and your app name will be the name you provided, such as <code>my-project</code> above. Next we’re going to actually <code>push</code> our server code to that remote Heroku branch.</p>
+<p>heroku git:remote -a my-project</p></li>
+</ul></li>
+<li><p>The command we need to push our <code>server</code> code specifically, because we have the separation of <code>client</code> and <code>server</code> in our project structure, is <code>git subtree push --prefix server heroku master</code></p>
+<ul>
+<li><p>This is telling git to push a subtree, or in other words a <em>subdirectory</em>, from our current git repo. The <code>--prefix</code> flag comes before that subdirectory that we want to push, in our case it is <code>server</code>. And lastly we’re telling it to push to the remote <code>heroku</code> our <code>master</code> branch.</p>
+<p>git subtree push –prefix server heroku master</p></li>
+</ul>
+<hr />
+<p><strong>IF you want to test and ensure that you’ve deployed your server to Heroku just add in a test route in your <code>server.js</code> like:</strong></p>
+<pre><code>app.get(&#39;/&#39;, (req, res) =&gt; { res.send(&#39;Hello from Express!&#39;)</code></pre>
+<p>You can view your app by: - Copy and pasting the url that will appear in your Terminal after successfully pushing your code to the remote Heroku branch - Navigating to your project on <a href="http://heroku.com/">the Heroku website</a> and there will be a button that says ‘View App’ - click it and it will take you there</p>
+<ul>
+<li>If you see the ‘Hello from Express!’ (or whatever test message you used) then that means your server is running correctly</li>
+</ul>
+<hr /></li>
+<li><p>Now for our MongoDB connection to work we must define an environment variable for Heroku to store our MongoDB connection string.</p>
+<blockquote>
+<p>We want to keep our connection string secret as we don’t want anybody able to connect to our database and change, delete, add things etc. In our local build the connection string, is stored in our <code>.env</code> file inside of <code>/server</code>. I named by connection string <code>MONGODB_URI</code>. You can do this next step on the Heroku CLI or on the Heroku website. I recommend the website it’s more straightforward and you don’t have to worry about escaping special characters. I’m going to describe the next steps going through the website.</p>
+</blockquote>
+<ul>
+<li>Navigate to your dashboard on Heroku</li>
+<li>Click on your project name that will be present from our previous steps where we created our remote branch and pushed the code</li>
+<li>Navigate to the Settings tab near the top</li>
+<li>The second section is ‘Config Vars’ - click on ‘Reveal Config Vars’</li>
+<li>You’ll see two inputs:
+<ul>
+<li>One is the name of your environment variable - name this <strong>whatever you have it named in your local build</strong>. For me that is <code>MONGODB_URI</code>.</li>
+<li>Second is the value - paste your whole connection string here that you should copy from your <code>.env</code> file directly to avoid any typos.</li>
+</ul></li>
+<li>Then just click ‘Add’ and our MongoDB connection environment variable is set. <img src="https://res.cloudinary.com/practicaldev/image/fetch/s--D4fJ2hPQ--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/7ewhhh5fybrk94691c6i.png" alt="Heroku site config vars" /></li>
+</ul>
+<hr />
+<p>Our <code>server</code> code is officially deployed and configured correctly. Now onto the <code>client</code> code with Netlify.</p>
+<hr /></li>
+<li><p>Next is to deploy the front-end React code in <code>/client</code> to Netlify. Login to Netlify if you haven’t already, the default tab should be <code>Sites</code> or just navigate to that tab.</p></li>
+<li><p><strong>LASTLY</strong> after we deploy our front-end React code we must ensure <em>any requests</em> we’re sending from the client-side is changed to use our Heroku URL now instead of localhost.</p>
+<ul>
+<li><p>In my structure the requests were being made from <code>client/api/index.js</code> so navigate to that file and <em>any request that contains</em> <code>http://localhost:5000</code> must be replaced by your Heroku URL.</p>
+<p>// Before const res = await fetch(‘http://localhost:5000/scores/’</p>
+<p>// After const res = await fetch(‘https://my-project.herokuapp.com/scores/’)</p>
+<p>// ‘my-project’ in the URL will either be the auto-generated // name from Netlify or if you changed the name it will // be the name you gave it</p></li>
+</ul></li>
+</ol>
+<p><strong>Ensure that you push these changes up to GitHub.</strong> Netlify will trigger a redeploy when they detect changes to your <code>master</code> branch. So for this to work you must make those changes apparent to Netlify essentially.</p>
+<p>Now any request, instead of going to your local server you’ve ran while developing, will go to the hosted server you just deployed to Heroku with all of your Express Routes still intact and functioning properly.</p>
+<hr />
+<p>It’s undoubtedly a long process to get this done. But the important thing is that <em>it can be done</em>!</p>
+<p>It’s awesome to see the things we build on our local machine in development. After this though you can send a <em>live link</em> to your friends, colleagues, etc. for them to check it out!</p>
+<p>This is awesome to have a live example as well for anyone looking for a job. Being able to not only have a link on your Resume or Portfolio site to the code on GitHub but for recruiters, managers, whoever to be able to see the project in action <em>is huge</em>!</p>
+<h2 id="let-me-know-in-the-comments"><a href="#let-me-know-in-the-comments"></a>Let me know in the comments…</h2>
+<p>… how you like to deploy! Link me an article, give me a brief overview, or whatever you want. I’d love to hear of the other ways devs get their projects out there for the world to see and enjoy!</p>
+<p><a href="https://dev.to/stlnick/how-to-deploy-a-full-stack-mern-app-with-heroku-netlify-ncb">Source</a></p>
+</body>
+</html>

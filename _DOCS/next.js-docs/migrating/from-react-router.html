@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>from-react-router</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="migrating-from-react-router">Migrating from React Router</h1>
+    <p>
+      This guide will help you understand how to transition from
+      <a href="https://reactrouter.com">React Router</a> to
+      <a href="/docs/routing/introduction.md">file-system based</a> routes with
+      Next.js. Using
+      <a href="/docs/api-reference/next/link.md"><code>next/link</code></a> and
+      <a href="/docs/api-reference/next/router.md"><code>next/router</code></a>
+      will allow you to:
+    </p>
+    <ul>
+      <li>Decrease bundle size by removing React Router as a dependency.</li>
+      <li>Define your application routes through the file system.</li>
+      <li>Utilize the latest improvements to the Next.js framework.</li>
+    </ul>
+    <h2 id="basics">Basics</h2>
+    <p>
+      First, uninstall React Router. You’ll be migrating to the built-in routing
+      with Next.js.
+    </p>
+    <pre class="jsx"><code>npm uninstall react-router-dom</code></pre>
+    <p>
+      The <code>Link</code> component for performing client-side route
+      transitions is slightly different from React Router.
+    </p>
+    <pre class="jsx"><code>// Before (React Router)
+import { Link } from &#39;react-router-dom&#39;
+
+export default function App() {
+  return &lt;Link to=&quot;/about&quot;&gt;About&lt;/Link&gt;
+}
+
+// After (Next.js)
+import Link from &#39;next/link&#39;
+
+export default function App() {
+  return (
+    &lt;Link href=&quot;/about&quot;&gt;
+      &lt;a&gt;About&lt;/a&gt;
+    &lt;/Link&gt;
+  )
+}</code></pre>
+    <p>
+      Most React applications that use React Router have a top-level navigation
+      file, containing a list of routes. For example:
+    </p>
+    <pre
+      class="jsx"
+    ><code>import { BrowserRouter as Router, Switch, Route } from &#39;react-router-dom&#39;
+
+export default function App() {
+  return (
+    &lt;Router&gt;
+      &lt;Switch&gt;
+        &lt;Route path=&quot;/about&quot;&gt;
+          &lt;h1&gt;About&lt;/h1&gt;
+        &lt;/Route&gt;
+        &lt;Route path=&quot;/blog&quot;&gt;
+          &lt;h1&gt;Blog&lt;/h1&gt;
+        &lt;/Route&gt;
+        &lt;Route path=&quot;/&quot;&gt;
+          &lt;h1&gt;Home&lt;/h1&gt;
+        &lt;/Route&gt;
+      &lt;/Switch&gt;
+    &lt;/Router&gt;
+  )
+}</code></pre>
+    <p>
+      With Next.js, you can express the same application structure in the file
+      system. When a file is added to the
+      <a href="/docs/basic-features/pages.md"><code>pages</code></a> directory
+      it’s automatically available as a route.
+    </p>
+    <ul>
+      <li><code>pages/about.js</code> → <code>/about</code></li>
+      <li><code>pages/blog.js</code> → <code>/blog</code></li>
+      <li><code>pages/index.js</code> → <code>/</code></li>
+    </ul>
+    <h2 id="nested-routes">Nested Routes</h2>
+    <p>
+      In the example below, routes like <code>/blog/my-post</code> would render
+      the <code>Post</code> component. If a slug was not provided, it would
+      render the list of all blog posts.
+    </p>
+    <pre class="jsx"><code>import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  useRouteMatch,
+  useParams,
+} from &#39;react-router-dom&#39;
+
+export default function Blog() {
+  // Nested route under /blog
+  const match = useRouteMatch()
+
+  return (
+    &lt;Router&gt;
+      &lt;Switch&gt;
+        &lt;Route path={`${match.path}/:slug`}&gt;
+          &lt;Post /&gt;
+        &lt;/Route&gt;
+        &lt;Route path={match.path}&gt;
+          &lt;h1&gt;All Blog Posts&lt;/h1&gt;
+        &lt;/Route&gt;
+      &lt;/Switch&gt;
+    &lt;/Router&gt;
+  )
+}
+
+function Post() {
+  const { slug } = useParams()
+  return &lt;h1&gt;Post Slug: {slug}&lt;/h1&gt;
+}</code></pre>
+    <p>
+      Rather than using the <code>:slug</code> syntax inside your
+      <code>Route</code> component, Next.js uses the <code>[slug]</code> syntax
+      in the file name for
+      <a href="/docs/routing/dynamic-routes.md">Dynamic Routes</a>. We can
+      transform this to Next.js by creating two new files,
+      <code>pages/blog/index.js</code> (showing all pages) and
+      <code>pages/blog/[slug].js</code> (showing an individual post).
+    </p>
+    <pre class="jsx"><code>// pages/blog/index.js
+
+export default function Blog() {
+  return &lt;h1&gt;All Blog Posts&lt;/h1&gt;
+}
+
+// pages/blog/[slug].js
+
+import { useRouter } from &#39;next/router&#39;
+
+export default function Post() {
+  const router = useRouter()
+  const { slug } = router.query
+
+  return &lt;h1&gt;Post Slug: {slug}&lt;/h1&gt;
+}</code></pre>
+    <h2 id="server-rendering">Server Rendering</h2>
+    <p>
+      Next.js has built-in support for
+      <a href="/docs/basic-features/pages#server-side-rendering.md"
+        >Server-side Rendering</a
+      >. This means you can remove any instances of <code>StaticRouter</code> in
+      your code.
+    </p>
+    <h2 id="code-splitting">Code Splitting</h2>
+    <p>
+      Next.js has built-in support for
+      <a href="https://reactrouter.com/web/guides/code-splitting"
+        >Code Splitting</a
+      >. This means you can remove any instances of:
+    </p>
+    <ul>
+      <li>
+        <code>@loadable/server</code>, <code>@loadable/babel-plugin</code>, and
+        <code>@loadable/webpack-plugin</code>
+      </li>
+      <li>
+        Modifications to your <code>.babelrc</code> for
+        <code>@loadable/babel-plugin</code>
+      </li>
+    </ul>
+    <p>
+      Each file inside your <code>pages/</code> directory will be code split
+      into its own JavaScript bundle during the build process. Next.js
+      <a
+        href="/docs/basic-features/supported-browsers-features.md#javascript-language-features"
+        >also supports</a
+      >
+      ES2020 dynamic <code>import()</code> for JavaScript. With it you can
+      import JavaScript modules dynamically and work with them. They also work
+      with SSR.
+    </p>
+    <p>
+      For more information, read about
+      <a href="https://nextjs.org/docs/advanced-features/dynamic-import"
+        >Dynamic Imports</a
+      >.
+    </p>
+    <h2 id="scroll-restoration">Scroll Restoration</h2>
+    <p>
+      Next.js has built-in support for
+      <a href="https://reactrouter.com/web/guides/scroll-restoration"
+        >Scroll Restoration</a
+      >. This means you can remove any custom
+      <code>ScrollToTop</code> components you have defined.
+    </p>
+    <p>
+      The default behavior of <code>next/link</code> and
+      <code>next/router</code> is to scroll to the top of the page. You can also
+      <a
+        href="https://nextjs.org/docs/api-reference/next/link#disable-scrolling-to-the-top-of-the-page"
+        >disable this</a
+      >
+      if you prefer.
+    </p>
+    <h2 id="learn-more">Learn More</h2>
+    <p>
+      For more information on what to do next, we recommend the following
+      sections:
+    </p>
+    <div class="card">
+      <p>
+        <a href="/docs/routing/introduction.md">
+          <b>Routing:</b> <small>Learn more about routing in Next.js.</small>
+        </a>
+      </p>
+    </div>
+    <div class="card">
+      <p>
+        <a href="/docs/routing/dynamic-routes.md">
+          <b>Dynamic Routes:</b>
+          <small>Learn more about the built-in dynamic routes.</small>
+        </a>
+      </p>
+    </div>
+    <div class="card">
+      <p>
+        <a href="/docs/api-reference/next/link.md">
+          <b>Pages:</b>
+          <small>Enable client-side transitions with next/link.</small>
+        </a>
+      </p>
+    </div>
+  </body>
+</html>

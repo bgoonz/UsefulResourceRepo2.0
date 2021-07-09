@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>measuring-performance</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+    <style type="text/css">
+      a.sourceLine {
+        display: inline-block;
+        line-height: 1.25;
+      }
+      a.sourceLine {
+        pointer-events: none;
+        color: inherit;
+        text-decoration: inherit;
+      }
+      a.sourceLine:empty {
+        height: 1.2em;
+      }
+      .sourceCode {
+        overflow: visible;
+      }
+      code.sourceCode {
+        white-space: pre;
+        position: relative;
+      }
+      div.sourceCode {
+        margin: 1em 0;
+      }
+      pre.sourceCode {
+        margin: 0;
+      }
+      @media screen {
+        div.sourceCode {
+          overflow: auto;
+        }
+      }
+      @media print {
+        code.sourceCode {
+          white-space: pre-wrap;
+        }
+        a.sourceLine {
+          text-indent: -1em;
+          padding-left: 1em;
+        }
+      }
+      pre.numberSource a.sourceLine {
+        position: relative;
+        left: -4em;
+      }
+      pre.numberSource a.sourceLine::before {
+        content: attr(title);
+        position: relative;
+        left: -1em;
+        text-align: right;
+        vertical-align: baseline;
+        border: none;
+        pointer-events: all;
+        display: inline-block;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        padding: 0 4px;
+        width: 4em;
+        color: #aaaaaa;
+      }
+      pre.numberSource {
+        margin-left: 3em;
+        border-left: 1px solid #aaaaaa;
+        padding-left: 4px;
+      }
+      div.sourceCode {
+      }
+      @media screen {
+        a.sourceLine::before {
+          text-decoration: underline;
+        }
+      }
+      code span.al {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Alert */
+      code span.an {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Annotation */
+      code span.at {
+        color: #7d9029;
+      } /* Attribute */
+      code span.bn {
+        color: #40a070;
+      } /* BaseN */
+      code span.bu {
+      } /* BuiltIn */
+      code span.cf {
+        color: #007020;
+        font-weight: bold;
+      } /* ControlFlow */
+      code span.ch {
+        color: #4070a0;
+      } /* Char */
+      code span.cn {
+        color: #880000;
+      } /* Constant */
+      code span.co {
+        color: #60a0b0;
+        font-style: italic;
+      } /* Comment */
+      code span.cv {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* CommentVar */
+      code span.do {
+        color: #ba2121;
+        font-style: italic;
+      } /* Documentation */
+      code span.dt {
+        color: #902000;
+      } /* DataType */
+      code span.dv {
+        color: #40a070;
+      } /* DecVal */
+      code span.er {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Error */
+      code span.ex {
+      } /* Extension */
+      code span.fl {
+        color: #40a070;
+      } /* Float */
+      code span.fu {
+        color: #06287e;
+      } /* Function */
+      code span.im {
+      } /* Import */
+      code span.in {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Information */
+      code span.kw {
+        color: #007020;
+        font-weight: bold;
+      } /* Keyword */
+      code span.op {
+        color: #666666;
+      } /* Operator */
+      code span.ot {
+        color: #007020;
+      } /* Other */
+      code span.pp {
+        color: #bc7a00;
+      } /* Preprocessor */
+      code span.sc {
+        color: #4070a0;
+      } /* SpecialChar */
+      code span.ss {
+        color: #bb6688;
+      } /* SpecialString */
+      code span.st {
+        color: #4070a0;
+      } /* String */
+      code span.va {
+        color: #19177c;
+      } /* Variable */
+      code span.vs {
+        color: #4070a0;
+      } /* VerbatimString */
+      code span.wa {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Warning */
+    </style>
+  </head>
+  <body>
+    <h1 id="measuring-performance">Measuring performance</h1>
+    <p>
+      <a href="https://nextjs.org/analytics">Next.js Analytics</a> allows you to
+      analyze and measure the performance of pages using different metrics.
+    </p>
+    <p>
+      You can start collecting your
+      <a href="https://vercel.com/docs/analytics#metrics"
+        >Real Experience Score</a
+      >
+      with zero-configuration on
+      <a href="https://vercel.com/docs/analytics">Vercel deployments</a>.
+      There’s also support for Analytics if you’re
+      <a href="https://vercel.com/docs/analytics#self-hosted">self-hosting</a>.
+    </p>
+    <p>
+      The rest of this documentation describes the built-in relayer Next.js
+      Analytics uses.
+    </p>
+    <h2 id="build-your-own">Build Your Own</h2>
+    <p>
+      First, you will need to create a
+      <a href="/docs/advanced-features/custom-app.md">custom App</a> component
+      and define a <code>reportWebVitals</code> function:
+    </p>
+    <div class="sourceCode" id="cb1">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="co">// pages/_app.js</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="im">export</span> <span class="kw">function</span> <span class="at">reportWebVitals</span>(metric) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="va">console</span>.<span class="at">log</span>(metric)</a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="op">}</span></a>
+<a class="sourceLine" id="cb1-5" title="5"></a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="kw">function</span> <span class="at">MyApp</span>(<span class="op">{</span> Component<span class="op">,</span> pageProps <span class="op">}</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-7" title="7">  <span class="cf">return</span> <span class="op">&lt;</span>Component <span class="op">{</span>...<span class="at">pageProps</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="op">}</span></a>
+<a class="sourceLine" id="cb1-9" title="9"></a>
+<a class="sourceLine" id="cb1-10" title="10"><span class="im">export</span> <span class="im">default</span> MyApp</a></code></pre>
+    </div>
+    <p>
+      This function is fired when the final values for any of the metrics have
+      finished calculating on the page. You can use to log any of the results to
+      the console or send to a particular endpoint.
+    </p>
+    <p>
+      The <code>metric</code> object returned to the function consists of a
+      number of properties:
+    </p>
+    <ul>
+      <li>
+        <code>id</code>: Unique identifier for the metric in the context of the
+        current page load
+      </li>
+      <li><code>name</code>: Metric name</li>
+      <li>
+        <code>startTime</code>: First recorded timestamp of the performance
+        entry in
+        <a
+          href="https://developer.mozilla.org/en-US/docs/Web/API/DOMHighResTimeStamp"
+          >milliseconds</a
+        >
+        (if applicable)
+      </li>
+      <li>
+        <code>value</code>: Value, or duration in
+        <a
+          href="https://developer.mozilla.org/en-US/docs/Web/API/DOMHighResTimeStamp"
+          >milliseconds</a
+        >, of the performance entry
+      </li>
+      <li>
+        <code>label</code>: Type of metric (<code>web-vital</code> or
+        <code>custom</code>)
+      </li>
+    </ul>
+    <p>There are two types of metrics that are tracked:</p>
+    <ul>
+      <li>Web Vitals</li>
+      <li>Custom metrics</li>
+    </ul>
+    <h2 id="web-vitals">Web Vitals</h2>
+    <p>
+      <a href="https://web.dev/vitals/">Web Vitals</a> are a set of useful
+      metrics that aim to capture the user experience of a web page. The
+      following web vitals are all included:
+    </p>
+    <ul>
+      <li>
+        <a
+          href="https://developer.mozilla.org/en-US/docs/Glossary/Time_to_first_byte"
+          >Time to First Byte</a
+        >
+        (TTFB)
+      </li>
+      <li>
+        <a
+          href="https://developer.mozilla.org/en-US/docs/Glossary/First_contentful_paint"
+          >First Contentful Paint</a
+        >
+        (FCP)
+      </li>
+      <li><a href="https://web.dev/lcp/">Largest Contentful Paint</a> (LCP)</li>
+      <li><a href="https://web.dev/fid/">First Input Delay</a> (FID)</li>
+      <li><a href="https://web.dev/cls/">Cumulative Layout Shift</a> (CLS)</li>
+    </ul>
+    <p>
+      You can handle all the results of these metrics using the
+      <code>web-vital</code> label:
+    </p>
+    <div class="sourceCode" id="cb2">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="im">export</span> <span class="kw">function</span> <span class="at">reportWebVitals</span>(metric) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="cf">if</span> (<span class="va">metric</span>.<span class="at">label</span> <span class="op">===</span> <span class="st">&#39;web-vital&#39;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-3" title="3">    <span class="va">console</span>.<span class="at">log</span>(metric) <span class="co">// The metric object ({ id, name, startTime, value, label }) is logged to the console</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="op">}</span></a></code></pre>
+    </div>
+    <p>There’s also the option of handling each of the metrics separately:</p>
+    <div class="sourceCode" id="cb3">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="im">export</span> <span class="kw">function</span> <span class="at">reportWebVitals</span>(metric) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="cf">switch</span> (<span class="va">metric</span>.<span class="at">name</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-3" title="3">    <span class="cf">case</span> <span class="st">&#39;FCP&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb3-4" title="4">      <span class="co">// handle FCP results</span></a>
+<a class="sourceLine" id="cb3-5" title="5">      <span class="cf">break</span></a>
+<a class="sourceLine" id="cb3-6" title="6">    <span class="cf">case</span> <span class="st">&#39;LCP&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb3-7" title="7">      <span class="co">// handle LCP results</span></a>
+<a class="sourceLine" id="cb3-8" title="8">      <span class="cf">break</span></a>
+<a class="sourceLine" id="cb3-9" title="9">    <span class="cf">case</span> <span class="st">&#39;CLS&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb3-10" title="10">      <span class="co">// handle CLS results</span></a>
+<a class="sourceLine" id="cb3-11" title="11">      <span class="cf">break</span></a>
+<a class="sourceLine" id="cb3-12" title="12">    <span class="cf">case</span> <span class="st">&#39;FID&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb3-13" title="13">      <span class="co">// handle FID results</span></a>
+<a class="sourceLine" id="cb3-14" title="14">      <span class="cf">break</span></a>
+<a class="sourceLine" id="cb3-15" title="15">    <span class="cf">case</span> <span class="st">&#39;TTFB&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb3-16" title="16">      <span class="co">// handle TTFB results</span></a>
+<a class="sourceLine" id="cb3-17" title="17">      <span class="cf">break</span></a>
+<a class="sourceLine" id="cb3-18" title="18">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb3-19" title="19">      <span class="cf">break</span></a>
+<a class="sourceLine" id="cb3-20" title="20">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-21" title="21"><span class="op">}</span></a></code></pre>
+    </div>
+    <p>
+      A third-party library,
+      <a href="https://github.com/GoogleChrome/web-vitals">web-vitals</a>, is
+      used to measure these metrics. Browser compatibility depends on the
+      particular metric, so refer to the
+      <a href="https://github.com/GoogleChrome/web-vitals#browser-support"
+        >Browser Support</a
+      >
+      section to find out which browsers are supported.
+    </p>
+    <h2 id="custom-metrics">Custom metrics</h2>
+    <p>
+      In addition to the core metrics listed above, there are some additional
+      custom metrics that measure the time it takes for the page to hydrate and
+      render:
+    </p>
+    <ul>
+      <li>
+        <code>Next.js-hydration</code>: Length of time it takes for the page to
+        start and finish hydrating (in ms)
+      </li>
+      <li>
+        <code>Next.js-route-change-to-render</code>: Length of time it takes for
+        a page to start rendering after a route change (in ms)
+      </li>
+      <li>
+        <code>Next.js-render</code>: Length of time it takes for a page to
+        finish render after a route change (in ms)
+      </li>
+    </ul>
+    <p>
+      You can handle all the results of these metrics using the
+      <code>custom</code> label:
+    </p>
+    <div class="sourceCode" id="cb4">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="im">export</span> <span class="kw">function</span> <span class="at">reportWebVitals</span>(metric) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="cf">if</span> (<span class="va">metric</span>.<span class="at">label</span> <span class="op">===</span> <span class="st">&#39;custom&#39;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-3" title="3">    <span class="va">console</span>.<span class="at">log</span>(metric) <span class="co">// The metric object ({ id, name, startTime, value, label }) is logged to the console</span></a>
+<a class="sourceLine" id="cb4-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="op">}</span></a></code></pre>
+    </div>
+    <p>There’s also the option of handling each of the metrics separately:</p>
+    <div class="sourceCode" id="cb5">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="im">export</span> <span class="kw">function</span> <span class="at">reportWebVitals</span>(metric) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="cf">switch</span> (<span class="va">metric</span>.<span class="at">name</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-3" title="3">    <span class="cf">case</span> <span class="st">&#39;Next.js-hydration&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-4" title="4">      <span class="co">// handle hydration results</span></a>
+<a class="sourceLine" id="cb5-5" title="5">      <span class="cf">break</span></a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="cf">case</span> <span class="st">&#39;Next.js-route-change-to-render&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-7" title="7">      <span class="co">// handle route-change to render results</span></a>
+<a class="sourceLine" id="cb5-8" title="8">      <span class="cf">break</span></a>
+<a class="sourceLine" id="cb5-9" title="9">    <span class="cf">case</span> <span class="st">&#39;Next.js-render&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-10" title="10">      <span class="co">// handle render results</span></a>
+<a class="sourceLine" id="cb5-11" title="11">      <span class="cf">break</span></a>
+<a class="sourceLine" id="cb5-12" title="12">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-13" title="13">      <span class="cf">break</span></a>
+<a class="sourceLine" id="cb5-14" title="14">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-15" title="15"><span class="op">}</span></a></code></pre>
+    </div>
+    <p>
+      These metrics work in all browsers that support the
+      <a href="https://caniuse.com/#feat=user-timing">User Timing API</a>.
+    </p>
+    <h2 id="sending-results-to-analytics">Sending results to analytics</h2>
+    <p>
+      With the relay function, you can send any of results to an analytics
+      endpoint to measure and track real user performance on your site. For
+      example:
+    </p>
+    <div class="sourceCode" id="cb6">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="im">export</span> <span class="kw">function</span> <span class="at">reportWebVitals</span>(metric) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="kw">const</span> body <span class="op">=</span> <span class="va">JSON</span>.<span class="at">stringify</span>(metric)</a>
+<a class="sourceLine" id="cb6-3" title="3">  <span class="kw">const</span> url <span class="op">=</span> <span class="st">&#39;https://example.com/analytics&#39;</span></a>
+<a class="sourceLine" id="cb6-4" title="4"></a>
+<a class="sourceLine" id="cb6-5" title="5">  <span class="co">// Use `navigator.sendBeacon()` if available, falling back to `fetch()`.</span></a>
+<a class="sourceLine" id="cb6-6" title="6">  <span class="cf">if</span> (<span class="va">navigator</span>.<span class="at">sendBeacon</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-7" title="7">    <span class="va">navigator</span>.<span class="at">sendBeacon</span>(url<span class="op">,</span> body)</a>
+<a class="sourceLine" id="cb6-8" title="8">  <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-9" title="9">    <span class="at">fetch</span>(url<span class="op">,</span> <span class="op">{</span> body<span class="op">,</span> <span class="dt">method</span><span class="op">:</span> <span class="st">&#39;POST&#39;</span><span class="op">,</span> <span class="dt">keepalive</span><span class="op">:</span> <span class="kw">true</span> <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb6-10" title="10">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-11" title="11"><span class="op">}</span></a></code></pre>
+    </div>
+    <blockquote>
+      <p>
+        <strong>Note</strong>: If you use
+        <a href="https://analytics.google.com/analytics/web/"
+          >Google Analytics</a
+        >, using the <code>id</code> value can allow you to construct metric
+        distributions manually (to calculate percentiles, etc…).
+      </p>
+      <div class="sourceCode" id="cb7">
+        <pre
+          class="sourceCode js"
+        ><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="im">export</span> <span class="kw">function</span> <span class="at">reportWebVitals</span>(<span class="op">{</span> id<span class="op">,</span> name<span class="op">,</span> label<span class="op">,</span> value <span class="op">}</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-2" title="2">  <span class="co">// Use `window.gtag` if you initialized Google Analytics as this example:</span></a>
+<a class="sourceLine" id="cb7-3" title="3">  <span class="co">// https://github.com/vercel/next.js/blob/canary/examples/with-google-analytics/pages/_document.js</span></a>
+<a class="sourceLine" id="cb7-4" title="4">  <span class="va">window</span>.<span class="at">gtag</span>(<span class="st">&#39;event&#39;</span><span class="op">,</span> name<span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-5" title="5">    <span class="dt">event_category</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb7-6" title="6">      label <span class="op">===</span> <span class="st">&#39;web-vital&#39;</span> <span class="op">?</span> <span class="st">&#39;Web Vitals&#39;</span> : <span class="st">&#39;Next.js custom metric&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-7" title="7">    <span class="dt">value</span><span class="op">:</span> <span class="va">Math</span>.<span class="at">round</span>(name <span class="op">===</span> <span class="st">&#39;CLS&#39;</span> <span class="op">?</span> value <span class="op">*</span> <span class="dv">1000</span> : value)<span class="op">,</span> <span class="co">// values must be integers</span></a>
+<a class="sourceLine" id="cb7-8" title="8">    <span class="dt">event_label</span><span class="op">:</span> id<span class="op">,</span> <span class="co">// id unique to current page load</span></a>
+<a class="sourceLine" id="cb7-9" title="9">    <span class="dt">non_interaction</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="co">// avoids affecting bounce rate.</span></a>
+<a class="sourceLine" id="cb7-10" title="10">  <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb7-11" title="11"><span class="op">}</span></a></code></pre>
+      </div>
+      <p>
+        Read more about
+        <a
+          href="https://github.com/GoogleChrome/web-vitals#send-the-results-to-google-analytics"
+          >sending results to Google Analytics</a
+        >.
+      </p>
+    </blockquote>
+    <h2 id="typescript">TypeScript</h2>
+    <p>
+      If you are using TypeScript, you can use the built-in type
+      <code>NextWebVitalsMetric</code>:
+    </p>
+    <div class="sourceCode" id="cb8">
+      <pre
+        class="sourceCode ts"
+      ><code class="sourceCode typescript"><a class="sourceLine" id="cb8-1" title="1"><span class="co">// pages/_app.tsx</span></a>
+<a class="sourceLine" id="cb8-2" title="2"></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="im">import</span> <span class="kw">type</span> <span class="op">{</span> AppProps<span class="op">,</span> NextWebVitalsMetric <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;next/app&#39;</span></a>
+<a class="sourceLine" id="cb8-4" title="4"></a>
+<a class="sourceLine" id="cb8-5" title="5"><span class="kw">function</span> <span class="fu">MyApp</span>(<span class="op">{</span> Component<span class="op">,</span> pageProps <span class="op">}:</span> AppProps) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-6" title="6">  <span class="cf">return</span> <span class="op">&lt;</span>Component <span class="op">{...</span>pageProps<span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb8-7" title="7"><span class="op">}</span></a>
+<a class="sourceLine" id="cb8-8" title="8"></a>
+<a class="sourceLine" id="cb8-9" title="9"><span class="im">export</span> <span class="kw">function</span> <span class="fu">reportWebVitals</span>(metric<span class="op">:</span> NextWebVitalsMetric) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-10" title="10">  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(metric)</a>
+<a class="sourceLine" id="cb8-11" title="11"><span class="op">}</span></a>
+<a class="sourceLine" id="cb8-12" title="12"></a>
+<a class="sourceLine" id="cb8-13" title="13"><span class="im">export</span> <span class="im">default</span> MyApp</a></code></pre>
+    </div>
+  </body>
+</html>

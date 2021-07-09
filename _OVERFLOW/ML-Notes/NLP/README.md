@@ -4,15 +4,13 @@ This directory contains notes on a few implementations of NLP tools. I go over S
 
 ## Skills Covered
 
-<a href="https://github.com/harrisonjansma/ML-Notes/blob/master/NLP/Spacy/Introduction%20to%20Spacy%20--%20From%20Website.ipynb"> [1]</a> Introduction to Spacy 
+<a href="https://github.com/harrisonjansma/ML-Notes/blob/master/NLP/Spacy/Introduction%20to%20Spacy%20--%20From%20Website.ipynb"> [1]</a> Introduction to Spacy
 
 <a href="https://github.com/harrisonjansma/ML-Notes/blob/master/NLP/WebScrapeRegex/Regular%20Expressions.ipynb"> [2] </a> Regular Expression Usages (Pattern matching in text.)
 
 <a href="https://github.com/harrisonjansma/ML-Notes/blob/master/NLP/WebScrapeRegex/Web_Scraping.ipynb">[2]</a> Notes on Web scraping w/ Beautiful Soup
 
 ## Skill Implementations
-
-
 
 <a href="https://github.com/harrisonjansma/ML-Notes/blob/master/NLP/Apple_Sentiment_Analysis.ipynb">[1]</a> Complete Apple Sentiment Analysis project. Utilizes NLTK, Sklearn, and Matplotlib. TFIDF and SVM are employed. Heavy focus on visualization and model intuition.
 

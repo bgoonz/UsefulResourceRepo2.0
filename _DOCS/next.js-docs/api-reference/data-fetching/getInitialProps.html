@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>getInitialProps</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="getinitialprops">getInitialProps</h1>
+    <blockquote>
+      <p>
+        <strong
+          >Recommended:
+          <a
+            href="/docs/basic-features/data-fetching.md#getstaticprops-static-generation"
+            ><code>getStaticProps</code></a
+          >
+          or
+          <a
+            href="/docs/basic-features/data-fetching.md#getserversideprops-server-side-rendering"
+            ><code>getServerSideProps</code></a
+          ></strong
+        >.
+      </p>
+      <p>
+        If you’re using Next.js 9.3 or newer, we recommend that you use
+        <code>getStaticProps</code> or <code>getServerSideProps</code> instead
+        of <code>getInitialProps</code>.
+      </p>
+      <p>
+        These new data fetching methods allow you to have a granular choice
+        between static generation and server-side rendering. Learn more on the
+        documentation for <a href="/docs/basic-features/pages.md">Pages</a> and
+        <a href="/docs/basic-features/data-fetching.md">Data Fetching</a>.
+      </p>
+    </blockquote>
+    <p>
+      <code>getInitialProps</code> enables
+      <a href="/docs/basic-features/pages.md#server-side-rendering"
+        >server-side rendering</a
+      >
+      in a page and allows you to do <strong>initial data population</strong>,
+      it means sending the <a href="/docs/basic-features/pages.md">page</a> with
+      the data already populated from the server. This is especially useful for
+      <a href="https://en.wikipedia.org/wiki/Search_engine_optimization">SEO</a
+      >.
+    </p>
+    <blockquote>
+      <p>
+        <code>getInitialProps</code> will disable
+        <a href="/docs/advanced-features/automatic-static-optimization.md"
+          >Automatic Static Optimization</a
+        >.
+      </p>
+    </blockquote>
+    <p>
+      <code>getInitialProps</code> is an
+      <a href="https://vercel.com/blog/async-and-await"><code>async</code></a>
+      function that can be added to any page as a
+      <a href="https://javascript.info/static-properties-methods"
+        ><code>static method</code></a
+      >. Take a look at the following example:
+    </p>
+    <pre class="jsx"><code>function Page({ stars }) {
+  return &lt;div&gt;Next stars: {stars}&lt;/div&gt;
+}
+
+Page.getInitialProps = async (ctx) =&gt; {
+  const res = await fetch(&#39;https://api.github.com/repos/vercel/next.js&#39;)
+  const json = await res.json()
+  return { stars: json.stargazers_count }
+}
+
+export default Page</code></pre>
+    <p>Or using a class component:</p>
+    <pre class="jsx"><code>import React from &#39;react&#39;
+
+class Page extends React.Component {
+  static async getInitialProps(ctx) {
+    const res = await fetch(&#39;https://api.github.com/repos/vercel/next.js&#39;)
+    const json = await res.json()
+    return { stars: json.stargazers_count }
+  }
+
+  render() {
+    return &lt;div&gt;Next stars: {this.props.stars}&lt;/div&gt;
+  }
+}
+
+export default Page</code></pre>
+    <p>
+      <code>getInitialProps</code> is used to asynchronously fetch some data,
+      which then populates <code>props</code>.
+    </p>
+    <p>
+      Data returned from <code>getInitialProps</code> is serialized when server
+      rendering, similar to what
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify"
+        ><code>JSON.stringify</code></a
+      >
+      does. Make sure the returned object from <code>getInitialProps</code> is a
+      plain <code>Object</code> and not using <code>Date</code>,
+      <code>Map</code> or <code>Set</code>.
+    </p>
+    <p>
+      For the initial page load, <code>getInitialProps</code> will run on the
+      server only. <code>getInitialProps</code> will then run on the client when
+      navigating to a different route via the
+      <a href="/docs/api-reference/next/link.md"><code>next/link</code></a>
+      component or by using
+      <a href="/docs/api-reference/next/router.md"><code>next/router</code></a
+      >. However, if <code>getInitialProps</code> is used in a custom
+      <code>_app.js</code>, and the page being navigated to implements
+      <code>getServerSideProps</code>, then <code>getInitialProps</code> will
+      run on the server.
+    </p>
+    <h2 id="context-object">Context Object</h2>
+    <p>
+      <code>getInitialProps</code> receives a single argument called
+      <code>context</code>, it’s an object with the following properties:
+    </p>
+    <ul>
+      <li>
+        <code>pathname</code> - Current route. That is the path of the page in
+        <code>/pages</code>
+      </li>
+      <li>
+        <code>query</code> - Query string section of URL parsed as an object
+      </li>
+      <li>
+        <code>asPath</code> - <code>String</code> of the actual path (including
+        the query) shown in the browser
+      </li>
+      <li>
+        <code>req</code> -
+        <a
+          href="https://nodejs.org/api/http.html#http_class_http_incomingmessage"
+          title="Class: http.IncomingMessage HTTP | Node.js v14.8.0 Documentation"
+          >HTTP request object</a
+        >
+        (server only)
+      </li>
+      <li>
+        <code>res</code> -
+        <a
+          href="https://nodejs.org/api/http.html#http_class_http_serverresponse"
+          title="Class: http.ServerResponse HTTP | Node.js v14.8.0 Documentation"
+          >HTTP response object</a
+        >
+        (server only)
+      </li>
+      <li>
+        <code>err</code> - Error object if any error is encountered during the
+        rendering
+      </li>
+    </ul>
+    <h2 id="caveats">Caveats</h2>
+    <ul>
+      <li>
+        <code>getInitialProps</code> can <strong>not</strong> be used in
+        children components, only in the default export of every page
+      </li>
+      <li>
+        If you are using server-side only modules inside
+        <code>getInitialProps</code>, make sure to
+        <a href="https://arunoda.me/blog/ssr-and-server-only-modules"
+          >import them properly</a
+        >, otherwise it’ll slow down your app
+      </li>
+    </ul>
+    <h2 id="typescript">TypeScript</h2>
+    <p>
+      If you’re using TypeScript, you can use the <code>NextPage</code> type for
+      function components:
+    </p>
+    <pre class="jsx"><code>import { NextPage } from &#39;next&#39;
+
+interface Props {
+  userAgent?: string;
+}
+
+const Page: NextPage&lt;Props&gt; = ({ userAgent }) =&gt; (
+  &lt;main&gt;Your user agent: {userAgent}&lt;/main&gt;
+)
+
+Page.getInitialProps = async ({ req }) =&gt; {
+  const userAgent = req ? req.headers[&#39;user-agent&#39;] : navigator.userAgent
+  return { userAgent }
+}
+
+export default Page</code></pre>
+    <p>
+      And for <code>React.Component</code>, you can use
+      <code>NextPageContext</code>:
+    </p>
+    <pre class="jsx"><code>import React from &#39;react&#39;
+import { NextPageContext } from &#39;next&#39;
+
+interface Props {
+  userAgent?: string;
+}
+
+export default class Page extends React.Component&lt;Props&gt; {
+  static async getInitialProps({ req }: NextPageContext) {
+    const userAgent = req ? req.headers[&#39;user-agent&#39;] : navigator.userAgent
+    return { userAgent }
+  }
+
+  render() {
+    const { userAgent } = this.props
+    return &lt;main&gt;Your user agent: {userAgent}&lt;/main&gt;
+  }
+}</code></pre>
+    <h2 id="related">Related</h2>
+    <p>
+      For more information on what to do next, we recommend the following
+      sections:
+    </p>
+    <div class="card">
+      <p>
+        <a href="/docs/basic-features/data-fetching.md">
+          <b>Data Fetching:</b>
+          <small>Learn more about data fetching in Next.js.</small>
+        </a>
+      </p>
+    </div>
+    <div class="card">
+      <p>
+        <a href="/docs/basic-features/pages.md">
+          <b>Pages:</b>
+          <small>Learn more about what pages are in Next.js.</small>
+        </a>
+      </p>
+    </div>
+    <div class="card">
+      <p>
+        <a href="/docs/advanced-features/automatic-static-optimization.md">
+          <b>Automatic Static Optimization:</b>
+          <small
+            >Learn about how Nextjs automatically optimizes your pages.</small
+          >
+        </a>
+      </p>
+    </div>
+  </body>
+</html>
