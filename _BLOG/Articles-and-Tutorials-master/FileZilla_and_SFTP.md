@@ -1,19 +1,16 @@
-Transfer To & Manage Files On Your VPS Securely with FileZilla
-==============================================================
+# Transfer To & Manage Files On Your VPS Securely with FileZilla
 
 ### Introduction
 
 Are you a recent shared-hosting convert and find yourself struggling to figure out how to best manage the files on your first Virtual Private Server (“VPS”); and, worse, find yourself wondering what you got yourself into because you are intimidated by the command line? If so, you will be happy to learn that FileZilla provides a user-friendly graphical interface that can securely transfer files to-and-from – and even move files around within – your VPS.
 
-Secure Communication
---------------------
+## Secure Communication
 
 The two most common methods of securely transmitting information between two computers are the (i) Secure Shell (SSH) and (ii) Transport Layer Security (TLS), and its predecessor, Secure Sockets Layer (SSL), cryptographic protocols. Both are public-key cryptography tunneling protocols that aim to create a secure, confidential exchange of data and connection across a network; particularly, the Internet. The encryption technologies used by both protocols are very reliable, and are (when configured correctly) nearly impossible for hackers to break into. While both protocols provide similar services, however, they are not the same and, in fact, have several significant differences that are beyond the scope of this article.
 
 Today, [OpenSSH](http://www.openssh.org/) is a default software package found on Unix-like operating systems such as Mac OS X and Linux. Thus, programs or subsystems that are based on the SSH protocol will work ‘out-of-the-box’ – without having to go through the additional steps of either purchasing or creating the requisite SSL certificate needed for certain modes of secure data transmissions via TLS/SSL.
 
-FTP vs. SCP vs. SFTP vs. FTPS
------------------------------
+## FTP vs. SCP vs. SFTP vs. FTPS
 
 When needing to up- or download files from your VPS in real time, you essentially have the following options:
 
@@ -34,18 +31,15 @@ Given that both SCP and SFTP utilize the SSH protocol in connecting to another c
 
 SFTP should not be confused with FTPS, because the two methods are incompatible with each other. While FTPS can provide equal security, it does require additional steps to deploy if one does not already have an SSL certificate.
 
-SFTP Clients
-------------
+## SFTP Clients
 
 There are several quality SFTP clients out there: [Cyberduck](http://en.wikipedia.org/wiki/Cyberduck), [Filezilla](http://en.wikipedia.org/wiki/Filezilla) or [WinSCP](http://winscp.net/), to name a few. This article, however, will focus on Filezilla – an open-source (i.e., free) FTP client for Windows, Mac OS X and Linux. In addition to being able to download the program, the [filezilla-project.org](https://filezilla-project.org/) site also contains a documentation [Wiki](https://wiki.filezilla-project.org/Main_Page) and a [Support Forum](https://forum.filezilla-project.org/).
 
-Key-based Authentication
-------------------------
+## Key-based Authentication
 
 With SFTP, you have two user-authentication options when connecting to a remote server: (i) passwords or (ii) SSH keys. For a discussion on the benefits of SSH keys over passwords and/or instructions on setting up password-less logins on your server, please refer to [How To Create SSH Keys with PuTTY to Connect to a VPS](https://www.digitalocean.com/community/articles/how-to-create-ssh-keys-with-putty-to-connect-to-a-vps).
 
-SFTP via SSH2 Key-based Authentication
---------------------------------------
+## SFTP via SSH2 Key-based Authentication
 
 FileZilla has a built-in key-management page in the Settings dialog, which allows you to save your Public (SSH) Key – to (securely) automate the process of connecting to a remote server.
 
@@ -53,8 +47,8 @@ FileZilla has a built-in key-management page in the Settings dialog, which allow
 
 If you have yet to create an SSH key pair, you can do so by following one of two [DigitalOcean tutorials](https://www.digitalocean.com/community/articles):
 
--   **Windows users:** [How To Create SSH Keys with PuTTY to Connect to a VPS](https://www.digitalocean.com/community/articles/how-to-create-ssh-keys-with-putty-to-connect-to-a-vps); or
--   **Mac OSX & Linux users:** [How To Set Up SSH Keys](https://www.digitalocean.com/community/articles/how-to-set-up-ssh-keys--2).
+- **Windows users:** [How To Create SSH Keys with PuTTY to Connect to a VPS](https://www.digitalocean.com/community/articles/how-to-create-ssh-keys-with-putty-to-connect-to-a-vps); or
+- **Mac OSX & Linux users:** [How To Set Up SSH Keys](https://www.digitalocean.com/community/articles/how-to-set-up-ssh-keys--2).
 
 Once you have an SSH key pair that you would like to use to connect to your VPS,
 
@@ -81,10 +75,9 @@ If a password-protected key file is desired, FileZilla is able to utilize [PuTTY
 1.  Simply run Pageant and, in your system tray, you will see the Pageant icon appear.
 2.  Right-click on the icon and select `Add Key` and select your private key (.ppk) file.
 3.  Then, follow the prompt to enter your passphrase.
-4.  Finally, launch FileZilla and connect to your server via SFTP using SSH2 with a username and an **empty password** (*do not forget to close pageant when you are done*).
+4.  Finally, launch FileZilla and connect to your server via SFTP using SSH2 with a username and an **empty password** (_do not forget to close pageant when you are done_).
 
-Editing Text Files
-------------------
+## Editing Text Files
 
 In managing your VPS, you will inevitably encounter a situation where some programming (text) files require edits. FileZilla does not carry a built-in text editor; which gives you the freedom of using any text editor of your choice. A popular editor among Windows users is [Notepad++](http://notepad-plus-plus.org/) because it is lightweight and can work with many of today’s popular [programming languages](http://en.wikipedia.org/wiki/Notepad%2B%2B#Programming_languages).
 
@@ -95,10 +88,9 @@ By default, FileZilla is configured to utilize your local system’s default edi
 3.  Then, select the radio button associated with `Use custom editor` and click on the `Browse` button.
 4.  Find your desired editor’s executable (`.exe` on Windows machines), double-click on it, and click the `OK` button to save your changes & close the Settings window.
 
-Additional Resources
---------------------
+## Additional Resources
 
--   [How To Install Wordpress, Nginx, PHP, and Varnish on Ubuntu 12.04](https://www.digitalocean.com/community/articles/how-to-install-wordpress-nginx-php-and-varnish-on-ubuntu-12-04)
+- [How To Install Wordpress, Nginx, PHP, and Varnish on Ubuntu 12.04](https://www.digitalocean.com/community/articles/how-to-install-wordpress-nginx-php-and-varnish-on-ubuntu-12-04)
 
 As always, if you need help with the steps outlined in this HowTo, look to the DigitalOcean Community for assistance by posing your question(s), below.
 

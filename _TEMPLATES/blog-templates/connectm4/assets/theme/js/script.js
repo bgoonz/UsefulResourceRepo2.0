@@ -650,7 +650,6 @@
         $("input[name=animation]").remove();
 
         var $animatedElements = $(
-          "p, h1, h2, h3, h4, h5, a, button, small, img, li, blockquote, .mbr-author-name, em, label, input, select, textarea, .input-group, .form-control, .iconbox, .btn-social, .mbr-figure, .mbr-map, .mbr-testimonial .card-block, .mbr-price-value, .mbr-price-figure, .dataTable, .dataTables_info"
         )
           .not(function () {
             return $(this)

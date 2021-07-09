@@ -1,29 +1,25 @@
-Title
-=====
+# Title
 
 ### Introduction
 
-Section1
---------
+## Section1
 
 Give these a try:
 
--   **Bold** and *Italic*
--   `Code blocks`
+- **Bold** and _Italic_
+- `Code blocks`
 
-Section2
---------
+## Section2
 
 > Here’s how to quote some text.
 
 ### Sub-section A
 
-Additional Resources
---------------------
+## Additional Resources
 
--   [Link1]();
--   [Link2]();
--   [Link3]().
+- [Link1]();
+- [Link2]();
+- [Link3]().
 
 As always, if you need help with the steps outlined in this HowTo, look to the DigitalOcean Community for assistance by posing your question(s), below.
 

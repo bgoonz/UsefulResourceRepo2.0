@@ -1,6 +1,5 @@
 /**
  * @fileoverview A collection of methods for processing Espree's options.
- * @author Kai Cataldo
  */
 
 "use strict";

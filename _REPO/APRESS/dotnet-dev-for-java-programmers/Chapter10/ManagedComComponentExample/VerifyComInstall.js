@@ -1,6 +1,5 @@
-
-mcc = new ActiveXObject( "ManagedComComponentExample.ManagedComComponent" );
+mcc = new ActiveXObject("ManagedComComponentExample.ManagedComComponent");
 
 mcc.Message = "Hello COM component";
 
-WScript.Echo( mcc.Message );
+WScript.Echo(mcc.Message);

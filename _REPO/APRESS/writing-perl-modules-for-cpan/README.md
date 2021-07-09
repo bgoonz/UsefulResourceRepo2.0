@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*Writing Perl Modules for CPAN*](http://www.apress.com/9781590590188) by Sam Tregar (Apress, 2002).
+This repository accompanies [_Writing Perl Modules for CPAN_](http://www.apress.com/9781590590188) by Sam Tregar (Apress, 2002).
 
 ![Cover image](9781590590188.jpg)
 

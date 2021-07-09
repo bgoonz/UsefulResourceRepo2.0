@@ -1,4 +1,4 @@
-# Errata for *Pro React 16*
+# Errata for _Pro React 16_
 
 **All Chapters**
 
@@ -19,11 +19,11 @@ As long as you have removed the globally-installed version, the project should b
 
 (Thanks to Loïc Njike for reporting this problem)
 
------
+---
 
 **Chapter 4**
 
-The code in Listings 4-37 and 4-38 should access the `name` and `weather` properties via `this` as described in the text. The code in the book works but you should not rely on the name of the variable an object is assigned to access that object's features. 
+The code in Listings 4-37 and 4-38 should access the `name` and `weather` properties via `this` as described in the text. The code in the book works but you should not rely on the name of the variable an object is assigned to access that object's features.
 
 Use the following instead of Listing 4-37:
 
@@ -49,7 +49,6 @@ Use the following instead of Listing 4-38:
     };
     myData.printMessages();
 
-
 (Thanks to David Eisner for reporting this problem)
 
 ---
@@ -70,7 +69,7 @@ The code in Listing 11-13 does not work when the project has been created using 
         function reverseNames() {
             setNames(names => names.reverse());
         }
-        
+
         function promoteName(name) {
             setNames(names => [name, ...names.filter(val => val !== name)]);
         }
@@ -81,11 +80,11 @@ The code in Listing 11-13 does not work when the project has been created using 
                 <tr><th>#</th><th>Name</th><th>Letters</th></tr>
             </thead>
             <tbody>
-                { names.map((name, index) => 
+                { names.map((name, index) =>
                     <tr key={ name }>
-                    <Summary index={ index } name={ name } 
-                        reverseCallback={ reverseNames } 
-                        promoteCallback={ promoteName } 
+                    <Summary index={ index } name={ name }
+                        reverseCallback={ reverseNames }
+                        promoteCallback={ promoteName }
                         counter={counter}
                         incrementCallback={incrementCounter}
                     />

@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*J2EE FrontEnd Technologies*](http://www.apress.com/9781893115965) by Lennart Jorelid (Apress, 2002).
+This repository accompanies [_J2EE FrontEnd Technologies_](http://www.apress.com/9781893115965) by Lennart Jorelid (Apress, 2002).
 
 ![Cover image](9781893115965.jpg)
 

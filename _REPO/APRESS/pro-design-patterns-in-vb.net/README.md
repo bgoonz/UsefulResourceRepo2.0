@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*Professional Design Patterns in VB .NET*](http://www.apress.com/9781590592748) by Chaur Wu, Tom Fischer, Peter Stromquist, and John Slater (Apress, 2002).
+This repository accompanies [_Professional Design Patterns in VB .NET_](http://www.apress.com/9781590592748) by Chaur Wu, Tom Fischer, Peter Stromquist, and John Slater (Apress, 2002).
 
 ![Cover image](9781590592748.jpg)
 

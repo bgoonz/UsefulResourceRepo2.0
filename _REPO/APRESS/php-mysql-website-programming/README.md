@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*PHP MySQL Website Programming*](http://www.apress.com/9781590591505) by Dilip Thomas, Jessey Cinis, Chris Lea, and Michael Buzzard (Apress, 2002).
+This repository accompanies [_PHP MySQL Website Programming_](http://www.apress.com/9781590591505) by Dilip Thomas, Jessey Cinis, Chris Lea, and Michael Buzzard (Apress, 2002).
 
 ![Cover image](9781590591505.jpg)
 

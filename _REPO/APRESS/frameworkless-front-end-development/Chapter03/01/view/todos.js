@@ -1,42 +1,37 @@
-let template
+let template;
 
 const createNewTodoNode = () => {
   if (!template) {
-    template = document.getElementById('todo-item')
+    template = document.getElementById("todo-item");
   }
 
-  return template.content.firstElementChild.cloneNode(true)
-}
+  return template.content.firstElementChild.cloneNode(true);
+};
 
-const getTodoElement = todo => {
-  const {
-    text,
-    completed
-  } = todo
+const getTodoElement = (todo) => {
+  const { text, completed } = todo;
 
-  const element = createNewTodoNode()
+  const element = createNewTodoNode();
 
-  element.querySelector('input.edit').value = text
-  element.querySelector('label').textContent = text
+  element.querySelector("input.edit").value = text;
+  element.querySelector("label").textContent = text;
 
   if (completed) {
-    element.classList.add('completed')
-    element.querySelector('input.toggle').checked = true
+    element.classList.add("completed");
+    element.querySelector("input.toggle").checked = true;
   }
 
-  return element
-}
+  return element;
+};
 
 export default (targetElement, { todos }) => {
-  const newTodoList = targetElement.cloneNode(true)
+  const newTodoList = targetElement.cloneNode(true);
 
-  newTodoList.innerHTML = ''
+  newTodoList.innerHTML = "";
 
-  todos
-    .map(getTodoElement)
-    .forEach(element => {
-      newTodoList.appendChild(element)
-    })
+  todos.map(getTodoElement).forEach((element) => {
+    newTodoList.appendChild(element);
+  });
 
-  return newTodoList
-}
+  return newTodoList;
+};

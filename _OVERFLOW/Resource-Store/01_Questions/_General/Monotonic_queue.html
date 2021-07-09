@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Monotonic_queue</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="special-data-structure-monotonic-queue">special data structure: monotonic queue</h1>
+<p><strong>Author:<a href="https://github.com/labuladong">labuladong</a></strong></p>
+<p><strong>Translator:<a href="https://github.com/warmingkkk">warmingkkk</a></strong></p>
+<p>The previous article talked about a special data structure “monotonic stack”a type of problem “Next Greater Number” is solved. This article writes a similar data structure “monotonic queue”.</p>
+<p>Maybe you haven’t heard of the name of this data structure. In fact, it is not difficult. It is a “queue”, but it uses a clever method to make the elements in the queue monotonically increase (or decrease). What’s the use of this data structure? Can solve a series of problems with sliding windows.</p>
+<p>See a LeetCode title, 239 question，difficulty is hard：</p>
+<p><img src="../pictures/monotonic_queue/title.png" /></p>
+<h3 id="build-a-problem-solving-framewor">1, build a problem solving framewor</h3>
+<p>This problem is not complicated. The difficulty is how to calculate the maximum value in each “window” at O(1) time, so that the entire algorithm is completed in linear time.We discussed similar scenarios before and came to a conclusion:</p>
+<p>In a bunch of numbers,the best value is known,If you add a number to this bunch of numbers,you can quickly calculate the most value by comparing them,but if you reduce one number,you may not get the maximum vaue quickly,but you can have to go through all the numbers and find the maximum value again.</p>
+<p>Back to the scenario of this problem,as each window advances,you need to add a number and decrease one number,so if you want to get a new maximum value in O(1) time,you need a special “monotonic queue” data structure to assist.</p>
+<p>An ordinary queue must have these two operations:</p>
+<pre><code>class Queue {
+    void push(int n);
+    // or enqueue, adding element n to the end of the line
+    void pop();
+    // or dequeue, remove the leader element
+}</code></pre>
+<p>The operation of a “monotonic queue” is similar:</p>
+<pre><code>class MonotonicQueue {
+    // add element n to the end of the line
+    void push(int n);
+    // returns the maximum value in the current queue
+    int max();
+    // if the head element is n, delete it
+    void pop(int n);
+}</code></pre>
+<p>Of course, the implementation methods of these APIs are definitely different from the general Queue, but we leave them alone, and think that the time complexity of these operations is O (1), first answer this “sliding window” problem Frame out:</p>
+<pre><code>vector&lt;int&gt; maxSlidingWindow(vector&lt;int&gt;&amp; nums, int k) {
+    MonotonicQueue window;
+    vector&lt;int&gt; res;
+    for (int i = 0; i &lt; nums.size(); i++) {
+        if (i &lt; k - 1) { // fill the first k-1 of the window first
+            window.push(nums[i]);
+        } else { // the window begins to slide forward
+            window.push(nums[i]);
+            res.push_back(window.max());
+            window.pop(nums[i - k + 1]);
+            // nums[i - k + 1] is the last element of the window
+        }
+    }
+    return res;
+}</code></pre>
+<figure>
+<img src="../pictures/monotonic_queue/1.png" alt="图示" /><figcaption>图示</figcaption>
+</figure>
+<p>The idea is simple, understand? Below we start the highlight, the implementation of monotonic queues.</p>
+<h3 id="implementing-a-monotonic-queue-data-structure">2, Implementing a monotonic queue data structure</h3>
+<p>First we need to know another data structure: deque, which is a double-ended queue. It’s simple:</p>
+<pre><code>class deque {
+    // insert element n at the head of the team
+    void push_front(int n);
+    // insert element n at the end of the line
+    void push_back(int n);
+    // remove elements at the head of the team
+    void pop_front();
+    // remove element at the end of the line
+    void pop_back();
+    // returns the team head element
+    int front();
+    // returns the tail element
+    int back();
+}</code></pre>
+<p>Moreover, the complexity of these operations is O (1). This is actually not a rare data structure. If you use a linked list as the underlying structure, it is easy to implement these functions.</p>
+<p>The core idea of “monotonic queue” is similar to “monotonic stack”. The push method of the monotonic queue still adds elements to the end of the queue, but deletes the previous elements smaller than the new element:</p>
+<pre><code>class MonotonicQueue {
+private:
+    deque&lt;int&gt; data;
+public:
+    void push(int n) {
+        while (!data.empty() &amp;&amp; data.back() &lt; n) 
+            data.pop_back();
+        data.push_back(n);
+    }
+};</code></pre>
+<p>As you can imagine, adding the size of the number represents the weight of the person, squashing the underweight in front, and stopping until it encounters a larger magnitude.</p>
+<p><img src="../pictures/monotonic_queue/2.png" /></p>
+<p>If every element is added like this, the size of the elements in the monotonic queue will eventually decrease in a monotonic order, so our max () API can be written like this:</p>
+<pre><code>int max() {
+    return data.front();
+}</code></pre>
+<p>The pop () API deletes element n at the head of the queue, which is also very easy to write:</p>
+<pre><code>void pop(int n) {
+    if (!data.empty() &amp;&amp; data.front() == n)
+        data.pop_front();
+}</code></pre>
+<p>The reason to judge <code>data.front () == n</code> is because the queue head element n we want to delete may have been" squashed ", so we don’t need to delete it at this time:</p>
+<p><img src="../pictures/monotonic_queue/3.png" /></p>
+<p>At this point, the monotonous queue design is complete, look at the complete problem-solving code:</p>
+<pre><code>class MonotonicQueue {
+private:
+    deque&lt;int&gt; data;
+public:
+    void push(int n) {
+        while (!data.empty() &amp;&amp; data.back() &lt; n) 
+            data.pop_back();
+        data.push_back(n);
+    }
+    
+    int max() { return data.front(); }
+    
+    void pop(int n) {
+        if (!data.empty() &amp;&amp; data.front() == n)
+            data.pop_front();
+    }
+};
+
+vector&lt;int&gt; maxSlidingWindow(vector&lt;int&gt;&amp; nums, int k) {
+    MonotonicQueue window;
+    vector&lt;int&gt; res;
+    for (int i = 0; i &lt; nums.size(); i++) {
+        if (i &lt; k - 1) { // fill the first k-1 of the window first
+            window.push(nums[i]);
+        } else { // window slide forward
+            window.push(nums[i]);
+            res.push_back(window.max());
+            window.pop(nums[i - k + 1]);
+        }
+    }
+    return res;
+}</code></pre>
+<h3 id="algorithm-complexity-analysis">3, Algorithm complexity analysis</h3>
+<p>Readers may be wondering, while the push operation contains a while loop, the time complexity is not O (1), so the time complexity of this algorithm should not be linear time, right?</p>
+<p>The complexity of the push operation alone is not O (1), but the overall complexity of the algorithm is still O (N) linear time. To think of it this way, each element in nums is pushed_back and pop_back at most once, without any redundant operations, so the overall complexity is still O (N).</p>
+<p>The space complexity is very simple, which is the size of the window O (k).</p>
+<h3 id="final-conclusion">4, Final conclusion</h3>
+<p>Some readers may think that “monotonic queues” and “priority queues” are more similar, but they are actually very different.</p>
+<p>The monotonic queue maintains the monotonicity of the queue by deleting elements when adding elements, which is equivalent to extracting the monotonically increasing (or decreasing) part of a function; while the priority queue (binary heap) is equivalent to automatic sorting, the difference is large went.</p>
+<p>Hurry up and get LeetCode’s Question 239 ~</p>
+</body>
+</html>

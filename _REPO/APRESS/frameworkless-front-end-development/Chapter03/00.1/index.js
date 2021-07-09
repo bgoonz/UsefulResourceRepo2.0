@@ -1,10 +1,18 @@
-const button = document.querySelector('button')
-const div = document.querySelector('div')
+const button = document.querySelector("button");
+const div = document.querySelector("div");
 
-div.addEventListener('click', () => {
-  console.log('Div Clicked')
-}, false)
+div.addEventListener(
+  "click",
+  () => {
+    console.log("Div Clicked");
+  },
+  false
+);
 
-button.addEventListener('click', e => {
-  console.log('Button Clicked')
-}, false)
+button.addEventListener(
+  "click",
+  (e) => {
+    console.log("Button Clicked");
+  },
+  false
+);

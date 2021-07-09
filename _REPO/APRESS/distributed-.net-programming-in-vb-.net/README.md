@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*Distributed .NET Programming in VB .NET*](http://www.apress.com/9781590590683) by Tom Barnaby (Apress, 2002).
+This repository accompanies [_Distributed .NET Programming in VB .NET_](http://www.apress.com/9781590590683) by Tom Barnaby (Apress, 2002).
 
 ![Cover image](9781590590683.jpg)
 

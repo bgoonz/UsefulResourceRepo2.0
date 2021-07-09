@@ -1,79 +1,82 @@
-export default state => {
-  const addItem = text => {
+export default (state) => {
+  const addItem = (text) => {
     if (!text) {
-      return
+      return;
     }
 
-    state.todos = [...state.todos, {
-      text,
-      completed: false
-    }]
-  }
+    state.todos = [
+      ...state.todos,
+      {
+        text,
+        completed: false,
+      },
+    ];
+  };
 
   const updateItem = (index, text) => {
     if (!text) {
-      return
+      return;
     }
 
     if (index < 0) {
-      return
+      return;
     }
 
     if (!state.todos[index]) {
-      return
+      return;
     }
 
     state.todos = state.todos.map((todo, i) => {
       if (i === index) {
-        todo.text = text
+        todo.text = text;
       }
-      return todo
-    })
-  }
+      return todo;
+    });
+  };
 
-  const deleteItem = index => {
+  const deleteItem = (index) => {
     if (index < 0) {
-      return
+      return;
     }
 
     if (!state.todos[index]) {
-      return
+      return;
     }
 
-    state.todos = state.todos.filter((todo, i) => i !== index)
-  }
+    state.todos = state.todos.filter((todo, i) => i !== index);
+  };
 
-  const toggleItemCompleted = index => {
+  const toggleItemCompleted = (index) => {
     if (index < 0) {
-      return
+      return;
     }
 
     if (!state.todos[index]) {
-      return
+      return;
     }
 
     state.todos = state.todos.map((todo, i) => {
       if (i === index) {
-        todo.completed = !todo.completed
+        todo.completed = !todo.completed;
       }
-      return todo
-    })
-  }
+      return todo;
+    });
+  };
 
   const completeAll = () => {
     state.todos = state.todos.map((todo, i) => {
-      todo.completed = true
-      return todo
-    })
-  }
+      todo.completed = true;
+      return todo;
+    });
+  };
 
   const clearCompleted = () => {
-    state.todos = state.todos.filter(t => !t.completed)
-  }
+    state.todos = state.todos.filter((t) => !t.completed);
+  };
 
-  const changeFilter = filter => {
-    state.currentFilter = filter
-  }
+  const changeFilter = (filter) => {
+    state.currentFilter = filter;
+  };
 
   return {
     addItem,
@@ -82,6 +85,6 @@ export default state => {
     toggleItemCompleted,
     completeAll,
     clearCompleted,
-    changeFilter
-  }
-}
+    changeFilter,
+  };
+};

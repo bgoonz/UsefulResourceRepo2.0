@@ -11,7 +11,6 @@
     "type": "git",
     "url": "git+https://github.com/bgoonz/blog-templates.git"
   },
-  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/bgoonz/blog-templates/issues"

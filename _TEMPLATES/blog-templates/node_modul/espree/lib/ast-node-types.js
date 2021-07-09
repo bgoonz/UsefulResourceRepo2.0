@@ -1,6 +1,5 @@
 /**
  * @fileoverview The AST node types produced by the parser.
- * @author Nicholas C. Zakas
  */
 
 "use strict";

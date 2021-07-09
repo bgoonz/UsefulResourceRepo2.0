@@ -1,79 +1,82 @@
 const addItem = (state, event) => {
-  const text = event.payload
+  const text = event.payload;
   if (!text) {
-    return state
+    return state;
   }
 
-  return [...state, {
-    text,
-    completed: false
-  }]
-}
+  return [
+    ...state,
+    {
+      text,
+      completed: false,
+    },
+  ];
+};
 
 const updateItem = (state, event) => {
-  const { text, index } = event.payload
+  const { text, index } = event.payload;
   if (!text) {
-    return state
+    return state;
   }
 
   if (index < 0) {
-    return state
+    return state;
   }
 
   if (!state[index]) {
-    return state
+    return state;
   }
 
   return state.map((todo, i) => {
     if (i === index) {
-      todo.text = text
+      todo.text = text;
     }
-    return todo
-  })
-}
+    return todo;
+  });
+};
 
 const deleteItem = (state, event) => {
-  const index = event.payload
+  const index = event.payload;
   if (index < 0) {
-    return state
+    return state;
   }
 
   if (!state[index]) {
-    return state
+    return state;
   }
 
-  return state.filter((todo, i) => i !== index)
-}
+  return state.filter((todo, i) => i !== index);
+};
 
 const toggleItemCompleted = (state, event) => {
-  const index = event.payload
+  const index = event.payload;
 
   if (index < 0) {
-    return state
+    return state;
   }
 
   if (!state[index]) {
-    return state
+    return state;
   }
 
   return state.map((todo, i) => {
     if (i === index) {
-      todo.completed = !todo.completed
+      todo.completed = !todo.completed;
     }
-    return todo
-  })
-}
+    return todo;
+  });
+};
 
 const completeAll = (state, event) => {
   return state.map((todo, i) => {
-    todo.completed = true
-    return todo
-  })
-}
+    todo.completed = true;
+    return todo;
+  });
+};
 
 const clearCompleted = (state, event) => {
-  return state.filter(t => !t.completed)
-}
+  return state.filter((t) => !t.completed);
+};
 
 const modifiers = {
   ITEM_ADDED: addItem,
@@ -81,19 +84,19 @@ const modifiers = {
   ITEM_DELETED: deleteItem,
   ITEMS_COMPLETED_TOGGLED: toggleItemCompleted,
   ITEMS_MARKED_AS_COMPLETED: completeAll,
-  COMPLETED_ITEM_DELETED: clearCompleted
-}
+  COMPLETED_ITEM_DELETED: clearCompleted,
+};
 
 export default (prevState, event) => {
   if (!event) {
-    return []
+    return [];
   }
 
-  const currentModifier = modifiers[event.type]
+  const currentModifier = modifiers[event.type];
 
   if (!currentModifier) {
-    return prevState
+    return prevState;
   }
 
-  return currentModifier(prevState, event)
-}
+  return currentModifier(prevState, event);
+};

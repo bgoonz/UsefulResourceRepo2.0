@@ -1,7 +1,6 @@
 /**
  * Copyright (c) 2007-2013 Ariel Flesler - aflesler<a>gmail<d>com | http://flesler.blogspot.com
  * Dual licensed under MIT and GPL.
- * @author Ariel Flesler
  * @version 1.4.6
  */
 (function ($) {

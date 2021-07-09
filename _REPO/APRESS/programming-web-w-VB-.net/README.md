@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*Programming the Web with Visual Basic .NET*](http://www.apress.com/9781590590270) by Constance Petersen and Lynn Torkelson (Apress, 2002).
+This repository accompanies [_Programming the Web with Visual Basic .NET_](http://www.apress.com/9781590590270) by Constance Petersen and Lynn Torkelson (Apress, 2002).
 
 ![Cover image](9781590590270.jpg)
 

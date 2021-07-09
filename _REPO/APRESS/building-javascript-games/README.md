@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*Building JavaScript Games*](http://www.apress.com/9781430265382) by Arjan Egges (Apress, 2014).
+This repository accompanies [_Building JavaScript Games_](http://www.apress.com/9781430265382) by Arjan Egges (Apress, 2014).
 
 ![Cover image](9781430265382.jpg)
 

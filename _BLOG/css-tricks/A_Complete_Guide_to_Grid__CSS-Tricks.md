@@ -4,13 +4,13 @@ Reference this guide a lot? Pin a copy up on the office wall.
 
 [![](https://i2.wp.com/css-tricks.com/wp-content/uploads/2020/06/43150-3-1.jpg?resize=1024%2C1024&ssl=1)](https://css-tricks.com/product/css-grid-poster/)
 
-------------------------------------------------------------------------
+---
 
 ### Introduction
 
 CSS Grid Layout (aka “Grid”), is a two-dimensional grid-based layout system that aims to do nothing less than completely change the way we design grid-based user interfaces. CSS has always been used to lay out our web pages, but it’s never done a very good job of it. First, we used tables, then floats, positioning and inline-block, but all of these methods were essentially hacks and left out a lot of important functionality (vertical centering, for instance). Flexbox helped out, but it’s intended for simpler one-dimensional layouts, not complex two-dimensional ones (Flexbox and Grid actually work very well together). Grid is the very first CSS module created specifically to solve the layout problems we’ve all been hacking our way around for as long as we’ve been making websites.
 
-There are two primary things that inspired me to create this guide. The first is Rachel Andrew’s awesome book, [*Get Ready for CSS Grid Layout*.](https://abookapart.com/products/get-ready-for-css-grid-layout) It’s a thorough, clear introduction to Grid and is the basis of this entire article. I *highly* encourage you to buy it and read it. My other big inspiration is Chris Coyier’s [“A Complete Guide to Flexbox](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)” which has been my go-to resource for everything flexbox. It’s helped a ton of people, evident by the fact that it’s the top result when you Google “flexbox.” You’ll notice many similarities between his post and mine, because why not steal from the best?
+There are two primary things that inspired me to create this guide. The first is Rachel Andrew’s awesome book, [_Get Ready for CSS Grid Layout_.](https://abookapart.com/products/get-ready-for-css-grid-layout) It’s a thorough, clear introduction to Grid and is the basis of this entire article. I _highly_ encourage you to buy it and read it. My other big inspiration is Chris Coyier’s [“A Complete Guide to Flexbox](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)” which has been my go-to resource for everything flexbox. It’s helped a ton of people, evident by the fact that it’s the top result when you Google “flexbox.” You’ll notice many similarities between his post and mine, because why not steal from the best?
 
 My intention with this guide is to present the Grid concepts as they exist in the very latest version of the specification. So I won’t be covering the out of date Internet Explorer syntax, and I’ll do my best to update this guide regularly as the spec matures.
 
@@ -124,8 +124,8 @@ Defines the element as a grid container and establishes a new grid formatting co
 
 Values:
 
--   **`grid`** – generates a block-level grid
--   **`inline-grid`** – generates an inline-level grid
+- **`grid`** – generates a block-level grid
+- **`inline-grid`** – generates an inline-level grid
 
 <!-- -->
 
@@ -143,8 +143,8 @@ Defines the columns and rows of the grid with a space-separated list of values. 
 
 Values:
 
--   **`<track-size>`** – can be a length, a percentage, or a fraction of the free space in the grid (using the `[fr](https://css-tricks.com/snippets/css/complete-guide-grid/#fr-unit)` unit)
--   **`<line-name>`** – an arbitrary name of your choosing
+- **`<track-size>`** – can be a length, a percentage, or a fraction of the free space in the grid (using the `[fr](https://css-tricks.com/snippets/css/complete-guide-grid/#fr-unit)` unit)
+- **`<line-name>`** – an arbitrary name of your choosing
 
 <!-- -->
 
@@ -203,7 +203,7 @@ The `fr` unit allows you to set the size of a track as a fraction of the free sp
       grid-template-columns: 1fr 1fr 1fr;
     }
 
-The free space is calculated *after* any non-flexible items. In this example the total amount of free space available to the `fr` units doesn’t include the 50px:
+The free space is calculated _after_ any non-flexible items. In this example the total amount of free space available to the `fr` units doesn’t include the 50px:
 
     .container {
       grid-template-columns: 1fr 50px 1fr 1fr;
@@ -215,9 +215,9 @@ Defines a grid template by referencing the names of the grid areas which are spe
 
 Values:
 
--   **`<grid-area-name>`** – the name of a grid area specified with [`grid-area`](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-area)
--   **`.`** – a period signifies an empty grid cell
--   **`none`** – no grid areas are defined
+- **`<grid-area-name>`** – the name of a grid area specified with [`grid-area`](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-area)
+- **`.`** – a period signifies an empty grid cell
+- **`none`** – no grid areas are defined
 
 <!-- -->
 
@@ -260,7 +260,7 @@ Each row in your declaration needs to have the same number of cells.
 
 You can use any number of adjacent periods to declare a single empty cell. As long as the periods have no spaces between them they represent a single cell.
 
-Notice that you’re not naming lines with this syntax, just areas. When you use this syntax the lines on either end of the areas are actually getting named automatically. If the name of your grid area is ***foo***, the name of the area’s starting row line and starting column line will be ***foo*-start**, and the name of its last row line and last column line will be ***foo*-end**. This means that some lines might have multiple names, such as the far left line in the above example, which will have three names: header-start, main-start, and footer-start.
+Notice that you’re not naming lines with this syntax, just areas. When you use this syntax the lines on either end of the areas are actually getting named automatically. If the name of your grid area is **_foo_**, the name of the area’s starting row line and starting column line will be **_foo_-start**, and the name of its last row line and last column line will be **_foo_-end**. This means that some lines might have multiple names, such as the far left line in the above example, which will have three names: header-start, main-start, and footer-start.
 
 ##### grid-template
 
@@ -268,8 +268,8 @@ A shorthand for setting `[grid-template-rows](https://css-tricks.com/snippets/cs
 
 Values:
 
--   **`none`** – sets all three properties to their initial values
--   **`<grid-template-rows>` / `<grid-template-columns`&gt;** – sets `[grid-template-columns](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-template-columns-rows)` and `[grid-template-rows](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-template-columns-rows)` to the specified values, respectively, and sets `[grid-template-areas](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-template-areas)` to `none`
+- **`none`** – sets all three properties to their initial values
+- **`<grid-template-rows>` / `<grid-template-columns`&gt;** – sets `[grid-template-columns](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-template-columns-rows)` and `[grid-template-rows](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-template-columns-rows)` to the specified values, respectively, and sets `[grid-template-areas](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-template-areas)` to `none`
 
 <!-- -->
 
@@ -296,7 +296,7 @@ That’s equivalent to this:
         "footer footer footer";
     }
 
-Since `grid-template` doesn’t reset the *implicit* grid properties (`[grid-auto-columns](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-columns-rows)`, `[grid-auto-rows](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-columns-rows)`, and `[grid-auto-flow](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-flow)`), which is probably what you want to do in most cases, it’s recommended to use the `[grid](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid)` property instead of `grid-template`.
+Since `grid-template` doesn’t reset the _implicit_ grid properties (`[grid-auto-columns](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-columns-rows)`, `[grid-auto-rows](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-columns-rows)`, and `[grid-auto-flow](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-flow)`), which is probably what you want to do in most cases, it’s recommended to use the `[grid](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid)` property instead of `grid-template`.
 
 ##### column-gap
 
@@ -308,7 +308,7 @@ Specifies the size of the grid lines. You can think of it like setting the width
 
 Values:
 
--   **`<line-size>`** – a length value
+- **`<line-size>`** – a length value
 
 <!-- -->
 
@@ -333,7 +333,7 @@ Example:
 
 ![Example of grid-column-gap and grid-row-gap](https://css-tricks.com/wp-content/uploads/2018/11/dddgrid-gap.svg)
 
-The gutters are only created *between* the columns/rows, not on the outer edges.
+The gutters are only created _between_ the columns/rows, not on the outer edges.
 
 Note: The `grid-` prefix will be removed and `grid-column-gap` and `grid-row-gap` renamed to `column-gap` and `row-gap`. The unprefixed properties are already supported in Chrome 68+, Safari 11.2 Release 50+ and Opera 54+.
 
@@ -345,7 +345,7 @@ A shorthand for `[row-gap](https://css-tricks.com/snippets/css/complete-guide-gr
 
 Values:
 
--   **`<grid-row-gap>` `<grid-column-gap>`** – length values
+- **`<grid-row-gap>` `<grid-column-gap>`** – length values
 
 <!-- -->
 
@@ -371,14 +371,14 @@ If no `[row-gap](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-g
 
 ##### justify-items
 
-Aligns grid items along the *inline (row)* axis (as opposed to `[align-items](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-align-items)` which aligns along the *block (column)* axis). This value applies to all grid items inside the container.
+Aligns grid items along the _inline (row)_ axis (as opposed to `[align-items](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-align-items)` which aligns along the _block (column)_ axis). This value applies to all grid items inside the container.
 
 Values:
 
--   **`start`** – aligns items to be flush with the start edge of their cell
--   **`end`** – aligns items to be flush with the end edge of their cell
--   **`center`** – aligns items in the center of their cell
--   **`stretch`** – fills the whole width of the cell (this is the default)
+- **`start`** – aligns items to be flush with the start edge of their cell
+- **`end`** – aligns items to be flush with the end edge of their cell
+- **`center`** – aligns items in the center of their cell
+- **`stretch`** – fills the whole width of the cell (this is the default)
 
 <!-- -->
 
@@ -416,14 +416,14 @@ This behavior can also be set on individual grid items via the `[justify-self](h
 
 ##### align-items
 
-Aligns grid items along the *block (column)* axis (as opposed to `[justify-items](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-justify-items)` which aligns along the *inline (row)* axis). This value applies to all grid items inside the container.
+Aligns grid items along the _block (column)_ axis (as opposed to `[justify-items](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-justify-items)` which aligns along the _inline (row)_ axis). This value applies to all grid items inside the container.
 
 Values:
 
--   **`start`** – aligns items to be flush with the start edge of their cell
--   **`end`** – aligns items to be flush with the end edge of their cell
--   **`center`** – aligns items in the center of their cell
--   **`stretch`** – fills the whole height of the cell (this is the default)
+- **`start`** – aligns items to be flush with the start edge of their cell
+- **`end`** – aligns items to be flush with the end edge of their cell
+- **`center`** – aligns items in the center of their cell
+- **`stretch`** – fills the whole height of the cell (this is the default)
 
 <!-- -->
 
@@ -465,7 +465,7 @@ This behavior can also be set on individual grid items via the `[align-self](htt
 
 Values:
 
--   **`<align-items>` / `<justify-items>`** – The first value sets `align-items`, the second value `justify-items`. If the second value is omitted, the first value is assigned to both properties.
+- **`<align-items>` / `<justify-items>`** – The first value sets `align-items`, the second value `justify-items`. If the second value is omitted, the first value is assigned to both properties.
 
 All major browsers except Edge support the `place-items` shorthand property.
 
@@ -477,7 +477,7 @@ For more details, see [`align-items`](https://css-tricks.com/snippets/css/comple
 
 Values:
 
--   **`<align-content>` / `<justify-content>`** – The first value sets `align-content`, the second value `justify-content`. If the second value is omitted, the first value is assigned to both properties.
+- **`<align-content>` / `<justify-content>`** – The first value sets `align-content`, the second value `justify-content`. If the second value is omitted, the first value is assigned to both properties.
 
 All major browsers except Edge support the `place-content` shorthand property.
 
@@ -487,11 +487,11 @@ For more details, see [`align-content`](https://css-tricks.com/snippets/css/comp
 
 grid-auto-rows
 
-Specifies the size of any auto-generated grid tracks (aka *implicit grid tracks*). Implicit tracks get created when there are more grid items than cells in the grid or when a grid item is placed outside of the explicit grid. (see [The Difference Between Explicit and Implicit Grids](https://css-tricks.com/difference-explicit-implicit-grids/))
+Specifies the size of any auto-generated grid tracks (aka _implicit grid tracks_). Implicit tracks get created when there are more grid items than cells in the grid or when a grid item is placed outside of the explicit grid. (see [The Difference Between Explicit and Implicit Grids](https://css-tricks.com/difference-explicit-implicit-grids/))
 
 Values:
 
--   **`<track-size>`** – can be a length, a percentage, or a fraction of the free space in the grid (using the `[fr](https://css-tricks.com/snippets/css/complete-guide-grid/#fr-unit)` unit)
+- **`<track-size>`** – can be a length, a percentage, or a fraction of the free space in the grid (using the `[fr](https://css-tricks.com/snippets/css/complete-guide-grid/#fr-unit)` unit)
 
 <!-- -->
 
@@ -524,7 +524,7 @@ But now imagine you use `[grid-column](https://css-tricks.com/snippets/css/compl
 
 ![Example of implicit tracks](https://css-tricks.com/wp-content/uploads/2018/11/grid-auto-columns-rows-02.svg)
 
-We told .item-b to start on column line 5 and end at column line 6, *but we never defined a column line 5 or 6*. Because we referenced lines that don’t exist, implicit tracks with widths of 0 are created to fill in the gaps. We can use `[grid-auto-columns](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-columns-rows)` and `[grid-auto-rows](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-columns-rows)` to specify the widths of these implicit tracks:
+We told .item-b to start on column line 5 and end at column line 6, _but we never defined a column line 5 or 6_. Because we referenced lines that don’t exist, implicit tracks with widths of 0 are created to fill in the gaps. We can use `[grid-auto-columns](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-columns-rows)` and `[grid-auto-rows](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-columns-rows)` to specify the widths of these implicit tracks:
 
     .container {
       grid-auto-columns: 60px;
@@ -534,13 +534,13 @@ We told .item-b to start on column line 5 and end at column line 6, *but we neve
 
 ##### grid-auto-flow
 
-If you have grid items that you don’t explicitly place on the grid, the *auto-placement algorithm* kicks in to automatically place the items. This property controls how the auto-placement algorithm works.
+If you have grid items that you don’t explicitly place on the grid, the _auto-placement algorithm_ kicks in to automatically place the items. This property controls how the auto-placement algorithm works.
 
 Values:
 
--   **`row`** – tells the auto-placement algorithm to fill in each row in turn, adding new rows as necessary (default)
--   **`column`** – tells the auto-placement algorithm to fill in each column in turn, adding new columns as necessary
--   **`dense`** – tells the auto-placement algorithm to attempt to fill in holes earlier in the grid if smaller items come up later
+- **`row`** – tells the auto-placement algorithm to fill in each row in turn, adding new rows as necessary (default)
+- **`column`** – tells the auto-placement algorithm to fill in each column in turn, adding new columns as necessary
+- **`dense`** – tells the auto-placement algorithm to attempt to fill in holes earlier in the grid if smaller items come up later
 
 <!-- -->
 
@@ -603,10 +603,10 @@ A shorthand for setting all of the following properties in a single declaration:
 
 Values:
 
--   **`none`** – sets all sub-properties to their initial values.
--   **`<grid-template>`** – works the same as the `[grid-template](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-template)` shorthand.
--   **`<grid-template-rows> / [ auto-flow && dense? ] <grid-auto-columns>?`** – sets `[grid-template-rows](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-template-columns-rows)` to the specified value. If the `auto-flow` keyword is to the right of the slash, it sets `[grid-auto-flow](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-flow)` to `column`. If the `dense` keyword is specified additionally, the auto-placement algorithm uses a “dense” packing algorithm. If `[grid-auto-columns](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-columns-rows)` is omitted, it is set to `auto`.
--   **`[ auto-flow && dense? ] <grid-auto-rows>? / <grid-template-columns>`** – sets `[grid-template-columns](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-template-columns-rows)` to the specified value. If the `auto-flow` keyword is to the left of the slash, it sets `[grid-auto-flow](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-flow)` to `row`. If the `dense` keyword is specified additionally, the auto-placement algorithm uses a “dense” packing algorithm. If `[grid-auto-rows](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-columns-rows)` is omitted, it is set to `auto`.
+- **`none`** – sets all sub-properties to their initial values.
+- **`<grid-template>`** – works the same as the `[grid-template](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-template)` shorthand.
+- **`<grid-template-rows> / [ auto-flow && dense? ] <grid-auto-columns>?`** – sets `[grid-template-rows](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-template-columns-rows)` to the specified value. If the `auto-flow` keyword is to the right of the slash, it sets `[grid-auto-flow](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-flow)` to `column`. If the `dense` keyword is specified additionally, the auto-placement algorithm uses a “dense” packing algorithm. If `[grid-auto-columns](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-columns-rows)` is omitted, it is set to `auto`.
+- **`[ auto-flow && dense? ] <grid-auto-rows>? / <grid-template-columns>`** – sets `[grid-template-columns](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-template-columns-rows)` to the specified value. If the `auto-flow` keyword is to the left of the slash, it sets `[grid-auto-flow](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-flow)` to `row`. If the `dense` keyword is specified additionally, the auto-placement algorithm uses a “dense” packing algorithm. If `[grid-auto-rows](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-auto-columns-rows)` is omitted, it is set to `auto`.
 
 Examples:
 
@@ -691,10 +691,10 @@ Determines a grid item’s location within the grid by referring to specific gri
 
 Values:
 
--   **`<line>`** – can be a number to refer to a numbered grid line, or a name to refer to a named grid line
--   `**span <number>** - the item will span across the provided number of grid tracks`
--   `**span <name>**` – the item will span across until it hits the next line with the provided name
--   **`auto`** – indicates auto-placement, an automatic span, or a default span of one
+- **`<line>`** – can be a number to refer to a numbered grid line, or a name to refer to a named grid line
+- `**span <number>** - the item will span across the provided number of grid tracks`
+- `**span <name>**` – the item will span across until it hits the next line with the provided name
+- **`auto`** – indicates auto-placement, an automatic span, or a default span of one
 
 <!-- -->
 
@@ -737,7 +737,7 @@ Shorthand for `[grid-column-start](https://css-tricks.com/snippets/css/complete-
 
 Values:
 
--   **`<start-line>` / `<end-line>`** – each one accepts all the same values as the longhand version, including span
+- **`<start-line>` / `<end-line>`** – each one accepts all the same values as the longhand version, including span
 
 <!-- -->
 
@@ -763,8 +763,8 @@ Gives an item a name so that it can be referenced by a template created with the
 
 Values:
 
--   **`<name>`** – a name of your choosing
--   **`<row-start>` / `<column-start>` / `<row-end>` / `<column-end>`** – can be numbers or named lines
+- **`<name>`** – a name of your choosing
+- **`<row-start>` / `<column-start>` / `<row-end>` / `<column-end>`** – can be numbers or named lines
 
 <!-- -->
 
@@ -790,14 +790,14 @@ As the short-shorthand for `[grid-row-start](https://css-tricks.com/snippets/css
 
 ##### justify-self
 
-Aligns a grid item inside a cell along the *inline (row)* axis (as opposed to `[align-self](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-align-self)` which aligns along the *block (column)* axis). This value applies to a grid item inside a single cell.
+Aligns a grid item inside a cell along the _inline (row)_ axis (as opposed to `[align-self](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-align-self)` which aligns along the _block (column)_ axis). This value applies to a grid item inside a single cell.
 
 Values:
 
--   **`start`** – aligns the grid item to be flush with the start edge of the cell
--   **`end`** – aligns the grid item to be flush with the end edge of the cell
--   **`center`** – aligns the grid item in the center of the cell
--   **`stretch`** – fills the whole width of the cell (this is the default)
+- **`start`** – aligns the grid item to be flush with the start edge of the cell
+- **`end`** – aligns the grid item to be flush with the end edge of the cell
+- **`center`** – aligns the grid item in the center of the cell
+- **`stretch`** – fills the whole width of the cell (this is the default)
 
 <!-- -->
 
@@ -831,18 +831,18 @@ Examples:
 
 ![Example of justify-self set to stretch](https://css-tricks.com/wp-content/uploads/2018/11/justify-self-stretch.svg)
 
-To set alignment for *all* the items in a grid, this behavior can also be set on the grid container via the `[justify-items](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-justify-items)` property.
+To set alignment for _all_ the items in a grid, this behavior can also be set on the grid container via the `[justify-items](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-justify-items)` property.
 
 ##### align-self
 
-Aligns a grid item inside a cell along the *block (column)* axis (as opposed to `[justify-self](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-justify-self)` which aligns along the *inline (row)* axis). This value applies to the content inside a single grid item.
+Aligns a grid item inside a cell along the _block (column)_ axis (as opposed to `[justify-self](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-justify-self)` which aligns along the _inline (row)_ axis). This value applies to the content inside a single grid item.
 
 Values:
 
--   **`start`** – aligns the grid item to be flush with the start edge of the cell
--   **`end`** – aligns the grid item to be flush with the end edge of the cell
--   **`center`** – aligns the grid item in the center of the cell
--   **`stretch`** – fills the whole height of the cell (this is the default)
+- **`start`** – aligns the grid item to be flush with the start edge of the cell
+- **`end`** – aligns the grid item to be flush with the end edge of the cell
+- **`center`** – aligns the grid item in the center of the cell
+- **`stretch`** – fills the whole height of the cell (this is the default)
 
 <!-- -->
 
@@ -876,7 +876,7 @@ Examples:
 
 ![Example of align-self set to stretch](https://css-tricks.com/wp-content/uploads/2018/11/align-self-stretch.svg)
 
-To align *all* the items in a grid, this behavior can also be set on the grid container via the `[align-items](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-align-items)` property.
+To align _all_ the items in a grid, this behavior can also be set on the grid container via the `[align-items](https://css-tricks.com/snippets/css/complete-guide-grid/#prop-align-items)` property.
 
 ##### place-self
 
@@ -884,8 +884,8 @@ To align *all* the items in a grid, this behavior can also be set on the grid co
 
 Values:
 
--   **`auto`** – The “default” alignment for the layout mode.
--   **`<align-self>` / `<justify-self>`** – The first value sets `align-self`, the second value `justify-self`. If the second value is omitted, the first value is assigned to both properties.
+- **`auto`** – The “default” alignment for the layout mode.
+- **`<align-self>` / `<justify-self>`** – The first value sets `align-self`, the second value `justify-self`. If the second value is omitted, the first value is assigned to both properties.
 
 Examples:
 
@@ -905,10 +905,10 @@ All major browsers except Edge support the `place-self` shorthand property.
 
 ### Special functions and keywords
 
--   When sizing rows and columns, you can use all the [lengths](https://css-tricks.com/the-lengths-of-css/) you are used to, like `px`, rem, %, etc, but you also have keywords like `min-content`, `max-content`, `auto`, and perhaps the most useful, fractional units. `grid-template-columns: 200px 1fr 2fr min-content;`
--   You also have access to a function which can help set boundaries for otherwise flexible units. For example to set a column to be 1fr, but shrink no further than 200px: `grid-template-columns: 1fr minmax(200px, 1fr);`
--   There is `repeat()` function, which saves some typing, like making 10 columns: `grid-template-columns: repeat(10, 1fr);`
--   Combining all of these things can be extremely powerful, like `grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));` See the demo at the top of the page about “The Most Powerful Lines in Grid”.
+- When sizing rows and columns, you can use all the [lengths](https://css-tricks.com/the-lengths-of-css/) you are used to, like `px`, rem, %, etc, but you also have keywords like `min-content`, `max-content`, `auto`, and perhaps the most useful, fractional units. `grid-template-columns: 200px 1fr 2fr min-content;`
+- You also have access to a function which can help set boundaries for otherwise flexible units. For example to set a column to be 1fr, but shrink no further than 200px: `grid-template-columns: 1fr minmax(200px, 1fr);`
+- There is `repeat()` function, which saves some typing, like making 10 columns: `grid-template-columns: repeat(10, 1fr);`
+- Combining all of these things can be extremely powerful, like `grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));` See the demo at the top of the page about “The Most Powerful Lines in Grid”.
 
 ### Fluid columns snippet
 
@@ -928,8 +928,8 @@ Fluid width columns that break into more or less columns as space is available, 
 
 According to the CSS Grid Layout Module Level 1 specification, there are 5 animatable grid properties:
 
--   `grid-gap`, `grid-row-gap`, `grid-column-gap` as length, percentage, or calc.
--   `grid-template-columns`, `grid-template-rows` as a simple list of length, percentage, or calc, provided the only differences are the values of the length, percentage, or calc components in the list.
+- `grid-gap`, `grid-row-gap`, `grid-column-gap` as length, percentage, or calc.
+- `grid-template-columns`, `grid-template-rows` as a simple list of length, percentage, or calc, provided the only differences are the values of the length, percentage, or calc components in the list.
 
 As of this writing, only the animation of `(grid-)gap`, `(grid-)row-gap`, `(grid-)column-gap` is implemented in any of the tested browsers.
 

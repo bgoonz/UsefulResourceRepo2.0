@@ -1,5 +1,4 @@
-Basic routing
-=============
+# Basic routing
 
 *Routing* refers to determining how an application responds to a client request to a particular endpoint, which is a URI (or path) and a specific HTTP request method (GET, POST, and so on).
 
@@ -14,10 +13,10 @@ app.METHOD(PATH, HANDLER)
 
 Where:
 
--   `app` is an instance of `express`.
--   `METHOD` is an [HTTP request method](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods), in lowercase.
--   `PATH` is a path on the server.
--   `HANDLER` is the function executed when the route is matched.
+- `app` is an instance of `express`.
+- `METHOD` is an [HTTP request method](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods), in lowercase.
+- `PATH` is a path on the server.
+- `HANDLER` is the function executed when the route is matched.
 
 This tutorial assumes that an instance of `express` named `app` is created and the server is running. If you are not familiar with creating an app and starting it, see the [Hello world example](https://expressjs.com/en/starter/hello-world.html).
 

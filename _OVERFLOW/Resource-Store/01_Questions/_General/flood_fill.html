@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>flood_fill</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="analysis-and-application-of-floodfill-algorithm">Analysis and Application of FloodFill Algorithm</h1>
+<p><strong>Translator: <a href="https://github.com/youyun">youyun</a></strong></p>
+<p><strong>Author: <a href="https://github.com/labuladong">labuladong</a></strong></p>
+<p>What is the FloodFill algorithm? A real-life example is color filling. In the default Windows application <em>Paint</em>, using the bucket icon, we can fill the selected area with a color.</p>
+<figure>
+<img src="../pictures/floodfill/floodfill.gif" alt="floodfill" /><figcaption>floodfill</figcaption>
+</figure>
+<p>There are other applications of the FloodFill algorithm. Another example would be Minesweeper. Sometimes when you click on a tile, an area will expand out. The process of expansion is implemented through the FloodFill algorithm.</p>
+<figure>
+<img src="../pictures/floodfill/minesweeper.png" alt="Minesweeper" /><figcaption>Minesweeper</figcaption>
+</figure>
+<p>Similarly, those puzzle-matching games such as Candy Crush also use the FloodFill algorithm to remove blocks of the same color.</p>
+<figure>
+<img src="../pictures/floodfill/xiaoxiaole.jpg" alt="xiaoxiaole" /><figcaption>xiaoxiaole</figcaption>
+</figure>
+<p>Now you should have some idea about the FloodFill algorithm. Let’s abstract out the problems and find out what is common.</p>
+<h3 id="build-framework">1. Build Framework</h3>
+<p>All above examples can be abstract as a 2D array. In fact, a picture is an array of pixels. We take an element as the starting point and expand till the end.</p>
+<p>An array can be further abstracted as a graph. Hence, the problem becomes about traversing a graph, similar to traversing an N-ary tree. A few lines of code are enough to resolve the problem. Here is the framework:</p>
+<pre><code>// (x, y) represents the coordinate
+void fill(int x, int y) {
+    fill(x - 1, y); // up
+    fill(x + 1, y); // down
+    fill(x, y - 1); // left
+    fill(x, y + 1); // right
+}</code></pre>
+<p>Using this framework, we can resolve all problems about traversing a 2D array. The concept is also called Depth First Search (DFS), or quaternary (4-ary) tree traversal. The root node is coordinate (x, y). Its four child nodes are at root’s four directions.</p>
+<p>Let’s take a look at <a href="https://leetcode.com/problems/flood-fill/">a LeetCode problem</a>. It’s actually just a color fill function.</p>
+<figure>
+<img src="../pictures/floodfill/leetcode_en.jpg" alt="title" /><figcaption>title</figcaption>
+</figure>
+<p>In <a href="">another article</a>, we discussed a generic design of tree related algorithms. We can apply the concept here:</p>
+<pre><code>int[][] floodFill(int[][] image,
+        int sr, int sc, int newColor) {
+
+    int origColor = image[sr][sc];
+    fill(image, sr, sc, origColor, newColor);
+    return image;
+}
+
+void fill(int[][] image, int x, int y,
+        int origColor, int newColor) {
+    // OUT: out of index
+    if (!inArea(image, x, y)) return;
+    // CLASH: meet other colors, beyond the area of origColor
+    if (image[x][y] != origColor) return;
+    image[x][y] = newColor;
+    
+    fill(image, x, y + 1, origColor, newColor);
+    fill(image, x, y - 1, origColor, newColor);
+    fill(image, x - 1, y, origColor, newColor);
+    fill(image, x + 1, y, origColor, newColor);
+}
+
+boolean inArea(int[][] image, int x, int y) {
+    return x &gt;= 0 &amp;&amp; x &lt; image.length
+        &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; image[0].length;
+}</code></pre>
+<p>If you can understand this block of code, you are almost there! It means that you have honed the mindset of framework. This block of code can cover 99% of cases. There is only one tiny problem to be resolved: an infinite loop will happen if <code>origColor</code> is the same as <code>newColor</code>.</p>
+<h3 id="pay-attention-to-details">2. Pay Attention to Details</h3>
+<p>Why is there infinite loop? Each coordinate needs to go through its 4 neighbors. Consequently, each coordinate will also be traversed 4 times by its 4 neighbors. <strong>When we visit an visited coordinate, we must guarantee to identify the situation and exit. If not, we’ll go into infinite loop.</strong></p>
+<p>Why can the code exit properly when <code>newColr</code> and <code>origColor</code> are different? Let’s draw an diagram of the algorithm execution:</p>
+<figure>
+<img src="../pictures/floodfill/ppt1.PNG" alt="ppt1" /><figcaption>ppt1</figcaption>
+</figure>
+<p>As we can see from the diagram, <code>fill(1, 1)</code> is visited twice. Let’s use <code>fill(1, 1)*</code> to represent this duplicated visit. When <code>fill(1, 1)*</code> is executed, <code>(1, 1)</code> has already been replaced with <code>newColor</code>. So <code>fill(1, 1)*</code> will return the control directly at the <em>CLASH</em>, i.e. exit as expected.</p>
+<pre><code>// CLASH: meet other colors, beyond the area of origColor
+if (image[x][y] != origColor) return;</code></pre>
+<figure>
+<img src="../pictures/floodfill/ppt2.PNG" alt="ppt2" /><figcaption>ppt2</figcaption>
+</figure>
+<p>However, if <code>origColor</code> is the same as <code>newCOlor</code>, <code>fill(1, 1)*</code> will not exit at the <em>CLASH</em>. Instead, an infinite loop will start as shown below.</p>
+<figure>
+<img src="../pictures/floodfill/ppt3.PNG" alt="ppt3" /><figcaption>ppt3</figcaption>
+</figure>
+<h3 id="handling-details">3. Handling Details</h3>
+<p>How to avoid the case of infinite loop? The most intuitive answer is to use a boolean 2D array of the same size as image, to record whether a coordinate has been traversed or not. If visited, return immediately.</p>
+<pre><code> // OUT: out of index
+if (!inArea(image, x, y)) return;
+// CLASH: meet other colors, beyond the area of origColor
+if (image[x][y] != origColor) return;
+// VISITED: don&#39;t visit a coordinate twice
+if (visited[x][y]) return;
+visited[x][y] = true;
+image[x][y] = newColor;</code></pre>
+<p>This is a common technique to handle graph related problems. For this particular problem, there is actually a better way: backtracking algorithm.</p>
+<p>Refer to the article <a href="">Backtracking Algorithm in Depth</a> for details. We directly apply the backtracking algorithm framework here:</p>
+<pre><code>void fill(int[][] image, int x, int y,
+        int origColor, int newColor) {
+    // OUT: out of index
+    if (!inArea(image, x, y)) return;
+    // CLASH: meet other colors, beyond the area of origColor
+    if (image[x][y] != origColor) return;
+    // VISITED: visited origColor
+    if (image[x][y] == -1) return;
+    
+    // choose: mark a flag as visited
+    image[x][y] = -1;
+    fill(image, x, y + 1, origColor, newColor);
+    fill(image, x, y - 1, origColor, newColor);
+    fill(image, x - 1, y, origColor, newColor);
+    fill(image, x + 1, y, origColor, newColor);
+    // unchoose: replace the mark with newColor
+    image[x][y] = newColor;
+}</code></pre>
+<p>This is a typical way, using a special value -1 to replace the visited 2D array, to achieve the same purpose. Because the range of color is <code>[0, 65535]</code>, -1 is special enough to differentiate with actual colors.</p>
+<h3 id="extension-magic-wand-tool-and-minesweeper">4. Extension: Magic Wand Tool and Minesweeper</h3>
+<p>Most picture editing softwares have the function “Magic Wand Tool”. When you click a point, the application will help you choose a region of similar colors automatically. Refer to the picture below, if we want to select the eagle, we can use the Magic Wand Tool to select the blue sky, and perform inverse selection. Let’s analyze the mechanism of the Magic Wand Tool.</p>
+<figure>
+<img src="../pictures/floodfill/cutout.jpg" alt="CutOut" /><figcaption>CutOut</figcaption>
+</figure>
+<p>Obviously, the algorithm must be based on the FloodFill algorithm. However, there are two differences: 1. Though the background color is blue, we can’t guarantee all the blue pixels are exactly the same. There could be minor differences that can be told by our eyes. But we still want to ignore these minor differences. 2. FloodFill is to fill regions. Magic Wand Tool is more about filling the edges.</p>
+<p>It’s easy to resolve the first problem by setting a <code>threshold</code>. All colors within the threshold from the <code>origColor</code> can be recognized as <code>origColor</code>.</p>
+<pre><code>if (Math.abs(image[x][y] - origColor) &gt; threshold)
+    return;</code></pre>
+<p>As for the second problem, let’s first define the problem clearly: <em>“do not color all <code>origColor</code> coordinates in the region; only care about the edges.”</em>. Next, let’s analyze how to only color edges. i.e. How to find out the coordinates at the edges? What special properties do coordinates at the edges hold?</p>
+<figure>
+<img src="../pictures/floodfill/ppt4.PNG" alt="ppt4" /><figcaption>ppt4</figcaption>
+</figure>
+<p>From the diagram above, we can see that for all coordinates at the edges, there is at least one direction that is not <code>origColor</code>. For all inner coordinates, all 4 directions are <code>origColor</code>. This is the key to the solution. Using the same framework, using <code>visited</code> array to represent traversed coordinates:</p>
+<pre><code>int fill(int[][] image, int x, int y,
+    int origColor, int newColor) {
+    // OUT: out of index
+    if (!inArea(image, x, y)) return 0;
+    // VISITED: visited origColor
+    if (visited[x][y]) return 1;
+    // CLASH: meet other colors, beyond the area of origColor
+    if (image[x][y] != origColor) return 0;
+
+    visited[x][y] = true;
+    
+    int surround = 
+          fill(image, x - 1, y, origColor, newColor)
+        + fill(image, x + 1, y, origColor, newColor)
+        + fill(image, x, y - 1, origColor, newColor)
+        + fill(image, x, y + 1, origColor, newColor);
+    
+    if (surround &lt; 4)
+        image[x][y] = newColor;
+    
+    return 1;
+}</code></pre>
+<p>In this way, all inner coordinates will have <code>surround</code> equal to 4 after traversing the four directions; all edge coordinates will be either OUT or CLASH, resulting <code>surround</code> less than 4. If you are still not clear, let’s only look at the framework’s logic flow:</p>
+<pre><code>int fill(int[][] image, int x, int y,
+    int origColor, int newColor) {
+    // OUT: out of index
+    if (!inArea(image, x, y)) return 0;
+    // VISITED: visited origColor
+    if (visited[x][y]) return 1;
+    // CLASH: meet other colors, beyond the area of origColor
+    if (image[x][y] != origColor) return 0;
+    // UNKNOWN: unvisited area that is origColor
+    if (image[x][y] == origColor) {
+        // ...
+        return 1;
+    }
+}</code></pre>
+<p>These 4 <code>if</code>s cover all possible scenarios of (x, y). The value of <code>surround</code> is the sum of the return values of the 4 recursive functions. And each recursive function will fall into one of the 4 scenarios. You should be much clearer now after looking at this framework.</p>
+<p>This implementation colors all edge coordinates only for the <code>origColor</code> region, which is what the Magic Wand TOol does.</p>
+<p>Pay attention to 2 details in this algorithm: 1. We must use <code>visited</code> to record traversed coordinates instead of backtracking algorithm. 2. The order of the <code>if</code> clauses can’t be modified. (Why?)</p>
+<p>Similarly, for Minesweeper, when we use the FloodFill algorithm to expand empty areas, we also need to show the number of mines nearby. How to implement it? Following the same idea, return <code>true</code> when we meet mine. Thus, <code>surround</code> will store the number of mines nearby. Of course, in Minesweeper, there are 8 directions instead of 4, including diagonals.</p>
+<p><img src="../pictures/floodfill/ppt5.PNG" /></p>
+<p>We’ve discussed the design and framework of the FloodFill algorithm. <strong>All searching problems in a 2D array can be fit into this framework.</strong></p>
+</body>
+</html>

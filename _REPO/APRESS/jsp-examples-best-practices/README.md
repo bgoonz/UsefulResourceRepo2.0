@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*JSP Examples and Best Practices*](http://www.apress.com/9781590590201) by Andrew Patzer (Apress, 2002).
+This repository accompanies [_JSP Examples and Best Practices_](http://www.apress.com/9781590590201) by Andrew Patzer (Apress, 2002).
 
 ![Cover image](9781590590201.jpg)
 

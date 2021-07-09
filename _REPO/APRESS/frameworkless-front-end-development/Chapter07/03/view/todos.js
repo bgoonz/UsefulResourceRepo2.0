@@ -1,97 +1,89 @@
-import eventCreators from '../model/eventCreators.js'
+import eventCreators from "../model/eventCreators.js";
 
-let template
+let template;
 
 const createNewTodoNode = () => {
   if (!template) {
-    template = document.getElementById('todo-item')
+    template = document.getElementById("todo-item");
   }
 
-  return template
-    .content
-    .firstElementChild
-    .cloneNode(true)
-}
+  return template.content.firstElementChild.cloneNode(true);
+};
 
 const attachEventsToTodoElement = (element, index, dispatch) => {
-  const deleteHandler = e => dispatch(eventCreators.deleteItem(parseInt(index)))
-  const toggleHandler = e => dispatch(eventCreators.toggleItemCompleted(index))
-  const updateHandler = e => {
-    if (e.key === 'Enter') {
-      element.classList.remove('editing')
-      dispatch(eventCreators.updateItem(index, e.target.value))
+  const deleteHandler = (e) =>
+    dispatch(eventCreators.deleteItem(parseInt(index)));
+  const toggleHandler = (e) =>
+    dispatch(eventCreators.toggleItemCompleted(index));
+  const updateHandler = (e) => {
+    if (e.key === "Enter") {
+      element.classList.remove("editing");
+      dispatch(eventCreators.updateItem(index, e.target.value));
     }
-  }
+  };
 
   element
-    .querySelector('button.destroy')
-    .addEventListener('click', deleteHandler)
+    .querySelector("button.destroy")
+    .addEventListener("click", deleteHandler);
 
   element
-    .querySelector('input.toggle')
-    .addEventListener('click', toggleHandler)
+    .querySelector("input.toggle")
+    .addEventListener("click", toggleHandler);
+
+  element.addEventListener("dblclick", () => {
+    element.classList.add("editing");
+    element.querySelector("input.edit").focus();
+  });
 
   element
-    .addEventListener('dblclick', () => {
-      element.classList.add('editing')
-      element
-        .querySelector('input.edit').focus()
-    })
-
-  element
-    .querySelector('input.edit')
-    .addEventListener('keypress', updateHandler)
-}
+    .querySelector("input.edit")
+    .addEventListener("keypress", updateHandler);
+};
 
 const getTodoElement = (todo, index, dispatch) => {
-  const {
-    text,
-    completed
-  } = todo
+  const { text, completed } = todo;
 
-  const element = createNewTodoNode()
+  const element = createNewTodoNode();
 
-  element.querySelector('input.edit').value = text
-  element.querySelector('label').textContent = text
+  element.querySelector("input.edit").value = text;
+  element.querySelector("label").textContent = text;
 
   if (completed) {
-    element.classList.add('completed')
-    element
-      .querySelector('input.toggle')
-      .checked = true
+    element.classList.add("completed");
+    element.querySelector("input.toggle").checked = true;
   }
 
-  attachEventsToTodoElement(element, index, dispatch)
+  attachEventsToTodoElement(element, index, dispatch);
 
-  return element
-}
+  return element;
+};
 
 const filterTodos = (todos, filter) => {
-  const isCompleted = todo => todo.completed
-  if (filter === 'Active') {
-    return todos.filter(t => !isCompleted(t))
+  const isCompleted = (todo) => todo.completed;
+  if (filter === "Active") {
+    return todos.filter((t) => !isCompleted(t));
   }
 
-  if (filter === 'Completed') {
-    return todos.filter(isCompleted)
+  if (filter === "Completed") {
+    return todos.filter(isCompleted);
   }
 
-  return [...todos]
-}
+  return [...todos];
+};
 
 export default (targetElement, state, dispatch) => {
-  const { todos, currentFilter } = state
-  const newTodoList = targetElement.cloneNode(true)
+  const { todos, currentFilter } = state;
+  const newTodoList = targetElement.cloneNode(true);
 
-  newTodoList.innerHTML = ''
+  newTodoList.innerHTML = "";
 
-  const filteredTodos = filterTodos(todos, currentFilter)
+  const filteredTodos = filterTodos(todos, currentFilter);
 
   filteredTodos
     .map((todo, index) => getTodoElement(todo, index, dispatch))
-    .forEach(element => {
-      newTodoList.appendChild(element)
-    })
+    .forEach((element) => {
+      newTodoList.appendChild(element);
+    });
 
-  return newTodoList
-}
+  return newTodoList;
+};

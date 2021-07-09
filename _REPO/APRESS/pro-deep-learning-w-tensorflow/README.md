@@ -1,9 +1,8 @@
 # Apress Source Code
 
-This repository accompanies [*Pro Deep Learning with TensorFlow*](http://www.apress.com/9781484230954) by Santanu Pattanayak (Apress, 2018).
+This repository accompanies [_Pro Deep Learning with TensorFlow_](http://www.apress.com/9781484230954) by Santanu Pattanayak (Apress, 2018).
 
 [comment]: #cover
-
 
 Download the files as a zip using the green button, or clone the repository to your machine using Git.
 

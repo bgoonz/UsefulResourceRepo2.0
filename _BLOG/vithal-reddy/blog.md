@@ -14,8 +14,8 @@ Do you need to get all files present in the directory or you want to scan a dire
 
 We will be using **Node.js fs core module** to get all files in the directory, we can use following **fs**methods.
 
--   **fs.readdir(path, callbackFunction)** — This method will read all files in the directory.You need to pass directory path as the first argument and in the second argument, you can any callback function.
--   **path.join()** — This method of node.js path module, we will be using to get the path of the directory and This will join all given path segments together.
+- **fs.readdir(path, callbackFunction)** — This method will read all files in the directory.You need to pass directory path as the first argument and in the second argument, you can any callback function.
+- **path.join()** — This method of node.js path module, we will be using to get the path of the directory and This will join all given path segments together.
 
 1.  Load all the required Nodejs Packages using **“require”.**
 2.  Get the path of the directory using **path.join()** method.
@@ -30,8 +30,7 @@ first appeared on [Web Development Blog StackFrame](https://stackfame.com/graphq
 
 \[
 
-stackFAME
----------
+## stackFAME
 
 \](https://medium.com/stackfame?source=post\_sidebar————————–post\_sidebar———–)
 

@@ -6,18 +6,17 @@
 
 Gabriel Cánepa
 
-Passing State of Parent to Child Component as Props
-===================================================
+# Passing State of Parent to Child Component as Props
 
 ### Gabriel Cánepa
 
--   Nov 24, 2020
--   7 Min read
--   15,682 Views
+- Nov 24, 2020
+- 7 Min read
+- 15,682 Views
 
--   Nov 24, 2020
--   <span class="jsx-3759398792" itemprop="timeRequired">7 Min</span> read
--   15,682 Views
+- Nov 24, 2020
+- <span class="jsx-3759398792" itemprop="timeRequired">7 Min</span> read
+- 15,682 Views
 
 <span class="jsx-3759398792"></span>
 
@@ -39,22 +38,20 @@ Changing the State of the Parent Through the Child Component
 
 27
 
--   <a href="#module-introduction" class="menu-link">Introduction</a>
--   <a href="#module-settingupstateintheparentcomponent" class="menu-link">Setting up State in the Parent Component</a>
--   <a href="#module-creatingthechildcomponent" class="menu-link">Creating the Child Component</a>
--   <a href="#module-changingthestateoftheparentthroughthechildcomponent" class="menu-link">Changing the State of the Parent Through the Child Component</a>
--   <a href="#module-conclusion" class="menu-link">Conclusion</a>
--   <a href="#top" class="menu-link">Top</a>
+- <a href="#module-introduction" class="menu-link">Introduction</a>
+- <a href="#module-settingupstateintheparentcomponent" class="menu-link">Setting up State in the Parent Component</a>
+- <a href="#module-creatingthechildcomponent" class="menu-link">Creating the Child Component</a>
+- <a href="#module-changingthestateoftheparentthroughthechildcomponent" class="menu-link">Changing the State of the Parent Through the Child Component</a>
+- <a href="#module-conclusion" class="menu-link">Conclusion</a>
+- <a href="#top" class="menu-link">Top</a>
 
-Introduction
-------------
+## Introduction
 
-React enables developers to write reusable code in the form of components. This modular approach makes it simple to develop robust apps by following a parent-child structure and adding those components in as many times as needed. To configure a component, you can use *props* (data you pass *to* the component) whereas *state* allows you to manage the data that may change *inside* of that specific component. In other words, with state you can control how it behaves and renders. This guide will demonstrate how to make a parent component aware of actions or changes in the child by passing state as props. Although we will use functional components, the same applies to class-based ones.
+React enables developers to write reusable code in the form of components. This modular approach makes it simple to develop robust apps by following a parent-child structure and adding those components in as many times as needed. To configure a component, you can use _props_ (data you pass _to_ the component) whereas _state_ allows you to manage the data that may change _inside_ of that specific component. In other words, with state you can control how it behaves and renders. This guide will demonstrate how to make a parent component aware of actions or changes in the child by passing state as props. Although we will use functional components, the same applies to class-based ones.
 
 To illustrate, we will store an array of basketball players as objects in the state of the main app component. Next, we will pass that piece of state to a child (<span class="jsx-3120878690">`Player`</span>) component for visualization purposes. Finally, we will set up a function to remove players one by one and see how that impacts the state of the parent. The final code—including all the files—is available in [Codesandbox](https://codesandbox.io/s/players-8ehqt) and [GitHub](https://github.com/gacanepa/pluralsight/tree/master/05%20-%20React).
 
-Setting up State in the Parent Component
-----------------------------------------
+## Setting up State in the Parent Component
 
 To begin, create the following App.js file:
 
@@ -113,65 +110,64 @@ Now, examine what you have so far step by step.
 
 jsx
 
--   React (as expected) and the <span class="jsx-3120878690">`useState`</span> hook. The latter will allow you to access and manipulate the state of the current component.
+- React (as expected) and the <span class="jsx-3120878690">`useState`</span> hook. The latter will allow you to access and manipulate the state of the current component.
 
--   A <span class="jsx-3120878690">`Player`</span> component (which you will add later)
+- A <span class="jsx-3120878690">`Player`</span> component (which you will add later)
 
--   The CSS file used for styling
+- The CSS file used for styling
 
-2) A list of basketball players. Through <span class="jsx-3120878690">`useState`</span>, you initialize a piece of state in a variable named <span class="jsx-3120878690">`players`</span> and a function (<span class="jsx-3120878690">`setPlayers`</span>) to update it later
+2. A list of basketball players. Through <span class="jsx-3120878690">`useState`</span>, you initialize a piece of state in a variable named <span class="jsx-3120878690">`players`</span> and a function (<span class="jsx-3120878690">`setPlayers`</span>) to update it later
 
-    1const [players, setPlayers] = useState([
-    2  {
-    3    name: "LaMarcus Aldridge",
-    4    yearsPro: 14,
-    5    position: "Center-Forward"
-    6  },
-    7  {
-    8    name: "Marco Belinelli",
-    9    yearsPro: 13,
-    10    position: "Guard"
-    11  },
-    12  {
-    13    name: "DeMar DeRozan",
-    14    yearsPro: 11,
-    15    position: "Guard-Forward"
-    16  }
-    17]);
-
-jsx
-
-3) An array that consists of a series of children components. Here you will be passing the state (the <span class="jsx-3120878690">`players`</span> variable and the <span class="jsx-3120878690">`setPlayers`</span> function) as props to each instance of <span class="jsx-3120878690">`Player`</span>. This will allow you to manipulate the parent's state from each child.
-
-    1  const playersList = players.map(({ name, yearsPro, position }) => (
-    2    <li key={name.replace(" ", "").toLowerCase()}>
-    3      <Player
-    4        allPlayers={players}
-    5        removePlayer={setPlayers}
-    6        name={name}
-    7        yearsPro={yearsPro}
-    8        position={position}
-    9      />
-    10    </li>
-    11  ));
+   1const [players, setPlayers] = useState([
+   2 {
+   3 name: "LaMarcus Aldridge",
+   4 yearsPro: 14,
+   5 position: "Center-Forward"
+   6 },
+   7 {
+   8 name: "Marco Belinelli",
+   9 yearsPro: 13,
+   10 position: "Guard"
+   11 },
+   12 {
+   13 name: "DeMar DeRozan",
+   14 yearsPro: 11,
+   15 position: "Guard-Forward"
+   16 }
+   17]);
 
 jsx
 
-4) The <span class="jsx-3120878690">`return`</span> statement that will display the number and list of players (which you will modify via the state):
+3. An array that consists of a series of children components. Here you will be passing the state (the <span class="jsx-3120878690">`players`</span> variable and the <span class="jsx-3120878690">`setPlayers`</span> function) as props to each instance of <span class="jsx-3120878690">`Player`</span>. This will allow you to manipulate the parent's state from each child.
 
-    1return (
-    2  <div className="App">
-    3    <h1>Team Members ({players.length})</h1>
-    4    <ul className="List">{playersList}</ul>
-    5  </div>
-    6);
+   1 const playersList = players.map(({ name, yearsPro, position }) => (
+   2 <li key={name.replace(" ", "").toLowerCase()}>
+   3 <Player
+   4 allPlayers={players}
+   5 removePlayer={setPlayers}
+   6 name={name}
+   7 yearsPro={yearsPro}
+   8 position={position}
+   9 />
+   10 </li>
+   11 ));
+
+jsx
+
+4. The <span class="jsx-3120878690">`return`</span> statement that will display the number and list of players (which you will modify via the state):
+
+   1return (
+   2 <div className="App">
+   3 <h1>Team Members ({players.length})</h1>
+   4 <ul className="List">{playersList}</ul>
+   5 </div>
+   6);
 
 jsx
 
 Once you put the child component in place in the next section, you will observe how the number of players (<span class="jsx-3120878690">`players.length`</span>) and therefore the list itself (<span class="jsx-3120878690">`playersList`</span>) are impacted by actions that occur in it.
 
-Creating the Child Component
-----------------------------
+## Creating the Child Component
 
 The <span class="jsx-3120878690">`Player`</span> component consists of a <span class="jsx-3120878690">`span`</span> element that displays the player's name, position, and years of experience. In addition, the <span class="jsx-3120878690">`handleRemove`</span> function will make it possible to remove each player from the parent's state when you click on the corresponding item in the list. To accomplish this, insert the following lines in a file called <span class="jsx-3120878690">`Player.js`</span>:
 
@@ -202,8 +198,7 @@ At this point, you should see the following in the browser:
 
 Next up, see what happens when the <span class="jsx-3120878690">`handleRemove`</span> function is triggered in a given <span class="jsx-3120878690">`Player`</span> component.
 
-Changing the State of the Parent Through the Child Component
-------------------------------------------------------------
+## Changing the State of the Parent Through the Child Component
 
 Now that you have set up the state in the parent and passed it to the child as props, click on any of the players and see how it is removed from the list:
 
@@ -221,8 +216,7 @@ Alternatively, you can inspect the components using the React Developer Tools:
 
 First, click on **App** and observe its state under the **Hooks** section on the right pane. Second, click on a given player component and examine its props. Finally, click on any of the items in the page and see how the state and props of the parent and child components are updated, respectively.
 
-Conclusion
-----------
+## Conclusion
 
 While the example in this guide is rather simple, you will find this same principle in all kinds of React-based apps. For example, you can think of a shopping cart with the total price as the parent component and each purchased item with its corresponding subtotal and individual quantity as a child.
 

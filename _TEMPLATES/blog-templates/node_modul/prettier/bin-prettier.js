@@ -63,7 +63,6 @@ var description = "Prettier is an opinionated code formatter";
 var bin = "./bin/prettier.js";
 var repository = "prettier/prettier";
 var homepage = "https://prettier.io";
-var author = "James Long";
 var license = "MIT";
 var main$1 = "./index.js";
 var browser = "./standalone.js";
@@ -223,7 +222,6 @@ var require$$1 = {
 	bin: bin,
 	repository: repository,
 	homepage: homepage,
-	author: author,
 	license: license,
 	main: main$1,
 	browser: browser,

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lang</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="lang">lang</h1>
+<p>Language Utilities. Easier inheritance, scope handling, type checks.</p>
+<h2 id="cloneval">clone(val):*</h2>
+<p>Clone native types like Object, Array, RegExp, Date and primitives.</p>
+<p>This method will not clone values that are referenced within <code>val</code>. It will only copy the value reference to the new value. If the value is not a plain object but is an object, it will return the value unchanged.</p>
+<h3 id="example">Example</h3>
+<pre><code>var a = { foo: &#39;bar&#39; };
+var b = clone(a);
+console.log(a === b); // false
+console.log(a.foo === b.foo); // true
+
+var c = [1, 2, 3];
+var d = clone(b);
+console.log(c === d); // false
+console.log(c); // [1, 2, 3]</code></pre>
+<p>See: <a href="#deepClone"><code>deepClone()</code></a></p>
+<h2 id="createobjectparent-propsobject">createObject(parent, [props]):Object</h2>
+<p>Create Object using prototypal inheritance and setting custom properties.</p>
+<p>Mix between <a href="http://javascript.crockford.com/prototypal.html">Douglas Crockford Prototypal Inheritance</a> and <a href="./object.html#mixIn"><code>object/mixIn</code></a>.</p>
+<h3 id="arguments">Arguments</h3>
+<ol type="1">
+<li><code>parent</code> (Object) : Parent Object</li>
+<li><code>[props]</code> (Object) : Object properties</li>
+</ol>
+<h3 id="example-1">Example</h3>
+<pre><code>var base = {
+    trace : function(){
+        console.log(this.name);
+    }
+};
+
+var myObject = createObject(base, {
+    name : &#39;Lorem Ipsum&#39;
+});
+
+myObject.trace(); // &quot;Lorem Ipsum&quot;</code></pre>
+<h2 id="ctorapplyconstructor-argsobject">ctorApply(constructor, args):Object</h2>
+<p>Do <code>Function.prototype.apply()</code> on a constructor while maintaining prototype chain.</p>
+<pre><code>function Person(name, surname) {
+    this.name = name;
+    this.surname = surname;
+}
+
+Person.prototype.walk = function(){
+    console.log(this.name +&#39; is walking&#39;);
+};
+
+var args = [&#39;John&#39;, &#39;Doe&#39;];
+
+// &quot;similar&quot; effect as calling `new Person(&quot;John&quot;, &quot;Doe&quot;)`
+var john = ctorApply(Person, args);
+john.walk(); // &quot;John is walking&quot;</code></pre>
+<h2 id="deepcloneval-instanceclone">deepClone(val, [instanceClone]):*</h2>
+<p>Deep clone native types like Object, Array, RegExp, Date and primitives.</p>
+<p>The <code>instanceClone</code> function will be invoked to clone objects that are not “plain” objects (as defined by <a href="#isPlainObject"><code>isPlainObject</code></a>) if it is provided. If <code>instanceClone</code> is not specified, it will not attempt to clone non-plain objects, and will copy the object reference.</p>
+<h3 id="example-2">Example</h3>
+<pre><code>var a = {foo:&#39;bar&#39;, obj: {a:1, b:2}};
+var b = deepClone(a); // {foo:&#39;bar&#39;, obj: {a:1, b:2}}
+console.log( a === b ); // false
+console.log( a.obj === b.obj ); // false
+
+var c = [1, 2, [3, 4]];
+var d = deepClone(c); // [1, 2, [3, 4]]
+var e = c.concat(); // [1, 2, [3, 4]]
+
+console.log( c[2] === d[2] ); // false
+// concat doesn&#39;t do a deep clone, arrays are passed by reference
+console.log( e[2] === d[2] ); // true
+
+function Custom() { }
+function cloneCustom(x) { return new Custom(); }
+var f = { test: new Custom() };
+var g = deepClone(f, cloneCustom);
+g.test === f.test // false, since new Custom instance will be created</code></pre>
+<p>See: <a href="#clone"><code>clone()</code></a></p>
+<h2 id="deepequalsa-b-callbackboolean">deepEquals(a, b, [callback]):Boolean</h2>
+<p>Recursively tests whether two values contains the same keys and values.</p>
+<p><code>callback</code> specifies the equality comparison function used to compare non-object values. It defaults to using the <a href="#is"><code>is()</code></a> function.</p>
+<p>If the values are both an object or array, it will recurse into both values, checking if their keys/values are equal. It will only check the keys and values contained by the objects; it will not check the objects’ prototypes. If either of the values are not objects, they will be checked using the <code>callback</code> function.</p>
+<p>Example:</p>
+<pre><code>deepEquals({ a: 1 }, { a: 1 }); // true
+deepEquals({ value: { a: 1 } }, { value: { a: 1 } }); // true
+deepEquals({ value: { a: 1 } }, { value: { a: 2 } }); // false
+deepEquals({ value: { a: 1 } }, { value: { a: 1, b: 2 } }); // false
+deepEquals({}, null); // false
+deepEquals(null, null); // true
+deepEquals(
+    { a: { b: 1 } },
+    { a: { b: &#39;1&#39; } },
+    function(a, b) { return a == b; }); // true</code></pre>
+<p>See: <a href="object.html#equals">object/equals</a>, <a href="array.html#equals">array/equals</a></p>
+<h2 id="defaultsval-defaultsvoid">defaults(val, …defaults):void</h2>
+<p>Return first value that isn’t <code>null</code> or <code>undefined</code>.</p>
+<pre><code>function doSomethingAwesome(foo, bar) {
+    // default arguments
+    foo = defaults(foo, &#39;lorem&#39;);
+    bar = defaults(bar, 123);
+    // ...
+}</code></pre>
+<h2 id="globalobject">GLOBAL:Object</h2>
+<p>Reference to the global context (<code>window</code> inside a browser, <code>global</code> on node.js). Works on ES3 and ES5 strict-mode.</p>
+<h2 id="inheritprototypechildctor-parentctorobject">inheritPrototype(childCtor, parentCtor):Object</h2>
+<p>Inherit the prototype methods from one constructor into another.</p>
+<p>Similar to <a href="http://nodejs.org/docs/latest/api/util.html#util_util_inherits_constructor_superconstructor">node.js util/inherits</a>.</p>
+<p>It returns the the <code>childCtor.prototype</code> for convenience.</p>
+<pre><code>function Foo(name){
+    this.name = name;
+}
+Foo.prototype = {
+    getName : function(){
+        return this.name;
+    }
+};
+
+function Bar(name){
+    Foo.call(this, name);
+}
+//should be called before calling constructor
+var proto = inheritPrototype(Bar, Foo);
+
+// for convenience we return the new prototype object
+console.log(proto === Bar.prototype); // true
+
+var myObj = new Bar(&#39;lorem ipsum&#39;);
+myObj.getName(); // &quot;lorem ipsum&quot;
+
+console.log(myObj instanceof Foo); // true
+
+// you also have access to the &quot;super&quot; constructor
+console.log(Bar.super_ === Foo); // true</code></pre>
+<h2 id="isx-yboolean">is(x, y):Boolean</h2>
+<p>Check if both values are identical/egal.</p>
+<pre><code>// wtfjs
+NaN === NaN; // false
+-0 === +0;   // true
+
+is(NaN, NaN); // true
+is(-0, +0);   // false
+is(&#39;a&#39;, &#39;b&#39;); // false</code></pre>
+<p>See: <a href="#isnt"><code>isnt()</code></a></p>
+<h2 id="isntx-yboolean">isnt(x, y):Boolean</h2>
+<p>Check if both values are not identical/egal.</p>
+<pre><code>// wtfjs
+NaN === NaN; // false
+-0 === +0;   // true
+
+isnt(NaN, NaN); // false
+isnt(-0, +0);   // true
+isnt(&#39;a&#39;, &#39;b&#39;); // true</code></pre>
+<p>See: <a href="#is"><code>is()</code></a></p>
+<h2 id="isargumentsvalboolean">isArguments(val):Boolean</h2>
+<p>If value is an “Arguments” object.</p>
+<h2 id="isarrayvalboolean">isArray(val):Boolean</h2>
+<p>If value is an Array. Uses native ES5 <code>Array.isArray()</code> if available.</p>
+<h2 id="isbooleanvalboolean">isBoolean(val):Boolean</h2>
+<p>If value is a Boolean.</p>
+<h2 id="isdatevalboolean">isDate(val):Boolean</h2>
+<p>If value is a Date.</p>
+<h2 id="isemptyvalboolean">isEmpty(val):Boolean</h2>
+<p>Checks if Array/Object/String is empty.</p>
+<p>Will return <code>true</code> for any object that doesn’t contain enumerable properties and also to any type of value that isn’t considered a collection (boolean, null, undefined, function, etc).</p>
+<pre><code>isEmpty(&#39;&#39;);         // true
+isEmpty(&#39;bar&#39;);      // false
+isEmpty([]);         // true
+isEmpty([1, 2]);     // false
+isEmpty({});         // true
+isEmpty({a:1, b:2}); // false
+// null, undefined, booleans, numbers are considered as &quot;empty&quot; values
+isEmpty(null);       // true
+isEmpty(undefined);  // true
+isEmpty(123);        // true
+isEmpty(true);       // true</code></pre>
+<h2 id="isfinitevalboolean">isFinite(val):Boolean</h2>
+<p>Checks if value is Finite.</p>
+<p><strong>IMPORTANT:</strong> This is not the same as native <code>isFinite</code>, which will return <code>true</code> for values that can be coerced into finite numbers. See http://es5.github.com/#x15.1.2.5.</p>
+<pre><code>isFinite(123);      // true
+isFinite(Infinity); // false
+
+// this is different than native behavior
+isFinite(&#39;&#39;);   // false
+isFinite(true); // false
+isFinite([]);   // false
+isFinite(null); // false</code></pre>
+<h2 id="isfunctionvalboolean">isFunction(val):Boolean</h2>
+<p>If value is a Function.</p>
+<h2 id="iskindval-kindboolean">isKind(val, kind):Boolean</h2>
+<p>If value is of “kind”. (used internally by some of the <em>isSomething</em> checks).</p>
+<p>Favor the other methods since strings are commonly mistyped and also because some “kinds” can only be accurately checked by using other methods (e.g. <code>Arguments</code>), some of the other checks are also faster.</p>
+<pre><code>isKind([1,2], &#39;Array&#39;); // true
+isKind(3, &#39;Array&#39;);     // false
+isKind(3, &#39;Number&#39;);    // true</code></pre>
+<p>See: <a href="#kindOf"><code>kindOf()</code></a></p>
+<h2 id="isintegervalboolean">isInteger(val):Boolean</h2>
+<p>Check if value is an integer.</p>
+<pre><code>isInteger(123);    // true
+isInteger(123.45); // false
+isInteger({});     // false
+isInteger(&#39;foo&#39;);  // false
+isInteger(&#39;123&#39;);  // false</code></pre>
+<h2 id="isnanvalboolean">isNaN(val):Boolean</h2>
+<p>Check if value is not a number.</p>
+<p>It doesn’t coerce value into number before doing the check, giving better results than native <code>isNaN</code>. Returns <code>true</code> for everything besides numeric values.</p>
+<p><strong>IMPORTANT:</strong> behavior is very different than the native <code>isNaN</code> and way more useful!!! See: http://es5.github.io/#x15.1.2.4</p>
+<pre><code>isNaN(123);       // false
+
+isNaN(NaN);       // true
+isNaN({});        // true
+isNaN(undefined); // true
+isNaN([4,5]);     // true
+
+// these are all &quot;false&quot; on native isNaN and main reason why this module exists
+isNaN(&#39;&#39;);    // true
+isNaN(null);  // true
+isNaN(true);  // true
+isNaN(false); // true
+isNaN(&quot;123&quot;); // true
+isNaN([]);    // true
+isNaN([5]);   // true</code></pre>
+<h2 id="isnullvalboolean">isNull(val):Boolean</h2>
+<p>If value is <code>null</code>.</p>
+<h2 id="isnumbervalboolean">isNumber(val):Boolean</h2>
+<p>If value is a Number.</p>
+<h2 id="isobjectvalboolean">isObject(val):Boolean</h2>
+<p>If value is an Object.</p>
+<h2 id="isplainobjectvalboolean">isPlainObject(val):Boolean</h2>
+<p>If the value is an Object created by the Object constructor.</p>
+<h2 id="isregexpvalboolean">isRegExp(val):Boolean</h2>
+<p>If value is a RegExp.</p>
+<h2 id="isstringvalboolean">isString(val):Boolean</h2>
+<p>If value is a String.</p>
+<h2 id="isundefinedvalboolean">isUndefined(val):Boolean</h2>
+<p>If value is <code>undefined</code>.</p>
+<h2 id="kindofvalstring">kindOf(val):String</h2>
+<p>Gets kind of value (e.g. “String”, “Number”, “RegExp”, “Null”, “Date”). Used internally by <code>isKind()</code> and most of the other <em>isSomething</em> checks.</p>
+<pre><code>kindOf([1,2]); // &quot;Array&quot;
+kindOf(&#39;foo&#39;); // &quot;String&quot;
+kindOf(3);     // &quot;Number&quot;</code></pre>
+<p>See: <a href="#isKind"><code>isKind()</code></a></p>
+<h2 id="toarrayvalarray">toArray(val):Array</h2>
+<p>Convert array-like object into Array or wrap value into Array.</p>
+<pre><code>toArray({
+    &quot;0&quot; : &quot;foo&quot;,
+    &quot;1&quot; : &quot;bar&quot;,
+    &quot;length&quot; : 2
+});                              // [&quot;foo&quot;, &quot;bar&quot;]
+
+function foo(){
+    return toArray(arguments);
+}
+foo(&quot;lorem&quot;, 123);               // [&quot;lorem&quot;, 123]
+
+toArray(&quot;lorem ipsum&quot;);          // [&quot;lorem ipsum&quot;]
+toArray(window);                 // [window]
+toArray({foo:&quot;bar&quot;, lorem:123}); // [{foo:&quot;bar&quot;, lorem:123}]</code></pre>
+<p>See: object/values()</p>
+<h2 id="tonumbervalnumber">toNumber(val):Number</h2>
+<p>Convert value into number.</p>
+<pre><code>// numeric values are typecasted as Number
+toNumber(&#39;123&#39;);     // 123
+toNumber(-567);      // -567
+
+// falsy values returns zero
+toNumber(&#39;&#39;);        // 0
+toNumber(null);      // 0
+toNumber(undefined); // 0
+toNumber(false);     // 0
+
+// non-numeric values returns NaN
+toNumber(&#39;asd&#39;);     // NaN
+toNumber({});        // NaN
+toNumber([]);        // NaN
+
+// Date objects return milliseconds since epoch
+toNumber(new Date(1985, 6, 23)); // 490935600000</code></pre>
+<h2 id="tostringvalstring">toString(val):String</h2>
+<p>Convert any value to its string representation.</p>
+<p>Will return an empty string for <code>undefined</code> or <code>null</code>, otherwise will convert the value to its string representation.</p>
+<pre><code>// null and undefined are converted into empty strings
+toString(null);      // &quot;&quot;
+toString(undefined); // &quot;&quot;
+
+toString(1);       // &quot;1&quot;
+toString([1,2,3]); // &quot;1,2,3&quot;
+toString(false);   // &quot;false&quot;
+
+// uses `val.toString()` to convert value
+toString({toString:funtion(){ return &#39;foo&#39;; }}); // &quot;foo&quot;</code></pre>
+<hr />
+<p>For more usage examples check specs inside <code>/tests</code> folder. Unit tests are the best documentation you can get…</p>
+</body>
+</html>

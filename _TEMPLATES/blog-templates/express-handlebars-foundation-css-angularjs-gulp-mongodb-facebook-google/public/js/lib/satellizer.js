@@ -45,7 +45,6 @@ if (
         facebook: {
           name: "facebook",
           url: "/auth/facebook",
-          authorizationEndpoint: "https://www.facebook.com/v2.5/dialog/oauth",
           redirectUri: window.location.origin + "/",
           requiredUrlParams: ["display", "scope"],
           scope: ["email"],
@@ -57,7 +56,6 @@ if (
         google: {
           name: "google",
           url: "/auth/google",
-          authorizationEndpoint: "https://accounts.google.com/o/oauth2/auth",
           redirectUri: window.location.origin,
           requiredUrlParams: ["scope"],
           optionalUrlParams: ["display"],
@@ -71,7 +69,6 @@ if (
         github: {
           name: "github",
           url: "/auth/github",
-          authorizationEndpoint: "https://github.com/login/oauth/authorize",
           redirectUri: window.location.origin,
           optionalUrlParams: ["scope"],
           scope: ["user:email"],
@@ -82,7 +79,6 @@ if (
         instagram: {
           name: "instagram",
           url: "/auth/instagram",
-          authorizationEndpoint: "https://api.instagram.com/oauth/authorize",
           redirectUri: window.location.origin,
           requiredUrlParams: ["scope"],
           scope: ["basic"],
@@ -92,8 +88,6 @@ if (
         linkedin: {
           name: "linkedin",
           url: "/auth/linkedin",
-          authorizationEndpoint:
-            "https://www.linkedin.com/uas/oauth2/authorization",
           redirectUri: window.location.origin,
           requiredUrlParams: ["state"],
           scope: ["r_emailaddress"],
@@ -105,7 +99,6 @@ if (
         twitter: {
           name: "twitter",
           url: "/auth/twitter",
-          authorizationEndpoint: "https://api.twitter.com/oauth/authenticate",
           redirectUri: window.location.origin,
           oauthType: "1.0",
           popupOptions: { width: 495, height: 645 },
@@ -113,8 +106,6 @@ if (
         twitch: {
           name: "twitch",
           url: "/auth/twitch",
-          authorizationEndpoint:
-            "https://api.twitch.tv/kraken/oauth2/authorize",
           redirectUri: window.location.origin,
           requiredUrlParams: ["scope"],
           scope: ["user_read"],
@@ -126,7 +117,6 @@ if (
         live: {
           name: "live",
           url: "/auth/live",
-          authorizationEndpoint: "https://login.live.com/oauth20_authorize.srf",
           redirectUri: window.location.origin,
           requiredUrlParams: ["display", "scope"],
           scope: ["wl.emails"],
@@ -138,7 +128,6 @@ if (
         yahoo: {
           name: "yahoo",
           url: "/auth/yahoo",
-          authorizationEndpoint:
             "https://api.login.yahoo.com/oauth2/request_auth",
           redirectUri: window.location.origin,
           scope: [],
@@ -149,7 +138,6 @@ if (
         bitbucket: {
           name: "bitbucket",
           url: "/auth/bitbucket",
-          authorizationEndpoint: "https://bitbucket.org/site/oauth2/authorize",
           redirectUri: window.location.origin + "/",
           requiredUrlParams: ["scope"],
           scope: ["email"],
@@ -502,7 +490,6 @@ if (
             .open(config.providers[name], userData || {})
             .then(function (response) {
               // This is for a scenario when someone wishes to opt out from
-              // Satellizer's magic by doing authorization code exchange and
               // saving a token manually.
               if (config.providers[name].url) {
                 shared.setToken(response, false);
@@ -608,7 +595,6 @@ if (
               }
 
               url = [
-                defaults.authorizationEndpoint,
                 Oauth2.buildQueryString(),
               ].join("?");
 
@@ -635,7 +621,6 @@ if (
               return openPopup.then(function (oauthData) {
                 // When no server URL provided, return popup params as-is.
                 // This is for a scenario when someone wishes to opt out from
-                // Satellizer's magic by doing authorization code exchange and
                 // saving a token manually.
                 if (defaults.responseType === "token" || !defaults.url) {
                   defer.resolve(oauthData);
@@ -647,7 +632,6 @@ if (
                 ) {
                   return defer.reject(
                     "The value returned in the state parameter does not match the state value from your original " +
-                      "authorization code request."
                   );
                 }
 
@@ -754,7 +738,6 @@ if (
             name: null,
             popupOptions: null,
             redirectUri: null,
-            authorizationEndpoint: null,
           };
 
           Oauth1.open = function (options, userData) {
@@ -775,7 +758,6 @@ if (
 
             return $http.post(serverUrl, defaults).then(function (response) {
               var url = [
-                defaults.authorizationEndpoint,
                 Oauth1.buildQueryString(response.data),
               ].join("?");
 

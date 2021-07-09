@@ -1,93 +1,88 @@
-const ROUTE_PARAMETER_REGEXP = /:(\w+)/g
-const URL_FRAGMENT_REGEXP = '([^\\/]+)'
-const TICKTIME = 250
+const ROUTE_PARAMETER_REGEXP = /:(\w+)/g;
+const URL_FRAGMENT_REGEXP = "([^\\/]+)";
+const TICKTIME = 250;
 
 const extractUrlParams = (route, pathname) => {
-  const params = {}
+  const params = {};
 
   if (route.params.length === 0) {
-    return params
+    return params;
   }
 
-  const matches = pathname
-    .match(route.testRegExp)
+  const matches = pathname.match(route.testRegExp);
 
-  matches.shift()
+  matches.shift();
 
   matches.forEach((paramValue, index) => {
-    const paramName = route.params[index]
-    params[paramName] = paramValue
-  })
+    const paramName = route.params[index];
+    params[paramName] = paramValue;
+  });
 
-  return params
-}
+  return params;
+};
 
 export default () => {
-  const routes = []
-  let notFound = () => {}
-  let lastPathname
+  const routes = [];
+  let notFound = () => {};
+  let lastPathname;
 
-  const router = {}
+  const router = {};
 
   const checkRoutes = () => {
-    const { pathname } = window.location
+    const { pathname } = window.location;
     if (lastPathname === pathname) {
-      return
+      return;
     }
 
-    lastPathname = pathname
+    lastPathname = pathname;
 
-    const currentRoute = routes.find(route => {
-      const { testRegExp } = route
-      return testRegExp.test(pathname)
-    })
+    const currentRoute = routes.find((route) => {
+      const { testRegExp } = route;
+      return testRegExp.test(pathname);
+    });
 
     if (!currentRoute) {
-      notFound()
-      return
+      notFound();
+      return;
     }
 
-    const urlParams = extractUrlParams(currentRoute, pathname)
+    const urlParams = extractUrlParams(currentRoute, pathname);
 
-    currentRoute.callback(urlParams)
-  }
+    currentRoute.callback(urlParams);
+  };
 
   router.addRoute = (path, callback) => {
-    const params = []
+    const params = [];
 
     const parsedPath = path
-      .replace(
-        ROUTE_PARAMETER_REGEXP,
-        (match, paramName) => {
-          params.push(paramName)
-          return URL_FRAGMENT_REGEXP
-        })
-      .replace(/\//g, '\\/')
+      .replace(ROUTE_PARAMETER_REGEXP, (match, paramName) => {
+        params.push(paramName);
+        return URL_FRAGMENT_REGEXP;
+      })
+      .replace(/\//g, "\\/");
 
     routes.push({
       testRegExp: new RegExp(`^${parsedPath}$`),
       callback,
-      params
-    })
+      params,
+    });
 
-    return router
-  }
+    return router;
+  };
 
-  router.setNotFound = cb => {
-    notFound = cb
-    return router
-  }
+  router.setNotFound = (cb) => {
+    notFound = cb;
+    return router;
+  };
 
-  router.navigate = path => {
-    window
-      .history
-      .pushState(null, null, path)
-  }
+  router.navigate = (path) => {
+    window.history.pushState(null, null, path);
+  };
 
   router.start = () => {
-    checkRoutes()
-    window.setInterval(checkRoutes, TICKTIME)
-  }
+    checkRoutes();
+    window.setInterval(checkRoutes, TICKTIME);
+  };
 
-  return router
-}
+  return router;
+};

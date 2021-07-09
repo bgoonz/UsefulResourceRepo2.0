@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*Tuning and Customizing a Linux System*](http://www.apress.com/9781893115279) by Daniel L. Morrill (Apress, 2002).
+This repository accompanies [_Tuning and Customizing a Linux System_](http://www.apress.com/9781893115279) by Daniel L. Morrill (Apress, 2002).
 
 ![Cover image](9781893115279.jpg)
 

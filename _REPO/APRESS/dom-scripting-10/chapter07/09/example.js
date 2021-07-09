@@ -1,4 +1,4 @@
-window.onload = function() {
+window.onload = function () {
   var para = document.createElement("p");
   var txt1 = document.createTextNode("I inserted ");
   para.appendChild(txt1);
@@ -10,4 +10,4 @@ window.onload = function() {
   para.appendChild(txt3);
   var testdiv = document.getElementById("testdiv");
   testdiv.appendChild(para);
-}
+};

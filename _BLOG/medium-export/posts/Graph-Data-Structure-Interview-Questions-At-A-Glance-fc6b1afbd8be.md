@@ -1,9 +1,8 @@
-Graph Data Structure Interview Questions At A Glance
-====================================================
+# Graph Data Structure Interview Questions At A Glance
 
 Because they’re just about the most important data structure there is.
 
-------------------------------------------------------------------------
+---
 
 ### Graph Data Structure Interview Questions At A Glance
 
@@ -21,28 +20,28 @@ trees are a type of graph
 
 Components required to make a graph:
 
--   <span id="ca43">**nodes or vertices**: represent objects in a dataset (cities, animals, web pages)</span>
--   <span id="a2ee">**edges**: connections between vertices; can be bidirectional</span>
--   <span id="fc4a">**weight**: cost to travel across an edge; optional (aka cost)</span>
+- <span id="ca43">**nodes or vertices**: represent objects in a dataset (cities, animals, web pages)</span>
+- <span id="a2ee">**edges**: connections between vertices; can be bidirectional</span>
+- <span id="fc4a">**weight**: cost to travel across an edge; optional (aka cost)</span>
 
 Useful for:
 
--   <span id="769d">maps</span>
--   <span id="19f3">networks of activity</span>
--   <span id="93d9">anything you can represent as a network</span>
--   <span id="45a1">multi-way relational data</span>
+- <span id="769d">maps</span>
+- <span id="19f3">networks of activity</span>
+- <span id="93d9">anything you can represent as a network</span>
+- <span id="45a1">multi-way relational data</span>
 
 Types of Graphs:
 
--   <span id="f259">**directed**: can only move in one direction along edges; which direction indicated by arrows</span>
--   <span id="1bfb">**undirected**: allows movement in both directions along edges; bidirectional</span>
--   <span id="e813">**cyclic**: weighted; edges allow you to revisit at least 1 vertex; example weather</span>
--   <span id="52d4">**acyclical**: vertices can only be visited once; example recipe</span>
+- <span id="f259">**directed**: can only move in one direction along edges; which direction indicated by arrows</span>
+- <span id="1bfb">**undirected**: allows movement in both directions along edges; bidirectional</span>
+- <span id="e813">**cyclic**: weighted; edges allow you to revisit at least 1 vertex; example weather</span>
+- <span id="52d4">**acyclical**: vertices can only be visited once; example recipe</span>
 
 Two common ways to represent graphs in code:
 
--   <span id="4380">**adjacency lists**: graph stores list of vertices; for each vertex, it stores list of connected vertices</span>
--   <span id="dedc">**adjacency matrices**: two-dimensional array of lists with built-in edge weights; denotes no relationship</span>
+- <span id="4380">**adjacency lists**: graph stores list of vertices; for each vertex, it stores list of connected vertices</span>
+- <span id="dedc">**adjacency matrices**: two-dimensional array of lists with built-in edge weights; denotes no relationship</span>
 
 Both have strengths and weaknesses.
 
@@ -118,8 +117,8 @@ For the following:
 
 #### Space Complexity
 
--   <span id="f8f8">**Adjacency Matrix**: O(V ^ 2)</span>
--   <span id="1946">**Adjacency List**: O(V + E)</span>
+- <span id="f8f8">**Adjacency Matrix**: O(V ^ 2)</span>
+- <span id="1946">**Adjacency List**: O(V + E)</span>
 
 Consider a sparse graph with 100 vertices and only one edge. An adjacency list would have to store all 100 vertices but only needs to keep track of that single edge. The adjacency matrix would need to store 100x100=10,000 possible connections, even though all but one would be 0.
 
@@ -129,8 +128,8 @@ Takeaway: Adjacency lists are more space efficient for **sparse** graphs while a
 
 #### Add Vertex
 
--   <span id="6257">**Adjacency Matrix**: O(V)</span>
--   <span id="6a8f">**Adjacency List**: O(1)</span>
+- <span id="6257">**Adjacency Matrix**: O(V)</span>
+- <span id="6a8f">**Adjacency List**: O(1)</span>
 
 Adding a vertex is extremely simple in an adjacency list:
 
@@ -150,8 +149,8 @@ Takeaway: Adding vertices is very efficient in adjacency lists but very ineffici
 
 #### Remove Vertex
 
--   <span id="8226">**Adjacency Matrix**: O(V ^ 2)</span>
--   <span id="85fd">**Adjacency List**: O(V)</span>
+- <span id="8226">**Adjacency Matrix**: O(V ^ 2)</span>
+- <span id="85fd">**Adjacency List**: O(V)</span>
 
 Removing vertices is pretty inefficient in both representations. In an adjacency matrix, we need to remove the removed vertex’s row, then remove that column from each other row. Removing an element from a list requires moving everything after that element over by one slot which takes an average of V/2 operations. Since we need to do that for every single row in our matrix, that results in a V² time complexity. On top of that, we need to reduce the index of each vertex after our removed index by 1 as well which doesn’t add to our quadratic time complexity, but does add extra operations.
 
@@ -161,8 +160,8 @@ Takeaway: Removing vertices is inefficient in both adjacency matrices and lists 
 
 #### Add Edge
 
--   <span id="dbbe">**Adjacency Matrix**: O(1)</span>
--   <span id="3968">**Adjacency List**: O(1)</span>
+- <span id="dbbe">**Adjacency Matrix**: O(1)</span>
+- <span id="3968">**Adjacency List**: O(1)</span>
 
 Adding an edge in an adjacency matrix is quite simple:
 
@@ -178,8 +177,8 @@ Takeaway: Adding edges to both adjacency lists and matrices is very efficient.
 
 #### Remove Edge
 
--   <span id="b417">**Adjacency Matrix**: O(1)</span>
--   <span id="d794">**Adjacency List**: O(1)</span>
+- <span id="b417">**Adjacency Matrix**: O(1)</span>
+- <span id="d794">**Adjacency List**: O(1)</span>
 
 Removing an edge from an adjacency matrix is quite simple:
 
@@ -195,8 +194,8 @@ Takeaway: Removing edges from both adjacency lists and matrices is very efficien
 
 #### Find Edge
 
--   <span id="dc68">**Adjacency Matrix**: O(1)</span>
--   <span id="2b87">**Adjacency List**: O(1)</span>
+- <span id="dc68">**Adjacency Matrix**: O(1)</span>
+- <span id="2b87">**Adjacency List**: O(1)</span>
 
 Finding an edge in an adjacency matrix is quite simple:
 
@@ -212,8 +211,8 @@ Takeaway: Finding edges from both adjacency lists and matrices is very efficient
 
 #### Get All Edges from Vertex
 
--   <span id="798e">**Adjacency Matrix**: O(V)</span>
--   <span id="fa79">**Adjacency List**: O(1)</span>
+- <span id="798e">**Adjacency Matrix**: O(V)</span>
+- <span id="fa79">**Adjacency List**: O(1)</span>
 
 Say you want to know all the edges originating from a particular vertex. With an adjacency list, this is as simple as returning the value from the vertex dictionary:
 
@@ -237,15 +236,15 @@ Can use breadth-first search when searching a graph; explores graph outward in r
 
 <figure><img src="https://cdn-images-1.medium.com/max/800/0*WOvrysI4fX6ePqN-.gif" class="graf-image" /></figure>### Applications of BFS
 
--   <span id="149a">pathfinding, routing</span>
--   <span id="9ab5">web crawlers</span>
--   <span id="31af">find neighbor nodes in P2P network</span>
--   <span id="13aa">finding people/connections away on social network</span>
--   <span id="4f5f">find neighboring locations on graph</span>
--   <span id="d1b5">broadcasting on a network</span>
--   <span id="4061">cycle detection in a graph</span>
--   <span id="0f7f">finding connected components</span>
--   <span id="a86f">solving several theoretical graph problems</span>
+- <span id="149a">pathfinding, routing</span>
+- <span id="9ab5">web crawlers</span>
+- <span id="31af">find neighbor nodes in P2P network</span>
+- <span id="13aa">finding people/connections away on social network</span>
+- <span id="4f5f">find neighboring locations on graph</span>
+- <span id="d1b5">broadcasting on a network</span>
+- <span id="4061">cycle detection in a graph</span>
+- <span id="0f7f">finding connected components</span>
+- <span id="a86f">solving several theoretical graph problems</span>
 
 ### Coloring BFS
 
@@ -293,12 +292,12 @@ dives down the graph as far as it can before backtracking and exploring another 
 
 <figure><img src="https://cdn-images-1.medium.com/max/800/0*DZVdn1kWaiJXQ_zc.gif" class="graf-image" /></figure>### Applications of DFS
 
--   <span id="044e">preferred method for exploring a graph if we want to ensure we visit every node in graph</span>
--   <span id="b086">finding minimum spanning trees of weighted graphs</span>
--   <span id="c419">pathfinding</span>
--   <span id="281e">detecting cycles in graphs</span>
--   <span id="6739">solving and generating mazes</span>
--   <span id="20b5">topological sorting, useful for scheduling sequences of dependent jobs</span>
+- <span id="044e">preferred method for exploring a graph if we want to ensure we visit every node in graph</span>
+- <span id="b086">finding minimum spanning trees of weighted graphs</span>
+- <span id="c419">pathfinding</span>
+- <span id="281e">detecting cycles in graphs</span>
+- <span id="6739">solving and generating mazes</span>
+- <span id="20b5">topological sorting, useful for scheduling sequences of dependent jobs</span>
 
 ### DFS Pseudocode
 
@@ -329,10 +328,10 @@ dives down the graph as far as it can before backtracking and exploring another 
 1.  <span id="b45a">Take graph as parameter.</span>
 2.  <span id="a012">Marks all vertices as unvisited.</span>
 3.  <span id="1bd5">Sets vertex parent as null.</span>
-4.  <span id="0f24">Passes each unvisited vertex into DFS\_visit().</span>
+4.  <span id="0f24">Passes each unvisited vertex into DFS_visit().</span>
 5.  <span id="9011">Mark current vertex as gray.</span>
 6.  <span id="8df7">Loops through its unvisited neighbors.</span>
-7.  <span id="927d">Sets parent and makes recursive call to DFS\_visit().</span>
+7.  <span id="927d">Sets parent and makes recursive call to DFS_visit().</span>
 8.  <span id="6d4c">Marks vertex as black.</span>
 9.  <span id="e753">Repeat until done.</span>
 
@@ -342,21 +341,21 @@ dives down the graph as far as it can before backtracking and exploring another 
 
 ### Uses
 
--   <span id="0c54">typically very large graphs, networks</span>
--   <span id="1bdc">social networks</span>
--   <span id="66be">networks (which devices can reach one another)</span>
--   <span id="210c">epidemics (how spread, who started, where next)</span>
+- <span id="0c54">typically very large graphs, networks</span>
+- <span id="1bdc">social networks</span>
+- <span id="66be">networks (which devices can reach one another)</span>
+- <span id="210c">epidemics (how spread, who started, where next)</span>
 
 **key to finding connected components**: searching algorithms, breadth-first search
 
 ### How to find connected componnents
 
--   <span id="4bd0">for each node in graph:</span>
--   <span id="6e20">has it been explored</span>
--   <span id="40be">if no, do BFS</span>
--   <span id="96f4">all nodes reached are connected</span>
--   <span id="e152">if yes, already in connected component</span>
--   <span id="3f15">go to next node</span>
+- <span id="4bd0">for each node in graph:</span>
+- <span id="6e20">has it been explored</span>
+- <span id="40be">if no, do BFS</span>
+- <span id="96f4">all nodes reached are connected</span>
+- <span id="e152">if yes, already in connected component</span>
+- <span id="3f15">go to next node</span>
 
 **strongly connected components**: any node in this group can get to any other node
 

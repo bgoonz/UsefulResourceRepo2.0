@@ -5,11 +5,11 @@ It may be to build your binaries from source code or for some tooling in your de
 
 ![](https://miro.medium.com/max/1400/1*Zjt0batpaF_HDVvtSnRb7A.jpeg)
 
-We will be using Node.js inbuilt module ***child\_process*** for doing this operation.
+We will be using Node.js inbuilt module **_child_process_** for doing this operation.
 
 **For buffered, non-stream formatted output:**
 
-const { exec } = require(‘child\_process’);  
+const { exec } = require(‘child_process’);  
 exec(‘ls | grep js’, (err, stdout, stderr) =&gt; {  
 if (err) {  
 //some err occurred  
@@ -24,7 +24,7 @@ console.log(\`stderr: ${stderr}\`);
 **If you want to use promises,**
 
 const util = require(‘util’);  
-const exec = util.promisify(require(‘child\_process’).exec);  
+const exec = util.promisify(require(‘child_process’).exec);  
 async function lsWithGrep() {  
 try {  
 const { stdout, stderr } = await exec(‘ls | grep js’);  
@@ -38,7 +38,7 @@ lsWithGrep();
 
 **If you want to use output stream,**
 
-const { spawn } = require(‘child\_process’);  
+const { spawn } = require(‘child_process’);  
 const child = spawn(‘ls’, );  
 // use child.stdout.setEncoding(‘utf8’); if you want text chunks  
 child.stdout.on(‘data’, (chunk) =&gt; {  
@@ -54,11 +54,11 @@ console.log(\`child process exited with code ${code}\`);
 
 Then check out following APIs:
 
-const { execSync } = require(‘child\_process’);  
+const { execSync } = require(‘child_process’);  
 // stderr is sent to stdout of parent process  
 // you can set options.stdio if you want it to go elsewhere  
 const stdout = execSync(‘ls’);  
-const { spawnSync} = require(‘child\_process’);  
+const { spawnSync} = require(‘child_process’);  
 const child = spawnSync(‘ls’, );  
 console.error(‘error’, child.error);  
 console.log(‘stdout’, child.stdout);  
@@ -67,7 +67,7 @@ console.error(‘stderr’, child.stderr);
 if you want to execute whole shell script file, instead of commands, Then see the following code,  
 You can use any of the above methods to achieve this functionality.
 
-const exec = require(‘child\_process’).exec, child;  
+const exec = require(‘child_process’).exec, child;  
 const myShellScript = exec(‘sh doSomething.sh /myDir’);  
 myShellScript.stdout.on(‘data’, (data)=&gt;{  
 console.log(data);  
@@ -79,12 +79,12 @@ console.error(data);
 
 Nodejs Documentation for this can found [here.](https://nodejs.org/api/child_process.html)
 
-you can use **child\_process.execFile** method also to executing file.
+you can use **child_process.execFile** method also to executing file.
 
 If you want to use, third-party npm modules, then check out:
 
--   [ShellJS](https://www.npmjs.com/package/shelljs)
--   [cli](https://www.npmjs.com/package/cli)
+- [ShellJS](https://www.npmjs.com/package/shelljs)
+- [cli](https://www.npmjs.com/package/cli)
 
 You can find many more in npmjs.com
 

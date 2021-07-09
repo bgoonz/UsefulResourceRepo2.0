@@ -1,8 +1,12 @@
-(function() {
-	'use strict';
+(function () {
+  "use strict";
 
-	angular.module('app').controller('FavoritesController', ['$scope', 'favoritesService', function ($scope, favoritesService) {
-		$scope.title = 'Favorite books';
-		$scope.books = favoritesService.query();
-	}]);
-}());
+  angular.module("app").controller("FavoritesController", [
+    "$scope",
+    "favoritesService",
+    function ($scope, favoritesService) {
+      $scope.title = "Favorite books";
+      $scope.books = favoritesService.query();
+    },
+  ]);
+})();

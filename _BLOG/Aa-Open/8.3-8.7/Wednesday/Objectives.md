@@ -93,6 +93,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
 **6.Given an HTML page that includes a div styled as a square with a red background, write JavaScript that allows a user to drag the square around the screen.**
 
 ```js
+
 ```
 
 **7. Given an HTML page that has 300 DIVs, create one click event subscription that will print the id of the element clicked on to the console.**

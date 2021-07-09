@@ -1,4 +1,4 @@
-~~~ WIP ~ DRAFT ~ WIP ~~~
+```WIP ~ DRAFT ~ WIP ~~~
 =========================
 
 *[Pull Requests](https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/pulls) gladly accepted*
@@ -179,7 +179,7 @@ Execute the following commands, individually:
     GRANT CREATE ON SCHEMA public TO postgres;
     GRANT USAGE ON SCHEMA public TO postgres;
     CREATE DATABASE mail WITH OWNER mailreader;
-    \q 
+    \q
     sudo psql -U mailreader -d mail
     \c mail
 
@@ -287,7 +287,7 @@ and add the `-b` argument at lines 70 and 88:
 
 #### Restart SOGo:
 
-    sudo service sogo restart   
+    sudo service sogo restart
 
 Security Hardening
 ------------------
@@ -321,3 +321,4 @@ Article submitted by: [Pablo Carranza](https://plus.google.com/10728516406486364
 =========================
 
 *[Pull Requests](https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/pulls) gladly accepted*
+```

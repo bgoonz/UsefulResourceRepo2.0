@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>ImplementQueueUsingStacksImplementStackUsingQueues</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="implement-queue-using-stacks-implement-stack-using-queues">Implement Queue using Stacks |Implement Stack using Queues</h1>
+<p><strong>Translator:<a href="https://github.com/walsvid">walsvid</a></strong></p>
+<p><strong>Author:<a href="https://github.com/labuladong">labuladong</a></strong></p>
+<p>Queue is a FIFO (first-in-first-out) strategy data structure, while Stack is a FILO (first-in-last-out) data structure. The visual description of these data structures is shown in the figure:</p>
+<p><img src="../pictures/stackqueue/1.jpg" /></p>
+<p>The basics of these two data structures are actually implemented by arrays or linked lists, but the API limits their behavior. So let’s take a look at how to use “Stack” to implement a “Queue” and how to use “Queue” to implement a “Stack”.</p>
+<h3 id="using-stack-to-implement-queue">1. Using Stack to implement Queue</h3>
+<p>First, the API of Queue are as follows:</p>
+<pre><code>class MyQueue {
+    
+    /** Push element x to the back of queue. */
+    public void push(int x);
+    
+    /** Removes the element from in front of queue and returns that element. */
+    public int pop();
+    
+    /** Get the front element. */
+    public int peek();
+    
+    /** Returns whether the queue is empty. */
+    public boolean empty();
+}</code></pre>
+<p>We can use two stacks <code>s1,s2</code> to implement the function of a queue (it may be easier to understand to place the stack horizontally):</p>
+<p><img src="../pictures/stackqueue/2.jpg" /></p>
+<pre><code>class MyQueue {
+    private Stack&lt;Integer&gt; s1, s2;
+    
+    public MyQueue() {
+        s1 = new Stack&lt;&gt;();
+        s2 = new Stack&lt;&gt;();
+    }
+    // ...
+}</code></pre>
+<p>When calling <code>push</code> to enqueue an element, we only need to push the element into <code>s1</code>. For example, if we <code>push</code> 3 elements into 1,2,3, then the detailed structure is like this:</p>
+<p><img src="../pictures/stackqueue/3.jpg" /></p>
+<pre><code>/** Push element x to the back of queue. */
+public void push(int x) {
+    s1.push(x);
+}</code></pre>
+<p>So what if using <code>peek</code> to get the front element of the queue at this time? Logically speaking, the front element should be 1, but in <code>s1</code>, 1 is pushed to the bottom of the stack. Now we can use <code>s2</code> to transit elements. When <code>s2</code> is empty, all elements of <code>s1</code> can be moved to<code>s2</code>, <strong>at this time the elements in <code>s2</code> are FIFO (first-in-first-out) order</strong>.</p>
+<p><img src="../pictures/stackqueue/4.jpg" /></p>
+<pre><code>/** Get the front element. */
+public int peek() {
+    if (s2.isEmpty())
+        // move elements from s1 to s2
+        while (!s1.isEmpty())
+            s2.push(s1.pop());
+    return s2.peek();
+}</code></pre>
+<p>Similarly, for the <code>pop</code> operation, we only need to operate <code>s2</code>.</p>
+<pre><code>/** Removes the element from in front of queue and returns that element. */
+public int pop() {
+    // First call peek to ensure that s2 is not empty.
+    peek();
+    return s2.pop();
+}</code></pre>
+<p>Finally, how to determine the queue is empty? If both stacks are empty, the queue is empty:</p>
+<pre><code>/** Returns whether the queue is empty. */
+public boolean empty() {
+    return s1.isEmpty() &amp;&amp; s2.isEmpty();
+}</code></pre>
+<p>So far, we implement a queue with stacks. The core idea is to use two stacks to cooperate with each other.</p>
+<p>It is worth mentioning, what is the time complexity of these operations? What’s interesting is that the <code>peek</code> operation may trigger a <code>while</code> loop when it is called. In this case, the time complexity is <span class="math inline"><em>O</em>(<em>N</em>)</span>, but in most cases, the <code>while</code> loop will not be triggered and the time complexity is <span class="math inline"><em>O</em>(1)</span>. Since the <code>pop</code> operation calls <code>peek</code>, its time complexity is the same as peek.</p>
+<p>In this case, it can be said that their <strong>worst time complexity</strong> is <span class="math inline"><em>O</em>(<em>N</em>)</span>, because, including a <code>while</code> loop, it may be necessary to move elements from <code>s1</code> to <code>s2</code>.</p>
+<p>However, their <strong>average time complexity</strong> is <span class="math inline"><em>O</em>(1)</span>. We can understand it in this way: For an element, it can only be moved at most once, which means that the average time complexity of each element of the <code>peek</code> operation is <span class="math inline"><em>O</em>(1)</span>.</p>
+<h3 id="using-queue-to-implement-stack">2. Using Queue to implement Stack</h3>
+<p>If it is tricky to use 2 stacks to implement a queue, then using queue to implement stack is much more straightforward, requiring only one queue as the basic data structure.</p>
+<p>First, the API of stack are as follows:</p>
+<pre><code>class MyStack {
+    
+    /** Push element x onto stack. */
+    public void push(int x);
+    
+    /** Removes the element on top of the stack and returns that element. */
+    public int pop();
+    
+    /** Get the top element. */
+    public int top();
+    
+    /** Returns whether the stack is empty. */
+    public boolean empty();
+}</code></pre>
+<p>Let’s talk about the <code>push</code> API first. We can add elements directly to the queue, and record the rear element at the same time. Since the rear element is equivalent to the top element of the stack, if we want to use <code>top</code> to get the top element of the stack, we can directly return it:</p>
+<pre><code>class MyStack {
+    Queue&lt;Integer&gt; q = new LinkedList&lt;&gt;();
+    int top_elem = 0;
+
+    /** Push element x onto stack. */
+    public void push(int x) {
+        // x is the rear element of queue, it also the top element of stack.
+        q.offer(x);
+        top_elem = x;
+    }
+    
+    /** Return the top element. */
+    public int top() {
+        return top_elem;
+    }
+}</code></pre>
+<p>Our basic data structure is a FIFO queue, and each <code>pop</code> can only take elements in front of the queue; But the stack is FILO, which means the <code>pop</code> API takes elements from the rear of the queue.</p>
+<p><img src="../pictures/stackqueue/5.jpg" /></p>
+<p>The solution is simple. We can take out the front element of the queue and add it to the rear of the queue, and let the previous rear element line up to the head of the queue, and then we can take it out:</p>
+<p><img src="../pictures/stackqueue/6.jpg" /></p>
+<pre><code>/** Removes the element on top of the stack and returns that element. */
+public int pop() {
+    int size = q.size();
+    while (size &gt; 1) {
+        q.offer(q.poll());
+        size--;
+    }
+    // the previous rear element reaches the head of the queue
+    return q.poll();
+}</code></pre>
+<p>There is still a small problem with this implementation. The original rear element has reached to the head of the queue and has been deleted, but the <code>top_elem</code> variable was not updated. We need a little modification:</p>
+<pre><code>/** Removes the element on top of the stack and returns that element. */
+public int pop() {
+    int size = q.size();
+    // Leave the last 2 elements
+    while (size &gt; 2) {
+        q.offer(q.poll());
+        size--;
+    }
+    // Record the new rear element
+    top_elem = q.peek();
+    q.offer(q.poll());
+    // Remove the previous rear element
+    return q.poll();
+}</code></pre>
+<p>In the end, the <code>empty</code> API is easy to implement, just check if the underlying queue is empty:</p>
+<pre><code>/** Returns whether the stack is empty. */
+public boolean empty() {
+    return q.isEmpty();
+}</code></pre>
+<p>Obviously, if we implement a stack with a queue, the time complexity of the <code>pop</code> operation is <span class="math inline"><em>O</em>(<em>N</em>)</span>, and all other operations are <span class="math inline"><em>O</em>(1)</span>.</p>
+<p>I think that implement a stack with a queue is a trivial problem, but <strong>implement a queue with a dual stack is worth learning</strong>.</p>
+<p><img src="../pictures/stackqueue/4.jpg" /></p>
+<p>After moving elements from stack <code>s1</code> to <code>s2</code>, the elements become the FIFO order of the queue in s2. This feature is similar to “Two negatives make an affirmative.,” which is not easy to think.</p>
+<p>I hope this article is helpful to you.</p>
+<p>“Stick to original high-quality articles, and work hard to make algorithmic problems clear.”</p>
+</body>
+</html>

@@ -12,17 +12,17 @@ var ID = {};
 var sprites = {};
 
 powerupjs.Game.loadAssets = function () {
-    var loadSprite = function (sprite, collisionMask) {
-        return new powerupjs.SpriteSheet("assets/sprites/" + sprite, collisionMask);
-    };
+  var loadSprite = function (sprite, collisionMask) {
+    return new powerupjs.SpriteSheet("assets/sprites/" + sprite, collisionMask);
+  };
 
-    sprites.run = loadSprite("spr_run@13.png", true);
-    sprites.idle = loadSprite("spr_idle.png", true);
-    sprites.sparky_idle = loadSprite("spr_sparky_idle.png", true);
-    sprites.sparky_electrocute = loadSprite("spr_sparky_electrocute@6x5.png");
+  sprites.run = loadSprite("spr_run@13.png", true);
+  sprites.idle = loadSprite("spr_idle.png", true);
+  sprites.sparky_idle = loadSprite("spr_sparky_idle.png", true);
+  sprites.sparky_electrocute = loadSprite("spr_sparky_electrocute@6x5.png");
 };
 
 powerupjs.Game.initialize = function () {
-    ID.game_state_main = powerupjs.GameStateManager.add(new MainState());
-    powerupjs.GameStateManager.switchTo(ID.game_state_main);
+  ID.game_state_main = powerupjs.GameStateManager.add(new MainState());
+  powerupjs.GameStateManager.switchTo(ID.game_state_main);
 };

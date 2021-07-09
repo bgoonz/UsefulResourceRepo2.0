@@ -6,8 +6,8 @@ Consider the following document, which is **USER** document, which has an **arra
 
 {  
 “\_id” : ObjectId(“5a0fa6f6e744c923ec159606”),  
-“updated\_at” : ISODate(“2017-11-18T03:20:22.282Z”),  
-“created\_at” : ISODate(“2017-11-18T03:20:22.282Z”),  
+“updated_at” : ISODate(“2017-11-18T03:20:22.282Z”),  
+“created_at” : ISODate(“2017-11-18T03:20:22.282Z”),  
 “firstName” : “stackFame”,  
 “lastName” : “Media”,  
 “userName” : “stackFame”,  
@@ -36,8 +36,7 @@ console.log(err);
 }  
 );
 
-[Receive Inbound emails using Node.js — Node-Mailin](https://stackfame.com/receive-inbound-emails-node-js)
-----------------------------------------------------------------------------------------------------------
+## [Receive Inbound emails using Node.js — Node-Mailin](https://stackfame.com/receive-inbound-emails-node-js)
 
 and you’ve successfully pushed item in a MongoDB document.Now we will learn how to pop or remove an item from MongoDB document array.
 

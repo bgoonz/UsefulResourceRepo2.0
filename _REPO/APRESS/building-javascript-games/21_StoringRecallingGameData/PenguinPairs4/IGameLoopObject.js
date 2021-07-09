@@ -1,16 +1,11 @@
 "use strict";
 
-function IGameLoopObject() {
-}
+function IGameLoopObject() {}
 
-IGameLoopObject.prototype.handleInput = function (delta) {
-};
+IGameLoopObject.prototype.handleInput = function (delta) {};
 
-IGameLoopObject.prototype.update = function (delta) {
-};
+IGameLoopObject.prototype.update = function (delta) {};
 
-IGameLoopObject.prototype.draw = function () {
-};
+IGameLoopObject.prototype.draw = function () {};
 
-IGameLoopObject.prototype.reset = function () {
-};
+IGameLoopObject.prototype.reset = function () {};

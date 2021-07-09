@@ -1,45 +1,45 @@
-import counterView from './counter.js'
+import counterView from "./counter.js";
 
-let targetElement
+let targetElement;
 
-describe('counterView', () => {
+describe("counterView", () => {
   beforeEach(() => {
-    targetElement = document.createElement('div')
-  })
+    targetElement = document.createElement("div");
+  });
 
-  test('should put the number of not completed todo in a new DOM elements', () => {
+  test("should put the number of not completed todo in a new DOM elements", () => {
     const newCounter = counterView(targetElement, {
       todos: [
         {
-          text: 'First',
-          completed: true
+          text: "First",
+          completed: true,
         },
         {
-          text: 'Second',
-          completed: false
+          text: "Second",
+          completed: false,
         },
         {
-          text: 'Third',
-          completed: false
-        }
-      ]
-    })
-    expect(newCounter.textContent).toBe('2 Items left')
-  })
+          text: "Third",
+          completed: false,
+        },
+      ],
+    });
+    expect(newCounter.textContent).toBe("2 Items left");
+  });
 
-  test('should consider the singular form when only one item is left', () => {
+  test("should consider the singular form when only one item is left", () => {
     const newCounter = counterView(targetElement, {
       todos: [
         {
-          text: 'First',
-          completed: true
+          text: "First",
+          completed: true,
         },
         {
-          text: 'Third',
-          completed: false
-        }
-      ]
-    })
-    expect(newCounter.textContent).toBe('1 Item left')
-  })
-})
+          text: "Third",
+          completed: false,
+        },
+      ],
+    });
+    expect(newCounter.textContent).toBe("1 Item left");
+  });
+});

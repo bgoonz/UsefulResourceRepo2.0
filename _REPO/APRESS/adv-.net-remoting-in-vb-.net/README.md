@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*Advanced .NET Remoting in VB .NET*](http://www.apress.com/9781590590621) by Ingo Rammer (Apress, 2002).
+This repository accompanies [_Advanced .NET Remoting in VB .NET_](http://www.apress.com/9781590590621) by Ingo Rammer (Apress, 2002).
 
 ![Cover image](9781590590621.jpg)
 

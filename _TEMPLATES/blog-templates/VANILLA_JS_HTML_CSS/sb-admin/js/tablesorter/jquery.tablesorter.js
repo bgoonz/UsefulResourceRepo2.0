@@ -98,7 +98,6 @@
  *
  * @cat Plugins/Tablesorter
  *
- * @author Christian Bach/christian.bach@polyester.se
  */
 
 (

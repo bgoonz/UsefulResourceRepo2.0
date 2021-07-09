@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*XML Programming Using the Microsoft XML Parser*](http://www.apress.com/9781893115422) by Wei-Meng Lee and Soo Mee Foo (Apress, 2002).
+This repository accompanies [_XML Programming Using the Microsoft XML Parser_](http://www.apress.com/9781893115422) by Wei-Meng Lee and Soo Mee Foo (Apress, 2002).
 
 ![Cover image](9781893115422.jpg)
 

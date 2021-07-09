@@ -1,6 +1,6 @@
-import filtersView from './filters.js'
+import filtersView from "./filters.js";
 
-let targetElement
+let targetElement;
 const TEMPLATE = `<ul class="filters">
     <li>
         <a href="#/">All</a>
@@ -11,22 +11,22 @@ const TEMPLATE = `<ul class="filters">
     <li>
         <a href="#/completed">Completed</a>
     </li>
-</ul>`
+</ul>`;
 
-describe('filtersView', () => {
+describe("filtersView", () => {
   beforeEach(() => {
-    const tempElement = document.createElement('div')
-    tempElement.innerHTML = TEMPLATE
-    targetElement = tempElement.childNodes[0]
-  })
+    const tempElement = document.createElement("div");
+    tempElement.innerHTML = TEMPLATE;
+    targetElement = tempElement.childNodes[0];
+  });
 
   test('should add the class "selected" to the anchor with the same text of the currentFilter', () => {
     const newCounter = filtersView(targetElement, {
-      currentFilter: 'Active'
-    })
+      currentFilter: "Active",
+    });
 
-    const selectedItem = newCounter.querySelector('li a.selected')
+    const selectedItem = newCounter.querySelector("li a.selected");
 
-    expect(selectedItem.textContent).toBe('Active')
-  })
-})
+    expect(selectedItem.textContent).toBe("Active");
+  });
+});

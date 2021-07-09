@@ -83,7 +83,6 @@ If either of these limitations applies to you, you might consider a JavaScript s
 
 Imagine this: when the page loads all videos are looked at and their aspect ratio is saved. Once right away, and whenever the window is resized, all the videos are resized to fill the available width and maintain their aspect ratio. Using the [jQuery](https://jquery.com/) JavaScript Library, that looks like this:
 
-
     var $allVideos = $("iframe[src^='//www.youtube.com']"),
 
 
@@ -121,7 +120,7 @@ Imagine this: when the page loads all videos are looked at and their aspect rati
 
 ### That’s sorta what became FitVids.js
 
-Except rather than deal with all that resizing business, [FitVids.js](https://github.com/davatron5000/FitVids.js) loops over all the videos and adds the aspect-ratio enabling HTML wrapper and CSS necessary. That’s *way more efficient* than needing to bind to a window resize handler!
+Except rather than deal with all that resizing business, [FitVids.js](https://github.com/davatron5000/FitVids.js) loops over all the videos and adds the aspect-ratio enabling HTML wrapper and CSS necessary. That’s _way more efficient_ than needing to bind to a window resize handler!
 
 ### Plain JavaScript instead
 
