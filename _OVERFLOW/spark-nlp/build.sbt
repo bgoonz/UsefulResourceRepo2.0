@@ -104,8 +104,9 @@ lazy val testDependencies = Seq(
 
 lazy val utilDependencies = Seq(
   "com.typesafe" % "config" % "1.3.0",
-  "org.rocksdb" % "rocksdbjni" % "6.20.3",
-  "org.apache.hadoop" % "hadoop-aws" %  "3.2.0"
+  "org.rocksdb" % "rocksdbjni" % "6.5.3",
+  "org.apache.hadoop" % "hadoop-aws" %  "3.3.1"
+
     exclude("com.fasterxml.jackson.core", "jackson-annotations")
     exclude("com.fasterxml.jackson.core", "jackson-databind")
     exclude("com.fasterxml.jackson.core", "jackson-core")
