@@ -8,19 +8,24 @@ import sparknlp.internal as _internal
 
 class AnnotatorProperties(Params):
 
-    inputCols = Param(Params._dummy(),
-                      "inputCols",
-                      "previous annotations columns, if renamed",
-                      typeConverter=TypeConverters.toListString)
-    outputCol = Param(Params._dummy(),
-                      "outputCol",
-                      "output annotation column. can be left default.",
-                      typeConverter=TypeConverters.toString)
-    lazyAnnotator = Param(Params._dummy(),
-                          "lazyAnnotator",
-                          "Whether this AnnotatorModel acts as lazy in RecursivePipelines",
-                          typeConverter=TypeConverters.toBoolean
-                          )
+    inputCols = Param(
+        Params._dummy(),
+        "inputCols",
+        "previous annotations columns, if renamed",
+        typeConverter=TypeConverters.toListString,
+    )
+    outputCol = Param(
+        Params._dummy(),
+        "outputCol",
+        "output annotation column. can be left default.",
+        typeConverter=TypeConverters.toString,
+    )
+    lazyAnnotator = Param(
+        Params._dummy(),
+        "lazyAnnotator",
+        "Whether this AnnotatorModel acts as lazy in RecursivePipelines",
+        typeConverter=TypeConverters.toBoolean,
+    )
 
     def setInputCols(self, *value):
         if len(value) == 1 and type(value[0]) == list:
@@ -44,8 +49,13 @@ class AnnotatorProperties(Params):
         self.getOrDefault(self.lazyAnnotator)
 
 
-class AnnotatorModel(JavaModel, _internal.AnnotatorJavaMLReadable, JavaMLWritable, AnnotatorProperties, _internal.ParamsGettersSetters):
-
+class AnnotatorModel(
+    JavaModel,
+    _internal.AnnotatorJavaMLReadable,
+    JavaMLWritable,
+    AnnotatorProperties,
+    _internal.ParamsGettersSetters,
+):
     @keyword_only
     def setParams(self):
         kwargs = self._input_kwargs
@@ -63,10 +73,12 @@ class AnnotatorModel(JavaModel, _internal.AnnotatorJavaMLReadable, JavaMLWritabl
 
 
 class HasEmbeddingsProperties(Params):
-    dimension = Param(Params._dummy(),
-                      "dimension",
-                      "Number of embedding dimensions",
-                      typeConverter=TypeConverters.toInt)
+    dimension = Param(
+        Params._dummy(),
+        "dimension",
+        "Number of embedding dimensions",
+        typeConverter=TypeConverters.toInt,
+    )
 
     def setDimension(self, value):
         return self._set(dimension=value)
@@ -77,9 +89,12 @@ class HasEmbeddingsProperties(Params):
 
 class HasStorageRef:
 
-    storageRef = Param(Params._dummy(), "storageRef",
-                       "unique reference name for identification",
-                       TypeConverters.toString)
+    storageRef = Param(
+        Params._dummy(),
+        "storageRef",
+        "unique reference name for identification",
+        TypeConverters.toString,
+    )
 
     def setStorageRef(self, value):
         return self._set(storageRef=value)
@@ -89,10 +104,12 @@ class HasStorageRef:
 
 
 class HasCaseSensitiveProperties:
-    caseSensitive = Param(Params._dummy(),
-                          "caseSensitive",
-                          "whether to ignore case in tokens for embeddings matching",
-                          typeConverter=TypeConverters.toBoolean)
+    caseSensitive = Param(
+        Params._dummy(),
+        "caseSensitive",
+        "whether to ignore case in tokens for embeddings matching",
+        typeConverter=TypeConverters.toBoolean,
+    )
 
     def setCaseSensitive(self, value):
         return self._set(caseSensitive=value)
@@ -103,10 +120,12 @@ class HasCaseSensitiveProperties:
 
 class HasExcludableStorage:
 
-    includeStorage = Param(Params._dummy(),
-                           "includeStorage",
-                           "whether to include indexed storage in trained model",
-                           typeConverter=TypeConverters.toBoolean)
+    includeStorage = Param(
+        Params._dummy(),
+        "includeStorage",
+        "whether to include indexed storage in trained model",
+        typeConverter=TypeConverters.toBoolean,
+    )
 
     def setIncludeStorage(self, value):
         return self._set(includeStorage=value)
@@ -117,10 +136,12 @@ class HasExcludableStorage:
 
 class HasStorage(HasStorageRef, HasCaseSensitiveProperties, HasExcludableStorage):
 
-    storagePath = Param(Params._dummy(),
-                        "storagePath",
-                        "path to file",
-                        typeConverter=TypeConverters.identity)
+    storagePath = Param(
+        Params._dummy(),
+        "storagePath",
+        "path to file",
+        typeConverter=TypeConverters.identity,
+    )
 
     def setStoragePath(self, path, read_as):
         return self._set(storagePath=ExternalResource(path, read_as, {}))
@@ -130,24 +151,31 @@ class HasStorage(HasStorageRef, HasCaseSensitiveProperties, HasExcludableStorage
 
 
 class HasStorageModel(HasStorageRef, HasCaseSensitiveProperties, HasExcludableStorage):
-
     def saveStorage(self, path, spark):
         self._transfer_params_to_java()
         self._java_obj.saveStorage(path, spark._jsparkSession, False)
 
     @staticmethod
     def loadStorage(path, spark, storage_ref):
-        raise NotImplementedError("AnnotatorModel with HasStorageModel did not implement 'loadStorage'")
+        raise NotImplementedError(
+            "AnnotatorModel with HasStorageModel did not implement 'loadStorage'"
+        )
 
     @staticmethod
     def loadStorages(path, spark, storage_ref, databases):
         for database in databases:
-            _internal._StorageHelper(path, spark, database, storage_ref, within_storage=False)
+            _internal._StorageHelper(
+                path, spark, database, storage_ref, within_storage=False
+            )
 
 
-class AnnotatorApproach(JavaEstimator, JavaMLWritable, _internal.AnnotatorJavaMLReadable, AnnotatorProperties,
-                        _internal.ParamsGettersSetters):
-
+class AnnotatorApproach(
+    JavaEstimator,
+    JavaMLWritable,
+    _internal.AnnotatorJavaMLReadable,
+    AnnotatorProperties,
+    _internal.ParamsGettersSetters,
+):
     @keyword_only
     def __init__(self, classname):
         _internal.ParamsGettersSetters.__init__(self)
@@ -156,11 +184,16 @@ class AnnotatorApproach(JavaEstimator, JavaMLWritable, _internal.AnnotatorJavaML
         self._setDefault(lazyAnnotator=False)
 
     def _create_model(self, java_model):
-        raise NotImplementedError('Please implement _create_model in %s' % self)
+        raise NotImplementedError("Please implement _create_model in %s" % self)
 
 
-class RecursiveAnnotatorApproach(_internal.RecursiveEstimator, JavaMLWritable, _internal.AnnotatorJavaMLReadable, AnnotatorProperties,
-                                 _internal.ParamsGettersSetters):
+class RecursiveAnnotatorApproach(
+    _internal.RecursiveEstimator,
+    JavaMLWritable,
+    _internal.AnnotatorJavaMLReadable,
+    AnnotatorProperties,
+    _internal.ParamsGettersSetters,
+):
     @keyword_only
     def __init__(self, classname):
         _internal.ParamsGettersSetters.__init__(self)
@@ -169,7 +202,7 @@ class RecursiveAnnotatorApproach(_internal.RecursiveEstimator, JavaMLWritable, _
         self._setDefault(lazyAnnotator=False)
 
     def _create_model(self, java_model):
-        raise NotImplementedError('Please implement _create_model in %s' % self)
+        raise NotImplementedError("Please implement _create_model in %s" % self)
 
 
 def RegexRule(rule, identifier):

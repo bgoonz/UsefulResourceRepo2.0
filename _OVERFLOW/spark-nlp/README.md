@@ -14,28 +14,28 @@ Take a look at our official Spark NLP page: [http://nlp.johnsnowlabs.com/](http:
 
 ## Table of contents
 
-* [Quick Start](#quick-start)
-* [Using Spark NLP](#usage)  
-  * [Apache Spark Support](#apache-spark-support)
-  * [Spark Packages](#spark-packages)
-  * [Scala](#scala)
-    * [Maven](#maven)
-    * [SBT](#sbt)
-  * [Python](#python)
-    * [Pip/Conda](#pipconda)
-  * [Compiled JARs](#compiled-jars)
-  * [Apache Zeppelin](#apache-zeppelin)
-  * [Jupyter Notebook](#jupyter-notebook-python)
-  * [Google Colab Notebook](#google-colab-notebook)
-  * [S3 Cluster](#s3-cluster)  
-* [Pipelines & Models](#pipelines-and-models)
-  * [Pipelines](#pipelines)
-  * [Models](#models)
-* [Examples](#examples)  
-* [FAQ](#faq)
-* [Troubleshooting](#troubleshooting)
-* [Acknowledgments](#acknowledgments)
-* [Contributing](#contributing)
+- [Quick Start](#quick-start)
+- [Using Spark NLP](#usage)
+  - [Apache Spark Support](#apache-spark-support)
+  - [Spark Packages](#spark-packages)
+  - [Scala](#scala)
+    - [Maven](#maven)
+    - [SBT](#sbt)
+  - [Python](#python)
+    - [Pip/Conda](#pipconda)
+  - [Compiled JARs](#compiled-jars)
+  - [Apache Zeppelin](#apache-zeppelin)
+  - [Jupyter Notebook](#jupyter-notebook-python)
+  - [Google Colab Notebook](#google-colab-notebook)
+  - [S3 Cluster](#s3-cluster)
+- [Pipelines & Models](#pipelines-and-models)
+  - [Pipelines](#pipelines)
+  - [Models](#models)
+- [Examples](#examples)
+- [FAQ](#faq)
+- [Troubleshooting](#troubleshooting)
+- [Acknowledgments](#acknowledgments)
+- [Contributing](#contributing)
 
 ## Quick Start
 
@@ -56,7 +56,7 @@ pipeline = PretrainedPipeline('explain_document_dl', lang='en')
 
 # Your testing dataset
 text = """
-The Mona Lisa is a 16th century oil painting created by Leonardo. 
+The Mona Lisa is a 16th century oil painting created by Leonardo.
 It's held at the Louvre in Paris.
 """
 
@@ -79,15 +79,15 @@ For more examples you can visit our dedicated [repository](https://github.com/Jo
 
 ## Apache Spark Support
 
-Spark NLP *2.4.0* has been built on top of Apache Spark 2.4.4
+Spark NLP _2.4.0_ has been built on top of Apache Spark 2.4.4
 
-| Spark NLP   |   Spark 2.3.x         | Spark 2.4   |
-|-------------|-------------------------------------|--------------|
-| 2.x.x       |YES                                  |YES           |
-| 1.8.x       |Partially                            |YES           |
-| 1.7.3       |YES                                  |N/A           |
-| 1.6.3       |YES                                  |N/A           |
-| 1.5.0       |YES                                  |N/A           |
+| Spark NLP | Spark 2.3.x | Spark 2.4 |
+| --------- | ----------- | --------- |
+| 2.x.x     | YES         | YES       |
+| 1.8.x     | Partially   | YES       |
+| 1.7.3     | YES         | N/A       |
+| 1.6.3     | YES         | N/A       |
+| 1.5.0     | YES         | N/A       |
 
 Find out more about `Spark NLP` versions from our [release notes](https://github.com/JohnSnowLabs/spark-nlp/releases).
 
@@ -235,19 +235,19 @@ result = pipeline.annotate('Harry Potter is a great movie')
 
 #### spark-nlp
 
-* FAT-JAR for CPU
+- FAT-JAR for CPU
 
 ```bash
 sbt assembly
 ```
 
-* FAT-JAR for GPU
+- FAT-JAR for GPU
 
 ```bash
 sbt -Dis_gpu=true assembly
 ```
 
-* Packaging the project
+- Packaging the project
 
 ```bash
 sbt package
@@ -269,13 +269,13 @@ The preferred way to use the library when running spark programs is using the `-
 
 Use either one of the following options
 
-* Add the following Maven Coordinates to the interpreter's library list
+- Add the following Maven Coordinates to the interpreter's library list
 
 ```bash
 com.johnsnowlabs.nlp:spark-nlp_2.11:2.4.0
 ```
 
-* Add path to pre-built jar from [here](#compiled-jars) in the interpreter's library list making sure the jar is available to driver path
+- Add path to pre-built jar from [here](#compiled-jars) in the interpreter's library list making sure the jar is available to driver path
 
 ### Python in Zeppelin
 
@@ -353,7 +353,7 @@ spark.version
 
 If your distributed storage is S3 and you don't have a standard hadoop configuration (i.e. fs.defaultFS)
 You need to specify where in the cluster distributed storage you want to store Spark NLP's tmp files.
-First, decide where you want to put your *application.conf* file
+First, decide where you want to put your _application.conf_ file
 
 ```scala
 import com.johnsnowlabs.util.ConfigLoader
@@ -378,24 +378,24 @@ Spark NLP offers more than `25 pre-trained pipelines` in `4 languages`.
 
 **English pipelines:**
 
-| Pipelines            | Name                   |
-| -------------------- | ---------------------- |
-| Explain Document ML  | `explain_document_ml`  |
-| Explain Document DL | `explain_document_dl`  |
-| Explain Document DL Fast | `explain_document_dl_fast`  |
-| Recognize Entities DL | `recognize_entities_dl` |
+| Pipelines                | Name                         |
+| ------------------------ | ---------------------------- |
+| Explain Document ML      | `explain_document_ml`        |
+| Explain Document DL      | `explain_document_dl`        |
+| Explain Document DL Fast | `explain_document_dl_fast`   |
+| Recognize Entities DL    | `recognize_entities_dl`      |
 | OntoNotes Entities Small | `onto_recognize_entities_sm` |
 | OntoNotes Entities Large | `onto_recognize_entities_lg` |
-| Match Datetime | `match_datetime` |
-| Match Pattern | `match_pattern` |
-| Match Chunk | `match_chunks` |
-| Match Phrases | `match_phrases`|
-| Clean Stop | `clean_stop`|
-| Clean Pattern | `clean_pattern`|
-| Clean Slang | `clean_slang`|
-| Check Spelling | `check_spelling`|
-| Analyze Sentiment | `analyze_sentiment` |
-| Dependency Parse | `dependency_parse` |
+| Match Datetime           | `match_datetime`             |
+| Match Pattern            | `match_pattern`              |
+| Match Chunk              | `match_chunks`               |
+| Match Phrases            | `match_phrases`              |
+| Clean Stop               | `clean_stop`                 |
+| Clean Pattern            | `clean_pattern`              |
+| Clean Slang              | `clean_slang`                |
+| Check Spelling           | `check_spelling`             |
+| Analyze Sentiment        | `analyze_sentiment`          |
+| Dependency Parse         | `dependency_parse`           |
 
 **Quick example:**
 
@@ -450,27 +450,27 @@ Spark NLP offers more than `30 pre-trained models` in `4 languages`.
 
 **English pipelines:**
 
-| Model                                  |   Name     |
-|----------------------------------------|------------|
-|LemmatizerModel (Lemmatizer)            |  `lemma_antbnc`      |
-|PerceptronModel (POS)                   |   `pos_anc`     |
-|NerCRFModel (NER with GloVe)            |    `ner_crf`    |
-|NerDLModel (NER with GloVe)             |    `ner_dl`    |
-|NerDLModel (NER with BERT)| `ner_dl_bert_base_cased`|
-|NerDLModel (OntoNotes with GloVe 100d)| `onto_100`|
-|NerDLModel (OntoNotes with GloVe 300d)| `onto_300`|
-|WordEmbeddings (GloVe) | `glove_100d` |
-|BertEmbeddings (base_uncased) | `bert_base_uncased` |
-|BertEmbeddings (base_cased) | `bert_base_cased` |
-|BertEmbeddings (large_uncased) | `bert_large_uncased` |
-|BertEmbeddings (large_cased) | `bert_large_cased` |
-|DeepSentenceDetector| `ner_dl_sentence`|
-|ContextSpellCheckerModel (Spell Checker)|   `spellcheck_dl`     |
-|SymmetricDeleteModel (Spell Checker)    |   `spellcheck_sd`     |
-|NorvigSweetingModel (Spell Checker)     |  `spellcheck_norvig`   |
-|ViveknSentimentModel (Sentiment)        |    `sentiment_vivekn`    |
-|DependencyParser (Dependency)        |    `dependency_conllu`    |
-|TypedDependencyParser (Dependency)        |    `dependency_typed_conllu`    |
+| Model                                    | Name                      |
+| ---------------------------------------- | ------------------------- |
+| LemmatizerModel (Lemmatizer)             | `lemma_antbnc`            |
+| PerceptronModel (POS)                    | `pos_anc`                 |
+| NerCRFModel (NER with GloVe)             | `ner_crf`                 |
+| NerDLModel (NER with GloVe)              | `ner_dl`                  |
+| NerDLModel (NER with BERT)               | `ner_dl_bert_base_cased`  |
+| NerDLModel (OntoNotes with GloVe 100d)   | `onto_100`                |
+| NerDLModel (OntoNotes with GloVe 300d)   | `onto_300`                |
+| WordEmbeddings (GloVe)                   | `glove_100d`              |
+| BertEmbeddings (base_uncased)            | `bert_base_uncased`       |
+| BertEmbeddings (base_cased)              | `bert_base_cased`         |
+| BertEmbeddings (large_uncased)           | `bert_large_uncased`      |
+| BertEmbeddings (large_cased)             | `bert_large_cased`        |
+| DeepSentenceDetector                     | `ner_dl_sentence`         |
+| ContextSpellCheckerModel (Spell Checker) | `spellcheck_dl`           |
+| SymmetricDeleteModel (Spell Checker)     | `spellcheck_sd`           |
+| NorvigSweetingModel (Spell Checker)      | `spellcheck_norvig`       |
+| ViveknSentimentModel (Sentiment)         | `sentiment_vivekn`        |
+| DependencyParser (Dependency)            | `dependency_conllu`       |
+| TypedDependencyParser (Dependency)       | `dependency_typed_conllu` |
 
 **Quick online example:**
 
@@ -486,11 +486,11 @@ ner_bert = NerDLModel.pretrained('ner_dl_bert')
 val french_pos = PerceptronModel.pretrained("pos_ud_gsd", lang="fr")
 // load Italain LemmatizerModel
 val italian_lemma = LemmatizerModel.pretrained("lemma_dxc", lang="it")
-````
+```
 
 **Quick offline example:**
 
-* Loading `PerceptronModel` annotator model inside Spark NLP Pipeline
+- Loading `PerceptronModel` annotator model inside Spark NLP Pipeline
 
 ```scala
 val french_pos = PerceptronModel.load("/tmp/pos_ud_gsd_fr_2.0.2_2.4_1556531457346/")
@@ -512,7 +512,7 @@ Need more **examples**? Check out our dedicated [repository](https://github.com/
 
 ## Troubleshooting
 
-### ```TypeError: 'JavaPackage' object is not callable```
+### `TypeError: 'JavaPackage' object is not callable`
 
 If you get this common python error, it means that the Spark NLP was not loaded correctly in your session, take a look at the following suggestions for a solution
 (Thanks Eric Nelson for putting this together)
@@ -526,7 +526,6 @@ If you get this common python error, it means that the Spark NLP was not loaded 
 7. Make sure all dependencies are properly written and/or paths to any jars you are manually providing. Spark does not fail upon wrong path, it will just ignore it
 8. If you get dependency failures when starting Spark, make sure to add antivirus and firewall exceptions. Windows antivirus adversely impacts performance when resolving dependencies.
 
-
 ## Acknowledgments
 
 ### Special community acknowledgments
@@ -536,19 +535,19 @@ Community has been key in the last releases with feedback in various Spark based
 
 Here a few specific mentions for recurring feedback and slack participation
 
-* [@maziyarpanahi](https://github.com/maziyarpanahi) - For contributing with testing and valuable feedback
-* [@easimadi](https://github.com/easimadi) - For contributing with documentation and valuable feedback
+- [@maziyarpanahi](https://github.com/maziyarpanahi) - For contributing with testing and valuable feedback
+- [@easimadi](https://github.com/easimadi) - For contributing with documentation and valuable feedback
 
 ## Contributing
 
 We appreciate any sort of contributions:
 
-* ideas
-* feedback
-* documentation
-* bug reports
-* nlp training and testing corpora
-* development and testing
+- ideas
+- feedback
+- documentation
+- bug reports
+- nlp training and testing corpora
+- development and testing
 
 Clone the repo and submit your pull-requests! Or directly create issues in this repo.
 

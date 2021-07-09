@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>racket.html</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <hr />
+    <p>
+      language: racket filename: learnracket.rkt contributors: - [“th3rac25”,
+      “https://github.com/voila”] - [“Eli Barzilay”,
+      “https://github.com/elibarzilay”] - [“Gustavo Schmidt”,
+      “https://github.com/gustavoschmidt”] - [“Duong H. Nguyen”,
+      “https://github.com/cmpitg”] - [“Keyan Zhang”,
+      “https://github.com/keyanzhang”] —
+    </p>
+    <p>
+      Racket is a general purpose, multi-paradigm programming language in the
+      Lisp/Scheme family.
+    </p>
+    <p>
+      Feedback is appreciated! You can reach me at
+      <span class="citation" data-cites="th3rac25">[@th3rac25]</span
+      >(http://twitter.com/th3rac25) or th3rac25 [at] [google’s email service]
+    </p>
+    <pre class="racket"><code>#lang racket ; defines the language we are using
+
+;;; Comments
+
+;; Single line comments start with a semicolon
+
+#| Block comments
+   can span multiple lines and...
+    #|
+       they can be nested!
+    |#
+|#
+
+;; S-expression comments discard the following expression,
+;; useful to comment expressions when debugging
+#; (this expression is discarded)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 1. Primitive Datatypes and Operators
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Numbers
+9999999999999999999999 ; integers
+#b111                  ; binary =&gt; 7
+#o111                  ; octal =&gt; 73
+#x111                  ; hexadecimal =&gt; 273
+3.14                   ; reals
+6.02e+23
+1/2                    ; rationals
+1+2i                   ; complex numbers
+
+;; Function application is written (f x y z ...)
+;; where f is a function and x, y, z, ... are operands
+;; If you want to create a literal list of data, use &#39; to stop it from
+;; being evaluated
+&#39;(+ 1 2) ; =&gt; (+ 1 2)
+;; Now, some arithmetic operations
+(+ 1 1)  ; =&gt; 2
+(- 8 1)  ; =&gt; 7
+(* 10 2) ; =&gt; 20
+(expt 2 3) ; =&gt; 8
+(quotient 5 2) ; =&gt; 2
+(remainder 5 2) ; =&gt; 1
+(/ 35 5) ; =&gt; 7
+(/ 1 3) ; =&gt; 1/3
+(exact-&gt;inexact 1/3) ; =&gt; 0.3333333333333333
+(+ 1+2i  2-3i) ; =&gt; 3-1i
+
+;;; Booleans
+#t ; for true
+#f ; for false -- any value other than #f is true
+(not #t) ; =&gt; #f
+(and 0 #f (error &quot;doesn&#39;t get here&quot;)) ; =&gt; #f
+(or #f 0 (error &quot;doesn&#39;t get here&quot;))  ; =&gt; 0
+
+;;; Characters
+#\A ; =&gt; #\A
+#\λ ; =&gt; #\λ
+#\u03BB ; =&gt; #\λ
+
+;;; Strings are fixed-length array of characters.
+&quot;Hello, world!&quot;
+&quot;Benjamin \&quot;Bugsy\&quot; Siegel&quot;   ; backslash is an escaping character
+&quot;Foo\tbar\41\x21\u0021\a\r\n&quot; ; includes C escapes, Unicode
+&quot;λx:(μα.α→α).xx&quot;              ; can include Unicode characters
+
+;; Strings can be added too!
+(string-append &quot;Hello &quot; &quot;world!&quot;) ; =&gt; &quot;Hello world!&quot;
+
+;; A string can be treated like a list of characters
+(string-ref &quot;Apple&quot; 0) ; =&gt; #\A
+
+;; format can be used to format strings:
+(format &quot;~a can be ~a&quot; &quot;strings&quot; &quot;formatted&quot;)
+
+;; Printing is pretty easy
+(printf &quot;I&#39;m Racket. Nice to meet you!\n&quot;)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 2. Variables
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; You can create a variable using define
+;; a variable name can use any character except: ()[]{}&quot;,&#39;`;#|\
+(define some-var 5)
+some-var ; =&gt; 5
+
+;; You can also use unicode characters
+(define ⊆ subset?)
+(⊆ (set 3 2) (set 1 2 3)) ; =&gt; #t
+
+;; Accessing a previously unassigned variable is an exception
+; x ; =&gt; x: undefined ...
+
+;; Local binding: `me&#39; is bound to &quot;Bob&quot; only within the (let ...)
+(let ([me &quot;Bob&quot;])
+  &quot;Alice&quot;
+  me) ; =&gt; &quot;Bob&quot;
+
+;; let* is like let, but allows you to use previous bindings in creating later bindings
+(let* ([x 1]
+       [y (+ x 1)])
+       (* x y))
+
+;; finally, letrec allows you to define recursive and mutually recursive functions
+(letrec ([is-even? (lambda (n)
+                       (or (zero? n)
+                           (is-odd? (sub1 n))))]
+           [is-odd? (lambda (n)
+                      (and (not (zero? n))
+                           (is-even? (sub1 n))))])
+    (is-odd? 11))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 3. Structs and Collections
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Structs
+; By default, structs are immutable
+(struct dog (name breed age))
+(define my-pet
+  (dog &quot;lassie&quot; &quot;collie&quot; 5))
+my-pet ; =&gt; #&lt;dog&gt;
+; returns whether the variable was constructed with the dog constructor
+(dog? my-pet) ; =&gt; #t
+; accesses the name field of the variable constructed with the dog constructor
+(dog-name my-pet) ; =&gt; &quot;lassie&quot;
+
+; You can explicitly declare a struct to be mutable with the #:mutable option
+(struct rgba-color (red green blue alpha) #:mutable)
+(define burgundy
+   (rgba-color 144 0 32 1.0))
+(set-rgba-color-green! burgundy 10)
+(rgba-color-green burgundy) ; =&gt; 10
+
+;;; Pairs (immutable)
+;; `cons&#39; constructs pairs, `car&#39; and `cdr&#39; extract the first
+;; and second elements
+(cons 1 2) ; =&gt; &#39;(1 . 2)
+(car (cons 1 2)) ; =&gt; 1
+(cdr (cons 1 2)) ; =&gt; 2
+
+;;; Lists
+
+;; Lists are linked-list data structures, made of `cons&#39; pairs and end
+;; with a `null&#39; (or &#39;()) to mark the end of the list
+(cons 1 (cons 2 (cons 3 null))) ; =&gt; &#39;(1 2 3)
+;; `list&#39; is a convenience variadic constructor for lists
+(list 1 2 3) ; =&gt; &#39;(1 2 3)
+;; a quote can also be used for a literal list value
+&#39;(1 2 3) ; =&gt; &#39;(1 2 3)
+;; a quasiquote (represented by the backtick character) with commas 
+;; can be used to evaluate functions
+`(1 ,(+ 1 1) 3) ; =&gt; &#39;(1 2 3)
+
+;; With lists, car/cdr work slightly differently
+(car &#39;(1 2 3)) ; =&gt; 1
+(cdr &#39;(1 2 3)) ; =&gt; &#39;(2 3)
+
+;; Racket also has predefined functions on top of car and cdr, to extract parts of a list
+(cadr (list 1 2 3)) ; =&gt; 2
+(car (cdr (list 1 2 3))) ; =&gt; 2
+
+(cddr (list 1 2 3)) ; =&gt; &#39;(3)
+(cdr (cdr (list 1 2 3))) ; =&gt; &#39;(3)
+
+(caddr (list 1 2 3)) ; =&gt; 3
+(car (cdr (cdr (list 1 2 3)))) ; =&gt; 3
+
+;; Can still use `cons&#39; to add an item to the beginning of a list
+(cons 4 &#39;(1 2 3)) ; =&gt; &#39;(4 1 2 3)
+
+;; Use `append&#39; to add lists together
+(append &#39;(1 2) &#39;(3 4)) ; =&gt; &#39;(1 2 3 4)
+
+;; Lists are a very basic type, so there is a *lot* of functionality for
+;; them, a few examples:
+(map add1 &#39;(1 2 3))          ; =&gt; &#39;(2 3 4)
+(map + &#39;(1 2 3) &#39;(10 20 30)) ; =&gt; &#39;(11 22 33)
+(filter even? &#39;(1 2 3 4))    ; =&gt; &#39;(2 4)
+(count even? &#39;(1 2 3 4))     ; =&gt; 2
+(take &#39;(1 2 3 4) 2)          ; =&gt; &#39;(1 2)
+(drop &#39;(1 2 3 4) 2)          ; =&gt; &#39;(3 4)
+
+;;; Vectors
+
+;; Vectors are fixed-length arrays
+#(1 2 3) ; =&gt; &#39;#(1 2 3)
+
+;; Use `vector-append&#39; to add vectors together
+(vector-append #(1 2 3) #(4 5 6)) ; =&gt; #(1 2 3 4 5 6)
+
+;;; Sets
+
+;; Create a set from a list
+(list-&gt;set &#39;(1 2 3 1 2 3 3 2 1 3 2 1)) ; =&gt; (set 1 2 3)
+
+;; Add a member with `set-add&#39;
+;; (Functional: returns the extended set rather than mutate the input)
+(set-add (set 1 2 3) 4) ; =&gt; (set 1 2 3 4)
+
+;; Remove one with `set-remove&#39;
+(set-remove (set 1 2 3) 1) ; =&gt; (set 2 3)
+
+;; Test for existence with `set-member?&#39;
+(set-member? (set 1 2 3) 1) ; =&gt; #t
+(set-member? (set 1 2 3) 4) ; =&gt; #f
+
+;;; Hashes
+
+;; Create an immutable hash table (mutable example below)
+(define m (hash &#39;a 1 &#39;b 2 &#39;c 3))
+
+;; Retrieve a value
+(hash-ref m &#39;a) ; =&gt; 1
+
+;; Retrieving a non-present value is an exception
+; (hash-ref m &#39;d) =&gt; no value found
+
+;; You can provide a default value for missing keys
+(hash-ref m &#39;d 0) ; =&gt; 0
+
+;; Use `hash-set&#39; to extend an immutable hash table
+;; (Returns the extended hash instead of mutating it)
+(define m2 (hash-set m &#39;d 4))
+m2 ; =&gt; &#39;#hash((b . 2) (a . 1) (d . 4) (c . 3))
+
+;; Remember, these hashes are immutable!
+m ; =&gt; &#39;#hash((b . 2) (a . 1) (c . 3))  &lt;-- no `d&#39;
+
+;; Use `hash-remove&#39; to remove keys (functional too)
+(hash-remove m &#39;a) ; =&gt; &#39;#hash((b . 2) (c . 3))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 4. Functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Use `lambda&#39; to create functions.
+;; A function always returns the value of its last expression
+(lambda () &quot;Hello World&quot;) ; =&gt; #&lt;procedure&gt;
+;; Can also use a unicode `λ&#39;
+(λ () &quot;Hello World&quot;)     ; =&gt; same function
+
+;; Use parens to call all functions, including a lambda expression
+((lambda () &quot;Hello World&quot;)) ; =&gt; &quot;Hello World&quot;
+((λ () &quot;Hello World&quot;))      ; =&gt; &quot;Hello World&quot;
+
+;; Assign a function to a var
+(define hello-world (lambda () &quot;Hello World&quot;))
+(hello-world) ; =&gt; &quot;Hello World&quot;
+
+;; You can shorten this using the function definition syntactic sugar:
+(define (hello-world2) &quot;Hello World&quot;)
+
+;; The () in the above is the list of arguments for the function
+(define hello
+  (lambda (name)
+    (string-append &quot;Hello &quot; name)))
+(hello &quot;Steve&quot;) ; =&gt; &quot;Hello Steve&quot;
+;; ... or equivalently, using a sugared definition:
+(define (hello2 name)
+  (string-append &quot;Hello &quot; name))
+
+;; You can have multi-variadic functions too, using `case-lambda&#39;
+(define hello3
+  (case-lambda
+    [() &quot;Hello World&quot;]
+    [(name) (string-append &quot;Hello &quot; name)]))
+(hello3 &quot;Jake&quot;) ; =&gt; &quot;Hello Jake&quot;
+(hello3) ; =&gt; &quot;Hello World&quot;
+;; ... or specify optional arguments with a default value expression
+(define (hello4 [name &quot;World&quot;])
+  (string-append &quot;Hello &quot; name))
+
+;; Functions can pack extra arguments up in a list
+(define (count-args . args)
+  (format &quot;You passed ~a args: ~a&quot; (length args) args))
+(count-args 1 2 3) ; =&gt; &quot;You passed 3 args: (1 2 3)&quot;
+;; ... or with the unsugared `lambda&#39; form:
+(define count-args2
+  (lambda args
+    (format &quot;You passed ~a args: ~a&quot; (length args) args)))
+
+;; You can mix regular and packed arguments
+(define (hello-count name . args)
+  (format &quot;Hello ~a, you passed ~a extra args&quot; name (length args)))
+(hello-count &quot;Finn&quot; 1 2 3)
+; =&gt; &quot;Hello Finn, you passed 3 extra args&quot;
+;; ... unsugared:
+(define hello-count2
+  (lambda (name . args)
+    (format &quot;Hello ~a, you passed ~a extra args&quot; name (length args))))
+
+;; And with keywords
+(define (hello-k #:name [name &quot;World&quot;] #:greeting [g &quot;Hello&quot;] . args)
+  (format &quot;~a ~a, ~a extra args&quot; g name (length args)))
+(hello-k)                 ; =&gt; &quot;Hello World, 0 extra args&quot;
+(hello-k 1 2 3)           ; =&gt; &quot;Hello World, 3 extra args&quot;
+(hello-k #:greeting &quot;Hi&quot;) ; =&gt; &quot;Hi World, 0 extra args&quot;
+(hello-k #:name &quot;Finn&quot; #:greeting &quot;Hey&quot;) ; =&gt; &quot;Hey Finn, 0 extra args&quot;
+(hello-k 1 2 3 #:greeting &quot;Hi&quot; #:name &quot;Finn&quot; 4 5 6)
+                                         ; =&gt; &quot;Hi Finn, 6 extra args&quot;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 5. Equality
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; for numbers use `=&#39;
+(= 3 3.0) ; =&gt; #t
+(= 2 1)   ; =&gt; #f
+
+;; `eq?&#39; returns #t if 2 arguments refer to the same object (in memory),
+;; #f otherwise.
+;; In other words, it&#39;s a simple pointer comparison.
+(eq? &#39;() &#39;()) ; =&gt; #t, since there exists only one empty list in memory
+(let ([x &#39;()] [y &#39;()])
+  (eq? x y))  ; =&gt; #t, same as above
+
+(eq? (list 3) (list 3)) ; =&gt; #f
+(let ([x (list 3)] [y (list 3)])
+  (eq? x y))            ; =&gt; #f — not the same list in memory!
+
+(let* ([x (list 3)] [y x])
+  (eq? x y)) ; =&gt; #t, since x and y now point to the same stuff
+
+(eq? &#39;yes &#39;yes) ; =&gt; #t
+(eq? &#39;yes &#39;no)  ; =&gt; #f
+
+(eq? 3 3)   ; =&gt; #t — be careful here
+            ; It’s better to use `=&#39; for number comparisons.
+(eq? 3 3.0) ; =&gt; #f
+
+(eq? (expt 2 100) (expt 2 100))               ; =&gt; #f
+(eq? (integer-&gt;char 955) (integer-&gt;char 955)) ; =&gt; #f
+
+(eq? (string-append &quot;foo&quot; &quot;bar&quot;) (string-append &quot;foo&quot; &quot;bar&quot;)) ; =&gt; #f
+
+;; `eqv?&#39; supports the comparison of number and character datatypes.
+;; for other datatypes, `eqv?&#39; and `eq?&#39; return the same result.
+(eqv? 3 3.0)                                   ; =&gt; #f
+(eqv? (expt 2 100) (expt 2 100))               ; =&gt; #t
+(eqv? (integer-&gt;char 955) (integer-&gt;char 955)) ; =&gt; #t
+
+(eqv? (string-append &quot;foo&quot; &quot;bar&quot;) (string-append &quot;foo&quot; &quot;bar&quot;))   ; =&gt; #f
+
+;; `equal?&#39; supports the comparison of the following datatypes:
+;; strings, byte strings, pairs, mutable pairs, vectors, boxes,
+;; hash tables, and inspectable structures.
+;; for other datatypes, `equal?&#39; and `eqv?&#39; return the same result.
+(equal? 3 3.0)                                                   ; =&gt; #f
+(equal? (string-append &quot;foo&quot; &quot;bar&quot;) (string-append &quot;foo&quot; &quot;bar&quot;)) ; =&gt; #t
+(equal? (list 3) (list 3))                                       ; =&gt; #t
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 6. Control Flow
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Conditionals
+
+(if #t               ; test expression
+    &quot;this is true&quot;   ; then expression
+    &quot;this is false&quot;) ; else expression
+; =&gt; &quot;this is true&quot;
+
+;; In conditionals, all non-#f values are treated as true
+(member &#39;Groucho &#39;(Harpo Groucho Zeppo)) ; =&gt; &#39;(Groucho Zeppo)
+(if (member &#39;Groucho &#39;(Harpo Groucho Zeppo))
+    &#39;yep
+    &#39;nope)
+; =&gt; &#39;yep
+
+;; `cond&#39; chains a series of tests to select a result
+(cond [(&gt; 2 2) (error &quot;wrong!&quot;)]
+      [(&lt; 2 2) (error &quot;wrong again!&quot;)]
+      [else &#39;ok]) ; =&gt; &#39;ok
+
+;;; Pattern Matching
+
+(define (fizzbuzz? n)
+  (match (list (remainder n 3) (remainder n 5))
+    [(list 0 0) &#39;fizzbuzz]
+    [(list 0 _) &#39;fizz]
+    [(list _ 0) &#39;buzz]
+    [_          #f]))
+
+(fizzbuzz? 15) ; =&gt; &#39;fizzbuzz
+(fizzbuzz? 37) ; =&gt; #f
+
+;;; Loops
+
+;; Looping can be done through (tail-) recursion
+(define (loop i)
+  (when (&lt; i 10)
+    (printf &quot;i=~a\n&quot; i)
+    (loop (add1 i))))
+(loop 5) ; =&gt; i=5, i=6, ...
+
+;; Similarly, with a named let
+(let loop ((i 0))
+  (when (&lt; i 10)
+    (printf &quot;i=~a\n&quot; i)
+    (loop (add1 i)))) ; =&gt; i=0, i=1, ...
+
+;; See below how to add a new `loop&#39; form, but Racket already has a very
+;; flexible `for&#39; form for loops:
+(for ([i 10])
+  (printf &quot;i=~a\n&quot; i)) ; =&gt; i=0, i=1, ...
+(for ([i (in-range 5 10)])
+  (printf &quot;i=~a\n&quot; i)) ; =&gt; i=5, i=6, ...
+
+;;; Iteration Over Other Sequences
+;; `for&#39; allows iteration over many other kinds of sequences:
+;; lists, vectors, strings, sets, hash tables, etc...
+
+(for ([i (in-list &#39;(l i s t))])
+  (displayln i))
+
+(for ([i (in-vector #(v e c t o r))])
+  (displayln i))
+
+(for ([i (in-string &quot;string&quot;)])
+  (displayln i))
+
+(for ([i (in-set (set &#39;x &#39;y &#39;z))])
+  (displayln i))
+
+(for ([(k v) (in-hash (hash &#39;a 1 &#39;b 2 &#39;c 3 ))])
+  (printf &quot;key:~a value:~a\n&quot; k v))
+
+;;; More Complex Iterations
+
+;; Parallel scan of multiple sequences (stops on shortest)
+(for ([i 10] [j &#39;(x y z)]) (printf &quot;~a:~a\n&quot; i j))
+; =&gt; 0:x 1:y 2:z
+
+;; Nested loops
+(for* ([i 2] [j &#39;(x y z)]) (printf &quot;~a:~a\n&quot; i j))
+; =&gt; 0:x, 0:y, 0:z, 1:x, 1:y, 1:z
+
+;; Conditions
+(for ([i 1000]
+      #:when (&gt; i 5)
+      #:unless (odd? i)
+      #:break (&gt; i 10))
+  (printf &quot;i=~a\n&quot; i))
+; =&gt; i=6, i=8, i=10
+
+;;; Comprehensions
+;; Very similar to `for&#39; loops -- just collect the results
+
+(for/list ([i &#39;(1 2 3)])
+  (add1 i)) ; =&gt; &#39;(2 3 4)
+
+(for/list ([i &#39;(1 2 3)] #:when (even? i))
+  i) ; =&gt; &#39;(2)
+
+(for/list ([i 10] [j &#39;(x y z)])
+  (list i j)) ; =&gt; &#39;((0 x) (1 y) (2 z))
+
+(for/list ([i 1000] #:when (&gt; i 5) #:unless (odd? i) #:break (&gt; i 10))
+  i) ; =&gt; &#39;(6 8 10)
+
+(for/hash ([i &#39;(1 2 3)])
+  (values i (number-&gt;string i)))
+; =&gt; &#39;#hash((1 . &quot;1&quot;) (2 . &quot;2&quot;) (3 . &quot;3&quot;))
+
+;; There are many kinds of other built-in ways to collect loop values:
+(for/sum ([i 10]) (* i i)) ; =&gt; 285
+(for/product ([i (in-range 1 11)]) (* i i)) ; =&gt; 13168189440000
+(for/and ([i 10] [j (in-range 10 20)]) (&lt; i j)) ; =&gt; #t
+(for/or ([i 10] [j (in-range 0 20 2)]) (= i j)) ; =&gt; #t
+;; And to use any arbitrary combination, use `for/fold&#39;
+(for/fold ([sum 0]) ([i &#39;(1 2 3 4)]) (+ sum i)) ; =&gt; 10
+;; (This can often replace common imperative loops)
+
+;;; Exceptions
+
+;; To catch exceptions, use the `with-handlers&#39; form
+(with-handlers ([exn:fail? (lambda (exn) 999)])
+  (+ 1 &quot;2&quot;)) ; =&gt; 999
+(with-handlers ([exn:break? (lambda (exn) &quot;no time&quot;)])
+  (sleep 3)
+  &quot;phew&quot;) ; =&gt; &quot;phew&quot;, but if you break it =&gt; &quot;no time&quot;
+
+;; Use `raise&#39; to throw exceptions or any other value
+(with-handlers ([number?    ; catch numeric values raised
+                 identity]) ; return them as plain values
+  (+ 1 (raise 2))) ; =&gt; 2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 7. Mutation
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Use `set!&#39; to assign a new value to an existing variable
+(define n 5)
+(set! n (add1 n))
+n ; =&gt; 6
+
+;; Use boxes for explicitly mutable values (similar to pointers or
+;; references in other languages)
+(define n* (box 5))
+(set-box! n* (add1 (unbox n*)))
+(unbox n*) ; =&gt; 6
+
+;; Many Racket datatypes are immutable (pairs, lists, etc), some come in
+;; both mutable and immutable flavors (strings, vectors, hash tables,
+;; etc...)
+
+;; Use `vector&#39; or `make-vector&#39; to create mutable vectors
+(define vec (vector 2 2 3 4))
+(define wall (make-vector 100 &#39;bottle-of-beer))
+;; Use vector-set! to update a slot
+(vector-set! vec 0 1)
+(vector-set! wall 99 &#39;down)
+vec ; =&gt; #(1 2 3 4)
+
+;; Create an empty mutable hash table and manipulate it
+(define m3 (make-hash))
+(hash-set! m3 &#39;a 1)
+(hash-set! m3 &#39;b 2)
+(hash-set! m3 &#39;c 3)
+(hash-ref m3 &#39;a)   ; =&gt; 1
+(hash-ref m3 &#39;d 0) ; =&gt; 0
+(hash-remove! m3 &#39;a)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 8. Modules
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Modules let you organize code into multiple files and reusable
+;; libraries; here we use sub-modules, nested in the whole module that
+;; this text makes (starting from the &quot;#lang&quot; line)
+
+(module cake racket/base ; define a `cake&#39; module based on racket/base
+
+  (provide print-cake) ; function exported by the module
+
+  (define (print-cake n)
+    (show &quot;   ~a   &quot; n #\.)
+    (show &quot; .-~a-. &quot; n #\|)
+    (show &quot; | ~a | &quot; n #\space)
+    (show &quot;---~a---&quot; n #\-))
+
+  (define (show fmt n ch) ; internal function
+    (printf fmt (make-string n ch))
+    (newline)))
+
+;; Use `require&#39; to get all `provide&#39;d names from a module
+(require &#39;cake) ; the &#39; is for a local submodule
+(print-cake 3)
+; (show &quot;~a&quot; 1 #\A) ; =&gt; error, `show&#39; was not exported
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 9. Classes and Objects
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Create a class fish% (-% is idiomatic for class bindings)
+(define fish%
+  (class object%
+    (init size) ; initialization argument
+    (super-new) ; superclass initialization
+    ;; Field
+    (define current-size size)
+    ;; Public methods
+    (define/public (get-size)
+      current-size)
+    (define/public (grow amt)
+      (set! current-size (+ amt current-size)))
+    (define/public (eat other-fish)
+      (grow (send other-fish get-size)))))
+
+;; Create an instance of fish%
+(define charlie
+  (new fish% [size 10]))
+
+;; Use `send&#39; to call an object&#39;s methods
+(send charlie get-size) ; =&gt; 10
+(send charlie grow 6)
+(send charlie get-size) ; =&gt; 16
+
+;; `fish%&#39; is a plain &quot;first class&quot; value, which can get us mixins
+(define (add-color c%)
+  (class c%
+    (init color)
+    (super-new)
+    (define my-color color)
+    (define/public (get-color) my-color)))
+(define colored-fish% (add-color fish%))
+(define charlie2 (new colored-fish% [size 10] [color &#39;red]))
+(send charlie2 get-color)
+;; or, with no names:
+(send (new (add-color fish%) [size 10] [color &#39;red]) get-color)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 10. Macros
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Macros let you extend the syntax of the language
+
+;; Let&#39;s add a while loop
+(define-syntax-rule (while condition body ...)
+  (let loop ()
+    (when condition
+      body ...
+      (loop))))
+
+(let ([i 0])
+  (while (&lt; i  10)
+    (displayln i)
+    (set! i (add1 i))))
+
+;; Macros are hygienic, you cannot clobber existing variables!
+(define-syntax-rule (swap! x y) ; -! is idiomatic for mutation
+  (let ([tmp x])
+    (set! x y)
+    (set! y tmp)))
+
+(define tmp 2)
+(define other 3)
+(swap! tmp other)
+(printf &quot;tmp = ~a; other = ~a\n&quot; tmp other)
+;; The variable `tmp` is renamed to `tmp_1`
+;; in order to avoid name conflict
+;; (let ([tmp_1 tmp])
+;;   (set! tmp other)
+;;   (set! other tmp_1))
+
+;; But they are still code transformations, for example:
+(define-syntax-rule (bad-while condition body ...)
+  (when condition
+    body ...
+    (bad-while condition body ...)))
+;; this macro is broken: it generates infinite code, if you try to use
+;; it, the compiler will get in an infinite loop
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 11. Contracts
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Contracts impose constraints on values exported from modules
+
+(module bank-account racket
+  (provide (contract-out
+            [deposit (-&gt; positive? any)] ; amounts are always positive
+            [balance (-&gt; positive?)]))
+
+  (define amount 0)
+  (define (deposit a) (set! amount (+ amount a)))
+  (define (balance) amount)
+  )
+
+(require &#39;bank-account)
+(deposit 5)
+
+(balance) ; =&gt; 5
+
+;; Clients that attempt to deposit a non-positive amount are blamed
+;; (deposit -5) ; =&gt; deposit: contract violation
+;; expected: positive?
+;; given: -5
+;; more details....
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 12. Input &amp; output
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Racket has this concept of &quot;port&quot;, which is very similar to file
+;; descriptors in other languages
+
+;; Open &quot;/tmp/tmp.txt&quot; and write &quot;Hello World&quot;
+;; This would trigger an error if the file&#39;s already existed
+(define out-port (open-output-file &quot;/tmp/tmp.txt&quot;))
+(displayln &quot;Hello World&quot; out-port)
+(close-output-port out-port)
+
+;; Append to &quot;/tmp/tmp.txt&quot;
+(define out-port (open-output-file &quot;/tmp/tmp.txt&quot;
+                                   #:exists &#39;append))
+(displayln &quot;Hola mundo&quot; out-port)
+(close-output-port out-port)
+
+;; Read from the file again
+(define in-port (open-input-file &quot;/tmp/tmp.txt&quot;))
+(displayln (read-line in-port))
+; =&gt; &quot;Hello World&quot;
+(displayln (read-line in-port))
+; =&gt; &quot;Hola mundo&quot;
+(close-input-port in-port)
+
+;; Alternatively, with call-with-output-file you don&#39;t need to explicitly
+;; close the file
+(call-with-output-file &quot;/tmp/tmp.txt&quot;
+  #:exists &#39;update ; Rewrite the content
+  (λ (out-port)
+    (displayln &quot;World Hello!&quot; out-port)))
+
+;; And call-with-input-file does the same thing for input
+(call-with-input-file &quot;/tmp/tmp.txt&quot;
+  (λ (in-port)
+    (displayln (read-line in-port))))</code></pre>
+    <h2 id="further-reading">Further Reading</h2>
+    <p>
+      Still up for more? Try
+      <a href="http://docs.racket-lang.org/getting-started/"
+        >Getting Started with Racket</a
+      >
+    </p>
+  </body>
+</html>

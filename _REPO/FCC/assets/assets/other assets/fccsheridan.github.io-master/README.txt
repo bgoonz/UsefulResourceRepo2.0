@@ -1,0 +1,1 @@
+This is the user on-boarding website for Sheridan's local chapter of Free Code Camp. It will be improved upon as a project by the group. 

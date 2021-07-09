@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>Using Express middleware</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+    <style type="text/css">
+      a.sourceLine {
+        display: inline-block;
+        line-height: 1.25;
+      }
+      a.sourceLine {
+        pointer-events: none;
+        color: inherit;
+        text-decoration: inherit;
+      }
+      a.sourceLine:empty {
+        height: 1.2em;
+      }
+      .sourceCode {
+        overflow: visible;
+      }
+      code.sourceCode {
+        white-space: pre;
+        position: relative;
+      }
+      div.sourceCode {
+        margin: 1em 0;
+      }
+      pre.sourceCode {
+        margin: 0;
+      }
+      @media screen {
+        div.sourceCode {
+          overflow: auto;
+        }
+      }
+      @media print {
+        code.sourceCode {
+          white-space: pre-wrap;
+        }
+        a.sourceLine {
+          text-indent: -1em;
+          padding-left: 1em;
+        }
+      }
+      pre.numberSource a.sourceLine {
+        position: relative;
+        left: -4em;
+      }
+      pre.numberSource a.sourceLine::before {
+        content: attr(title);
+        position: relative;
+        left: -1em;
+        text-align: right;
+        vertical-align: baseline;
+        border: none;
+        pointer-events: all;
+        display: inline-block;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        padding: 0 4px;
+        width: 4em;
+        color: #aaaaaa;
+      }
+      pre.numberSource {
+        margin-left: 3em;
+        border-left: 1px solid #aaaaaa;
+        padding-left: 4px;
+      }
+      div.sourceCode {
+      }
+      @media screen {
+        a.sourceLine::before {
+          text-decoration: underline;
+        }
+      }
+      code span.al {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Alert */
+      code span.an {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Annotation */
+      code span.at {
+        color: #7d9029;
+      } /* Attribute */
+      code span.bn {
+        color: #40a070;
+      } /* BaseN */
+      code span.bu {
+      } /* BuiltIn */
+      code span.cf {
+        color: #007020;
+        font-weight: bold;
+      } /* ControlFlow */
+      code span.ch {
+        color: #4070a0;
+      } /* Char */
+      code span.cn {
+        color: #880000;
+      } /* Constant */
+      code span.co {
+        color: #60a0b0;
+        font-style: italic;
+      } /* Comment */
+      code span.cv {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* CommentVar */
+      code span.do {
+        color: #ba2121;
+        font-style: italic;
+      } /* Documentation */
+      code span.dt {
+        color: #902000;
+      } /* DataType */
+      code span.dv {
+        color: #40a070;
+      } /* DecVal */
+      code span.er {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Error */
+      code span.ex {
+      } /* Extension */
+      code span.fl {
+        color: #40a070;
+      } /* Float */
+      code span.fu {
+        color: #06287e;
+      } /* Function */
+      code span.im {
+      } /* Import */
+      code span.in {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Information */
+      code span.kw {
+        color: #007020;
+        font-weight: bold;
+      } /* Keyword */
+      code span.op {
+        color: #666666;
+      } /* Operator */
+      code span.ot {
+        color: #007020;
+      } /* Other */
+      code span.pp {
+        color: #bc7a00;
+      } /* Preprocessor */
+      code span.sc {
+        color: #4070a0;
+      } /* SpecialChar */
+      code span.ss {
+        color: #bb6688;
+      } /* SpecialString */
+      code span.st {
+        color: #4070a0;
+      } /* String */
+      code span.va {
+        color: #19177c;
+      } /* Variable */
+      code span.vs {
+        color: #4070a0;
+      } /* VerbatimString */
+      code span.wa {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Warning */
+    </style>
+  </head>
+  <body>
+    <header id="title-block-header">
+      <h1 class="title">Using Express middleware</h1>
+    </header>
+    <h1 id="using-middleware">Using middleware</h1>
+    <p>
+      Express is a routing and middleware web framework that has minimal
+      functionality of its own: An Express application is essentially a series
+      of middleware function calls.
+    </p>
+    <p>
+      <em>Middleware</em> functions are functions that have access to the
+      <a href="/%7B%7B%20page.lang%20%7D%7D/4x/api.html#req">request object</a>
+      (<code>req</code>), the
+      <a href="/%7B%7B%20page.lang%20%7D%7D/4x/api.html#res">response object</a>
+      (<code>res</code>), and the next middleware function in the application’s
+      request-response cycle. The next middleware function is commonly denoted
+      by a variable named <code>next</code>.
+    </p>
+    <p>Middleware functions can perform the following tasks:</p>
+    <ul>
+      <li>Execute any code.</li>
+      <li>Make changes to the request and the response objects.</li>
+      <li>End the request-response cycle.</li>
+      <li>Call the next middleware function in the stack.</li>
+    </ul>
+    <p>
+      If the current middleware function does not end the request-response
+      cycle, it must call <code>next()</code> to pass control to the next
+      middleware function. Otherwise, the request will be left hanging.
+    </p>
+    <p>An Express application can use the following types of middleware:</p>
+    <ul>
+      <li>
+        <a href="#middleware.application">Application-level middleware</a>
+      </li>
+      <li><a href="#middleware.router">Router-level middleware</a></li>
+      <li>
+        <a href="#middleware.error-handling">Error-handling middleware</a>
+      </li>
+      <li><a href="#middleware.built-in">Built-in middleware</a></li>
+      <li><a href="#middleware.third-party">Third-party middleware</a></li>
+    </ul>
+    <p>
+      You can load application-level and router-level middleware with an
+      optional mount path. You can also load a series of middleware functions
+      together, which creates a sub-stack of the middleware system at a mount
+      point.
+    </p>
+    <h2 id="middleware.application">Application-level middleware</h2>
+    <p>
+      Bind application-level middleware to an instance of the
+      <a href="/%7B%7B%20page.lang%20%7D%7D/4x/api.html#app">app object</a> by
+      using the <code>app.use()</code> and <code>app.METHOD()</code> functions,
+      where <code>METHOD</code> is the HTTP method of the request that the
+      middleware function handles (such as GET, PUT, or POST) in lowercase.
+    </p>
+    <p>
+      This example shows a middleware function with no mount path. The function
+      is executed every time the app receives a request.
+    </p>
+    <div class="sourceCode" id="cb1">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">var</span> express <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;express&#39;</span>)</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">var</span> app <span class="op">=</span> <span class="at">express</span>()</a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="va">app</span>.<span class="at">use</span>(<span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Time:&#39;</span><span class="op">,</span> <span class="va">Date</span>.<span class="at">now</span>())</a>
+<a class="sourceLine" id="cb1-6" title="6">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="op">}</span>)</a></code></pre>
+    </div>
+    <p>
+      This example shows a middleware function mounted on the
+      <code>/user/:id</code> path. The function is executed for any type of HTTP
+      request on the <code>/user/:id</code> path.
+    </p>
+    <div class="sourceCode" id="cb2">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="va">app</span>.<span class="at">use</span>(<span class="st">&#39;/user/:id&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Request Type:&#39;</span><span class="op">,</span> <span class="va">req</span>.<span class="at">method</span>)</a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="op">}</span>)</a></code></pre>
+    </div>
+    <p>
+      This example shows a route and its handler function (middleware system).
+      The function handles GET requests to the <code>/user/:id</code> path.
+    </p>
+    <div class="sourceCode" id="cb3">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/user/:id&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="va">res</span>.<span class="at">send</span>(<span class="st">&#39;USER&#39;</span>)</a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="op">}</span>)</a></code></pre>
+    </div>
+    <p>
+      Here is an example of loading a series of middleware functions at a mount
+      point, with a mount path. It illustrates a middleware sub-stack that
+      prints request info for any type of HTTP request to the
+      <code>/user/:id</code> path.
+    </p>
+    <div class="sourceCode" id="cb4">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="va">app</span>.<span class="at">use</span>(<span class="st">&#39;/user/:id&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Request URL:&#39;</span><span class="op">,</span> <span class="va">req</span>.<span class="at">originalUrl</span>)</a>
+<a class="sourceLine" id="cb4-3" title="3">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="op">},</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-5" title="5">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Request Type:&#39;</span><span class="op">,</span> <span class="va">req</span>.<span class="at">method</span>)</a>
+<a class="sourceLine" id="cb4-6" title="6">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="op">}</span>)</a></code></pre>
+    </div>
+    <p>
+      Route handlers enable you to define multiple routes for a path. The
+      example below defines two routes for GET requests to the
+      <code>/user/:id</code> path. The second route will not cause any problems,
+      but it will never get called because the first route ends the
+      request-response cycle.
+    </p>
+    <p>
+      This example shows a middleware sub-stack that handles GET requests to the
+      <code>/user/:id</code> path.
+    </p>
+    <div class="sourceCode" id="cb5">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/user/:id&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;ID:&#39;</span><span class="op">,</span> <span class="va">req</span>.<span class="va">params</span>.<span class="at">id</span>)</a>
+<a class="sourceLine" id="cb5-3" title="3">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="op">},</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-5" title="5">  <span class="va">res</span>.<span class="at">send</span>(<span class="st">&#39;User Info&#39;</span>)</a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb5-7" title="7"></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="co">// handler for the /user/:id path, which prints the user ID</span></a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/user/:id&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-10" title="10">  <span class="va">res</span>.<span class="at">send</span>(<span class="va">req</span>.<span class="va">params</span>.<span class="at">id</span>)</a>
+<a class="sourceLine" id="cb5-11" title="11"><span class="op">}</span>)</a></code></pre>
+    </div>
+    <p>
+      To skip the rest of the middleware functions from a router middleware
+      stack, call <code>next('route')</code> to pass control to the next route.
+      <strong>NOTE</strong>: <code>next('route')</code> will work only in
+      middleware functions that were loaded by using the
+      <code>app.METHOD()</code> or <code>router.METHOD()</code> functions.
+    </p>
+    <p>
+      This example shows a middleware sub-stack that handles GET requests to the
+      <code>/user/:id</code> path.
+    </p>
+    <div class="sourceCode" id="cb6">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/user/:id&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="co">// if the user ID is 0, skip to the next route</span></a>
+<a class="sourceLine" id="cb6-3" title="3">  <span class="cf">if</span> (<span class="va">req</span>.<span class="va">params</span>.<span class="at">id</span> <span class="op">===</span> <span class="st">&#39;0&#39;</span>) <span class="at">next</span>(<span class="st">&#39;route&#39;</span>)</a>
+<a class="sourceLine" id="cb6-4" title="4">  <span class="co">// otherwise pass the control to the next middleware function in this stack</span></a>
+<a class="sourceLine" id="cb6-5" title="5">  <span class="cf">else</span> <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="op">},</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-7" title="7">  <span class="co">// send a regular response</span></a>
+<a class="sourceLine" id="cb6-8" title="8">  <span class="va">res</span>.<span class="at">send</span>(<span class="st">&#39;regular&#39;</span>)</a>
+<a class="sourceLine" id="cb6-9" title="9"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb6-10" title="10"></a>
+<a class="sourceLine" id="cb6-11" title="11"><span class="co">// handler for the /user/:id path, which sends a special response</span></a>
+<a class="sourceLine" id="cb6-12" title="12"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/user/:id&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-13" title="13">  <span class="va">res</span>.<span class="at">send</span>(<span class="st">&#39;special&#39;</span>)</a>
+<a class="sourceLine" id="cb6-14" title="14"><span class="op">}</span>)</a></code></pre>
+    </div>
+    <p>Middleware can also be declared in an array for reusability.</p>
+    <p>
+      This example shows an array with a middleware sub-stack that handles GET
+      requests to the <code>/user/:id</code> path
+    </p>
+    <div class="sourceCode" id="cb7">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">function</span> <span class="at">logOriginalUrl</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Request URL:&#39;</span><span class="op">,</span> <span class="va">req</span>.<span class="at">originalUrl</span>)</a>
+<a class="sourceLine" id="cb7-3" title="3">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="op">}</span></a>
+<a class="sourceLine" id="cb7-5" title="5"></a>
+<a class="sourceLine" id="cb7-6" title="6"><span class="kw">function</span> <span class="at">logMethod</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-7" title="7">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Request Type:&#39;</span><span class="op">,</span> <span class="va">req</span>.<span class="at">method</span>)</a>
+<a class="sourceLine" id="cb7-8" title="8">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb7-9" title="9"><span class="op">}</span></a>
+<a class="sourceLine" id="cb7-10" title="10"></a>
+<a class="sourceLine" id="cb7-11" title="11"><span class="kw">var</span> logStuff <span class="op">=</span> [logOriginalUrl<span class="op">,</span> logMethod]</a>
+<a class="sourceLine" id="cb7-12" title="12"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/user/:id&#39;</span><span class="op">,</span> logStuff<span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-13" title="13">  <span class="va">res</span>.<span class="at">send</span>(<span class="st">&#39;User Info&#39;</span>)</a>
+<a class="sourceLine" id="cb7-14" title="14"><span class="op">}</span>)</a></code></pre>
+    </div>
+    <h2 id="middleware.router">Router-level middleware</h2>
+    <p>
+      Router-level middleware works in the same way as application-level
+      middleware, except it is bound to an instance of
+      <code>express.Router()</code>.
+    </p>
+    <div class="sourceCode" id="cb8">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">var</span> router <span class="op">=</span> <span class="va">express</span>.<span class="at">Router</span>()</a></code></pre>
+    </div>
+    <p>
+      Load router-level middleware by using the <code>router.use()</code> and
+      <code>router.METHOD()</code> functions.
+    </p>
+    <p>
+      The following example code replicates the middleware system that is shown
+      above for application-level middleware, by using router-level middleware:
+    </p>
+    <div class="sourceCode" id="cb9">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">var</span> express <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;express&#39;</span>)</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="kw">var</span> app <span class="op">=</span> <span class="at">express</span>()</a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="kw">var</span> router <span class="op">=</span> <span class="va">express</span>.<span class="at">Router</span>()</a>
+<a class="sourceLine" id="cb9-4" title="4"></a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="co">// a middleware function with no mount path. This code is executed for every request to the router</span></a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="va">router</span>.<span class="at">use</span>(<span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-7" title="7">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Time:&#39;</span><span class="op">,</span> <span class="va">Date</span>.<span class="at">now</span>())</a>
+<a class="sourceLine" id="cb9-8" title="8">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb9-9" title="9"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb9-10" title="10"></a>
+<a class="sourceLine" id="cb9-11" title="11"><span class="co">// a middleware sub-stack shows request info for any type of HTTP request to the /user/:id path</span></a>
+<a class="sourceLine" id="cb9-12" title="12"><span class="va">router</span>.<span class="at">use</span>(<span class="st">&#39;/user/:id&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-13" title="13">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Request URL:&#39;</span><span class="op">,</span> <span class="va">req</span>.<span class="at">originalUrl</span>)</a>
+<a class="sourceLine" id="cb9-14" title="14">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb9-15" title="15"><span class="op">},</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-16" title="16">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Request Type:&#39;</span><span class="op">,</span> <span class="va">req</span>.<span class="at">method</span>)</a>
+<a class="sourceLine" id="cb9-17" title="17">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb9-18" title="18"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb9-19" title="19"></a>
+<a class="sourceLine" id="cb9-20" title="20"><span class="co">// a middleware sub-stack that handles GET requests to the /user/:id path</span></a>
+<a class="sourceLine" id="cb9-21" title="21"><span class="va">router</span>.<span class="at">get</span>(<span class="st">&#39;/user/:id&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-22" title="22">  <span class="co">// if the user ID is 0, skip to the next router</span></a>
+<a class="sourceLine" id="cb9-23" title="23">  <span class="cf">if</span> (<span class="va">req</span>.<span class="va">params</span>.<span class="at">id</span> <span class="op">===</span> <span class="st">&#39;0&#39;</span>) <span class="at">next</span>(<span class="st">&#39;route&#39;</span>)</a>
+<a class="sourceLine" id="cb9-24" title="24">  <span class="co">// otherwise pass control to the next middleware function in this stack</span></a>
+<a class="sourceLine" id="cb9-25" title="25">  <span class="cf">else</span> <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb9-26" title="26"><span class="op">},</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-27" title="27">  <span class="co">// render a regular page</span></a>
+<a class="sourceLine" id="cb9-28" title="28">  <span class="va">res</span>.<span class="at">render</span>(<span class="st">&#39;regular&#39;</span>)</a>
+<a class="sourceLine" id="cb9-29" title="29"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb9-30" title="30"></a>
+<a class="sourceLine" id="cb9-31" title="31"><span class="co">// handler for the /user/:id path, which renders a special page</span></a>
+<a class="sourceLine" id="cb9-32" title="32"><span class="va">router</span>.<span class="at">get</span>(<span class="st">&#39;/user/:id&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-33" title="33">  <span class="va">console</span>.<span class="at">log</span>(<span class="va">req</span>.<span class="va">params</span>.<span class="at">id</span>)</a>
+<a class="sourceLine" id="cb9-34" title="34">  <span class="va">res</span>.<span class="at">render</span>(<span class="st">&#39;special&#39;</span>)</a>
+<a class="sourceLine" id="cb9-35" title="35"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb9-36" title="36"></a>
+<a class="sourceLine" id="cb9-37" title="37"><span class="co">// mount the router on the app</span></a>
+<a class="sourceLine" id="cb9-38" title="38"><span class="va">app</span>.<span class="at">use</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> router)</a></code></pre>
+    </div>
+    <p>
+      To skip the rest of the router’s middleware functions, call
+      <code>next('router')</code> to pass control back out of the router
+      instance.
+    </p>
+    <p>
+      This example shows a middleware sub-stack that handles GET requests to the
+      <code>/user/:id</code> path.
+    </p>
+    <div class="sourceCode" id="cb10">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">var</span> express <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;express&#39;</span>)</a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="kw">var</span> app <span class="op">=</span> <span class="at">express</span>()</a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="kw">var</span> router <span class="op">=</span> <span class="va">express</span>.<span class="at">Router</span>()</a>
+<a class="sourceLine" id="cb10-4" title="4"></a>
+<a class="sourceLine" id="cb10-5" title="5"><span class="co">// predicate the router with a check and bail out when needed</span></a>
+<a class="sourceLine" id="cb10-6" title="6"><span class="va">router</span>.<span class="at">use</span>(<span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-7" title="7">  <span class="cf">if</span> (<span class="op">!</span><span class="va">req</span>.<span class="at">headers</span>[<span class="st">&#39;x-auth&#39;</span>]) <span class="cf">return</span> <span class="at">next</span>(<span class="st">&#39;router&#39;</span>)</a>
+<a class="sourceLine" id="cb10-8" title="8">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb10-9" title="9"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb10-10" title="10"></a>
+<a class="sourceLine" id="cb10-11" title="11"><span class="va">router</span>.<span class="at">get</span>(<span class="st">&#39;/user/:id&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-12" title="12">  <span class="va">res</span>.<span class="at">send</span>(<span class="st">&#39;hello, user!&#39;</span>)</a>
+<a class="sourceLine" id="cb10-13" title="13"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb10-14" title="14"></a>
+<a class="sourceLine" id="cb10-15" title="15"><span class="co">// use the router and 401 anything falling through</span></a>
+<a class="sourceLine" id="cb10-16" title="16"><span class="va">app</span>.<span class="at">use</span>(<span class="st">&#39;/admin&#39;</span><span class="op">,</span> router<span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-17" title="17">  <span class="va">res</span>.<span class="at">sendStatus</span>(<span class="dv">401</span>)</a>
+<a class="sourceLine" id="cb10-18" title="18"><span class="op">}</span>)</a></code></pre>
+    </div>
+    <h2 id="middleware.error-handling">Error-handling middleware</h2>
+    <div class="doc-box doc-notice" data-markdown="1">
+      <p>
+        Error-handling middleware always takes <em>four</em> arguments. You must
+        provide four arguments to identify it as an error-handling middleware
+        function. Even if you don’t need to use the <code>next</code> object,
+        you must specify it to maintain the signature. Otherwise, the
+        <code>next</code> object will be interpreted as regular middleware and
+        will fail to handle errors.
+      </p>
+    </div>
+    <p>
+      Define error-handling middleware functions in the same way as other
+      middleware functions, except with four arguments instead of three,
+      specifically with the signature <code>(err, req, res, next)</code>):
+    </p>
+    <div class="sourceCode" id="cb11">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" title="1"><span class="va">app</span>.<span class="at">use</span>(<span class="kw">function</span> (err<span class="op">,</span> req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb11-2" title="2">  <span class="va">console</span>.<span class="at">error</span>(<span class="va">err</span>.<span class="at">stack</span>)</a>
+<a class="sourceLine" id="cb11-3" title="3">  <span class="va">res</span>.<span class="at">status</span>(<span class="dv">500</span>).<span class="at">send</span>(<span class="st">&#39;Something broke!&#39;</span>)</a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="op">}</span>)</a></code></pre>
+    </div>
+    <p>
+      For details about error-handling middleware, see:
+      <a href="/%7B%7B%20page.lang%20%7D%7D/guide/error-handling.html"
+        >Error handling</a
+      >.
+    </p>
+    <h2 id="middleware.built-in">Built-in middleware</h2>
+    <p>
+      Starting with version 4.x, Express no longer depends on
+      <a href="https://github.com/senchalabs/connect">Connect</a>. The
+      middleware functions that were previously included with Express are now in
+      separate modules; see
+      <a href="https://github.com/senchalabs/connect#middleware"
+        >the list of middleware functions</a
+      >.
+    </p>
+    <p>Express has the following built-in middleware functions:</p>
+    <ul>
+      <li>
+        <a href="/en/4x/api.html#express.static">express.static</a> serves
+        static assets such as HTML files, images, and so on.
+      </li>
+      <li>
+        <a href="/en/4x/api.html#express.json">express.json</a> parses incoming
+        requests with JSON payloads.
+        <strong>NOTE: Available with Express 4.16.0+</strong>
+      </li>
+      <li>
+        <a href="/en/4x/api.html#express.urlencoded">express.urlencoded</a>
+        parses incoming requests with URL-encoded payloads.
+        <strong>NOTE: Available with Express 4.16.0+</strong>
+      </li>
+    </ul>
+    <h2 id="middleware.third-party">Third-party middleware</h2>
+    <p>Use third-party middleware to add functionality to Express apps.</p>
+    <p>
+      Install the Node.js module for the required functionality, then load it in
+      your app at the application level or at the router level.
+    </p>
+    <p>
+      The following example illustrates installing and loading the
+      cookie-parsing middleware function <code>cookie-parser</code>.
+    </p>
+    <div class="sourceCode" id="cb12">
+      <pre
+        class="sourceCode sh"
+      ><code class="sourceCode bash"><a class="sourceLine" id="cb12-1" title="1">$ <span class="ex">npm</span> install cookie-parser</a></code></pre>
+    </div>
+    <div class="sourceCode" id="cb13">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">var</span> express <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;express&#39;</span>)</a>
+<a class="sourceLine" id="cb13-2" title="2"><span class="kw">var</span> app <span class="op">=</span> <span class="at">express</span>()</a>
+<a class="sourceLine" id="cb13-3" title="3"><span class="kw">var</span> cookieParser <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;cookie-parser&#39;</span>)</a>
+<a class="sourceLine" id="cb13-4" title="4"></a>
+<a class="sourceLine" id="cb13-5" title="5"><span class="co">// load the cookie-parsing middleware</span></a>
+<a class="sourceLine" id="cb13-6" title="6"><span class="va">app</span>.<span class="at">use</span>(<span class="at">cookieParser</span>())</a></code></pre>
+    </div>
+    <p>
+      For a partial list of third-party middleware functions that are commonly
+      used with Express, see:
+      <a href="../resources/middleware.html">Third-party middleware</a>.
+    </p>
+  </body>
+</html>

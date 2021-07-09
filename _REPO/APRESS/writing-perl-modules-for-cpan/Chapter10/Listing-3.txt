@@ -1,0 +1,36 @@
+char * file_type (SV *dummy, ...) {
+  Inline_Stack_Vars;         // get access to the Inline stack macros
+
+  char *filename     = NULL; // variables for named params values
+  char *default_type = NULL;
+  IV    read_file    = 0;
+  int x;                     // loop counter
+
+  // loop over args by pairs and fill in parameters
+  for (x = 0; x < Inline_Stack_Items; x+=2) {
+    char *key = SvPV(Inline_Stack_Item(x), PL_na);
+    if (strEQ(key, "filename")) {
+      filename = SvPV(Inline_Stack_Item(x+1), PL_na);
+    } else if (strEQ(key, "default_type")) {
+      default_type = SvPV(Inline_Stack_Item(x+1), PL_na);
+    } else if (strEQ(key, "read_file")) {
+      read_file = SvIV(Inline_Stack_Item(x+1));
+    } else {
+      croak("Unknown key found in Gnome::MIME::file_type parameter list: %s",
+            key);
+    }
+  }
+
+  // make sure we have a filename parameter
+  if (filename == NULL) croak("Missing required parameter filename.");
+
+  // call the appropriate function based on arguments
+  if (read_file && default_type != NULL)
+    return gnome_mime_type_or_default_of_file(filename, default_type);
+  if (read_file)
+    return gnome_mime_type_of_file(filename);
+  if (default_type != NULL) 
+    return gnome_mime_type_or_default(filename, default_type);
+
+  return gnome_mime_type(filename);
+}

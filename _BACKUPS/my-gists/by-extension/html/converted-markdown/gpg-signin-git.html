@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>gpg-signin-git</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="windows-how-to-enable-auto-signing-git-commits-with-gnupg-for-programs-that-dont-support-it-natively">[WINDOWS] How to enable auto-signing Git commits with GnuPG for programs that don’t support it natively</h1>
+<p>This is a step-by-step guide on how to enable auto-signing Git commits with GPG for every applications that don’t support it natively (eg. GitHub Desktop, Eclipse, Git Tower, …)</p>
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li><strong>Install <a href="https://gpg4win.org/download.html">GPG4Win</a></strong>: <em>this software is a bundle with latest version of GnuPG v2, Kleopatra v3 certificate manager, GNU Privacy Assistant (GPA) v0.9 which is a GUI that uses GTK+, GpgOL and GpgEX that are respectively an extension for MS Outlook and an extension for Windows Explorer shell</em></li>
+<li><strong>Install <a href="https://gitforwindows.org/">Git for Windows</a></strong>: so you can have a *nix based shell, <em>this software is a bundle with latest version of Git which use MINGW environment, a Git bash shell, a Git GUI and an extension for Windows Explorer shell</em> <strong>(Make sure your local version of Git is at least 2.0, otherwise Git don’t have support for automatically sign your commits)</strong></li>
+<li><p>Verify if Git was successfully installed with:</p>
+<pre class="shell"><code>$ git --version
+# git version 2.15.1.windows.2</code></pre></li>
+</ul>
+<p>Remember that Git for Windows install old 1.4.xx version of GnuPG (provided through MINGW environment), but <strong>this is irrelevant</strong>, as we are going to manually specify which GnuPG program our Git must be using (which is the GnuPG version installed by GPG4Win)!</p>
+<h2 id="setup">Setup</h2>
+<ul>
+<li><strong>Install your favorite IDE</strong> with Git support, like:
+<ul>
+<li><strong>GitHub Desktop</strong>: <a href="https://desktop.github.com/">https://desktop.github.com/</a></li>
+<li><strong>Eclipse</strong>: <a href="https://www.eclipse.org/downloads/">https://www.eclipse.org/downloads/</a> with one of Git plugin (<strong>mandatory</strong>)</li>
+</ul></li>
+<li><strong>Generate your GPG keys</strong>: visit <a href="https://help.github.com/articles/generating-a-new-gpg-key/">https://help.github.com/articles/generating-a-new-gpg-key/</a> for a completed and detailed instructions, or otherwise use Kleopatra manager (<strong>Notes</strong>: key size should be at least 2048 bits, but 4096 is better; key should probably not expire; and you can append multiple email addresses to your GPG key)</li>
+<li><p><strong>Verify installation of your key</strong>:</p>
+<pre class="shell"><code>$ gpg --list-secret-keys --keyid-format LONG
+# /c/Users/BoGnY/.gnupg/secring.gpg
+# ----------------------------------
+# sec   4096R/E870EE00B5D90537 2017-12-31 [expires: 2021-12-31]
+# uid                          John Smith &lt;john.smith@gmail.com&gt;
+# ssb   4096R/F9E3E72EBBFDCFD6 2017-12-31</code></pre></li>
+<li><p><strong>Generate your revocation certificate</strong>: this command create a .rev file, that is needed to revocate a public key shared in a key server.</p>
+<pre class="shell"><code>$ gpg --gen-revoke E870EE00B5D90537</code></pre></li>
+<li><p><strong>Share your public key</strong>: this command will never send a private key!!!</p>
+<pre class="shell"><code>$ gpg --send-keys E870EE00B5D90537</code></pre></li>
+<li><strong>Add public GPG key to GitHub</strong>: open <a href="https://github.com/settings/keys">https://github.com/settings/keys</a> then click “<em>New GPG key</em>”, paste your public key and click “<em>Add GPG key</em>”</li>
+<li><p><strong>Set up Git to auto-sign all commits</strong>: this change your global configuration of Git, if you would like to add auto-sign on a single repository, remove <code>--global</code> from command</p>
+<pre class="shell"><code>$ git config --global user.signingkey E870EE00B5D90537
+$ git config --global commit.gpgsign true</code></pre></li>
+<li><p><strong>Set up Git to use a custom GPG program</strong>:</p>
+<pre class="shell"><code>$ git config --global gpg.program &quot;/c/Program Files (x86)/GnuPG/bin/gpg.exe&quot;</code></pre></li>
+<li><p><strong>Optional</strong>: try disable TTY if you have problems with making auto-signed commits from your IDE or other software</p>
+<pre class="shell"><code>$ echo &#39;no-tty&#39; &gt;&gt; ~/.gnupg/gpg.conf</code></pre>
+<p>In my specific case, this point <strong>was mandatory</strong>.</p></li>
+</ul>
+<h2 id="usage">Usage</h2>
+<p>Simple press “Commit” button on your favorite IDE, you see a simple window that ask your key password!</p>
+<p>Remember that GPG4Win install also a <strong>GPG agent</strong>, that remember your password for a limited times (I think 30 minutes) by default, so you don’t have to enter your password every time!! (IMHO there is a setting for change it, but I haven’t search it yet).</p>
+<p>That’s all!</p>
+</body>
+</html>

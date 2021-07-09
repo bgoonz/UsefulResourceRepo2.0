@@ -1,18 +1,19 @@
-(function() {
-  var Set = (function() {
-    var add = function(item) {
-      var i, data = this._data;
+(function () {
+  var Set = (function () {
+    var add = function (item) {
+      var i,
+        data = this._data;
       for (i = 0; i < data.length; i++) {
         if (data[i] === item) {
           return;
         }
       }
-      this.size ++;
+      this.size++;
       data.push(item);
       return data;
     };
 
-    var Set = function(data) {
+    var Set = function (data) {
       this.size = 0;
       this._data = [];
       var i;
@@ -23,9 +24,12 @@
       }
     };
     Set.prototype.add = add;
-    Set.prototype.get = function(index) { return this._data[index]; };
-    Set.prototype.has = function(item) {
-      var i, data = this._data;
+    Set.prototype.get = function (index) {
+      return this._data[index];
+    };
+    Set.prototype.has = function (item) {
+      var i,
+        data = this._data;
       for (i = 0; i < data.length; i++) {
         if (this.get(i) === item) {
           return true;
@@ -33,9 +37,15 @@
       }
       return false;
     };
-    Set.prototype.is = function(map) {
-      if (map._data.length !== this._data.length) { return false; }
-      var i, j, flag, tData = this._data, mData = map._data;
+    Set.prototype.is = function (map) {
+      if (map._data.length !== this._data.length) {
+        return false;
+      }
+      var i,
+        j,
+        flag,
+        tData = this._data,
+        mData = map._data;
       for (i = 0; i < tData.length; i++) {
         for (flag = false, j = 0; j < mData.length; j++) {
           if (tData[i] === mData[j]) {
@@ -43,20 +53,25 @@
             break;
           }
         }
-        if (!flag) { return false; }
+        if (!flag) {
+          return false;
+        }
       }
       return true;
     };
-    Set.prototype.values = function() {
+    Set.prototype.values = function () {
       return this._data;
     };
     return Set;
   })();
 
-  window.Lazyload = (function(doc) {
-    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
-    var createNode = function(name, attrs) {
-      var node = doc.createElement(name), attr;
+  window.Lazyload = (function (doc) {
+    var queue = { js: [], css: [] },
+      sources = { js: {}, css: {} },
+      context = this;
+    var createNode = function (name, attrs) {
+      var node = doc.createElement(name),
+        attr;
       for (attr in attrs) {
         if (attrs.hasOwnProperty(attr)) {
           node.setAttribute(attr, attrs[attr]);
@@ -64,15 +79,15 @@
       }
       return node;
     };
-    var end = function(type, url) {
+    var end = function (type, url) {
       var s, q, qi, cbs, i, j, cur, val, flag;
-      if (type === 'js' || type ==='css') {
-        s = sources[type], q = queue[type];
+      if (type === "js" || type === "css") {
+        (s = sources[type]), (q = queue[type]);
         s[url] = true;
         for (i = 0; i < q.length; i++) {
           cur = q[i];
           if (cur.urls.has(url)) {
-            qi = cur, val = qi.urls.values();
+            (qi = cur), (val = qi.urls.values());
             qi && (cbs = qi.callbacks);
             for (flag = true, j = 0; j < val.length; j++) {
               cur = val[j];
@@ -90,11 +105,18 @@
         }
       }
     };
-    var load = function(type, urls, callback) {
-      var s, q, qi, node, i, cur,
-        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
-      if (type === 'js' || type ==='css') {
-        s = sources[type], q = queue[type];
+    var load = function (type, urls, callback) {
+      var s,
+        q,
+        qi,
+        node,
+        i,
+        cur,
+        _urls = typeof urls === "string" ? new Set([urls]) : new Set(urls),
+        val,
+        url;
+      if (type === "js" || type === "css") {
+        (s = sources[type]), (q = queue[type]);
         for (i = 0; i < q.length; i++) {
           cur = q[i];
           if (_urls.is(cur.urls)) {
@@ -105,21 +127,22 @@
         val = _urls.values();
         if (qi) {
           callback && (qi.load || qi.callbacks.push(callback));
-          callback && (qi.load && callback());
+          callback && qi.load && callback();
         } else {
           q.push({
             urls: _urls,
             callbacks: callback ? [callback] : [],
-            load: false
+            load: false,
           });
           for (i = 0; i < val.length; i++) {
-            node = null, url = val[i];
+            (node = null), (url = val[i]);
             if (s[url] === undefined) {
-              (type === 'js' ) && (node = createNode('script', { src: url }));
-              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              type === "js" && (node = createNode("script", { src: url }));
+              type === "css" &&
+                (node = createNode("link", { rel: "stylesheet", href: url }));
               if (node) {
-                node.onload = (function(type, url) {
-                  return function() {
+                node.onload = (function (type, url) {
+                  return function () {
                     end(type, url);
                   };
                 })(type, url);
@@ -132,12 +155,12 @@
       }
     };
     return {
-      js: function(url, callback) {
-        load('js', url, callback);
+      js: function (url, callback) {
+        load("js", url, callback);
       },
-      css: function(url, callback) {
-        load('css', url, callback);
-      }
+      css: function (url, callback) {
+        load("css", url, callback);
+      },
     };
   })(this.document);
 })();

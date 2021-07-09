@@ -1,0 +1,55 @@
+name: Prod Deploy
+
+on: 
+  push:
+    branches:
+    - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@master
+    - name: set AWS, BFF, NewRelic and Algolia Keys to environment
+      env:
+        GATSBY_ALGOLIA_APP_ID: ${{ secrets.GATSBY_ALGOLIA_APP_ID}}
+        GATSBY_ALGOLIA_SEARCH_KEY: ${{secrets.GATSBY_ALGOLIA_SEARCH_KEY}}
+        ALGOLIA_ADMIN_KEY: ${{secrets.ALGOLIA_ADMIN_KEY}}
+        AWS_ACCESS_KEY_ID: ${{secrets.PROD_AWS_ACCESS_KEY_ID}}
+        AWS_SECRET_ACCESS_KEY: ${{secrets.PROD_AWS_SECRET_ACCESS_KEY}}
+        DIST_ID: ${{secrets.PROD_DIST_ID}}
+        MUNCHKIN_ID: ${{ secrets.MUNCHKIN_ID}}
+        BFF_BLOG_URL: ${{ secrets.BFF_BLOG_URL }}
+        BFF_EVENTS_URL: ${{ secrets.BFF_EVENTS_URL }}
+        BFF_PING_WEBHOOK_URL: ${{ secrets.BFF_PING_WEBHOOK_URL }}
+        RELIC_ACCOUNT_ID: ${{ secrets.RELIC_ACCOUNT_ID }}
+        RELIC_TRUST_KEY: ${{ secrets.RELIC_TRUST_KEY }}
+        RELIC_LICENSE_KEY: ${{ secrets.RELIC_LICENSE_KEY }}
+        RELIC_PRODUCTION_AGENT_ID: ${{ secrets.RELIC_PRODUCTION_AGENT_ID }}
+        RELIC_PRODUCTION_APPLICATION_ID: ${{ secrets.RELIC_PRODUCTION_APPLICATION_ID }}
+
+      run: |
+        npm install
+        npm run clean
+        npm run build:prod && node_modules/s3-deploy/bin/s3-deploy './public/**' --cwd './public/' --bucket postman-learning-center-prod --deleteRemoved --distId $DIST_ID --invalidate '/*'
+    - name: update Algolia with GA Pageviews
+      env: 
+        ALGOLIA_ADMIN_KEY: ${{secrets.ALGOLIA_ADMIN_KEY}}
+        GOOGLE_ALGOLIA_CREDENTIALS: ${{secrets.GOOGLE_ALGOLIA_CREDENTIALS}}
+        GOOGLE_PROJECT_ID: ${{secrets.GOOGLE_PROJECT_ID}}
+        GOOGLE_PRIVATE_KEY: ${{secrets.GOOGLE_PRIVATE_KEY}}
+        GOOGLE_PRIVATE_KEY_2: ${{secrets.GOOGLE_PRIVATE_KEY_2}}
+        GOOGLE_CLIENT_EMAIL: ${{secrets.GOOGLE_CLIENT_EMAIL}}
+        GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
+        GOOGLE_AUTH_CERT: ${{secrets.GOOGLE_AUTH_CERT}}
+        GOOGLE_CLIENT_CERT: ${{secrets.GOOGLE_CLIENT_CERT}}
+      run: |
+        npm install;
+        type=service_account project_id=$GOOGLE_PROJECT_ID private_key_id=$GOOGLE_PRIVATE_KEY private_key=$GOOGLE_PRIVATE_KEY_2 client_email=$GOOGLE_CLIENT_EMAIL client_id=$GOOGLE_CLIENT_ID auth_uri=https://accounts.google.com/o/oauth2/auth token_uri=https://oauth2.googleapis.com/token auth_provider_x509_cert_url=$GOOGLE_AUTH_CERT client_x509_cert_url=$GOOGLE_CLIENT_CERT node -p -e 'const {type,private_key_id,private_key,project_id,client_email,client_id,auth_uri,token_uri,auth_provider_x509_cert_url,client_x509_cert_url} = process.env; require("fs").writeFile("auth.json", JSON.stringify({type,project_id,private_key_id,private_key:private_key.replace(/\\n/g,"\n"),client_email,client_id,auth_uri,token_uri,auth_provider_x509_cert_url,client_x509_cert_url},null,2), err=>{})'
+        GOOGLE_APPLICATION_CREDENTIALS=auth.json ALGOLIA_ADMIN_KEY=$ALGOLIA_ADMIN_KEY node ga_connector.js;
+        rm -rf auth.json
+    - name: h2 changes email
+      run: bash logFile.sh

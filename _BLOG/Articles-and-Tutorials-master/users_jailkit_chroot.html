@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>users_jailkit_chroot</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="how-to-create-isolated-file-directories-for-ubuntu-12.04-users-with-jailkit">How to Create Isolated File Directories For Ubuntu 12.04 Users with Jailkit</h1>
+<h3 id="introduction">Introduction</h3>
+<p>Of particular interest to hosting providers, resellers, and those that manage a server for friends &amp; family, the <code>chroot</code> (short for “change root directory”) system provides a way of isolating users from other parts of your server – by putting them in (what is commonly referred to as) a jail. In other words, a <code>chroot</code> jail can be used to section off, or isolate, a particular user from entire sections of your server’s filesystem. Without a <code>chroot</code> jail, nothing would prevent a user with even limited file permissions from being able to navigate up to system-critical, top-level directories.</p>
+<h2 id="the-basic-chroot-environment">The Basic <code>chroot</code> Environment</h2>
+<p>A <code>chroot</code> jail is a directory tree that you create within your filesystem, where the user cannot see any directories or files that are outside the <code>chroot</code> jail directories. The user is said to be “jailed” in that directory and its subdirectories. If you want a user to be able to do just one task, you can set up a <code>chroot</code> jail so that the user is able to only do that one task. The fewer executables you have in a <code>chroot</code> jail (and the more their capabilities are limited with strict configurations), the more work a hacker, or malicious worm, needs to break out of the <code>chroot</code> jail to move on to your filesystem at large.</p>
+<p>Many control panels that reconfigure web servers for shared hosting will automatically create <code>chroot</code> directories for user accounts. Even if you trust your users to not intentionally attempt anything malicious, Brute-Force Attacks are an unwelcome reality in today’s IT world and isolating your users’ file directories provides an added layer of defense in the event that a user’s system account should become compromised.</p>
+<p>To create a <code>chroot</code> jail, simply create a folder that has a replication of the directory structure of a typical Linux server. The difference is that you <em>only</em> copy, in that <code>chroot</code> directory, the bare minimum of what is needed by your user. This process can be carried out manually, with several commands, or you can automate the process with Jailkit.</p>
+<h2 id="about-jailkit">About Jailkit</h2>
+<p>Jailkit is a set of utilities that can be used to set up a <code>chroot</code>-based, restricted environment where users have limited access to the server’s filesystem and the commands they run. The Jailkit utilities also make it easy to set up a restricted shell or to run services or programs inside such a restricted environment.</p>
+<blockquote>
+<p>Project website:<br />
+<a href="http://olivier.sessink.nl/jailkit/">http://olivier.sessink.nl/jailkit/</a></p>
+</blockquote>
+<h2 id="scope-of-this-article">Scope of this Article</h2>
+<p>Jailkit is a robust program. This article, however, is limited to the scenario where a server administrator wishes to grant some users shell access, but aims to contain users’ files (e.g. web or app) in a <code>chroot</code> jail; so that users can do what they wish with their content, without exposing the rest of the server to the risk of breakage.</p>
+<p>As will become evident, as you work through this article, there is <em>much</em> more that one can do with Jailkit. Once you become comfortable with the basic concepts of a <code>chroot</code> jail and Jailkit’s utilities, you are encouraged to explore the various HowTos published on the Jailkit website.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li><p>This article assumes that you have completed the steps outlined in <a href="https://www.digitalocean.com/community/articles/initial-server-setup-with-ubuntu-12-04">Initial Server Setup with Ubuntu 12.04 | DigitalOcean</a>.</p></li>
+<li><p>Jailkit needs to be compiled from source. To install the tools needed for that process, execute the following command in a terminal window:</p>
+<pre><code>  sudo apt-get -y install build-essential</code></pre></li>
+</ul>
+<h2 id="compile-install-jailkit">Compile &amp; Install Jailkit</h2>
+<p>Download the latest version of the Jailkit source files and extract the archive in your server’s <code>/tmp</code> directory, by executing the following command:</p>
+<blockquote>
+<p><strong>Note:</strong> Check the Jailkit project website to ensure that you are installing the most recent release, i.e.</p>
+<pre><code>  http://olivier.sessink.nl/jailkit/jailkit-&lt;VERSION&gt;.tar.gz</code></pre>
+</blockquote>
+<pre><code>cd /tmp &amp;&amp; sudo wget -O - &quot;http://olivier.sessink.nl/jailkit/jailkit-2.16.tar.gz&quot; | tar xzvf -</code></pre>
+<p>Next, execute:</p>
+<pre><code>cd jailkit-*</code></pre>
+<p>Finally, compile and install Jailkit, by executing:</p>
+<pre><code>./configure &amp;&amp; make &amp;&amp; sudo make install</code></pre>
+<h2 id="jailkit-utilities">Jailkit Utilities</h2>
+<p>Jailkit is comprised of various pre-configured scripts, templates and configuration files that you can mix-and-match, to build the perfect <code>chroot</code> jail. If none of the existing Jailkit utilities meet your needs, you can customize them or create new ones. By default, Jailkit installs its utilities in <code>/usr/sbin/</code> and its configuration and template files in <code>/etc/jailkit/</code>.</p>
+<p><strong>Note:</strong> In some cases, the configuration files must be replicated in the <code>chroot</code> directory and edited appropriately (usually done so, automatically, by the <code>jk_init</code> utility), because a Jailkit utility that is run within a <code>chroot</code> environment is able to read its configuration <strong>only</strong> from within the jailed <code>chroot</code> directory. Jailkit’s utilities are prefixed with <code>jk_</code>.</p>
+<pre><code>non-root_user@server:/usr/sbin/$
+[...]   jk_addjailuser  jk_chec jk_chrootlaunch jk_chrootsh jk_cp
+jk_init jk_jailuser jk_list jk_lsh  jk_socketd  jk_update   [...]</code></pre>
+<p>These utilities include a launcher that can start a daemon in a <code>chroot</code> jail; a <code>chroot</code> shell tool; a tool to limit binary execution; a tool to update and clean up a jail based on changes already made on the system at large; and more. All of Jailkit’s utilities have <code>man</code> pages which contain more information on how to use them; and can be accessed from any directory on your server by executing:</p>
+<pre><code>man jailkit</code></pre>
+<p>You may also read more about the utilities not touched on, in this article, on Jailkit’s website.</p>
+<h2 id="setting-up-a-chroot-jail-environment">Setting up a <code>chroot</code> Jail Environment</h2>
+<p>There needs to be a directory where the entire jail environment will be setup. Jailed users will see this directory as the root directory of the server. You are free to choose whatever directory structure you wish, e.g. <code>/home/jail/</code>, <code>/var/chroot/</code>, <code>/jail</code>, etc.</p>
+<h3 id="the-jk_init-utility">The <code>jk_init</code> utility</h3>
+<p>With Jailkit’s <code>jk_init</code> utility, you can automate the process of creating a <code>chroot</code> jail, while retaining the ability of specifying the jail’s location and what programs you want included in the jail. For example, execute:</p>
+<blockquote>
+<p>Feel free to substitute <code>/chroot</code> with a directory of your choice.</p>
+</blockquote>
+<pre><code>sudo jk_init -v -j /chroot basicshell editors extendedshell jk_lsh netutils ssh sftp</code></pre>
+<h2 id="creating-jailing-a-user">Creating &amp; Jailing a User</h2>
+<p><em>Skip down to the <strong>Jail the user</strong> section to add existing users to a <code>chroot</code> jail.</em></p>
+<p>To create a new user, execute (substituting <code>username</code> with one of your choosing):</p>
+<pre><code>sudo adduser username</code></pre>
+<p>Follow the prompts to specify a password and provide the user information requested by the system.</p>
+<p><strong>Note:</strong> This is a normal user that is created and is <strong><em>not</em></strong> inside the <code>chroot</code> jail, yet.</p>
+<h3 id="jail-the-user">Jail the user</h3>
+<p>The <code>jk_jailuser</code> utility is a tool that moves an existing user account – the user’s entire home directory and subdirectories – into a <code>chroot</code> jail. In the following example, the <code>-s</code> option grants the soon-to-be jailed user bash shell access, i.e. <code>/bin/bash</code>:</p>
+<pre><code>sudo jk_jailuser -m -s /bin/bash -j /chroot username</code></pre>
+<blockquote>
+<p>For a more restricted account, leave out <code>-s /bin/bash</code> (to create, for example, an SFTP-only user account with no shell access).</p>
+</blockquote>
+<p>Then, copy bash and its libraries into the <code>chroot</code> jail using the <code>jk_cp</code> utility:</p>
+<pre><code>sudo jk_cp -v -f /chroot /bin/bash</code></pre>
+<blockquote>
+<p>Bash and its libraries need to be copied into the <code>chroot</code> environment, only once; and they’ll be available to future jailed-users to whom you wish to grant shell access.</p>
+</blockquote>
+<p>Finally, edit the SSH configuration file to allow access for the additional user:</p>
+<pre><code>sudo vim /etc/ssh/sshd_config</code></pre>
+<blockquote>
+<p>Then, tap on the <code>i</code> key (on your keyboard) to enter the Vim text editor’s “insert mode.”</p>
+</blockquote>
+<p>and add the jailed user to the following directive:</p>
+<pre><code>[...]
+AllowUsers your_username new_username</code></pre>
+<blockquote>
+<p>To save your edit, and exit, tap the following keys: <code>Esc</code>,<code>:</code>, <code>w</code>, <code>q</code>, <code>Enter</code>.</p>
+</blockquote>
+<p>Reload SSH to incorporate the modified setting:</p>
+<pre><code>sudo reload ssh</code></pre>
+<h4 id="confirm-the-transfer-of-the-user-account-into-the-chroot-jail">Confirm the transfer of the user account into the <code>chroot</code> jail</h4>
+<p>To confirm that the user was jailed, check the user’s <code>/etc/passwd</code> file, by executing:</p>
+<pre><code>cat /etc/passwd</code></pre>
+<p>Review the line that pertains to the newly-jailed user and inspect the last two elements to make sure that the user’s:</p>
+<ol type="1">
+<li>home directory is now nested inside the <code>chroot</code> jail; and</li>
+<li><p>shell is now a special utility named <code>jk_chrootsh</code>:</p>
+<pre><code> username:x:[UserID]:[PrimaryGroupID]:[Full Name],,,:/path/to/jail/./home/username:/usr/sbin/jk_chrootsh</code></pre></li>
+</ol>
+<p>In addition to the modifications to the jailed-user’s <code>/etc/passwd</code> file, the <code>jk_jailuser</code> utility also adds the user to a stripped-down <code>passwd</code> file located at <code>/path/to/jail/etc/passwd</code> and adds the user’s group(s) to a stripped-down group file located at <code>/path/to/jail/etc/group</code>.</p>
+<h3 id="confirm-ssh-access">Confirm SSH access</h3>
+<p>Now, it’s time to verify that the newly-jailed user has SSH access. If you encounter any connection problems, check for errors:</p>
+<pre><code>sudo cat tail /var/log/auth.log</code></pre>
+<p>If successful, your user now has a fully-functioning bash shell, but inside the <code>chroot</code> jail. Feel free to move around the <code>chroot</code> environment. Notice that the root of the jailed-environment appears to be the normal <code>/</code>, even though it is <code>/chroot</code> on the actual filesystem.</p>
+<h2 id="maintenance">Maintenance</h2>
+<p>Refer to the Jailkit <a href="http://olivier.sessink.nl/jailkit/jk_update.8.html">website</a> to learn about using the <code>jk_update</code> utility to update and cleanup a <code>chroot</code> jail according to changes, e.g. program software updates, on the main filesystem.</p>
+<h2 id="security-considerations">Security Considerations</h2>
+<p>The Jailkit Team: &gt;A badly configured jail is a security risk!</p>
+<p>The server’s super user (i.e., root), or any process running with root privileges, can always break out of a jail.</p>
+<h4 id="no-directory-inside-a-chroot-jail-except-for-a-jailed-users-home-or-tmp-directories-should-be-writable-by-the-jailed-user.-otherwise-a-jailed-user-can-bypass-security-checks-and-gain-root-privileges.">No directory inside a <code>chroot</code> jail, except for a jailed-user’s home or <code>/tmp</code>, directories should be writable by the jailed-user. Otherwise, a jailed-user can bypass security checks and gain root privileges.</h4>
+<p>Refer to the Jailkit website for other security best practices and Jailkit utilities, not discussed in this article, e.g., <a href="http://olivier.sessink.nl/jailkit/jk_check.8.html">jk_check</a> that can be used to perform some basic checks to verify that a <code>chroot</code> jail is secure.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>As you can see, creating and administering <code>chroot</code> jails is reduced to a much simpler process with Jailkit. While <code>chroot</code> is very useful for basic, preventative security, it is not designed to prevent deliberate attempts to gain root access for purposes of attacking a server. For that threat, there are other security measures you can employ. Nevertheless, <code>chroot</code> helps, tremendously, to at least make it more difficult to exploit your virtual private server.</p>
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li>Jailkit-users <a href="https://lists.nongnu.org/mailman/listinfo/jailkit-users">mailing list</a></li>
+<li><a href="http://olivier.sessink.nl/jailkit/">Jailkit Docs | FAQs | HowTos</a></li>
+</ul>
+<p>As always, if you need help with the steps outlined in this How-To, look to the DigitalOcean Community for assistance by posing your question(s), below.</p>
+<p>
+<div style="text-align: right; font-size:smaller;">
+Article submitted by: <a href="https://plus.google.com/107285164064863645881?rel=author" target="_blank">Pablo Carranza</a> • December 6, 2013
+</div>
+</p>
+</body>
+</html>
