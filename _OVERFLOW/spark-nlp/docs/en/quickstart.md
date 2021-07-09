@@ -98,7 +98,7 @@ spark = SparkSession.builder \
 ### Python Jupyter Notebook with PySpark
 
 You can also run the Jupyter Notebook directly from Pyspark. In such
-case you don't need to open a session, it will be automatically started 
+case you don't need to open a session, it will be automatically started
 by pyspark. Just remember to set the SPARK_HOME, PYSPARK_DRIVER_PYTHON and PYSPARK_DRIVER_PYTHON_OPTS environment variables.
 
 ```python
@@ -114,7 +114,7 @@ linux system:
 sudo find -wholename */jars/spark-core_*-2.4.4.jar
 ```
 
-The parent folder where this ./jars/spark-core*-2.4.4.jar is your
+The parent folder where this ./jars/spark-core\*-2.4.4.jar is your
 SPARK_HOME folder.
 
 In **Microsoft Windows** systems you can search for that file location in the explorer.
@@ -204,7 +204,7 @@ Both forms of annotators can be included in a Pipeline and will automatically go
 
 ## Quickly annotate some text
 
-You can run these examples using Python or Scala. 
+You can run these examples using Python or Scala.
 
 The easiest way to run the python examples is by starting a pyspark
 jupyter notebook including the spark-nlp package:
@@ -279,12 +279,12 @@ println(annotations)
 
 ```bash
 Map(
-   stem -> List(we, ar, veri, happi, about, sparknlp), 
-   checked -> List(We, are, very, happy, about, SparkNLP), 
-   lemma -> List(We, be, very, happy, about, SparkNLP), 
-   document -> List(We are very happy about SparkNLP), 
-   pos -> ArrayBuffer(PRP, VBP, RB, JJ, IN, NNP), 
-   token -> List(We, are, very, happy, about, SparkNLP), 
+   stem -> List(we, ar, veri, happi, about, sparknlp),
+   checked -> List(We, are, very, happy, about, SparkNLP),
+   lemma -> List(We, be, very, happy, about, SparkNLP),
+   document -> List(We are very happy about SparkNLP),
+   pos -> ArrayBuffer(PRP, VBP, RB, JJ, IN, NNP),
+   token -> List(We, are, very, happy, about, SparkNLP),
    sentence -> List(We are very happy about SparkNLP)
    )
 ```
@@ -306,7 +306,7 @@ Remember than when starting jupyter notebook from pyspark or when running
 the spark-shell for scala a Spark Session is started in the background
 by default within the namespace 'scala'.
 
-***Python code***
+**_Python code_**
 
 ```python
 import sparknlp
@@ -347,7 +347,7 @@ annotations_df.show()
 +--------------------+--------------------+--------------------+--------------------+--------------------+--------------------+--------------------+--------------------+
 ```
 
-***Scala code***
+**_Scala code_**
 
 ```scala
 val data = Seq(
@@ -385,10 +385,10 @@ annotations_df.show()
 ### Manipulating pipelines
 
 The output of the previous DataFrame was in terms of Annotation objects.
- This output is not really confortable to deal with, as you can see by
+This output is not really confortable to deal with, as you can see by
 running the code:
 
-***Python code***
+**_Python code_**
 
 ```python
 annotations_df.select("token").show(truncate=False)
@@ -402,7 +402,7 @@ annotations_df.select("token").show(truncate=False)
 +--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ```
 
-***Scala code***
+**_Scala code_**
 
 ```scala
 annotations_df.select("token").show(truncate=false)
@@ -423,7 +423,7 @@ Explain Document ML pipeline, and add them together in a Spark ML
 Pipeline. Remember that pretrained pipelines expect the input column to be
 named "text".
 
-***Python code***
+**_Python code_**
 
 ```python
 from sparknlp import Finisher
@@ -461,7 +461,7 @@ annotations_finished_df.select('finished_token').show(truncate=False)
 +-------------------------------------------+
 ```
 
-***Scala code***
+**_Scala code_**
 
 ```scala
 scala> import com.johnsnowlabs.nlp.Finisher
@@ -514,7 +514,7 @@ Since version 1.5.0 we are making necessary imports easy to reach,
 while **annotator.\_** will include all annotators that we currently
 provide. We also need Spark ML pipelines.
 
-***Python code***
+**_Python code_**
 
 ```python
 from sparknlp.base import *
@@ -522,7 +522,7 @@ from sparknlp.annotator import *
 from pyspark.ml import Pipeline
 ```
 
-***Scala code***
+**_Scala code_**
 
 ```scala
 import com.johnsnowlabs.nlp.base._
@@ -537,7 +537,7 @@ annotated. There is a special **transformer** that does this for us:
 the **DocumentAssembler**, it creates the first annotation of type
 **Document** which may be used by annotators down the road
 
-***Python code***
+**_Python code_**
 
 ```python
 documentAssembler = DocumentAssembler() \
@@ -545,7 +545,7 @@ documentAssembler = DocumentAssembler() \
     .setOutputCol("document")
 ```
 
-***Scala code***
+**_Scala code_**
 
 ```scala
 val documentAssembler = new DocumentAssembler().
@@ -562,7 +562,7 @@ Document type token. The Tokenizer requires a Document annotation type,
 meaning it works both with DocumentAssembler or SentenceDetector output,
 in here, we use the sentence output.
 
-***Python code***
+**_Python code_**
 
 ```python
 sentenceDetector = SentenceDetector() \
@@ -574,7 +574,7 @@ regexTokenizer = Tokenizer() \
     .setOutputCol("token")
 ```
 
-***Scala code***
+**_Scala code_**
 
 ```scala
 val sentenceDetector = new SentenceDetector().
@@ -589,7 +589,7 @@ val regexTokenizer = new Tokenizer().
 We also include another special transformer, called **Finisher** to show
 tokens in a human language.
 
-***Python code***
+**_Python code_**
 
 ```python
 finisher = Finisher() \
@@ -597,7 +597,7 @@ finisher = Finisher() \
     .setCleanAnnotations(False)
 ```
 
-***Scala code***
+**_Scala code_**
 
 ```scala
 val finisher = new Finisher().
@@ -644,12 +644,12 @@ df.withColumn("tmp", explode(col("chunk"))).select("tmp.*")
 ## Using Spark ML Pipeline
 
 Now we want to put all this together and retrieve the results, we use a
-Pipeline for this.  We use the same data in fit() that we will use in
+Pipeline for this. We use the same data in fit() that we will use in
 transform since none of the pipeline stages have a training stage.
 
 ### Python code
 
-***Python code***
+**_Python code_**
 
 ```python
 pipeline = Pipeline() \
@@ -669,7 +669,7 @@ pipeline = Pipeline() \
 +-------------------------------------------+
 ```
 
-***Scala code***
+**_Scala code_**
 
 ```scala
 
@@ -708,7 +708,7 @@ string or an Array of strings instead, to be annotated. To create Light
 Pipelines, you need to input an already trained (fit) Spark ML Pipeline.
 It's transform() stage is converted into annotate() instead.
 
-***Python code***
+**_Python code_**
 
 ```python
 from pyspark.sql.types import StructType
@@ -736,7 +736,7 @@ lightPipeline.annotate("Hello world, please annotate my text")
  'sentence': ['Hello world, please annotate my text']}
 ```
 
-***Scala code***
+**_Scala code_**
 
 ```scala
 import com.johnsnowlabs.nlp.base._
@@ -749,7 +749,7 @@ lightPipeline.annotate("Hello world, please annotate my text")
 Map[String,Seq[String]] =
   Map(
     stem -> List(hello, world, ,, pleas, annot, my, text),
-    checked -> List(Hello, world, ,, please, annotate, my, tex), 
+    checked -> List(Hello, world, ,, please, annotate, my, tex),
     lemma -> List(Hello, world, ,, please, annotate, i, text),
     document -> List(Hello world, please annotate my text),
     pos -> ArrayBuffer(UH, NN, ,, VB, NN, PRP$, NN),
@@ -770,24 +770,24 @@ models. In Spark NLP, training annotators will vary depending on the
 annotators. Currently, we support three ways:
 
 1. Most annotators are capable of training through the dataset passed to
-**fit()** just as Spark ML does. Annotators that use the suffix
-**Approach** are trainable annotators. Training from fit() is the
-standard behavior in Spark ML. Annotators have different schema
-requirements for training. Check the reference to see what are the
-requirements of each annotators.
+   **fit()** just as Spark ML does. Annotators that use the suffix
+   **Approach** are trainable annotators. Training from fit() is the
+   standard behavior in Spark ML. Annotators have different schema
+   requirements for training. Check the reference to see what are the
+   requirements of each annotators.
 
 2. Training from an **external source**: Some of our annotators train
-from an external file or folder passed to the annotator as a param.
-You will see such ones as **setCorpus()** or **setDictionary()** param
-setter methods, allowing you to configure the input to use. You can set
-Spark NLP to read them as Spark datasets or LINE_BY_LINE which is
-usually faster for small files.
+   from an external file or folder passed to the annotator as a param.
+   You will see such ones as **setCorpus()** or **setDictionary()** param
+   setter methods, allowing you to configure the input to use. You can set
+   Spark NLP to read them as Spark datasets or LINE_BY_LINE which is
+   usually faster for small files.
 
 3. Last but not least, some of our annotators are **Deep Learning**
-based. These models may be trained with the standard AnnotatorApproach
-API just like any other annotator. For more advanced users, we also
-allow importing your own graphs or even training from Python and
-converting them into an AnnotatorModel.
+   based. These models may be trained with the standard AnnotatorApproach
+   API just like any other annotator. For more advanced users, we also
+   allow importing your own graphs or even training from Python and
+   converting them into an AnnotatorModel.
 
 ## Where to go next
 

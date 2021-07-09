@@ -10,11 +10,10 @@ from sparknlp.annotator import *
 
 
 class UtilitiesTestSpec(unittest.TestCase):
-
     @staticmethod
     def runTest():
         regex_rule = RegexRule("\w+", "word split")
-        assert(regex_rule.rule() == "\w+")
+        assert regex_rule.rule() == "\w+"
 
 
 class SerializersTestSpec(unittest.TestCase):
@@ -29,7 +28,7 @@ class SerializersTestSpec(unittest.TestCase):
         c1 = cls()
         c1.save(f)
         c2 = cls().load(f)
-        assert(c1.uid == c2.uid)
+        assert c1.uid == c2.uid
 
     def runTest(self):
         self.serialize_them(DocumentAssembler, "assembler")

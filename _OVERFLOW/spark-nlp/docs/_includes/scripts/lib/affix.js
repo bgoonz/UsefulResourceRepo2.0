@@ -1,11 +1,23 @@
-(function() {
+(function () {
   var SOURCES = window.TEXT_VARIABLES.sources;
-  window.Lazyload.js(SOURCES.jquery, function() {
+  window.Lazyload.js(SOURCES.jquery, function () {
     function affix(options) {
-      var $root = this, $window = $(window), $scrollTarget, $scroll,
-        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
-        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
-        hasInit = false, curState;
+      var $root = this,
+        $window = $(window),
+        $scrollTarget,
+        $scroll,
+        offsetBottom = 0,
+        scrollTarget = window,
+        scroll = window.document,
+        disabled = false,
+        isOverallScroller = true,
+        rootTop,
+        rootLeft,
+        rootHeight,
+        scrollBottom,
+        rootBottomTop,
+        hasInit = false,
+        curState;
 
       function setOptions(options) {
         var _options = options || {};
@@ -20,7 +32,9 @@
       function preCalc() {
         top();
         rootHeight = $root.outerHeight();
-        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootTop =
+          $root.offset().top +
+          (isOverallScroller ? 0 : $scrollTarget.scrollTop());
         rootLeft = $root.offset().left;
       }
       function calc(needPreCalc) {
@@ -29,30 +43,30 @@
         rootBottomTop = scrollBottom - rootTop;
       }
       function top() {
-        if (curState !== 'top') {
-          $root.removeClass('fixed').css({
+        if (curState !== "top") {
+          $root.removeClass("fixed").css({
             left: 0,
-            top: 0
+            top: 0,
           });
-          curState = 'top';
+          curState = "top";
         }
       }
       function fixed() {
-        if (curState !== 'fixed') {
-          $root.addClass('fixed').css({
-            left: rootLeft + 'px',
-            top: 0
+        if (curState !== "fixed") {
+          $root.addClass("fixed").css({
+            left: rootLeft + "px",
+            top: 0,
           });
-          curState = 'fixed';
+          curState = "fixed";
         }
       }
       function bottom() {
-        if (curState !== 'bottom') {
-          $root.removeClass('fixed').css({
+        if (curState !== "bottom") {
+          $root.removeClass("fixed").css({
             left: 0,
-            top: rootBottomTop + 'px'
+            top: rootBottomTop + "px",
           });
-          curState = 'bottom';
+          curState = "bottom";
         }
       }
       function setState() {
@@ -66,26 +80,27 @@
         }
       }
       function init() {
-        if(!hasInit) {
+        if (!hasInit) {
           var interval, timeout;
-          calc(true); setState();
+          calc(true);
+          setState();
           // run calc every 100 millisecond
-          interval = setInterval(function() {
+          interval = setInterval(function () {
             calc();
           }, 100);
-          timeout = setTimeout(function() {
+          timeout = setTimeout(function () {
             clearInterval(interval);
           }, 45000);
-          window.pageLoad.then(function() {
-            setTimeout(function() {
+          window.pageLoad.then(function () {
+            setTimeout(function () {
               clearInterval(interval);
               clearTimeout(timeout);
             }, 3000);
           });
-          $scrollTarget.on('scroll', function() {
+          $scrollTarget.on("scroll", function () {
             disabled || setState();
           });
-          $window.on('resize', function() {
+          $window.on("resize", function () {
             disabled || (calc(true), setState());
           });
           hasInit = true;
@@ -96,14 +111,18 @@
       if (!disabled) {
         init();
       }
-      $window.on('resize', window.throttle(function() {
-        init();
-      }, 200));
+      $window.on(
+        "resize",
+        window.throttle(function () {
+          init();
+        }, 200)
+      );
       return {
         setOptions: setOptions,
-        refresh: function() {
-          calc(true, { animation: false }); setState();
-        }
+        refresh: function () {
+          calc(true, { animation: false });
+          setState();
+        },
       };
     }
     $.fn.affix = affix;

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>incremental-adoption</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="incrementally-adopting-next.js">Incrementally Adopting Next.js</h1>
+    <details>
+      <summary><b>Examples</b></summary>
+      <ul>
+        <li>
+          <a
+            href="https://github.com/vercel/next.js/tree/canary/examples/rewrites"
+            >Rewrites</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://github.com/vercel/next.js/tree/canary/examples/redirects"
+            >Redirects</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://github.com/vercel/next.js/tree/canary/examples/with-zones"
+            >Multi-Zones</a
+          >
+        </li>
+      </ul>
+    </details>
+    <p>
+      Next.js has been designed for gradual adoption. With Next.js, you can
+      continue using your existing code and add as much (or as little) React as
+      you need. By starting small and incrementally adding more pages, you can
+      prevent derailing feature work by avoiding a complete rewrite.
+    </p>
+    <h2 id="strategies">Strategies</h2>
+    <h3 id="subpath">Subpath</h3>
+    <p>
+      The first strategy is to configure your server or proxy such that,
+      everything under a specific subpath points to a Next.js app. For example,
+      your existing website might be at <code>example.com</code>, and you might
+      configure your proxy such that <code>example.com/store</code> serves a
+      Next.js e-commerce store.
+    </p>
+    <p>
+      Using
+      <a href="/docs/api-reference/next.config.js/basepath.md"
+        ><code>basePath</code></a
+      >, you can configure your Next.js application’s assets and links to
+      automatically work with your new subpath <code>/store</code>. Since each
+      page in Next.js is its own
+      <a href="/docs/routing/introduction.md">standalone route</a>, pages like
+      <code>pages/products.js</code> will route to
+      <code>example.com/store/products</code> in your application.
+    </p>
+    <pre class="jsx"><code>// next.config.js
+
+module.exports = {
+  basePath: &#39;/store&#39;,
+}</code></pre>
+    <p>
+      To learn more about <code>basePath</code>, take a look at our
+      <a href="/docs/api-reference/next.config.js/basepath.md">documentation</a
+      >.
+    </p>
+    <blockquote>
+      <p>
+        This feature was introduced in
+        <a href="https://nextjs.org/blog/next-9-5">Next.js 9.5</a> and up. If
+        you’re using older versions of Next.js, please upgrade before trying it
+        out.
+      </p>
+    </blockquote>
+    <h3 id="rewrites">Rewrites</h3>
+    <p>
+      The second strategy is to create a new Next.js app that points to the root
+      URL of your domain. Then, you can use
+      <a href="/docs/api-reference/next.config.js/rewrites.md"
+        ><code>rewrites</code></a
+      >
+      inside <code>next.config.js</code> to have some subpaths to be proxied to
+      your existing app.
+    </p>
+    <p>
+      For example, let’s say you created a Next.js app to be served from
+      <code>example.com</code> with the following <code>next.config.js</code>.
+      Now, requests for the pages you’ve added to this Next.js app (e.g. <code
+        >/about</code
+      >
+      if you’ve added <code>pages/about.js</code>) will be handled by Next.js,
+      and requests for any other route (e.g. <code>/dashboard</code>) will be
+      proxied to <code>proxy.example.com</code>.
+    </p>
+    <pre class="jsx"><code>// next.config.js
+
+module.exports = {
+  async rewrites() {
+    return {
+      // After checking all Next.js pages (including dynamic routes)
+      // and static files we proxy any other requests
+      fallback: [
+        {
+          source: &#39;/:path*&#39;,
+          destination: `https://proxy.example.com/:path*`,
+        },
+      ],
+    }
+
+    // For versions of Next.js &lt; v10.1 you can use a no-op rewrite instead
+    return [
+      // we need to define a no-op rewrite to trigger checking
+      // all pages/static files before we attempt proxying
+      {
+        source: &#39;/:path*&#39;,
+        destination: &#39;/:path*&#39;,
+      },
+      {
+        source: &#39;/:path*&#39;,
+        destination: `https://proxy.example.com/:path*`,
+      },
+    ]
+  },
+}</code></pre>
+    <p>
+      To learn more about rewrites, take a look at our
+      <a href="/docs/api-reference/next.config.js/rewrites.md">documentation</a
+      >.
+    </p>
+    <blockquote>
+      <p>
+        This feature was introduced in
+        <a href="https://nextjs.org/blog/next-9-5">Next.js 9.5</a> and up. If
+        you’re using older versions of Next.js, please upgrade before trying it
+        out.
+      </p>
+    </blockquote>
+    <h3 id="micro-frontends-with-monorepos-and-subdomains">
+      Micro-Frontends with Monorepos and Subdomains
+    </h3>
+    <p>
+      Next.js and <a href="https://vercel.com">Vercel</a> make it
+      straightforward to adopt
+      <a href="https://martinfowler.com/articles/micro-frontends.html"
+        >micro-frontends</a
+      >
+      and deploy as a <a href="https://vercel.com/blog/monorepos">Monorepo</a>.
+      This allows you to use
+      <a href="https://en.wikipedia.org/wiki/Subdomain">subdomains</a> to adopt
+      new applications incrementally. Some benefits of micro-frontends:
+    </p>
+    <ul>
+      <li>Smaller, more cohesive and maintainable codebases.</li>
+      <li>More scalable organizations with decoupled, autonomous teams.</li>
+      <li>
+        The ability to upgrade, update, or even rewrite parts of the frontend in
+        a more incremental fashion.
+      </li>
+    </ul>
+    <p>
+      Once your monorepo is set up, push changes to your Git repository as usual
+      and you’ll see the commits deployed to the Vercel projects you’ve
+      connected.
+    </p>
+    <h2 id="conclusion">Conclusion</h2>
+    <p>
+      To learn more, read about
+      <a href="/docs/api-reference/next.config.js/basepath.md">subpaths</a> and
+      <a href="/docs/api-reference/next.config.js/rewrites.md">rewrites</a> or
+      <a
+        href="https://vercel.com/new/git/external?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-zones&amp;project-name=with-zones&amp;repository-name=with-zones"
+        >deploy an example with micro-frontends</a
+      >.
+    </p>
+  </body>
+</html>

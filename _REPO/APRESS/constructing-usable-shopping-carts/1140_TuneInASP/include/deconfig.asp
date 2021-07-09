@@ -1,0 +1,6 @@
+<%
+
+dbConn.Close
+dbConn=Nothing
+
+%>

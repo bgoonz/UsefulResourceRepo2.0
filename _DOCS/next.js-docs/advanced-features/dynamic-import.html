@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>dynamic-import</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="dynamic-import">Dynamic Import</h1>
+    <details open>
+      <summary><b>Examples</b></summary>
+      <ul>
+        <li>
+          <a
+            href="https://github.com/vercel/next.js/tree/canary/examples/with-dynamic-import"
+            >Dynamic Import</a
+          >
+        </li>
+      </ul>
+    </details>
+    <p>
+      Next.js supports ES2020
+      <a href="https://github.com/tc39/proposal-dynamic-import"
+        >dynamic <code>import()</code></a
+      >
+      for JavaScript. With it you can import JavaScript modules dynamically and
+      work with them. They also work with SSR.
+    </p>
+    <p>
+      In the following example, we implement fuzzy search using
+      <code>fuse.js</code> and only load the module dynamically in the browser
+      after the user types in the search input:
+    </p>
+    <pre class="jsx"><code>import { useState } from &#39;react&#39;
+
+const names = [&#39;Tim&#39;, &#39;Joe&#39;, &#39;Bel&#39;, &#39;Max&#39;, &#39;Lee&#39;]
+
+export default function Page() {
+  const [results, setResults] = useState()
+
+  return (
+    &lt;div&gt;
+      &lt;input
+        type=&quot;text&quot;
+        placeholder=&quot;Search&quot;
+        onChange={async (e) =&gt; {
+          const { value } = e.currentTarget
+          // Dynamically load fuse.js
+          const Fuse = (await import(&#39;fuse.js&#39;)).default
+          const fuse = new Fuse(names)
+
+          setResults(fuse.search(value))
+        }}
+      /&gt;
+      &lt;pre&gt;Results: {JSON.stringify(results, null, 2)}&lt;/pre&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+    <p>
+      You can think of dynamic imports as another way to split your code into
+      manageable chunks.
+    </p>
+    <p>
+      React components can also be imported using dynamic imports, but in this
+      case we use it in conjunction with <code>next/dynamic</code> to make sure
+      it works like any other React Component. Check out the sections below for
+      more details on how it works.
+    </p>
+    <h2 id="basic-usage">Basic usage</h2>
+    <p>
+      In the following example, the module <code>../components/hello</code> will
+      be dynamically loaded by the page:
+    </p>
+    <pre class="jsx"><code>import dynamic from &#39;next/dynamic&#39;
+
+const DynamicComponent = dynamic(() =&gt; import(&#39;../components/hello&#39;))
+
+function Home() {
+  return (
+    &lt;div&gt;
+      &lt;Header /&gt;
+      &lt;DynamicComponent /&gt;
+      &lt;p&gt;HOME PAGE is here!&lt;/p&gt;
+    &lt;/div&gt;
+  )
+}
+
+export default Home</code></pre>
+    <p>
+      <code>DynamicComponent</code> will be the default component returned by
+      <code>../components/hello</code>. It works like a regular React Component,
+      and you can pass props to it as you normally would.
+    </p>
+    <blockquote>
+      <p>
+        <strong>Note</strong>: In <code>import('path/to/component')</code>, the
+        path must be explicitly written. It can’t be a template string nor a
+        variable. Furthermore the <code>import()</code> has to be inside the
+        <code>dynamic()</code> call for Next.js to be able to match webpack
+        bundles / module ids to the specific <code>dynamic()</code> call and
+        preload them before rendering. <code>dynamic()</code> can’t be used
+        inside of React rendering as it needs to be marked in the top level of
+        the module for preloading to work, similar to <code>React.lazy</code>.
+      </p>
+    </blockquote>
+    <h2 id="with-named-exports">With named exports</h2>
+    <p>
+      If the dynamic component is not the default export, you can use a named
+      export too. Consider the module <code>../components/hello.js</code> which
+      has a named export <code>Hello</code>:
+    </p>
+    <pre class="jsx"><code>export function Hello() {
+  return &lt;p&gt;Hello!&lt;/p&gt;
+}</code></pre>
+    <p>
+      To dynamically import the <code>Hello</code> component, you can return it
+      from the
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise"
+        >Promise</a
+      >
+      returned by
+      <a href="https://github.com/tc39/proposal-dynamic-import#example"
+        ><code>import()</code></a
+      >, like so:
+    </p>
+    <pre class="jsx"><code>import dynamic from &#39;next/dynamic&#39;
+
+const DynamicComponent = dynamic(() =&gt;
+  import(&#39;../components/hello&#39;).then((mod) =&gt; mod.Hello)
+)
+
+function Home() {
+  return (
+    &lt;div&gt;
+      &lt;Header /&gt;
+      &lt;DynamicComponent /&gt;
+      &lt;p&gt;HOME PAGE is here!&lt;/p&gt;
+    &lt;/div&gt;
+  )
+}
+
+export default Home</code></pre>
+    <h2 id="with-custom-loading-component">With custom loading component</h2>
+    <p>
+      An optional <code>loading</code> component can be added to render a
+      loading state while the dynamic component is being loaded. For example:
+    </p>
+    <pre class="jsx"><code>import dynamic from &#39;next/dynamic&#39;
+
+const DynamicComponentWithCustomLoading = dynamic(
+  () =&gt; import(&#39;../components/hello&#39;),
+  { loading: () =&gt; &lt;p&gt;...&lt;/p&gt; }
+)
+
+function Home() {
+  return (
+    &lt;div&gt;
+      &lt;Header /&gt;
+      &lt;DynamicComponentWithCustomLoading /&gt;
+      &lt;p&gt;HOME PAGE is here!&lt;/p&gt;
+    &lt;/div&gt;
+  )
+}
+
+export default Home</code></pre>
+    <h2 id="with-no-ssr">With no SSR</h2>
+    <p>
+      You may not always want to include a module on server-side. For example,
+      when the module includes a library that only works in the browser.
+    </p>
+    <p>Take a look at the following example:</p>
+    <pre class="jsx"><code>import dynamic from &#39;next/dynamic&#39;
+
+const DynamicComponentWithNoSSR = dynamic(
+  () =&gt; import(&#39;../components/hello3&#39;),
+  { ssr: false }
+)
+
+function Home() {
+  return (
+    &lt;div&gt;
+      &lt;Header /&gt;
+      &lt;DynamicComponentWithNoSSR /&gt;
+      &lt;p&gt;HOME PAGE is here!&lt;/p&gt;
+    &lt;/div&gt;
+  )
+}
+
+export default Home</code></pre>
+  </body>
+</html>

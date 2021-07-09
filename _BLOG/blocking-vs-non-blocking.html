@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>blocking-vs-non-blocking</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="overview-of-blocking-vs-non-blocking-node.js">
+      Overview of Blocking vs Non-Blocking | Node.js
+    </h1>
+    <blockquote>
+      <p>
+        Node.js® is a JavaScript runtime built on Chrome’s V8 JavaScript engine.
+      </p>
+    </blockquote>
+    <p>
+      <a
+        href="https://github.com/nodejs/nodejs.org/edit/master/locale/en/docs/guides/blocking-vs-non-blocking.md"
+        >Edit on GitHub</a
+      >
+    </p>
+    <p>
+      This overview covers the difference between <strong>blocking</strong> and
+      <strong>non-blocking</strong> calls in Node.js. This overview will refer
+      to the event loop and libuv but no prior knowledge of those topics is
+      required. Readers are assumed to have a basic understanding of the
+      JavaScript language and Node.js
+      <a
+        href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/en/knowledge/getting-started/control-flow/what-are-callbacks/"
+        >callback pattern</a
+      >.
+    </p>
+    <blockquote>
+      <p>
+        “I/O” refers primarily to interaction with the system’s disk and network
+        supported by <a href="https://libuv.org/">libuv</a>.
+      </p>
+    </blockquote>
+    <p>
+      <strong>Blocking</strong> is when the execution of additional JavaScript
+      in the Node.js process must wait until a non-JavaScript operation
+      completes. This happens because the event loop is unable to continue
+      running JavaScript while a <strong>blocking</strong> operation is
+      occurring.
+    </p>
+    <p>
+      In Node.js, JavaScript that exhibits poor performance due to being CPU
+      intensive rather than waiting on a non-JavaScript operation, such as I/O,
+      isn’t typically referred to as <strong>blocking</strong>. Synchronous
+      methods in the Node.js standard library that use libuv are the most
+      commonly used <strong>blocking</strong> operations. Native modules may
+      also have <strong>blocking</strong> methods.
+    </p>
+    <p>
+      All of the I/O methods in the Node.js standard library provide
+      asynchronous versions, which are <strong>non-blocking</strong>, and accept
+      callback functions. Some methods also have
+      <strong>blocking</strong> counterparts, which have names that end with
+      <code>Sync</code>.
+    </p>
+    <p>
+      <strong>Blocking</strong> methods execute
+      <strong>synchronously</strong> and <strong>non-blocking</strong> methods
+      execute <strong>asynchronously</strong>.
+    </p>
+    <p>
+      Using the File System module as an example, this is a
+      <strong>synchronous</strong> file read:
+    </p>
+    <pre><code>const fs = require(&#39;fs&#39;);
+const data = fs.readFileSync(&#39;/file.md&#39;);</code></pre>
+    <p>And here is an equivalent <strong>asynchronous</strong> example:</p>
+    <pre><code>const fs = require(&#39;fs&#39;);
+fs.readFile(&#39;/file.md&#39;, (err, data) =&gt; {
+  if (err) throw err;
+});</code></pre>
+    <p>
+      The first example appears simpler than the second but has the disadvantage
+      of the second line <strong>blocking</strong> the execution of any
+      additional JavaScript until the entire file is read. Note that in the
+      synchronous version if an error is thrown it will need to be caught or the
+      process will crash. In the asynchronous version, it is up to the author to
+      decide whether an error should throw as shown.
+    </p>
+    <p>Let’s expand our example a little bit:</p>
+    <pre><code>const fs = require(&#39;fs&#39;);
+const data = fs.readFileSync(&#39;/file.md&#39;);
+console.log(data);
+moreWork();</code></pre>
+    <p>And here is a similar, but not equivalent asynchronous example:</p>
+    <pre><code>const fs = require(&#39;fs&#39;);
+fs.readFile(&#39;/file.md&#39;, (err, data) =&gt; {
+  if (err) throw err;
+  console.log(data);
+});
+moreWork();</code></pre>
+    <p>
+      In the first example above, <code>console.log</code> will be called before
+      <code>moreWork()</code>. In the second example
+      <code>fs.readFile()</code> is <strong>non-blocking</strong> so JavaScript
+      execution can continue and <code>moreWork()</code> will be called first.
+      The ability to run <code>moreWork()</code> without waiting for the file
+      read to complete is a key design choice that allows for higher throughput.
+    </p>
+    <h2 id="concurrency-and-throughput">
+      Concurrency and Throughput<a href="#concurrency-and-throughput"></a>
+    </h2>
+    <p>
+      JavaScript execution in Node.js is single threaded, so concurrency refers
+      to the event loop’s capacity to execute JavaScript callback functions
+      after completing other work. Any code that is expected to run in a
+      concurrent manner must allow the event loop to continue running as
+      non-JavaScript operations, like I/O, are occurring.
+    </p>
+    <p>
+      As an example, let’s consider a case where each request to a web server
+      takes 50ms to complete and 45ms of that 50ms is database I/O that can be
+      done asynchronously. Choosing <strong>non-blocking</strong> asynchronous
+      operations frees up that 45ms per request to handle other requests. This
+      is a significant difference in capacity just by choosing to use
+      <strong>non-blocking</strong> methods instead of
+      <strong>blocking</strong> methods.
+    </p>
+    <p>
+      The event loop is different than models in many other languages where
+      additional threads may be created to handle concurrent work.
+    </p>
+    <h2 id="dangers-of-mixing-blocking-and-non-blocking-code">
+      Dangers of Mixing Blocking and Non-Blocking Code<a
+        href="#dangers-of-mixing-blocking-and-non-blocking-code"
+      ></a>
+    </h2>
+    <p>
+      There are some patterns that should be avoided when dealing with I/O.
+      Let’s look at an example:
+    </p>
+    <pre><code>const fs = require(&#39;fs&#39;);
+fs.readFile(&#39;/file.md&#39;, (err, data) =&gt; {
+  if (err) throw err;
+  console.log(data);
+});
+fs.unlinkSync(&#39;/file.md&#39;);</code></pre>
+    <p>
+      In the above example, <code>fs.unlinkSync()</code> is likely to be run
+      before <code>fs.readFile()</code>, which would delete
+      <code>file.md</code> before it is actually read. A better way to write
+      this, which is completely <strong>non-blocking</strong> and guaranteed to
+      execute in the correct order is:
+    </p>
+    <pre><code>const fs = require(&#39;fs&#39;);
+fs.readFile(&#39;/file.md&#39;, (readFileErr, data) =&gt; {
+  if (readFileErr) throw readFileErr;
+  console.log(data);
+  fs.unlink(&#39;/file.md&#39;, (unlinkErr) =&gt; {
+    if (unlinkErr) throw unlinkErr;
+  });
+});</code></pre>
+    <p>
+      The above places a <strong>non-blocking</strong> call to
+      <code>fs.unlink()</code> within the callback of
+      <code>fs.readFile()</code> which guarantees the correct order of
+      operations.
+    </p>
+    <ul>
+      <li><a href="https://libuv.org/">libuv</a></li>
+      <li>
+        <a href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/en/about/"
+          >About Node.js</a
+        >
+      </li>
+    </ul>
+    <p>
+      <a href="https://nodejs.org/en/docs/guides/blocking-vs-non-blocking/"
+        >Source</a
+      >
+    </p>
+  </body>
+</html>

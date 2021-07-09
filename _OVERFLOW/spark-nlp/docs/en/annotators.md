@@ -5,7 +5,6 @@ permalink: /docs/en/annotators
 key: docs-annotators
 modify_date: "2020-02-12"
 use_language_switchter: true
-
 ---
 
 ## Annotators Guideline
@@ -16,17 +15,16 @@ use_language_switchter: true
 
 All annotators in Spark NLP share a common interface, this is:
 
-- Annotation -> `Annotation(annotatorType, begin, end, result, metadata,
-embeddings)`
+- Annotation -> `Annotation(annotatorType, begin, end, result, metadata, embeddings)`
 - AnnotatorType -> some annotators share a type. This is not only
-figurative, but also tells about the structure of the `metadata` map in
-the Annotation. This is the one refered in the input and output of
-annotators.
+  figurative, but also tells about the structure of the `metadata` map in
+  the Annotation. This is the one refered in the input and output of
+  annotators.
 - Inputs -> Represents how many and which annotator types are expected
-in `setInputCols`. These are column names of output of other annotators
-in the dataframe.
+  in `setInputCols`. These are column names of output of other annotators
+  in the dataframe.
 - Output -> Represents the type of the output in the column
-`setOutputCol`.
+  `setOutputCol`.
 
 There are two types of annotators:
 
@@ -57,36 +55,36 @@ There are annotators freely available in the Open Source version of
 Spark-NLP. More are available in the licensed version of Spark NLP.
 Visit www.johnsnowlabs.com for more information about getting a license.
 
-|Annotator|Description|version |
-|---|---|---|
-|Tokenizer|Identifies tokens with tokenization open standards|Opensource|
-|Normalizer|Removes all dirty characters from text|Opensource|
-|Stemmer|Returns hard-stems out of words with the objective of retrieving the meaningful part of the word|Opensource|
-|Lemmatizer|Retrieves lemmas out of words with the objective of returning a base dictionary word|Opensource|
-|StopWordsCleaner|This annotator excludes from a sequence of strings (e.g. the output of a Tokenizer, Normalizer, Lemmatizer, and Stemmer) and drops all the stop words from the input sequences|Opensource|
-|RegexMatcher|Uses a reference file to match a set of regular expressions and put them inside a provided key.|Opensource|
-|TextMatcher|Annotator to match entire phrases (by token) provided in a file against a Document|Opensource|
-|Chunker|Matches a pattern of part-of-speech tags in order to return meaningful phrases from document|Opensource|
-|NGramGenerator|integrates Spark ML NGram function into Spark ML with a new cumulative feature to also generate range ngrams like the scikit-learn library|Opensource|
-|DateMatcher|Reads from different forms of date and time expressions and converts them to a provided date format|Opensource|
-|SentenceDetector|Finds sentence bounds in raw text. Applies rules from Pragmatic Segmenter|Opensource|
-|DeepSentenceDetector|Finds sentence bounds in raw text. Applies a Named Entity Recognition DL model|Opensource|
-|POSTagger|Sets a Part-Of-Speech tag to each word within a sentence. |Opensource|
-|ViveknSentimentDetector|Scores a sentence for a sentiment|Opensource|
-|SentimentDetector|Scores a sentence for a sentiment|Opensource|
-|WordEmbeddings|Word Embeddings lookup annotator that maps tokens to vectors|Opensource|
-|BertEmbeddings|Bert Embeddings that maps tokens to vectors in a bidirectional way|Opensource|
-|SentenceEmbeddings|utilizes WordEmbeddings or BertEmbeddings to generate sentence or document embeddings|Opensource|
-|ChunkEmbeddings|utilizes WordEmbeddings or BertEmbeddings to generate chunk embeddings from either Chunker, NGramGenerator, or NerConverter outputs|Opensource|
-|NerCrf|Named Entity recognition annotator allows for a generic model to be trained by utilizing a CRF machine learning algorithm|Opensource|
-|NorvigSweeting|This annotator retrieves tokens and makes corrections automatically if not found in an English dictionary|Opensource|
-|SymmetricDelete|This spell checker is inspired on Symmetric Delete algorithm|Opensource|
-|DependencyParser|Unlabeled parser that finds a grammatical relation between two words in a sentence|Opensource|
-|TypedDependencyParser|Labeled parser that finds a grammatical relation between two words in a sentence|Opensource|
-|AssertionLogReg|It will classify each clinicaly relevant named entity into its assertion type: "present", "absent", "hypothetical", etc.|Licensed|
-|AssertionDL|It will classify each clinicaly relevant named entity into its assertion type: "present", "absent", "hypothetical", etc.|Licensed|
-|EntityResolver|Assigns a ICD10 (International Classification of Diseases version 10) code to chunks identified as "PROBLEMS" by the NER Clinical Model|Licensed|
-|DeIdentification|Identifies potential pieces of content with personal information about patients and remove them by replacing with semantic tags.|Licensed|
+| Annotator               | Description                                                                                                                                                                    | version    |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- |
+| Tokenizer               | Identifies tokens with tokenization open standards                                                                                                                             | Opensource |
+| Normalizer              | Removes all dirty characters from text                                                                                                                                         | Opensource |
+| Stemmer                 | Returns hard-stems out of words with the objective of retrieving the meaningful part of the word                                                                               | Opensource |
+| Lemmatizer              | Retrieves lemmas out of words with the objective of returning a base dictionary word                                                                                           | Opensource |
+| StopWordsCleaner        | This annotator excludes from a sequence of strings (e.g. the output of a Tokenizer, Normalizer, Lemmatizer, and Stemmer) and drops all the stop words from the input sequences | Opensource |
+| RegexMatcher            | Uses a reference file to match a set of regular expressions and put them inside a provided key.                                                                                | Opensource |
+| TextMatcher             | Annotator to match entire phrases (by token) provided in a file against a Document                                                                                             | Opensource |
+| Chunker                 | Matches a pattern of part-of-speech tags in order to return meaningful phrases from document                                                                                   | Opensource |
+| NGramGenerator          | integrates Spark ML NGram function into Spark ML with a new cumulative feature to also generate range ngrams like the scikit-learn library                                     | Opensource |
+| DateMatcher             | Reads from different forms of date and time expressions and converts them to a provided date format                                                                            | Opensource |
+| SentenceDetector        | Finds sentence bounds in raw text. Applies rules from Pragmatic Segmenter                                                                                                      | Opensource |
+| DeepSentenceDetector    | Finds sentence bounds in raw text. Applies a Named Entity Recognition DL model                                                                                                 | Opensource |
+| POSTagger               | Sets a Part-Of-Speech tag to each word within a sentence.                                                                                                                      | Opensource |
+| ViveknSentimentDetector | Scores a sentence for a sentiment                                                                                                                                              | Opensource |
+| SentimentDetector       | Scores a sentence for a sentiment                                                                                                                                              | Opensource |
+| WordEmbeddings          | Word Embeddings lookup annotator that maps tokens to vectors                                                                                                                   | Opensource |
+| BertEmbeddings          | Bert Embeddings that maps tokens to vectors in a bidirectional way                                                                                                             | Opensource |
+| SentenceEmbeddings      | utilizes WordEmbeddings or BertEmbeddings to generate sentence or document embeddings                                                                                          | Opensource |
+| ChunkEmbeddings         | utilizes WordEmbeddings or BertEmbeddings to generate chunk embeddings from either Chunker, NGramGenerator, or NerConverter outputs                                            | Opensource |
+| NerCrf                  | Named Entity recognition annotator allows for a generic model to be trained by utilizing a CRF machine learning algorithm                                                      | Opensource |
+| NorvigSweeting          | This annotator retrieves tokens and makes corrections automatically if not found in an English dictionary                                                                      | Opensource |
+| SymmetricDelete         | This spell checker is inspired on Symmetric Delete algorithm                                                                                                                   | Opensource |
+| DependencyParser        | Unlabeled parser that finds a grammatical relation between two words in a sentence                                                                                             | Opensource |
+| TypedDependencyParser   | Labeled parser that finds a grammatical relation between two words in a sentence                                                                                               | Opensource |
+| AssertionLogReg         | It will classify each clinicaly relevant named entity into its assertion type: "present", "absent", "hypothetical", etc.                                                       | Licensed   |
+| AssertionDL             | It will classify each clinicaly relevant named entity into its assertion type: "present", "absent", "hypothetical", etc.                                                       | Licensed   |
+| EntityResolver          | Assigns a ICD10 (International Classification of Diseases version 10) code to chunks identified as "PROBLEMS" by the NER Clinical Model                                        | Licensed   |
+| DeIdentification        | Identifies potential pieces of content with personal information about patients and remove them by replacing with semantic tags.                                               | Licensed   |
 
 ## Spark-NLP Open Source
 
@@ -99,7 +97,7 @@ Identifies tokens with tokenization open standards. A few rules will help custom
 **Functions:**
 
 - setExceptions(StringArray): List of tokens to not alter at all. Allows composite tokens like two worded tokens that the user may not want to split.
-- addException(String): Add a single exception 
+- addException(String): Add a single exception
 - setExceptionsPath(String): Path to txt file with list of token exceptions
 - caseSensitiveExceptions(bool): Whether to follow case sensitiveness for matching exceptions in text
 - contextChars(StringArray): List of 1 character string to rip off from tokens, such as parenthesis or question marks. Ignored if using prefix, infix or suffix patterns.
@@ -109,7 +107,7 @@ Identifies tokens with tokenization open standards. A few rules will help custom
 - setPrefixPattern: Regex to identify subtokens that come in the beginning of the token. Regex has to start with `\\A` and must contain groups (). Each group will become a separate token within the prefix. Defaults to non-letter characters. e.g. quotes or parenthesis
 - addInfixPattern: Add an extension pattern regex with groups to the top of the rules (will target first, from more specific to the more general).
 
-**Note:** all these APIs receive regular expressions so please make sure that you escape special characters according to Java conventions.  
+**Note:** all these APIs receive regular expressions so please make sure that you escape special characters according to Java conventions.
 
 **Example:**
 
@@ -174,7 +172,7 @@ val normalizer = new Normalizer()
 Returns hard-stems out of words with the objective of retrieving the meaningful part of the word  
 **Output type:** Token  
 **Input types:** Token  
-**Reference:** [Stemmer](https://github.com/JohnSnowLabs/spark-nlp/tree/master/src/main/scala/com/johnsnowlabs/nlp/annotators/Stemmer.scala)  
+**Reference:** [Stemmer](https://github.com/JohnSnowLabs/spark-nlp/tree/master/src/main/scala/com/johnsnowlabs/nlp/annotators/Stemmer.scala)
 
 **Example:**
 
@@ -323,9 +321,9 @@ Annotator to match entire phrases (by token) provided in a file against a Docume
 **Reference:** [TextMatcher](https://github.com/JohnSnowLabs/spark-nlp/tree/master/src/main/scala/com/johnsnowlabs/nlp/annotators/TextMatcher.scala) | [TextMatcherModel](https://github.com/JohnSnowLabs/spark-nlp/tree/master/src/main/scala/com/johnsnowlabs/nlp/annotators/TextMatcherModel.scala)  
 **Functions:**
 
-- setEntities(path, format, options): Provides a file with phrases to match. Default: Looks up path in configuration.  
-- path: a path to a file that contains the entities in the specified format.  
-- readAs: the format of the file, can be one of {ReadAs.LINE_BY_LINE, ReadAs.SPARK_DATASET}. Defaults to LINE_BY_LINE.  
+- setEntities(path, format, options): Provides a file with phrases to match. Default: Looks up path in configuration.
+- path: a path to a file that contains the entities in the specified format.
+- readAs: the format of the file, can be one of {ReadAs.LINE_BY_LINE, ReadAs.SPARK_DATASET}. Defaults to LINE_BY_LINE.
 - options: a map of additional parameters. Defaults to {"format": "text"}.
 
 **Example:**
@@ -458,10 +456,10 @@ Reads from different forms of date and time expressions and converts them to a p
 - 1988/11/23 6pm
 - next week at 7.30
 - 5 am tomorrow
-  
+
 **Functions:**
 
-- setDateFormat(format): SimpleDateFormat standard date *output* formatting. Defaults to yyyy/MM/dd
+- setDateFormat(format): SimpleDateFormat standard date _output_ formatting. Defaults to yyyy/MM/dd
 
 **Example:**
 
@@ -587,7 +585,7 @@ val posTagger = new PerceptronApproach()
 ### ViveknSentimentDetector
 
 Scores a sentence for a sentiment
-  
+
 **Output type:** sentiment  
 **Input types:** Document, Token  
 **Reference:** [ViveknSentimentApproach](https://github.com/JohnSnowLabs/spark-nlp/tree/master/src/main/scala/com/johnsnowlabs/nlp/annotators/sda/vivekn/ViveknSentimentApproach.scala) | [ViveknSentimentModel](https://github.com/JohnSnowLabs/spark-nlp/tree/master/src/main/scala/com/johnsnowlabs/nlp/annotators/sda/vivekn/ViveknSentimentModel.scala)  
@@ -667,12 +665,12 @@ val sentimentDetector = new SentimentDetector
 Word Embeddings lookup annotator that maps tokens to vectors  
 **Output type:** Word_Embeddings  
 **Input types:** Document, Token  
-**Reference:**  [WordEmbeddings](https://github.com/JohnSnowLabs/spark-nlp/tree/master/src/main/scala/com/johnsnowlabs/nlp/embeddings/WordEmbeddings.scala) | [WordEmbeddingsModel](https://github.com/JohnSnowLabs/spark-nlp/tree/master/src/main/scala/com/johnsnowlabs/nlp/embeddings/WordEmbeddingsModel.scala)  
+**Reference:** [WordEmbeddings](https://github.com/JohnSnowLabs/spark-nlp/tree/master/src/main/scala/com/johnsnowlabs/nlp/embeddings/WordEmbeddings.scala) | [WordEmbeddingsModel](https://github.com/JohnSnowLabs/spark-nlp/tree/master/src/main/scala/com/johnsnowlabs/nlp/embeddings/WordEmbeddingsModel.scala)  
 **Functions:**
 
-- setEmbeddingsSource(path, nDims, format): sets [word embeddings](https://en.wikipedia.org/wiki/Word_embedding) options. 
-  - path: word embeddings file  
-  - nDims: number of word embeddings dimensions 
+- setEmbeddingsSource(path, nDims, format): sets [word embeddings](https://en.wikipedia.org/wiki/Word_embedding) options.
+  - path: word embeddings file
+  - nDims: number of word embeddings dimensions
   - format: format of word embeddings files:
     - text -> This format is usually used by [Glove](https://nlp.stanford.edu/projects/glove/)
     - binary -> This format is usually used by [Word2Vec](https://code.google.com/archive/p/word2vec/)
@@ -700,20 +698,20 @@ val wordEmbeddings = new WordEmbeddings()
         100, "text")
 ```
 
-There are also two convenient functions 
-to retrieve the embeddings coverage with 
-respect to the transformed dataset:  
+There are also two convenient functions
+to retrieve the embeddings coverage with
+respect to the transformed dataset:
 
 - withCoverageColumn(dataset, embeddingsCol, outputCol): Adds a custom column with **word coverage** stats for the embedded field: (coveredWords, totalWords, coveragePercentage). This creates a new column with statistics for each row.
 - overallCoverage(dataset, embeddingsCol): Calculates overall **word coverage** for the whole data in the embedded field. This returns a single coverage object considering all rows in the field.
 
 ### Bert Embeddings
 
-Bert Embeddings. This annotator may only be created by a tensorflow process located at `python/tensorlfow/bert`.      
-You can find the weights in the [trained models repo](https://github.com/JohnSnowLabs/spark-nlp-models#english---models)       
+Bert Embeddings. This annotator may only be created by a tensorflow process located at `python/tensorlfow/bert`.  
+You can find the weights in the [trained models repo](https://github.com/JohnSnowLabs/spark-nlp-models#english---models)  
 **Output type:** Word_Embeddings  
 **Input types:** Document  
-**Reference:** [BertEmbeddings](https://github.com/JohnSnowLabs/spark-nlp/tree/master/src/main/scala/com/johnsnowlabs/nlp/embeddings/BertEmbeddings.scala)  
+**Reference:** [BertEmbeddings](https://github.com/JohnSnowLabs/spark-nlp/tree/master/src/main/scala/com/johnsnowlabs/nlp/embeddings/BertEmbeddings.scala)
 
 Refer to the [BertEmbeddings](https://nlp.johnsnowlabs.com/api/index#com.johnsnowlabs.nlp.embeddings.BertEmbeddings) Scala docs for more
 
@@ -722,13 +720,12 @@ How to use pretrained Bert Embeddings:
 {% include programmingLanguageSelectScalaPython.html %}
 
 ```python
-# How to load a new Bert model created by python/tensorlfow/bert notebook: 
+# How to load a new Bert model created by python/tensorlfow/bert notebook:
 
 bert = BertEmbeddings.load("/elmo_en_2.4.0_2.4_1580488815299") \
       .setInputCols("sentence", "token") \
       .setOutputCol("bert")
 ```
-
 
 ```scala
 val bert = BertEmbeddings.pretrained()
@@ -737,14 +734,13 @@ val bert = BertEmbeddings.pretrained()
       .setPoolingLayer(0) // 0, -1, or -2
 ```
 
-
 ### Elmo Embeddings
 
 Elmo Embeddings. This annotator may only be created by a tensorflow process located at `python/tensorlfow/elmo`.
-You can find the weights in the  [trained models repo](https://github.com/JohnSnowLabs/spark-nlp-models#english---models)
+You can find the weights in the [trained models repo](https://github.com/JohnSnowLabs/spark-nlp-models#english---models)
 **Output type:** Word_Embeddings  
 **Input types:** Document  
-**Reference:** [ElmoEmbeddings](https://github.com/JohnSnowLabs/spark-nlp/tree/master/src/main/scala/com/johnsnowlabs/nlp/embeddings/ElmoEmbeddings.scala)  
+**Reference:** [ElmoEmbeddings](https://github.com/JohnSnowLabs/spark-nlp/tree/master/src/main/scala/com/johnsnowlabs/nlp/embeddings/ElmoEmbeddings.scala)
 
 Refer to the [ElmoEmbeddings](https://nlp.johnsnowlabs.com/api/index#com.johnsnowlabs.nlp.embeddings.ElmoEmbeddings) Scala docs for more
 
@@ -759,7 +755,6 @@ elmo = ElmoEmbeddings.load("/elmo_en_2.4.0_2.4_1580488815299") \
       .setInputCols("sentence", "token") \
       .setOutputCol("elmo")
 ```
-
 
 ```scala
 
@@ -962,7 +957,7 @@ Neural Network architecture is Char CNNs - BiLSTM - CRF that achieves state-of-t
 - setRandomSeed: Random seed
 
 **Note:** Please check [here](graph.md) in case you get an **IllegalArgumentException** error with a description such as:
-*Graph [parameter] should be [value]: Could not find a suitable tensorflow graph for embeddings dim: [value] tags: [value] nChars: [value]. Generate graph by python code in python/tensorflow/ner/create_models before usage and use setGraphFolder Param to point to output.*
+_Graph [parameter] should be [value]: Could not find a suitable tensorflow graph for embeddings dim: [value] tags: [value] nChars: [value]. Generate graph by python code in python/tensorflow/ner/create_models before usage and use setGraphFolder Param to point to output._
 
 **Example:**
 
@@ -1067,7 +1062,7 @@ val spellChecker = new SymmetricDeleteApproach()
     .setInputCols(Array("normalized"))
     .setOutputCol("spell")
     .fit(trainCorpus)
-```  
+```
 
 ### Dependency Parsers
 
