@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*.NET Development for Java Programmers*](http://www.apress.com/9781590590386) by Paul Gibbons (Apress, 2002).
+This repository accompanies [_.NET Development for Java Programmers_](http://www.apress.com/9781590590386) by Paul Gibbons (Apress, 2002).
 
 ![Cover image](9781590590386.jpg)
 

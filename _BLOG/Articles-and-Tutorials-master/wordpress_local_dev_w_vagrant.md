@@ -1,5 +1,4 @@
-Why & How-to Set Up a WordPress Local-Development Environment with Vagrant
-==========================================================================
+# Why & How-to Set Up a WordPress Local-Development Environment with Vagrant
 
 ### The Limitations of LAMP Stacks
 
@@ -7,22 +6,19 @@ Historically, when setting up a local development environment, WordPress develop
 
 Developers agree that it is “extremely important to make sure that your development environment is identical to the production environment, and matches staging and testing servers if you have those too.”<sup>\[[\#](http://net.tutsplus.com/tutorials/php/vagrant-what-why-and-how/ "Vagrant: What, Why, and How | Philip Sturgeon (this article provides a nice walk-through of installing VirtualBox and Vagrant; and using Vagrant to manage your virtual machine instances, while explaining how you can take advantage of Puppet (and provides code snippets) to provision various resources like PHP and PostgreSQL).")\]</sup> By not mirroring your environments, the chance increases that something that seems to work just fine in an Apache-based local development environment will fail to work on the production server. A common frustration with LAMP stacks today is that they, now, seldom match the environment of the live, or production, server. Cutting-edge server setups for WordPress hosting these days include some combination of Nginx, MySQL, PHP-FPM and Memcached (note the ‘d’!) – at a minimum.
 
-Why Vagrant?
-------------
+## Why Vagrant?
 
-Even subtle differences between environments increase the likelihood that your code modifications, plugins or web apps will fail in the testing, or staging, environment – resulting in wasted time troubleshooting, when you otherwise could be developing further. Now, consider the possibility that you may want to test your WordPress configurations by throwing into the mix the PECL memcache (no ‘d’!) extension, or Varnish, and you’ll happily discover: *Why Vagrant*. With Vagrant, you can easily recreate the same environment, anywhere, (literally) no matter what operating system or platform you choose for development. You can provision machines locally – on top of VirtualBox or VMware – and in the cloud with various providers – such as Amazon Web Services (AWS), DigitalOcean or RackSpace, among others.
+Even subtle differences between environments increase the likelihood that your code modifications, plugins or web apps will fail in the testing, or staging, environment – resulting in wasted time troubleshooting, when you otherwise could be developing further. Now, consider the possibility that you may want to test your WordPress configurations by throwing into the mix the PECL memcache (no ‘d’!) extension, or Varnish, and you’ll happily discover: _Why Vagrant_. With Vagrant, you can easily recreate the same environment, anywhere, (literally) no matter what operating system or platform you choose for development. You can provision machines locally – on top of VirtualBox or VMware – and in the cloud with various providers – such as Amazon Web Services (AWS), DigitalOcean or RackSpace, among others.
 
 ### Not ready to break up with your beloved LAMP stack?
 
 With Vagrant, even those that continue developing with a LAMP stack have discovered that “Vagrant … seems to solve all of the issues I’ve had in the past when trying to get a local environment up for WordPress.”<sup>\[[\#](http://blairwilliams.com/2012/04/12/run-wordpress-locally-with-vagrant/ "How To Run WordPress Locally With Vagrant | Blair Williams")\]</sup> Lastly, Vagrant is portable – allowing other members of your team to create their development environments from the same configuration you use – ensuring that all your team members are running code through the same environment, against the same dependencies, all configured the same way; regardless of whether any of them are working from Linux, Mac OS X, or Windows workstations.
 
-Prerequisite for Windows users
-------------------------------
+## Prerequisite for Windows users
 
 Vagrant is configured with a shell, or an operating system’s command line interface (“CLI”), and OpenSSH. Unfortunately, an SSH client is generally not distributed with Windows, by default. However, Windows users can connect to Vagrant with any of their favorite SSH clients, e.g. one of the shells provided in GitHub for Windows; a terminal in Cygwin; Git Bash or PuTTY, among others.
 
-<span id="start">Getting Started</span>
----------------------------------------
+## <span id="start">Getting Started</span>
 
 On your local workstation, you’ll need to:
 
@@ -49,7 +45,7 @@ On your local workstation, you’ll need to:
 
     This will place a **Vagrantfile** in your current directory. Vagrant is meant to run with one **Vagrantfile** per project, and the **Vagrantfile** is supposed to be committed to [version control](http://en.wikipedia.org/wiki/Comparison_of_revision_control_software "Comparison of revision control software | Wikipedia, the free encyclopedia") (e.g. Git). This way, every person working with that project can benefit from Vagrant without any of the upfront legwork.
 
-    One concept to be mindful of is Vagrant’s use of [boxes](http://docs.vagrantup.com/v2/getting-started/boxes.html). Vagrant uses **.box** files as templates from which to spin up a new virtual machine. Instead of building a virtual machine from scratch – which would be a slow and tedious process – Vagrant uses a base image to quickly clone a virtual machine. These base images are referred to as *boxes*, and specifying the *box* to use for your Vagrant environment is always the next step after creating a new **Vagrantfile**.
+    One concept to be mindful of is Vagrant’s use of [boxes](http://docs.vagrantup.com/v2/getting-started/boxes.html). Vagrant uses **.box** files as templates from which to spin up a new virtual machine. Instead of building a virtual machine from scratch – which would be a slow and tedious process – Vagrant uses a base image to quickly clone a virtual machine. These base images are referred to as _boxes_, and specifying the _box_ to use for your Vagrant environment is always the next step after creating a new **Vagrantfile**.
 
 6.  Next, execute the following commands:
 
@@ -76,10 +72,10 @@ After running the above commands, you’ll have a fully running virtual machine 
 
 > #### Using PuTTY?
 
-> PuTTY is not compatible with OpenSSH, out-of-the-box. Consequently, PuTTY will not recognize the **insecure\_private\_key** provided by Vagrant as a valid private key. A workaround is to use PuTTYgen to **Load** (i.e. import) the **insecure\_private\_key** found in the **.vagrant.d** folder in your Home Directory, e.g.
+> PuTTY is not compatible with OpenSSH, out-of-the-box. Consequently, PuTTY will not recognize the **insecure_private_key** provided by Vagrant as a valid private key. A workaround is to use PuTTYgen to **Load** (i.e. import) the **insecure_private_key** found in the **.vagrant.d** folder in your Home Directory, e.g.
 >
-> -   Windows XP: C:and Settings{your username}.vagrant.d&lt;/li&gt;
-> -   Windows 7: C:{your username}.vagrant.d&lt;/li&gt;
+> - Windows XP: C:and Settings{your username}.vagrant.d&lt;/li&gt;
+> - Windows 7: C:{your username}.vagrant.d&lt;/li&gt;
 >
 > and convert the key file into PuTTY’s format (a **.ppk** file) by clicking on the **Save private key** button. Then, launch PuTTY and enter the following connection information:
 
@@ -91,9 +87,9 @@ and when you’re done playing around, you can remove all traces of it with the 
 
 ### Not to Fear, the Power of the Open-source Community is Here!
 
-If you’d like to get a jump-start on developing WordPress, locally, with Vagrant, check out *Varying Vagrant Vagrants for WordPress Development*, on GitHub (an exploration into the world of Vagrant and how it can help make development efficient and in sync with production systems; by replacing the common MAMP or XAMPP setups that we have become familiar with, while ensuring that all members of the team can develop in the same environment for a project without worrying about the operating system on their local machine).
+If you’d like to get a jump-start on developing WordPress, locally, with Vagrant, check out _Varying Vagrant Vagrants for WordPress Development_, on GitHub (an exploration into the world of Vagrant and how it can help make development efficient and in sync with production systems; by replacing the common MAMP or XAMPP setups that we have become familiar with, while ensuring that all members of the team can develop in the same environment for a project without worrying about the operating system on their local machine).
 
-With *Varying Vagrant Vagrants*, you will be able to fire up an instance by executing the simple **vagrant up** command, that will automatically install Nginx, PHP-FPM, and MySQL; before proceeding to move configuration files around and import SQL dumps – so that just minutes after the initial command, you can go to an existing development site in your browser or initiate a brand new WordPress install.<sup>\[[\#](http://jeremyfelt.com/code/2013/03/17/evolving-wordpress-development-with-vagrant/ "Evolving WordPress Development With Vagrant | Jeremy Felt")\]</sup> And so, without further ado:
+With _Varying Vagrant Vagrants_, you will be able to fire up an instance by executing the simple **vagrant up** command, that will automatically install Nginx, PHP-FPM, and MySQL; before proceeding to move configuration files around and import SQL dumps – so that just minutes after the initial command, you can go to an existing development site in your browser or initiate a brand new WordPress install.<sup>\[[\#](http://jeremyfelt.com/code/2013/03/17/evolving-wordpress-development-with-vagrant/ "Evolving WordPress Development With Vagrant | Jeremy Felt")\]</sup> And so, without further ado:
 
 1.  At a minimum, complete Steps 1 - 3 under [Getting Started](#start), above;
 
@@ -102,11 +98,11 @@ With *Varying Vagrant Vagrants*, you will be able to fire up an instance by exec
         sudo mkdir -p /srv/[name of your choosing]
         cd /srv/[newly-created folder]
 
-    and clone *Varying Vagrant Vagrants* from GitHub, by executing the following commands:
+    and clone _Varying Vagrant Vagrants_ from GitHub, by executing the following commands:
 
         sudo git clone https://github.com/10up/varying-vagrant-vagrants [local folder name of your choosing]
 
-    **Windows users:** that downloaded & installed [GitHub for Windows](http://windows.github.com/) can click on the ![GitHub for Windows Button](http://windows.github.com/images/mini-clone-in-windows.png) button (the default storage directory can be changed under *tools* =&gt; *options* – in addition to the default shell); or, if you would rather not use GitHub for Windows, you can [download](https://github.com/10up/varying-vagrant-vagrants/archive/master.zip) a ZIP file of the repository to a local directory, that you’d like to use for your **Vagrantfile**, and extract it from there.
+    **Windows users:** that downloaded & installed [GitHub for Windows](http://windows.github.com/) can click on the ![GitHub for Windows Button](http://windows.github.com/images/mini-clone-in-windows.png) button (the default storage directory can be changed under _tools_ =&gt; _options_ – in addition to the default shell); or, if you would rather not use GitHub for Windows, you can [download](https://github.com/10up/varying-vagrant-vagrants/archive/master.zip) a ZIP file of the repository to a local directory, that you’d like to use for your **Vagrantfile**, and extract it from there.
 
 3.  Now, in a terminal or Windows command prompt, navigate to the new directory:
 
@@ -122,20 +118,19 @@ With *Varying Vagrant Vagrants*, you will be able to fire up an instance by exec
 
     Once mapped, visiting **local.wordpress.dev** in your browser will bring up an initial WordPress installation. Follow through that to create your first WordPress development environment in Vagrant. Themes and plugins that you are developing can go into the relative **www/wordpress-default/wp-content/** directories.
 
-From here, you should experiment. If you are familiar with object caching, the common plugins for working with PECL memcache can be installed. Memcached itself is already installed and running for when you’re ready. If you start poking around the internal [documentation](https://github.com/10up/varying-vagrant-vagrants/blob/master/README.md) for *Varying Vagrant Vagrants*, you’ll see quite a few places where you can hook in with customizations of your own to continue to extend the development environment. For alternative approaches, that have also done a lot of the upfront legwork for you, check out: [Getting Started With Vagrant | Scott Warren](http://www.thisprogrammingthing.com/2013/getting-started-with-vagrant/) or [Getting Started with Vagrant for WordPress Development | Mike Green](http://fifthroomcreative.com/archives/blog/2013/02/getting-started-with-vagrant/#.UfRXfdId5VI).
+From here, you should experiment. If you are familiar with object caching, the common plugins for working with PECL memcache can be installed. Memcached itself is already installed and running for when you’re ready. If you start poking around the internal [documentation](https://github.com/10up/varying-vagrant-vagrants/blob/master/README.md) for _Varying Vagrant Vagrants_, you’ll see quite a few places where you can hook in with customizations of your own to continue to extend the development environment. For alternative approaches, that have also done a lot of the upfront legwork for you, check out: [Getting Started With Vagrant | Scott Warren](http://www.thisprogrammingthing.com/2013/getting-started-with-vagrant/) or [Getting Started with Vagrant for WordPress Development | Mike Green](http://fifthroomcreative.com/archives/blog/2013/02/getting-started-with-vagrant/#.UfRXfdId5VI).
 
-Additional Resources
---------------------
+## Additional Resources
 
--   [Development Environments Made Easy with Vagrant and DigitalOcean](https://www.digitalocean.com/blog_posts/development-environments-made-easy-with-vagrant-and-digitalocean);
--   [How to Install Vagrant on a VPS Running Ubuntu 12.04](https://www.digitalocean.com/community/articles/how-to-install-vagrant-on-a-vps-running-ubuntu-12-04);
--   [How to Use Vagrant on Your Own VPS Running Ubuntu](https://www.digitalocean.com/community/articles/how-to-use-vagrant-on-your-own-vps-running-ubuntu);
--   [How to Use DigitalOcean as Your Provider in Vagrant on an Ubuntu 12.10](https://www.digitalocean.com/community/articles/how-to-use-digitalocean-as-your-provider-in-vagrant-on-an-ubuntu-12-10);
--   [How To Install VirtualBox on Ubuntu 12.10 x64 | DigitalOcean](https://www.digitalocean.com/community/articles/how-to-install-virtualbox-on-ubuntu-12-10-x64);
--   [How to Install Git on Ubuntu 12.04 | DigitalOcean](https://www.digitalocean.com/community/articles/how-to-install-git-on-ubuntu-12-04);
--   [How to Use Git Effectively | DigitalOcean](https://www.digitalocean.com/community/articles/how-to-use-git-effectively);
--   [How to Use Git Branches | DigitalOcean](https://www.digitalocean.com/community/articles/how-to-use-git-branches);
--   [Git Reference | by the GitHub team](http://gitref.org/).
+- [Development Environments Made Easy with Vagrant and DigitalOcean](https://www.digitalocean.com/blog_posts/development-environments-made-easy-with-vagrant-and-digitalocean);
+- [How to Install Vagrant on a VPS Running Ubuntu 12.04](https://www.digitalocean.com/community/articles/how-to-install-vagrant-on-a-vps-running-ubuntu-12-04);
+- [How to Use Vagrant on Your Own VPS Running Ubuntu](https://www.digitalocean.com/community/articles/how-to-use-vagrant-on-your-own-vps-running-ubuntu);
+- [How to Use DigitalOcean as Your Provider in Vagrant on an Ubuntu 12.10](https://www.digitalocean.com/community/articles/how-to-use-digitalocean-as-your-provider-in-vagrant-on-an-ubuntu-12-10);
+- [How To Install VirtualBox on Ubuntu 12.10 x64 | DigitalOcean](https://www.digitalocean.com/community/articles/how-to-install-virtualbox-on-ubuntu-12-10-x64);
+- [How to Install Git on Ubuntu 12.04 | DigitalOcean](https://www.digitalocean.com/community/articles/how-to-install-git-on-ubuntu-12-04);
+- [How to Use Git Effectively | DigitalOcean](https://www.digitalocean.com/community/articles/how-to-use-git-effectively);
+- [How to Use Git Branches | DigitalOcean](https://www.digitalocean.com/community/articles/how-to-use-git-branches);
+- [Git Reference | by the GitHub team](http://gitref.org/).
 
 As always, if you need help with the steps outlined in this HowTo, look to the DigitalOcean Community for assistance by posting your question(s), below.
 

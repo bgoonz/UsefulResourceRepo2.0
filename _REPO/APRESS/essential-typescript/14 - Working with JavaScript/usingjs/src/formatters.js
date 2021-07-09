@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 export function sizeFormatter(thing, count) {
-    writeMessage(`The ${thing} has ${count} items`);
+  writeMessage(`The ${thing} has ${count} items`);
 }
 
 /**
@@ -10,13 +10,13 @@ export function sizeFormatter(thing, count) {
  * @param { number | string } cost - the value associated with the item
  */
 export function costFormatter(thing, cost) {
-    if (typeof cost === "number") {
-        writeMessage(`The ${thing} costs $${cost.toFixed(2)}`, true);
-    } else {
-        writeMessage(`The ${thing} costs $${cost}`);
-    }
+  if (typeof cost === "number") {
+    writeMessage(`The ${thing} costs $${cost.toFixed(2)}`, true);
+  } else {
+    writeMessage(`The ${thing} costs $${cost}`);
+  }
 }
 
 export function writeMessage(message) {
-    console.log(message);
+  console.log(message);
 }

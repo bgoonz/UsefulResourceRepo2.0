@@ -7,14 +7,15 @@ import ApolloClient from "apollo-boost";
 import { ApolloProvider } from "react-apollo";
 
 const client = new ApolloClient({
-    uri: "http://localhost:3600/graphql"
+  uri: "http://localhost:3600/graphql",
 });
 
 export default class App extends Component {
-
-    render() {
-        return  <ApolloProvider client={ client }>
-                    <Selector />      
-                </ApolloProvider>                            
-    }
+  render() {
+    return (
+      <ApolloProvider client={client}>
+        <Selector />
+      </ApolloProvider>
+    );
+  }
 }

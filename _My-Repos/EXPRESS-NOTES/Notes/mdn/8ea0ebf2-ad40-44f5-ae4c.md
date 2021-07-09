@@ -6,7 +6,7 @@ The following sections show you how to call the application generator, and provi
 
 **Note**: The _Express Application Generator_ is not the only generator for Express applications, and the generated project is not the only viable way to structure your files and directories. The generated site does however have a modular structure that is easy to extend and understand. For information about a _minimal_ Express application, see [Hello world example](https://expressjs.com/en/starter/hello-world.html) (Express docs).
 
-**Note**: This tutorial uses the version of _Express_ that is defined in the **package.json** created by the _Express Application Generator._ This is not (necessarily) the latest version!
+**Note**: This tutorial uses the version of _Express_ that is defined in the **package.json** created by the *Express Application Generator.* This is not (necessarily) the latest version!
 
 ## [Using the application generator](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/skeleton_website#using_the_application_generator "Permalink to Using the application generator")
 
@@ -56,18 +56,18 @@ If you want to use a template engine that isn't supported by the generator then 
 
 Generally speaking, you should select a templating engine that delivers all the functionality you need and allows you to be productive sooner — or in other words, in the same way that you choose any other component! Some of the things to consider when comparing template engines:
 
--   Time to productivity — If your team already has experience with a templating language then it is likely they will be productive faster using that language. If not, then you should consider the relative learning curve for candidate templating engines.
--   Popularity and activity — Review the popularity of the engine and whether it has an active community. It is important to be able to get support when problems arise throughout the lifetime of the website.
--   Style — Some template engines use specific markup to indicate inserted content within "ordinary" HTML, while others construct the HTML using a different syntax (for example, using indentation and block names).
--   Performance/rendering time.
--   Features — you should consider whether the engines you look at have the following features available:
-    -   Layout inheritance: Allows you to define a base template and then "inherit" just the parts of it that you want to be different for a particular page. This is typically a better approach than building templates by including a number of required components or building a template from scratch each time.
-    -   "Include" support: Allows you to build up templates by including other templates.
-    -   Concise variable and loop control syntax.
-    -   Ability to filter variable values at template level (e.g. making variables upper-case, or formatting a date value).
-    -   Ability to generate output formats other than HTML (e.g. JSON or XML).
-    -   Support for asynchronous operations and streaming.
-    -   Client-side features. If a templating engine can be used on the client this allows the possibility of having all or most of the rendering done client-side.
+- Time to productivity — If your team already has experience with a templating language then it is likely they will be productive faster using that language. If not, then you should consider the relative learning curve for candidate templating engines.
+- Popularity and activity — Review the popularity of the engine and whether it has an active community. It is important to be able to get support when problems arise throughout the lifetime of the website.
+- Style — Some template engines use specific markup to indicate inserted content within "ordinary" HTML, while others construct the HTML using a different syntax (for example, using indentation and block names).
+- Performance/rendering time.
+- Features — you should consider whether the engines you look at have the following features available:
+  - Layout inheritance: Allows you to define a base template and then "inherit" just the parts of it that you want to be different for a particular page. This is typically a better approach than building templates by including a number of required components or building a template from scratch each time.
+  - "Include" support: Allows you to build up templates by including other templates.
+  - Concise variable and loop control syntax.
+  - Ability to filter variable values at template level (e.g. making variables upper-case, or formatting a date value).
+  - Ability to generate output formats other than HTML (e.g. JSON or XML).
+  - Support for asynchronous operations and streaming.
+  - Client-side features. If a templating engine can be used on the client this allows the possibility of having all or most of the rendering done client-side.
 
 #### Tip
 
@@ -145,35 +145,34 @@ At the end of the output, the generator provides instructions on how to install
 At this point, we have a complete skeleton project. The website doesn't actually _do_ very much yet, but it's worth running it to show that it works.
 
 1.  First, install the dependencies (the `install` command will fetch all the dependency packages listed in the project's **package.json** file).
-    
+
     ```
     cd express-locallibrary-tutorial
     npm install
     ```
-    
+
 2.  Then run the application.
-    -   On the Windows CMD prompt, use this command:
-        
-        ```
-        SET DEBUG=express-locallibrary-tutorial:* & npm start
-        ```
-        
-    -   On Windows Powershell, use this command:
-        
-        ```
-        $ENV:DEBUG = "express-locallibrary-tutorial:*"; npm start
-        ```
-        
-        #### Note
-        
-        Powershell commands are not covered further in this tutorial (The provided "Windows" commands assume you're using the Windows CMD prompt.)
-        
-    -   On macOS or Linux, use this command:
-        
-        ```
-        DEBUG=express-locallibrary-tutorial:* npm start
-        ```
-        
+    - On the Windows CMD prompt, use this command:
+
+      ```
+      SET DEBUG=express-locallibrary-tutorial:* & npm start
+      ```
+
+    - On Windows Powershell, use this command:
+
+      ```
+      $ENV:DEBUG = "express-locallibrary-tutorial:*"; npm start
+      ```
+
+      #### Note
+
+      Powershell commands are not covered further in this tutorial (The provided "Windows" commands assume you're using the Windows CMD prompt.)
+
+    - On macOS or Linux, use this command:
+
+      ```
+      DEBUG=express-locallibrary-tutorial:* npm start
+      ```
 3.  Then load [http://localhost:3000/](http://localhost:3000/) in your browser to access the app.
 
 You should see a browser page that looks like this:
@@ -219,22 +218,21 @@ If you open your project's **package.json** file you'll now see a new section wi
 
 Because the tool isn't installed globally we can't launch it from the command line (unless we add it to the path) but we can call it from an NPM script because NPM knows all about the installed packages. Find the `scripts` section of your package.json. Initially, it will contain one line, which begins with `"start"`. Update it by putting a comma at the end of that line, and adding the `"devstart"` and `"serverstart"` lines:
 
--   On Linux and macOS, the scripts section will look like this:
-    
-    ```
-      "scripts": {
-          "start": "node ./bin/www",
-          "devstart": "nodemon ./bin/www",
-          "serverstart": "DEBUG=express-locallibrary-tutorial:* npm run devstart"
-        },
-    ```
-    
--   On Windows, use this command instead:
-    
-    ```
-    SET DEBUG=express-locallibrary-tutorial:* & npm run devstart
-    ```
-    
+- On Linux and macOS, the scripts section will look like this:
+
+  ```
+    "scripts": {
+        "start": "node ./bin/www",
+        "devstart": "nodemon ./bin/www",
+        "serverstart": "DEBUG=express-locallibrary-tutorial:* npm run devstart"
+      },
+  ```
+
+- On Windows, use this command instead:
+
+  ```
+  SET DEBUG=express-locallibrary-tutorial:* & npm run devstart
+  ```
 
 We can now start the server in almost exactly the same way as previously, but using the `devstart` command.
 
@@ -255,25 +253,25 @@ Let's now take a look at the project we just created.
 The generated project, now that you have installed dependencies, has the following file structure (files are the items **not** prefixed with "/"). The **package.json** file defines the application dependencies and other information. It also defines a startup script that will call the application entry point, the JavaScript file **/bin/www**. This sets up some of the application error handling and then loads **app.js** to do the rest of the work. The app routes are stored in separate modules under the **routes/** directory. The templates are stored under the /**views** directory.
 
 /express-locallibrary-tutorial
-    **app.js**
-    /bin
-        **www**
-    **package.json**
-    **package-lock.json**
-    /node\_modules
-        \[about 6700 subdirectories and files\]
-    /public
-        /images
-        /javascripts
-        /stylesheets
-            **style.css**
-    /routes
-        **index.js**
-        **users.js**
-    /views
-        **error.pug**
-        **index.pug**
-        **layout.pug**
+**app.js**
+/bin
+  **www**
+**package.json**
+**package-lock.json**
+/node_modules
+  \[about 6700 subdirectories and files\]
+/public
+  /images
+  /javascripts
+  /stylesheets
+  **style.css**
+/routes
+**index.js**
+  **users.js**
+/views
+  **error.pug**
+**index.pug**
+  **layout.pug**
 
 The following sections describe the files in a little more detail.
 
@@ -305,10 +303,10 @@ The **package.json** file defines the application dependencies and other informa
 
 The dependencies include the _express_ package and the package for our selected view engine (_pug_). In addition, we have the following packages that are useful in many web applications:
 
--   [cookie-parser](https://www.npmjs.com/package/cookie-parser): Used to parse the cookie header and populate `req.cookies` (essentially provides a convenient method for accessing cookie information).
--   [debug](https://www.npmjs.com/package/debug): A tiny node debugging utility modeled after node core's debugging technique.
--   [morgan](https://www.npmjs.com/package/morgan): An HTTP request logger middleware for node.
--   [http-errors](https://www.npmjs.com/package/http-errors): Create HTTP errors where needed (for express error handling).
+- [cookie-parser](https://www.npmjs.com/package/cookie-parser): Used to parse the cookie header and populate `req.cookies` (essentially provides a convenient method for accessing cookie information).
+- [debug](https://www.npmjs.com/package/debug): A tiny node debugging utility modeled after node core's debugging technique.
+- [morgan](https://www.npmjs.com/package/morgan): An HTTP request logger middleware for node.
+- [http-errors](https://www.npmjs.com/package/http-errors): Create HTTP errors where needed (for express error handling).
 
 The scripts section first defines a "_start_" script, which is what we are invoking when we call `npm start` to start the server (this script was added by the _Express Application Generator_). From the script definition, you can see that this actually starts the JavaScript file **./bin/www** with _node_.
 
@@ -320,7 +318,7 @@ The scripts section first defines a "_start_" script, which is what we are invok
   },
 ```
 
-The _devstart_ and _serverstart_ scripts can be used to start the same **./bin/www** file with _nodemon_ rather than _node_ (this example is for Linux and macOS, as discussed above in [Enable server restart on file changes](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/skeleton_website#enable_server_restart_on_file_changes)).
+The _devstart_ and _serverstart_ scripts can be used to start the same **./bin/www** file with _nodemon_ rather than *node* (this example is for Linux and macOS, as discussed above in [Enable server restart on file changes](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/skeleton_website#enable_server_restart_on_file_changes)).
 
 ### [www file](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/skeleton_website#www_file "Permalink to www file")
 
@@ -353,7 +351,7 @@ module.exports = app;
 
 Back in the **www** entry point file above, it is this `module.exports` object that is supplied to the caller when this file is imported.
 
-Let's work through the **app.js** file in detail. First, we import some useful node libraries into the file using `require()`, including _http-errors_, _express_, _morgan_ and _cookie-parser_ that we previously downloaded for our application using NPM; and _path_, which is a core Node library for parsing file and directory paths.
+Let's work through the **app.js** file in detail. First, we import some useful node libraries into the file using `require()`, including _http-errors_, *express*, *morgan* and _cookie-parser_ that we previously downloaded for our application using NPM; and _path_, which is a core Node library for parsing file and directory paths.
 
 ```
 var createError = require('http-errors');
@@ -415,11 +413,11 @@ app.use(function(req, res, next) {
 
 
 app.use(function(err, req, res, next) {
-  
+
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  
+
   res.status(err.status || 500);
   res.render('error');
 });
@@ -467,8 +465,8 @@ The corresponding template for the above route is given below (**index.pug**). W
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+h1= title
+p Welcome to #{title}
 
 ## [Challenge yourself](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/skeleton_website#challenge_yourself "Permalink to Challenge yourself")
 

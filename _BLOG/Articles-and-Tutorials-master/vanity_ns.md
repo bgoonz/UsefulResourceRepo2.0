@@ -1,29 +1,24 @@
-How to Create Vanity or Branded Nameservers with DigitalOcean
-=============================================================
+# How to Create Vanity or Branded Nameservers with DigitalOcean
 
 ### Introduction
 
 Of particular interest to hosting providers or resellers, having branded or vanity nameservers provides a more professional look to clients, because it eliminates the need of asking your clients to point their domains to another company’s nameservers. This tutorial will outline two approaches to creating custom nameservers: (i) Vanity and (ii) Branded.
 
-COST (or–better yet–lack thereof!)
-----------------------------------
+## COST (or–better yet–lack thereof!)
 
 Many registrars and/or hosting providers charge additional fees for custom nameservers. With [DigitalOcean](https://www.digitalocean.com/pricing), however, there are no additional fees for customizing your nameservers.
 
-TYPES
------
+## TYPES
 
 **Vanity nameservers** allow you to use your own domain name, without having to set up complicated zone files; by utilizing DigitalOcean’s (i) established, reliable nameservers and (ii) easy-to-navigate DNS Manager. With vanity nameservers, you leave DNS management to the experts at DigitalOcean. This is accomplished by mapping your custom nameservers to DigitalOcean’s IPs.
 
 **Branded Nameservers** require a little more configuration, but allow you to exert complete control over DNS for your domain. The added control, however, carries with it the burden of having to self-manage your DNS. You’ll need to deploy at least two (2) servers, with specialized software such as BIND, PowerDNS or NSD (for “name server daemon”). Wikipedia publishes a nice [comparison of DNS server software](http://en.wikipedia.org/wiki/Comparison_of_DNS_server_software).
 
-NAMING
-------
+## NAMING
 
 You can use any naming scheme you want. If you’re unsure, the most common schemes are ns1.yourdomain.com or a.ns.yourdomain.com.
 
-PREREQUISITES
--------------
+## PREREQUISITES
 
 ### Ingredients for both Vanity & Branded Nameservers:
 
@@ -35,9 +30,9 @@ b.) [Glue Records](http://en.wikipedia.org/wiki/Glue_records#Circular_dependenci
 
 i.) DigitalOcean’s current IP addresses for its nameservers (which can be obtained by clicking on the respective hyperlinks, below; or, via nslookup; dig; or ping commands):
 
--   [ns1.digitalocean.com](http://reports.internic.net/cgi/whois?whois_nic=ns1.digitalocean.com&type=nameserver)
--   [ns2.digitalocean.com](http://reports.internic.net/cgi/whois?whois_nic=ns2.digitalocean.com&type=nameserver)
--   [ns3.digitalocean.com](http://reports.internic.net/cgi/whois?whois_nic=ns3.digitalocean.com&type=nameserver)
+- [ns1.digitalocean.com](http://reports.internic.net/cgi/whois?whois_nic=ns1.digitalocean.com&type=nameserver)
+- [ns2.digitalocean.com](http://reports.internic.net/cgi/whois?whois_nic=ns2.digitalocean.com&type=nameserver)
+- [ns3.digitalocean.com](http://reports.internic.net/cgi/whois?whois_nic=ns3.digitalocean.com&type=nameserver)
 
 ### Additional requirements if you’d like to maximize control over your domain’s DNS, with Branded Nameservers:
 
@@ -45,7 +40,7 @@ i.) Create or identify at least 2 servers that you control that will act as Prim
 
 **NOTE:** It’s technically possible to have only 1 server act as both the Primary and Secondary Nameserver. This approach, however, is not recommended because it sacrifices the safety that redundancy provides (i.e., fault tolerance). Keep in mind, however, that there’s no hard limit of only 2 nameservers for your domain. You’re only limited by the number of nameservers that your domain registrar allows you to register.
 
-ii.) Deploy a DNS Server on your Primary and Secondary Nameservers. *See* [How to Setup DNS Slave Auto Configuration Using Virtualmin/Webmin on Ubuntu](https://www.digitalocean.com/community/articles/how-to-setup-dns-slave-auto-configuration-using-virtualmin-webmin-on-ubuntu); [How to Install the BIND DNS Server on CentOS 6](https://www.digitalocean.com/community/articles/how-to-install-the-bind-dns-server-on-centos-6); or [How To Install PowerDNS on CentOS 6.3 x64](https://www.digitalocean.com/community/articles/how-to-install-powerdns-on-centos-6-3-x64)
+ii.) Deploy a DNS Server on your Primary and Secondary Nameservers. _See_ [How to Setup DNS Slave Auto Configuration Using Virtualmin/Webmin on Ubuntu](https://www.digitalocean.com/community/articles/how-to-setup-dns-slave-auto-configuration-using-virtualmin-webmin-on-ubuntu); [How to Install the BIND DNS Server on CentOS 6](https://www.digitalocean.com/community/articles/how-to-install-the-bind-dns-server-on-centos-6); or [How To Install PowerDNS on CentOS 6.3 x64](https://www.digitalocean.com/community/articles/how-to-install-powerdns-on-centos-6-3-x64)
 
 ### The Quick & Easy Recipe: Vanity Nameservers:
 
@@ -100,8 +95,7 @@ Remember, the IP addresses for your `ns1` and `ns2` `A records` (and for your Gl
 
 3.) Log in to your domain name registrar’s control panel and create Glue Records for however many nameservers you wish to deploy. Just make sure that you are using the IP addresses of servers under your control (and not the addresses of DigitalOcean’s nameservers).
 
-DNS TESTING
------------
+## DNS TESTING
 
 To make sure you configured everything correctly, you can run the [Check Domain Configuration](http://www.webdnstools.com/dnstools/domain_check) tool. Keep in mind, however, that, depending on your registrar, nameserver changes can take up to 48 hours to properly propagate throughout the Internet.
 

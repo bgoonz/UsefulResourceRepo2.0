@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*DOM Scripting*](http://www.apress.com/9781430233893) by Jeremy Keith and Jeffrey Sambells (Apress, 2010).
+This repository accompanies [_DOM Scripting_](http://www.apress.com/9781430233893) by Jeremy Keith and Jeffrey Sambells (Apress, 2010).
 
 ![Cover image](9781430233893.jpg)
 

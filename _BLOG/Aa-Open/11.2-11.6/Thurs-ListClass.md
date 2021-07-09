@@ -155,16 +155,18 @@ class AngryBird:
 - Getters and Setters are used in object-oriented programming to add validation logic around getting and setting a value.
 
 **Getters**
+
 ```py
 bird = AngryBird()
 
 print(bird.get_x(), bird.get_y())
 ```
+
 - Getting the x and y values of our class can get very cumbersome.
 - **Decorators** : Allow us to change the way methods get invoked.
-    - Always start with the @ symbol.
-    - Can be applied to methods, classes, and parameters.
-    - Built in decorator named `property` that you can apply to a method to make it readable.
+  - Always start with the @ symbol.
+  - Can be applied to methods, classes, and parameters.
+  - Built in decorator named `property` that you can apply to a method to make it readable.
 
 ```py
  @property
@@ -181,6 +183,7 @@ print(bird.get_x(), bird.get_y())
 ```
 
 **Setters**
+
 ```py
 class AngryBird:
     def __init__(self, x=0, y=0):
@@ -213,9 +216,11 @@ class AngryBird:
             value = 0
         self._y = value
 ```
+
 ---
 
 ## **List Comprehensions**
+
 - List comprehensions are the equivalent of wrapped up filter namp array methods while also allowing nested loops.
 
 - `new_list = [expression for member in iterable]`
@@ -245,8 +250,10 @@ print(consonants)
 ```
 
 **When to not use list comprehensions**
+
 - List comprehensions may make your code run more slowly or use more memory.
 - You can use nest lists to create matrices.
+
 ```py
 matrix = [[i for i in range(5)] for _ in range(6)]
 

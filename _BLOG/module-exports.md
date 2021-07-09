@@ -1,11 +1,10 @@
-Node.js Module Exports - Demystified
-====================================
+# Node.js Module Exports - Demystified
 
 > Understand Node.js Module Exports and get comfortable using the syntax. Get best practices for using module exporting to give your app a better structure.
 
 When I [started out in Node.js,](https://stackify.com/learn-nodejs-tutorials/) I remember being struck by the weird-looking module.exports code.
 
-I wondered what it was, and where it came from, and why it wasn’t declared in the file. What *was* this magic?
+I wondered what it was, and where it came from, and why it wasn’t declared in the file. What _was_ this magic?
 
 Today we’re going to find out. We’ll demystify this somewhat odd-looking feature of Node.js. By the end of this article, you should be comfortable not only using the syntax, but also understanding what it actually does under the hood. To round it all off, we’ll go through some best practices for using module exporting to break down and give your application some great structure.
 
@@ -118,10 +117,10 @@ Require is a function we can use to import other modules, and it looks like this
 
 Require will search for modules using the following rules:
 
--   Is there a core module with the required path? Yes, return it.
--   Is there a node\_modules package with the name of the path? Yes, return it.
--   Is there a file (or directory!) with the name of the given path? Yes, return it.
--   Otherwise, [throw an error.](https://stackify.com/node-js-error-handling/)
+- Is there a core module with the required path? Yes, return it.
+- Is there a node_modules package with the name of the path? Yes, return it.
+- Is there a file (or directory!) with the name of the given path? Yes, return it.
+- Otherwise, [throw an error.](https://stackify.com/node-js-error-handling/)
 
 As you can see, require is used to pull in different packages by their names or file paths.
 
@@ -133,7 +132,7 @@ A question I get a lot is this: “If we import the same module in two files, wi
 
 ### How to structure your module exports
 
-So now you know that you can apply different bits of code to your module exports object. But we never said specifically *how* you should structure your files. It can be a little confusing, as you’ve got a lot of flexibility. Do you define your properties as you go? All at the end of the file? What’s the standard?
+So now you know that you can apply different bits of code to your module exports object. But we never said specifically _how_ you should structure your files. It can be a little confusing, as you’ve got a lot of flexibility. Do you define your properties as you go? All at the end of the file? What’s the standard?
 
 We’ll answer these questions now.
 

@@ -1,5 +1,4 @@
-VsCode Extension Readme Compilation
-===================================
+# VsCode Extension Readme Compilation
 
 > Select File &gt; Preferences &gt; UserSettings or Workspace Settings Find markdown-pdf settings in the Default Settings Copy markdown-pdf.\* settings Paste to the settings.json, and change the value
 
@@ -11,16 +10,16 @@ This extension converts Markdown files to pdf, html, png or jpeg files.
 
 ### Table of Contents
 
--   [Features](https://trusting-aryabhata-e5438d.netlify.app/#features)
--   [Install](https://trusting-aryabhata-e5438d.netlify.app/#install)
--   [Usage](https://trusting-aryabhata-e5438d.netlify.app/#usage)
--   [Extension Settings](https://trusting-aryabhata-e5438d.netlify.app/#extension-settings)
--   [Options](https://trusting-aryabhata-e5438d.netlify.app/#options)
--   [FAQ](https://trusting-aryabhata-e5438d.netlify.app/#faq)
--   [Known Issues](https://trusting-aryabhata-e5438d.netlify.app/#known-issues)
--   [Release Notes](https://trusting-aryabhata-e5438d.netlify.app/#release-notes)
--   [License](https://trusting-aryabhata-e5438d.netlify.app/#license)
--   [Special thanks](https://trusting-aryabhata-e5438d.netlify.app/#special-thanks)
+- [Features](https://trusting-aryabhata-e5438d.netlify.app/#features)
+- [Install](https://trusting-aryabhata-e5438d.netlify.app/#install)
+- [Usage](https://trusting-aryabhata-e5438d.netlify.app/#usage)
+- [Extension Settings](https://trusting-aryabhata-e5438d.netlify.app/#extension-settings)
+- [Options](https://trusting-aryabhata-e5438d.netlify.app/#options)
+- [FAQ](https://trusting-aryabhata-e5438d.netlify.app/#faq)
+- [Known Issues](https://trusting-aryabhata-e5438d.netlify.app/#known-issues)
+- [Release Notes](https://trusting-aryabhata-e5438d.netlify.app/#release-notes)
+- [License](https://trusting-aryabhata-e5438d.netlify.app/#license)
+- [Special thanks](https://trusting-aryabhata-e5438d.netlify.app/#special-thanks)
 
 ### Features
 
@@ -110,12 +109,12 @@ If the download is not successful or you want to avoid downloading every time yo
 2.  Press `F1` or `Ctrl+Shift+P`
 3.  Type `export` and select below
 
--   `markdown-pdf: Export (settings.json)`
--   `markdown-pdf: Export (pdf)`
--   `markdown-pdf: Export (html)`
--   `markdown-pdf: Export (png)`
--   `markdown-pdf: Export (jpeg)`
--   `markdown-pdf: Export (all: pdf, html, png, jpeg)`
+- `markdown-pdf: Export (settings.json)`
+- `markdown-pdf: Export (pdf)`
+- `markdown-pdf: Export (html)`
+- `markdown-pdf: Export (png)`
+- `markdown-pdf: Export (jpeg)`
+- `markdown-pdf: Export (all: pdf, html, png, jpeg)`
 
 ![](https://webdevhubcom.files.wordpress.com/2021/04/3e56c-0kwm2zier68qbjwls.gif?w=697&h=419)
 
@@ -124,12 +123,12 @@ If the download is not successful or you want to avoid downloading every time yo
 1.  Open the Markdown file
 2.  Right click and select below
 
--   `markdown-pdf: Export (settings.json)`
--   `markdown-pdf: Export (pdf)`
--   `markdown-pdf: Export (html)`
--   `markdown-pdf: Export (png)`
--   `markdown-pdf: Export (jpeg)`
--   `markdown-pdf: Export (all: pdf, html, png, jpeg)`
+- `markdown-pdf: Export (settings.json)`
+- `markdown-pdf: Export (pdf)`
+- `markdown-pdf: Export (html)`
+- `markdown-pdf: Export (png)`
+- `markdown-pdf: Export (jpeg)`
+- `markdown-pdf: Export (all: pdf, html, png, jpeg)`
 
 ![](https://webdevhubcom.files.wordpress.com/2021/04/b7d5d-0a_o-vh7a_1zrarh5.gif?w=697&h=419)
 
@@ -161,203 +160,203 @@ CategoryOption name[Configuration scope](https://code.visualstudio.com/api/refer
 
 #### `markdown-pdf.type`
 
--   Output format: pdf, html, png, jpeg
--   Multiple output formats support
--   Default: pdf
+- Output format: pdf, html, png, jpeg
+- Multiple output formats support
+- Default: pdf
 
-    “markdown-pdf.type”: \[ “pdf”, “html”, “png”, “jpeg”\],
+  “markdown-pdf.type”: \[ “pdf”, “html”, “png”, “jpeg”\],
 
 #### `markdown-pdf.convertOnSave`
 
--   Enable Auto convert on save
--   boolean. Default: false
--   To apply the settings, you need to restart Visual Studio Code
+- Enable Auto convert on save
+- boolean. Default: false
+- To apply the settings, you need to restart Visual Studio Code
 
 #### `markdown-pdf.convertOnSaveExclude`
 
--   Excluded file name of convertOnSave option
+- Excluded file name of convertOnSave option
 
-    “markdown-pdf.convertOnSaveExclude”: \[ “^work”, “work.md$”, “work|test”, “\[0-9\]\[0-9\]\[0-9\]\[0-9\]-work”, “work\\test” // All ‘' need to be written as’\\’ (Windows)\],
+  “markdown-pdf.convertOnSaveExclude”: \[ “^work”, “work.md$”, “work|test”, “\[0-9\]\[0-9\]\[0-9\]\[0-9\]-work”, “work\\test” // All ‘' need to be written as’\\’ (Windows)\],
 
 #### `markdown-pdf.outputDirectory`
 
--   Output Directory
--   All `\` need to be written as `\\` (Windows)
+- Output Directory
+- All `\` need to be written as `\\` (Windows)
 
-    “markdown-pdf.outputDirectory”: “C:\\work\\output”,
+  “markdown-pdf.outputDirectory”: “C:\\work\\output”,
 
--   Relative path
--   If you open the `Markdown file`, it will be interpreted as a relative path from the file
--   If you open a `folder`, it will be interpreted as a relative path from the root folder
--   If you open the `workspace`, it will be interpreted as a relative path from the each root folder
--   See [Multi-root Workspaces](https://code.visualstudio.com/docs/editor/multi-root-workspaces)
+- Relative path
+- If you open the `Markdown file`, it will be interpreted as a relative path from the file
+- If you open a `folder`, it will be interpreted as a relative path from the root folder
+- If you open the `workspace`, it will be interpreted as a relative path from the each root folder
+- See [Multi-root Workspaces](https://code.visualstudio.com/docs/editor/multi-root-workspaces)
 
-    “markdown-pdf.outputDirectory”: “output”,
+  “markdown-pdf.outputDirectory”: “output”,
 
--   Relative path (home directory)
--   If path starts with `~`, it will be interpreted as a relative path from the home directory
+- Relative path (home directory)
+- If path starts with `~`, it will be interpreted as a relative path from the home directory
 
-    “markdown-pdf.outputDirectory”: “~/output”,
+  “markdown-pdf.outputDirectory”: “~/output”,
 
--   If you set a directory with a `relative path`, it will be created if the directory does not exist
--   If you set a directory with an `absolute path`, an error occurs if the directory does not exist
+- If you set a directory with a `relative path`, it will be created if the directory does not exist
+- If you set a directory with an `absolute path`, an error occurs if the directory does not exist
 
 #### `markdown-pdf.outputDirectoryRelativePathFile`
 
--   If `markdown-pdf.outputDirectoryRelativePathFile` option is set to `true`, the relative path set with [markdown-pdf.outputDirectory](https://trusting-aryabhata-e5438d.netlify.app/#markdown-pdfoutputDirectory) is interpreted as relative from the file
--   It can be used to avoid relative paths from folders and workspaces
--   boolean. Default: false
+- If `markdown-pdf.outputDirectoryRelativePathFile` option is set to `true`, the relative path set with [markdown-pdf.outputDirectory](https://trusting-aryabhata-e5438d.netlify.app/#markdown-pdfoutputDirectory) is interpreted as relative from the file
+- It can be used to avoid relative paths from folders and workspaces
+- boolean. Default: false
 
 ### Styles options
 
 #### `markdown-pdf.styles`
 
--   A list of local paths to the stylesheets to use from the markdown-pdf
--   If the file does not exist, it will be skipped
--   All `\` need to be written as `\\` (Windows)
+- A list of local paths to the stylesheets to use from the markdown-pdf
+- If the file does not exist, it will be skipped
+- All `\` need to be written as `\\` (Windows)
 
-    “markdown-pdf.styles”: \[ “C:\\Users\\\\Documents\\markdown-pdf.css”, “/home//settings/markdown-pdf.css”,\],
+  “markdown-pdf.styles”: \[ “C:\\Users\\\\Documents\\markdown-pdf.css”, “/home//settings/markdown-pdf.css”,\],
 
--   Relative path
--   If you open the `Markdown file`, it will be interpreted as a relative path from the file
--   If you open a `folder`, it will be interpreted as a relative path from the root folder
--   If you open the `workspace`, it will be interpreted as a relative path from the each root folder
--   See [Multi-root Workspaces](https://code.visualstudio.com/docs/editor/multi-root-workspaces)
+- Relative path
+- If you open the `Markdown file`, it will be interpreted as a relative path from the file
+- If you open a `folder`, it will be interpreted as a relative path from the root folder
+- If you open the `workspace`, it will be interpreted as a relative path from the each root folder
+- See [Multi-root Workspaces](https://code.visualstudio.com/docs/editor/multi-root-workspaces)
 
-    “markdown-pdf.styles”: \[ “markdown-pdf.css”,\],
+  “markdown-pdf.styles”: \[ “markdown-pdf.css”,\],
 
--   Relative path (home directory)
--   If path starts with `~`, it will be interpreted as a relative path from the home directory
+- Relative path (home directory)
+- If path starts with `~`, it will be interpreted as a relative path from the home directory
 
-    “markdown-pdf.styles”: \[ “~/.config/Code/User/markdown-pdf.css”\],
+  “markdown-pdf.styles”: \[ “~/.config/Code/User/markdown-pdf.css”\],
 
--   Online CSS (<https://xxx/xxx.css>) is applied correctly for JPG and PNG, but problems occur with PDF [\#67](https://github.com/yzane/vscode-markdown-pdf/issues/67)
+- Online CSS (<https://xxx/xxx.css>) is applied correctly for JPG and PNG, but problems occur with PDF [\#67](https://github.com/yzane/vscode-markdown-pdf/issues/67)
 
-    “markdown-pdf.styles”: \[ “https://xxx/markdown-pdf.css”\],
+  “markdown-pdf.styles”: \[ “https://xxx/markdown-pdf.css”\],
 
 #### `markdown-pdf.stylesRelativePathFile`
 
--   If `markdown-pdf.stylesRelativePathFile` option is set to `true`, the relative path set with [markdown-pdf.styles](https://trusting-aryabhata-e5438d.netlify.app/#markdown-pdfstyles) is interpreted as relative from the file
--   It can be used to avoid relative paths from folders and workspaces
--   boolean. Default: false
+- If `markdown-pdf.stylesRelativePathFile` option is set to `true`, the relative path set with [markdown-pdf.styles](https://trusting-aryabhata-e5438d.netlify.app/#markdown-pdfstyles) is interpreted as relative from the file
+- It can be used to avoid relative paths from folders and workspaces
+- boolean. Default: false
 
 #### `markdown-pdf.includeDefaultStyles`
 
--   Enable the inclusion of default Markdown styles (VSCode, markdown-pdf)
--   boolean. Default: true
+- Enable the inclusion of default Markdown styles (VSCode, markdown-pdf)
+- boolean. Default: true
 
 ### Syntax highlight options
 
 #### `markdown-pdf.highlight`
 
--   Enable Syntax highlighting
--   boolean. Default: true
+- Enable Syntax highlighting
+- boolean. Default: true
 
 #### `markdown-pdf.highlightStyle`
 
--   Set the style file name. for example: github.css, monokai.css …
--   [file name list](https://github.com/isagalaev/highlight.js/tree/master/src/styles)
--   demo site : <https://highlightjs.org/static/demo/>
+- Set the style file name. for example: github.css, monokai.css …
+- [file name list](https://github.com/isagalaev/highlight.js/tree/master/src/styles)
+- demo site : <https://highlightjs.org/static/demo/>
 
-    “markdown-pdf.highlightStyle”: “github.css”,
+  “markdown-pdf.highlightStyle”: “github.css”,
 
 ### Markdown options
 
 #### `markdown-pdf.breaks`
 
--   Enable line breaks
--   boolean. Default: false
+- Enable line breaks
+- boolean. Default: false
 
 ### Emoji options
 
 #### `markdown-pdf.emoji`
 
--   Enable emoji. [EMOJI CHEAT SHEET](https://www.webpagefx.com/tools/emoji-cheat-sheet/)
--   boolean. Default: true
+- Enable emoji. [EMOJI CHEAT SHEET](https://www.webpagefx.com/tools/emoji-cheat-sheet/)
+- boolean. Default: true
 
 ### Configuration options
 
 #### `markdown-pdf.executablePath`
 
--   Path to a Chromium or Chrome executable to run instead of the bundled Chromium
--   All `\` need to be written as `\\` (Windows)
--   To apply the settings, you need to restart Visual Studio Code
+- Path to a Chromium or Chrome executable to run instead of the bundled Chromium
+- All `\` need to be written as `\\` (Windows)
+- To apply the settings, you need to restart Visual Studio Code
 
-    “markdown-pdf.executablePath”: “C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe”
+  “markdown-pdf.executablePath”: “C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe”
 
 ### Common Options
 
 #### `markdown-pdf.scale`
 
--   Scale of the page rendering
--   number. default: 1
+- Scale of the page rendering
+- number. default: 1
 
-    “markdown-pdf.scale”: 1
+  “markdown-pdf.scale”: 1
 
 ### PDF options
 
--   pdf only. [puppeteer page.pdf options](https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#pagepdfoptions)
+- pdf only. [puppeteer page.pdf options](https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#pagepdfoptions)
 
 #### `markdown-pdf.displayHeaderFooter`
 
--   Enable display header and footer
--   boolean. Default: true
+- Enable display header and footer
+- boolean. Default: true
 
 #### `markdown-pdf.headerTemplate`
 
 #### `markdown-pdf.footerTemplate`
 
--   HTML template for the print header and footer
--   `<span class='date'></span>` : formatted print date
--   `<span class='title'></span>` : markdown file name
--   `<span class='url'></span>` : markdown full path name
--   `<span class='pageNumber'></span>` : current page number
--   `<span class='totalPages'></span>` : total pages in the document
+- HTML template for the print header and footer
+- `<span class='date'></span>` : formatted print date
+- `<span class='title'></span>` : markdown file name
+- `<span class='url'></span>` : markdown full path name
+- `<span class='pageNumber'></span>` : current page number
+- `<span class='totalPages'></span>` : total pages in the document
 
-    “markdown-pdf.headerTemplate”: "&lt;div style="font-size: 9px; margin-left: 1cm;"&gt; <span class="title"></span>
+  “markdown-pdf.headerTemplate”: "&lt;div style="font-size: 9px; margin-left: 1cm;"&gt; <span class="title"></span>
 
-    <span class="date"></span>
+  <span class="date"></span>
 
-    ",
+  ",
 
-    “markdown-pdf.footerTemplate”: "&lt;div style="font-size: 9px; margin: 0 auto;"&gt; <span class="pageNumber"></span> / <span class="totalPages"></span>
+  “markdown-pdf.footerTemplate”: "&lt;div style="font-size: 9px; margin: 0 auto;"&gt; <span class="pageNumber"></span> / <span class="totalPages"></span>
 
-    ",
+  ",
 
 #### `markdown-pdf.printBackground`
 
--   Print background graphics
--   boolean. Default: true
+- Print background graphics
+- boolean. Default: true
 
 #### `markdown-pdf.orientation`
 
--   Paper orientation
--   portrait or landscape
--   Default: portrait
+- Paper orientation
+- portrait or landscape
+- Default: portrait
 
 #### `markdown-pdf.pageRanges`
 
--   Paper ranges to print, e.g., ‘1-5, 8, 11-13’
--   Default: all pages
+- Paper ranges to print, e.g., ‘1-5, 8, 11-13’
+- Default: all pages
 
-    “markdown-pdf.pageRanges”: “1,4-”,
+  “markdown-pdf.pageRanges”: “1,4-”,
 
 #### `markdown-pdf.format`
 
--   Paper format
--   Letter, Legal, Tabloid, Ledger, A0, A1, A2, A3, A4, A5, A6
--   Default: A4
+- Paper format
+- Letter, Legal, Tabloid, Ledger, A0, A1, A2, A3, A4, A5, A6
+- Default: A4
 
-    “markdown-pdf.format”: “A4”,
+  “markdown-pdf.format”: “A4”,
 
 #### `markdown-pdf.width`
 
 #### `markdown-pdf.height`
 
--   Paper width / height, accepts values labeled with units(mm, cm, in, px)
--   If it is set, it overrides the markdown-pdf.format option
+- Paper width / height, accepts values labeled with units(mm, cm, in, px)
+- If it is set, it overrides the markdown-pdf.format option
 
-    “markdown-pdf.width”: “10cm”, “markdown-pdf.height”: “20cm”,
+  “markdown-pdf.width”: “10cm”, “markdown-pdf.height”: “20cm”,
 
 #### `markdown-pdf.margin.top`
 
@@ -367,19 +366,19 @@ CategoryOption name[Configuration scope](https://code.visualstudio.com/api/refer
 
 #### `markdown-pdf.margin.left`
 
--   Paper margins.units(mm, cm, in, px)
+- Paper margins.units(mm, cm, in, px)
 
-    “markdown-pdf.margin.top”: “1.5cm”, “markdown-pdf.margin.bottom”: “1cm”, “markdown-pdf.margin.right”: “1cm”, “markdown-pdf.margin.left”: “1cm”,
+  “markdown-pdf.margin.top”: “1.5cm”, “markdown-pdf.margin.bottom”: “1cm”, “markdown-pdf.margin.right”: “1cm”, “markdown-pdf.margin.left”: “1cm”,
 
 ### PNG JPEG options
 
--   png and jpeg only. [puppeteer page.screenshot options](https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#pagescreenshotoptions)
+- png and jpeg only. [puppeteer page.screenshot options](https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#pagescreenshotoptions)
 
 #### `markdown-pdf.quality`
 
--   jpeg only. The quality of the image, between 0-100. Not applicable to png images
+- jpeg only. The quality of the image, between 0-100. Not applicable to png images
 
-    “markdown-pdf.quality”: 100,
+  “markdown-pdf.quality”: 100,
 
 #### `markdown-pdf.clip.x`
 
@@ -389,55 +388,55 @@ CategoryOption name[Configuration scope](https://code.visualstudio.com/api/refer
 
 #### `markdown-pdf.clip.height`
 
--   An object which specifies clipping region of the page
--   number
+- An object which specifies clipping region of the page
+- number
 
-    // x-coordinate of top-left corner of clip area “markdown-pdf.clip.x”: 0,
+  // x-coordinate of top-left corner of clip area “markdown-pdf.clip.x”: 0,
 
-    // y-coordinate of top-left corner of clip area “markdown-pdf.clip.y”: 0,
+  // y-coordinate of top-left corner of clip area “markdown-pdf.clip.y”: 0,
 
-    // width of clipping area “markdown-pdf.clip.width”: 1000,
+  // width of clipping area “markdown-pdf.clip.width”: 1000,
 
-    // height of clipping area “markdown-pdf.clip.height”: 1000,
+  // height of clipping area “markdown-pdf.clip.height”: 1000,
 
 #### `markdown-pdf.omitBackground`
 
--   Hides default white background and allows capturing screenshots with transparency
--   boolean. Default: false
+- Hides default white background and allows capturing screenshots with transparency
+- boolean. Default: false
 
 ### PlantUML options
 
 #### `markdown-pdf.plantumlOpenMarker`
 
--   Oppening delimiter used for the plantuml parser.
--   Default: <span class="citation" data-cites="startuml">@startuml</span>
+- Oppening delimiter used for the plantuml parser.
+- Default: <span class="citation" data-cites="startuml">@startuml</span>
 
 #### `markdown-pdf.plantumlCloseMarker`
 
--   Closing delimiter used for the plantuml parser.
--   Default: <span class="citation" data-cites="enduml">@enduml</span>
+- Closing delimiter used for the plantuml parser.
+- Default: <span class="citation" data-cites="enduml">@enduml</span>
 
 #### `markdown-pdf.plantumlServer`
 
--   Plantuml server. e.g. [http://localhost:8080](http://localhost:8080/)
--   Default: <http://www.plantuml.com/plantuml>
--   For example, to run Plantuml Server locally [\#139](https://github.com/yzane/vscode-markdown-pdf/issues/139) :
--   `docker run -d -p 8080:8080 plantuml/plantuml-server:jetty`
--   [plantuml/plantuml-server — Docker Hub](https://hub.docker.com/r/plantuml/plantuml-server/)
+- Plantuml server. e.g. [http://localhost:8080](http://localhost:8080/)
+- Default: <http://www.plantuml.com/plantuml>
+- For example, to run Plantuml Server locally [\#139](https://github.com/yzane/vscode-markdown-pdf/issues/139) :
+- `docker run -d -p 8080:8080 plantuml/plantuml-server:jetty`
+- [plantuml/plantuml-server — Docker Hub](https://hub.docker.com/r/plantuml/plantuml-server/)
 
 ### markdown-it-include options
 
 #### `markdown-pdf.markdown-it-include.enable`
 
--   Enable markdown-it-include.
--   boolean. Default: true
+- Enable markdown-it-include.
+- boolean. Default: true
 
 ### mermaid options
 
 #### `markdown-pdf.mermaidServer`
 
--   mermaid server
--   Default: <https://unpkg.com/mermaid/dist/mermaid.min.js>
+- mermaid server
+- Default: <https://unpkg.com/mermaid/dist/mermaid.min.js>
 
 ### FAQ
 
@@ -472,37 +471,37 @@ Please use the following to insert a page break.
 
 ### `markdown-pdf.styles` option
 
--   Online CSS (<https://xxx/xxx.css>) is applied correctly for JPG and PNG, but problems occur with PDF. [\#67](https://github.com/yzane/vscode-markdown-pdf/issues/67)
+- Online CSS (<https://xxx/xxx.css>) is applied correctly for JPG and PNG, but problems occur with PDF. [\#67](https://github.com/yzane/vscode-markdown-pdf/issues/67)
 
 ### [Release Notes](https://github.com/yzane/vscode-markdown-pdf/blob/master/CHANGELOG.md)
 
 ### 1.4.4 (2020/03/19)
 
--   Change: mermaid javascript reads from URL instead of from local file
--   Add: `markdown-pdf.mermaidServer` option
--   add an option to disable mermaid [\#175](https://github.com/yzane/vscode-markdown-pdf/issues/175)
--   Add: `markdown-pdf.plantumlServer` option
--   support configuration of plantUML server [\#139](https://github.com/yzane/vscode-markdown-pdf/issues/139)
--   Add: configuration scope
--   extend setting ‘headerTemplate’ with scope… [\#184](https://github.com/yzane/vscode-markdown-pdf/pull/184)
--   Update: [slug](https://github.com/yzane/vscode-markdown-pdf/commit/3f4aeaa724999c46fc37423d4b188fd7ce72ffce) for markdown-it-named-headers
--   Update: markdown.css, markdown-pdf.css
--   Update: dependent packages
--   Fix: Fix for issue \#186 [\#187](https://github.com/yzane/vscode-markdown-pdf/pull/187)
--   Fix: move the Meiryo font to the end of the font-family setting
--   Meiryo font causing \\ to show as Â¥ [\#83](https://github.com/yzane/vscode-markdown-pdf/issues/83)
--   Backslash false encoded [\#124](https://github.com/yzane/vscode-markdown-pdf/issues/124)
--   Errors in which í•œê¸€(korean word) is not properly printed [\#148](https://github.com/yzane/vscode-markdown-pdf/issues/148)
--   Fix: Improve the configuration schema of package.json
--   Some settings can now be set from the settings editor.
+- Change: mermaid javascript reads from URL instead of from local file
+- Add: `markdown-pdf.mermaidServer` option
+- add an option to disable mermaid [\#175](https://github.com/yzane/vscode-markdown-pdf/issues/175)
+- Add: `markdown-pdf.plantumlServer` option
+- support configuration of plantUML server [\#139](https://github.com/yzane/vscode-markdown-pdf/issues/139)
+- Add: configuration scope
+- extend setting ‘headerTemplate’ with scope… [\#184](https://github.com/yzane/vscode-markdown-pdf/pull/184)
+- Update: [slug](https://github.com/yzane/vscode-markdown-pdf/commit/3f4aeaa724999c46fc37423d4b188fd7ce72ffce) for markdown-it-named-headers
+- Update: markdown.css, markdown-pdf.css
+- Update: dependent packages
+- Fix: Fix for issue \#186 [\#187](https://github.com/yzane/vscode-markdown-pdf/pull/187)
+- Fix: move the Meiryo font to the end of the font-family setting
+- Meiryo font causing \\ to show as Â¥ [\#83](https://github.com/yzane/vscode-markdown-pdf/issues/83)
+- Backslash false encoded [\#124](https://github.com/yzane/vscode-markdown-pdf/issues/124)
+- Errors in which í•œê¸€(korean word) is not properly printed [\#148](https://github.com/yzane/vscode-markdown-pdf/issues/148)
+- Fix: Improve the configuration schema of package.json
+- Some settings can now be set from the settings editor.
 
 ![](https://webdevhubcom.files.wordpress.com/2021/04/b6c22-0xiwcipeujuw-ghyc.gif?w=781&h=22)
 
-------------------------------------------------------------------------
+---
 
 NEXT
 
-------------------------------------------------------------------------
+---
 
 ### Ruby for Visual Studio Code
 
@@ -510,12 +509,12 @@ This extension provides enhanced Ruby language and debugging support for Visual 
 
 ### Features
 
--   Automatic Ruby environment detection with support for rvm, rbenv, chruby, and asdf
--   Lint support via RuboCop, Standard, and Reek
--   Format support via RuboCop, Standard, Rufo, Prettier and RubyFMT
--   Semantic code folding support
--   Semantic highlighting support
--   Basic Intellisense support
+- Automatic Ruby environment detection with support for rvm, rbenv, chruby, and asdf
+- Lint support via RuboCop, Standard, and Reek
+- Format support via RuboCop, Standard, Rufo, Prettier and RubyFMT
+- Semantic code folding support
+- Semantic highlighting support
+- Basic Intellisense support
 
 ### Installation
 
@@ -563,8 +562,8 @@ See [docs/troubleshooting.md](https://github.com/rubyide/vscode-ruby/blob/master
 
 ### Other Notable Extensions
 
--   [Ruby Solargraph](https://marketplace.visualstudio.com/items?itemName=castwide.solargraph) — Solargraph is a language server that provides intellisense, code completion, and inline documentation for Ruby.
--   [VSCode Endwise](https://github.com/kaiwood/vscode-endwise) — Wisely add “end” in Ruby
+- [Ruby Solargraph](https://marketplace.visualstudio.com/items?itemName=castwide.solargraph) — Solargraph is a language server that provides intellisense, code completion, and inline documentation for Ruby.
+- [VSCode Endwise](https://github.com/kaiwood/vscode-endwise) — Wisely add “end” in Ruby
 
 ![](https://webdevhubcom.files.wordpress.com/2021/04/eb632-0wc4kcdykcjnhxfzj.png?w=256&h=256)
 
@@ -586,24 +585,24 @@ This is [**Visual Studio Code**](https://github.com/Microsoft/vscode) extension,
 
 ### Make main header
 
--   Default Shortcut:
--   `**Shift**` + `**Alt**` + `**X**`
--   Default Style:
--   `/* -------------------------------------------------------------------------- */ /* Example text */ /* -------------------------------------------------------------------------- */`
+- Default Shortcut:
+- `**Shift**` + `**Alt**` + `**X**`
+- Default Style:
+- `/* -------------------------------------------------------------------------- */ /* Example text */ /* -------------------------------------------------------------------------- */`
 
 ### Make subheader
 
--   Default Shortcut:
--   `**Alt**` + `**X**`
--   Default Style:
--   `/* ------------------------------ Example text ------------------------------ */`
+- Default Shortcut:
+- `**Alt**` + `**X**`
+- Default Style:
+- `/* ------------------------------ Example text ------------------------------ */`
 
 ### Insert solid line
 
--   Default Shortcut:
--   `**Alt**` + `**Y**`
--   Default Style:
--   `/* -------------------------------------------------------------------------- */`
+- Default Shortcut:
+- `**Alt**` + `**Y**`
+- Default Style:
+- `/* -------------------------------------------------------------------------- */`
 
 ### Language Support
 
@@ -682,11 +681,11 @@ Request features and report bugs using [GitHub](https://github.com/stackbreak/co
 
 ![](https://webdevhubcom.files.wordpress.com/2021/04/8f2d5-0ummqshaddas51l_x.gif?w=781&h=22)
 
-------------------------------------------------------------------------
+---
 
 NEXT
 
-------------------------------------------------------------------------
+---
 
 ### Auto Import — ES6, TS, JSX, TSX (VSCode Extension)
 
@@ -694,18 +693,18 @@ Automatically finds, parses and provides code actions and code completion for al
 
 ![](https://webdevhubcom.files.wordpress.com/2021/04/e32dc-0qlapcdgufwrpwneh.gif?w=480&h=287)
 
-------------------------------------------------------------------------
+---
 
 ### PostgreSQL for Visual Studio Code
 
 Welcome to PostgreSQL for Visual Studio Code! An extension for developing PostgreSQL with functionalities including:
 
--   Connect to PostgreSQL instances
--   Manage connection profiles
--   Connect to a different Postgres instance or database in each tab
--   View object DDL with ‘Go to Definition’ and ‘Peek Definition’
--   Write queries with IntelliSense
--   Run queries and save results as JSON, csv, or Excel
+- Connect to PostgreSQL instances
+- Manage connection profiles
+- Connect to a different Postgres instance or database in each tab
+- View object DDL with ‘Go to Definition’ and ‘Peek Definition’
+- Write queries with IntelliSense
+- Run queries and save results as JSON, csv, or Excel
 
 Install link: <https://marketplace.visualstudio.com/items?itemName=ms-ossdata.vscode-postgresql>
 
@@ -717,7 +716,7 @@ Install link: <https://marketplace.visualstudio.com/items?itemName=ms-ossdata.vs
 
 You are now connected to your Postgres database. You can confirm this via the Status Bar (the ribbon at the bottom of the VS Code window). It will show your connected hostname, database, and user.
 
-1.  You can type a query like ‘SELECT \* FROM pg\_stat\_activity’;
+1.  You can type a query like ‘SELECT \* FROM pg_stat_activity’;
 2.  Right-click, select ‘Execute Query’ and the results will show in a new window.
 
 You can save the query results to JSON, csv or Excel.
@@ -732,16 +731,16 @@ Support for this extension is provided on our [GitHub Issue Tracker](https://git
 
 ![](https://webdevhubcom.files.wordpress.com/2021/04/0b82b-0hmzlbjpk1aqwh_cf.gif?w=781&h=22)
 
-------------------------------------------------------------------------
+---
 
 ### JS JSX Snippets
 
 ### Supported languages (file extensions)
 
--   JavaScript (.js)
--   TypeScript (.ts)
--   JavaScript React (.jsx)
--   TypeScript React (.tsx)
+- JavaScript (.js)
+- TypeScript (.ts)
+- JavaScript React (.jsx)
+- TypeScript React (.tsx)
 
 ### Usage
 
@@ -779,11 +778,11 @@ TriggerContent`ptaPropTypes.array,ptarPropTypes.array.isRequired,ptoPropTypes.ob
 
 ![](https://webdevhubcom.files.wordpress.com/2021/04/fec80-0feudrdiwsq5fn9zc.gif?w=781&h=22)
 
-------------------------------------------------------------------------
+---
 
 NEXT
 
-------------------------------------------------------------------------
+---
 
 ### Indent-Rainbow
 
@@ -793,7 +792,7 @@ If you like this plugin, please consider a small donation:
 
 ![](https://webdevhubcom.files.wordpress.com/2021/04/912b7-0oyuoktkyg5xyl8ku.gif?w=147&h=47)
 
-------------------------------------------------------------------------
+---
 
 This extension colorizes the indentation in front of your text alternating four different colors on each step. Some may find it helpful in writing code for Nim or Python.
 
@@ -816,7 +815,7 @@ Although you can just use it as it is there is the possibility to configure some
       // The delay in ms until the editor gets updated.
       "indentRainbow.updateDelay": 100 // 10 makes it super fast but may cost more resources
 
-*Notice: Defining both* `_includedLanguages_` *and* `_excludedLanguages_` *does not make much sense. Use one of both!*
+_Notice: Defining both_ `_includedLanguages_` _and_ `_excludedLanguages_` _does not make much sense. Use one of both!_
 
 You can configure your own colors by adding and tampering with the following code:
 
@@ -836,7 +835,7 @@ You can configure your own colors by adding and tampering with the following cod
       // To be disabled this coloring set this to an empty string.
       "indentRainbow.tabmixColor": "rgba(128,32,96,0.6)"
 
-> *Notice:* `_errorColor_` *was renamed from* `_error_color_` *in earlier versions.*
+> _Notice:_ `_errorColor_` _was renamed from_ `_error_color_` _in earlier versions._
 
 Skip error highlighting for RegEx patterns. For example, you may want to turn off the indent errors for JSDoc’s valid additional space (disabled by default), or comment lines beginning with `//`
 
@@ -866,11 +865,11 @@ Running `npm run compile` makes the compiler recompile on file change.
 
 ![](https://webdevhubcom.files.wordpress.com/2021/04/d9758-0hge_ezptazcccgux.gif?w=781&h=22)
 
-------------------------------------------------------------------------
+---
 
 NEXT
 
-------------------------------------------------------------------------
+---
 
 ### Path Intellisense
 
@@ -973,7 +972,7 @@ Use ${workspaceFolder} when the path should be relative to the current root of t
 
 ![](https://webdevhubcom.files.wordpress.com/2021/04/e275d-0ehx7lejfahj37qh-.gif?w=781&h=22)
 
-------------------------------------------------------------------------
+---
 
 ### turbo-js
 
@@ -1224,29 +1223,29 @@ This collection is complementary to [atom/language-javascript](https://github.co
 
 **Yes!, no semicolons:**
 
--   [Are Semicolons Necessary in JavaScript?](https://www.youtube.com/watch?v=gsfbh17Ax9I)
--   [An Open Letter to JavaScript Leaders Regarding Semicolons](http://blog.izs.me/post/2353458699/an-open-letter-to-javascript-leaders-regarding)
--   [JavaScript Semicolon Insertion — Everything You Need to Know](http://inimino.org/~inimino/blog/javascript_semicolons)
+- [Are Semicolons Necessary in JavaScript?](https://www.youtube.com/watch?v=gsfbh17Ax9I)
+- [An Open Letter to JavaScript Leaders Regarding Semicolons](http://blog.izs.me/post/2353458699/an-open-letter-to-javascript-leaders-regarding)
+- [JavaScript Semicolon Insertion — Everything You Need to Know](http://inimino.org/~inimino/blog/javascript_semicolons)
 
 ### Snippets
 
 Snippets are optimized to be short and easy to remember. Shortest are the ones you should be using most often. Note that these links work only on github, not on VSCode marketplace:
 
--   [declarations](https://trusting-aryabhata-e5438d.netlify.app/#declarations)
--   [flow control](https://trusting-aryabhata-e5438d.netlify.app/#flow-control)
--   [functions](https://trusting-aryabhata-e5438d.netlify.app/#functions)
--   [iterables](https://trusting-aryabhata-e5438d.netlify.app/#iterables)
--   [objects and classes](https://trusting-aryabhata-e5438d.netlify.app/#objects-and-classes)
--   [returning values](https://trusting-aryabhata-e5438d.netlify.app/#returning-values)
--   [types](https://trusting-aryabhata-e5438d.netlify.app/#types)
--   [promises](https://trusting-aryabhata-e5438d.netlify.app/#promises)
--   [ES6 modules](https://trusting-aryabhata-e5438d.netlify.app/#es6-modules)
--   [testing](https://trusting-aryabhata-e5438d.netlify.app/#testing)
--   [console](https://trusting-aryabhata-e5438d.netlify.app/#console)
--   [timers](https://trusting-aryabhata-e5438d.netlify.app/#timers)
--   [DOM](https://trusting-aryabhata-e5438d.netlify.app/#dom)
--   [Node.js](https://trusting-aryabhata-e5438d.netlify.app/#nodejs)
--   [miscellaneous](https://trusting-aryabhata-e5438d.netlify.app/#miscellaneous)
+- [declarations](https://trusting-aryabhata-e5438d.netlify.app/#declarations)
+- [flow control](https://trusting-aryabhata-e5438d.netlify.app/#flow-control)
+- [functions](https://trusting-aryabhata-e5438d.netlify.app/#functions)
+- [iterables](https://trusting-aryabhata-e5438d.netlify.app/#iterables)
+- [objects and classes](https://trusting-aryabhata-e5438d.netlify.app/#objects-and-classes)
+- [returning values](https://trusting-aryabhata-e5438d.netlify.app/#returning-values)
+- [types](https://trusting-aryabhata-e5438d.netlify.app/#types)
+- [promises](https://trusting-aryabhata-e5438d.netlify.app/#promises)
+- [ES6 modules](https://trusting-aryabhata-e5438d.netlify.app/#es6-modules)
+- [testing](https://trusting-aryabhata-e5438d.netlify.app/#testing)
+- [console](https://trusting-aryabhata-e5438d.netlify.app/#console)
+- [timers](https://trusting-aryabhata-e5438d.netlify.app/#timers)
+- [DOM](https://trusting-aryabhata-e5438d.netlify.app/#dom)
+- [Node.js](https://trusting-aryabhata-e5438d.netlify.app/#nodejs)
+- [miscellaneous](https://trusting-aryabhata-e5438d.netlify.app/#miscellaneous)
 
 ### Declarations
 
@@ -1936,7 +1935,7 @@ Snippets are optimized to be short and easy to remember. Shortest are the ones y
 
     console.dir(${0})
 
-------------------------------------------------------------------------
+---
 
 ### React snippets
 
@@ -1948,10 +1947,10 @@ If you’re not writing react, including them should not really bother you becau
 
 ### Supported languages (file extensions)
 
--   JavaScript (.js)
--   TypeScript (.ts)
--   JavaScript React (.jsx)
--   TypeScript React (.tsx)
+- JavaScript (.js)
+- TypeScript (.ts)
+- JavaScript React (.jsx)
+- TypeScript React (.tsx)
 
 These were originally taken from <https://github.com/TimonVS/vscode-react-standard> because the maintainer wasn’t able to publish a new version for months even when there was a considerable flaw in the released version. Below is a list of all available snippets and the triggers of each one.
 
@@ -1967,7 +1966,7 @@ TriggerContent`ptaPropTypes.array,ptarPropTypes.array.isRequired,ptbPropTypes.bo
 
 ![](https://webdevhubcom.files.wordpress.com/2021/04/c389e-08xivi5tevdat7lmo.gif?w=781&h=22)
 
-------------------------------------------------------------------------
+---
 
 ### C/C++ for Visual Studio Code
 
@@ -1977,18 +1976,18 @@ The C/C++ extension adds language support for C/C++ to Visual Studio Code, inclu
 
 ### Overview and tutorials
 
--   [C/C++ extension overview](https://code.visualstudio.com/docs/languages/cpp)
+- [C/C++ extension overview](https://code.visualstudio.com/docs/languages/cpp)
 
 C/C++ extension tutorials per compiler and platform \* [Microsoft C++ compiler (MSVC) on Windows](https://code.visualstudio.com/docs/cpp/config-msvc) \* [GCC and Mingw-w64 on Windows](https://code.visualstudio.com/docs/cpp/config-mingw) \* [GCC on Windows Subsystem for Linux (WSL)](https://code.visualstudio.com/docs/cpp/config-wsl) \* [GCC on Linux](https://code.visualstudio.com/docs/cpp/config-linux) \* [Clang on macOS](https://code.visualstudio.com/docs/cpp/config-clang-mac)
 
 ### Quick links
 
--   [Editing features (IntelliSense)](https://code.visualstudio.com/docs/cpp/cpp-ide)
--   [IntelliSense configuration](https://code.visualstudio.com/docs/cpp/customize-default-settings-cpp)
--   [Enhanced colorization](https://code.visualstudio.com/docs/cpp/colorization-cpp)
--   [Debugging](https://code.visualstudio.com/docs/cpp/cpp-debug)
--   [Debug configuration](https://code.visualstudio.com/docs/cpp/launch-json-reference)
--   [Enable logging for IntelliSense or debugging](https://code.visualstudio.com/docs/cpp/enable-logging-cpp)
+- [Editing features (IntelliSense)](https://code.visualstudio.com/docs/cpp/cpp-ide)
+- [IntelliSense configuration](https://code.visualstudio.com/docs/cpp/customize-default-settings-cpp)
+- [Enhanced colorization](https://code.visualstudio.com/docs/cpp/colorization-cpp)
+- [Debugging](https://code.visualstudio.com/docs/cpp/cpp-debug)
+- [Debug configuration](https://code.visualstudio.com/docs/cpp/launch-json-reference)
+- [Enable logging for IntelliSense or debugging](https://code.visualstudio.com/docs/cpp/enable-logging-cpp)
 
 ### Questions and feedback
 
@@ -2024,11 +2023,11 @@ This extension collects usage data and sends it to Microsoft to help improve our
 
 ![](https://webdevhubcom.files.wordpress.com/2021/04/3100b-0kt-50guahwymrk3d.gif?w=781&h=22)
 
-------------------------------------------------------------------------
+---
 
 NEXT
 
-------------------------------------------------------------------------
+---
 
 ### Visual Studio IntelliCode
 

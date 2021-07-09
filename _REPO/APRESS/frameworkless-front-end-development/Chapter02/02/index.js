@@ -1,14 +1,14 @@
-import getTodos from './getTodos.js'
-import appView from './view/app.js'
+import getTodos from "./getTodos.js";
+import appView from "./view/app.js";
 
 const state = {
   todos: getTodos(),
-  currentFilter: 'All'
-}
+  currentFilter: "All",
+};
 
-const main = document.querySelector('.todoapp')
+const main = document.querySelector(".todoapp");
 
 window.requestAnimationFrame(() => {
-  const newMain = appView(main, state)
-  main.replaceWith(newMain)
-})
+  const newMain = appView(main, state);
+  main.replaceWith(newMain);
+});

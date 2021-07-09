@@ -1,28 +1,23 @@
-const getTodoElement = todo => {
-  const {
-    text,
-    completed
-  } = todo
+const getTodoElement = (todo) => {
+  const { text, completed } = todo;
 
   return `
-      <li ${completed ? 'class="completed"' : ''}>
+      <li ${completed ? 'class="completed"' : ""}>
         <div class="view">
           <input 
-            ${completed ? 'checked' : ''}
+            ${completed ? "checked" : ""}
             class="toggle" 
             type="checkbox">
           <label>${text}</label>
           <button class="destroy"></button>
         </div>
         <input class="edit" value="${text}">
-      </li>`
-}
+      </li>`;
+};
 
 export default (targetElement, { todos }) => {
-  const newTodoList = targetElement.cloneNode(true)
-  const todosElements = todos
-    .map(getTodoElement)
-    .join('')
-  newTodoList.innerHTML = todosElements
-  return newTodoList
-}
+  const newTodoList = targetElement.cloneNode(true);
+  const todosElements = todos.map(getTodoElement).join("");
+  newTodoList.innerHTML = todosElements;
+  return newTodoList;
+};

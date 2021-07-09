@@ -5,8 +5,8 @@ import debug from "debug";
 import chalk from "chalk";
 
 let kayak = new SportsProduct(1, "Kayak", 275, SPORT.Watersports);
-let hat =  new SportsProduct(2, "Hat", 22.10, SPORT.Running, SPORT.Watersports);
-let ball = new SportsProduct(3, "Soccer Ball", 19.50, SPORT.Soccer);
+let hat = new SportsProduct(2, "Hat", 22.1, SPORT.Running, SPORT.Watersports);
+let ball = new SportsProduct(3, "Soccer Ball", 19.5, SPORT.Soccer);
 
 let cart = new Cart("Bob");
 cart.addProduct(kayak, 1);

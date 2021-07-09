@@ -1,9 +1,8 @@
-Understanding Async Await In The Context Of The Event Loop
-==========================================================
+# Understanding Async Await In The Context Of The Event Loop
 
 There’s a special syntax to work with promises in a more comfortable fashion, called “async/await”. It’s surprisingly easy to understand…
 
-------------------------------------------------------------------------
+---
 
 ### Understanding Async Await In The Context Of The Event Loop
 
@@ -28,8 +27,8 @@ JavaScript is **single-threaded**: only one task can run at a time.
 
 > the arrow function `() => { return` `'Hey'` }
 
--   <span id="8b76">gets added to the Web API.</span>
--   <span id="1691">**In the meantime, the** `setTimeout` **function and the respond function get popped off the stack, they both returned their values!**</span>
+- <span id="8b76">gets added to the Web API.</span>
+- <span id="1691">**In the meantime, the** `setTimeout` **function and the respond function get popped off the stack, they both returned their values!**</span>
 
 <figure><img src="https://cdn-images-1.medium.com/max/800/1*b31hiO4ynbDLRrXWEFF4aQ.png" class="graf-image" /></figure>*In the Web API, a timer runs for as long as the second argument we passed to it, 1000ms.*
 
@@ -37,13 +36,13 @@ The callback doesn’t immediately get added to the call stack, instead it’s p
 
 <figure><img src="https://cdn-images-1.medium.com/max/800/1*b31hiO4ynbDLRrXWEFF4aQ.png" class="graf-image" /></figure>This does not mean that the callback function gets added to the callstack (***returns***) after 1000ms!
 
-This means that the function has been added to the *queue* after 1000ms where it will wait for it’s proper FIFO designated turn to excite.
+This means that the function has been added to the _queue_ after 1000ms where it will wait for it’s proper FIFO designated turn to excite.
 
 <span class="graf-dropCap">T</span>he event loop is simply a mechanism for **connecting the queue with the call stack**!
 
 > An analogy to this relationship exists in facebook market place… the marketplace doesn’t actually buy or sell anything… it just provides a framework for which buyers and sellers can interface productively. It’s not a perfect analogy… the point is that the event loop is not some third tangible entity… it’s just the relationship between the stack and queue.
 
-------------------------------------------------------------------------
+---
 
 #### If the call stack is empty:
 
@@ -53,13 +52,13 @@ This means that the function has been added to the *queue* after 1000ms where it
 
 **In this case, no other functions were invoked, meaning that the call stack was empty by the time the callback function was the first item in the queue.**
 
-------------------------------------------------------------------------
+---
 
 **The callback is added to the call stack**
 
--   <span id="045e">Gets invoked… returns a value…( gets popped off the stack).</span>
+- <span id="045e">Gets invoked… returns a value…( gets popped off the stack).</span>
 
-------------------------------------------------------------------------
+---
 
 <figure><img src="https://cdn-images-1.medium.com/max/800/0*bpGHoLFACDcK3LxP.gif" class="graf-image" /></figure>1.  <span id="b16f">We invoke `bar`. `bar` returns a `setTimeout` function.</span>
 2.  <span id="f4d5">The callback we passed to `setTimeout` gets added to the Web API, the `setTimeout` function and `bar` get popped off the callstack.</span>
@@ -69,7 +68,7 @@ This means that the function has been added to the *queue* after 1000ms where it
 
 <figure><img src="https://cdn-images-1.medium.com/max/800/0*YArelm5gHw4BwFZZ.gif" class="graf-image" /></figure>
 
-------------------------------------------------------------------------
+---
 
 ### Practice:
 
@@ -118,8 +117,6 @@ The `async` keyword before a function has two effects:
 The `await` keyword before a promise makes JavaScript wait until that promise settles, and then:
 
 ### TBC…
-
-  
 
 [View original.](https://medium.com/p/9d241e72fc2d)
 

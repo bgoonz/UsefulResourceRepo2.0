@@ -1,48 +1,46 @@
-const cloneDeep = x => {
-  return JSON.parse(JSON.stringify(x))
-}
+const cloneDeep = (x) => {
+  return JSON.parse(JSON.stringify(x));
+};
 
-const freeze = state => Object.freeze(cloneDeep(state))
+const freeze = (state) => Object.freeze(cloneDeep(state));
 
 export default (model, stateGetter) => {
-  let listeners = []
+  let listeners = [];
 
-  const addChangeListener = cb => {
-    listeners.push(cb)
-    cb(freeze(stateGetter()))
+  const addChangeListener = (cb) => {
+    listeners.push(cb);
+    cb(freeze(stateGetter()));
     return () => {
-      listeners = listeners
-        .filter(element => element !== cb)
-    }
-  }
+      listeners = listeners.filter((element) => element !== cb);
+    };
+  };
 
   const invokeListeners = () => {
-    const data = freeze(stateGetter())
-    listeners.forEach(l => l(data))
-  }
+    const data = freeze(stateGetter());
+    listeners.forEach((l) => l(data));
+  };
 
-  const wrapAction = originalAction => {
+  const wrapAction = (originalAction) => {
     return (...args) => {
-      const value = originalAction(...args)
-      invokeListeners()
-      return value
-    }
-  }
+      const value = originalAction(...args);
+      invokeListeners();
+      return value;
+    };
+  };
 
   const baseProxy = {
-    addChangeListener
-  }
+    addChangeListener,
+  };
 
-  return Object
-    .keys(model)
-    .filter(key => {
-      return typeof model[key] === 'function'
+  return Object.keys(model)
+    .filter((key) => {
+      return typeof model[key] === "function";
     })
     .reduce((proxy, key) => {
-      const action = model[key]
+      const action = model[key];
       return {
         ...proxy,
-        [key]: wrapAction(action)
-      }
-    }, baseProxy)
-}
+        [key]: wrapAction(action),
+      };
+    }, baseProxy);
+};

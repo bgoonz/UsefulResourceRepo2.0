@@ -6,13 +6,14 @@ import { ProductDisplay } from "./ProductDisplay";
 import { SupplierDisplay } from "./SupplierDisplay";
 
 export default class App extends Component {
-
-    render() {
-        return  <Provider store={ dataStore }>
-                    <Selector>
-                        <ProductDisplay name="Products" />
-                        <SupplierDisplay name="Suppliers" />
-                    </Selector>      
-                </Provider>                            
-    }
+  render() {
+    return (
+      <Provider store={dataStore}>
+        <Selector>
+          <ProductDisplay name="Products" />
+          <SupplierDisplay name="Suppliers" />
+        </Selector>
+      </Provider>
+    );
+  }
 }

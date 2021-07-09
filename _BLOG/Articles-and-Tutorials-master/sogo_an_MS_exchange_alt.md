@@ -1,4 +1,4 @@
-~~~~~~~~~~ DRAFT ~~~~~~~~~~
+```DRAFT ~~~~~~~~~~
 ===========================
 
 *[Pull Requests](https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/pulls) gladly accepted* Install & Configure SOGo – an Open-Source Alternative to Microsoft Exchange – on Ubuntu 12.04 =====
@@ -57,7 +57,7 @@ Next, you must add SOGo’s GPG public key to Ubuntu’s `apt keyring`. To do so
 
 Then, update your lists of available software packages, by executing:
 
-    apt-get update 
+    apt-get update
 
 Active Directory/ Domain Controller
 -----------------------------------
@@ -297,3 +297,4 @@ Additional Resources
 ===========================
 
 *[Pull Requests](https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/pulls) gladly accepted*
+```

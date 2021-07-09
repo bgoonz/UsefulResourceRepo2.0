@@ -1,12 +1,12 @@
 function stripeTables() {
   if (!document.getElementsByTagName) return false;
   var tables = document.getElementsByTagName("table");
-  for (var i=0; i<tables.length; i++) {
+  for (var i = 0; i < tables.length; i++) {
     var odd = false;
     var rows = tables[i].getElementsByTagName("tr");
-    for (var j=0; j<rows.length; j++) {
+    for (var j = 0; j < rows.length; j++) {
       if (odd == true) {
-        addClass(rows[j],"odd");
+        addClass(rows[j], "odd");
         odd = false;
       } else {
         odd = true;
@@ -14,13 +14,13 @@ function stripeTables() {
     }
   }
 }
-function addClass(element,value) {
+function addClass(element, value) {
   if (!element.className) {
     element.className = value;
   } else {
     newClassName = element.className;
-    newClassName+= " ";
-    newClassName+= value;
+    newClassName += " ";
+    newClassName += value;
     element.className = newClassName;
   }
 }

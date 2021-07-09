@@ -1,5 +1,4 @@
-A Deeper Inspection Into Compilation And Interpretation
-=======================================================
+# A Deeper Inspection Into Compilation And Interpretation
 
 > There is perhaps nothing more satisfying than seeing the pieces of a puzzle come together. This is the case for actual puzzles, which I am…
 
@@ -19,7 +18,7 @@ However, every so often, if you really stick with a topic for long enough, you�
 
 When we first started this series nearly a year ago, the very first topic that we explored was something that is often thought of as the “cornerstone” of computer science: [binary](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/basecs/bits-bytes-building-with-binary-13cb4289aafa). We learned that, at their very core, binary is the language that every computer speaks and understands. Our machines, at the end of the day, each run on ones and zeros.
 
-Since then, we’ve explored different data structures, like [trees](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/basecs/how-to-not-be-stumped-by-trees-5f36208f68a7), [graphs](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/basecs/a-gentle-introduction-to-graph-theory-77969829ead8), and [linked lists](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/basecs/whats-a-linked-list-anyway-part-1-d8b7e6508b9d), as well as [sorting algorithms](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/basecs/sorting-out-the-basics-behind-sorting-algorithms-b0a032873add) and [traversal or searching](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/basecs/finding-the-shortest-path-with-a-little-help-from-dijkstra-613149fbdc8e) algorithms. Now it’s time to finally bring it all together — or rather, bring it all *back* to binary.
+Since then, we’ve explored different data structures, like [trees](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/basecs/how-to-not-be-stumped-by-trees-5f36208f68a7), [graphs](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/basecs/a-gentle-introduction-to-graph-theory-77969829ead8), and [linked lists](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/basecs/whats-a-linked-list-anyway-part-1-d8b7e6508b9d), as well as [sorting algorithms](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/basecs/sorting-out-the-basics-behind-sorting-algorithms-b0a032873add) and [traversal or searching](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/basecs/finding-the-shortest-path-with-a-little-help-from-dijkstra-613149fbdc8e) algorithms. Now it’s time to finally bring it all together — or rather, bring it all _back_ to binary.
 
 ![](https://miro.medium.com/max/52/1*JrvsA3pmJCWqlPMGnIoSYA.jpeg?q=20)
 
@@ -29,15 +28,15 @@ We started with some source code and now we’re here.
 
 We’ve gone around the world when it comes to core concepts in computing as well as computer science. But there’s one question that we haven’t really answered yet, even though it’s possible that we’ve been thinking about it this whole year: How on earth do we go from our code into the one’s and zero’s of our computer?
 
-Well, before we get too far into *how* the code we write gets turned into binary, let’s clarify what we really mean when we use the term binary in this context. The “binary” code that a computer reads and understands is generally referred to as ***machine language*** or ***machine code***, which is a set of instructions given to a machine and run by a its ***central processing unit*** (or ***CPU***).
+Well, before we get too far into _how_ the code we write gets turned into binary, let’s clarify what we really mean when we use the term binary in this context. The “binary” code that a computer reads and understands is generally referred to as **_machine language_** or **_machine code_**, which is a set of instructions given to a machine and run by a its **_central processing unit_** (or **_CPU_**).
 
 An important thing to note is that there are different kinds of machine code, some of which are literally 0’s and 1’s, and others of which are decimals or [hexadecimals](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/basecs/hexs-and-other-magical-numbers-9785bc26b7ee) (which we already know a lot about!). Regardless of which exact format a machine language is written in, it has to be fairly rudimentary because it needs to be understood by or computer. This is why machine languages are referred to as low level languages, because they need to be simplified enough to be processed by our machine’s CPU, which we already know is just a bunch of switches, internally.
 
 > We can think of low level languages as the “mother-tongues” of our computer; machine code should be directly readable by our machine, and shouldn’t ever need to be translated by them.
 
-But how do we go from *our* code to a machine-friendly (*machine code*) version of the exact same thing? Well, the code that we write as programmers and the machine code that a computer’s processor reads are nothing more than two different types of *languages*. If we think about it, all we really need to do is translate between these two languages.
+But how do we go from _our_ code to a machine-friendly (_machine code_) version of the exact same thing? Well, the code that we write as programmers and the machine code that a computer’s processor reads are nothing more than two different types of _languages_. If we think about it, all we really need to do is translate between these two languages.
 
-Now comes another problem: we have no idea how to translate between our code and machine code! Okay, just kidding — this isn’t *really* a problem. Because we have two helpful friends who can help us out here.
+Now comes another problem: we have no idea how to translate between our code and machine code! Okay, just kidding — this isn’t _really_ a problem. Because we have two helpful friends who can help us out here.
 
 ![](https://miro.medium.com/max/54/1*i6IkXutqKYWpm0JwlvzPUA.jpeg?q=20)
 
@@ -47,11 +46,11 @@ Translators make our source text understandable to our machines!
 
 In order for us to transform our source code into some computer-readable machine code in a binary format, we’ll need to rely on translators to help us make our source text understandable to our machines.
 
-A ***translator***, which is also sometimes called a programming language processor, is nothing more than a program that translates a ***source*** language into a ***target*** language, while maintaining the logical structure of the code that it is translating.
+A **_translator_**, which is also sometimes called a programming language processor, is nothing more than a program that translates a **_source_** language into a **_target_** language, while maintaining the logical structure of the code that it is translating.
 
 We’re already a little bit familiar with one kind of translator already, even though we might not know it just yet. Previously in this series, we’ve looked at the [lexical and syntax analysis](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/basecs/leveling-up-ones-parsing-game-with-asts-d7a6fc2400ff) phases (the front end) of the compiler, and the different data structures involved in the process.
 
-As it turns out, the compiler is a *kind* of translator! There is another translator, too, whose name often gets thrown around in conjunction with the compiler’s, called the ***interpreter***. Both the compiler and the interpreter make or code readable to our computers, but in very different ways.
+As it turns out, the compiler is a _kind_ of translator! There is another translator, too, whose name often gets thrown around in conjunction with the compiler’s, called the **_interpreter_**. Both the compiler and the interpreter make or code readable to our computers, but in very different ways.
 
 But let’s first start with what we already know, first: the compiler.
 
@@ -61,7 +60,7 @@ But let’s first start with what we already know, first: the compiler.
 
 The compiler: a definition.
 
-The ***compiler*** is nothing more than a program that takes a high level language — the language that we write our code in — and converts it into machine code. The compiler has many moving parts to it (or rather, within it), including, potentially, a scanner, a lexer/tokenizer, and a parser. But at the end of the day, even with its complexity, it’s just a program that turns our code into machine-readable code.
+The **_compiler_** is nothing more than a program that takes a high level language — the language that we write our code in — and converts it into machine code. The compiler has many moving parts to it (or rather, within it), including, potentially, a scanner, a lexer/tokenizer, and a parser. But at the end of the day, even with its complexity, it’s just a program that turns our code into machine-readable code.
 
 However, even though its job might seem simple when we put it like this, the way that a compiler does this important task is worth highlighting.
 
@@ -71,7 +70,7 @@ However, even though its job might seem simple when we put it like this, the way
 
 How the compiler does its job.
 
-For most cases, the compiler does the job of translating our code into machine code in one fell swoop. In other words, the compiler translates all of a programmer’s source code before the source code can ever be executed or run. It takes our source code and converts it into a single file that is written in machine code. It is that very machine code file — called an ***executable*** file and often ending with an `.exe` extension — which actually allows us to run the original code that we wrote.
+For most cases, the compiler does the job of translating our code into machine code in one fell swoop. In other words, the compiler translates all of a programmer’s source code before the source code can ever be executed or run. It takes our source code and converts it into a single file that is written in machine code. It is that very machine code file — called an **_executable_** file and often ending with an `.exe` extension — which actually allows us to run the original code that we wrote.
 
 The most important idiosyncrasy of a compiler is the fact that it takes a source text, and translates it into machine code binary in “one shot”. It returns the translated, compiled file to the programmer, who will be able to run their code via the outputted executable.
 
@@ -85,19 +84,19 @@ Once the compiler translates all the source code into machine code, the compiler
 
 Grace Hopper, © [TechCrunch](https://techcrunch.com/2016/11/17/grace-hopper-and-margaret-hamilton-awarded-presidential-medal-of-freedom-for-computing-advances/)
 
-The concept behind this specific translator— as well as the term “compiler” itself — was coined by the illustrious ***Grace Hopper***, back in 1952, in the most interesting of circumstances.
+The concept behind this specific translator— as well as the term “compiler” itself — was coined by the illustrious **_Grace Hopper_**, back in 1952, in the most interesting of circumstances.
 
 At the time, Hopper had been working at the Eckert-Mauchly Computer Corporation, helping develop the UNIVAC I computer as a mathematician on the team. Effectively, she was working on turning mathematical code into its own language (A-0 System language).
 
 However, she had bigger ideas. She wanted to write an entirely new programming language that would words in English, rather than the limited number of mathematical symbols. However, when she shared this idea with her colleages. They shot her down, and told her that her idea wasn’t possible because “computers didn’t understand English”. But she was not deterred.
 
-After three years of working on this team, Hopper had her very first working compiler. But no one believed that she had actually done it! In her biography, *Grace Hopper : Navy Admiral and Computer Pioneer*, she [explains](http://www.public.navy.mil/surfor/ddg70/Pages/namesake.aspx#.WjA760zGxE4):
+After three years of working on this team, Hopper had her very first working compiler. But no one believed that she had actually done it! In her biography, _Grace Hopper : Navy Admiral and Computer Pioneer_, she [explains](http://www.public.navy.mil/surfor/ddg70/Pages/namesake.aspx#.WjA760zGxE4):
 
 > I had a running compiler and nobody would touch it. … they carefully told me, computers could only do arithmetic; they could not do programs.
 
 It’s a good thing that Grace Hopper didn’t listen to any of those nonbelievers, because she ended up continuing her work and developing one of the earliest high level programming languages, called COBOL. She also won the [Presidential Medal of Freedom](https://techcrunch.com/2016/11/17/grace-hopper-and-margaret-hamilton-awarded-presidential-medal-of-freedom-for-computing-advances/), among many, many, many other accomplishments.
 
-Indeed, if she *had* listened to all of those pepole, she would have likely never taken computing to an entirely new level with her early work in constructing and designing the very first compiler. Grace Hopper’s work on the first compiler laid the groundwork for the another translator that came into existence a few years later: the interpreter.
+Indeed, if she _had_ listened to all of those pepole, she would have likely never taken computing to an entirely new level with her early work in constructing and designing the very first compiler. Grace Hopper’s work on the first compiler laid the groundwork for the another translator that came into existence a few years later: the interpreter.
 
 In 1958, a few years after Grace Hopper’s work on the compiler, some students at MIT were in a lab, working with an [IBM 704](https://en.wikipedia.org/wiki/IBM_704) computer, a fairly new technology that had been introduced just four years earlier. One of these students, named Steve Russell, was working on a project called the MIT Artificial Intelligence Project, with his professor, John McCarthy.
 
@@ -115,13 +114,13 @@ Indeed, Hopper’s work directly impacted Russell’s invention. The first versi
 
 Russell and his colleagues would go on to [hand-compile](http://www.computerhistory.org/pdp-1/steve-slug-russell/) the first two version of the Lisp interpreter. Today, most programmers wouldn’t even dream of hand-compiling any of their code! Indeed, many of us interact with an interpreter and use it multiple times in application development — we just might not always be aware of it.
 
-So, what exactly *is* an interpreter? It’s about time for an official definition!
+So, what exactly _is_ an interpreter? It’s about time for an official definition!
 
 ![](https://miro.medium.com/max/1400/1*W3b3zEDlsm3ECrl6ZcsuKg.jpeg)
 
 The interpreter: a definition.
 
-An ***interpreter*** is also a translator, just like a compiler, in that it takes a high level language (our source text) and converts it into machine code. However, it does something slightly different: it actually runs and *executes* the code that it translates immediately (inline) as it translates.
+An **_interpreter_** is also a translator, just like a compiler, in that it takes a high level language (our source text) and converts it into machine code. However, it does something slightly different: it actually runs and _executes_ the code that it translates immediately (inline) as it translates.
 
 > We can think of an interpreter as the more “methodical” translator in the family. Rather than doing the work of translating our code into machine language in one single shot, it’s far more systematic about how it works.
 
@@ -147,20 +146,20 @@ The illustration below illustrates this in a more obvious way.
 
 Compilation vs. interpretation: the tradeoffs.
 
-1.  ***Returned result.*** While a compiler will take some source code and return a compiled, executable file, an interpreter will actually translate and then execute the source code itself, returning the result of the translation directly.
-2.  ***Run frequency.*** A compiler will run only once, and will need to be called again to re-translate source code if it changes. On the other hand, an interpreter will run again and reinterpret source code when it changes; the interpreter “sticks around” to continually translate.
-3.  ***Flexibility.*** The compiler translates the source code in one shot, which means that the source code isn’t required again after compilation. However, the interpreter does require the source code in order to translate and execute the program, every single time that it is ever run.
-4.  ***Debugging.*** The compiler generally makes it more difficult to determine where mistakes occur in the source code, because the entire program has already been translated, and the error’s location might not be easily identifyable in the machine code. However, identifying errors is easier with an interpreter because it can maintain the location of an error or bug, and surface that issue to the programmer who wrote the code.
+1.  **_Returned result._** While a compiler will take some source code and return a compiled, executable file, an interpreter will actually translate and then execute the source code itself, returning the result of the translation directly.
+2.  **_Run frequency._** A compiler will run only once, and will need to be called again to re-translate source code if it changes. On the other hand, an interpreter will run again and reinterpret source code when it changes; the interpreter “sticks around” to continually translate.
+3.  **_Flexibility._** The compiler translates the source code in one shot, which means that the source code isn’t required again after compilation. However, the interpreter does require the source code in order to translate and execute the program, every single time that it is ever run.
+4.  **_Debugging._** The compiler generally makes it more difficult to determine where mistakes occur in the source code, because the entire program has already been translated, and the error’s location might not be easily identifyable in the machine code. However, identifying errors is easier with an interpreter because it can maintain the location of an error or bug, and surface that issue to the programmer who wrote the code.
 
-Because of these major differences, compiled code — code that is translated and run using the compilation process — tends to run a bit ***faster*** than interpreted code. This is because the work of translating the source text into machine code has already been done, before the code is ever executed.
+Because of these major differences, compiled code — code that is translated and run using the compilation process — tends to run a bit **_faster_** than interpreted code. This is because the work of translating the source text into machine code has already been done, before the code is ever executed.
 
 ![](https://miro.medium.com/max/1400/1*tEaHNTcgH3ksRTn_PPvUIA.jpeg)
 
 Compiled code as compared to interpreted code.
 
-On the flip side, interpreted code is far more ***flexible***, since the interpreter stays around for the course of the translation “process” to read and process our code.
+On the flip side, interpreted code is far more **_flexible_**, since the interpreter stays around for the course of the translation “process” to read and process our code.
 
-Flexibility in this context means being able to change our code and being able to immediately run it afterwards. There is no need to recompile our code if we make a change; the interpreter will just pick up on that chance, and reinterpret the code, making it a much more *interactive* form of translation. Using an interpreter makes it much easier to test out small (or big!) changes in a source file.
+Flexibility in this context means being able to change our code and being able to immediately run it afterwards. There is no need to recompile our code if we make a change; the interpreter will just pick up on that chance, and reinterpret the code, making it a much more _interactive_ form of translation. Using an interpreter makes it much easier to test out small (or big!) changes in a source file.
 
 ![](https://miro.medium.com/max/1400/1*bEjIOSRlVoqme1h2uddSUQ.jpeg)
 
@@ -168,7 +167,7 @@ The benefits of compilation as compared to interpretation.
 
 However, when it comes to interpretation, we actually need the source code in order to be able to do anything. It definitely is easier to test out changes and debug issues, but the source text has to be accessible, first and foremost. With compilation, this isn’t the case. Once we have compiled our code into an executable file, we don’t ever have to worry about the source code again — unless, of course, we need to recompile.
 
-This can often make a compiler the “safer” choice, because our source code is not exposed; rather, the only output is the executable file itself, which is just 1’s and 0’s, and doesn’t ever show anyone *how* we wrote our code or what it actually ever *said*, since it’s all machine language at that point.
+This can often make a compiler the “safer” choice, because our source code is not exposed; rather, the only output is the executable file itself, which is just 1’s and 0’s, and doesn’t ever show anyone _how_ we wrote our code or what it actually ever _said_, since it’s all machine language at that point.
 
 > Compilation and interpretation play into our roles not just as developers of software, but also as consumers of it.
 
@@ -192,7 +191,7 @@ However, in this case, we’ll need the consumer of our program to download an i
 
 In this scenario, we rely on the interpreter to make the compatible on all platforms, and we, as programmers and consumers, don’t need to think about it. Also, if something goes wrong (either something in the source that we wrote, or something relating to their own platform), the consumer of our code can figure out what the issue is much more easily than with a compiled file. The interpreter will make it easy to debug any problems, regardless of who is running our code.
 
-But, regardless of whether we choose compilation or interpretation, the end goal is the same: to speak a language that our computers can understand! As it turns out, at the end of the day, it really just all *is* binary.
+But, regardless of whether we choose compilation or interpretation, the end goal is the same: to speak a language that our computers can understand! As it turns out, at the end of the day, it really just all _is_ binary.
 
 Because both interpreters and compilers have been around for many years now, there are a good amount of resources out there on both of these types of translators. From an implementation perspective, there are many different approaches to writing a compiler versus an interpreter. But, if you’re looking to simply learn more or dig a little deeper, these resources are a good place to start.
 

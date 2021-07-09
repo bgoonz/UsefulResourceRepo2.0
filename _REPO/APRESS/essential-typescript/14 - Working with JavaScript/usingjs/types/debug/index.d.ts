@@ -1,10 +1,10 @@
 declare interface Debug {
-    (namespace: string): Debugger
+  (namespace: string): Debugger;
 }
 
 declare interface Debugger {
-    (...args: string[]): void;
-    enabled: boolean;
+  (...args: string[]): void;
+  enabled: boolean;
 }
 
 declare var debug: { default: Debug };

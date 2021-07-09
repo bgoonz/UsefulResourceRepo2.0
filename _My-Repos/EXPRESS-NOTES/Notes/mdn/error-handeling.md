@@ -110,10 +110,10 @@ Set the environment variable `NODE_ENV` to `production`, to run the app in produ
 
 When an error is written, the following information is added to the response:
 
--   The `res.statusCode` is set from `err.status` (or `err.statusCode`). If this value is outside the 4xx or 5xx range, it will be set to 500.
--   The `res.statusMessage` is set according to the status code.
--   The body will be the HTML of the status code message when in production environment, otherwise will be `err.stack`.
--   Any headers specified in an `err.headers` object.
+- The `res.statusCode` is set from `err.status` (or `err.statusCode`). If this value is outside the 4xx or 5xx range, it will be set to 500.
+- The `res.statusMessage` is set according to the status code.
+- The body will be the HTML of the status code message when in production environment, otherwise will be `err.stack`.
+- Any headers specified in an `err.headers` object.
 
 If you call `next()` with an error after you have started writing the response (for example, if you encounter an error while streaming the response to the client) the Express default error handler closes the connection and fails the request.
 

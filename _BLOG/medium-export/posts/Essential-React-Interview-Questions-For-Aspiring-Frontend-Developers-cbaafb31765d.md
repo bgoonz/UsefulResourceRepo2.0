@@ -1,9 +1,8 @@
-10 Essential React Interview Questions For Aspiring Frontend Developers
-=======================================================================
+# 10 Essential React Interview Questions For Aspiring Frontend Developers
 
 Comprehensive React Cheatsheet included at the bottom of this article!
 
-------------------------------------------------------------------------
+---
 
 ### 10 Essential React Interview Questions For Aspiring Frontend Developers
 
@@ -31,7 +30,7 @@ Comprehensive React Cheatsheet included at the bottom of this article!
 
 <figure><img src="https://cdn-images-1.medium.com/max/1200/1*t3UQh848ndt4rgr_fDToaw.png" class="graf-image" /></figure>
 
-------------------------------------------------------------------------
+---
 
 <figure><img src="https://cdn-images-1.medium.com/max/800/0*39weCjnVdDf0Kuzj" alt="Photo by Ferenc Almasi on Unsplash" class="graf-image" /><figcaption>Photo by <a href="https://unsplash.com/@flowforfrank?utm_source=medium&amp;utm_medium=referral" class="markup--anchor markup--figure-anchor">Ferenc Almasi</a> on <a href="https://unsplash.com?utm_source=medium&amp;utm_medium=referral" class="markup--anchor markup--figure-anchor">Unsplash</a></figcaption></figure>### Beginning of the Article:
 
@@ -66,9 +65,9 @@ Comprehensive React Cheatsheet included at the bottom of this article!
 
 React uses a **Virtual DOM**, which is essentially a tree of JavaScript objects representing the actual browser DOM. The advantage of using this for the developers is that they don’t manipulate the DOM directly as developers do with jQuery when they write React apps. Instead, they would tell React how they want the DOM to make changes to the state object and allow React to make the necessary updates to the browser DOM. This helps create a comprehensive development model for developers as they don’t need to track all DOM changes. They can modify the state object, and React would use its algorithms to understand what part of UI changed compared to the previous DOM. Using this information updates the actual browser DOM. Virtual DOM provides an excellent API for creating UI and minimizes the update count to be made on the browser DOM.
 
-However, it is **not faster** than the actual DOM. You just read that it needs to pull extra strings to figure out what part of UI needs to be updated before actually performing those updates. Hence, Virtual DOM is beneficial for many things, but it ***isn’t faster than DOM.***
+However, it is **not faster** than the actual DOM. You just read that it needs to pull extra strings to figure out what part of UI needs to be updated before actually performing those updates. Hence, Virtual DOM is beneficial for many things, but it **_isn’t faster than DOM._**
 
-------------------------------------------------------------------------
+---
 
 ### **1. Explain how React uses a tree data structure called the virtual DOM to model the DOM**
 
@@ -86,11 +85,11 @@ However, it is **not faster** than the actual DOM. You just read that it needs t
 
 ### **4. Describe how JSX transforms into actual DOM nodes**
 
--   <span id="358b">To transfer JSX into DOM nodes, we use the ReactDOM.render method. It takes a React virtual DOM node’s changes allows Babel to transpile it and sends the JS changes to commit to the DOM.</span>
+- <span id="358b">To transfer JSX into DOM nodes, we use the ReactDOM.render method. It takes a React virtual DOM node’s changes allows Babel to transpile it and sends the JS changes to commit to the DOM.</span>
 
 ### **5. Use the** `ReactDOM.render` **method to have React render your virtual DOM nodes under an actual DOM node**
 
-------------------------------------------------------------------------
+---
 
 ### **6. Attach an event listener to an actual DOM node using a virtual node**
 
@@ -104,11 +103,11 @@ Since “virtual DOM” is more of a pattern than a specific technology, people 
 
 No, they are different. The Shadow DOM is a browser technology designed primarily for scoping variables and CSS in web components. The virtual DOM is a concept implemented by libraries in JavaScript on top of browser APIs.
 
--   <span id="8534">To add an event listener to an element, define a method to handle the event and associate that method with the element event you want to listen for:</span>
+- <span id="8534">To add an event listener to an element, define a method to handle the event and associate that method with the element event you want to listen for:</span>
 
 ### **7. Use** `create-react-app` **to initialize a new React app and import required dependencies**
 
--   <span id="6d60">Create the default create-react-application by typing in our terminal</span>
+- <span id="6d60">Create the default create-react-application by typing in our terminal</span>
 
 #### <a href="https://www.freecodecamp.org/news/npm-vs-npx-whats-the-difference/" class="markup--anchor markup--h4-anchor">Explanation of npm vs npx from Free Code Camp:</a>
 
@@ -126,8 +125,8 @@ npm by itself doesn’t run any packages. If you want to run a package using npm
 
 When executables are installed via npm packages, npm creates links to them:
 
--   <span id="7798">**local** installs have links created at the `./node_modules/.bin/` directory</span>
--   <span id="a534">**global** installs have links created from the global `bin/` directory (for example: `/usr/local/bin` on Linux or at `%AppData%/npm` on Windows)</span>
+- <span id="7798">**local** installs have links created at the `./node_modules/.bin/` directory</span>
+- <span id="a534">**global** installs have links created from the global `bin/` directory (for example: `/usr/local/bin` on Linux or at `%AppData%/npm` on Windows)</span>
 
 To execute a package with npm you either have to type the local path, like this:
 
@@ -187,16 +186,16 @@ Sometimes you just want to use some CLI tools but you don’t want to install th
 
 `npx create-react-app <name of app> --use-npm`
 
--   <span id="e1cb">npx gives us the latest version. `--use-npm` just means to use npm instead of yarn or some other package manager</span>
+- <span id="e1cb">npx gives us the latest version. `--use-npm` just means to use npm instead of yarn or some other package manager</span>
 
 ### **8. Pass props into a React component**
 
--   <span id="9111">`props` is an object that gets passed down from the parent component to the child component. The values can be of any data structure including a function (which is an object)</span>
+- <span id="9111">`props` is an object that gets passed down from the parent component to the child component. The values can be of any data structure including a function (which is an object)</span>
 
 <!-- -->
 
--   <span id="7a12">You can also <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals" class="markup--anchor markup--li-anchor">interpolate values</a> into JSX.</span>
--   <span id="f405">Set a variable to the string, “world”, and replace the string of “world” in the NavLinks JSX element with the variable wrapped in curly braces:</span>
+- <span id="7a12">You can also <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals" class="markup--anchor markup--li-anchor">interpolate values</a> into JSX.</span>
+- <span id="f405">Set a variable to the string, “world”, and replace the string of “world” in the NavLinks JSX element with the variable wrapped in curly braces:</span>
 
 > **Accessing props:**
 
@@ -226,7 +225,7 @@ You can also use an <a href="https://developer.mozilla.org/en/docs/Web/JavaScrip
 
 The above two components are equivalent from React’s point of view.
 
--   <span id="99d5">You can pass down **as many props keys as you want**.</span>
+- <span id="99d5">You can pass down **as many props keys as you want**.</span>
 
 ### **9. Destructure props**
 
@@ -243,7 +242,7 @@ a. Import the react-router-dom package:
 1.  <span id="46f3">Above you import your BrowserRouter with which you can wrap your entire route hierarchy. This makes routing information from React Router available to all its descendent components.</span>
 2.  <span id="f675">Then in the component of your choosing, usually top tier such as App.js, you can create your routes using the Route and Switch Components</span>
 
-------------------------------------------------------------------------
+---
 
 ### Discover More:
 
@@ -252,7 +251,7 @@ a. Import the react-router-dom package:
 
 ### REACT CHEAT SHEET:
 
-*More content at* <a href="http://plainenglish.io/" class="markup--anchor markup--p-anchor"><em>plainenglish.io</em></a>
+_More content at_ <a href="http://plainenglish.io/" class="markup--anchor markup--p-anchor"><em>plainenglish.io</em></a>
 
 By <a href="https://medium.com/@bryanguner" class="p-author h-card">Bryan Guner</a> on [June 11, 2021](https://medium.com/p/cbaafb31765d).
 

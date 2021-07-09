@@ -1,3 +1,3 @@
-import GitHubAvatar from './components/GitHubAvatar.js'
+import GitHubAvatar from "./components/GitHubAvatar.js";
 
-window.customElements.define('github-avatar', GitHubAvatar)
+window.customElements.define("github-avatar", GitHubAvatar);

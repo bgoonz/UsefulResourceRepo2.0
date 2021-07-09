@@ -1,4 +1,4 @@
-~~~ WIP ~ DRAFT ~ WIP ~~~
+```WIP ~ DRAFT ~ WIP ~~~
 =========================
 
 *[Pull Requests](https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/pulls) gladly accepted*
@@ -112,7 +112,7 @@ If successful, the system will respond with `adding new entry "uid=sogo,ou=Users
 
 Next, execute (replacing `LDAPpassword`):
 
-    sudo ldappasswd -h localhost -x -w LDAPpassword -D cn=admin,dc=yourdomain,dc=tld uid=sogo,ou=Users,dc=yourdomain,dc=tld -s LDAPpassword 
+    sudo ldappasswd -h localhost -x -w LDAPpassword -D cn=admin,dc=yourdomain,dc=tld uid=sogo,ou=Users,dc=yourdomain,dc=tld -s LDAPpassword
 
 ### Add SOGo Repository & GPG Public Key
 
@@ -233,7 +233,7 @@ and add the `-b` argument at lines 70 and 88:
 
 #### Restart SOGo:
 
-    sudo service sogo restart   
+    sudo service sogo restart
 
 Postfix & Dovecot Installation
 ------------------------------
@@ -297,7 +297,7 @@ Any server accessible from the public Internet should be security hardened, and 
 -   The default firewall configuration tool for Ubuntu is `ufw`. To open the necessary ports, simply execute:
 
              sudo ufw allow [custom SSH port below 1024]/tcp
-             sudo ufw allow 
+             sudo ufw allow
              sudo ufw enable
              sudo ufw status verbose
 
@@ -311,3 +311,4 @@ Article submitted by: [Pablo Carranza](https://plus.google.com/10728516406486364
 =========================
 
 *[Pull Requests](https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/pulls) gladly accepted*
+```

@@ -1,3 +1,3 @@
 export function sum(...vals: number[]): number {
-    return vals.reduce((total, val) => total += val) + 10;
+  return vals.reduce((total, val) => (total += val)) + 10;
 }

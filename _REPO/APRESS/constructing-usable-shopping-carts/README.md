@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*Constructing Usable Shopping Carts*](http://www.apress.com/9781590594087) by Jody Kerr, Jon Stephens, and Clifton Evans (Apress, 2002).
+This repository accompanies [_Constructing Usable Shopping Carts_](http://www.apress.com/9781590594087) by Jody Kerr, Jon Stephens, and Clifton Evans (Apress, 2002).
 
 ![Cover image](9781590594087.jpg)
 

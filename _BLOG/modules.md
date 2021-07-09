@@ -1,10 +1,8 @@
-**Javascript Modules:**
-=======================
+# **Javascript Modules:**
 
 A module is a reusable piece of code that encapsulates implementation details and exposes a public API so it can be easily loaded and used by other code.
 
-Why are they useful?
---------------------
+## Why are they useful?
 
 Technically we can write code without modules.
 
@@ -12,13 +10,12 @@ Modules are a pattern that developers have been using in many different forms an
 
 In JavaScript, modules should ideally allow us to:
 
--   *abstract code*: to delegate functionality to specialised libraries so that we don’t have to understand the complexity of their actual implementation
--   *encapsulate code*: to hide code inside the module if we don’t want the code to be changed
--   *reuse code*: to avoid writing the same code over and over again
--   *manage dependencies*: to easily change dependencies without rewriting our code
+- _abstract code_: to delegate functionality to specialised libraries so that we don’t have to understand the complexity of their actual implementation
+- _encapsulate code_: to hide code inside the module if we don’t want the code to be changed
+- _reuse code_: to avoid writing the same code over and over again
+- _manage dependencies_: to easily change dependencies without rewriting our code
 
-Module patterns in ES5
-----------------------
+## Module patterns in ES5
 
 EcmaScript 5 and earlier editions were not designed with modules in mind. Over time, developers came up with different patterns to simulate modular design in JavaScript.
 
@@ -68,8 +65,8 @@ The function expression returns the function, so we can immediately call it:
 
 Immediately Invoked Function Expressions allow us to:
 
--   encapsulate code complexity inside IIFE so we don’t have to understand what the IIFE code does
--   define variables inside the IIFE so they don’t pollute the global scope (`var` statements inside the IIFE remain within the IIFE’s closure)
+- encapsulate code complexity inside IIFE so we don’t have to understand what the IIFE code does
+- define variables inside the IIFE so they don’t pollute the global scope (`var` statements inside the IIFE remain within the IIFE’s closure)
 
 but they don’t provide a mechanism for dependency management.
 
@@ -130,8 +127,7 @@ As JavaScript evolved, many more different syntaxes were invented for defining m
 
 We call them module formats.
 
-Module formats
---------------
+## Module formats
 
 A module format is the syntax we can use to define a module.
 
@@ -139,8 +135,8 @@ Before EcmaScript 6 or ES2015, JavaScript did not have an official syntax to def
 
 Some of the most widely adapted and well known formats are:
 
--   CommonJS
--   ES6 module format
+- CommonJS
+- ES6 module format
 
 ### CommonJS format
 
@@ -242,44 +238,41 @@ Unfortunately, the native module format is not yet supported by all browsers.
 
 We can already use the ES6 module format today, but we need a transpiler like Babel to transpile our code to an ES5 module format such as AMD or CommonJS before we can actually run our code in the browser.
 
-Module loaders
---------------
+## Module loaders
 
 A module loader interprets and loads a module written in a certain module format.
 
 A module loader runs at runtime:
 
--   you load the module loader in the browser
--   you tell the module loader which main app file to load
--   the module loader downloads and interprets the main app file
--   the module loader downloads files as needed
+- you load the module loader in the browser
+- you tell the module loader which main app file to load
+- the module loader downloads and interprets the main app file
+- the module loader downloads files as needed
 
 If you open the network tab in your browser’s developer console, you will see that many files are loaded on demand by the module loader.
 
 A few examples of popular module loaders are:
 
--   *[RequireJS](http://requirejs.org/)*: loader for modules in AMD format
--   *[SystemJS](https://github.com/systemjs/systemjs)*: loader for modules in AMD, CommonJS, UMD or System.register format
+- _[RequireJS](http://requirejs.org/)_: loader for modules in AMD format
+- _[SystemJS](https://github.com/systemjs/systemjs)_: loader for modules in AMD, CommonJS, UMD or System.register format
 
-Module bundlers
----------------
+## Module bundlers
 
 A module bundler replaces a module loader.
 
 But, in contrast to a module loader, a module bundler runs at build time:
 
--   you run the module bundler to generate a bundle file at build time (e.g. bundle.js)
--   you load the bundle in the browser
+- you run the module bundler to generate a bundle file at build time (e.g. bundle.js)
+- you load the bundle in the browser
 
 If you open the network tab in your browser’s developer console, you will see that only 1 file is loaded. No module loader is needed in the browser. All code is included in the bundle.
 
 Examples of popular module bundlers are:
 
--   *[Browserify](http://browserify.org/)*: bundler for CommonJS modules
--   *[Webpack](https://webpack.github.io/)*: bundler for AMD, CommonJS, ES6 modules
+- _[Browserify](http://browserify.org/)_: bundler for CommonJS modules
+- _[Webpack](https://webpack.github.io/)_: bundler for AMD, CommonJS, ES6 modules
 
-Summary
--------
+## Summary
 
 To better understand tooling in modern JavaScript development environments, it is important to understand the differences between modules, module formats, module loaders and module bundlers.
 

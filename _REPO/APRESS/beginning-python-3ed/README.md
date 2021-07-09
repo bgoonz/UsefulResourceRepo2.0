@@ -1,6 +1,6 @@
 #Apress Source Code
 
-This repository accompanies [*Beginning Python*](http://www.apress.com/9781484200292) by Magnus Lie Hetland (Apress, 2017).
+This repository accompanies [_Beginning Python_](http://www.apress.com/9781484200292) by Magnus Lie Hetland (Apress, 2017).
 
 ![Cover image](9781484200292.jpg)
 

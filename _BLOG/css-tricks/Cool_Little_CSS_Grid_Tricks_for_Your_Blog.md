@@ -118,7 +118,7 @@ I was actually super proud of this idea at the time, even though I cringe lookin
 
 ### A magic solution
 
-I finally came across a better solution while working with CSS grid and failing to understand why the `repeat()` function wasn’t working in a particular situation. It was so frustrating and prompted me to go to MDN, where I happened to notice the `[auto-fit](https://css-tricks.com/auto-sizing-columns-css-grid-auto-fill-vs-auto-fit/)` keyword and, while I didn’t understand the explanation, I had a hunch that it could help with *this* other problem, so I dropped everything else I was doing and gave it a try.
+I finally came across a better solution while working with CSS grid and failing to understand why the `repeat()` function wasn’t working in a particular situation. It was so frustrating and prompted me to go to MDN, where I happened to notice the `[auto-fit](https://css-tricks.com/auto-sizing-columns-css-grid-auto-fill-vs-auto-fit/)` keyword and, while I didn’t understand the explanation, I had a hunch that it could help with _this_ other problem, so I dropped everything else I was doing and gave it a try.
 
 Here’s what I got:
 
@@ -141,7 +141,7 @@ Keep in mind that this only produces a nice result if all of the images have the
 
 We can, of course, set the image `height` to a fixed value, but that distorts the images… unless we set [`object-fit`](https://css-tricks.com/on-object-fit-and-object-position/) to `cover`, which solves our problem!
 
-Another idea would be to turn the first thumbnail into a sort of banner that spans all grid columns. The one problem is that we don’t know the number of columns because that depends on the viewport. But, there *is* a solution — we can set `grid-column-end` to `-1`!
+Another idea would be to turn the first thumbnail into a sort of banner that spans all grid columns. The one problem is that we don’t know the number of columns because that depends on the viewport. But, there _is_ a solution — we can set `grid-column-end` to `-1`!
 
     .grid--thumbs {
 

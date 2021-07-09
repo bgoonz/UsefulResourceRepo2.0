@@ -1,42 +1,36 @@
-Install a Send-only Mail Server for Your Apps on Ubuntu 12.04
-=============================================================
+# Install a Send-only Mail Server for Your Apps on Ubuntu 12.04
 
 ### Introduction
 
 Due to the popularity of Gmail, Google Apps, Outlook.com, Yahoo! Mail & a myriad of other providers, many cloud-server users mistakenly fail to install a mail server, initially. However, humans are not the only ones that send electronic mail. If fact, many Linux server applications also need to send email.
 
-Message Transfer Agent (MTA)
-----------------------------
+## Message Transfer Agent (MTA)
 
 A Message Transfer Agent, or Mail Transfer Agent, transfers electronic mail messages from one computer to another. An MTA implements both the client (sending) and server (receiving) portions of the Simple Mail Transfer Protocol (SMTP).
 
 Another popular MTA is [Postfix](https://www.digitalocean.com/community/articles/how-to-install-and-setup-postfix-on-ubuntu-12-04), but users that do not require a full-fledged mail server prefer the Exim send-only mail server because it is lightweight, compared to other MTAs. Thus, Exim is a good choice for WordPress installations or server-monitoring apps that need to send email notifications.
 
-Prerequisites
--------------
+## Prerequisites
 
 This guide assumes that you have already:
 
--   Set your droplet’s hostname and Fully Qualified Domain Name (FQDN). *See* [Setting the Hostname & Fully Qualified Domain Name (FQDN) on Ubuntu 12.04](https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/blob/master/set_hostname_fqdn_on_ubuntu.md);
--   Created the necessary DNS records. *See* [How to Set Up a Host Name with DigitalOcean](https://www.digitalocean.com/community/articles/how-to-set-up-a-host-name-with-digitalocean); and
--   Created an `SPF record`. *See* [How To use an SPF Record to Prevent Spoofing & Improve E-mail Reliability](https://www.digitalocean.com/community/articles/how-to-use-an-spf-record-to-prevent-spoofing-improve-e-mail-reliability).
+- Set your droplet’s hostname and Fully Qualified Domain Name (FQDN). _See_ [Setting the Hostname & Fully Qualified Domain Name (FQDN) on Ubuntu 12.04](https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/blob/master/set_hostname_fqdn_on_ubuntu.md);
+- Created the necessary DNS records. _See_ [How to Set Up a Host Name with DigitalOcean](https://www.digitalocean.com/community/articles/how-to-set-up-a-host-name-with-digitalocean); and
+- Created an `SPF record`. _See_ [How To use an SPF Record to Prevent Spoofing & Improve E-mail Reliability](https://www.digitalocean.com/community/articles/how-to-use-an-spf-record-to-prevent-spoofing-improve-e-mail-reliability).
 
-Update Current Software
------------------------
+## Update Current Software
 
 First, you want to update the software packages already on your server; by executing:
 
     sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade && sudo apt-get -y autoremove
 
-Installation
-------------
+## Installation
 
 Then, to install Exim and its dependencies, execute:
 
     sudo apt-get -y install exim4
 
-Configure Exim for Local Mail Service
--------------------------------------
+## Configure Exim for Local Mail Service
 
 To configure Exim for your environment, execute:
 
@@ -74,10 +68,10 @@ Next, tap the `Tab` key (to highlight `<Ok>`) and press `Enter`.
 
 The configuration prompt that follows will ask that you enter all of the destinations for which `Exim` should accept mail. List your:
 
--   FQDN;
--   local hostname;
--   `localhost.localdomain`;
--   `localhost`
+- FQDN;
+- local hostname;
+- `localhost.localdomain`;
+- `localhost`
 
 ![Enter mail destinations](http://i.imgur.com/9WIK36H.png)
 
@@ -119,8 +113,7 @@ In the last configuration window, you’ll be asked to specify postmaster mail r
 
 **Note:** Make sure that, in addition to `root`, you enter at least one external email address (choose one that you check frequently).
 
-Test Your Mail Configuration
-----------------------------
+## Test Your Mail Configuration
 
 Send a test email, to make sure everything is configured correctly, by issuing the following command: (substituting `someone@somedomain.tld` for a valid, external email address):
 
@@ -128,12 +121,11 @@ Send a test email, to make sure everything is configured correctly, by issuing t
 
 **Note:** You may need check the recipient’s SPAM folder, in the event that the `SPF record` is not configured correctly.
 
-Additional Resources
---------------------
+## Additional Resources
 
--   [Exim Documentation](http://www.exim.org/docs.html)
--   [Exim Wiki](http://wiki.exim.org/)
--   [Exim4 | Ubuntu 12.04 Server Guide](https://help.ubuntu.com/12.04/serverguide/exim4.html)
+- [Exim Documentation](http://www.exim.org/docs.html)
+- [Exim Wiki](http://wiki.exim.org/)
+- [Exim4 | Ubuntu 12.04 Server Guide](https://help.ubuntu.com/12.04/serverguide/exim4.html)
 
 As always, if you need help with the steps outlined in this How-To, look to the DigitalOcean Community for assistance by posing your question(s), below.
 

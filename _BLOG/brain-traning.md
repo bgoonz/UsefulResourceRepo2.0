@@ -1,10 +1,8 @@
-Here Are the Simple Lifestyle Changes I Use to Upgrade My Brain
-===============================================================
+# Here Are the Simple Lifestyle Changes I Use to Upgrade My Brain
 
 > Small changes to grow your brain big time
 
-Small changes to grow your brain big time
------------------------------------------
+## Small changes to grow your brain big time
 
 \[
 
@@ -18,9 +16,9 @@ In reality, your mind is plastic. The neural networks in your brain change throu
 
 We all know this from experience:
 
--   Learning a new skill is only possible when new neural connections are formed in your brain
--   Repeated practice makes us better in a particular task — how? By strengthening the neural connections.
--   Environmental influences change our behavior and how we think — again for the same reason.
+- Learning a new skill is only possible when new neural connections are formed in your brain
+- Repeated practice makes us better in a particular task — how? By strengthening the neural connections.
+- Environmental influences change our behavior and how we think — again for the same reason.
 
 For most of us, the highest period of neuroplasticity happens in our childhood. That’s when we’re making sense of the world and learning at a massive rate.
 
@@ -44,8 +42,7 @@ These include creative pursuits, learning new skills, having healthy social inte
 
 That said, building your own mental gym requires you to make a few tweaks to your life.
 
-How to approach brain training
-------------------------------
+## How to approach brain training
 
 I’ve long sought different techniques to upgrade my brain, even when I was 8 years old. I did sudoku puzzles with my grandfather every day. Then, I started playing scrabble and other brain games.
 
@@ -79,7 +76,7 @@ If someone asks me for one habit that I’d give to someone struggling to get hi
 
 Meditating for just 10 minutes per day will change the brain in only 8 weeks.
 
-According to a famous [study](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1361002/) in *NeuroReport,* which I describe in detail in my [book](http://bit.ly/30shivam)*,* meditation is directly linked with increased cortical thickness in the brain.
+According to a famous [study](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1361002/) in _NeuroReport,_ which I describe in detail in my [book](http://bit.ly/30shivam)_,_ meditation is directly linked with increased cortical thickness in the brain.
 
 Again, in a 2012 [study](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3289949/), researchers compared brain images from 50 adults who meditate and 50 adults who don’t meditate. Results suggested that people who practiced meditation for many years have more folds in the outer layer of the brain. This process (called gyrification) increases the brain’s ability to process information.
 
@@ -134,7 +131,7 @@ Creativity is the number one skill people are looking for in every field. And th
 
 Writing and music (playing instruments) are my forms of creative expression. Plus, they make me a good thinker and problem solver. The more you create, the more your brain improves.
 
-It’s no mystery that the best people in any profession have at least one other hobby they’re seriously devoted to. Think about Einstein with his piano and Churchill with his [*Painting as a Pastime*](https://www.amazon.com/Painting-Pastime-Sir-Winston-Churchill/dp/1906509336)*.*
+It’s no mystery that the best people in any profession have at least one other hobby they’re seriously devoted to. Think about Einstein with his piano and Churchill with his [_Painting as a Pastime_](https://www.amazon.com/Painting-Pastime-Sir-Winston-Churchill/dp/1906509336)_._
 
 Creativity increases cognitive flexibility which is the brain’s ability to hold opposing ideas together. This skill helps you to navigate stress better and find effective solutions to problems in life.
 
@@ -249,6 +246,6 @@ You can only know this with the power of intuition. God will not scream out of t
 
 As you try to flow with life more and more, you’ll be exponentially happier and the road will be easier.
 
-*To learn more about this idea, read* [*The Surrender Experiment*](https://www.amzn.com/080414110X/)*.*
+_To learn more about this idea, read_ [_The Surrender Experiment_](https://www.amzn.com/080414110X/)_._
 
 [Source](https://medium.com/the-ascent/here-are-the-simple-lifestyle-changes-i-use-to-upgrade-my-brain-35dd371398b6)

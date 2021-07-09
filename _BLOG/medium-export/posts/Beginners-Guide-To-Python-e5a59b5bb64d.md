@@ -1,15 +1,14 @@
-Beginners Guide To Python
-=========================
+# Beginners Guide To Python
 
 My favorite language for maintainability is Python. It has simple, clean syntax, object encapsulation, good library support, and optional…
 
-------------------------------------------------------------------------
+---
 
 ### Beginners Guide To Python
 
 My favorite language for maintainability is Python. It has simple, clean syntax, object encapsulation, good library support, and optional named parameters.
 
--   <span id="7dc8">Bram Cohen</span>
+- <span id="7dc8">Bram Cohen</span>
 
 Article on basic web development setup… it is geared towards web but VSCode is an incredibly versitile editor and this stack really could suit just about anyone working in the field of computer science.
 
@@ -22,9 +21,9 @@ Article on basic web development setup… it is geared towards web but VSCode is
 
 <a href="https://docs.python.org/3/tutorial/appetite.html" class="markup--anchor markup--p-anchor">Python enables programs to be written compactly and readably. Programs written in Python are typically much shorter than equivalent C, C++, or Java programs, for several reasons:</a>
 
--   <span id="894d">the high-level data types allow you to express complex operations in a single statement;</span>
--   <span id="48ef">statement grouping is done by indentation instead of beginning and ending brackets;</span>
--   <span id="f361">no variable or argument declarations are necessary.</span>
+- <span id="894d">the high-level data types allow you to express complex operations in a single statement;</span>
+- <span id="48ef">statement grouping is done by indentation instead of beginning and ending brackets;</span>
+- <span id="f361">no variable or argument declarations are necessary.</span>
 
 ### Installing Python:
 
@@ -51,17 +50,17 @@ To determine if your Windows computer already has Python 3:
 
 > Download Link: <a href="https://www.python.org/ftp/python/3.9.5/python-3.9.5-amd64.exe" class="markup--anchor markup--blockquote-anchor">https://www.python.org/ftp/python/3.9.5/python-3.9.5-amd64.exe</a>
 
-------------------------------------------------------------------------
+---
 
 ### Python
 
--   <span id="c462">Python is an interpreted, high-level and general-purpose, dynamically typed programming language</span>
--   <span id="74e1">It is also Object oriented, modular oriented and a scripting language.</span>
--   <span id="6e0e">In Python, everything is considered as an Object.</span>
--   <span id="490d">A python file has an extension of .py</span>
--   <span id="2bd5">Python follows Indentation to separate code blocks instead of flower brackets({}).</span>
--   <span id="6434">We can run a python file by the following command in cmd(Windows) or shell(mac/linux).</span>
--   <span id="b76b">`python <filename.py>`</span>
+- <span id="c462">Python is an interpreted, high-level and general-purpose, dynamically typed programming language</span>
+- <span id="74e1">It is also Object oriented, modular oriented and a scripting language.</span>
+- <span id="6e0e">In Python, everything is considered as an Object.</span>
+- <span id="490d">A python file has an extension of .py</span>
+- <span id="2bd5">Python follows Indentation to separate code blocks instead of flower brackets({}).</span>
+- <span id="6434">We can run a python file by the following command in cmd(Windows) or shell(mac/linux).</span>
+- <span id="b76b">`python <filename.py>`</span>
 
 #### By default, the python doesn’t require any imports to run a python file.
 
@@ -82,24 +81,24 @@ To determine if your Windows computer already has Python 3:
 
 ### List
 
--   <span id="a311">List is a collection which is ordered and changeable. Allows duplicate members.</span>
--   <span id="cd75">Lists are created using square brackets:</span>
+- <span id="a311">List is a collection which is ordered and changeable. Allows duplicate members.</span>
+- <span id="cd75">Lists are created using square brackets:</span>
 
 <!-- -->
 
     thislist = ["apple", "banana", "cherry"]
 
--   <span id="8afd">List items are ordered, changeable, and allow duplicate values.</span>
--   <span id="668d">List items are indexed, the first item has index `[0]`, the second item has index `[1]` etc.</span>
--   <span id="b8c7">The list is changeable, meaning that we can change, add, and remove items in a list after it has been created.</span>
--   <span id="b5f4">To determine how many items a list has, use the `len()` function.</span>
--   <span id="7dff">A list can contain different data types:</span>
+- <span id="8afd">List items are ordered, changeable, and allow duplicate values.</span>
+- <span id="668d">List items are indexed, the first item has index `[0]`, the second item has index `[1]` etc.</span>
+- <span id="b8c7">The list is changeable, meaning that we can change, add, and remove items in a list after it has been created.</span>
+- <span id="b5f4">To determine how many items a list has, use the `len()` function.</span>
+- <span id="7dff">A list can contain different data types:</span>
 
 <!-- -->
 
     list1 = ["abc", 34, True, 40, "male"]
 
--   <span id="9e81">It is also possible to use the list() constructor when creating a new list</span>
+- <span id="9e81">It is also possible to use the list() constructor when creating a new list</span>
 
 <!-- -->
 
@@ -107,33 +106,33 @@ To determine if your Windows computer already has Python 3:
 
 ### Tuple
 
--   <span id="50ea">Tuple is a collection which is ordered and unchangeable. Allows duplicate members.</span>
--   <span id="14ac">A tuple is a collection which is ordered and unchangeable.</span>
--   <span id="8cde">Tuples are written with round brackets.</span>
+- <span id="50ea">Tuple is a collection which is ordered and unchangeable. Allows duplicate members.</span>
+- <span id="14ac">A tuple is a collection which is ordered and unchangeable.</span>
+- <span id="8cde">Tuples are written with round brackets.</span>
 
 <!-- -->
 
     thistuple = ("apple", "banana", "cherry")
 
--   <span id="3e58">Tuple items are ordered, unchangeable, and allow duplicate values.</span>
--   <span id="2f5a">Tuple items are indexed, the first item has index `[0]`, the second item has index `[1]` etc.</span>
--   <span id="6f87">When we say that tuples are ordered, it means that the items have a defined order, and that order will not change.</span>
--   <span id="709a">Tuples are unchangeable, meaning that we cannot change, add or remove items after the tuple has been created.</span>
--   <span id="134b">Since tuple are indexed, tuples can have items with the same value:</span>
--   <span id="2720">Tuples allow duplicate values:</span>
+- <span id="3e58">Tuple items are ordered, unchangeable, and allow duplicate values.</span>
+- <span id="2f5a">Tuple items are indexed, the first item has index `[0]`, the second item has index `[1]` etc.</span>
+- <span id="6f87">When we say that tuples are ordered, it means that the items have a defined order, and that order will not change.</span>
+- <span id="709a">Tuples are unchangeable, meaning that we cannot change, add or remove items after the tuple has been created.</span>
+- <span id="134b">Since tuple are indexed, tuples can have items with the same value:</span>
+- <span id="2720">Tuples allow duplicate values:</span>
 
 <!-- -->
 
     thistuple = ("apple", "banana", "cherry", "apple", "cherry")
 
--   <span id="ddae">To determine how many items a tuple has, use the `len()`function:</span>
+- <span id="ddae">To determine how many items a tuple has, use the `len()`function:</span>
 
 <!-- -->
 
     thistuple = ("apple", "banana", "cherry")
     print(len(thistuple))
 
--   <span id="2723">To create a tuple with only one item, you have to add a comma after the item, otherwise Python will not recognize it as a tuple.</span>
+- <span id="2723">To create a tuple with only one item, you have to add a comma after the item, otherwise Python will not recognize it as a tuple.</span>
 
 <!-- -->
 
@@ -144,7 +143,7 @@ To determine if your Windows computer already has Python 3:
     thistuple = ("apple")
     print(type(thistuple))
 
--   <span id="4556">It is also possible to use the tuple() constructor to make a tuple.</span>
+- <span id="4556">It is also possible to use the tuple() constructor to make a tuple.</span>
 
 <!-- -->
 
@@ -153,19 +152,19 @@ To determine if your Windows computer already has Python 3:
 
 ### Set
 
--   <span id="1991">Set is a collection which is unordered and unindexed. No duplicate members.</span>
--   <span id="d108">A set is a collection which is both unordered and unindexed.</span>
+- <span id="1991">Set is a collection which is unordered and unindexed. No duplicate members.</span>
+- <span id="d108">A set is a collection which is both unordered and unindexed.</span>
 
 <!-- -->
 
     thisset = {"apple", "banana", "cherry"}
 
--   <span id="4098">Set items are unordered, unchangeable, and do not allow duplicate values.</span>
--   <span id="b4d0">Unordered means that the items in a set do not have a defined order.</span>
--   <span id="d081">Set items can appear in a different order every time you use them, and cannot be referred to by index or key.</span>
--   <span id="4f53">Sets are unchangeable, meaning that we cannot change the items after the set has been created.</span>
--   <span id="812b">Duplicate values will be ignored.</span>
--   <span id="3ac9">To determine how many items a set has, use the `len()` method.</span>
+- <span id="4098">Set items are unordered, unchangeable, and do not allow duplicate values.</span>
+- <span id="b4d0">Unordered means that the items in a set do not have a defined order.</span>
+- <span id="d081">Set items can appear in a different order every time you use them, and cannot be referred to by index or key.</span>
+- <span id="4f53">Sets are unchangeable, meaning that we cannot change the items after the set has been created.</span>
+- <span id="812b">Duplicate values will be ignored.</span>
+- <span id="3ac9">To determine how many items a set has, use the `len()` method.</span>
 
 <!-- -->
 
@@ -173,7 +172,7 @@ To determine if your Windows computer already has Python 3:
 
     print(len(thisset))
 
--   <span id="b34e">Set items can be of any data type:</span>
+- <span id="b34e">Set items can be of any data type:</span>
 
 <!-- -->
 
@@ -182,7 +181,7 @@ To determine if your Windows computer already has Python 3:
     set3 = {True, False, False}
     set4 = {"abc", 34, True, 40, "male"}
 
--   <span id="2a23">It is also possible to use the `set()` constructor to make a set.</span>
+- <span id="2a23">It is also possible to use the `set()` constructor to make a set.</span>
 
 <!-- -->
 
@@ -190,9 +189,9 @@ To determine if your Windows computer already has Python 3:
 
 ### Dictionary
 
--   <span id="3c14">Dictionary is a collection which is unordered and changeable. No duplicate members.</span>
--   <span id="cf8a">Dictionaries are used to store data values in key:value pairs.</span>
--   <span id="bbb2">Dictionaries are written with curly brackets, and have keys and values:</span>
+- <span id="3c14">Dictionary is a collection which is unordered and changeable. No duplicate members.</span>
+- <span id="cf8a">Dictionaries are used to store data values in key:value pairs.</span>
+- <span id="bbb2">Dictionaries are written with curly brackets, and have keys and values:</span>
 
 <!-- -->
 
@@ -202,7 +201,7 @@ To determine if your Windows computer already has Python 3:
       "year": 1964
     }
 
--   <span id="7f11">Dictionary items are presented in key:value pairs, and can be referred to by using the key name.</span>
+- <span id="7f11">Dictionary items are presented in key:value pairs, and can be referred to by using the key name.</span>
 
 <!-- -->
 
@@ -213,16 +212,16 @@ To determine if your Windows computer already has Python 3:
     }
     print(thisdict["brand"])
 
--   <span id="8700">Dictionaries are changeable, meaning that we can change, add or remove items after the dictionary has been created.</span>
--   <span id="ea7e">Dictionaries cannot have two items with the same key.</span>
--   <span id="1ad4">Duplicate values will overwrite existing values.</span>
--   <span id="7582">To determine how many items a dictionary has, use the `len()` function.</span>
+- <span id="8700">Dictionaries are changeable, meaning that we can change, add or remove items after the dictionary has been created.</span>
+- <span id="ea7e">Dictionaries cannot have two items with the same key.</span>
+- <span id="1ad4">Duplicate values will overwrite existing values.</span>
+- <span id="7582">To determine how many items a dictionary has, use the `len()` function.</span>
 
 <!-- -->
 
     print(len(thisdict))
 
--   <span id="305d">The values in dictionary items can be of any data type</span>
+- <span id="305d">The values in dictionary items can be of any data type</span>
 
 <!-- -->
 
@@ -251,8 +250,8 @@ Python has two primitive loop commands:
 
 #### While loop
 
--   <span id="e9e1">With the `while` loop we can execute a set of statements as long as a condition is true.</span>
--   <span id="ef71">Example: Print i as long as i is less than 6</span>
+- <span id="e9e1">With the `while` loop we can execute a set of statements as long as a condition is true.</span>
+- <span id="ef71">Example: Print i as long as i is less than 6</span>
 
 <!-- -->
 
@@ -261,16 +260,16 @@ Python has two primitive loop commands:
       print(i)
       i += 1
 
--   <span id="5f4a">The while loop requires relevant variables to be ready, in this example we need to define an indexing variable, i, which we set to 1.</span>
--   <span id="2dce">With the `break` statement we can stop the loop even if the while condition is true</span>
--   <span id="371e">With the continue statement we can stop the current iteration, and continue with the next.</span>
--   <span id="3dcf">With the else statement we can run a block of code once when the condition no longer is true.</span>
+- <span id="5f4a">The while loop requires relevant variables to be ready, in this example we need to define an indexing variable, i, which we set to 1.</span>
+- <span id="2dce">With the `break` statement we can stop the loop even if the while condition is true</span>
+- <span id="371e">With the continue statement we can stop the current iteration, and continue with the next.</span>
+- <span id="3dcf">With the else statement we can run a block of code once when the condition no longer is true.</span>
 
 #### For loop
 
--   <span id="0fa5">A for loop is used for iterating over a sequence (that is either a list, a tuple, a dictionary, a set, or a string).</span>
--   <span id="871e">This is less like the for keyword in other programming languages, and works more like an iterator method as found in other object-orientated programming languages.</span>
--   <span id="ca9c">With the for loop we can execute a set of statements, once for each item in a list, tuple, set etc.</span>
+- <span id="0fa5">A for loop is used for iterating over a sequence (that is either a list, a tuple, a dictionary, a set, or a string).</span>
+- <span id="871e">This is less like the for keyword in other programming languages, and works more like an iterator method as found in other object-orientated programming languages.</span>
+- <span id="ca9c">With the for loop we can execute a set of statements, once for each item in a list, tuple, set etc.</span>
 
 <!-- -->
 
@@ -278,13 +277,13 @@ Python has two primitive loop commands:
     for x in fruits:
       print(x)
 
--   <span id="19c1">The for loop does not require an indexing variable to set beforehand.</span>
--   <span id="fb47">To loop through a set of code a specified number of times, we can use the range() function.</span>
--   <span id="f32d">The range() function returns a sequence of numbers, starting from 0 by default, and increments by 1 (by default), and ends at a specified number.</span>
--   <span id="b8d4">The range() function defaults to increment the sequence by 1, however it is possible to specify the increment value by adding a third parameter: range(2, 30, 3).</span>
--   <span id="cca5">The else keyword in a for loop specifies a block of code to be executed when the loop is finished.  
-    A nested loop is a loop inside a loop.</span>
--   <span id="acbb">The “inner loop” will be executed one time for each iteration of the “outer loop”:</span>
+- <span id="19c1">The for loop does not require an indexing variable to set beforehand.</span>
+- <span id="fb47">To loop through a set of code a specified number of times, we can use the range() function.</span>
+- <span id="f32d">The range() function returns a sequence of numbers, starting from 0 by default, and increments by 1 (by default), and ends at a specified number.</span>
+- <span id="b8d4">The range() function defaults to increment the sequence by 1, however it is possible to specify the increment value by adding a third parameter: range(2, 30, 3).</span>
+- <span id="cca5">The else keyword in a for loop specifies a block of code to be executed when the loop is finished.  
+  A nested loop is a loop inside a loop.</span>
+- <span id="acbb">The “inner loop” will be executed one time for each iteration of the “outer loop”:</span>
 
 <!-- -->
 
@@ -295,7 +294,7 @@ Python has two primitive loop commands:
       for y in fruits:
         print(x, y)
 
--   <span id="1bdd">for loops cannot be empty, but if you for some reason have a for loop with no content, put in the pass statement to avoid getting an error.</span>
+- <span id="1bdd">for loops cannot be empty, but if you for some reason have a for loop with no content, put in the pass statement to avoid getting an error.</span>
 
 <!-- -->
 
@@ -311,11 +310,11 @@ Python has two primitive loop commands:
 
     function_name()
 
--   <span id="a1ca">We need not to specify the return type of the function.</span>
--   <span id="89e4">Functions by default return `None`</span>
--   <span id="7041">We can return any datatype.</span>
+- <span id="a1ca">We need not to specify the return type of the function.</span>
+- <span id="89e4">Functions by default return `None`</span>
+- <span id="7041">We can return any datatype.</span>
 
-------------------------------------------------------------------------
+---
 
 ### Python Syntax
 
@@ -323,11 +322,11 @@ Python syntax was made for readability, and easy editing. For example, the pytho
 
 ### First Program
 
-Lets create a <a href="https://repl.it/languages/python3" class="markup--anchor markup--p-anchor">python 3</a> repl, and call it *Hello World*. Now you have a blank file called *main.py*. Now let us write our first line of code:
+Lets create a <a href="https://repl.it/languages/python3" class="markup--anchor markup--p-anchor">python 3</a> repl, and call it _Hello World_. Now you have a blank file called _main.py_. Now let us write our first line of code:
 
     print('Hello world!')
 
-> *Brian Kernighan actually wrote the first “Hello, World!” program as part of the documentation for the BCPL programming language developed by Martin Richards.*
+> _Brian Kernighan actually wrote the first “Hello, World!” program as part of the documentation for the BCPL programming language developed by Martin Richards._
 
 Now, press the run button, which obviously runs the code. If you are not using replit, this will not work. You should research how to run a file with your text editor.
 
@@ -358,7 +357,7 @@ If you have a huge comment, do **not** comment all the 350 lines, just put `'''`
 
 Unlike many other languages, there is no `var`, `let`, or `const` to declare a variable in python. You simply go `name = 'value'`.
 
-Remember, there is a difference between integers and strings. *Remember: String =* `""`*.* To convert between these two, you can put an int in a `str()` function, and a string in a `int()` function. There is also a less used one, called a float. Mainly, these are integers with decimals. Change them using the `float()` command.
+Remember, there is a difference between integers and strings. _Remember: String =_ `""`_._ To convert between these two, you can put an int in a `str()` function, and a string in a `int()` function. There is also a less used one, called a float. Mainly, these are integers with decimals. Change them using the `float()` command.
 
 <a href="https://repl.it/@bgoonz/second-scr?lite=true&amp;amp;referrer=https%3A%2F%2Fbryanguner.medium.com" class="markup--anchor markup--p-anchor">https://repl.it/@bgoonz/second-scr?lite=true&amp;amp;referrer=https%3A%2F%2Fbryanguner.medium.com</a>
 
@@ -374,12 +373,12 @@ Instead of using the `,` in the print function, you can put a `+` to combine th
 
 There are many operators in python:
 
--   <span id="d553">`+`</span>
--   <span id="a1b3">`-`</span>
--   <span id="f09c">`/`</span>
--   <span id="cd1e">`*`  
-    These operators are the same in most languages, and allow for addition, subtraction, division, and multiplicaiton.  
-    Now, we can look at a few more complicated ones:</span>
+- <span id="d553">`+`</span>
+- <span id="a1b3">`-`</span>
+- <span id="f09c">`/`</span>
+- <span id="cd1e">`*`  
+  These operators are the same in most languages, and allow for addition, subtraction, division, and multiplicaiton.  
+  Now, we can look at a few more complicated ones:</span>
 
 <figure><img src="https://cdn-images-1.medium.com/max/800/0*oVIDxWdgJXoIt7CI.jpg" class="graf-image" /></figure>*simpleops.py*
 
@@ -391,7 +390,7 @@ There are many operators in python:
 
 You should already know everything shown above, as it is similar to other languages. If you continue down, you will see more complicated ones.
 
-*complexop.py*
+_complexop.py_
 
     a += 1
     a -= 1
@@ -401,7 +400,7 @@ You should already know everything shown above, as it is similar to other langua
 The ones above are to edit the current value of the variable.  
 Sorry to JS users, as there is no `i++;` or anything.
 
-### *Fun Fact: The python language was named after Monty Python.*
+### _Fun Fact: The python language was named after Monty Python._
 
 If you really want to know about the others, view <a href="https://www.tutorialspoint.com/python/python_basic_operators.htm" class="markup--anchor markup--p-anchor">Py Operators</a>
 
@@ -410,13 +409,13 @@ If you really want to know about the others, view <a href="https://www.tutorials
 Like the title?  
 Anyways, a `'` and a `"` both indicate a string, but **do not combine them!**
 
-*quotes.py*
+_quotes.py_
 
     x = 'hello' # Good
     x = "hello" # Good
     x = "hello' # ERRORRR!!!
 
-*slicing.py*
+_slicing.py_
 
 ### String Slicing
 
@@ -435,12 +434,12 @@ The first number stands for how far in you go from the front, and the second sta
 
 Here is a list of functions/methods we will go over:
 
--   <span id="aaaa">`.strip()`</span>
--   <span id="b3ee">`len()`</span>
--   <span id="c5cc">`.lower()`</span>
--   <span id="3466">`.upper()`</span>
--   <span id="a06d">`.replace()`</span>
--   <span id="57b6">`.split()`</span>
+- <span id="aaaa">`.strip()`</span>
+- <span id="b3ee">`len()`</span>
+- <span id="c5cc">`.lower()`</span>
+- <span id="3466">`.upper()`</span>
+- <span id="a06d">`.replace()`</span>
+- <span id="57b6">`.split()`</span>
 
 <a href="https://trinket.io/python3/2b693977e7" class="markup--anchor markup--mixtapeEmbed-anchor" title="https://trinket.io/python3/2b693977e7"><strong>Put Python Anywhere on the Web</strong><br />
 <em>Python in the browser. No installation required.</em>trinket.io</a><a href="https://trinket.io/python3/2b693977e7" class="js-mixtapeImage mixtapeImage mixtapeImage--empty u-ignoreBlock"></a>
@@ -449,7 +448,7 @@ Here is a list of functions/methods we will go over:
 
 Input is a function that gathers input entered from the user in the command line. It takes one optional parameter, which is the users prompt.
 
-*inp.py*
+_inp.py_
 
     print('Type something: ')
     x = input()
@@ -457,18 +456,18 @@ Input is a function that gathers input entered from the user in the command line
 
 If you wanted to make it smaller, and look neater to the user, you could do…
 
-*inp2.py*
+_inp2.py_
 
     print('Here is what you said: ', input('Type something: '))
 
 Running:  
-*inp.py*
+_inp.py_
 
     Type something:
     Hello World
     Here is what you said: Hello World
 
-*inp2.py*
+_inp2.py_
 
     Type something: Hello World
     Here is what you said: Hello World
@@ -477,20 +476,20 @@ Running:
 
 Python has created a lot of functions that are located in other .py files. You need to import these **modules** to gain access to the,, You may wonder why python did this. The purpose of separate modules is to make python faster. Instead of storing millions and millions of functions, , it only needs a few basic ones. To import a module, you must write `input <modulename>`. Do not add the .py extension to the file name. In this example , we will be using a python created module named random.
 
-*module.py*
+_module.py_
 
     import random
 
 Now, I have access to all functions in the random.py file. To access a specific function in the module, you would do `<module>.<function>`. For example:
 
-*module2.py*
+_module2.py_
 
     import random
     print(random.randint(3,5)) # Prints a random number between 3 and 5
 
-> *Pro Tip:  
-> Do* `from random import randint` *to not have to do* `random.randint()`*, just* `randint()`*  
-> To import all functions from a module, you could do* `from random import *`
+> _Pro Tip:  
+> Do_ `from random import randint` _to not have to do_ `random.randint()`_, just_ `randint()`_  
+> To import all functions from a module, you could do_ `from random import *`
 
 ### New: Loops!
 
@@ -501,7 +500,7 @@ Loops allow you to repeat code over and over again. This is useful if you want t
 The for loop goes through a list of variables, making a seperate variable equal one of the list every time.  
 Let’s say we wanted to create the example above.
 
-*loop.py*
+_loop.py_
 
     from time import sleep
     for i in range(100):
@@ -510,7 +509,7 @@ Let’s say we wanted to create the example above.
 
 This will print Hello with a .3 second delay 100 times. This is just one way to use it, but it is usually used like this:
 
-*loop2.py*
+_loop2.py_
 
     import time
     for number in range(100):
@@ -523,14 +522,14 @@ This will print Hello with a .3 second delay 100 times. This is just one way to
 
 The while loop runs the code while something stays true. You would put `while <expression>`. Every time the loop runs, it evaluates if the expression is True. It it is, it runs the code, if not it continues outside of the loop. For example:
 
-*while.py*
+_while.py_
 
     while True: # Runs forever
          print('Hello World!')
 
 Or you could do:
 
-*while2.py*
+_while2.py_
 
     import random
     position = '<placeholder>'
@@ -542,7 +541,7 @@ Or you could do:
 
 The if statement allows you to check if something is True. If so, it runs the code, if not, it continues on. It is kind of like a while loop, but it executes **only once**. An if statement is written:
 
-*if.py*
+_if.py_
 
     import random
     num = random.randint(1, 10)
@@ -555,7 +554,7 @@ The if statement allows you to check if something is True. If so, it runs the co
 
 Now, you may think that it would be better if you could make it print only one message. Not as many that are True. You can do that with an `elif` statement:
 
-*elif.py*
+_elif.py_
 
     import random
     num = random.randint(1, 10)
@@ -566,7 +565,7 @@ Now, you may think that it would be better if you could make it print only one m
 
 Now, you may wonder how to run code if none work. Well, there is a simple statement called `else:`
 
-*else.py*
+_else.py_
 
     import random
     num = random.randint(1, 10)
@@ -584,7 +583,7 @@ It is quite tiring to type:
 
 Characters: 389
 
-*nofunc.py*
+_nofunc.py_
 
     import random
     print(random.randint(1, 9))
@@ -604,7 +603,7 @@ Now with functions, you can seriously lower the amount of characters:
 
 Characters: 254
 
-*functions.py*
+_functions.py_
 
     import random
     def r(t):
@@ -617,7 +616,7 @@ Characters: 254
     r('Hi')
     r('j')
 
-------------------------------------------------------------------------
+---
 
 ### Project Based Learning:
 
@@ -738,7 +737,7 @@ Now, we need to ask the user for input, we’ll to this with a while loop
         break   #this will remove us from the loop, so we can display the win message
       else:
         print(“Nope, that isn’t it”)
-    #outside our loop, we’ll have the win message that is displayed if the player gets the correct number. 
+    #outside our loop, we’ll have the win message that is displayed if the player gets the correct number.
     print(“You won!”)
 
 Have fun with this!

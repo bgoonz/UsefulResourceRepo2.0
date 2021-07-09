@@ -1,9 +1,8 @@
-These Are The Bash Shell Commands That Stand Between Me And Insanity
-====================================================================
+# These Are The Bash Shell Commands That Stand Between Me And Insanity
 
 I will not profess to be a bash shell wizard… but I have managed to scour some pretty helpful little scripts from Stack Overflow and modify…
 
-------------------------------------------------------------------------
+---
 
 ### These Are The Bash Shell Commands That Stand Between Me And Insanity
 
@@ -11,7 +10,7 @@ I will not profess to be a bash shell wizard… but I have managed to scour some
 
 All of these commands are for Ubuntu/WSL … some may work in other scenarios but I can’t guarantee it.
 
-> *As of this writing I have about 120 more bash snippets I regularly use… I am not writing the whole article right now but I wanted to get it started so I feel obligated to finish it!*
+> _As of this writing I have about 120 more bash snippets I regularly use… I am not writing the whole article right now but I wanted to get it started so I feel obligated to finish it!_
 
 ### Recursive Unzip followed by recursive delete zip:
 
@@ -44,9 +43,9 @@ All of these commands are for Ubuntu/WSL … some may work in other scenarios b
 ### Remove Empty Files and Folders:
 
     find . -empty -type f -print -delete
-    find . -empty -type d -print -delete 
+    find . -empty -type d -print -delete
 
-***or***
+**_or_**
 
     find . -depth -exec rmdir {} \;
 

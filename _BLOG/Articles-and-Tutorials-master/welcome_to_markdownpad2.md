@@ -1,5 +1,4 @@
-Welcome to MarkdownPad 2
-------------------------
+## Welcome to MarkdownPad 2
 
 [MarkdownPad](http://markdownpad.com/) is a full-featured Markdown editor for Windows.
 
@@ -9,11 +8,11 @@ Enjoy first-class Markdown support with easy access to Markdown syntax – and c
 
 Give them a try:
 
--   **Bold** (`Ctrl+B`) and *Italic* (`Ctrl+I`)
--   Quotes (`Ctrl+Q`)
--   Code blocks (`Ctrl+K`)
--   Headings 1, 2, 3 (`Ctrl+1`, `Ctrl+2`, `Ctrl+3`)
--   Lists (`Ctrl+U` and `Ctrl+Shift+O`)
+- **Bold** (`Ctrl+B`) and _Italic_ (`Ctrl+I`)
+- Quotes (`Ctrl+Q`)
+- Code blocks (`Ctrl+K`)
+- Headings 1, 2, 3 (`Ctrl+1`, `Ctrl+2`, `Ctrl+3`)
+- Lists (`Ctrl+U` and `Ctrl+Shift+O`)
 
 ### See your changes instantly with LivePreview
 

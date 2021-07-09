@@ -1,5 +1,4 @@
-Overview of Blocking vs Non-Blocking | Node.js
-==============================================
+# Overview of Blocking vs Non-Blocking | Node.js
 
 > Node.js® is a JavaScript runtime built on Chrome’s V8 JavaScript engine.
 
@@ -49,8 +48,7 @@ And here is a similar, but not equivalent asynchronous example:
 
 In the first example above, `console.log` will be called before `moreWork()`. In the second example `fs.readFile()` is **non-blocking** so JavaScript execution can continue and `moreWork()` will be called first. The ability to run `moreWork()` without waiting for the file read to complete is a key design choice that allows for higher throughput.
 
-Concurrency and Throughput[](#concurrency-and-throughput)
----------------------------------------------------------
+## Concurrency and Throughput[](#concurrency-and-throughput)
 
 JavaScript execution in Node.js is single threaded, so concurrency refers to the event loop’s capacity to execute JavaScript callback functions after completing other work. Any code that is expected to run in a concurrent manner must allow the event loop to continue running as non-JavaScript operations, like I/O, are occurring.
 
@@ -58,8 +56,7 @@ As an example, let’s consider a case where each request to a web server takes 
 
 The event loop is different than models in many other languages where additional threads may be created to handle concurrent work.
 
-Dangers of Mixing Blocking and Non-Blocking Code[](#dangers-of-mixing-blocking-and-non-blocking-code)
------------------------------------------------------------------------------------------------------
+## Dangers of Mixing Blocking and Non-Blocking Code[](#dangers-of-mixing-blocking-and-non-blocking-code)
 
 There are some patterns that should be avoided when dealing with I/O. Let’s look at an example:
 
@@ -83,7 +80,7 @@ In the above example, `fs.unlinkSync()` is likely to be run before `fs.readFile(
 
 The above places a **non-blocking** call to `fs.unlink()` within the callback of `fs.readFile()` which guarantees the correct order of operations.
 
--   [libuv](https://libuv.org/)
--   [About Node.js](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/en/about/)
+- [libuv](https://libuv.org/)
+- [About Node.js](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/en/about/)
 
 [Source](https://nodejs.org/en/docs/guides/blocking-vs-non-blocking/)

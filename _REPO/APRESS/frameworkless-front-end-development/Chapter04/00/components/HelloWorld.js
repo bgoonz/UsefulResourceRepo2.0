@@ -1,7 +1,7 @@
 export default class HelloWorld extends HTMLElement {
-  connectedCallback () {
+  connectedCallback() {
     window.requestAnimationFrame(() => {
-      this.innerHTML = '<div>Hello World!</div>'
-    })
+      this.innerHTML = "<div>Hello World!</div>";
+    });
   }
 }

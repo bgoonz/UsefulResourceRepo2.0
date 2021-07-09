@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*Constructing Accessible Web Sites*](http://www.apress.com/9781590591482) by Cynthia Waddell, Bob Regan, Shawn Lawton Henry, Michael R. Burks, Jim Thatcher, Mark D. Urban, and Paul Bohman (Apress, 2002).
+This repository accompanies [_Constructing Accessible Web Sites_](http://www.apress.com/9781590591482) by Cynthia Waddell, Bob Regan, Shawn Lawton Henry, Michael R. Burks, Jim Thatcher, Mark D. Urban, and Paul Bohman (Apress, 2002).
 
 ![Cover image](9781590591482.jpg)
 

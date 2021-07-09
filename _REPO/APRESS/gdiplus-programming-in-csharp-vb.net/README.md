@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*GDI+ Programming in C# and VB .NET*](http://www.apress.com/9781590590355) by Nick Symmonds (Apress, 2002).
+This repository accompanies [_GDI+ Programming in C# and VB .NET_](http://www.apress.com/9781590590355) by Nick Symmonds (Apress, 2002).
 
 ![Cover image](9781590590355.jpg)
 

@@ -7,7 +7,7 @@ app.use(history());
 app.use("/", express.static("build"));
 
 const router = jsonServer.router("data.json");
-app.use(jsonServer.bodyParser)
+app.use(jsonServer.bodyParser);
 app.use("/api", (req, resp, next) => router(req, resp, next));
 
 const port = process.argv[3] || 4002;

@@ -6,7 +6,7 @@ Define a function isFive that will return true if a number is equal to 5 and fal
 
 ```js
 function isFive(num) {
-	return num === 5 ? true : false;
+  return num === 5 ? true : false;
 }
 ```
 
@@ -20,7 +20,7 @@ HINT: try using the .toLowerCase() function on a string to see what it does!
 
 ```js
 function whisper(str) {
-  return "..." + str.toLowerCase() + "..."
+  return "..." + str.toLowerCase() + "...";
 }
 ```
 
@@ -34,15 +34,15 @@ Write two versions of this function, using conditionals and without using condit
 
 ```js
 function isOdd(num) {
- return Math.abs(num) % 2 === 1 ? true : false;
+  return Math.abs(num) % 2 === 1 ? true : false;
 }
 
 function isOdd2(num) {
- if (Math.abs(num) % 2 === 1) {
-   return true;
- } else {
-   return false;
- }
+  if (Math.abs(num) % 2 === 1) {
+    return true;
+  } else {
+    return false;
+  }
 }
 ```
 
@@ -55,7 +55,7 @@ Define a function logBetween(lowNum, highNum) that will print every number from 
 Hint: this function only needs to print using console.log it does not need to return.
 
 ```js
-function logBetween (min, max) {
+function logBetween(min, max) {
   for (var i = min; i <= max; i++) {
     console.log(i);
   }
@@ -70,9 +70,9 @@ Write a function averageOfFour(num1, num2, num3, num4) that takes in four number
 The function should return the average of all of the numbers.
 
 ```js
-function averageOfFour (num1, num2, num3, num4) {
+function averageOfFour(num1, num2, num3, num4) {
   let arr = [num1, num2, num3, num4];
-  return arr.reduce((a,b) => (a+b)) / arr.length;
+  return arr.reduce((a, b) => a + b) / arr.length;
 }
 ```
 
@@ -93,7 +93,7 @@ function printFives(max) {
 }
 
 function printFives2(max) {
-  for (var i = 0; i < max; i+= 5) {
+  for (var i = 0; i < max; i += 5) {
     console.log(i);
   }
 }
@@ -109,7 +109,7 @@ Hint: this function only needs to print using console.log it does not need to re
 
 ```js
 function logBetweenStepper(min, max, step) {
-  for (var i = min; i <= max; i+=step) {
+  for (var i = min; i <= max; i += step) {
     console.log(i);
   }
 }
@@ -125,7 +125,7 @@ Write two versions of this function, using conditionals and without using condit
 
 ```js
 function threeOrSeven(num) {
-  return (num % 3 === 0 || num % 7 === 0) ? true : false;
+  return num % 3 === 0 || num % 7 === 0 ? true : false;
 }
 ```
 
@@ -137,7 +137,7 @@ Write a function sumArray(array) that takes in an array of numbers and returns t
 
 ```js
 function sumArray(array) {
-    return array.reduce((a,b) => (a+b));
+  return array.reduce((a, b) => a + b);
 }
 ```
 
@@ -151,7 +151,7 @@ Hint: Use the Array#concat method but be aware that calling this method won't pe
 
 ```js
 function combineArray(array1, array2) {
-    return array1.concat(array2);
+  return array1.concat(array2);
 }
 ```
 
@@ -189,7 +189,7 @@ function countVowels(word) {
     }
   }
   return count;
-};
+}
 ```
 
 ---
@@ -203,7 +203,7 @@ Write a function isSubstring that takes in two strings, searchString and subStri
 ```js
 function isSubstring(searchString, subString) {
   let lower = searchString.toLowerCase();
-  return (lower.indexOf(subString) > -1 ) ? true : false;
+  return lower.indexOf(subString) > -1 ? true : false;
 }
 ```
 
@@ -217,7 +217,7 @@ both.
 
 ```js
 function fizzBuzz(max) {
-  for (var i = 0; i < max; i ++) {
+  for (var i = 0; i < max; i++) {
     if (i % 3 === 0 && i % 5 === 0) {
       continue;
     } else if (i % 3 === 0 || i % 5 === 0) {
@@ -237,7 +237,7 @@ Write a function named wordWithinArray(array,word) using Array#indexOf. The func
 
 ```js
 function wordWithinArray(array, word) {
-  return (array.indexOf(word) > -1) ? true : false;
+  return array.indexOf(word) > -1 ? true : false;
 }
 ```
 
@@ -262,7 +262,7 @@ Hint: the String#includes method will return true or false if a given string is 
 
 ```js
 function eitherStringIncluded(sentence, word1, word2) {
-  return (sentence.includes(word1) || sentence.includes(word2)) ? true : false;
+  return sentence.includes(word1) || sentence.includes(word2) ? true : false;
 }
 ```
 
@@ -284,7 +284,7 @@ function pigLatinWord(word) {
   } else {
     for (var i = 0; i < word.length; i++) {
       if (VOWEL.indexOf(word[i]) > -1) {
-        return word.slice(i) + word.slice(0,i) + "ay";
+        return word.slice(i) + word.slice(0, i) + "ay";
       }
     }
   }
@@ -316,7 +316,7 @@ function aCounter(word) {
   let count = 0;
   for (var i = 0; i < word.length; i++) {
     if (word[i] === "a") {
-      count ++;
+      count++;
     }
   }
   return count;
@@ -337,7 +337,7 @@ function isPrime(number) {
       array.push(i);
     }
   }
-  return (array.length === 2) ? true : false;
+  return array.length === 2 ? true : false;
 }
 ```
 
@@ -350,11 +350,11 @@ The following function is named eCounter(word). The function takes in a string w
 ```jss
 function eCounter(word) {
   word = word.toLowerCase();
-  let i = 0
+  let i = 0;
   let counter = 0;
   while (i <= word.length - 1) {
     if (word[i] === "e") {
-      counter ++;
+      counter++;
     }
     i++;
   }

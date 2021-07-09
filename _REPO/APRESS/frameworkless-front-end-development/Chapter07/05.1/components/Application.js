@@ -1,42 +1,30 @@
 export default class App extends HTMLElement {
-  constructor () {
-    super()
+  constructor() {
+    super();
 
-    this.template = document
-      .getElementById('todo-app')
+    this.template = document.getElementById("todo-app");
   }
 
-  deleteItem (index) {
-    window
-      .applicationContext
-      .actions
-      .deleteItem(index)
+  deleteItem(index) {
+    window.applicationContext.actions.deleteItem(index);
   }
 
-  addItem (text) {
-    window
-      .applicationContext
-      .actions
-      .addItem(text)
+  addItem(text) {
+    window.applicationContext.actions.addItem(text);
   }
 
-  connectedCallback () {
+  connectedCallback() {
     window.requestAnimationFrame(() => {
-      const content = this.template
-        .content
-        .firstElementChild
-        .cloneNode(true)
+      const content = this.template.content.firstElementChild.cloneNode(true);
 
-      this.appendChild(content)
+      this.appendChild(content);
 
-      this
-        .querySelector('.new-todo')
-        .addEventListener('keypress', e => {
-          if (e.key === 'Enter') {
-            this.addItem(e.target.value)
-            e.target.value = ''
-          }
-        })
-    })
+      this.querySelector(".new-todo").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          this.addItem(e.target.value);
+          e.target.value = "";
+        }
+      });
+    });
   }
 }

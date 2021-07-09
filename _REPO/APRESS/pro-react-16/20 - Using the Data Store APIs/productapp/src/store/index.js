@@ -6,15 +6,20 @@ import { multiActions } from "./multiActionMiddleware";
 import { asyncEnhancer } from "./asyncEnhancer";
 
 const enhancedReducer = customReducerEnhancer(
-    combineReducers(
-        {
-            modelData: modelReducer, 
-            stateData: stateReducer
-        })
+  combineReducers({
+    modelData: modelReducer,
+    stateData: stateReducer,
+  })
 );
 
-export default createStore(enhancedReducer, 
-    compose(applyMiddleware(multiActions), asyncEnhancer(2000)));
+export default createStore(
+  enhancedReducer,
+  compose(applyMiddleware(multiActions), asyncEnhancer(2000))
+);
 
-export { saveProduct, saveSupplier, deleteProduct, deleteSupplier } 
-    from "./modelActionCreators";
+export {
+  saveProduct,
+  saveSupplier,
+  deleteProduct,
+  deleteSupplier,
+} from "./modelActionCreators";

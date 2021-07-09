@@ -70,7 +70,7 @@ Review the following resources below before an technical interview prep call or 
 
 <a href="https://docs.google.com/document/d/1g9BkZOc2YSyYsa2q-qblXsXcvvU_xteuRt7IxTybAVU/edit" class="notion-link-token notion-enable-hover"><span style="border-bottom:0.05em solid;border-color:rgba(55,53,47,0.4);opacity:0.7">Technical Interview Prep Guide</span></a>
 
-In terms of the technical interview and prep, it’s often worth putting out a call in job search channels for anyone who has tips/tricks they want to share from their own technical interviews. Also very useful to grab time with one of our engineers and instructors in Technical Office hours in \#job\_search (calendar posted daily and saved to the top description of channel)
+In terms of the technical interview and prep, it’s often worth putting out a call in job search channels for anyone who has tips/tricks they want to share from their own technical interviews. Also very useful to grab time with one of our engineers and instructors in Technical Office hours in \#job_search (calendar posted daily and saved to the top description of channel)
 
 External resources
 

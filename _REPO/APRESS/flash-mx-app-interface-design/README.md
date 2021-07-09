@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*Flash MX Application And Interface Design*](http://www.apress.com/9781590591581) by Connor McDonald, Paul Prudence, Gerald YardFace, Peter Aylward, Fay Rhodes, Robbie Shepherd, and Ken Jokol (Apress, 2002).
+This repository accompanies [_Flash MX Application And Interface Design_](http://www.apress.com/9781590591581) by Connor McDonald, Paul Prudence, Gerald YardFace, Peter Aylward, Fay Rhodes, Robbie Shepherd, and Ken Jokol (Apress, 2002).
 
 ![Cover image](9781590591581.jpg)
 

@@ -1,9 +1,8 @@
-How To Implement Native(ES6) Data Structures Using Arrays & Objects
-===================================================================
+# How To Implement Native(ES6) Data Structures Using Arrays & Objects
 
 Smart data structures and dumb code works better than the other way around -“Eric S. Raymond”
 
-------------------------------------------------------------------------
+---
 
 ### How To Implement Native(ES6) Data Structures Using Arrays & Objects
 
@@ -11,14 +10,14 @@ Smart data structures and dumb code works better than the other way around -“E
 
 <figure><img src="https://cdn-images-1.medium.com/max/600/0*ZBBOzoXj5SgXtZb7.png" alt="https://data-flair.training/blogs/javascript-data-structures/" class="graf-image" /><figcaption><a href="https://data-flair.training/blogs/javascript-data-structures/" class="markup--anchor markup--figure-anchor">https://data-flair.training/blogs/javascript-data-structures/</a></figcaption></figure>#### *Abstract Data type (ADT) is a type (or class) for objects whose behavior is*
 
-#### *defined by a set of value and a set of operations. The definition of ADT only mentions what operations are to be performed but not how these operations will be implemented.*
+#### _defined by a set of value and a set of operations. The definition of ADT only mentions what operations are to be performed but not how these operations will be implemented._
 
 > <a href="https://stackoverflow.com/a/31113335/15158587" class="markup--anchor markup--blockquote-anchor">Abstract Data Type(ADT) is a data type, where only behavior is defined but not implementation.</a>
 
 > <a href="https://stackoverflow.com/a/31113335/15158587" class="markup--anchor markup--blockquote-anchor">Opposite of ADT is Concrete Data Type (CDT), where it contains an implementation of ADT.</a>
 
 > **Examples:**  
-> `Array, List, Map, Queue, Set, Stack, Table, Tree, and                   Vector` are ADTs. Each of these ADTs has many implementations i.e. CDT. The container is a high-level ADT of above all ADTs.
+> `Array, List, Map, Queue, Set, Stack, Table, Tree, and Vector` are ADTs. Each of these ADTs has many implementations i.e. CDT. The container is a high-level ADT of above all ADTs.
 
 > **Real life example:**  
 > book is Abstract (Telephone Book is an implementation)

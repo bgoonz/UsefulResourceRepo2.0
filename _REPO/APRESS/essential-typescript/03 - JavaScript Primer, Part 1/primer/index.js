@@ -1,30 +1,30 @@
 let hat = {
-    name: "Hat",    
-    _price: 100,
-    priceIncTax: 100 * 1.2,
+  name: "Hat",
+  _price: 100,
+  priceIncTax: 100 * 1.2,
 
-    set price(newPrice) {
-        this._price = newPrice;
-        this.priceIncTax = this._price * 1.2;
-    },
+  set price(newPrice) {
+    this._price = newPrice;
+    this.priceIncTax = this._price * 1.2;
+  },
 
-    get price() {
-        return this._price;
-    },
+  get price() {
+    return this._price;
+  },
 
-    writeDetails() {
-         console.log(`${this.name}: ${this.price}, ${this.priceIncTax}`);
-    }
+  writeDetails() {
+    console.log(`${this.name}: ${this.price}, ${this.priceIncTax}`);
+  },
 };
 
 let boots = {
-    name: "Boots",
-    price: "100",
+  name: "Boots",
+  price: "100",
 
-    get priceIncTax() {
-        return Number(this.price) * 1.2;
-    }
-}
+  get priceIncTax() {
+    return Number(this.price) * 1.2;
+  },
+};
 
 hat.writeDetails = hat.writeDetails.bind(hat);
 hat.writeDetails();

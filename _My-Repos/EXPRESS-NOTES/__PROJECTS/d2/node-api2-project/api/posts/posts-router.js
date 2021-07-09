@@ -56,11 +56,9 @@ router.post("/", (req, res) => {
         res.status(201).json(data);
       })
       .catch(() => {
-        res
-          .status(500)
-          .json({
-            message: "There was an error while saving the post to the database",
-          });
+        res.status(500).json({
+          message: "There was an error while saving the post to the database",
+        });
       });
   }
 });
@@ -112,11 +110,9 @@ router.delete("/:id", (req, res) => {
         .remove(id)
         .then((resp) => {
           if (resp === undefined || resp === null) {
-            res
-              .status(404)
-              .json({
-                message: "The post with the specified ID does not exist",
-              });
+            res.status(404).json({
+              message: "The post with the specified ID does not exist",
+            });
           } else {
             res.status(201).json(data);
           }
@@ -144,27 +140,21 @@ router.get("/:id/comments", (req, res) => {
           .findPostComments(id)
           .then((resp) => {
             if (resp === undefined || resp === null) {
-              res
-                .status(404)
-                .json({
-                  message: "The post with the specified ID does not exist",
-                });
+              res.status(404).json({
+                message: "The post with the specified ID does not exist",
+              });
             } else if (resp === []) {
-              res
-                .status(404)
-                .json({
-                  message: "The post with the specified ID does not exist",
-                });
+              res.status(404).json({
+                message: "The post with the specified ID does not exist",
+              });
             } else {
               res.status(200).json(resp);
             }
           })
           .catch(() => {
-            res
-              .status(500)
-              .json({
-                message: "The comments information could not be retrieved",
-              });
+            res.status(500).json({
+              message: "The comments information could not be retrieved",
+            });
           });
       }
     })

@@ -2,7 +2,7 @@
   <tr>
     <td><hr width="100%" noshade="noshade" /></td>
   </tr>
-<?php
+  <?php
   echo $navbar;
 ?>
 </table>

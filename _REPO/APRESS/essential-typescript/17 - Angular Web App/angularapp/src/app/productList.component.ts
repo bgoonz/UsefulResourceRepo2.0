@@ -1,34 +1,36 @@
 import { Component } from "@angular/core";
-import { DataSource } from './data/dataSource';
-import { Product } from './data/entities';
+import { DataSource } from "./data/dataSource";
+import { Product } from "./data/entities";
 
 @Component({
-    selector: "product-list",
-    templateUrl: "./productList.component.html"
+  selector: "product-list",
+  templateUrl: "./productList.component.html",
 })
 export class ProductList {
-    selectedCategory = "All";
+  selectedCategory = "All";
 
-    constructor(public dataSource: DataSource) {}
+  constructor(public dataSource: DataSource) {}
 
-    get products(): Product[] {
-        return this.dataSource.getProducts("id", 
-            this.selectedCategory === "All" ? undefined : this.selectedCategory);
-    }
-    
-    get categories(): string[] {
-        return ["All", ...this.dataSource.getCategories()];
-    }
+  get products(): Product[] {
+    return this.dataSource.getProducts(
+      "id",
+      this.selectedCategory === "All" ? undefined : this.selectedCategory
+    );
+  }
 
-    handleCategorySelect(category: string) {
-        this.selectedCategory = category;
-    }
+  get categories(): string[] {
+    return ["All", ...this.dataSource.getCategories()];
+  }
 
-    handleAdd(data: {product: Product, quantity: number}) {
-        this.dataSource.order.addProduct(data.product, data.quantity);
-    }    
+  handleCategorySelect(category: string) {
+    this.selectedCategory = category;
+  }
 
-    handleSubmit() {
-        console.log("SUBMIT");
-    }
+  handleAdd(data: { product: Product; quantity: number }) {
+    this.dataSource.order.addProduct(data.product, data.quantity);
+  }
+
+  handleSubmit() {
+    console.log("SUBMIT");
+  }
 }

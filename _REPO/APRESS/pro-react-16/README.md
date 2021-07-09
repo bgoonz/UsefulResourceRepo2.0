@@ -1,8 +1,9 @@
 # Apress Source Code
 
-This repository accompanies [*Pro React 16*](https://www.apress.com/9781484244500) by Adam Freeman (Apress, 2019).
+This repository accompanies [_Pro React 16_](https://www.apress.com/9781484244500) by Adam Freeman (Apress, 2019).
 
 [comment]: #cover
+
 ![Cover image](9781484244500.jpg)
 
 Download the files as a zip using the green button, or clone the repository to your machine using Git.

@@ -1,4 +1,4 @@
-function moveElement(elementID,final_x,final_y,interval) {
+function moveElement(elementID, final_x, final_y, interval) {
   if (!document.getElementById) return false;
   if (!document.getElementById(elementID)) return false;
   var elem = document.getElementById(elementID);
@@ -21,6 +21,15 @@ function moveElement(elementID,final_x,final_y,interval) {
   }
   elem.style.left = xpos + "px";
   elem.style.top = ypos + "px";
-  var repeat = "moveElement('"+elementID+"',"+final_x+","+final_y+","+interval+")";
-  movement = setTimeout(repeat,interval);
+  var repeat =
+    "moveElement('" +
+    elementID +
+    "'," +
+    final_x +
+    "," +
+    final_y +
+    "," +
+    interval +
+    ")";
+  movement = setTimeout(repeat, interval);
 }

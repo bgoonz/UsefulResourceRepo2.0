@@ -1,9 +1,8 @@
 # Apress Source Code
 
-This repository accompanies [*Practical Python AI Projects*](http://www.apress.com/9781484234228) by Serge Kruk (Apress, 2018).
+This repository accompanies [_Practical Python AI Projects_](http://www.apress.com/9781484234228) by Serge Kruk (Apress, 2018).
 
 [comment]: #cover
-
 
 Download the files as a zip using the green button, or clone the repository to your machine using Git.
 

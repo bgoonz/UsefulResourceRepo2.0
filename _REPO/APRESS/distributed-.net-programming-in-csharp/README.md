@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*Distributed .NET Programming in C#*](http://www.apress.com/9781590590393) by Tom Barnaby (Apress, 2002).
+This repository accompanies [_Distributed .NET Programming in C#_](http://www.apress.com/9781590590393) by Tom Barnaby (Apress, 2002).
 
 ![Cover image](9781590590393.jpg)
 

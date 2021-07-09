@@ -16,4 +16,3 @@
 - Create an Express App but assigning a variable with Express invoked to it. `const app = express();`
 
 **Handling requests**
-

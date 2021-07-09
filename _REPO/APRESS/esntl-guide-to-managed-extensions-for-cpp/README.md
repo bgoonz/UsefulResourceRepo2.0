@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*Essential Guide to Managed Extensions for C++*](http://www.apress.com/9781893115286) by Artur Laksberg and Siva Challa (Apress, 2002).
+This repository accompanies [_Essential Guide to Managed Extensions for C++_](http://www.apress.com/9781893115286) by Artur Laksberg and Siva Challa (Apress, 2002).
 
 ![Cover image](9781893115286.jpg)
 

@@ -1,6 +1,6 @@
 # Apress Source Code
 
-This repository accompanies [*Visual Basic and Visual Basic .NET for Scientists and Engineers*](http://www.apress.com/9781893115552) by Christopher M. Frenz (Apress, 2002).
+This repository accompanies [_Visual Basic and Visual Basic .NET for Scientists and Engineers_](http://www.apress.com/9781893115552) by Christopher M. Frenz (Apress, 2002).
 
 ![Cover image](9781893115552.jpg)
 

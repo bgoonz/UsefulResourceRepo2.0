@@ -1,9 +1,8 @@
-Quick Web Developers Website Checklist & A List Of Tools For Improvement
-========================================================================
+# Quick Web Developers Website Checklist & A List Of Tools For Improvement
 
 A set of questions you should use before handing off your application to the client.
 
-------------------------------------------------------------------------
+---
 
 ### Quick Web Developers Website Checklist & A List Of Tools For Improvement
 
@@ -18,19 +17,19 @@ A set of questions you should use before handing off your application to the cli
 
 <figure><img src="https://cdn-images-1.medium.com/max/800/1*Qh8BZUzF7nRISPrwDTz05Q.png" class="graf-image" /></figure>### Remainder of tool list is below this checklist:
 
-------------------------------------------------------------------------
+---
 
 ### Usefulness & Relevance:
 
-> *Does the content meet user needs, goals, and interests?*
+> _Does the content meet user needs, goals, and interests?_
 
-> *Does the content meet business goals?*
+> _Does the content meet business goals?_
 
-> *For how long will the content be useful? When should it expire? Has its usefulness already expired?*
+> _For how long will the content be useful? When should it expire? Has its usefulness already expired?_
 
-> *Is the content timely and relevant?*
+> _Is the content timely and relevant?_
 
-------------------------------------------------------------------------
+---
 
 ### Clarity & Accuracy:
 
@@ -44,7 +43,7 @@ A set of questions you should use before handing off your application to the cli
 
 > Do images, video, and audio meet technical standards, so they are clear?
 
-------------------------------------------------------------------------
+---
 
 ### Influence & Engagement:
 
@@ -54,7 +53,7 @@ A set of questions you should use before handing off your application to the cli
 
 > Does the content use too many or too few techniques for the context?
 
-------------------------------------------------------------------------
+---
 
 ### Completeness:
 
@@ -74,7 +73,7 @@ A set of questions you should use before handing off your application to the cli
 
 > Does the content read, look, or sound as though it’s professionally crafted?
 
-------------------------------------------------------------------------
+---
 
 ### Usability & Findability:
 
@@ -88,7 +87,7 @@ A set of questions you should use before handing off your application to the cli
 
 > Can customers find the content when searching using relevant keywords?
 
-------------------------------------------------------------------------
+---
 
 ### Tool List:
 
@@ -176,7 +175,7 @@ A set of questions you should use before handing off your application to the cli
 <a href="https://redbot.org/" class="markup--anchor markup--mixtapeEmbed-anchor" title="https://redbot.org/"><strong>REDbot</strong><br />
 <em>Lint for your HTTP resources</em>redbot.org</a><a href="https://redbot.org/" class="js-mixtapeImage mixtapeImage u-ignoreBlock"></a>
 
-<a href="https://pageweight.imgix.com/" class="markup--anchor markup--mixtapeEmbed-anchor" title="https://pageweight.imgix.com/"><strong>imgix Page Weight Tool * Learn how to improve your site or app's speed.</strong><br />
+<a href="https://pageweight.imgix.com/" class="markup--anchor markup--mixtapeEmbed-anchor" title="https://pageweight.imgix.com/"><strong>imgix Page Weight Tool \* Learn how to improve your site or app's speed.</strong><br />
 <em>imgix Page Weight Tool measures the resources on your site and then recommends how to improve your site's load time.</em>pageweight.imgix.com</a><a href="https://pageweight.imgix.com/" class="js-mixtapeImage mixtapeImage u-ignoreBlock"></a>
 
 <a href="https://tinypng.com/" class="markup--anchor markup--mixtapeEmbed-anchor" title="https://tinypng.com/"><strong>TinyPNG - Compress PNG images while preserving transparency</strong><br />

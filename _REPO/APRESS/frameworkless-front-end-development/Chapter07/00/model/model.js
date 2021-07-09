@@ -1,83 +1,83 @@
-const cloneDeep = x => {
-  return JSON.parse(JSON.stringify(x))
-}
+const cloneDeep = (x) => {
+  return JSON.parse(JSON.stringify(x));
+};
 
 const INITIAL_STATE = {
   todos: [],
-  currentFilter: 'All'
-}
+  currentFilter: "All",
+};
 
 export default (initalState = INITIAL_STATE) => {
-  const state = cloneDeep(initalState)
+  const state = cloneDeep(initalState);
 
   const getState = () => {
-    return Object.freeze(cloneDeep(state))
-  }
+    return Object.freeze(cloneDeep(state));
+  };
 
-  const addItem = text => {
+  const addItem = (text) => {
     if (!text) {
-      return
+      return;
     }
 
     state.todos.push({
       text,
-      completed: false
-    })
-  }
+      completed: false,
+    });
+  };
 
   const updateItem = (index, text) => {
     if (!text) {
-      return
+      return;
     }
 
     if (index < 0) {
-      return
+      return;
     }
 
     if (!state.todos[index]) {
-      return
+      return;
     }
 
-    state.todos[index].text = text
-  }
+    state.todos[index].text = text;
+  };
 
-  const deleteItem = index => {
+  const deleteItem = (index) => {
     if (index < 0) {
-      return
+      return;
     }
 
     if (!state.todos[index]) {
-      return
+      return;
     }
 
-    state.todos.splice(index, 1)
-  }
+    state.todos.splice(index, 1);
+  };
 
-  const toggleItemCompleted = index => {
+  const toggleItemCompleted = (index) => {
     if (index < 0) {
-      return
+      return;
     }
 
     if (!state.todos[index]) {
-      return
+      return;
     }
 
-    state.todos[index].completed = !state.todos[index].completed
-  }
+    state.todos[index].completed = !state.todos[index].completed;
+  };
 
   const completeAll = () => {
-    state.todos.forEach(t => {
-      t.completed = true
-    })
-  }
+    state.todos.forEach((t) => {
+      t.completed = true;
+    });
+  };
 
   const clearCompleted = () => {
-    state.todos = state.todos.filter(t => !t.completed)
-  }
+    state.todos = state.todos.filter((t) => !t.completed);
+  };
 
-  const changeFilter = filter => {
-    state.currentFilter = filter
-  }
+  const changeFilter = (filter) => {
+    state.currentFilter = filter;
+  };
 
   return {
     addItem,
@@ -87,6 +87,6 @@ export default (initalState = INITIAL_STATE) => {
     completeAll,
     clearCompleted,
     changeFilter,
-    getState
-  }
-}
+    getState,
+  };
+};
