@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>custom-document</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="custom-document">Custom <code>Document</code></h1>
+    <p>
+      A custom <code>Document</code> is commonly used to augment your
+      application’s <code>&lt;html&gt;</code> and
+      <code>&lt;body&gt;</code> tags. This is necessary because Next.js pages
+      skip the definition of the surrounding document’s markup.
+    </p>
+    <p>
+      To override the default <code>Document</code>, create the file
+      <code>./pages/_document.js</code> and extend the
+      <code>Document</code> class as shown below:
+    </p>
+    <pre
+      class="jsx"
+    ><code>import Document, { Html, Head, Main, NextScript } from &#39;next/document&#39;
+
+class MyDocument extends Document {
+  static async getInitialProps(ctx) {
+    const initialProps = await Document.getInitialProps(ctx)
+    return { ...initialProps }
+  }
+
+  render() {
+    return (
+      &lt;Html&gt;
+        &lt;Head /&gt;
+        &lt;body&gt;
+          &lt;Main /&gt;
+          &lt;NextScript /&gt;
+        &lt;/body&gt;
+      &lt;/Html&gt;
+    )
+  }
+}
+
+export default MyDocument</code></pre>
+    <blockquote>
+      <p>
+        The code above is the default <code>Document</code> added by Next.js.
+        Feel free to remove the <code>getInitialProps</code> or
+        <code>render</code> function from <code>MyDocument</code> if you don’t
+        need to change them.
+      </p>
+    </blockquote>
+    <p>
+      <code>&lt;Html&gt;</code>, <code>&lt;Head /&gt;</code>,
+      <code>&lt;Main /&gt;</code> and <code>&lt;NextScript /&gt;</code> are
+      required for the page to be properly rendered.
+    </p>
+    <p>Custom attributes are allowed as props, like <code>lang</code>:</p>
+    <pre class="jsx"><code>&lt;Html lang=&quot;en&quot;&gt;</code></pre>
+    <p>
+      The <code>&lt;Head /&gt;</code> component used here is not the same one
+      from <a href="/docs/api-reference/next/head.md"><code>next/head</code></a
+      >. The <code>&lt;Head /&gt;</code> component used here should only be used
+      for any <code>&lt;head&gt;</code> code that is common for all pages. For
+      all other cases, such as <code>&lt;title&gt;</code> tags, we recommend
+      using
+      <a href="/docs/api-reference/next/head.md"><code>next/head</code></a> in
+      your pages or components.
+    </p>
+    <p>
+      The <code>ctx</code> object is equivalent to the one received in
+      <a
+        href="/docs/api-reference/data-fetching/getInitialProps.md#context-object"
+        ><code>getInitialProps</code></a
+      >, with one addition:
+    </p>
+    <ul>
+      <li>
+        <code>renderPage</code>: <code>Function</code> - a callback that runs
+        the actual React rendering logic (synchronously). It’s useful to
+        decorate this function in order to support server-rendering wrappers
+        like Aphrodite’s
+        <a href="https://github.com/Khan/aphrodite#server-side-rendering"
+          ><code>renderStatic</code></a
+        >
+      </li>
+    </ul>
+    <h2 id="caveats">Caveats</h2>
+    <ul>
+      <li>
+        <code>Document</code> is only rendered in the server, event handlers
+        like <code>onClick</code> won’t work.
+      </li>
+      <li>
+        React components outside of <code>&lt;Main /&gt;</code> will not be
+        initialized by the browser. Do <em>not</em> add application logic here
+        or custom CSS (like <code>styled-jsx</code>). If you need shared
+        components in all your pages (like a menu or a toolbar), take a look at
+        the
+        <a href="/docs/advanced-features/custom-app.md"><code>App</code></a>
+        component instead.
+      </li>
+      <li>
+        <code>Document</code>’s <code>getInitialProps</code> function is not
+        called during client-side transitions, nor when a page is
+        <a href="/docs/advanced-features/automatic-static-optimization.md"
+          >statically optimized</a
+        >.
+      </li>
+      <li>
+        <code>Document</code> currently does not support Next.js
+        <a href="/docs/basic-features/data-fetching.md"
+          >Data Fetching methods</a
+        >
+        like
+        <a
+          href="/docs/basic-features/data-fetching.md#getstaticprops-static-generation"
+          ><code>getStaticProps</code></a
+        >
+        or
+        <a
+          href="/docs/basic-features/data-fetching.md#getserversideprops-server-side-rendering"
+          ><code>getServerSideProps</code></a
+        >.
+      </li>
+    </ul>
+    <h2 id="customizing-renderpage">Customizing <code>renderPage</code></h2>
+    <blockquote>
+      <p>
+        It should be noted that the only reason you should be customizing
+        <code>renderPage</code> is for usage with
+        <strong>css-in-js</strong> libraries that need to wrap the application
+        to properly work with server-side rendering.
+      </p>
+    </blockquote>
+    <p>It takes as argument an options object for further customization:</p>
+    <pre class="jsx"><code>import Document from &#39;next/document&#39;
+
+class MyDocument extends Document {
+  static async getInitialProps(ctx) {
+    const originalRenderPage = ctx.renderPage
+
+    ctx.renderPage = () =&gt;
+      originalRenderPage({
+        // useful for wrapping the whole react tree
+        enhanceApp: (App) =&gt; App,
+        // useful for wrapping in a per-page basis
+        enhanceComponent: (Component) =&gt; Component,
+      })
+
+    // Run the parent `getInitialProps`, it now includes the custom `renderPage`
+    const initialProps = await Document.getInitialProps(ctx)
+
+    return initialProps
+  }
+}
+
+export default MyDocument</code></pre>
+    <h2 id="typescript">TypeScript</h2>
+    <p>
+      You can use the built-in <code>DocumentContext</code> type and change the
+      file name to <code>./pages/_document.tsx</code> like so:
+    </p>
+    <pre
+      class="tsx"
+    ><code>import Document, { DocumentContext } from &#39;next/document&#39;
+
+class MyDocument extends Document {
+  static async getInitialProps(ctx: DocumentContext) {
+    const initialProps = await Document.getInitialProps(ctx)
+
+    return initialProps
+  }
+}
+
+export default MyDocument</code></pre>
+  </body>
+</html>

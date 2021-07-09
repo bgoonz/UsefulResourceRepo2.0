@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>pcre.html</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <p>
+      A regular expression (regex or regexp for short) is a special text string
+      for describing a search pattern. e.g. to extract domain name from a string
+      we can say <code>/^[a-z]+:/</code> and it will match
+      <code>http:</code> from <code>http://github.com/</code>.
+    </p>
+    <p>
+      PCRE (Perl Compatible Regular Expressions) is a C library implementing
+      regex. It was written in 1997 when Perl was the de-facto choice for
+      complex text processing tasks. The syntax for patterns used in PCRE
+      closely resembles Perl. PCRE syntax is being used in many big projects
+      including PHP, Apache, R to name a few.
+    </p>
+    <p>There are two different sets of metacharacters:</p>
+    <ul>
+      <li>
+        Those that are recognized anywhere in the pattern except within square
+        brackets
+      </li>
+    </ul>
+    <pre><code>  \      general escape character with several uses
+  ^      assert start of string (or line, in multiline mode)
+  $      assert end of string (or line, in multiline mode)
+  .      match any character except newline (by default)
+  [      start character class definition
+  |      start of alternative branch
+  (      start subpattern
+  )      end subpattern
+  ?      extends the meaning of (
+         also 0 or 1 quantifier
+         also quantifier minimizer
+  *      0 or more quantifier
+  +      1 or more quantifier
+         also &quot;possessive quantifier&quot;
+  {      start min/max quantifier</code></pre>
+    <ul>
+      <li>
+        Those that are recognized within square brackets. Outside square
+        brackets. They are also called as character classes.
+      </li>
+    </ul>
+    <pre><code>
+  \      general escape character
+  ^      negate the class, but only if the first character
+  -      indicates character range
+  [      POSIX character class (only if followed by POSIX syntax)
+  ]      terminates the character class
+</code></pre>
+    <p>
+      PCRE provides some generic character types, also called as character
+      classes.
+    </p>
+    <pre><code>  \d     any decimal digit
+  \D     any character that is not a decimal digit
+  \h     any horizontal white space character
+  \H     any character that is not a horizontal white space character
+  \s     any white space character
+  \S     any character that is not a white space character
+  \v     any vertical white space character
+  \V     any character that is not a vertical white space character
+  \w     any &quot;word&quot; character
+  \W     any &quot;non-word&quot; character</code></pre>
+    <h2 id="examples">Examples</h2>
+    <p>We will test our examples on the following string:</p>
+    <pre><code>66.249.64.13 - - [18/Sep/2004:11:07:48 +1000] &quot;GET /robots.txt HTTP/1.0&quot; 200 468 &quot;-&quot; &quot;Googlebot/2.1&quot;</code></pre>
+    <p>It is a standard Apache access log.</p>
+    <table>
+      <colgroup>
+        <col style="width: 18%" />
+        <col style="width: 55%" />
+        <col style="width: 25%" />
+      </colgroup>
+      <thead>
+        <tr class="header">
+          <th style="text-align: left">Regex</th>
+          <th style="text-align: left">Result</th>
+          <th style="text-align: left">Comment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="odd">
+          <td style="text-align: left"><code>GET</code></td>
+          <td style="text-align: left">GET</td>
+          <td style="text-align: left">
+            GET matches the characters GET literally (case sensitive)
+          </td>
+        </tr>
+        <tr class="even">
+          <td style="text-align: left"><code>\d+.\d+.\d+.\d+</code></td>
+          <td style="text-align: left">66.249.64.13</td>
+          <td style="text-align: left">
+            <code>\d+</code> match a digit [0-9] one or more times defined by
+            <code>+</code> quantifier, <code>\.</code> matches
+            <code>.</code> literally
+          </td>
+        </tr>
+        <tr class="odd">
+          <td style="text-align: left"><code>(\d+\.){3}\d+</code></td>
+          <td style="text-align: left">66.249.64.13</td>
+          <td style="text-align: left">
+            <code>(\d+\.){3}</code> is trying to match group
+            (<code>\d+\.</code>) exactly three times.
+          </td>
+        </tr>
+        <tr class="even">
+          <td style="text-align: left"><code>\[.+\]</code></td>
+          <td style="text-align: left">[18/Sep/2004:11:07:48 +1000]</td>
+          <td style="text-align: left">
+            <code>.+</code> matches any character (except newline),
+            <code>.</code> is any character
+          </td>
+        </tr>
+        <tr class="odd">
+          <td style="text-align: left"><code>^\S+</code></td>
+          <td style="text-align: left">66.249.64.13</td>
+          <td style="text-align: left">
+            <code>^</code> means start of the line, <code>\S+</code> matches any
+            number of non-space characters
+          </td>
+        </tr>
+        <tr class="even">
+          <td style="text-align: left"><code>\+[0-9]+</code></td>
+          <td style="text-align: left">+1000</td>
+          <td style="text-align: left">
+            <code>\+</code> matches the character <code>+</code> literally.
+            <code>[0-9]</code> character class means single number. Same can be
+            achieved using <code>\+\d+</code>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <h2 id="further-reading">Further Reading</h2>
+    <p>
+      <a href="https://regex101.com/">Regex101</a> - Regular Expression tester
+      and debugger
+    </p>
+  </body>
+</html>

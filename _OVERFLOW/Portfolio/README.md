@@ -1,22 +1,14 @@
-
-
-
 # Portfolio
+
 <p align="center">
   
 <img src="images/harrison.png" height=300></p>
   
 Hi, my name is Harrison Jansma.
 
-
-
 <p>I am an avid FPS competitive gamer, sci-fi reader, and student. I love to learn about how things work, whether that be studying good coding practices, engineering techniques, or machine learning methods. Much of my experience revolves around building machine learning applications, but I also strive to gain a deeper understanding of the world so that I can expand my skillset and build new and amazing things.</p>
 
-
-
-
-
-# Get to Know Me 
+# Get to Know Me
 
 ### My Portfolio Website
 
@@ -28,8 +20,8 @@ Hi, my name is Harrison Jansma.
   
 <hr>
 
-  
 ### My Writing
+
   <p align="center">
 <a href="https://medium.com/@harrisonjansma"><img src="images/Medium.PNG"></a></p>
   
@@ -40,11 +32,11 @@ Hi, my name is Harrison Jansma.
 <hr>
 
 ### My Professional Experience
+
   <p align="center">
 <a href="https://www.linkedin.com/in/harrisonjansma/"><img src="images/Linkedin.PNG"></a></p>
   
   <p>For the past 6 months I have been working as a Data Science Intern at Sprint. I was able to get much experience in database manipulation/extraction, ML model development, and business communication. Much of my work was centered around building machine learning applications to predict when business systems fail.</p>
-
 
 # My Past Projects
 
@@ -52,13 +44,12 @@ Hi, my name is Harrison Jansma.
 
 ### [RNNs, LSTMs, and Attention Mechanisms for Language Modelling (PyTorch)](https://github.com/harrisonjansma/2019_Notes/tree/master/ML/NLP/PyTorch%20RNN%20Implementations)
 
-
 <p>
 Tested the use of Word2Vec embeddings with a variety of sequential input deep learning models towards the task of language modeling (predicting the next word in a sentence).
  </p>
 
-
 December 10, 2019
+
 <hr>
 
 ### [DavisBase: A Custom Designed SQL Database](https://github.com/harrisonjansma/DavisBase)
@@ -67,23 +58,21 @@ December 10, 2019
 A fully functional, SQL-compliant database implemented from scratch in Python. DavisBase compresses data to a custom-designed bit-level encoding for maximal data compression. By utilizing a file size of 512Kb, DavisBase performs well in low memory environments while also maximizing query time.
  </p>
 
-
 December 02, 2019
+
 <hr>
 
 ### [Reinforcement Learning: Dynamic Policy Gradients (Numpy)](https://github.com/harrisonjansma/2019_Notes/blob/master/RL/2_Policy-Iteration-QLearning/Dynamic_Programming_Policy_Iteration.ipynb)
-
 
 <p>
 My implementation of dynamic policy gradients in Python. This reinforcement learning algorithm was then used to train an agent to traverse a dangerous environment.
  </p>
 
-
 November 06, 2019
+
 <hr>
 
 ### [Hidden Markov Models for Parts of Speech Tagging (Python)](https://github.com/harrisonjansma/2019_Notes/blob/master/ML/Hidden%20Markov%20Model%20Implementation/HW2%20Sandbox.ipynb)
-
 
 <p>
 Custom implementation of Hidden Markov Models to assign parts of speech labels to a free text dataset. Model was coded from scratch in base Python and utilizes the Viterbi Algorithm for decoding the probability of a given sequence.
@@ -100,6 +89,7 @@ Applied deep neural networks to the task of finding named entities (like "Google
  </p>
 
 September 20, 2019
+
 <hr>
 
 ### [XGBoost for Text Classification](https://github.com/harrisonjansma/2019_Notes/blob/master/ML/Gradient%20Boosting%20Notes/Gradient%20Boosting%20Theory.ipynb)
@@ -119,6 +109,7 @@ Worked on an AWS EMR cluster to learn the basics of PySpark and HIVE while worki
  </p>
 
 May 10, 2019
+
 <hr>
 
 ### [Implementing Common Algorithms in C++](https://github.com/harrisonjansma/Cpp-Algorithm-Implementations)
@@ -128,6 +119,7 @@ The only way to become a not-garbage-coder is to code a lot. This repository con
  </p>
 
 March 19, 2019
+
 <hr>
 
 ### [Scraping and Analyzing 1.4 Million Medium Stories](https://github.com/harrisonjansma/Analyzing_Medium)
@@ -148,7 +140,6 @@ I also wrote a story detailing my findings in Medium's largest tech publication,
 
 October 10, 2018
 
-
 <hr>
 
 ### [Experiment: Batch Norm vs. Dropout in ConvNets](https://github.com/harrisonjansma/Portfolio/blob/master/Experiment-BatchNorm-vs-Dropout/08-12-18%20Batch%20Norm%20vs%20Dropout.ipynb)
@@ -166,26 +157,22 @@ August 15, 2018
 <hr>
 
 ### [Global Average Pooling: Object Localization](https://www.harrisonjansma.com/GAP.html)
+
 <p align="center">
 <a href="https://www.harrisonjansma.com/GAP.html"><img src="images/hucklecover2.png" height=300 width=300 alt="Object Localization on my dog, Huckleberry"></a><br>
 Object Localization Featuring my dog, Huckleberry.</p>
-
 
 <p>
 In this project, I implemented the deep learning method for object localization (finding objects in an image) proposed in <a href="http://cnnlocalization.csail.mit.edu/Zhou_Learning_Deep_Features_CVPR_2016_paper.pdf">this research paper</a>. I improved code written by <a href="https://alexisbcook.github.io/2017/global-average-pooling-layers-for-object-localization/">Alexis Cook</a> to handle multi-class localization of images.</p>
 
 <p>Computer vision has innumerable real-world applications. This project was my introduction to the world of computer vision research. Since the conclusion of this project, I have focused heavily on researching recent advances in convolutional neural network architectures. Furthermore, I have made an emphasis on learning how to apply these concepts using Tensorflow and Keras.</p>
 
-
-
-
-
-
 July 16, 2018
 
 <hr>
 
 ### [Apple Sentiment Analysis](https://www.harrisonjansma.com/apple.html)
+
 <p align="center">
 <a href="https://www.harrisonjansma.com/apple.html"><img src="images/toxic.png" height=300 width=300></a></p>
 
@@ -218,7 +205,7 @@ June 13, 2018
 
 <p> By cleaning survey data and performing an exploratory data analysis I was able to analyze the demographics of the tech industry. I found the average respondent was a male, aged 35, located in the United States. By performing KMeans and agglomerative clustering (with scikit-learn) I attempted to cluster the data but found the survey setup prevented any meaningful insight into the data.</p>
   
-  <p> In completing this project, I learned how to encode categorical data and create an insightful EDA with great visualizations. I also learned how to implement clustering methods on data, and <b> analyze the appropriateness of the clustering method with various techniques.</b> 
+  <p> In completing this project, I learned how to encode categorical data and create an insightful EDA with great visualizations. I also learned how to implement clustering methods on data, and <b> analyze the appropriateness of the clustering method with various techniques.</b>
 
 May 23, 2018
 
@@ -242,5 +229,3 @@ May 3, 2018
 - Web Scraping Overwatch Data from MasterOverwatch.com <a href="https://github.com/harrisonjansma/ML-Notes/blob/master/NLP/WebScrapeRegex/overwatch_web_scraping.ipynb">Jupyter Notebook</a>
 
 - FICO Score Statistical Regression <a href="https://github.com/harrisonjansma/ML-Notes/blob/master/1.%20Shallow%20Learning%20Algorithms/1.%20Linear%20Regression/1_Linear%20Regression%20Code.ipynb">Jupyter Notebook</a>
-
-

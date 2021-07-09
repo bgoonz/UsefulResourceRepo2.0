@@ -5,6 +5,7 @@ permalink: /docs/en/ocr_old
 key: docs-ocr-old
 modify_date: "2020-02-04"
 ---
+
 Spark NLP comes with an OCR module that can read both PDF files and scanned images (requires `Tesseract 4.x+`).
 
 ## Installation
@@ -72,20 +73,20 @@ ocrHelper.setMinSizeBeforeFallback(0)
 
 ## Configuration
 
-* `setPreferredMethod(text/image = text)` either `text` or `image` will work. Defaults to `text`. Text mode works better and faster for digital or text scanned PDFs
-* `setFallbackMethod(boolean)` on true, when `text` or `image` fail, it will fallback to the alternate method
-* `setMinSizeBeforeFallback(int = 1)` number of characters to have at a minimum, before falling back.
-* `setPageSegMode(int = 3)` image mode page segmentation mode
-* `setEngineMode(int = 1)` image mode engine mode
-* `setPageIteratorLevel(int = 0)` image mode page iteratior level
-* `setScalingFactor(float)` Specifies the scaling factor to apply to images, in both axes, before OCR. It can scale up the image(factor > 1.0) or scale it down(factor < 1.0)
-* `setSplitPages(boolean = true)` Whether to split pages into different rows and documents
-* `setSplitRegions(boolean = true)` Whether to split by document regions. Works only in image mode. Enables split pages as well.
-* `setIncludeConfidence(boolean = false)`
-* `setAutomaticSkewCorrection(use: boolean, half_angle: double = 5.0, resolution: double = 1.0)`
-* `setAutomaticSizeCorrection(use: boolean, desired_size: int = 34)`
-* `setEstimateNoise(string)` image mode estimator noise level
-* `useErosion(use: boolean, kernel_size: int = 2, kernel_shape: Int = 0)` image mode erosion
+- `setPreferredMethod(text/image = text)` either `text` or `image` will work. Defaults to `text`. Text mode works better and faster for digital or text scanned PDFs
+- `setFallbackMethod(boolean)` on true, when `text` or `image` fail, it will fallback to the alternate method
+- `setMinSizeBeforeFallback(int = 1)` number of characters to have at a minimum, before falling back.
+- `setPageSegMode(int = 3)` image mode page segmentation mode
+- `setEngineMode(int = 1)` image mode engine mode
+- `setPageIteratorLevel(int = 0)` image mode page iteratior level
+- `setScalingFactor(float)` Specifies the scaling factor to apply to images, in both axes, before OCR. It can scale up the image(factor > 1.0) or scale it down(factor < 1.0)
+- `setSplitPages(boolean = true)` Whether to split pages into different rows and documents
+- `setSplitRegions(boolean = true)` Whether to split by document regions. Works only in image mode. Enables split pages as well.
+- `setIncludeConfidence(boolean = false)`
+- `setAutomaticSkewCorrection(use: boolean, half_angle: double = 5.0, resolution: double = 1.0)`
+- `setAutomaticSizeCorrection(use: boolean, desired_size: int = 34)`
+- `setEstimateNoise(string)` image mode estimator noise level
+- `useErosion(use: boolean, kernel_size: int = 2, kernel_shape: Int = 0)` image mode erosion
 
 ## Utilizing Spark NLP OCR Module
 
@@ -99,7 +100,7 @@ content in rows as if you were reading a standard document. Metadata
 columns are added automatically and will include page numbers, file
 name and other useful information per row.
 
-***Python code***
+**_Python code_**
 
 ```python
 from pyspark.sql import SparkSession
@@ -117,7 +118,7 @@ annotations.columns
  'filename', 'document']
 ```
 
-***Scala code***
+**_Scala code_**
 
 ```scala
 import com.johnsnowlabs.nlp.util.io.OcrHelper
@@ -142,7 +143,7 @@ Another way, would be to simply create an array of strings. This is
 useful for example if you are parsing a small amount of pdf files and
 would like to use LightPipelines instead. See an example below.
 
-***Scala code***
+**_Scala code_**
 
 ```scala
 import com.johnsnowlabs.nlp.util.io.OcrHelper

@@ -1,0 +1,106 @@
+import sqlite3
+
+sql_query = """
+    CREATE TABLE IF NOT EXISTS Todo(
+        id INTEGER PRIMARY KEY,
+        task TEXT,
+        complete boolean
+    );
+"""
+
+def execute_query(sql_query):
+    with sqlite3.connect("todo.db") as conn:
+        cur = conn.cursor()
+        result = cur.execute(sql_query)
+        conn.commit()
+    return result
+
+if __name__ == '__main__':
+    execute_query(sql_query)
+import sqlite3
+
+def execute_query(sql_query):
+    with sqlite3.connect("todo.db") as conn:
+        cur = conn.cursor()
+        result = cur.execute(sql_query)
+        conn.commit()
+    return result
+
+
+def add_new_task(task):
+    sql_query = "INSERT INTO Todo(task, complete) VALUES('%s', %s) " %(task, 0)
+    execute_query(sql_query)
+
+
+def get_complete_tasks():
+    sql_query = "SELECT task FROM Todo WHERE complete=%s " %(1)
+    complete = execute_query(sql_query)
+    return [task[0] for task in complete.fetchall()]
+
+
+def get_incomplete_tasks():
+    sql_query = "SELECT task FROM Todo WHERE complete=%s " %(0)
+    incomplete = execute_query(sql_query)
+    return [task[0] for task in incomplete.fetchall()]
+
+
+def mark_task_complete(task):
+    sql_query = "UPDATE Todo SET complete=%s WHERE task='%s' and complete=%s" %(1, task, 0)
+    execute_query(sql_query)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TodoList</title>
+</head>
+<body>
+    <h1> ToDo List</h1>
+    <form action="{{ url_for('add') }}" method="POST">
+        <label>Add a new item </label>
+        <input type="text" name="todoitem">
+        <input type="submit" >
+    </form>
+    <h3>Incomplete Tasks</h3>
+    <ul>
+        {% for task in incomplete %}
+        <li>
+            {{task}}
+            <a href="{{ url_for('complete', task=task) }}">Mark as complete</a>
+        </li>
+        {% endfor %}
+    </ul>
+    <h3>Complete Tasks</h3>
+    <ul>
+        {% for task in complete %}
+        <li>{{task}}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+from flask import Flask, render_template, request, redirect, url_for
+from dbfunctions import add_new_task, get_complete_tasks, get_incomplete_tasks, mark_task_complete
+
+app = Flask(
+        __name__,
+        template_folder = 'client/templates'
+    )
+
+@app.route('/')
+def index():
+    complete = get_complete_tasks()
+    incomplete = get_incomplete_tasks()
+    return render_template('index.html', complete=complete, incomplete=incomplete)
+
+@app.route('/add', methods=["POST"])
+def add():
+    task = request.form["todoitem"]
+    add_new_task(task)
+    return redirect(url_for('index'))
+
+@app.route('/complete/<task>')
+def complete(task):
+    mark_task_complete(task)
+    return redirect(url_for('index'))
+
+if __name__ == '__main__':
+    app.run(debug=True)

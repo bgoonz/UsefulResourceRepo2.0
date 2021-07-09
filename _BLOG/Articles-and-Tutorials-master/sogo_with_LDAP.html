@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>sogo_with_LDAP</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="wip-draft-wip">~~~ WIP ~ DRAFT ~ WIP ~~~</h1>
+<p><em><a href="https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/pulls">Pull Requests</a> gladly accepted</em></p>
+<h1 id="share-your-calendars-address-books-mail-with-sogo-groupware-server-on-ubuntu-12.04">Share your Calendars, Address Books &amp; Mail with SOGo Groupware Server on Ubuntu 12.04</h1>
+<h3 id="introduction">Introduction</h3>
+<p>SOGo is an open source, modern, scalable groupware server. It offers shared calendars, address books, and emails through your favorite Web browser and by using a native client such as Mozilla Thunderbird and Lightning.</p>
+<h2 id="sogo-features">SOGo Features</h2>
+<ul>
+<li>Scalable architecture suitable for deployments from dozens to many thousands of users</li>
+<li>Rich web-based interface that shares the look and feel, the features and the data of Mozilla Thunderbird and Lightning</li>
+<li>Improved integration with Mozilla Thunderbird and Lightning by using the SOGo Connector and the SOGo Integrator</li>
+<li>Two-way synchronization support with any SyncML-capable devices (BlackBerry, Palm, Windows CE, etc.) by using the Funambol SOGo Connector</li>
+</ul>
+<p>SOGo is standard-compliant. It supports CalDAV, CardDAV, GroupDAV, iMIP and iTIP and reuses existing IMAP, SMTP and database servers – making the solution easy to deploy and interoperable with many applications. Mobile devices supporting the SyncML standard use the Funambol middleware to synchronize information.</p>
+<h2 id="requirements">Requirements</h2>
+<p>SOGo reuses many components in an infrastructure:</p>
+<ul>
+<li>LDAP server (e.g. OpenLDAP);</li>
+<li>Database server (e.g. MySQL or PostgreSQL);</li>
+<li>SMTP server (e.g. Postfix);</li>
+<li>IMAP server (e.g. Cyrus or Dovecot).</li>
+</ul>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Follow the steps outlined in <a href="https://www.digitalocean.com/community/articles/how-to-create-your-first-digitalocean-droplet-virtual-server">How To Create Your First DigitalOcean Droplet Virtual Server</a> to deploy the latest release of an <code>Ubuntu 12.04 64-bit</code> virtual private server (VPS).</p>
+<blockquote>
+<h4 id="ssh-keys">SSH Keys</h4>
+<p>For increased security, it is advisable that you:</p>
+<ol type="1">
+<li>Create your droplet with pre-installed SSH keys. <em>See</em> <a href="https://www.digitalocean.com/community/articles/how-to-use-ssh-keys-with-digitalocean-droplets">How To Use SSH Keys with DigitalOcean Droplets</a> (<strong>Windows users:</strong> Refer to the article cited, next); <strong>and</strong></li>
+<li>Disable password logins. <em>See</em> <a href="https://www.digitalocean.com/community/articles/how-to-create-ssh-keys-with-putty-to-connect-to-a-vps">How To Create SSH Keys with PuTTY to Connect to a VPS</a>.</li>
+</ol>
+</blockquote>
+<h4 id="hostname-fqdn">Hostname &amp; FQDN</h4>
+<p>Set your server’s hostname and Fully Qualified Domain Name by implementing the steps in <a href="https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/blob/master/set_hostname_fqdn_on_ubuntu_centos.md">Setting the Hostname &amp; Fully Qualified Domain Name (FQDN) on Ubuntu 12.04 or CentOS 6.4</a>.</p>
+<h4 id="timezone">Timezone</h4>
+<p>You can change your server’s timezone to whatever you want; altough it may be best to set it to the same timezone of most of your users. To do so, simply execute, in a terminal:</p>
+<pre><code>sudo dpkg-reconfigure tzdata</code></pre>
+<p>and follow the instructions in the ensuing on-screen prompts.</p>
+<h2 id="install-ldap-server">Install LDAP Server</h2>
+<p>OpenLDAP is used by many to manage groups and users. While SOGo can function perfectly without an LDAP server, it is not practical to do so in environments with more than a handful of users. Thus, if you hope to use SOGo for more than family and a few friend, follow the steps outlined in <a href="https://www.digitalocean.com/community/articles/how-to-install-and-configure-a-basic-ldap-server-on-an-ubuntu-12-04-vps">How To Install and Configure a Basic LDAP Server on an Ubuntu 12.04 VPS</a>.</p>
+<h3 id="configure-ldap-for-sogo-integration">Configure LDAP for SOGo Integration</h3>
+<h4 id="provision-the-frontend">Provision the Frontend</h4>
+<p>Execute (obviously, you can use whichever text editor you wish; but this guide assumes that you have installed the <a href="https://www.digitalocean.com/community/articles/installing-and-using-the-vim-text-editor-on-a-cloud-server">vim text editor</a>):</p>
+<pre><code>sudo vim frontend.yourdomain.tld.ldif</code></pre>
+<p>Now, on your keyboard, tap on the <code>i</code> key; use the arrow keys to navigate the text area; and copy &amp; paste, or create your frontend file so that it resembles, the example below (replacing <code>yourdomain.tld</code> with the FQDN of your groupware server):</p>
+<pre><code>dn: ou=Users,dc=yourdomain,dc=tld
+objectClass: organizationalUnit
+ou: Users
+
+dn: ou=Groups,dc=yourdomain,dc=tld
+objectClass: organizationalUnit
+ou: Groups</code></pre>
+<p>Now we add the LDIF and provision the server by executing the following command:</p>
+<pre><code>sudo ldapadd -x -D cn=admin,dc=yourdomain,dc=tld -W -f frontend.yourdomain.tld.ldif</code></pre>
+<p>The system will respond with <code>Enter LDAP Password:</code>. Enter your root LDAP password (the one you set during <code>slapd</code> installation).</p>
+<p>If provisioned correctly, the system will display:</p>
+<pre><code>adding new entry &quot;ou=Users,dc=yourdomain,dc=tld&quot;
+
+adding new entry &quot;ou=Groups,dc=yourdomain,dc=tld&quot;</code></pre>
+<h4 id="create-the-sogo-administrative-account">Create the SOGo Administrative Account</h4>
+<p>First, create the SOGo administrative account in your LDAP server. The following LDIF file (sogo.ldif) can be used as an example:</p>
+<pre><code>dn: uid=sogo,ou=Users,dc=yourdomain,dc=tld
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: organizationalPerson
+uid: sogo
+cn: SOGo Administrator
+mail: sogo@yourdomain.tld
+sn: Administrator
+givenName: SOGo</code></pre>
+<p>Load the LDIF file inside your LDAP server using the following command:</p>
+<pre><code>sudo ldapadd -f sogo.ldif -x -w qwerty -D cn=admin,dc=yourdomain,dc=tld</code></pre>
+<p>If successful, the system will respond with <code>adding new entry "uid=sogo,ou=Users,dc=yourdomain,dc=tld"</code>.</p>
+<p>Next, execute (replacing <code>LDAPpassword</code>):</p>
+<pre><code>sudo ldappasswd -h localhost -x -w LDAPpassword -D cn=admin,dc=yourdomain,dc=tld uid=sogo,ou=Users,dc=yourdomain,dc=tld -s LDAPpassword </code></pre>
+<h3 id="add-sogo-repository-gpg-public-key">Add SOGo Repository &amp; GPG Public Key</h3>
+<p>Append the SOGo repository to your <code>apt source list</code>, by copying &amp; pasting both lines, below, into the command line and pressing <code>Enter</code>:</p>
+<pre><code>echo -e &quot;deb http://inverse.ca/ubuntu precise precise \n\
+deb-src http://inverse.ca/ubuntu precise precise&quot; | sudo tee /etc/apt/sources.list.d/SOGo.list</code></pre>
+<p>Next, you must add SOGo’s GPG public key to Ubuntu’s <code>apt keyring</code>. To do so, execute the following commands:</p>
+<pre><code>sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4</code></pre>
+<p>Then, update your lists of available software packages, by executing:</p>
+<pre><code>sudo apt-get update</code></pre>
+<h2 id="sogo-installation">SOGo Installation</h2>
+<p>Install SOGo by executing:</p>
+<pre><code>sudo apt-get -y install sogo</code></pre>
+<h2 id="install-postgresql-database">Install PostgreSQL Database</h2>
+<p>Next, execute:</p>
+<pre><code>sudo apt-get -y install postgresql sope4.9-gdl1-postgresql</code></pre>
+<p>Next, create the SOGo database in PostgreSQL:</p>
+<pre><code>su - postgres
+createuser --no-superuser --no-createdb --no-createrole --encrypted --pwprompt sogo</code></pre>
+<p>The system will respond with the following: <code>Enter password for new role:</code></p>
+<p>To which, enter <code>sogo</code>. The system will then ask you to <code>Enter it again:</code>. Do so and press the <code>Enter</code> key. Then, execute:</p>
+<pre><code>createdb -O sogo sogo
+exit
+echo &quot;host sogo sogo 127.0.0.1/32 md5&quot; &gt;&gt; /etc/postgresql/9.1/main/pg_hba.conf</code></pre>
+<p>Finally, restart PostgreSQL:</p>
+<pre><code>sudo service postgresql restart</code></pre>
+<h2 id="configure-sogo">Configure SOGo</h2>
+<p>Next, modify the SOGo configuration file to reflect the database settings, by entering each of the following commands individually:</p>
+<pre><code>su - sogo -s /bin/bash
+defaults write sogod SOGoProfileURL &quot;postgresql://sogo:sogo@localhost:5432/sogo/sogo_user_profile&quot;
+defaults write sogod OCSFolderInfoURL &quot;postgresql://sogo:sogo@localhost:5432/sogo/sogo_folder_info&quot;
+defaults write sogod OCSSessionsFolderURL &quot;postgresql://sogo:sogo@localhost:5432/sogo/sogo_sessions_folder&quot;
+defaults write sogod OCSEMailAlarmsFolderURL &quot;postgresql://sogo:sogo@localhost:5432/sogo/sogo_alarm_folder&quot;</code></pre>
+<p>While still logged in as the <code>sogo</code> user, we’ll continue configuring SOGo:</p>
+<pre><code>defaults write sogod SOGoTimeZone &quot;America/Chicago&quot;
+defaults write sogod SOGoDraftsFolderName &quot;Drafts&quot;
+defaults write sogod SOGoSentFolderName &quot;Sent&quot;
+defaults write sogod SOGoTrashFolderName &quot;Trash&quot;
+defaults write sogod SOGoIMAPServer &quot;localhost:144&quot;
+defaults write sogod SOGoSieveServer &quot;sieve://127.0.0.1:4190&quot;
+defaults write sogod SOGoSieveScriptsEnabled &quot;YES&quot;</code></pre>
+<h4 id="optional">Optional</h4>
+<p>If you want to allow users to add their own IMAP account in SOGo, add the following command:</p>
+<pre><code>defaults write sogod SOGoMailAuxiliaryUserAccountsEnabled YES</code></pre>
+<p>Logout of the <code>sogo</code> user &amp; return to the <code>root</code> user</p>
+<pre><code>exit</code></pre>
+<h2 id="sogo-web-ui-setup">SOGo Web UI Setup</h2>
+<pre><code>sudo apt-get -y install apache2</code></pre>
+<h3 id="apache-configuration">Apache Configuration</h3>
+<p>You have now to configure Apache2 by executing:</p>
+<pre><code>sudo vim /etc/apache2/conf.d/SOGo.conf</code></pre>
+<p>Next, add a hash to the following lines:</p>
+<pre><code># RequestHeader set &quot;x-webobjects-server-port&quot; &quot;443&quot;
+# RequestHeader set &quot;x-webobjects-server-name&quot; &quot;yourhostname&quot;
+# RequestHeader set &quot;x-webobjects-server-url&quot; &quot;https://yourhostname&quot;</code></pre>
+<p>Enable the necessary modules for Apache2:</p>
+<pre><code>sudo a2enmod proxy
+sudo a2enmod proxy_http
+sudo a2enmod headers
+sudo a2enmod rewrite
+sudo a2dismod reqtimeout</code></pre>
+<p>Restart Apache2</p>
+<pre><code>sudo service apache2 restart</code></pre>
+<p>There is a small bug in the <code>init.d</code> of Sogo that holds up the start-up process. You must edit the <code>init</code> file:</p>
+<pre><code>sudo vim /etc/init.d/sogo</code></pre>
+<p>and add the <code>-b</code> argument at lines 70 and 88:</p>
+<pre><code>#Line 70
+if ! start-stop-daemon -b -c $USER --quiet --start --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+# Line 88
+start-stop-daemon -b -c $USER --quiet --start --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS</code></pre>
+<h4 id="restart-sogo">Restart SOGo:</h4>
+<pre><code>sudo service sogo restart   </code></pre>
+<h2 id="postfix-dovecot-installation">Postfix &amp; Dovecot Installation</h2>
+<p>Install Postfix</p>
+<pre><code>sudo apt-get -y install postfix postfix-ldap</code></pre>
+<p>Let as usual the default options, then give the following parameter to Postfix to use maildir format.</p>
+<pre><code>postconf -e &quot;home_mailbox=.Maildir/&quot;</code></pre>
+<p>Next, execute:</p>
+<pre><code>postconf -e &quot;mailbox_transport = lmtp:unix:/var/run/cyrus/socket/lmtp&quot;</code></pre>
+<p>It’s also necessary to indicate to Postfix do not use ltmp in a chroot mode as it will not able to communicate with Cyrus-Imap.</p>
+<pre><code>sudo vim /etc/postfix/master.cf</code></pre>
+<p>And change the line to add the “n” letter in the right placement like the following line.</p>
+<pre><code>lmtp      unix  -       -       n       -       -       lmtp</code></pre>
+<p>Then restart Postfix</p>
+<pre><code>sudo service postfix restart</code></pre>
+<h2 id="installation">Installation</h2>
+<p>To install Dovecot, execute:</p>
+<pre><code>sudo apt-get install dovecot-imapd</code></pre>
+<p>Configure Dovecot by creating a new file:</p>
+<pre><code>sudo vim /etc/dovecot/local.conf</code></pre>
+<p>and paste the following text:</p>
+<pre><code>mail_location = maildir:~/.Maildir
+disable_plaintext_auth = no
+
+passdb {
+driver = static
+args = nopassword=y host=127.0.0.1
+}</code></pre>
+<p>Restart Dovecot:</p>
+<pre><code>sudo service dovecot restart</code></pre>
+<h3 id="security-hardening">Security Hardening</h3>
+<p>Any server accessible from the public Internet should be security hardened, and a groupware server is no exception. While security best practices are not within the scope of this article,</p>
+<ul>
+<li><p>Change your SSH port from the default Port 22 to a random port <strong>below 1024</strong>, as described in <strong>Step Five</strong> of <a href="https://www.digitalocean.com/community/articles/initial-server-setup-with-ubuntu-12-04">Initial Server Setup with Ubuntu 12.04</a>;</p></li>
+<li>Configure a <a href="https://www.digitalocean.com/community/articles/how-to-setup-a-firewall-with-ufw-on-an-ubuntu-and-debian-cloud-server">firewall</a> and make sure to open your <strong>custom SSH port</strong> and <strong>TCP Ports 25 &amp; 465</strong>;</li>
+<li><p>The default firewall configuration tool for Ubuntu is <code>ufw</code>. To open the necessary ports, simply execute:</p>
+<pre><code>     sudo ufw allow [custom SSH port below 1024]/tcp
+     sudo ufw allow 
+     sudo ufw enable
+     sudo ufw status verbose</code></pre></li>
+<li><p>Either <a href="https://www.digitalocean.com/community/articles/how-to-create-ssh-keys-with-putty-to-connect-to-a-vps">disable password logins</a> or deploy <a href="https://www.digitalocean.com/community/articles/how-to-protect-ssh-with-fail2ban-on-ubuntu-12-04">Fail2ban</a>.</p></li>
+</ul>
+<p>As always, if you need help with the steps outlined in this How-To, look to the DigitalOcean Community for assistance by posing your question(s), below.</p>
+<p>
+<div style="text-align: right; font-size:smaller;">
+Article submitted by: <a href="https://plus.google.com/107285164064863645881?rel=author" target="_blank">Pablo Carranza</a> • DATE
+</div>
+</p>
+<h1 id="wip-draft-wip-1">~~~ WIP ~ DRAFT ~ WIP ~~~</h1>
+<p><em><a href="https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/pulls">Pull Requests</a> gladly accepted</em></p>
+</body>
+</html>

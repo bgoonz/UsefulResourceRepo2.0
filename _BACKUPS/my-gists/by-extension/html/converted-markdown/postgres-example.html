@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>postgres-example</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h3 id="creating-the-db-and-the-table">Creating the DB and the Table</h3>
+<pre><code>DROP DATABASE IF EXISTS books_db;
+CREATE DATABASE books_db WITH ENCODING=&#39;UTF8&#39; TEMPLATE template0;
+
+DROP TABLE IF EXISTS books;
+
+CREATE TABLE books (
+  id SERIAL PRIMARY KEY,
+  client VARCHAR NOT NULL,
+  data JSONb NOT NULL
+);</code></pre>
+<p>###Populating the DB INSERT INTO books(client, data) values( ‘Joe’, ); INSERT INTO books(client, data) values(‘Jenny’, INSERT INTO books(client, data) values(‘Jenny’,</p>
+<p>Lets see everything inside the table books:</p>
+<pre><code>SELECT * FROM books;</code></pre>
+<p>Output:</p>
+<p><img src="http://i.imgur.com/T26elII.png" /></p>
+<h3 id="operator-returns-values-out-of-json-columns"><code>-&gt;</code> operator returns values out of JSON columns</h3>
+<p>Selecting 1 column:</p>
+<pre><code>SELECT client, 
+    data-&gt;&#39;title&#39; AS title
+    FROM books;
+    </code></pre>
+<p>Output:</p>
+<figure>
+<img src="http://i.imgur.com/Pab2puE.png" alt="enter image description here" /><figcaption>enter image description here</figcaption>
+</figure>
+<p>Selecting 2 columns:</p>
+<pre><code>SELECT client, 
+   FROM books;
+   </code></pre>
+<p>Output:</p>
+<figure>
+<img src="http://i.imgur.com/fWHUsre.png" alt="enter image description here" /><figcaption>enter image description here</figcaption>
+</figure>
+<h3 id="vs--"><code>-&gt;</code> vs <code>-&gt;&gt;</code></h3>
+<p>The <code>-&gt;</code> operator returns the original JSON type (which might be an object), whereas <code>-&gt;&gt;</code> returns text.</p>
+<h3 id="return-nested-objects">Return NESTED objects</h3>
+<p>You can use the <code>-&gt;</code> to return a nested object and thus chain the operators:</p>
+<pre><code>SELECT client, 
+   FROM books;
+       </code></pre>
+<p>Output:</p>
+<figure>
+<img src="http://i.imgur.com/NgSPIFU.png" alt="enter image description here" /><figcaption>enter image description here</figcaption>
+</figure>
+<h3 id="filtering">Filtering</h3>
+<p>Select rows based on a value inside your JSON:</p>
+<pre><code> SELECT 
+ client,
+ data-&gt;&#39;title&#39; AS title
+ FROM books
+  WHERE data-&gt;&#39;title&#39; = &#39;&quot;Dharma Bums&quot;&#39;;</code></pre>
+<p>Notice WHERE uses <code>-&gt;</code> so we must compare to JSON <code>'"Dharma Bums"'</code></p>
+<p>Or we could use <code>-&gt;&gt;</code> and compare to <code>'Dharma Bums'</code></p>
+<p>Output:</p>
+<figure>
+<img src="http://i.imgur.com/2seaUNK.png" alt="enter image description here" /><figcaption>enter image description here</figcaption>
+</figure>
+<h3 id="nested-filtering">Nested filtering</h3>
+<p>Find rows based on the value of a nested JSON object:</p>
+<pre><code>SELECT 
+ client,
+ data-&gt;&#39;title&#39; AS title
+ FROM books</code></pre>
+<p>Output:</p>
+<figure>
+<img src="http://i.imgur.com/yeBMj0T.png" alt="enter image description here" /><figcaption>enter image description here</figcaption>
+</figure>
+<h3 id="a-real-world-example">A real world example</h3>
+<pre><code>CREATE TABLE events (
+  name varchar(200),
+  visitor_id varchar(200),
+  properties json,
+  browser json
+);</code></pre>
+<p>We’re going to store events in this table, like pageviews. Each event has properties, which could be anything (e.g. current page) and also sends information about the browser (like OS, screen resolution, etc). Both of these are completely free form and could change over time (as we think of extra stuff to track).</p>
+<pre><code>INSERT INTO events VALUES (
+  &#39;pageview&#39;, &#39;1&#39;,
+  &#39;{ &quot;page&quot;: &quot;/&quot; }&#39;,
+  &#39;{ &quot;name&quot;: &quot;Chrome&quot;, &quot;os&quot;: &quot;Mac&quot;, &quot;resolution&quot;: { &quot;x&quot;: 1440, &quot;y&quot;: 900 } }&#39;
+);
+INSERT INTO events VALUES (
+  &#39;pageview&#39;, &#39;2&#39;,
+  &#39;{ &quot;page&quot;: &quot;/&quot; }&#39;,
+  &#39;{ &quot;name&quot;: &quot;Firefox&quot;, &quot;os&quot;: &quot;Windows&quot;, &quot;resolution&quot;: { &quot;x&quot;: 1920, &quot;y&quot;: 1200 } }&#39;
+);
+INSERT INTO events VALUES (
+  &#39;pageview&#39;, &#39;1&#39;,
+  &#39;{ &quot;page&quot;: &quot;/account&quot; }&#39;,
+  &#39;{ &quot;name&quot;: &quot;Chrome&quot;, &quot;os&quot;: &quot;Mac&quot;, &quot;resolution&quot;: { &quot;x&quot;: 1440, &quot;y&quot;: 900 } }&#39;
+);
+INSERT INTO events VALUES (
+  &#39;purchase&#39;, &#39;5&#39;,
+  &#39;{ &quot;amount&quot;: 10 }&#39;,
+  &#39;{ &quot;name&quot;: &quot;Firefox&quot;, &quot;os&quot;: &quot;Windows&quot;, &quot;resolution&quot;: { &quot;x&quot;: 1024, &quot;y&quot;: 768 } }&#39;
+);
+INSERT INTO events VALUES (
+  &#39;purchase&#39;, &#39;15&#39;,
+  &#39;{ &quot;amount&quot;: 200 }&#39;,
+  &#39;{ &quot;name&quot;: &quot;Firefox&quot;, &quot;os&quot;: &quot;Windows&quot;, &quot;resolution&quot;: { &quot;x&quot;: 1280, &quot;y&quot;: 800 } }&#39;
+);
+INSERT INTO events VALUES (
+  &#39;purchase&#39;, &#39;15&#39;,
+  &#39;{ &quot;amount&quot;: 500 }&#39;,
+  &#39;{ &quot;name&quot;: &quot;Firefox&quot;, &quot;os&quot;: &quot;Windows&quot;, &quot;resolution&quot;: { &quot;x&quot;: 1280, &quot;y&quot;: 800 } }&#39;
+);</code></pre>
+<p>Now lets select everything:</p>
+<pre><code>SELECT * FROM events;</code></pre>
+<p>Output:</p>
+<figure>
+<img src="http://i.imgur.com/b5Hw0NN.png" alt="enter image description here" /><figcaption>enter image description here</figcaption>
+</figure>
+<h3 id="json-operators-postgresql-aggregate-functions">JSON operators + PostgreSQL aggregate functions</h3>
+<p>Using the JSON operators, combined with traditional PostgreSQL aggregate functions, we can pull out whatever we want. You have the full might of an RDBMS at your disposal.</p>
+<ul>
+<li><p>Lets see browser usage:</p>
+<pre><code>  SELECT browser-&gt;&gt;&#39;name&#39; AS browser, 
+    count(browser)
+    FROM events
+    GROUP BY browser-&gt;&gt;&#39;name&#39;;</code></pre></li>
+</ul>
+<p>Output:</p>
+<figure>
+<img src="http://i.imgur.com/jvw6bz7.png" alt="enter image description here" /><figcaption>enter image description here</figcaption>
+</figure>
+<ul>
+<li><p>Total revenue per visitor:</p>
+<pre><code>  SELECT visitor_id, SUM(CAST(properties-&gt;&gt;&#39;amount&#39; AS integer)) AS total
+  FROM events
+  WHERE CAST(properties-&gt;&gt;&#39;amount&#39; AS integer) &gt; 0
+  GROUP BY visitor_id;</code></pre></li>
+</ul>
+<p>Output:</p>
+<figure>
+<img src="http://i.imgur.com/6cOnNl9.png" alt="enter image description here" /><figcaption>enter image description here</figcaption>
+</figure>
+<ul>
+<li><p>Average screen resolution</p>
+<pre><code>  SELECT AVG(CAST(browser-&gt;&#39;resolution&#39;-&gt;&gt;&#39;x&#39; AS integer)) AS width,
+    AVG(CAST(browser-&gt;&#39;resolution&#39;-&gt;&gt;&#39;y&#39; AS integer)) AS height
+  FROM events;</code></pre></li>
+</ul>
+<p>Output:</p>
+<figure>
+<img src="http://i.imgur.com/RfVELht.png" alt="enter image description here" /><figcaption>enter image description here</figcaption>
+</figure>
+<h3 id="additional-jsonboperators">Additional <code>JSONb</code>Operators:</h3>
+<figure>
+<img src="http://i.imgur.com/rwPJ473.png" alt="Imgur" /><figcaption>Imgur</figcaption>
+</figure>
+</body>
+</html>

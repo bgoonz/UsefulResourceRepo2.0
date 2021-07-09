@@ -5,14 +5,13 @@ permalink: /docs/en/training
 key: docs-training
 modify_date: "2019-10-23"
 use_language_switchter: true
-
 ---
 
 ## Training Datasets
 
 ### POS Dataset
 
-In order to train a Part of Speech Tagger annotator, we need to get corpus data as a spark dataframe. There is a component that does this for us: it reads a plain text file and transforms it to a spark dataset.  
+In order to train a Part of Speech Tagger annotator, we need to get corpus data as a spark dataframe. There is a component that does this for us: it reads a plain text file and transforms it to a spark dataset.
 
 **Input File Format:**
 
@@ -27,7 +26,7 @@ A|DT few|JJ months|NNS ago|RB you|PRP received|VBD a|DT letter|NN
 - delimiter(string): Delimiter of token and postag. Defaults to `|`
 - outputPosCol(string): Name of the column with POS values. Defaults to "tags".
 
-**Example:**  
+**Example:**
 
 Refer to the [POS](https://nlp.johnsnowlabs.com/api/index#com.johnsnowlabs.nlp.training.POS) Scala docs for more details on the API.
 
@@ -83,7 +82,7 @@ val trainingConll = CoNLL().readDataset(spark, "./src/main/resources/conll2003/e
 
 ### Spell Checkers Dataset
 
-In order to train a Norvig or Symmetric Spell Checkers, we need to get corpus data as a spark dataframe. We can read a plain text file and transforms it to a spark dataset.  
+In order to train a Norvig or Symmetric Spell Checkers, we need to get corpus data as a spark dataframe. We can read a plain text file and transforms it to a spark dataset.
 
 **Example:**
 

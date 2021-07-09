@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>Writing middleware for use in Express apps</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+    <style type="text/css">
+      a.sourceLine {
+        display: inline-block;
+        line-height: 1.25;
+      }
+      a.sourceLine {
+        pointer-events: none;
+        color: inherit;
+        text-decoration: inherit;
+      }
+      a.sourceLine:empty {
+        height: 1.2em;
+      }
+      .sourceCode {
+        overflow: visible;
+      }
+      code.sourceCode {
+        white-space: pre;
+        position: relative;
+      }
+      div.sourceCode {
+        margin: 1em 0;
+      }
+      pre.sourceCode {
+        margin: 0;
+      }
+      @media screen {
+        div.sourceCode {
+          overflow: auto;
+        }
+      }
+      @media print {
+        code.sourceCode {
+          white-space: pre-wrap;
+        }
+        a.sourceLine {
+          text-indent: -1em;
+          padding-left: 1em;
+        }
+      }
+      pre.numberSource a.sourceLine {
+        position: relative;
+        left: -4em;
+      }
+      pre.numberSource a.sourceLine::before {
+        content: attr(title);
+        position: relative;
+        left: -1em;
+        text-align: right;
+        vertical-align: baseline;
+        border: none;
+        pointer-events: all;
+        display: inline-block;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        padding: 0 4px;
+        width: 4em;
+        color: #aaaaaa;
+      }
+      pre.numberSource {
+        margin-left: 3em;
+        border-left: 1px solid #aaaaaa;
+        padding-left: 4px;
+      }
+      div.sourceCode {
+      }
+      @media screen {
+        a.sourceLine::before {
+          text-decoration: underline;
+        }
+      }
+      code span.al {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Alert */
+      code span.an {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Annotation */
+      code span.at {
+        color: #7d9029;
+      } /* Attribute */
+      code span.bn {
+        color: #40a070;
+      } /* BaseN */
+      code span.bu {
+      } /* BuiltIn */
+      code span.cf {
+        color: #007020;
+        font-weight: bold;
+      } /* ControlFlow */
+      code span.ch {
+        color: #4070a0;
+      } /* Char */
+      code span.cn {
+        color: #880000;
+      } /* Constant */
+      code span.co {
+        color: #60a0b0;
+        font-style: italic;
+      } /* Comment */
+      code span.cv {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* CommentVar */
+      code span.do {
+        color: #ba2121;
+        font-style: italic;
+      } /* Documentation */
+      code span.dt {
+        color: #902000;
+      } /* DataType */
+      code span.dv {
+        color: #40a070;
+      } /* DecVal */
+      code span.er {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Error */
+      code span.ex {
+      } /* Extension */
+      code span.fl {
+        color: #40a070;
+      } /* Float */
+      code span.fu {
+        color: #06287e;
+      } /* Function */
+      code span.im {
+      } /* Import */
+      code span.in {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Information */
+      code span.kw {
+        color: #007020;
+        font-weight: bold;
+      } /* Keyword */
+      code span.op {
+        color: #666666;
+      } /* Operator */
+      code span.ot {
+        color: #007020;
+      } /* Other */
+      code span.pp {
+        color: #bc7a00;
+      } /* Preprocessor */
+      code span.sc {
+        color: #4070a0;
+      } /* SpecialChar */
+      code span.ss {
+        color: #bb6688;
+      } /* SpecialString */
+      code span.st {
+        color: #4070a0;
+      } /* String */
+      code span.va {
+        color: #19177c;
+      } /* Variable */
+      code span.vs {
+        color: #4070a0;
+      } /* VerbatimString */
+      code span.wa {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Warning */
+    </style>
+  </head>
+  <body>
+    <header id="title-block-header">
+      <h1 class="title">Writing middleware for use in Express apps</h1>
+    </header>
+    <h1 id="writing-middleware-for-use-in-express-apps">
+      Writing middleware for use in Express apps
+    </h1>
+    <h2>Overview</h2>
+    <p>
+      <em>Middleware</em> functions are functions that have access to the
+      <a href="/%7B%7B%20page.lang%20%7D%7D/4x/api.html#req">request object</a>
+      (<code>req</code>), the
+      <a href="/%7B%7B%20page.lang%20%7D%7D/4x/api.html#res">response object</a>
+      (<code>res</code>), and the <code>next</code> function in the
+      application’s request-response cycle. The <code>next</code> function is a
+      function in the Express router which, when invoked, executes the
+      middleware succeeding the current middleware.
+    </p>
+    <p>Middleware functions can perform the following tasks:</p>
+    <ul>
+      <li>Execute any code.</li>
+      <li>Make changes to the request and the response objects.</li>
+      <li>End the request-response cycle.</li>
+      <li>Call the next middleware in the stack.</li>
+    </ul>
+    <p>
+      If the current middleware function does not end the request-response
+      cycle, it must call <code>next()</code> to pass control to the next
+      middleware function. Otherwise, the request will be left hanging.
+    </p>
+    <p>
+      The following figure shows the elements of a middleware function call:
+    </p>
+    <table id="mw-fig">
+      <tr>
+        <td id="mw-fig-imgcell">
+          <img src="/images/express-mw.png" id="mw-fig-img" />
+        </td>
+        <td class="mw-fig-callouts">
+          <div id="callout1" class="callout">
+            HTTP method for which the middleware function applies.
+          </div>
+          <div id="callout2" class="callout">
+            Path (route) for which the middleware function applies.
+          </div>
+          <div id="callout3" class="callout">The middleware function.</div>
+          <div id="callout4" class="callout">
+            Callback argument to the middleware function, called “next” by
+            convention.
+          </div>
+          <div id="callout5" class="callout">
+            HTTP
+            <a href="/{{ page.lang }}/4x/api.html#res">response</a> argument to
+            the middleware function, called “res” by convention.
+          </div>
+          <div id="callout6" class="callout">
+            HTTP <a href="/{{ page.lang }}/4x/api.html#req">request</a> argument
+            to the middleware function, called “req” by convention.
+          </div>
+        </td>
+      </tr>
+    </table>
+    <p>
+      Starting with Express 5, middleware functions that return a Promise will
+      call <code>next(value)</code> when they reject or throw an error.
+      <code>next</code> will be called with either the rejected value or the
+      thrown Error.
+    </p>
+    <h2>Example</h2>
+    <p>
+      Here is an example of a simple “Hello World” Express application. The
+      remainder of this article will define and add three middleware functions
+      to the application: one called <code>myLogger</code> that prints a simple
+      log message, one called <code>requestTime</code> that displays the
+      timestamp of the HTTP request, and one called
+      <code>validateCookies</code> that validates incoming cookies.
+    </p>
+    <div class="sourceCode" id="cb1">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">var</span> express <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;express&#39;</span>)</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">var</span> app <span class="op">=</span> <span class="at">express</span>()</a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="va">res</span>.<span class="at">send</span>(<span class="st">&#39;Hello World!&#39;</span>)</a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb1-7" title="7"></a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="va">app</span>.<span class="at">listen</span>(<span class="dv">3000</span>)</a></code></pre>
+    </div>
+    <h3>Middleware function myLogger</h3>
+    <p>
+      Here is a simple example of a middleware function called “myLogger”. This
+      function just prints “LOGGED” when a request to the app passes through it.
+      The middleware function is assigned to a variable named
+      <code>myLogger</code>.
+    </p>
+    <div class="sourceCode" id="cb2">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">var</span> myLogger <span class="op">=</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;LOGGED&#39;</span>)</a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="op">}</span></a></code></pre>
+    </div>
+    <div class="doc-box doc-notice" data-markdown="1">
+      <p>
+        Notice the call above to <code>next()</code>. Calling this function
+        invokes the next middleware function in the app. The
+        <code>next()</code> function is not a part of the Node.js or Express
+        API, but is the third argument that is passed to the middleware
+        function. The <code>next()</code> function could be named anything, but
+        by convention it is always named “next”. To avoid confusion, always use
+        this convention.
+      </p>
+    </div>
+    <p>
+      To load the middleware function, call <code>app.use()</code>, specifying
+      the middleware function. For example, the following code loads the
+      <code>myLogger</code> middleware function before the route to the root
+      path (/).
+    </p>
+    <div class="sourceCode" id="cb3">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">var</span> express <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;express&#39;</span>)</a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="kw">var</span> app <span class="op">=</span> <span class="at">express</span>()</a>
+<a class="sourceLine" id="cb3-3" title="3"></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="kw">var</span> myLogger <span class="op">=</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-5" title="5">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;LOGGED&#39;</span>)</a>
+<a class="sourceLine" id="cb3-6" title="6">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="op">}</span></a>
+<a class="sourceLine" id="cb3-8" title="8"></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="va">app</span>.<span class="at">use</span>(myLogger)</a>
+<a class="sourceLine" id="cb3-10" title="10"></a>
+<a class="sourceLine" id="cb3-11" title="11"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-12" title="12">  <span class="va">res</span>.<span class="at">send</span>(<span class="st">&#39;Hello World!&#39;</span>)</a>
+<a class="sourceLine" id="cb3-13" title="13"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb3-14" title="14"></a>
+<a class="sourceLine" id="cb3-15" title="15"><span class="va">app</span>.<span class="at">listen</span>(<span class="dv">3000</span>)</a></code></pre>
+    </div>
+    <p>
+      Every time the app receives a request, it prints the message “LOGGED” to
+      the terminal.
+    </p>
+    <p>
+      The order of middleware loading is important: middleware functions that
+      are loaded first are also executed first.
+    </p>
+    <p>
+      If <code>myLogger</code> is loaded after the route to the root path, the
+      request never reaches it and the app doesn’t print “LOGGED”, because the
+      route handler of the root path terminates the request-response cycle.
+    </p>
+    <p>
+      The middleware function <code>myLogger</code> simply prints a message,
+      then passes on the request to the next middleware function in the stack by
+      calling the <code>next()</code> function.
+    </p>
+    <h3>Middleware function requestTime</h3>
+    <p>
+      Next, we’ll create a middleware function called “requestTime” and add a
+      property called <code>requestTime</code> to the request object.
+    </p>
+    <div class="sourceCode" id="cb4">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">var</span> requestTime <span class="op">=</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="va">req</span>.<span class="at">requestTime</span> <span class="op">=</span> <span class="va">Date</span>.<span class="at">now</span>()</a>
+<a class="sourceLine" id="cb4-3" title="3">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="op">}</span></a></code></pre>
+    </div>
+    <p>
+      The app now uses the <code>requestTime</code> middleware function. Also,
+      the callback function of the root path route uses the property that the
+      middleware function adds to <code>req</code> (the request object).
+    </p>
+    <div class="sourceCode" id="cb5">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">var</span> express <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;express&#39;</span>)</a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="kw">var</span> app <span class="op">=</span> <span class="at">express</span>()</a>
+<a class="sourceLine" id="cb5-3" title="3"></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="kw">var</span> requestTime <span class="op">=</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-5" title="5">  <span class="va">req</span>.<span class="at">requestTime</span> <span class="op">=</span> <span class="va">Date</span>.<span class="at">now</span>()</a>
+<a class="sourceLine" id="cb5-6" title="6">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-8" title="8"></a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="va">app</span>.<span class="at">use</span>(requestTime)</a>
+<a class="sourceLine" id="cb5-10" title="10"></a>
+<a class="sourceLine" id="cb5-11" title="11"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-12" title="12">  <span class="kw">var</span> responseText <span class="op">=</span> <span class="st">&#39;Hello World!&lt;br&gt;&#39;</span></a>
+<a class="sourceLine" id="cb5-13" title="13">  responseText <span class="op">+=</span> <span class="st">&#39;&lt;small&gt;Requested at: &#39;</span> <span class="op">+</span> <span class="va">req</span>.<span class="at">requestTime</span> <span class="op">+</span> <span class="st">&#39;&lt;/small&gt;&#39;</span></a>
+<a class="sourceLine" id="cb5-14" title="14">  <span class="va">res</span>.<span class="at">send</span>(responseText)</a>
+<a class="sourceLine" id="cb5-15" title="15"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb5-16" title="16"></a>
+<a class="sourceLine" id="cb5-17" title="17"><span class="va">app</span>.<span class="at">listen</span>(<span class="dv">3000</span>)</a></code></pre>
+    </div>
+    <p>
+      When you make a request to the root of the app, the app now displays the
+      timestamp of your request in the browser.
+    </p>
+    <h3>Middleware function validateCookies</h3>
+    <p>
+      Finally, we’ll create a middleware function that validates incoming
+      cookies and sends a 400 response if cookies are invalid.
+    </p>
+    <p>
+      Here’s an example function that validates cookies with an external async
+      service.
+    </p>
+    <div class="sourceCode" id="cb6">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">async</span> <span class="kw">function</span> <span class="at">cookieValidator</span> (cookies) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="cf">try</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-3" title="3">    <span class="cf">await</span> <span class="at">externallyValidateCookie</span>(<span class="va">cookies</span>.<span class="at">testCookie</span>)</a>
+<a class="sourceLine" id="cb6-4" title="4">  <span class="op">}</span> <span class="cf">catch</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-5" title="5">    <span class="cf">throw</span> <span class="kw">new</span> <span class="at">Error</span>(<span class="st">&#39;Invalid cookies&#39;</span>)</a>
+<a class="sourceLine" id="cb6-6" title="6">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="op">}</span></a></code></pre>
+    </div>
+    <p>
+      Here we use the
+      <a href="/resources/middleware/cookie-parser.html"
+        ><code>cookie-parser</code></a
+      >
+      middleware to parse incoming cookies off the <code>req</code> object and
+      pass them to our <code>cookieValidator</code> function. The
+      <code>validateCookies</code> middleware returns a Promise that upon
+      rejection will automatically trigger our error handler.
+    </p>
+    <div class="sourceCode" id="cb7">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">var</span> express <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;express&#39;</span>)</a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="kw">var</span> cookieParser <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;cookie-parser&#39;</span>)</a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="kw">var</span> cookieValidator <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;./cookieValidator&#39;</span>)</a>
+<a class="sourceLine" id="cb7-4" title="4"></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="kw">var</span> app <span class="op">=</span> <span class="at">express</span>()</a>
+<a class="sourceLine" id="cb7-6" title="6"></a>
+<a class="sourceLine" id="cb7-7" title="7"><span class="kw">async</span> <span class="kw">function</span> <span class="at">validateCookies</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-8" title="8">  <span class="cf">await</span> <span class="at">cookieValidator</span>(<span class="va">req</span>.<span class="at">cookies</span>)</a>
+<a class="sourceLine" id="cb7-9" title="9">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb7-10" title="10"><span class="op">}</span></a>
+<a class="sourceLine" id="cb7-11" title="11"></a>
+<a class="sourceLine" id="cb7-12" title="12"><span class="va">app</span>.<span class="at">use</span>(<span class="at">cookieParser</span>())</a>
+<a class="sourceLine" id="cb7-13" title="13"></a>
+<a class="sourceLine" id="cb7-14" title="14"><span class="va">app</span>.<span class="at">use</span>(validateCookies)</a>
+<a class="sourceLine" id="cb7-15" title="15"></a>
+<a class="sourceLine" id="cb7-16" title="16"><span class="co">// error handler</span></a>
+<a class="sourceLine" id="cb7-17" title="17"><span class="va">app</span>.<span class="at">use</span>(<span class="kw">function</span> (err<span class="op">,</span> req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-18" title="18">  <span class="va">res</span>.<span class="at">status</span>(<span class="dv">400</span>).<span class="at">send</span>(<span class="va">err</span>.<span class="at">message</span>)</a>
+<a class="sourceLine" id="cb7-19" title="19"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb7-20" title="20"></a>
+<a class="sourceLine" id="cb7-21" title="21"><span class="va">app</span>.<span class="at">listen</span>(<span class="dv">3000</span>)</a></code></pre>
+    </div>
+    <div class="doc-box doc-notice" data-markdown="1">
+      <p>
+        Note how <code>next()</code> is called after
+        <code>await cookieValidator(req.cookies)</code>. This ensures that if
+        <code>cookieValidator</code> resolves, the next middleware in the stack
+        will get called. If you pass anything to the
+        <code>next()</code> function (except the string <code>'route'</code> or
+        <code>'router'</code>), Express regards the current request as being an
+        error and will skip any remaining non-error handling routing and
+        middleware functions.
+      </p>
+    </div>
+    <p>
+      Because you have access to the request object, the response object, the
+      next middleware function in the stack, and the whole Node.js API, the
+      possibilities with middleware functions are endless.
+    </p>
+    <p>
+      For more information about Express middleware, see:
+      <a href="/%7B%7B%20page.lang%20%7D%7D/guide/using-middleware.html"
+        >Using Express middleware</a
+      >.
+    </p>
+    <h2>Configurable middleware</h2>
+    <p>
+      If you need your middleware to be configurable, export a function which
+      accepts an options object or other parameters, which, then returns the
+      middleware implementation based on the input parameters.
+    </p>
+    <p>File: <code>my-middleware.js</code></p>
+    <div class="sourceCode" id="cb8">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="va">module</span>.<span class="at">exports</span> <span class="op">=</span> <span class="kw">function</span> (options) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-2" title="2">  <span class="cf">return</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-3" title="3">    <span class="co">// Implement the middleware function based on the options object</span></a>
+<a class="sourceLine" id="cb8-4" title="4">    <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb8-5" title="5">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-6" title="6"><span class="op">}</span></a></code></pre>
+    </div>
+    <p>The middleware can now be used as shown below.</p>
+    <div class="sourceCode" id="cb9">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">var</span> mw <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;./my-middleware.js&#39;</span>)</a>
+<a class="sourceLine" id="cb9-2" title="2"></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="va">app</span>.<span class="at">use</span>(<span class="at">mw</span>(<span class="op">{</span> <span class="dt">option1</span><span class="op">:</span> <span class="st">&#39;1&#39;</span><span class="op">,</span> <span class="dt">option2</span><span class="op">:</span> <span class="st">&#39;2&#39;</span> <span class="op">}</span>))</a></code></pre>
+    </div>
+    <p>
+      Refer to
+      <a href="https://github.com/expressjs/cookie-session">cookie-session</a>
+      and <a href="https://github.com/expressjs/compression">compression</a> for
+      examples of configurable middleware.
+    </p>
+  </body>
+</html>

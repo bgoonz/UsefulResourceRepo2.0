@@ -1,0 +1,1 @@
+function(a,b,c,d,e,f,g){return f=f||1e6,f/((g=(a*e/d/e+1)*d)+f)*d*d/c/(g-d)/b}

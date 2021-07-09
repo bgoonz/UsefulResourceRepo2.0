@@ -1,6 +1,6 @@
-* face_recognition version:
-* Python version:
-* Operating System:
+-   face_recognition version:
+-   Python version:
+-   Operating System:
 
 ### Description
 
