@@ -1,0 +1,96 @@
+### Partner Program posts, page 1
+
+- [Understanding Git (A Beginners Guide Containing Cheat Sheets & Resources)](https://medium.com/p/understanding-git-a-beginners-guide-containing-cheat-sheets-resources-b50c9c01a107) - $19.07
+- [My Favorite VSCode Themes](https://medium.com/p/my-favorite-vscode-themes-9bab65af3f0f) - $14.62
+- [Github Repositories That Will Teach You How To Code For Free!](https://medium.com/p/github-repositories-that-will-teach-you-how-to-code-for-free-ad0ecf59d89e) - $8.93
+- [Object Oriented Programming in JavaScript](https://medium.com/p/object-oriented-programming-in-javascript-d45007d06333) - $5.55
+- [Front End Interview Questions Part 2](https://medium.com/p/front-end-interview-questions-part-2-86ddc0e91443) - $5
+- [JavaScript Frameworks & Libraries](https://medium.com/p/javascript-frameworks-libraries-35931e187a35) - $4.58
+- [The ExpressJS Way To Write APIs](https://medium.com/p/prerequisites-to-writing-express-apis-75e3267b284a) - $4.37
+- [The Complete JavaScript Reference Guide](https://medium.com/p/complete-javascript-reference-guide-64306cd6b0db) - $3.56
+- [PostgreSQL Setup For Windows & WSL/Ubuntu](https://medium.com/p/postgresql-setup-for-windows-wsl-ubuntu-801672ab7089) - $3.38
+- [JavaScript Rotate (Array) ProblemWalkthrough](https://medium.com/p/javascript-rotate-array-problemwalkthrough-31deb19ebba1) - $3.32
+- [A Comprehensive Deep Dive into React](https://medium.com/p/react-in-depth-1965dcde8d4f) - $2.87
+- [Objects In JavaScript](https://medium.com/p/objects-in-javascript-b212486dade6) - $2.77
+- [Data Structures… Under The Hood](https://medium.com/p/data-structures-under-the-hood-660256c2e4e3) - $2.70
+- [10 Essential React Interview Questions For Aspiring Frontend Developers](https://medium.com/p/react-md-cbaafb31765d) - $2.61
+- [Everything You Need To Know About Relational Databases, SQL, PostgreSQL and Sequelize To Build…](https://medium.com/p/everything-you-need-to-know-about-relational-databases-sql-postgresql-and-sequelize-to-build-8acb68284a98) - $2.49
+- [Fundamental Data Structures in JavaScript](https://medium.com/p/lists-stacks-and-queues-in-javascript-88466fae0fbb) - $2.42
+- [A Quick Guide to Big-O Notation, Memoization, Tabulation, and Sorting Algorithms by Example](https://medium.com/p/a-quick-guide-to-big-o-notation-memoization-tabulation-and-sorting-algorithms-by-example-803ff193c522) - $2.25
+- [The Beginner’s Guide To JavaScript](https://medium.com/p/absolute-beginners-guide-to-javascript-part-1-e222d166b6e1) - $2.17
+- [VSCode Extensions Specifically for JavaScript Development](https://medium.com/p/vscode-extensions-specifically-for-javascript-development-ea91305cbd4a) - $2.16
+- [Bash Commands That Save Me Time and Frustration](https://medium.com/p/bash-commands-that-save-time-920fb6ab9d0a) - $2.11
+- [HTTP Basics](https://medium.com/p/http-basics-8f02a96a834a) - $2.11
+- [PostgreSQL In 43 Commands Or Less](https://medium.com/p/postgresql-in-43-commands-or-less-19fba3e37110) - $1.91
+- [Everything You Need to Get Started With VSCode + Extensions & Resources](https://medium.com/p/everything-you-need-to-get-started-with-vscode-extensions-resources-b9f4c8d91931) - $1.90
+- [Regular Expressions](https://medium.com/p/regular-expressions-4d8fb3eb146b) - $1.72
+- [Deploy React App To Heroku Using Postgres & Express](https://medium.com/p/deploy-react-app-to-heroku-using-postgres-express-70b7ea807986) - $1.72
+- [Breaking Down Scope, Context, And Closure In JavaScript In Simple Terms.](https://medium.com/p/scope-closures-context-in-javascript-f126f1523104) - $1.58
+- [Objects in Javascript](https://medium.com/p/objects-in-javascript-cc578a781e1d) - $1.51
+- [What is Memoization?](https://medium.com/p/memoization-86685d811182) - $1.51
+- [LocalStorage VS SessionStorage](https://medium.com/p/css-animations-d196a20099a5) - $1.47
+- [Beginners Guide To Python](https://medium.com/p/beginners-guide-to-python-e5a59b5bb64d) - $1.42
+- [Learn CSS So That Your Site Doesn’t Look Like Garbage](https://medium.com/p/learn-css-so-that-your-site-doesnt-look-like-garbage-938871b4521a) - $1.29
+- [Graph Data Structure Interview Questions At A Glance](https://medium.com/p/verbal-technical-interview-questions-about-graph-data-structures-fc6b1afbd8be) - $1.24
+- [Python Problems & Solutions For Beginners](https://medium.com/p/beginner-python-problems-solutions-dd631e9c3a9f) - $1.20
+- [Python Study Guide for a JavaScript Programmer](https://medium.com/p/python-study-guide-for-a-native-javascript-developer-5cfdf3d2bdfb) - $1.13
+- [Fundamental Concepts In JavaScript](https://medium.com/p/fundamental-concepts-in-javascript-8e093a665b04) - $1.06
+- [BASH CHEAT SHEET](https://medium.com/p/bash-d3077114aea7) - $1
+- [Mini Review Of SQL For PostgreSQL W Node & Express](https://medium.com/p/mini-review-of-sql-for-postgresql-w-node-express-f34676f3802b) - $0.94
+- [Git-Tricks](https://medium.com/p/git-tricks-57e8d0292285) - $0.85
+- [Bash Proficiency In Under 15 Minutes](https://medium.com/p/bash-proficiency-in-under-15-minutes-3ec9d4e2e65) - $0.85
+- [Postgresql Cheat Sheet](https://medium.com/p/postgresql-cheat-sheet-718b813d3e31) - $0.83
+- [Basic Web Development Environment Setup](https://medium.com/p/basic-web-development-environment-setup-9f36c3f15afe) - $0.77
+- [Super Simple Intro To HTML](https://medium.com/p/super-simple-intro-to-html-651d695f9bc) - $0.70
+- [Getting Comfortable With Python](https://medium.com/p/getting-comfortable-with-python-ff797d4d4a0c) - $0.70
+- [Why Jamstack Rocks🤘😎🤙](https://medium.com/p/why-jamstack-rocks-666114722f35) - $0.66
+- [The Best Cloud-Based Code Playgrounds of 2021 (Part 1)](https://medium.com/p/the-best-cloud-based-code-playgrounds-of-2021-part-1-cdae9448db24) - $0.65
+- [My ‘awesome’ list of JavaScript resources](https://medium.com/p/my-take-on-awesome-javascript-243255451e74) - $0.57
+- [These Are A Few Of My Favorite Things](https://medium.com/p/these-are-a-few-of-my-favorite-things-82e8b6e61879) - $0.56
+- [The Penultimate Web Developer’s Cheat Sheet](https://medium.com/p/the-penultimate-web-developers-cheat-sheet-a02a423139a4) - $0.55
+- [What Are Bash Aliases And Why Should You Be Using Them!](https://medium.com/p/what-are-bash-aliases-and-why-should-you-be-using-them-30a6cfafdfeb) - $0.52
+- [React State](https://medium.com/p/react-state-d8e0fc340714) - $0.51
+- [Scheduling: setTimeout and setInterval](https://medium.com/p/scheduling-settimeout-and-setinterval-fcb2f40d16f7) - $0.47
+- [Life Saving Bash Scripts Part 2](https://medium.com/p/life-saving-bash-scripts-part-2-b40c8ee22682) - $0.43
+- [Array Callback Methods Implemented With For Loops](https://medium.com/p/array-callback-methods-implemented-with-for-loops-d08875df6777) - $0.43
+- [An Introduction to Markdown (Bonus Markdown Templates Included)](https://medium.com/p/an-introduction-to-markdown-bonus-markdown-templates-included-3497ce56de3) - $0.42
+- [Emmet Cheat Sheet](https://medium.com/p/emmet-cheat-sheet-24758e628d37) - $0.42
+- [Introduction to React for Complete Beginners](https://medium.com/p/introduction-to-react-for-complete-beginners-8021738aa1ad) - $0.41
+- [JavaScript Algorithmic Interview Questions And Considerations](https://medium.com/p/javascript-algorithmic-interview-questions-and-considerations-e4e401bbc635) - $0.39
+- [A list of all of my articles to link to future posts](https://medium.com/p/a-list-of-all-of-my-articles-to-link-to-future-posts-1f6f88ebdf5b) - $0.32
+- [Long List Of Invaluable NodeJS Resources](https://medium.com/p/long-list-of-invaluable-nodejs-resources-6a793ae1ce6) - $0.32
+- [Awesome List Of Github Repositories](https://medium.com/p/awesome-list-of-github-repositories-f1c433e32b17) - $0.27
+- [Express APIs Part 2 (SQL):](https://medium.com/p/express-apis-part-2-sql-d9edbf68cf9a) - $0.27
+- [Basic React Tutorial](https://medium.com/p/react-tutorial-from-basics-647ba595e607) - $0.26
+- [React Terminology](https://medium.com/p/react-terminology-88924d687c06) - $0.26
+- [My Personal Arsenal Of Convenience Scripts](https://medium.com/p/my-personal-arsenal-of-convenience-scripts-3c7869fdae53) - $0.25
+- [Adding CSS To Your HTML](https://medium.com/p/adding-css-to-your-html-3a17ba25ba82) - $0.23
+- [Everything You Need To Become A Machine Learner](https://medium.com/p/everything-you-need-to-become-a-machine-learner-3dd8f14814a1) - $0.22
+- [Absolutely Everything You Could Need To Know About How JavaScript Works.](https://medium.com/p/absolutely-everything-you-could-need-to-know-about-how-javascript-works-633549469528) - $0.22
+- [These Are The Bash Shell Commands That Stand Between Me And Insanity](https://medium.com/p/these-are-the-bash-shell-commands-that-stand-between-me-and-insanity-984865ba5d1b) - $0.21
+- [Job Boards and The Hunt](https://medium.com/p/job-boards-and-the-hunt-8cbfefefbb33) - $0.19
+- [Web Developer Resource List Part 4](https://medium.com/p/web-developer-resource-list-part-4-fd686892b9eb) - $0.19
+- [Heroku Deploy Guides & Cheatsheet Compilation](https://medium.com/p/heroku-deploy-guides-cheatsheet-compilation-b2897b69ce02) - $0.18
+- [JavaScript Unit Testing & TDD](https://medium.com/p/javascript-unit-testing-tdd-72908e7730f5) - $0.18
+- [Data Structures & Algorithms Resource List Part 1](https://medium.com/p/data-structures-algorithms-resource-list-part-1-8bad647a8ad8) - $0.15
+- [Resources By Programming Language](https://medium.com/p/resources-by-programming-language-399d9f9ef520) - $0.14
+- [Notes I Wish I Had When I Started Learning Python](https://medium.com/p/notes-i-wish-i-had-when-i-started-learning-python-16ce4244be12) - $0.14
+- [How To Implement Native(ES6) Data Structures Using Arrays & Objects](https://medium.com/p/how-to-implement-native-es6-data-structures-using-arrays-objects-ce953b9f6a07) - $0.13
+- [Web Development Interview Roadmap](https://medium.com/p/web-development-interview-resource-list-88fce9876261) - $0.13
+- [Super Simple Intro To React](https://medium.com/p/super-simple-intro-to-react-5c78e4207b7f) - $0.13
+- [Awesome Web Development YouTube Video Archive](https://medium.com/p/awesome-web-development-youtube-video-archive-530b178e3bc2) - $0.12
+- [Quick Web Developers Website Checklist & A List Of Tools For Improvement](https://medium.com/p/quick-web-developers-website-checklist-a-list-of-tools-for-improvement-9a52e11c8ee1) - $0.12
+- [A Very Quick Guide To Calculating Big O Computational Complexity](https://medium.com/p/a-very-quick-guide-to-calculating-big-o-computational-complexity-eb1557e85fa3) - $0.09
+- [Fundamental Concepts In React That Will Probably Come Up On An Interview](https://medium.com/p/fundamental-concepts-in-react-that-will-probably-come-up-on-an-interview-5495b6421287) - $0.09
+- [Writing Files Using Python](https://medium.com/p/writing-files-using-python-d46b4851366f) - $0.08
+- [Web Development Interview Part 3💻](https://medium.com/p/web-development-interview-part-3-826ae81a9107) - $0.08
+- [Web Development Resource List \#4](https://medium.com/p/take-a-look-at-the-big-picture-b69e0999a380) - $0.07
+- [Modules in Javascript](https://medium.com/p/modules-in-javascript-a55333e35978) - $0.06
+- [An introduction to curl using GitHub’s API.](https://medium.com/p/an-introduction-to-curl-using-githubs-api-b85ddbc0f852) - $0.06
+- [Most Common Javascript Errors](https://medium.com/p/most-common-javascript-errors-311ea1356a3d) - $0.05
+- [Web Dev Resources](https://medium.com/p/web-dev-resources-ec1975773d7d) - $0.05
+- [Beginner’s Guide To React Part 2](https://medium.com/p/introductory-react-part-2-cda01615a186) - $0.05
+- [Computer Architecture B](https://medium.com/p/computer-architecture-b-9e7040fe277e) - $0.05
+- [Front End Behavioral Interview](https://medium.com/p/front-end-behavioral-interview-bf5c079f7461) - $0.05
+- [Object Methods](https://medium.com/p/object-methods-4066ed24b214) - $0.04
+- [Here’s the expanded list:](https://medium.com/p/awesome-list-of-awesome-lists-f1bbcd632fd0) - $0.03
