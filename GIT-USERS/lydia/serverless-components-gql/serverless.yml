@@ -1,0 +1,45 @@
+name: fullstack-graphql
+
+client:
+  component: "@serverless/website"
+  inputs:
+    code:
+      src: dist
+      root: client
+    env:
+      API_ENDPOINT: ${api.url}
+
+graphql:
+  component: "@serverless/function"
+  inputs:
+    handler: server/src/index.server
+    runtime: nodejs8.10
+    events:
+      - http:
+          path: /
+          method: post
+          cors: true
+
+playground:
+  component: "@serverless/function"
+  inputs:
+    handler: server/src/index.playground
+    runtime: nodejs8.10
+    events:
+      - http:
+          path: /
+          method: get
+          cors: true
+
+api:
+  component: "@serverless/api"
+  inputs:
+    endpoints:
+      - path: /
+        method: POST
+        function: ${graphql}
+        cors: true
+      - path: /
+        method: GET
+        function: ${playground}
+        cors: true
