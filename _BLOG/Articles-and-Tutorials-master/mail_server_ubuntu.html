@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>mail_server_ubuntu</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h4 id="wip-draft-wip">~~~ WIP ~ Draft ~ WIP ~~~</h4>
+<p><em><a href="https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/pulls">Pull Requests</a></em> gladly accepted How to Deploy a Dovecot-Postfix Mail Server on Ubuntu 12.04 =</p>
+<h3 id="introduction">Introduction</h3>
+<p>There are many, many ways in which to setup and configure a mail server. This article aims to outline a quick, and simple, way of deploying a mail server with the Postfix and Dovecot backends.</p>
+<h2 id="server-setup">Server Setup</h2>
+<p>Follow the steps outlined in:</p>
+<ol type="1">
+<li><p><a href="https://www.digitalocean.com/community/articles/how-to-create-your-first-digitalocean-droplet-virtual-server">How To Create Your First DigitalOcean Droplet Virtual Server</a></p>
+<blockquote>
+<p>For increased security, it is advisable that you create your droplet with pre-installed SSH keys. <em>See</em> <a href="https://www.digitalocean.com/community/articles/how-to-use-ssh-keys-with-digitalocean-droplets">How To Use SSH Keys with DigitalOcean Droplets</a>. <strong>Windows users:</strong> Refer to <a href="https://www.digitalocean.com/community/articles/how-to-create-ssh-keys-with-putty-to-connect-to-a-vps">How To Create SSH Keys with PuTTY to Connect to a VPS | DigitalOcean</a></p>
+</blockquote></li>
+<li><p><a href="https://www.digitalocean.com/community/articles/initial-server-setup-with-ubuntu-12-04">Initial Server Setup with Ubuntu 12.04 | DigitalOcean</a>. &gt;* For added security, it is advisable that you disable password logins. <em>See</em> <a href="https://www.digitalocean.com/community/articles/how-to-create-ssh-keys-with-putty-to-connect-to-a-vps">How To Create SSH Keys with PuTTY to Connect to a VPS | DigitalOcean</a>.</p></li>
+</ol>
+<h4 id="hostname-fqdn">Hostname &amp; FQDN</h4>
+<p>Set your server’s hostname and Fully Qualified Domain Name by implementing the steps in <a href="https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/blob/master/set_hostname_fqdn_on_ubuntu_centos.md">Setting the Hostname &amp; Fully Qualified Domain Name (FQDN) on Ubuntu 12.04 or CentOS 6.4</a>.</p>
+<h4 id="timezone">Timezone</h4>
+<p>You can change your server’s timezone to whatever you want; altough it may be best to set it to the same timezone of most of your users. To do so, simply execute, in a terminal:</p>
+<pre><code>sudo dpkg-reconfigure tzdata</code></pre>
+<p>and follow the instructions in the ensuing, on-screen prompts.</p>
+<h2 id="update-your-system">Update Your System</h2>
+<p>To make sure that your server operating system (OS) is up to date, execute:</p>
+<pre><code>sudo apt-get update &amp;&amp; sudo apt-get -y dist-upgrade &amp;&amp; sudo apt-get -y autoremove &amp;&amp; sudo reboot now</code></pre>
+<p>When the update completes, the server will reboot to make sure that all of the software upgrades take effect.</p>
+<h2 id="install-mail-server-packages">Install Mail Server Packages</h2>
+<p>The <code>mail-stack-delivery</code> package will install Dovecot and configure Postfix to use it for both SASL authentication and as a Mail Delivery Agent (MDA). The package also configures Dovecot for IMAP, IMAPS, POP3, and POP3S. To install the package, execute:</p>
+<pre><code>sudo apt-get -y install mail-stack-delivery</code></pre>
+<h3 id="configuration-options">Configuration Options</h3>
+<ol type="1">
+<li><p>During the installation, you will presented a prompt, asking you to “select the mail server configuration type that best meets your needs.” Leave the default option set (<code>Internet Site</code>), tap on the <code>Tab</code> key, on your keyboard, to highlight <code>&lt;Ok&gt;</code>, and tap on the <code>Enter</code> key.</p></li>
+<li><p>You will then be asked to provide the Fully Qualified Domain Name (FQDN) of your mail server. If you configured your <code>/etc/hosts</code> file correctly, your servers FQDN should be prefilled. Tap on the <code>Tab</code> key, on your keyboard, to highlight <code>&lt;Ok&gt;</code>, and tap on the <code>Enter</code> key.</p></li>
+</ol>
+<p>Congratulations, you now have a working mail server.</p>
+<p><strong>Note:</strong> The <code>mail-stack-delivery</code> package uses the certificate and key from the <code>ssl-cert</code> package and is more than adequate for testing purposes.</p>
+<h2 id="ssl-certificate">SSL Certificate</h2>
+<p>To use your new mail server in a production environment, you should create a custom SSL certificate and key generated specifically for your mail server. You can obtain a free SSL certificate from the StartCom Certification Authority (CA), at <a href="http://www.startssl.com/">StartSSL.com</a> or you may create a self-signed certificate.</p>
+<h4 id="generating-a-certificate-signing-request-csr">Generating a Certificate Signing Request (CSR)</h4>
+<p>To obtain an SSL certificate from a commercial CA, you will need to provide the CA with a CSR. To generate a CSR, execute:</p>
+<pre><code>sudo openssl req -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/mail.key -out mail.csr</code></pre>
+<h3 id="self-signed-certificate">Self-signed Certificate</h3>
+<p>To create a self-signed certificate, execute:</p>
+<pre><code>sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/mail.key -out /etc/ssl/certs/mail.pem</code></pre>
+<h3 id="add-certificate-details-to-the-postfix-dovecot-configuration-files">Add Certificate Details to the Postfix &amp; Dovecot Configuration Files</h3>
+<p>Once you have a customized certificate and key for your mail server, execute:</p>
+<pre><code>sudo vim /etc/postfix/main.cf</code></pre>
+<p>and change the following directives to reflect the locations of your certificate and private key:</p>
+<pre><code>smtpd_tls_cert_file = /etc/ssl/certs/mail.pem
+smtpd_tls_key_file = /etc/ssl/private/mail.key</code></pre>
+<p>Then, do the same for Dovecot:</p>
+<pre><code>sudo vim /etc/dovecot/conf.d/01-mail-stack-delivery.conf </code></pre>
+<p>Finally, restart Postfix:</p>
+<pre><code>sudo /etc/init.d/postfix restart</code></pre>
+<h2 id="limiting-mail-delivery-to-secure-protocols">Limiting Mail Delivery to Secure Protocols</h2>
+<p>Now that you have the benefits of SSL security available, make sure that secure protocols are always used:</p>
+<pre><code>sudo vim /etc/dovecot/dovecot.conf</code></pre>
+<p>Look for the <code>protocols</code> directive and limit the protocols to the following:</p>
+<pre><code>protocols = imaps pop3s</code></pre>
+<p>Then, execute:</p>
+<pre><code>sudo vim /etc/dovecot/conf.d/01-mail-stack-delivery.conf</code></pre>
+<p>and do the same:</p>
+<pre><code>protocols = imaps pop3s</code></pre>
+<p>In addition, uncomment the <code>inet_listener imaps</code> section by removing the <code>#</code> character, i.e.</p>
+<pre><code>inet_listener imaps</code></pre>
+<h2 id="limit-sending-mail-to-secure-protocol">Limit Sending Mail to Secure Protocol</h2>
+<p>Execute:</p>
+<pre><code>sudo vim /etc/postfix/master.cf</code></pre>
+<p>Uncomment the <code>smtps inet</code> line and all the <code>-o</code> options that follow.</p>
+<h2 id="security">Security</h2>
+<p>Any server accessible from the public Internet should be security hardened, and a mail server is no exception. While security best practices are not within the scope of this article – at a minimum – add a firewall. <em>See</em> <a href="https://www.digitalocean.com/community/articles/how-to-setup-a-firewall-with-ufw-on-an-ubuntu-and-debian-cloud-server">How to Setup a Firewall with UFW on an Ubuntu and Debian Cloud Server</a>.</p>
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li></li>
+<li></li>
+<li></li>
+</ul>
+<p>As always, if you need help with the steps outlined in this How-to, look to the DigitalOcean Community for assistance by posing your question(s), below.</p>
+<p>
+<div style="text-align: right; font-size:smaller;">
+Article submitted by: <a href="https://plus.google.com/107285164064863645881?rel=author" target="_blank">Pablo Carranza</a> • DATE
+</div>
+</p>
+<h1 id="wip-draft-wip-1">~~~ WIP ~ DRAFT ~ WIP ~~~</h1>
+<p><em><a href="https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/pulls">Pull Requests</a></em> gladly accepted</p>
+</body>
+</html>

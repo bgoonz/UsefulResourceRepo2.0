@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>exim_send-only_mail_server</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="install-a-send-only-mail-server-for-your-apps-on-ubuntu-12.04">Install a Send-only Mail Server for Your Apps on Ubuntu 12.04</h1>
+<h3 id="introduction">Introduction</h3>
+<p>Due to the popularity of Gmail, Google Apps, Outlook.com, Yahoo! Mail &amp; a myriad of other providers, many cloud-server users mistakenly fail to install a mail server, initially. However, humans are not the only ones that send electronic mail. If fact, many Linux server applications also need to send email.</p>
+<h2 id="message-transfer-agent-mta">Message Transfer Agent (MTA)</h2>
+<p>A Message Transfer Agent, or Mail Transfer Agent, transfers electronic mail messages from one computer to another. An MTA implements both the client (sending) and server (receiving) portions of the Simple Mail Transfer Protocol (SMTP).</p>
+<p>Another popular MTA is <a href="https://www.digitalocean.com/community/articles/how-to-install-and-setup-postfix-on-ubuntu-12-04">Postfix</a>, but users that do not require a full-fledged mail server prefer the Exim send-only mail server because it is lightweight, compared to other MTAs. Thus, Exim is a good choice for WordPress installations or server-monitoring apps that need to send email notifications.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>This guide assumes that you have already:</p>
+<ul>
+<li>Set your droplet’s hostname and Fully Qualified Domain Name (FQDN). <em>See</em> <a href="https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/blob/master/set_hostname_fqdn_on_ubuntu.md">Setting the Hostname &amp; Fully Qualified Domain Name (FQDN) on Ubuntu 12.04</a>;</li>
+<li>Created the necessary DNS records. <em>See</em> <a href="https://www.digitalocean.com/community/articles/how-to-set-up-a-host-name-with-digitalocean">How to Set Up a Host Name with DigitalOcean</a>; and</li>
+<li>Created an <code>SPF record</code>. <em>See</em> <a href="https://www.digitalocean.com/community/articles/how-to-use-an-spf-record-to-prevent-spoofing-improve-e-mail-reliability">How To use an SPF Record to Prevent Spoofing &amp; Improve E-mail Reliability</a>.</li>
+</ul>
+<h2 id="update-current-software">Update Current Software</h2>
+<p>First, you want to update the software packages already on your server; by executing:</p>
+<pre><code>sudo apt-get update &amp;&amp; sudo apt-get -y upgrade &amp;&amp; sudo apt-get -y dist-upgrade &amp;&amp; sudo apt-get -y autoremove</code></pre>
+<h2 id="installation">Installation</h2>
+<p>Then, to install Exim and its dependencies, execute:</p>
+<pre><code>sudo apt-get -y install exim4</code></pre>
+<h2 id="configure-exim-for-local-mail-service">Configure Exim for Local Mail Service</h2>
+<p>To configure Exim for your environment, execute:</p>
+<pre><code>sudo dpkg-reconfigure exim4-config</code></pre>
+<p>and configure everything according to your needs. If you ever need to modify any of your settings, simply re-run the configuration wizard.</p>
+<h4 id="mail-server-configuration-type">Mail Server Configuration Type</h4>
+<p>The first configuration window you encounter will ask you to select the “<strong>mail server configuration type that best meets your needs</strong>.” If not already highlighted, use the arrow keys on your keyboard to select <code>internet site; mail is sent and received directly using SMTP</code>:</p>
+<figure>
+<img src="http://i.imgur.com/1JzbWv6.png" alt="Select the option for internet site" /><figcaption>Select the option for internet site</figcaption>
+</figure>
+<p>Next, tap the <code>Tab</code> key (to highlight <code>&lt;Ok&gt;</code>) and press <code>Enter</code>.</p>
+<h4 id="enter-fqdn">Enter FQDN</h4>
+<p>The next configuration window you’ll encounter will ask that you enter your system’s fully qualified domain name (FQDN) in the <code>mail name</code> configuration screen. Type (obviously, substituting <code>hostname</code>, <code>yourdomain</code> &amp; <code>tld</code> with your own values):</p>
+<pre><code>hostname.yourdomain.tld</code></pre>
+<p>Next, tap the <code>Tab</code> key (to highlight <code>&lt;Ok&gt;</code>) and press <code>Enter</code>.</p>
+<h4 id="smtp-listener">SMTP Listener</h4>
+<p>The ensuing configuration window will ask you to decide on which interfaces you would like <code>Exim</code> to “listen.” Enter:</p>
+<pre><code>127.0.0.1</code></pre>
+<p><strong>Note:</strong> DigitalOcean anticipates IPv6 support in the near future; at which time, you may want to instruct <code>Exim</code> to listen on both <code>127.0.0.1; ::1</code>.</p>
+<p>Next, tap the <code>Tab</code> key (to highlight <code>&lt;Ok&gt;</code>) and press <code>Enter</code>.</p>
+<h4 id="mail-destinations">Mail Destinations</h4>
+<p>The configuration prompt that follows will ask that you enter all of the destinations for which <code>Exim</code> should accept mail. List your:</p>
+<ul>
+<li>FQDN;</li>
+<li>local hostname;</li>
+<li><code>localhost.localdomain</code>;</li>
+<li><code>localhost</code></li>
+</ul>
+<figure>
+<img src="http://i.imgur.com/9WIK36H.png" alt="Enter mail destinations" /><figcaption>Enter mail destinations</figcaption>
+</figure>
+<p>Next, tap the <code>Tab</code> key (to highlight <code>&lt;Ok&gt;</code>) and press <code>Enter</code>.</p>
+<h4 id="relay-options">Relay Options</h4>
+<p>Advanced configurations beyond the scope of this article allow you to use <code>Exim</code> as a relay mail server. In the next screen, leave the <code>relay mail</code> field blank.</p>
+<p>Tap the <code>Tab</code> key (to highlight <code>&lt;Ok&gt;</code>) and press <code>Enter</code>.</p>
+<p>The subsequent screen is a follow-up to the relay-mail-server option. Leave this window blank and tap the <code>Tab</code> key (to highlight <code>&lt;Ok&gt;</code>) and press <code>Enter</code>.</p>
+<h4 id="dns-queries">DNS Queries</h4>
+<p>Select <strong>No</strong> when asked whether to keep DNS queries to a minimum.</p>
+<p>Make sure that <code>&lt;No&gt;</code> is highlighted and press <code>Enter</code>.</p>
+<h4 id="delivery-method">Delivery Method</h4>
+<p>In the window that follows, choose whichever mail delivery method you’d like for incoming mail; although the <code>Maildir format</code> can make handling individual, locally-delivered mail messages easier:</p>
+<figure>
+<img src="http://i.imgur.com/bZnmvVX.png" alt="Choose the Maildir delivery method" /><figcaption>Choose the Maildir delivery method</figcaption>
+</figure>
+<p>Next, tap the <code>Tab</code> key (to highlight <code>&lt;Ok&gt;</code>) and press <code>Enter</code>.</p>
+<h4 id="configuration-file">Configuration File</h4>
+<p>In the ensuing prompt, choose the (default) <code>unsplit</code> configuration file, by selecting <code>No</code>.</p>
+<p>Make sure that <code>&lt;No&gt;</code> is highlighted and press <code>Enter</code>.</p>
+<h4 id="postmaster-address">Postmaster address</h4>
+<p>In the last configuration window, you’ll be asked to specify postmaster mail recipients, enter (substituting <code>you</code>, <code>yourdomain</code> &amp; <code>tld</code> with your own values):</p>
+<pre><code>root you@yourdomain.tld</code></pre>
+<p><strong>Note:</strong> Make sure that, in addition to <code>root</code>, you enter at least one external email address (choose one that you check frequently).</p>
+<h2 id="test-your-mail-configuration">Test Your Mail Configuration</h2>
+<p>Send a test email, to make sure everything is configured correctly, by issuing the following command: (substituting <code>someone@somedomain.tld</code> for a valid, external email address):</p>
+<pre><code>echo &quot;This is a test.&quot; | mail -s Testing someone@somedomain.tld</code></pre>
+<p><strong>Note:</strong> You may need check the recipient’s SPAM folder, in the event that the <code>SPF record</code> is not configured correctly.</p>
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li><a href="http://www.exim.org/docs.html">Exim Documentation</a></li>
+<li><a href="http://wiki.exim.org/">Exim Wiki</a></li>
+<li><a href="https://help.ubuntu.com/12.04/serverguide/exim4.html">Exim4 | Ubuntu 12.04 Server Guide</a></li>
+</ul>
+<p>As always, if you need help with the steps outlined in this How-To, look to the DigitalOcean Community for assistance by posing your question(s), below.</p>
+<p>
+<div style="text-align: right; font-size:smaller;">
+Article submitted by: <a href="https://plus.google.com/107285164064863645881?rel=author" target="_blank">Pablo Carranza</a> • October 28, 2013
+</div>
+</p>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>freepbx_centos</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="how-to-install-freepbx-on-centos-6.4">How To Install FreePBX on CentOS 6.4</h1>
+<h3 id="introduction">Introduction</h3>
+<p>Since the introduction of the private branch exchange (PBX) in the 1970s, companies have become dependent on the many features that were introduced over time. Today, businesses have a variety of options when it comes to telephone systems. Many are choosing the cloud with a hosted PBX solution in order to reduce capital expenses, maintenance &amp; upgrade costs – while still reaping the benefits of the latest PBX features.</p>
+<p>This article aims to provide a guide through the (initial) planning and deployment of a <a href="http://www.freepbx.org/">FreePBX</a> &amp; <a href="http://www.asterisk.org/">Asterisk</a> VoIP server and assumes you will be starting from a base install of <code>CentOS 6.4</code>.</p>
+<h2 id="what-is-a-pbx">What is a PBX?</h2>
+<p>A PBX is a system that connects internal telephone extensions to outside public &amp; mobile telephone networks. An IP (Internet Protocol) PBX is a PBX that provides audio, video, and instant messaging communication through data networks connected with the Public Switched Telephone Network (PSTN) for worldwide telephony communication.</p>
+<p>In addition to the traditional PSTN (i.e. landline), modern PBX systems also utilize the Voice over Internet Protocol (VoIP). VoIP gateways enable businesses to use their managed intranets to help reduce long-distance expenses; and enjoy the benefits of a single network for voice and data communication.</p>
+<h2 id="asterisk-ip-pbx">Asterisk IP PBX</h2>
+<p>Asterisk is an open source software implementation of a telephone PBX. Like any PBX, it allows connected telephones to make calls to one another, and to connect to other telephone services, such as traditional landlines (i.e. PSTN) and VoIP networks.</p>
+<p>The Asterisk software includes many features available in proprietary PBX systems:</p>
+<ul>
+<li>Voice mail</li>
+<li>Conference calling</li>
+<li>Interactive voice response (IVR or <em>phone menus</em>)</li>
+<li>Automatic call distribution (ACD)</li>
+<li>Fax-to-email</li>
+<li>SIP Trunks</li>
+<li>and much, much more</li>
+</ul>
+<p>In addition, users can create new functionality by writing dial-plan scripts in several of Asterisk’s own extensions languages or by adding custom, loadable modules.</p>
+<h2 id="freepbx">FreePBX</h2>
+<p>FreePBX is an open source graphical user interface (GUI) that controls and manages Asterisk. Without FreePBX, Asterisk’s configuration files could only be modified via the command line. FreePBX can be installed manually or as part of a pre-configured Distro.</p>
+<h4 id="freepbx-distro">FreePBX Distro</h4>
+<p>The FreePBX Distro is an open source Unified Communications (UC) Server that includes the Asterisk VoIP server, the FreePBX GUI, and assorted dependencies, which include (but are not limited to):</p>
+<ul>
+<li>Apache HTTP Server</li>
+<li>Cyrus SASL (Simple Authentication Security Layer)</li>
+<li>Dnsmasq</li>
+<li>Fail2ban</li>
+<li>iptables (Firewall)</li>
+<li>Mailx</li>
+<li>MySQL Server</li>
+<li>Network Time Protocol (NTP)</li>
+<li>OpenVPN Server (<em>although <strong>not</strong> pre-configured to start on boot, by default</em>)</li>
+<li>Postfix</li>
+<li>Prosody XMPP Server</li>
+<li>TFTP Server</li>
+<li>Very Secure FTP Daemon (vsfptd)</li>
+<li>Vim text editor (you may be interested in <a href="https://www.digitalocean.com/community/articles/how-to-use-vim-for-advanced-editing-of-plain-text-or-code-on-a-vps--2">How To Use Vim for Advanced Editing of Plain Text or Code on a VPS | DigitalOcean</a>)</li>
+</ul>
+<p>The FreePBX Distro is based on CentOS, which has binary compatibility with Red Hat Enterprise Linux. FreePBX is a very large part of why Asterisk has been as successful as it has.</p>
+<h2 id="preparatory-steps">Preparatory Steps</h2>
+<p>First, you must make a few structural decisions, before you deploy your cloud PBX.</p>
+<h3 id="location-of-voip-server">Location of VoIP Server</h3>
+<p>Voice quality on VoIP calls is affected by network latency, among other factors. Thus, it is advisable to select a datacenter that is closest to the general, geographic location of the majority of your anticipated calls.</p>
+<h3 id="accessing-voip-server-after-deployment">Accessing VoIP Server After Deployment</h3>
+<p>To access your IP PBX server after deployment, you will need to open a web browser and navigate to your cloud server’s IP address or fully qualified domain name (FQDN). If you wish to assign a FQDN to your VoIP server, make sure that you assign a FQDN as your server’s hostname – when you create your DigitalOcean cloud server in the next step – via the <a href="https://www.digitalocean.com/community/articles/the-digitalocean-control-panel">DigitalOcean Control Panel</a>.</p>
+<h3 id="server-specifications">Server Specifications</h3>
+<p>Deciding on the best size machine for your cloud IP-PBX server is not an exact science. Try to best anticipate your average call volume; and then follow the steps outlined in: <a href="https://www.digitalocean.com/community/articles/how-to-create-your-first-digitalocean-droplet-virtual-server">How To Create Your First DigitalOcean Droplet Virtual Server</a> to deploy a <code>CentOS 6.4</code> virtual private server (VPS).</p>
+<blockquote>
+<h4 id="ssh-keys">SSH Keys</h4>
+<p>For increased security, it is advisable that you:</p>
+<ul>
+<li>Create your droplet with pre-installed SSH keys. <em>See</em> <a href="https://www.digitalocean.com/community/articles/how-to-use-ssh-keys-with-digitalocean-droplets">How To Use SSH Keys with DigitalOcean Droplets</a> (<strong>Windows users:</strong> Refer to the article cited, next); <em><strong>and</strong></em></li>
+<li>Disable password logins. <em>See</em> <a href="https://www.digitalocean.com/community/articles/how-to-create-ssh-keys-with-putty-to-connect-to-a-vps">How To Create SSH Keys with PuTTY to Connect to a VPS</a>.</li>
+</ul>
+</blockquote>
+Generally speaking, a VPS with:
+<table>
+<tr>
+<th>
+Memory
+</th>
+<th>
+Concurrent Calls
+</th>
+</tr>
+<tr>
+<td>
+512 MB
+</td>
+<td>
+Supports approx. 5-15
+</td>
+</tr>
+<tr>
+<td>
+1 GB
+</td>
+<td>
+Supports approx. 15-25
+</td>
+</tr>
+<tr>
+<td>
+2 GB
+</td>
+<td>
+Supports approx. 25-50
+</td>
+</tr>
+<tr>
+<td>
+4 GB
+</td>
+<td>
+Supports approx. 50-100
+</td>
+</tr>
+<tr>
+<td>
+8 GB
+</td>
+<td>
+Supports approx. 100-175
+</td>
+</tr>
+<tr>
+<td>
+16 GB
+</td>
+<td>
+Supports approx. 175+
+</td>
+</tr>
+</table>
+<p><strong>NOTE:</strong> It is safe to “guess low.” If you underestimate your call volume, try adding swap space. <em>See</em> <a href="https://www.digitalocean.com/community/articles/how-to-add-swap-on-centos-6">How To Add Swap on CentOS 6 | DigitalOcean</a>. In addition, DigitalOcean makes it easy to resize your cloud server, later.</p>
+<h3 id="set-the-hostname-and-fqdn-in-etchosts">Set the Hostname and FQDN in <code>/etc/hosts</code></h3>
+<p>Next, follow the steps outlined in <a href="https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/blob/master/set_hostname_fqdn_on_ubuntu_centos.md">Setting the Hostname &amp; Fully Qualified Domain Name (FQDN) on Ubuntu 12.04 or CentOS 6.4</a>. If entered properly at the time that your cloud server was created, the machine’s <code>hostname</code> should already be formatted as a FQDN. If so, feel free to skip to the section titled <a href="https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/blob/master/set_hostname_fqdn_on_ubuntu_centos.md#setting-the-fully-qualified-domain-name-fqdn">Setting the Fully Qualified Domain Name (FQDN)</a>.</p>
+<h3 id="setting-the-timezone">Setting the Timezone</h3>
+<p>You can set your server’s timezone to whatever you want. It may be best to set it to the same timezone as most of your callers. If you are unsure which timezone would be best, consider using universal coordinated time (UTC) – also known as <code>Greenwich Mean Time</code>.</p>
+<p>To view the current timezone, execute:</p>
+<pre><code>date</code></pre>
+<p>To change your CentOS server’s timezone, you need to create a symbolic link from a zone file in <code>/usr/share/zoneinfo/</code> to <code>/etc/localtime</code>. To do so, you first need to find the zone file for your timezone (see the examples below for common possibilities):</p>
+<h4 id="eastern-standard-time">Eastern Standard Time:</h4>
+<pre><code>ln -sf /usr/share/zoneinfo/EST /etc/localtime</code></pre>
+<h4 id="american-central">American Central:</h4>
+<pre><code>ln -sf /usr/share/zoneinfo/US/Central /etc/localtime </code></pre>
+<h4 id="american-pacific">American Pacific:</h4>
+<pre><code>ln -sf /usr/share/zoneinfo/US/Pacific /etc/localtime</code></pre>
+<h4 id="universal-coordinated-time">Universal Coordinated Time:</h4>
+<pre><code>ln -sf /usr/share/zoneinfo/UTC /etc/localtime </code></pre>
+<h3 id="update-current-software">Update Current Software</h3>
+<p>Now you need to install the available software updates for your CentOS server. Doing so patches security holes in packages and helps protect your droplet against unauthorized access.</p>
+<pre><code>yum update</code></pre>
+<h2 id="installation">Installation</h2>
+<p>First, navigate to your server’s <code>/tmp</code> directory by executing the following command:</p>
+<pre><code>cd /tmp</code></pre>
+<p>Next, download the FreePBX Distro installation script by executing:</p>
+<pre><code>wget http://upgrades.freepbxdistro.org/blank-centos-installer/4.211.64-track/4.211.64-1-Installer-Script.sh</code></pre>
+<blockquote>
+<p>This script assumes you have a base install of CentOS 6.4. It will convert your system to a FreePBX Distro.</p>
+</blockquote>
+<p>Then, make the script executable:</p>
+<pre><code>chmod +x 4.211.64-1-Installer-Script.sh</code></pre>
+<p>Run the installer script, by executing:</p>
+<pre><code>./4.211.64-1-Installer-Script.sh</code></pre>
+<p>Once completed, you should have a full-functioning IP-PBX server, based on the FreePBX Distro. (If you encountered any problems, feel free to create a post in the FreePBX <a href="http://www.freepbx.org/forums/freepbx-distro/distro-discussion-help">Distro Discussion &amp; Help</a> forum.)</p>
+<h2 id="update-your-freepbx-distro">Update your FreePBX Distro</h2>
+<p>FreePBX publishes update scripts for new FreePBX Distro releases on its <a href="http://wiki.freepbx.org/display/FD/FreePBX-Distro-4.211.64">website</a>. It is advisable that you bookmark that page and refer to it on a regular basis to obtain any recent upgrade scripts that may have been made available.</p>
+<p>To update your FreePBX Distro to the most recent release, you will need to execute a <em>series of individual</em> shell scripts <strong>AND</strong> do so in <em>sequential order</em>.</p>
+<h3 id="version-numbering-system">Version Numbering System</h3>
+<p>The FreePBX Version Numbering System tells you at a glance which versions of core components a particular FreePBX Distro release is comprised of.</p>
+<p>For example, FreePBX Distro <strong>4.211.64-1</strong> means:</p>
+<ul>
+<li><strong>4</strong>.211.64-1 = The first number (<strong>4</strong>) represents the Major Track Number</li>
+<li>4.<strong>211</strong>.64-1 = The second number (<strong>211</strong>) refers to the FreePBX <strong>GUI version 2.11</strong></li>
+<li>4.211.<strong>64</strong>-1 = The third number (<strong>64</strong>) refers to <strong>CentOS version 6.4</strong></li>
+<li>4.211.64-<strong>1</strong> = The final number (<strong>1</strong>) is used as the <em>minor release revision</em> of this Major Track Number</li>
+</ul>
+<h3 id="check-current-freepbx-distro-version">Check Current FreePBX Distro Version</h3>
+<p>In a terminal, execute:</p>
+<pre><code>cat /etc/schmooze/pbx-version</code></pre>
+<p>As mentioned above, the FreePBX Distro release identifier is the final number. For example, in this article’s previous steps, you deployed the following script: <code>4.211.64-1-Installer-Script.sh</code>. Notice the final numerical digit: The number <code>1</code> in this example.</p>
+<h3 id="download-execute-applicable-upgrade-script">Download &amp; Execute Applicable Upgrade Script</h3>
+<p>The first time you, ever, execute an update script, enter the following commands in a terminal window (to create a directory in which to store all future Distro-update scripts):</p>
+<pre><code>cd
+mkdir -p ~/FreePBX/UpdateScripts
+cd ~/FreePBX/UpdateScripts</code></pre>
+<p><strong>Upgrade Step 1:</strong> Execute, in a terminal window:</p>
+<pre><code>wget http://upgrades.freepbxdistro.org/stable/4.211.64/upgrade-4.211.64-2.sh</code></pre>
+<p><strong>Upgrade Step 2:</strong> Make the file executable:</p>
+<pre><code>chmod +x upgrade-4.211.64-2.sh</code></pre>
+<p><strong>Upgrade Step 3:</strong> Execute:</p>
+<pre><code>./upgrade-4.211.64-2.sh</code></pre>
+<p>The Distro upgrade script will update both FreePBX components (Asterisk &amp; the FreePBX web GUI) and all base CentOS components.</p>
+<p><strong>Upgrade Step 4:</strong> Specific Script Instructions</p>
+<p>Note or carry out any special instructions displayed (if any) at the end of the upgrade, such as to reboot the system.</p>
+<p><strong>Upgrade Step 5:</strong> Confirm the New FreePBX Distro Version</p>
+<p>Check the updated (now current) version file – again, by executing <code>cat /etc/schmooze/pbx-version</code> – to confirm the current installed version of the FreePBX Distro is the expected newer version.</p>
+<p><strong>Upgrade Step 6:</strong> Repeat <code>Upgrade Steps 1-5</code> for each individual update script, in sequential order, found below.</p>
+<pre><code>http://upgrades.freepbxdistro.org/stable/4.211.64/upgrade-4.211.64-3.sh
+http://upgrades.freepbxdistro.org/stable/4.211.64/upgrade-4.211.64-4.sh
+http://upgrades.freepbxdistro.org/stable/4.211.64/upgrade-4.211.64-5.sh
+http://upgrades.freepbxdistro.org/stable/4.211.64/upgrade-4.211.64-6.sh
+http://upgrades.freepbxdistro.org/stable/4.211.64/upgrade-4.211.64-7.sh
+http://upgrades.freepbxdistro.org/stable/4.211.64/upgrade-4.211.64-8.sh</code></pre>
+<p>Make sure to save each upgrade-script in <code>~/FreePBX/UpdateScripts</code>.</p>
+<h3 id="confirm-successful-installation">Confirm Successful Installation</h3>
+<p>To confirm that FreePBX &amp; Asterisk were installed successfully, open a web browser and navigate – via <code>https://</code> – to your cloud server’s FQDN or IP address, and you should be greeted by the FreePBX administrator-account setup screen.</p>
+<figure>
+<img src="http://i.imgur.com/AQPW20I.png" alt="FreePBX Account Setup" /><figcaption>FreePBX Account Setup</figcaption>
+</figure>
+<h3 id="create-a-freepbx-admin-user-password">Create a FreePBX Admin User &amp; Password</h3>
+<p>That username and password will be used in the future to access the FreePBX configuration screen, via the web GUI.</p>
+<p><strong>Note:</strong> This password does <strong>not</strong> change the underlying operating system’s root password, if any. It is <em>only</em> used for access to the FreePBX web interface.</p>
+<h2 id="configure-mail-server">Configure Mail Server</h2>
+<p>To configure Postfix &amp; Cyrus SASL, begin with <strong>Step Two</strong> of this article: <a href="https://www.digitalocean.com/community/articles/how-to-install-postfix-on-centos-6">How To Install Postfix on CentOS 6 | DigitalOcean</a>; but skip the section related to editing the <code>/etc/imapd.conf</code> file.</p>
+<h2 id="security">Security</h2>
+<p>Any server accessible from the public Internet should be security hardened, and an Asterisk IP-PBX is no exception. Security best practices, however, are not within the scope of this article.</p>
+<h2 id="additional-configuration">Additional Configuration</h2>
+<p>To continue tailoring your Asterisk VoIP server to your specific environment, check out the FreePBX Distro <a href="http://wiki.freepbx.org/display/FD/FreePBX+Distro+First+Steps+After+Installation">First Steps After Installation</a> guide.</p>
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li><a href="http://wiki.freepbx.org/display/HTGS/Asterisk+and+FreePBX+Deployment+Questionnaire#AsteriskandFreePBXDeploymentQuestionnaire-SystemGreetings">Asterisk &amp; FreePBX Deployment Questionnaire</a></li>
+<li><a href="http://wiki.freepbx.org/">FreePBX Wiki</a></li>
+<li><a href="http://www.freepbx.org/forums">FreePBX Forums</a></li>
+<li><a href="http://www.freepbx.org/support/documentation/howtos/howto-new-freepbx-users-guide-to-diagnosing-problems">New FreePBX Users | Guide to Diagnosing Problems</a></li>
+</ul>
+<p>As always, if you need help with the steps outlined in this How-to, look to the DigitalOcean Community for assistance by posing your question(s), below.</p>
+<p>
+<div style="text-align: right; font-size:smaller;">
+Article submitted by: <a href="https://plus.google.com/107285164064863645881?rel=author" target="_blank">Pablo Carranza</a> • Updated 12/19/2013
+</div>
+</p>
+</body>
+</html>
