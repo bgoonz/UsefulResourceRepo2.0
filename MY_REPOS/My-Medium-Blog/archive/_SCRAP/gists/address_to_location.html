@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Location to Timezone</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.0.0/normalize.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/0.11.0/fetch.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.10.0/lodash.min.js"></script>
+    <style>
+      body {
+        margin: 20px;
+      }
+      th {
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="addr-form">
+      <label for="addr-input">Location</label>
+      <input id="addr-input" type="text" />
+    </form>
+    <ul id="addr-list"></ul>
+    <table id="result"></table>
+    <script>
+      (function () {
+        var $input = $("#addr-input");
+        var $list = $("#addr-list");
+        var $result = $("#result");
+        var googleApiKey = "YOUR_API_KEY";
+
+        var resultTemplate = _.template(`
+                <tr>
+                    <th>DST Offset</th>
+                    <td><%- tz.dstOffset %></td>
+                </tr>
+                <tr>
+                    <th>Raw Offset</th>
+                    <td><%- tz.rawOffset %></td>
+                </tr>
+                <tr>
+                    <th>Time Zone ID</th>
+                    <td><%- tz.timeZoneId %></td>
+                </tr>
+                <tr>
+                    <th>Time Zone Name</th>
+                    <td><%- tz.timeZoneName %></td>
+                </tr>
+            `);
+
+        $("#addr-form").on("submit", function (ev) {
+          ev.preventDefault();
+          var address = $input.val();
+
+          fetch(
+            "https://maps.googleapis.com/maps/api/geocode/json?" +
+              $.param({
+                address: address,
+                key: googleApiKey,
+                region: "ca",
+              })
+          )
+            .then(function (response) {
+              return response.json();
+            })
+            .then(function (json) {
+              //                    console.log(json);
+              var frag = document.createDocumentFragment();
+              for (var i = 0; i < json.results.length; ++i) {
+                $("<li>")
+                  .append(
+                    $("<a>")
+                      .attr({ href: "#" })
+                      .text(json.results[i].formatted_address)
+                      .data(json.results[i].geometry.location)
+                  )
+                  .appendTo(frag);
+              }
+              $list.html(frag);
+            });
+        });
+
+        $list.on("click", "a", function (ev) {
+          ev.preventDefault();
+          var location = $(this).data();
+
+          fetch(
+            "https://maps.googleapis.com/maps/api/timezone/json?" +
+              $.param({
+                location: location.lat + "," + location.lng,
+                timestamp: (new Date() / 1e3) | 0,
+                key: googleApiKey,
+              })
+          )
+            .then(function (response) {
+              return response.json();
+            })
+            .then(function (json) {
+              $result.html(resultTemplate({ tz: json }));
+            });
+        });
+      })();
+    </script>
+  </body>
+</html>
