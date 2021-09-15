@@ -1,0 +1,18 @@
+language: node_js
+node_js: "9.8.0"
+install:
+    - yarn global add travis-ci-cloudfront-invalidation
+    - yarn install
+script:
+- vuepress build docs
+deploy:
+  provider: s3
+  region: $AWS_DEFAULT_REGION
+  skip_cleanup: true
+  access_key_id: $AWS_ACCESS_KEY_ID
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
+  bucket: cssfrankfurt.de
+  local_dir: docs/.vuepress/dist
+  cache_control: "max-age=21600"
+after_deploy:
+  - travis-ci-cloudfront-invalidation -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY -c $CLOUDFRONT_DISTRIBUTION_ID -i '/*' -b $TRAVIS_BRANCH -p $TRAVIS_PULL_REQUEST
