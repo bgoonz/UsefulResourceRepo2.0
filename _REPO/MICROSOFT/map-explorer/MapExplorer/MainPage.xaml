@@ -1,0 +1,89 @@
+﻿<!--
+    Copyright (c) 2012-2014 Microsoft Mobile. All rights reserved.
+    See the license file delivered with this project for more information.
+-->
+<phone:PhoneApplicationPage
+    x:Class="MapExplorer.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:maps="clr-namespace:Microsoft.Phone.Maps.Controls;assembly=Microsoft.Phone.Maps"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:src="clr-namespace:MapExplorer" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    shell:SystemTray.IsVisible="True">
+
+    <phone:PhoneApplicationPage.Resources>
+        <DataTemplate x:Key="RouteListTemplate">
+            <TextBlock Text="{Binding}" FontSize="{StaticResource PhoneFontSizeMedium}" TextWrapping="Wrap" Margin="5,5,0,0"/>
+        </DataTemplate>
+    </phone:PhoneApplicationPage.Resources>
+
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="0" x:Name="DirectionsTitleRowDefinition"/>
+            <RowDefinition Height="0" x:Name="DirectionsRowDefinition"/>
+        </Grid.RowDefinitions>
+
+        <!--TitlePanel contains the name of the application and page title-->
+        <StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="12,17,0,12">
+            <TextBlock Text="{Binding Path=LocalizedResources.ApplicationTitle, Source={StaticResource LocalizedStrings}}" Style="{StaticResource PhoneTextNormalStyle}"/>
+        </StackPanel>
+
+        <!--ContentPanel - place additional content here-->
+        <Grid x:Name="ContentPanel" Grid.Row="1">
+            <maps:Map x:Name="MyMap" ZoomLevelChanged="ZoomLevelChanged" Loaded="MyMap_Loaded" />
+            <TextBox x:Name="SearchTextBox" Visibility="Collapsed" InputScope="Maps" LostFocus="SearchTextBox_LostFocus" KeyDown="SearchTextBox_KeyDown" HorizontalAlignment="Left" Height="72" Margin="12,0,12,10" TextWrapping="Wrap" VerticalAlignment="Top" Width="456"/>
+        </Grid>
+
+        <!--Directions from current location to destination are shown in this panel.-->
+        <StackPanel x:Name="RouteDirections" Grid.Row="2" Margin="3,0,0,0">
+            <TextBlock x:Name="DestinationText" Style="{StaticResource PhoneTextTitle3Style}" FontSize="{StaticResource PhoneFontSizeMediumLarge}" FontWeight="SemiBold"/>
+            <TextBlock x:Name="DestinationDetailsText" Style="{StaticResource PhoneTextNormalStyle}"/>
+        </StackPanel>
+        <Button x:Name="DriveButton" Content="Drive" IsEnabled="False" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,100,0" Click="TravelModeButton_Click"/>
+        <Button x:Name="WalkButton" Content="Walk" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,10,0" Click="TravelModeButton_Click"/>
+        <phone:LongListSelector x:Name="RouteLLS" Grid.Row="3" Margin="10,0,10,0" Background="Transparent" ItemTemplate="{StaticResource RouteListTemplate}" LayoutMode="List" 
+            IsGroupingEnabled="False" SelectionChanged="RouteManeuverSelected"/>
+
+        <!--Panel of buttons to control map cartography mode-->
+        <StackPanel Grid.RowSpan="4" x:Name="ModePanel" Orientation="Vertical" VerticalAlignment="Bottom" HorizontalAlignment="Left" Height="281" Margin="0,0,0,12">
+            <Button x:Name="RoadButton" Content="Road" IsEnabled="False" Click="CartographicModeButton_Click"/>
+            <Button x:Name="AerialButton" Content="Aerial" Click="CartographicModeButton_Click"/>
+            <Button x:Name="HybridButton" Content="Hybrid" Click="CartographicModeButton_Click"/>
+            <Button x:Name="TerrainButton" Content="Terrain" Click="CartographicModeButton_Click"/>
+        </StackPanel>
+
+        <!--Sliders to control map pitch and heading.-->
+        <Slider x:Name="PitchSlider" Grid.RowSpan="4" Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="211" Width="45" Margin="0,0,12,82" Minimum="0" Maximum="70" Value="0" ValueChanged="PitchValueChanged"/>
+        <Slider x:Name="HeadingSlider" Grid.RowSpan="4" VerticalAlignment="Bottom" HorizontalAlignment="Center" Height="80" Width="250" Margin="0,0,0,-20" Maximum="540" Minimum="180" Value="360" ValueChanged="HeadingValueChanged"/>
+
+        <!--Location panel is shown at application startup 
+            asking for permission to location data.-->
+        <Grid x:Name="LocationPanel" Margin="0,0,0,0" Grid.RowSpan="2" Background="#333333">
+            <StackPanel Grid.Row="1" Margin="12,12,12,0">
+                <TextBlock Margin="12,0,12,0" Text="{Binding Path=LocalizedResources.LocationUsageQueryText, Source={StaticResource LocalizedStrings}}" Style="{StaticResource PhoneTextTitle2Style}" TextWrapping="Wrap"/>
+                <TextBlock Margin="12,10,12,0" Text="{Binding Path=LocalizedResources.LocationUsageInfoText, Source={StaticResource LocalizedStrings}}" Style="{StaticResource PhoneTextNormalStyle}" TextWrapping="Wrap"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                <Button x:Name="AllowButton" Content="{Binding Path=LocalizedResources.LocationAllowButtonText, Source={StaticResource LocalizedStrings}}" HorizontalAlignment="Left" Width="200" Click="LocationUsage_Click"/>
+                <Button x:Name ="CancelButton" Content="{Binding Path=LocalizedResources.LocationCancelButtonText, Source={StaticResource LocalizedStrings}}" HorizontalAlignment="Right" Width="200" Click="LocationUsage_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!--Uncomment to see an alignment grid to help ensure your controls are
+            aligned on common boundaries.  Remove or comment out before shipping
+            your application.-->
+        <!--<Image Margin="0" Source="/Assets/AlignmentGrid.png" Stretch="None" IsHitTestVisible="False" />-->
+    </Grid>
+    
+</phone:PhoneApplicationPage>
