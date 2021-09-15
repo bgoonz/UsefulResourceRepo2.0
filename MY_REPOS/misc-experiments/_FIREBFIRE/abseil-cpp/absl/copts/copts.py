@@ -12,15 +12,9 @@ AbseilConfigureCopts.cmake.
 """
 
 # /Wall with msvc includes unhelpful warnings such as C4711, C4710, ...
-MSVC_BIG_WARNING_FLAGS = [
-    "/W3",
-]
+MSVC_BIG_WARNING_FLAGS = ["/W3"]
 
-LLVM_BIG_WARNING_FLAGS = [
-    "-Wall",
-    "-Wextra",
-    "-Weverything",
-]
+LLVM_BIG_WARNING_FLAGS = ["-Wall", "-Wextra", "-Weverything"]
 
 # Docs on single flags is preceded by a comment.
 # Docs on groups of flags is preceded by ###.
@@ -151,31 +145,30 @@ COPT_VARS = {
         "-Wno-unused-parameter",
         "-Wno-unused-private-field",
     ],
-    "ABSL_LLVM_FLAGS":
-        LLVM_BIG_WARNING_FLAGS + LLVM_DISABLE_WARNINGS_FLAGS,
-    "ABSL_LLVM_TEST_FLAGS":
-        LLVM_TEST_DISABLE_WARNINGS_FLAGS,
-    "ABSL_CLANG_CL_FLAGS":
-        (MSVC_BIG_WARNING_FLAGS + LLVM_DISABLE_WARNINGS_FLAGS + MSVC_DEFINES),
-    "ABSL_CLANG_CL_TEST_FLAGS":
-        LLVM_TEST_DISABLE_WARNINGS_FLAGS,
-    "ABSL_MSVC_FLAGS":
-        MSVC_BIG_WARNING_FLAGS + MSVC_DEFINES + [
-            # Increase the number of sections available in object files
-            "/bigobj",
-            "/wd4005",  # macro-redefinition
-            "/wd4068",  # unknown pragma
-            # qualifier applied to function type has no meaning; ignored
-            "/wd4180",
-            # conversion from 'type1' to 'type2', possible loss of data
-            "/wd4244",
-            # conversion from 'size_t' to 'type', possible loss of data
-            "/wd4267",
-            # The decorated name was longer than the compiler limit
-            "/wd4503",
-            # forcing value to bool 'true' or 'false' (performance warning)
-            "/wd4800",
-        ],
+    "ABSL_LLVM_FLAGS": LLVM_BIG_WARNING_FLAGS + LLVM_DISABLE_WARNINGS_FLAGS,
+    "ABSL_LLVM_TEST_FLAGS": LLVM_TEST_DISABLE_WARNINGS_FLAGS,
+    "ABSL_CLANG_CL_FLAGS": (
+        MSVC_BIG_WARNING_FLAGS + LLVM_DISABLE_WARNINGS_FLAGS + MSVC_DEFINES
+    ),
+    "ABSL_CLANG_CL_TEST_FLAGS": LLVM_TEST_DISABLE_WARNINGS_FLAGS,
+    "ABSL_MSVC_FLAGS": MSVC_BIG_WARNING_FLAGS
+    + MSVC_DEFINES
+    + [
+        # Increase the number of sections available in object files
+        "/bigobj",
+        "/wd4005",  # macro-redefinition
+        "/wd4068",  # unknown pragma
+        # qualifier applied to function type has no meaning; ignored
+        "/wd4180",
+        # conversion from 'type1' to 'type2', possible loss of data
+        "/wd4244",
+        # conversion from 'size_t' to 'type', possible loss of data
+        "/wd4267",
+        # The decorated name was longer than the compiler limit
+        "/wd4503",
+        # forcing value to bool 'true' or 'false' (performance warning)
+        "/wd4800",
+    ],
     "ABSL_MSVC_TEST_FLAGS": [
         "/wd4018",  # signed/unsigned mismatch
         "/wd4101",  # unreferenced local variable
@@ -185,7 +178,7 @@ COPT_VARS = {
     ],
     "ABSL_MSVC_LINKOPTS": [
         # Object file doesn't export any previously undefined symbols
-        "-ignore:4221",
+        "-ignore:4221"
     ],
     # "HWAES" is an abbreviation for "hardware AES" (AES - Advanced Encryption
     # Standard). These flags are used for detecting whether or not the target
@@ -193,9 +186,6 @@ COPT_VARS = {
     # to improve performance of some random bit generators.
     "ABSL_RANDOM_HWAES_ARM64_FLAGS": ["-march=armv8-a+crypto"],
     "ABSL_RANDOM_HWAES_ARM32_FLAGS": ["-mfpu=neon"],
-    "ABSL_RANDOM_HWAES_X64_FLAGS": [
-        "-maes",
-        "-msse4.1",
-    ],
+    "ABSL_RANDOM_HWAES_X64_FLAGS": ["-maes", "-msse4.1"],
     "ABSL_RANDOM_HWAES_MSVC_X64_FLAGS": [],
 }

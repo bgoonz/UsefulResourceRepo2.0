@@ -32,50 +32,49 @@ HPKE_DHKEM_X25519_SHA256 = 0x0020
 
 
 def read_test_vectors_and_generate_code(json_file_in_path, test_file_out_path):
-  """Translates JSON test vectors into BoringSSL's FileTest language.
+    """Translates JSON test vectors into BoringSSL's FileTest language.
 
     Args:
       json_file_in_path: Path to the JSON test vectors file.
       test_file_out_path: Path to output file.
   """
 
-  # Load the JSON file into |test_vecs|.
-  with open(json_file_in_path) as file_in:
-    test_vecs = json.load(file_in)
+    # Load the JSON file into |test_vecs|.
+    with open(json_file_in_path) as file_in:
+        test_vecs = json.load(file_in)
 
-  lines = []
-  for test in test_vecs:
-    # Filter out test cases that we don't use.
-    if (test["mode"] != HPKE_MODE_BASE or
-        test["kemID"] != HPKE_DHKEM_X25519_SHA256):
-      continue
+    lines = []
+    for test in test_vecs:
+        # Filter out test cases that we don't use.
+        if test["mode"] != HPKE_MODE_BASE or test["kemID"] != HPKE_DHKEM_X25519_SHA256:
+            continue
 
-    for key in ("kdfID", "aeadID", "info", "skRm", "skEm", "pkRm", "pkEm"):
-      lines.append("{} = {}".format(key, str(test[key])))
+        for key in ("kdfID", "aeadID", "info", "skRm", "skEm", "pkRm", "pkEm"):
+            lines.append("{} = {}".format(key, str(test[key])))
 
-    for i, enc in enumerate(test["encryptions"]):
-      lines.append("# encryptions[{}]".format(i))
-      for key in ("aad", "ciphertext", "plaintext"):
-        lines.append("{} = {}".format(key, str(enc[key])))
+        for i, enc in enumerate(test["encryptions"]):
+            lines.append("# encryptions[{}]".format(i))
+            for key in ("aad", "ciphertext", "plaintext"):
+                lines.append("{} = {}".format(key, str(enc[key])))
 
-    for i, exp in enumerate(test["exports"]):
-      lines.append("# exports[{}]".format(i))
-      for key in ("exportContext", "exportLength", "exportValue"):
-        lines.append("{} = {}".format(key, str(exp[key])))
+        for i, exp in enumerate(test["exports"]):
+            lines.append("# exports[{}]".format(i))
+            for key in ("exportContext", "exportLength", "exportValue"):
+                lines.append("{} = {}".format(key, str(exp[key])))
 
-    lines.append("")
+        lines.append("")
 
-  with open(test_file_out_path, "w") as file_out:
-    file_out.write("\n".join(lines))
+    with open(test_file_out_path, "w") as file_out:
+        file_out.write("\n".join(lines))
 
 
 def main(argv):
-  if len(argv) != 2:
-    print(__doc__)
-    sys.exit(1)
+    if len(argv) != 2:
+        print(__doc__)
+        sys.exit(1)
 
-  read_test_vectors_and_generate_code(argv[1], "hpke_test_vectors.txt")
+    read_test_vectors_and_generate_code(argv[1], "hpke_test_vectors.txt")
 
 
 if __name__ == "__main__":
-  main(sys.argv)
+    main(sys.argv)

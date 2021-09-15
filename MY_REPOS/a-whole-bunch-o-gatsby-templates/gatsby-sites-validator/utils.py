@@ -36,8 +36,7 @@ def isStale(repoDate, referenceDate):
 
 
 def validateWebsites(json):
-    entries = tqdm(
-        json, desc="Checking websites")
+    entries = tqdm(json, desc="Checking websites")
     invalid_entries = []
     for entry in entries:
         title = entry["title"]
@@ -57,8 +56,7 @@ def validateWebsites(json):
 
 
 def validateRepositories(json, referenceDate):
-    entries = tqdm(
-        json, desc="Checking repositories")
+    entries = tqdm(json, desc="Checking repositories")
     invalid_entries = []
     stale_entries = []
     for entry in entries:
@@ -84,8 +82,7 @@ def validateRepositories(json, referenceDate):
         print(table.table)
     if stale_entries:
         print("Stale repositories. Reference date: %s" % referenceDate)
-        stale_entries.insert(
-            0, ["Title", "Last pushed_at"])
+        stale_entries.insert(0, ["Title", "Last pushed_at"])
         table = AsciiTable(stale_entries)
         print(table.table)
     print("All repositories checked.\n")
