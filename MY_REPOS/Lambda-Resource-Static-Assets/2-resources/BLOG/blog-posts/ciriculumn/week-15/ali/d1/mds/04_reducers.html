@@ -1,0 +1,98 @@
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<hr />
+<h1 id="reducers">Reducers</h1>
+<p>As you saw in an earlier article, the Redux store has a <strong>reducer</strong> function for updating its state. The reducer function receives the current <code>state</code> and an <code>action</code>, updates the state appropriately based on the <code>action.type</code>, and returns the next state.</p>
+<p>When you finish this article, you should be able to:</p>
+<ul>
+<li>Explain what a <em>reducer</em> is</li>
+<li>Use a <code>switch</code> statement within a reducer function to handle multiple action types</li>
+<li>Describe why it’s important for a reducer to avoid mutating the current state when creating the next state</li>
+</ul>
+<h2 id="updating-the-reducer-to-handle-additional-action-types">Updating the reducer to handle additional action types</h2>
+<p>Recall the reducer from the Fruit Stand application:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="cf">case</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb1-4" title="4">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> <span class="va">action</span>.<span class="at">fruit</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb1-6" title="6">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-7" title="7">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="op">};</span></a></code></pre></div>
+<p>When the store initializes, it calls its reducer with an <code>undefined</code> <code>state</code>, allowing the reducer to dictate the store’s initial state via the <code>state</code> parameter’s default value.</p>
+<p>The bulk of the reducer function then implements updates to the state. First, the reducer decides what logic to implement based on the <code>action.type</code> <code>switch</code>. Then, it creates and returns a new object representing the next state (after processing the action) if any of the information needs to be changed. The <code>state</code> is returned unchanged if no cases match the <code>action.type</code>, meaning that the reducer doesn’t <em>care</em> about that action (e.g. <code>{type: 'NEW_TRANSFORMERS_SEQUEL'}</code>).</p>
+<p>In the above example, the reducer’s initial state is set to an empty array (i.e. <code>[]</code>). The reducer returns a new array with <code>action.fruit</code> appended to the previous <code>state</code> if <code>action.type</code> is <code>'ADD_FRUIT'</code>. Otherwise, it returns the <code>state</code> unchanged.</p>
+<p>Additional <code>case</code> clauses can be added to update the reducer to handle the following action types:</p>
+<ul>
+<li><code>'ADD_FRUITS'</code> - Add an array of fruits to the inventory of fruits</li>
+<li><code>'SELL_FRUIT'</code> - Remove the first instance of a fruit if available</li>
+<li><code>'SELL_OUT'</code> - Someone bought the whole inventory of fruit! Return an empty array</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-3" title="3">    <span class="cf">case</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-4" title="4">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> <span class="va">action</span>.<span class="at">fruit</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-5" title="5">    <span class="cf">case</span> <span class="st">&#39;ADD_FRUITS&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-6" title="6">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> ...<span class="va">action</span>.<span class="at">fruits</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-7" title="7">    <span class="cf">case</span> <span class="st">&#39;SELL_FRUIT&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-8" title="8">      <span class="kw">const</span> index <span class="op">=</span> <span class="va">state</span>.<span class="at">indexOf</span>(<span class="va">action</span>.<span class="at">fruit</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-9" title="9">      <span class="cf">if</span> (index <span class="op">!==</span> <span class="dv">-1</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-10" title="10">        <span class="co">// remove first instance of action.fruit</span></a>
+<a class="sourceLine" id="cb2-11" title="11">        <span class="cf">return</span> [...<span class="va">state</span>.<span class="at">slice</span>(<span class="dv">0</span><span class="op">,</span> index)<span class="op">,</span> ...<span class="va">state</span>.<span class="at">slice</span>(index <span class="op">+</span> <span class="dv">1</span>)]<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-12" title="12">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-13" title="13">      <span class="cf">return</span> state<span class="op">;</span> <span class="co">// if action.fruit is not in state, return previous state</span></a>
+<a class="sourceLine" id="cb2-14" title="14">    <span class="cf">case</span> <span class="st">&#39;SELL_OUT&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-15" title="15">      <span class="cf">return</span> []<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-16" title="16">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-17" title="17">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-18" title="18">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-19" title="19"><span class="op">};</span></a></code></pre></div>
+<h3 id="reviewing-how-arrayslice-works">Reviewing how <code>Array#slice</code> works</h3>
+<p>If you don’t regularly use the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice"><code>Array#slice</code></a> method, the following expression might look odd at first glance:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1">[...<span class="va">state</span>.<span class="at">slice</span>(<span class="dv">0</span><span class="op">,</span> index)<span class="op">,</span> ...<span class="va">state</span>.<span class="at">slice</span>(index <span class="op">+</span> <span class="dv">1</span>)]</a></code></pre></div>
+<p>The <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice"><code>Array#slice</code></a> method returns a new array containing a shallow copy of the array elements indicated by the <code>start</code> and <code>end</code> arguments. The <code>start</code> argument is the index of the first element to include and the <code>end</code> argument is the index of the element to include up to (but not including). If the <code>end</code> argument isn’t provided, all of the array elements up to the end of the array will be included. The original array will not be modified.</p>
+<p>By combining two calls to the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice"><code>Array#slice</code></a> method into a new array, a copy of an array can be created that omits an element at a specific index (<code>index</code>):</p>
+<ul>
+<li><code>state.slice(0, index)</code> - Returns a new array containing the elements starting from index <code>0</code> up to <code>index</code></li>
+<li><code>state.slice(index + 1)</code> - Returns a new array containing the elements starting from <code>index + 1</code> (one past the index to omit the element at <code>index</code>) up through the last element in the array</li>
+</ul>
+<p>Then the spread syntax is used to spread the elements in the slices into a new array.</p>
+<p>Here’s a complete example:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">const</span> fruits <span class="op">=</span> [<span class="st">&#39;apple&#39;</span><span class="op">,</span> <span class="st">&#39;apple&#39;</span><span class="op">,</span> <span class="st">&#39;orange&#39;</span><span class="op">,</span> <span class="st">&#39;banana&#39;</span><span class="op">,</span> <span class="st">&#39;watermelon&#39;</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="co">// The index of the &#39;orange&#39; element is 2.</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="kw">const</span> index <span class="op">=</span> <span class="va">fruits</span>.<span class="at">indexOf</span>(<span class="st">&#39;orange&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-5" title="5"></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="co">// `...fruits.slice(0, index)` returns the array [&#39;apple&#39;, &#39;apple&#39;]</span></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="co">// `...fruits.slice(index + 1)` returns the array [&#39;banana&#39;, &#39;watermelon&#39;]</span></a>
+<a class="sourceLine" id="cb4-8" title="8"><span class="co">// The spread syntax combines the two array slices into the array</span></a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="co">// [&#39;apple&#39;, &#39;apple&#39;, &#39;banana&#39;, &#39;watermelon&#39;]</span></a>
+<a class="sourceLine" id="cb4-10" title="10"><span class="kw">const</span> newFruits <span class="op">=</span> [...<span class="va">fruits</span>.<span class="at">slice</span>(<span class="dv">0</span><span class="op">,</span> index)<span class="op">,</span> ...<span class="va">fruits</span>.<span class="at">slice</span>(index <span class="op">+</span> <span class="dv">1</span>)]<span class="op">;</span></a></code></pre></div>
+<p>This approach to removing an element from an array is just one way to complete the operation without modifying or mutating the original array.</p>
+<h2 id="avoiding-state-mutations">Avoiding state mutations</h2>
+<p>Inside a Redux reducer, you must never mutate its arguments (i.e. <code>state</code> and <code>action</code>). <strong>Your reducer must return a new object if the state changes</strong>. <a href="https://github.com/reactjs/redux/issues/758">Here’s why</a>.</p>
+<p>Here’s an example of a <em>bad</em> reducer which mutates the previous state.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">const</span> badReducer <span class="op">=</span> (state <span class="op">=</span> <span class="op">{</span> <span class="dt">count</span><span class="op">:</span> <span class="dv">0</span> <span class="op">},</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-3" title="3">    <span class="cf">case</span> <span class="st">&#39;INCREMENT_COUNTER&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-4" title="4">      <span class="va">state</span>.<span class="at">count</span><span class="op">++;</span></a>
+<a class="sourceLine" id="cb5-5" title="5">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-7" title="7">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-8" title="8">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="op">};</span></a></code></pre></div>
+<p>And here’s an example of a good reducer which uses <code>Object.assign</code> to create a shallow duplicate of the previous <code>state</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">const</span> goodReducer <span class="op">=</span> (state <span class="op">=</span> <span class="op">{</span> <span class="dt">count</span><span class="op">:</span> <span class="dv">0</span> <span class="op">},</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-3" title="3">    <span class="cf">case</span> <span class="st">&#39;INCREMENT_COUNTER&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb6-4" title="4">      <span class="kw">const</span> nextState <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-5" title="5">      <span class="va">nextState</span>.<span class="at">count</span><span class="op">++;</span></a>
+<a class="sourceLine" id="cb6-6" title="6">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-7" title="7">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb6-8" title="8">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-9" title="9">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="op">};</span></a></code></pre></div>
+<h2 id="what-you-learned">What you learned</h2>
+<p>In this article, you learned about reducers and how to use a <code>switch</code> statement within a reducer function to handle multiple action types. You also learned why it’s important for a reducer to avoid mutating the current state when creating the next state.</p>
+<h2 id="see-also">See also…</h2>
+<p>To learn more about reducers, see the official <a href="https://redux.js.org/basics/reducers">Redux documentation</a>.</p>

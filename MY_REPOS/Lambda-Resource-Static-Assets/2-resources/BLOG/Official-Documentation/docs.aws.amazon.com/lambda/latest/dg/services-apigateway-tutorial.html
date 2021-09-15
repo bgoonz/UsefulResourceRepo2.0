@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" ng-app="AWSDocsDocPageApp">
+   
+<!-- Mirrored from docs.aws.amazon.com/lambda/latest/dg/services-apigateway-tutorial.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 21 Feb 2021 15:04:51 GMT -->
+<head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <title>Tutorial: Using AWS Lambda with Amazon API Gateway - AWS Lambda</title>
+      <meta name="viewport" content="width=device-width,initial-scale=1" />
+      <meta name="assets_root" content="/assets" />
+      <meta name="target_state" content="services-apigateway-tutorial" />
+      <meta name="default_state" content="services-apigateway-tutorial" />
+      <link rel="icon" type="image/ico" href="https://docs.aws.amazon.com/assets/images/favicon.ico" />
+      <link rel="shortcut icon" type="image/ico" href="https://docs.aws.amazon.com/assets/images/favicon.ico" />
+      <link rel="canonical" href="https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway-tutorial.html" />
+      <meta name="description" content="In this example you create a simple API using Amazon API Gateway. An Amazon API Gateway is a collection of resources and methods. For this tutorial, you create one resource ( DynamoDBManager ) and define one method ( POST ) on it. The method is backed by a Lambda function (" />
+      <meta name="deployment_region" content="IAD" />
+      <meta name="product" content="AWS Lambda" />
+      <meta name="guide" content="Developer Guide" />
+      <meta name="locales" content="de_de:Deutsch/en_us:English/es_es:Español/fr_fr:Français/it_it:Italiano/ja_jp:日本語/ko_kr:한국어/pt_br:Português/zh_cn:中文 (简体)/zh_tw:中文 (繁體)" />
+      <meta name="abstract" content="" />
+      <meta name="guide-locale" content="en_us" />
+      <meta name="tocs" content="toc-contents.json" />
+      <meta name="feedback-item" content="Lambda" />
+      <meta name="this_doc_product" content="AWS Lambda" />
+      <meta name="this_doc_guide" content="Developer Guide" />
+      <link href="https://docs.aws.amazon.com/assets/css/vendor4.css?version=2020.09.30" rel="stylesheet" />
+      <link href="https://docs.aws.amazon.com/assets/css/awsdocs-common.css?version=2020.09.30" rel="stylesheet" /><script type="text/javascript" src="https://docs.aws.amazon.com/assets/js/vendor3.js?version=2020.09.30" defer=""></script><script type="text/javascript" src="https://docs.aws.amazon.com/assets/js/vendor4.js?version=2020.09.30" defer=""></script><script type="text/javascript" src="https://docs.aws.amazon.com/assets/js/vendor1.js?version=2020.09.30" defer=""></script><script type="text/javascript" src="https://docs.aws.amazon.com/assets/js/awsdocs-common.js?version=2020.09.30" defer=""></script><script type="text/javascript" src="https://docs.aws.amazon.com/assets/js/awsdocs-doc-app.js?version=2020.09.30" defer=""></script></head>
+   <body class="awsdocs awsui">
+      <div class="awsdocs-container">
+         <awsdocs-header></awsdocs-header>
+         <awsui-app-layout id="app-layout" class="awsui-util-no-gutters" ng-controller="ContentController as $ctrl" header-selector="awsdocs-header" navigation-hide="false" navigation-width="$ctrl.navWidth" navigation-open="$ctrl.navOpen" navigation-change="$ctrl.onNavChange($event)" tools-hide="$ctrl.hideTools" tools-width="$ctrl.toolsWidth" tools-open="$ctrl.toolsOpen" tools-change="$ctrl.onToolsChange($event)">
+            <div id="guide-toc" dom-region="navigation">
+               <awsdocs-toc></awsdocs-toc>
+            </div>
+            <div id="main-column" dom-region="content" tabindex="-1">
+               <awsdocs-view class="awsdocs-view">
+                  <div id="awsdocs-content">
+                     <head>
+                        <title>Tutorial: Using AWS Lambda with Amazon API Gateway - AWS Lambda</title>
+                        <meta name="pdf" content="lambda-dg.pdf#services-apigateway-tutorial" />
+                        <meta name="kindle" content="https://www.amazon.com/dp/B07GFJLN6D" />
+                        <meta name="github" content="https://github.com/awsdocs/aws-lambda-developer-guide/tree/main/doc_source/services-apigateway-tutorial.md" />
+                        <meta name="rss" content="lambda-updates.rss" />
+                        <meta name="forums" content="http://forums.aws.amazon.com/forum.jspa?forumID=186" />
+                        <meta name="feedback" content="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=Lambda&amp;topic_url=http://docs.aws.amazon.com/en_us/lambda/latest/dg/services-apigateway-tutorial.html" />
+                        <meta name="feedback-yes" content="feedbackyes.html?topic_url=http://docs.aws.amazon.com/en_us/lambda/latest/dg/services-apigateway-tutorial.html" />
+                        <meta name="feedback-no" content="feedbackno.html?topic_url=http://docs.aws.amazon.com/en_us/lambda/latest/dg/services-apigateway-tutorial.html" />
+                        <meta name="keywords" content="Lambda,AWS Lambda,serverless,serverless applications,cloud computing" />
+                     </head>
+                     <body>
+                        <div id="main">
+                           <div style="display: none"><a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-dg.pdf#services-apigateway-tutorial" target="_blank" title="Open PDF"></a><a target="_blank" href="https://www.amazon.com/dp/B07GFJLN6D" title="Open Kindle"></a><a href="https://github.com/awsdocs/aws-lambda-developer-guide/tree/main/doc_source/services-apigateway-tutorial.md" target="_blank" title="Edit this page on GitHub"></a></div>
+                           <div id="breadcrumbs" class="breadcrumb"><a href="http://aws.amazon.com/">AWS</a><a href="https://docs.aws.amazon.com/index.html">Documentation</a><a href="https://docs.aws.amazon.com/lambda/index.html">AWS Lambda</a><a href="https://docs.aws.amazon.com/lambda/latest/dg/welcome.html">Developer Guide</a></div>
+                           <div id="page-toc-src"><a href="#services-apigateway-tutorial-prereqs">Prerequisites</a><a href="#services-apigateway-tutorial-role">Create the execution role</a><a href="#services-apigateway-tutorial-function">Create the function</a><a href="#services-apigateway-tutorial-test">Test the Lambda function</a><a href="#services-apigateway-tutorial-api">Create an API using Amazon API Gateway</a><a href="#services-apigateway-tutorial-permission">Grant invoke permission to the API</a><a href="#services-apigateway-tutorial-table">Create a Amazon DynamoDB table</a><a href="#services-apigateway-tutorial-request">Trigger the function with an HTTP request</a><a href="#cleanup">Clean up your resources</a></div>
+                           <div id="main-content" class="awsui-util-container">
+                              <div id="main-col-body">
+                                 <awsdocs-language-banner data-service="$ctrl.pageService"></awsdocs-language-banner>
+                                 <h1 class="topictitle" id="services-apigateway-tutorial">Tutorial: Using AWS Lambda with Amazon API Gateway</h1>
+                                 <div class="awsdocs-page-header-container">
+                                    <awsdocs-page-header></awsdocs-page-header>
+                                    <awsdocs-filter-selector id="awsdocs-filter-selector"></awsdocs-filter-selector>
+                                 </div>
+                                 <p>In this example you create a simple API using Amazon API Gateway. An Amazon API Gateway
+                                    is a collection of resources and methods.
+                                    For this tutorial, you create one resource (<code class="code">DynamoDBManager</code>) and define one method (<code class="code">POST</code>)
+                                    on it. The method is backed by a Lambda function (<code class="code">LambdaFunctionOverHttps</code>). That is, when you call the
+                                    API through an HTTPS endpoint, Amazon API Gateway invokes the Lambda function.
+                                 </p>
+                                 <p>The <code class="code">POST</code> method on the <code class="code">DynamoDBManager</code> resource supports the following DynamoDB
+                                    operations:
+                                 </p>
+                                 <div class="itemizedlist">
+                                     
+                                     
+                                     
+                                     
+                                    
+                                    <ul class="itemizedlist" type="disc">
+                                       <li class="listitem">
+                                          
+                                          <p>Create, update, and delete an item.</p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p>Read an item.</p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p>Scan an item.</p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p>Other operations (echo, ping), not related to DynamoDB, that you can use for testing.</p>
+                                          
+                                       </li>
+                                    </ul>
+                                 </div>
+                                 <p>The request payload you send in the <code class="code">POST</code> request identifies the DynamoDB operation and provides
+                                    necessary data. For example: 
+                                 </p>
+                                 <div class="itemizedlist">
+                                     
+                                     
+                                     
+                                    
+                                    <ul class="itemizedlist" type="disc">
+                                       <li class="listitem">
+                                          
+                                          <p>The following is a sample request payload for a DynamoDB create item operation:</p>
+                                          <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "operation": "create",
+    "tableName": "lambda-apigateway",
+    "payload": <span>{</span>
+        "Item": <span>{</span>
+            "id": "1",
+            "name": "Bob"
+        }
+    }
+}</code></pre>
+                                          </li>
+                                       <li class="listitem">
+                                          
+                                          <p>The following is a sample request payload for a DynamoDB read item operation:</p>
+                                          
+                                          <p> </p>
+                                          <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "operation": "read",
+    "tableName": "lambda-apigateway",
+    "payload": <span>{</span>
+        "Key": <span>{</span>
+            "id": "1"
+        }
+    }
+}</code></pre>
+                                          </li>
+                                       <li class="listitem">
+                                          
+                                          <p>The following is a sample request payload for an <code class="code">echo</code> operation. You send an HTTP POST request
+                                             to the endpoint, using the following data in the request body. 
+                                          </p>
+                                          <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+  "operation": "echo",
+  "payload": <span>{</span>
+    "somekey1": "somevalue1",
+    "somekey2": "somevalue2"
+  }
+}</code></pre>
+                                          </li>
+                                    </ul>
+                                 </div>
+                                 <div class="awsdocs-note">
+                                    <div class="awsdocs-note-title">
+                                       <awsui-icon name="status-info" variant="link"></awsui-icon><span>Note</span></div>
+                                    <div class="awsdocs-note-text">
+                                       <p>API Gateway offers advanced capabilities, such as: </p>
+                                       <div class="itemizedlist">
+                                           
+                                           
+                                           
+                                          
+                                          <ul class="itemizedlist" type="disc">
+                                             <li class="listitem">
+                                                
+                                                <p><b>Pass through the entire request</b> – A Lambda function can receive the
+                                                   entire HTTP request (instead of just the request body) and set the HTTP response (instead
+                                                   of just the response
+                                                   body) using the <code class="code">AWS_PROXY</code> integration type.
+                                                </p>
+                                                
+                                             </li>
+                                             <li class="listitem">
+                                                
+                                                <p><b>Catch-all methods</b> – Map all methods of an API resource to a single
+                                                   Lambda function with a single mapping, using the <code class="code">ANY</code> catch-all method.
+                                                </p>
+                                                
+                                             </li>
+                                             <li class="listitem">
+                                                
+                                                <p><b>Catch-all resources</b> – Map all sub-paths of a resource to a Lambda
+                                                   function without any additional configuration using the new path parameter (<code class="code"><span>{</span>proxy+})</code>.
+                                                </p>
+                                                
+                                             </li>
+                                          </ul>
+                                       </div>
+                                       <p>To learn more about these API Gateway features, see <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html">Configure proxy integration for a proxy
+                                             resource</a>.
+                                       </p>
+                                    </div>
+                                 </div>
+                                 
+                                 <h2 id="services-apigateway-tutorial-prereqs">Prerequisites</h2>
+                                  
+                                 <p>This tutorial assumes that you have some knowledge of basic Lambda operations and
+                                    the Lambda console. If you
+                                    haven't already, follow the instructions in <a href="https://docs.aws.amazon.com/lambda/latest/dg/getting-started.html">Getting started with Lambda</a> to create your first Lambda function.
+                                 </p>
+                                  
+                                 <p>To complete the following steps, you need a command line terminal or shell to run
+                                    commands. Commands and the expected output are listed in separate blocks:
+                                 </p>
+                                 <pre class="programlisting"><div class="code-btn-container"></div><code class="nohighlight"><code class="userinput">this is a command</code></code></pre>
+                                 <p>You should see the following output:</p>
+                                 <pre class="programlisting"><div class="code-btn-container"></div><code class="">this is output</code></pre>
+                                 <p>For long commands, an escape character (<code class="code">\</code>) is used to split a command over multiple lines.
+                                 </p>
+                                 
+                                 <p>On Linux and macOS, use your preferred shell and package manager. On Windows 10, you
+                                    can <a href="https://docs.microsoft.com/en-us/windows/wsl/install-win10" rel="noopener noreferrer" target="_blank"><span>install the Windows Subsystem for Linux</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a> to get a Windows-integrated version of
+                                    Ubuntu and Bash.
+                                 </p>
+                                 
+                                  
+                                 
+                                 <h2 id="services-apigateway-tutorial-role">Create the execution role</h2>
+                                 
+                                 <p>Create the <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html">execution role</a> that gives your function
+                                    permission to access AWS resources.
+                                 </p>
+                                 
+                                 <div class="procedure">
+                                    <p class="title"><b>To create an execution role</b></p>
+                                    <ol>
+                                       <li>
+                                          
+                                          <p>Open the <a href="https://console.aws.amazon.com/iam/home#/roles" rel="noopener noreferrer" target="_blank"><span>roles page</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a> in the IAM console.
+                                          </p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Choose <b>Create role</b>.
+                                          </p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Create a role with the following properties.</p>
+                                          
+                                          <div class="itemizedlist">
+                                              
+                                              
+                                              
+                                             
+                                             <ul class="itemizedlist" type="disc">
+                                                <li class="listitem">
+                                                   
+                                                   <p><b>Trusted entity</b> – Lambda.
+                                                   </p>
+                                                   
+                                                </li>
+                                                <li class="listitem">
+                                                   
+                                                   <p><b>Role name</b> – <code class="userinput">lambda-apigateway-role</code>.
+                                                   </p>
+                                                   
+                                                </li>
+                                                <li class="listitem">
+                                                   
+                                                   <p><b>Permissions</b> – Custom policy with permission to DynamoDB and CloudWatch Logs.
+                                                   </p>
+                                                   <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+  "Version": "2012-10-17",
+  "Statement": [
+    <span>{</span>
+      "Sid": "Stmt1428341300017",
+      "Action": [
+        "dynamodb:DeleteItem",
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    },
+    <span>{</span>
+      "Sid": "",
+      "Resource": "*",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Effect": "Allow"
+    }
+  ]
+}</code></pre>
+                                                   </li>
+                                             </ul>
+                                          </div>
+                                          
+                                       </li>
+                                    </ol>
+                                 </div>
+                                 
+                                 <p>The custom policy has the permissions that the function needs to write data to DynamoDB
+                                    and upload logs. Note the
+                                    Amazon Resource Name (ARN) of the role for later use. 
+                                 </p>
+                                  
+                                 
+                                 <h2 id="services-apigateway-tutorial-function">Create the function</h2>
+                                 
+                                 
+                                 <p>The following example code receives a API Gateway event input and processes the messages
+                                    that it contains. For
+                                    illustration, the code writes some of the incoming event data to CloudWatch Logs.
+                                 </p>
+                                 
+                                 
+                                 <div class="awsdocs-note">
+                                    <div class="awsdocs-note-title">
+                                       <awsui-icon name="status-info" variant="link"></awsui-icon><span>Note</span></div>
+                                    <div class="awsdocs-note-text">
+                                       <p>For sample code in other languages, see <a href="https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway-code.html">Sample function code</a>.
+                                       </p>
+                                    </div>
+                                 </div>
+                                 
+                                 <div class="example">
+                                    <p class="title"><b>Example index.js</b></p>
+                                    <div class="example-contents"><pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nodejs ">console.log('Loading function');
+
+var AWS = require('aws-sdk');
+var dynamo = new AWS.DynamoDB.DocumentClient();
+
+/**
+ * Provide an event that contains the following keys:
+ *
+ *   - operation: one of the operations in the switch statement below
+ *   - tableName: required for operations that interact with DynamoDB
+ *   - payload: a parameter to pass to the operation being performed
+ */
+exports.handler = function(event, context, callback) <span>{</span>
+    //console.log('Received event:', JSON.stringify(event, null, 2));
+
+    var operation = event.operation;
+
+    if (event.tableName) <span>{</span>
+        event.payload.TableName = event.tableName;
+    }
+
+    switch (operation) <span>{</span>
+        case 'create':
+            dynamo.put(event.payload, callback);
+            break;
+        case 'read':
+            dynamo.get(event.payload, callback);
+            break;
+        case 'update':
+            dynamo.update(event.payload, callback);
+            break;
+        case 'delete':
+            dynamo.delete(event.payload, callback);
+            break;
+        case 'list':
+            dynamo.scan(event.payload, callback);
+            break;
+        case 'echo':
+            callback(null, "Success");
+            break;
+        case 'ping':
+            callback(null, "pong");
+            break;
+        default:
+            callback('Unknown operation: $<span>{</span>operation}');
+    }
+};</code></pre></div>
+                                 </div>
+                                 
+                                 
+                                 <div class="procedure">
+                                    <p class="title"><b>To create the function</b></p>
+                                    <ol>
+                                       <li>
+                                          
+                                          <p>Copy the sample code into a file named <code>index.js</code>.
+                                          </p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Create a deployment package.</p>
+                                          <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">zip function.zip index.js</code></code></pre>
+                                          </li>
+                                       <li>
+                                          
+                                          <p>Create a Lambda function with the <code class="code">create-function</code> command. For the <code class="code">role</code> parameter, enter the
+                                             ARN of the execution role that you created earlier.
+                                          </p>
+                                          <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">aws lambda create-function --function-name LambdaFunctionOverHttps \
+--zip-file fileb://function.zip --handler index.handler --runtime nodejs12.x \
+--role <code class="replaceable">arn:aws:iam::123456789012:role/service-role/lambda-apigateway-role</code></code></code></pre>
+                                          </li>
+                                    </ol>
+                                 </div>
+                                  
+                                 
+                                 <h2 id="services-apigateway-tutorial-test">Test the Lambda function</h2>
+                                 
+                                 <p>Invoke the function manually using the sample event data. We recommend that you invoke
+                                    the function using the
+                                    console because the console UI provides a user-friendly interface for reviewing the
+                                    execution results, including
+                                    the execution summary, logs written by your code, and the results returned by the
+                                    function (because the console
+                                    always performs synchronous execution—invokes the Lambda function using the <code class="code">RequestResponse</code>
+                                    invocation type).
+                                 </p>
+                                 
+                                 <div class="procedure">
+                                    <p class="title"><b>To test the Lambda function</b></p>
+                                    <ol>
+                                       <li>
+                                          
+                                          <p>Copy the following JSON into a file and save it as <code>input.txt</code>. 
+                                          </p>
+                                          <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "operation": "echo",
+    "payload": <span>{</span>
+        "somekey1": "somevalue1",
+        "somekey2": "somevalue2"
+    }
+}</code></pre>
+                                          </li>
+                                       <li>
+                                          
+                                          <p>Run the following <code class="code">invoke</code> command:
+                                          </p>
+                                          <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">aws lambda  invoke --function-name LambdaFunctionOverHttps \
+--payload fileb://input.txt outputfile.txt</code></code></pre>
+                                          </li>
+                                    </ol>
+                                 </div>
+                                 
+                                  
+                                 
+                                 <h2 id="services-apigateway-tutorial-api">Create an API using Amazon API Gateway</h2>
+                                 
+                                 <p>In this step, you associate your Lambda function with a method in the API that you
+                                    created using Amazon API Gateway and
+                                    test the end-to-end experience. That is, when an HTTP request is sent to an API method,
+                                    Amazon API Gateway invokes your
+                                    Lambda function.
+                                 </p>
+                                 
+                                 <p>First, you create an API (<code class="code">DynamoDBOperations</code>) using Amazon API Gateway with one resource
+                                    (<code class="code">DynamoDBManager</code>) and one method (<code class="code">POST</code>). You associate the <code class="code">POST</code> method
+                                    with your Lambda function. Then, you test the end-to-end experience.
+                                 </p>
+                                  
+                                 
+                                 <h3 id="with-on-demand-https-create-api">Create the API</h3>
+                                 
+                                 <p>Run the following <code class="code">create-rest-api</code> command to create the <code class="code">DynamoDBOperations</code> API for
+                                    this tutorial.
+                                 </p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">aws apigateway create-rest-api --name DynamoDBOperations</code></code></pre>
+                                 <p>You should see the following output:</p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "id": "bs8fqo6bp0",
+    "name": "DynamoDBOperations",
+    "createdDate": 1539803980,
+    "apiKeySource": "HEADER",
+    "endpointConfiguration": <span>{</span>
+        "types": [
+            "EDGE"
+        ]
+    }
+}</code></pre>
+                                 <p>Save the API ID for use in further commands. You also need the ID of the API root
+                                    resource. To get the ID,
+                                    run the <code class="code">get-resources</code> command.
+                                 </p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">API=<code class="replaceable">bs8fqo6bp0</code></code>
+<code class="userinput">aws apigateway get-resources --rest-api-id $API</code></code></pre>
+                                 <p>You should see the following output:</p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "items": [
+        <span>{</span>
+            "path": "/",
+            "id": "e8kitthgdb"
+        }
+    ]
+}</code></pre>
+                                 <p>At this time you only have the root resource, but you add more resources in the next
+                                    step.
+                                 </p>
+                                  
+                                  
+                                 
+                                 <h3 id="with-on-demand-https-create-resource">Create a resource in the API</h3>
+                                 
+                                 <p>Run the following <code class="code">create-resource</code> command to create a resource (<code class="code">DynamoDBManager</code>)
+                                    in the API that you created in the preceding section.
+                                 </p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">aws apigateway create-resource --rest-api-id $API  --path-part DynamoDBManager \
+--parent-id <code class="replaceable">e8kitthgdb</code></code></code></pre>
+                                 <p>You should see the following output:</p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "path": "/DynamoDBManager",
+    "pathPart": "DynamoDBManager",
+    "id": "iuig5w",
+    "parentId": "e8kitthgdb"
+}</code></pre>
+                                 <p>Note the ID in the response. This is the ID of the <code class="code">DynamoDBManager</code> resource that you created.
+                                    
+                                 </p>
+                                  
+                                  
+                                 
+                                 <h3 id="with-on-demand-https-create-method">Create POST method on the resource</h3>
+                                 
+                                 <p>Run the following <code class="code">put-method</code> command to create a <code class="code">POST</code> method on the
+                                    <code class="code">DynamoDBManager</code> resource in your API.
+                                 </p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">RESOURCE=<code class="replaceable">iuig5w</code></code>
+<code class="userinput">aws apigateway put-method --rest-api-id $API --resource-id $RESOURCE \
+--http-method POST --authorization-type NONE</code></code></pre>
+                                 <p>You should see the following output:</p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "apiKeyRequired": false,
+    "httpMethod": "POST",
+    "authorizationType": "NONE"
+}</code></pre>
+                                 <p>We specify <code class="code">NONE</code> for the <code class="code">--authorization-type</code> parameter, which means that
+                                    unauthenticated requests for this method are supported. This is fine for testing but
+                                    in production you should
+                                    use either the key-based or role-base authentication.
+                                 </p>
+                                  
+                                  
+                                 
+                                 <h3 id="with-on-demand-https-integrate-method-with-function">Set the Lambda function as the destination
+                                    for the POST method
+                                 </h3>
+                                 
+                                 <p>Run the following command to set the Lambda function as the integration point for
+                                    the <code class="code">POST</code>
+                                    method. This is the method Amazon API Gateway invokes when you make an HTTP request
+                                    for the <code class="code">POST</code> method
+                                    endpoint. This command and others use ARNs that include your account ID and region.
+                                    Save these to variables (you
+                                    can find your account ID in the role ARN that you used to create the function).
+                                 </p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">REGION=<code class="replaceable">us-east-2</code></code>
+<code class="userinput">ACCOUNT=<code class="replaceable">123456789012</code></code>
+<code class="userinput">aws apigateway put-integration --rest-api-id $API --resource-id $RESOURCE \
+--http-method POST --type AWS --integration-http-method POST \
+--uri arn:aws:apigateway:$REGION:lambda:path/2015-03-31/functions/arn:aws:lambda:$REGION:$ACCOUNT:function:LambdaFunctionOverHttps/invocations</code></code></pre>
+                                 <p>You should see the following output:</p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "type": "AWS",
+    "httpMethod": "POST",
+    "uri": "arn:aws:apigateway:us-east-2:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-2:123456789012:function:LambdaFunctionOverHttps/invocations",
+    "passthroughBehavior": "WHEN_NO_MATCH",
+    "timeoutInMillis": 29000,
+    "cacheNamespace": "iuig5w",
+    "cacheKeyParameters": []
+}</code></pre>
+                                 <p><code class="code">--integration-http-method</code> is the method that API Gateway uses to communicate with AWS Lambda.
+                                    <code class="code">--uri</code> is unique identifier for the endpoint to which Amazon API Gateway can send request.
+                                 </p>
+                                 
+                                 <p>Set <code class="code">content-type</code> of the <code class="code">POST</code> method response and integration response to JSON as
+                                    follows: 
+                                 </p>
+                                 
+                                 <div class="itemizedlist">
+                                     
+                                     
+                                    
+                                    <ul class="itemizedlist" type="disc">
+                                       <li class="listitem">
+                                          
+                                          <p>Run the following command to set the <code class="code">POST</code> method response to JSON. This is the response
+                                             type that your API method returns.
+                                          </p>
+                                          <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">aws apigateway put-method-response --rest-api-id $API \
+--resource-id $RESOURCE --http-method POST \
+--status-code 200 --response-models application/json=Empty</code></code></pre>
+                                          <p>You should see the following output:</p>
+                                          <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "statusCode": "200",
+    "responseModels": <span>{</span>
+        "application/json": "Empty"
+    }
+}</code></pre>
+                                          </li>
+                                       <li class="listitem">
+                                          
+                                          <p>Run the following command to set the <code class="code">POST</code> method integration response to JSON. This is the
+                                             response type that Lambda function returns.
+                                          </p>
+                                          <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">aws apigateway put-integration-response --rest-api-id $API \
+--resource-id $RESOURCE --http-method POST \
+--status-code 200 --response-templates application/json=""</code></code></pre>
+                                          <p>You should see the following output:</p>
+                                          <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "statusCode": "200",
+    "responseTemplates": <span>{</span>
+        "application/json": null
+    }
+}</code></pre>
+                                          
+                                          <div class="awsdocs-note">
+                                             <div class="awsdocs-note-title">
+                                                <awsui-icon name="status-info" variant="link"></awsui-icon><span>Note</span></div>
+                                             <div class="awsdocs-note-text">
+                                                <p>If you encounter an error running this command, you can use escape characters around
+                                                   the response template field for more clarity. The text <code class="code">application/json=""</code> becomes <code class="code">"<span>{</span>\"application/json"\":""\"\"}""</code>.
+                                                </p>
+                                             </div>
+                                          </div>
+                                          
+                                       </li>
+                                    </ul>
+                                 </div>
+                                  
+                                 
+                                  
+                                 
+                                 <h3 id="with-on-demand-https-deploy-api-prod">Deploy the API</h3>
+                                 
+                                 <p>In this step, you deploy the API that you created to a stage called <code class="code">prod</code>. 
+                                 </p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">aws apigateway create-deployment --rest-api-id $API --stage-name prod</code></code></pre>
+                                 <p>You should see the following output:</p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "id": "20vgsz",
+    "createdDate": 1539820012
+}</code></pre>
+                                  
+                                  
+                                 <h2 id="services-apigateway-tutorial-permission">Grant invoke permission to the API</h2>
+                                 
+                                 <p>Now that you have an API created using Amazon API Gateway and you've deployed it,
+                                    you can test. First, you need to add
+                                    permissions so that Amazon API Gateway can invoke your Lambda function when you send
+                                    HTTP request to the <code class="code">POST</code>
+                                    method.
+                                 </p>
+                                 
+                                 <p>To do this, you need to add a permission to the permissions policy associated with
+                                    your Lambda function. Run
+                                    the following <code class="code">add-permission</code> AWS Lambda command to grant the Amazon API Gateway service principal
+                                    (<code class="code">apigateway.amazonaws.com</code>) permissions to invoke your Lambda function
+                                    (<code class="code">LambdaFunctionOverHttps</code>). 
+                                 </p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">aws lambda add-permission --function-name LambdaFunctionOverHttps \
+--statement-id apigateway-test-2 --action lambda:InvokeFunction \
+--principal apigateway.amazonaws.com \
+--source-arn "arn:aws:execute-api:$REGION:$ACCOUNT:$API/*/POST/DynamoDBManager"</code></code></pre>
+                                 <p>You should see the following output:</p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "Statement": "<span>{</span>\"Sid\":\"apigateway-test-2\",\"Effect\":\"Allow\",\"Principal\":<span>{</span>\"Service\":\"apigateway.amazonaws.com\"},\"Action\":\"lambda:InvokeFunction\",\"Resource\":\"arn:aws:lambda:us-east-2:123456789012:function:LambdaFunctionOverHttps\",\"Condition\":<span>{</span>\"ArnLike\":<span>{</span>\"AWS:SourceArn\":\"arn:aws:execute-api:us-east-2:123456789012:mnh1yprki7/*/POST/DynamoDBManager\"}}}"
+}</code></pre>
+                                 <p>You must grant this permission to enable testing (if you go to the Amazon API Gateway
+                                    and choose
+                                    <b>Test</b> to test the API method, you need this permission). Note the <code class="code">--source-arn</code>
+                                    specifies a wildcard character (*) as the stage value (indicates testing only). This
+                                    allows you to test without
+                                    deploying the API.
+                                 </p>
+                                 
+                                 <div class="awsdocs-note">
+                                    <div class="awsdocs-note-title">
+                                       <awsui-icon name="status-info" variant="link"></awsui-icon><span>Note</span></div>
+                                    <div class="awsdocs-note-text">
+                                       <p>If your function and API are in different regions, the region identifier in the source
+                                          ARN must match the
+                                          region of the function, not the region of the API.
+                                       </p>
+                                    </div>
+                                 </div>
+                                 
+                                 <p>Now, run the same command again, but this time you grant to your deployed API permissions
+                                    to invoke the Lambda
+                                    function.
+                                 </p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">aws lambda add-permission --function-name LambdaFunctionOverHttps \
+--statement-id apigateway-prod-2 --action lambda:InvokeFunction \
+--principal apigateway.amazonaws.com \
+--source-arn "arn:aws:execute-api:$REGION:$ACCOUNT:$API/prod/POST/DynamoDBManager"</code></code></pre>
+                                 <p>You should see the following output:</p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "Statement": "<span>{</span>\"Sid\":\"apigateway-prod-2\",\"Effect\":\"Allow\",\"Principal\":<span>{</span>\"Service\":\"apigateway.amazonaws.com\"},\"Action\":\"lambda:InvokeFunction\",\"Resource\":\"arn:aws:lambda:us-east-2:123456789012:function:LambdaFunctionOverHttps\",\"Condition\":<span>{</span>\"ArnLike\":<span>{</span>\"AWS:SourceArn\":\"arn:aws:execute-api:us-east-2:123456789012:mnh1yprki7/prod/POST/DynamoDBManager\"}}}"
+}</code></pre>
+                                 <p>You grant this permission so that your deployed API has permissions to invoke the
+                                    Lambda function. Note that
+                                    the <code class="code">--source-arn</code> specifies a <code class="code">prod</code> which is the stage name we used when deploying the
+                                    API.
+                                 </p>
+                                  
+                                 
+                                 <h2 id="services-apigateway-tutorial-table">Create a Amazon DynamoDB table</h2>
+                                 
+                                 <p>Create the DynamoDB table that the Lambda function uses.</p>
+                                 
+                                 <div class="procedure">
+                                    <p class="title"><b>To create a DynamoDB table</b></p>
+                                    <ol>
+                                       <li>
+                                          
+                                          <p>Open the <a href="https://console.aws.amazon.com/dynamodb" rel="noopener noreferrer" target="_blank"><span>DynamoDB console</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a>.
+                                          </p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Choose <b>Create table</b>.
+                                          </p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Create a table with the following settings.</p>
+                                          
+                                          <div class="itemizedlist">
+                                              
+                                              
+                                             
+                                             <ul class="itemizedlist" type="disc">
+                                                <li class="listitem">
+                                                   
+                                                   <p><b>Table name</b> – <code class="userinput">lambda-apigateway</code></p>
+                                                   
+                                                </li>
+                                                <li class="listitem">
+                                                   
+                                                   <p><b>Primary key</b> – <code class="userinput">id</code> (string)
+                                                   </p>
+                                                   
+                                                </li>
+                                             </ul>
+                                          </div>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Choose <b>Create</b>.
+                                          </p>
+                                          
+                                       </li>
+                                    </ol>
+                                 </div>
+                                  
+                                 
+                                 <h2 id="services-apigateway-tutorial-request">Trigger the function with an HTTP request</h2>
+                                 
+                                 <p>In this step, you are ready to send an HTTP request to the <code class="code">POST</code> method endpoint. You can use
+                                    either Curl or a method (<code class="code">test-invoke-method</code>) provided by Amazon API Gateway.
+                                 </p>
+                                 
+                                 <p>You can use Amazon API Gateway CLI commands to send an HTTP <code class="code">POST</code> request to the resource
+                                    (<code class="code">DynamoDBManager</code>) endpoint. Because you deployed your Amazon API Gateway, you can use Curl to invoke
+                                    the
+                                    methods for the same operation.
+                                 </p>
+                                 
+                                 <p>The Lambda function supports using the <code class="code">create</code> operation to create an item in your DynamoDB table. To
+                                    request this operation, use the following JSON:
+                                 </p>
+                                 
+                                 <div class="example">
+                                    <p class="title"><b>Example create-item.json</b></p>
+                                    <div class="example-contents"><pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "operation": "create",
+    "tableName": "lambda-apigateway",
+    "payload": <span>{</span>
+        "Item": <span>{</span>
+            "id": "1234ABCD",
+            "number": 5
+        }
+    }
+}</code></pre></div>
+                                 </div>
+                                 
+                                 <p>Save the test input to a file named <code>create-item.json</code>. Run the
+                                    <code class="code">test-invoke-method</code> Amazon API Gateway command to send an HTTP <code class="code">POST</code> method request to the
+                                    resource (<code class="code">DynamoDBManager</code>) endpoint.
+                                 </p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">aws apigateway test-invoke-method --rest-api-id $API \
+--resource-id $RESOURCE --http-method POST --path-with-query-string "" \
+--body file://create-item.json</code></code></pre>
+                                 <p>Or, you can use the following Curl command:</p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">curl -X POST -d "<span>{</span>\"operation\":\"create\",\"tableName\":\"lambda-apigateway\",\"payload\":<span>{</span>\"Item\":<span>{</span>\"id\":\"1\",\"name\":\"Bob\"}}}" https://$API.execute-api.$REGION.amazonaws.com/prod/DynamoDBManager</code></code></pre>
+                                 <p>To send request for the <code class="code">echo</code> operation that your Lambda function supports, you can use the
+                                    following request payload:
+                                 </p>
+                                 
+                                 <div class="example">
+                                    <p class="title"><b>Example echo.json</b></p>
+                                    <div class="example-contents"><pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+  "operation": "echo",
+  "payload": <span>{</span>
+    "somekey1": "somevalue1",
+    "somekey2": "somevalue2"
+  }
+}</code></pre></div>
+                                 </div>
+                                 
+                                 <p>Save the test input to a file named <code>echo.json</code>. Run the <code class="code">test-invoke-method</code>
+                                    Amazon API Gateway CLI command to send an HTTP <code class="code">POST</code> method request to the resource
+                                    (<code class="code">DynamoDBManager</code>) endpoint using the preceding JSON in the request body.
+                                 </p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">aws apigateway test-invoke-method --rest-api-id $API \
+--resource-id $RESOURCE --http-method POST --path-with-query-string "" \
+--body file://echo.json</code></code></pre>
+                                 <p>Or, you can use the following Curl command:</p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class="nohighlight"><code class="userinput">curl -X POST -d "<span>{</span>\"operation\":\"echo\",\"payload\":<span>{</span>\"somekey1\":\"somevalue1\",\"somekey2\":\"somevalue2\"}}" https://$API.execute-api.$REGION.amazonaws.com/prod/DynamoDBManager</code></code></pre>
+                                  
+                                 <h2 id="cleanup">Clean up your resources</h2>
+                                 
+                                 
+                                 <p>You can now delete the resources that you created for this tutorial, unless you want
+                                    to retain them. By deleting AWS resources that you are no longer using, you prevent
+                                    unnecessary charges to your AWS account.
+                                 </p>
+                                 
+                                 
+                                 <div class="procedure">
+                                    <p class="title"><b>To delete the Lambda function</b></p>
+                                    <ol>
+                                       <li>
+                                          
+                                          <p>Open the <a href="https://console.aws.amazon.com/lambda/home#/functions" rel="noopener noreferrer" target="_blank"><span>Functions page</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a> of the Lambda console.
+                                          </p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Select the function that you created.</p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Choose <b>Actions</b>, <b>Delete</b>.
+                                          </p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Choose <b>Delete</b>.
+                                          </p>
+                                          
+                                       </li>
+                                    </ol>
+                                 </div>
+                                 
+                                 
+                                 <div class="procedure">
+                                    <p class="title"><b>To delete the execution role</b></p>
+                                    <ol>
+                                       <li>
+                                          
+                                          <p>Open the <a href="https://console.aws.amazon.com/iam/home#/roles" rel="noopener noreferrer" target="_blank"><span>Roles page</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a> of the IAM console.
+                                          </p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Select the execution role that you created.</p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Choose <b>Delete role</b>.
+                                          </p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Choose <b>Yes, delete</b>.
+                                          </p>
+                                          
+                                       </li>
+                                    </ol>
+                                 </div>
+                                 
+                                 
+                                 <div class="procedure">
+                                    <p class="title"><b>To delete the API</b></p>
+                                    <ol>
+                                       <li>
+                                          
+                                          <p>Open the <a href="https://console.aws.amazon.com/apigateway/main/apis" rel="noopener noreferrer" target="_blank"><span>APIs page</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a> of the API Gateway console.
+                                          </p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Select the API you created.</p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Choose <b>Actions</b>, <b>Delete</b>.
+                                          </p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Choose <b>Delete</b>.
+                                          </p>
+                                          
+                                       </li>
+                                    </ol>
+                                 </div>
+                                 
+                                 
+                                 <div class="procedure">
+                                    <p class="title"><b>To delete the DynamoDB table</b></p>
+                                    <ol>
+                                       <li>
+                                          
+                                          <p>Open the <a href="https://console.aws.amazon.com/dynamodb/home#tables:" rel="noopener noreferrer" target="_blank"><span>Tables page</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a> of the DynamoDB console.
+                                          </p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Select the table you created.</p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Choose <b>Delete</b>.
+                                          </p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Enter <code class="userinput">delete</code> in the text box.
+                                          </p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Choose <b>Delete</b>.
+                                          </p>
+                                          
+                                       </li>
+                                    </ol>
+                                 </div>
+                                 
+                                 <awsdocs-copyright class="copyright-print"></awsdocs-copyright>
+                                 <awsdocs-thumb-feedback right-edge="{{$ctrl.thumbFeedbackRightEdge}}"></awsdocs-thumb-feedback>
+                              </div>
+                              <noscript>
+                                 <div>
+                                    <div>
+                                       <div>
+                                          <div id="js_error_message">
+                                             <p><img src="https://d1ge0kk1l5kms0.cloudfront.net/images/G/01/webservices/console/warning.png" alt="Warning" /> <strong>Javascript is disabled or is unavailable in your
+                                                   browser.</strong></p>
+                                             <p>To use the AWS Documentation, Javascript must be
+                                                enabled. Please refer to your browser's Help pages for instructions.
+                                             </p>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </noscript>
+                              <div id="main-col-footer" class="awsui-util-font-size-0">
+                                 <div id="doc-conventions"><a target="_top" href="https://docs.aws.amazon.com/general/latest/gr/docconventions.html">Document Conventions</a></div>
+                                 <div class="prev-next">
+                                    <div id="previous" class="prev-link" accesskey="p" href="https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html">API Gateway</div>
+                                    <div id="next" class="next-link" accesskey="n" href="https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway-code.html">Sample code</div>
+                                 </div>
+                              </div>
+                              <awsdocs-page-utilities></awsdocs-page-utilities>
+                           </div>
+                           <div id="quick-feedback-yes" style="display: none;">
+                              <div class="title">Did this page help you? - Yes</div>
+                              <div class="content">
+                                 <p>Thanks for letting us know we're doing a good
+                                    job!
+                                 </p>
+                                 <p>If you've got a moment, please tell us what we did right
+                                    so we can do more of it.
+                                 </p>
+                                 <p>
+                                    <awsui-button id="fblink" target="_blank" text="Feedback" click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=Lambda&amp;topic_url=https://docs.aws.amazon.com/en_us/lambda/latest/dg/services-apigateway-tutorial.html"></awsui-button>
+                                 </p>
+                              </div>
+                           </div>
+                           <div id="quick-feedback-no" style="display: none;">
+                              <div class="title">Did this page help you? - No</div>
+                              <div class="content">
+                                 <p>Thanks for letting us know this page needs work. We're
+                                    sorry we let you down.
+                                 </p>
+                                 <p>If you've got a moment, please tell us how we can make
+                                    the documentation better.
+                                 </p>
+                                 <p>
+                                    <awsui-button id="fblink" target="_blank" text="Feedback" click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=Lambda&amp;topic_url=https://docs.aws.amazon.com/en_us/lambda/latest/dg/services-apigateway-tutorial.html"></awsui-button>
+                                 </p>
+                              </div>
+                           </div>
+                        </div>
+                     </body>
+                  </div>
+               </awsdocs-view>
+               <div class="page-loading-indicator" id="page-loading-indicator">
+                  <awsui-spinner size="large"></awsui-spinner>
+               </div>
+            </div>
+            <div id="tools-panel" dom-region="tools">
+               <awsdocs-tools-panel id="awsdocs-tools-panel"></awsdocs-tools-panel>
+            </div>
+         </awsui-app-layout>
+         <awsdocs-cookie-banner class="doc-cookie-banner"></awsdocs-cookie-banner>
+         <!--
+                SiteCatalyst code version: H.25.2.
+                Copyright 1996-2012 Adobe, Inc. All Rights Reserved
+                More info available at http://www.omniture.com
+            --><script language="JavaScript" type="text/javascript">
+var awsdocs = awsdocs || {};
+awsdocs.prop66 = 'AWS Lambda';
+awsdocs.prop65 =  'Developer Guide';
+            </script><script src="https://a0.awsstatic.com/s_code/js/3.0/awshome_s_code.js" language="JavaScript" type="text/javascript"></script>
+         <!--/DO NOT REMOVE/-->
+         <!--End SiteCatalyst code version: H.25.2.--></div>
+   </body>
+
+<!-- Mirrored from docs.aws.amazon.com/lambda/latest/dg/services-apigateway-tutorial.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 21 Feb 2021 15:04:51 GMT -->
+</html>

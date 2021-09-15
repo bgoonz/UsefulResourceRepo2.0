@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<script>{
+    "title": "Triggering Event Handlers",
+    "level": "intermediate",
+    "source": "http://jqfundamentals.com/legacy",
+    "attribution": [ "jQuery Fundamentals" ]
+}</script>
+<p>jQuery provides a way to trigger the event handlers bound to an element without any user interaction via the <code>.trigger()</code> method.</p>
+<h2 id="what-handlers-can-be-.triggerd">What handlers can be .trigger()’d?</h2>
+<p>jQuery’s event handling system is a layer on top of native browser events. When an event handler is added using <code>.on( "click", function() {...} )</code>, it can be triggered using jQuery’s <code>.trigger( "click" )</code> because jQuery stores a reference to that handler when it is originally added. Additionally, it will trigger the JavaScript inside the <code>onclick</code> attribute. The <code>.trigger()</code> function cannot be used to mimic native browser events, such as clicking on a file input box or an anchor tag. This is because, there is no event handler attached using jQuery’s event system that corresponds to these events.</p>
+<pre><code>&lt;a href=&quot;http://learn.jquery.com&quot;&gt;Learn jQuery&lt;/a&gt;</code></pre>
+<pre><code>// This will not change the current page
+$( &quot;a&quot; ).trigger( &quot;click&quot; );</code></pre>
+<h2 id="how-can-i-mimic-a-native-browser-event-if-not-.trigger">How can I mimic a native browser event, if not <code>.trigger()</code>?</h2>
+<p>In order to trigger a native browser event, you have to use <a href="http://msdn.microsoft.com/en-us/library/ie/ms536390%28v=vs.85%29.aspx">document.createEventObject</a> for &lt; IE9 and <a href="https://developer.mozilla.org/en/DOM/document.createEvent">document.createEvent</a> for all other browsers. Using these two APIs, you can programmatically create an event that behaves exactly as if someone has actually clicked on a file input box. The default action will happen, and the browse file dialog will display.</p>
+<p>The jQuery UI Team created <a href="https://github.com/jquery/jquery-simulate/">jquery.simulate.js</a> in order to simplify triggering a native browser event for use in their automated testing. Its usage is modeled after jQuery’s trigger.</p>
+<pre><code>// Triggering a native browser event using the simulate plugin
+$( &quot;a&quot; ).simulate( &quot;click&quot; );</code></pre>
+<p>This will not only trigger the jQuery event handlers, but also follow the link and change the current page.</p>
+<h2 id="trigger-vs-.triggerhandler"><code>.trigger()</code> vs <code>.triggerHandler()</code></h2>
+<p>There are four differences between <code>.trigger()</code> and <code>.triggerHandler()</code></p>
+<ol type="1">
+<li><code>.triggerHandler()</code> only triggers the event on the first element of a jQuery object.</li>
+<li><code>.triggerHandler()</code> cannot be chained. It returns the value that is returned by the last handler, not a jQuery object.</li>
+<li><code>.triggerHandler()</code> will not cause the default behavior of the event (such as a form submission).</li>
+<li>Events triggered by <code>.triggerHandler()</code>, will not bubble up the DOM hierarchy. Only the handlers on the single element will fire.</li>
+</ol>
+<p>For more information see the <a href="http://api.jquery.com/triggerHandler">triggerHandler documentation</a></p>
+<h2 id="dont-use-.trigger-simply-to-execute-specific-functions">Don’t use <code>.trigger()</code> simply to execute specific functions</h2>
+<p>While this method has its uses, it should not be used simply to call a function that was bound as a click handler. Instead, you should store the function you want to call in a variable, and pass the variable name when you do your binding. Then, you can call the function itself whenever you want, without the need for <code>.trigger()</code>.</p>
+<pre><code>// Triggering an event handler the right way
+var foo = function( event ) {
+    if ( event ) {
+        console.log( event );
+    } else {
+        console.log( &quot;this didn&#39;t come from an event!&quot; );
+    }
+};
+
+$( &quot;p&quot; ).on( &quot;click&quot;, foo );
+
+foo(); // instead of $( &quot;p&quot; ).trigger( &quot;click&quot; )</code></pre>
+<p>A more complex architecture can be built on top of trigger using the <a href="http://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern">publish-subscribe pattern</a> using <a href="https://gist.github.com/661855">jQuery plugins</a>. With this technique, <code>.trigger()</code> can be used to notify other sections of code that an application specific event has happened.</p>
+</body></html>

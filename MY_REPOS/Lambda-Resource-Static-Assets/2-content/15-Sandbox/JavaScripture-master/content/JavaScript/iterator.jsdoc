@@ -1,0 +1,107 @@
+Iterator : Iterable
+
+<p>
+An Iterator is an Object that returns a sequence of values.  
+</p>
+
+<p>
+Since Iterators are Iterables, you can use **for (var value of iterator) {}** to
+easily loop over the values in an iterator.
+</p>
+
+<p>
+Calling an ECMAScript 2015 generator function (**function*() {}**) returns
+an Iterator.  
+</p>
+
+<p>
+See %%/Iterable|Iterable%% for more details.
+</p>
+
+Version:
+ECMAScript 2015
+
+Spec:
+http://www.ecma-international.org/ecma-262/6.0/#sec-iterator-interface
+
+----
+instance.next([yieldValue : Object]) : { value : Object, done : Boolean }
+
+Returns an object containing the next value in the iterator. 
+If all items have been returned, **done** will be **true**.
+For generator functions, **yieldValue** is returned to the generator
+from the **yield** statement.
+
+<example>
+// Generator functions create iterators when called
+var generator = function*() {
+  yield 'foo';
+  var yieldValue = yield 'bar';
+  console.log('generator yieldValue = ' + yieldValue);
+  console.log();
+};
+
+// Usually you will iterate over it using for (... of ...)
+// which will call next() for you automatically
+for (var item of generator()) {
+  console.log(item);
+}
+
+// You can also get the iterator and manually call next()
+var iterator = generator();
+
+console.dir(iterator.next());
+console.dir(iterator.next());
+console.dir(iterator.next('passed to next'));
+
+// You can create iterable objects manually
+var myIterable = { };
+myIterable[Symbol.iterator] = function() {
+  var count = 0;
+  return { 
+    next: function() {
+      if (count >= 2) return { value: undefined, done: true };
+      count++;
+      return { value: 'my item' + count, done: false };
+    }
+  }
+};
+
+// Using for (... of ...) calls the next() defined above
+for (var item of myIterable) {
+  console.log(item);
+}
+
+// You can also call it manually
+iterator = myIterable[Symbol.iterator]();
+
+console.dir(iterator.next());
+console.dir(iterator.next());
+console.dir(iterator.next());
+</example>
+
+----
+instance[Symbol.iterator] : Function<Iterator>
+
+Returns a method that returns **this**.
+
+<example>
+// Arrays are a built in Iterable object
+var iterable = ['a', 'b', 'c'];
+
+var iterator = iterable[Symbol.iterator]();
+var iteratorIterator = iterator[Symbol.iterator]();
+
+console.log(iterator === iteratorIterator);
+console.log();
+
+for (var x of iterable) {
+  console.log(x);
+}
+console.log();
+
+// Since Iterators are also Iterables, you can use for-of loops with them.
+for (var x of iterator) {
+  console.log(x);
+}
+</example>

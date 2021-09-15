@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h2 id="what-happens-when-you-call-setstate">What happens when you call setState?</h2>
+<p>The first thing React will do when setState is called is merge the object you passed into setState into the current state of the component. This will kick off a process called reconciliation. The end goal of reconciliation is to, in the most efficient way possible, update the UI based on this new state. To do this, React will construct a new tree of React elements (which you can think of as an object representation of your UI). Once it has this tree, in order to figure out how the UI should change in response to the new state, React will diff this new tree against the previous element tree. By doing this, React will then know the exact changes which occurred, and by knowing exactly what changes occurred, will able to minimize its footprint on the UI by only making updates where absolutely necessary.</p>
+<h2 id="reactjs-uses-observables-to-find-the-modified-components.-whenever-setstate-method-is-called-on-any-component-reactjs-makes-that-component-dirty-and-re-renders-it.">ReactJS uses observable’s to find the modified components. Whenever setState() method is called on any component, ReactJS makes that component dirty and re-renders it.</h2>
+<p><a href="https://hackernoon.com/virtual-dom-in-reactjs-43a3fdb1d130">https://hackernoon.com/virtual-dom-in-reactjs-43a3fdb1d130</a></p>
+<p>Whenever setState() method is called, ReactJS creates the whole Virtual DOM from scratch. Creating a whole tree is very fast so it does not affect the performance. At any given time, ReactJS maintains two virtual DOM, one with the updated state Virtual DOM and other with the previous state Virtual DOM.</p>
+<p>ReactJS using diff algorithm compares both the Virtual DOM to find the minimum number of steps to update the Real DOM.</p>
+<p>I wouldn’t worry too much about calling renders excessively until you have determined you have a performance problem.</p>
+<h4 id="rendering-in-the-react-context-and-committing-the-virtual-dom-updates-to-the-real-dom-are-different-matters.-the-rendering-here-is-referring-to-generating-virtual-doms-and-not-about-updating-the-browser-dom.-react-may-batch-the-setstate-calls-and-update-the-browser-dom-with-the-final-new-state.">Rendering (in the React context) and committing the virtual DOM updates to the real DOM are different matters. The rendering here is referring to generating virtual DOMs, and not about updating the browser DOM. React may batch the setState calls and update the browser DOM with the final new state.</h4>
+<h4 id="beside-the-above-note-setstate-is-that-it-is-an-asynchronous-method">Beside the above, note, setState() is that it is an asynchronous method,</h4>
+<p>Asynchronous meaning it returns before actually setting the state. As such, it’s advised against relying on the state to have changed immediately after invoking setState . For example:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">class</span> SomeForm <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  handleFirstNameChange <span class="op">=</span> event <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="kw">this</span>.<span class="at">setState</span>(<span class="op">{</span> <span class="dt">firstName</span><span class="op">:</span> <span class="va">event</span>.<span class="va">currentTarget</span>.<span class="at">value</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="va">console</span>.<span class="at">log</span>(<span class="kw">this</span>.<span class="va">state</span>.<span class="at">firstName</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb1-6" title="6"></a>
+<a class="sourceLine" id="cb1-7" title="7">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-8" title="8">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb1-9" title="9">      <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-10" title="10">        <span class="op">&lt;</span>input</a>
+<a class="sourceLine" id="cb1-11" title="11">          onChange<span class="op">={</span><span class="kw">this</span>.<span class="at">handleFirstnameChange</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb1-12" title="12">          value<span class="op">={</span><span class="kw">this</span>.<span class="va">state</span>.<span class="at">firstName</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb1-13" title="13">        /&gt;</a>
+<a class="sourceLine" id="cb1-14" title="14">      &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-15" title="15">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-16" title="16">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-17" title="17"><span class="op">}</span></a></code></pre></div>
+<p>As we type values into the input field, the console log won’t actually print out the new characters we type.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1">Because <span class="kw">of</span> its asynchronous nature<span class="op">,</span> setState accepts a second argument that is a <span class="kw">function</span> that it invokes after the state has been <span class="va">updated</span>. <span class="at">So</span> the above example would work <span class="cf">if</span> we rewrote handleFirstNameChange <span class="im">as</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3">handleFirstNameChange <span class="op">=</span> (event) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="kw">this</span>.<span class="at">setState</span>(<span class="op">{</span><span class="dt">firstName</span><span class="op">:</span> <span class="va">event</span>.<span class="va">currentTarget</span>.<span class="at">value</span><span class="op">},</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-5" title="5">    <span class="va">console</span>.<span class="at">log</span>(<span class="kw">this</span>.<span class="va">state</span>.<span class="at">firstName</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-6" title="6">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="op">}</span></a></code></pre></div>
+</body></html>

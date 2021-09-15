@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h1 id="simple-markdown-parser-with-javascript-and-regular-expressions">Simple Markdown Parser with JavaScript and Regular Expressions</h1>
+<blockquote>
+<p>A personal blog website</p>
+</blockquote>
+<p>Markdown is a markup language like HTML. It is quite popular among developers to write blogs, readme files, documentation and blogs. Some of the popular websites that support rich text like Reddit, GitHub, Notion etc allow you to write markdown. I use markdown to convert my blog from a markdown file to HTML web pages. Markdown is simple yet very powerful. In this blog, I will be writing about how to build a simple markdown parser to convert md to HTML with JavaScript using Regular Expressions.</p>
+<figure>
+<img src="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/static/54e1291424b5a1dbb694d7047cc41fa5/0a47e/markdown.png" title="Markdown parser" alt="Markdown parser" /><figcaption>Markdown parser</figcaption>
+</figure>
+<h2 id="how-does-a-markdown-text-look-like">How does a markdown text look like</h2>
+<p>If you open a markdown file, you’ll see the following syntax.</p>
+<pre><code># The text after hash is converted to an h1 in HTML
+
+## Get&#39;s converted to h2
+
+**This is a bold text** _italics_
+[Link Text](url)</code></pre>
+<p>Learn more from this <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">markdown cheatsheet</a>.</p>
+<h2 id="regular-expressions">Regular Expressions</h2>
+<p>A regular expression is a character sequence that helps us to capture patterns in a text. We can use it to validate user input, find and replace texts and yup, you guessed it, build our markdown parser. 😉</p>
+<p>Different languages have different ways to represent RegEx. Here is how it is done in JavaScript.</p>
+<pre><code>const pattern = /Hello/
+const text = &#39;Hello, beautiful people&#39;
+pattern.test(text) </code></pre>
+<p>I will explain the patterns we use in our parser as we reach that section. However, if you want to read more about regular expressions, visit <a href="https://javascript.info/regular-expressions">https://javascript.info</a>.</p>
+<h2 id="markdown-parser">Markdown parser</h2>
+<p>The markdown parser I intend to build is a function that takes markdown text as input and returns HTML.</p>
+<pre><code>function parseMarkdown(markdownText) {
+    const htmlText = markdownText 
+
+    return htmlText
+}</code></pre>
+<p>Here, we want to find a certain pattern in <code>markdownText</code> and perform replace operations.</p>
+<h3 id="string-replace-function">String replace function</h3>
+<p>Our markdown parser is simple. It captures a pattern from markdown string passed to the function as <code>markdownText</code> argument and replaces it with certain HTML pattern.</p>
+<p>Here is how the string replace function works.</p>
+<pre><code>text = &#39;hello world and hello everyone&#39;
+regEx = /Hello/gi
+console.log(text.replace(regEx, &#39;hi&#39;))</code></pre>
+<blockquote>
+<p>Note: Here the <strong>i flag represents case insensitive</strong> and <strong>g flag represents global</strong>, which means it matches patterns everywhere on the string, not just the first match.</p>
+</blockquote>
+<h3 id="capturing-groups-in-regular-expression">Capturing groups in Regular Expression</h3>
+<p>Regular Expressions allows us to capture patterns of text and reference them with something like an index. We can use the index in the replace operation. To represent a group, we can simply wrap it in a parenthesis <code>()</code>.</p>
+<pre><code>text = &#39;hello world and hello everyone&#39;
+
+regEx = /(Hello).*/i
+console.log(text.replace(regEx, &#39;Matched Group: $1&#39;))</code></pre>
+<p>Here, we have stored the starting hello in a group. The group can then be referenced with <strong>$1</strong> on our replace operation.</p>
+<h3 id="back-to-the-parser">Back to the parser</h3>
+<p>Now, we want to parse the markdown text and replace it with HTML.</p>
+<p>Here are the RegExes we will use in our parser and their explanation.</p>
+<ol type="1">
+<li><p><strong>Heading</strong><br />
+For heading, we want a string that starts with a hash(es) and captures everything after those characters.</p>
+<pre><code>const h3 = /^### (.*$)/gim</code></pre>
+<blockquote>
+<p>Here the first carat <code>^</code> represents line starting with and m flag represents multiple lines and by doing .* we are capturing everything (letters, numbers, special characters) that exists there.</p>
+</blockquote></li>
+<li><p><strong>Blockquote</strong><br />
+For blockquote, we want a line that starts with <code>&gt;</code> and captures everything after that character.</p>
+<pre><code>const bq = /^\&gt; (.*$)/gim</code></pre>
+<blockquote>
+<p>Note: \&gt; represents escaping &gt; character. That means, don’t treat &gt; as a part of special regEx character but as a part of that text itself.</p>
+</blockquote></li>
+<li><p><strong>Bold Text</strong><br />
+For bold text, we want to capture a text between 2 asterisks.</p>
+<pre><code>const bold = /\*\*(.*)\*\*/gim</code></pre></li>
+<li><p><strong>Italics Text</strong><br />
+For italic text, we want to capture a text between one asterisk.</p>
+<pre><code>const italics = /\*(.*)\*/gim</code></pre></li>
+<li><p><strong>For image, link and line break</strong></p>
+<pre><code>const image = /!\[(.*?)\]\((.*?)\)/gim
+
+const link = /\[(.*?)\]\((.*?)\)/gim
+const lineBreak = /\n$/gim</code></pre></li>
+</ol>
+<h3 id="fitting-it-all-together">Fitting it all together</h3>
+<p>By this point, you probably have all the background necessary to understand the concepts. Let’s fit all the things that we have learnt up to now and build the parser.</p>
+<pre><code>function parseMarkdown(markdownText) {
+    const htmlText = markdownText
+        .replace(/^### (.*$)/gim, &#39;&lt;h3&gt;$1&lt;/h3&gt;&#39;)
+        .replace(/^## (.*$)/gim, &#39;&lt;h2&gt;$1&lt;/h2&gt;&#39;)
+        .replace(/^# (.*$)/gim, &#39;&lt;h1&gt;$1&lt;/h1&gt;&#39;)
+        .replace(/^\&gt; (.*$)/gim, &#39;&lt;blockquote&gt;$1&lt;/blockquote&gt;&#39;)
+        .replace(/\*\*(.*)\*\*/gim, &#39;&lt;b&gt;$1&lt;/b&gt;&#39;)
+        .replace(/\*(.*)\*/gim, &#39;&lt;i&gt;$1&lt;/i&gt;&#39;)
+        .replace(/!\[(.*?)\]\((.*?)\)/gim, &quot;&lt;img alt=&#39;$1&#39; src=&#39;$2&#39; /&gt;&quot;)
+        .replace(/\[(.*?)\]\((.*?)\)/gim, &quot;&lt;a href=&#39;$2&#39;&gt;$1&lt;/a&gt;&quot;)
+        .replace(/\n$/gim, &#39;&lt;br /&gt;&#39;)
+
+    return htmlText.trim()
+}</code></pre>
+<p>Time to test the parser.</p>
+<pre><code>const text = `
+# Hello World
+**This is a bold text**
+`
+
+console.log(parseMarkdown(text))</code></pre>
+<p>Should print:</p>
+<pre><code>&lt;h1&gt;Hello World&lt;/h1&gt;
+&lt;b&gt;This is a bold text&lt;/b&gt;&lt;br /&gt;</code></pre>
+<p>Our markdown parser is now completed. It doesn’t cover everything that markdown supports. Try implementing them and share the solution with me via twitter.</p>
+<p><a href="https://www.bigomega.dev/markdown-parser">Source</a></p>
+</body></html>

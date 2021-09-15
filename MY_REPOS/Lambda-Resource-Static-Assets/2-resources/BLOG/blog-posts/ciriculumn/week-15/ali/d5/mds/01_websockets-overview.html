@@ -1,0 +1,180 @@
+<h1 id="websockets-overview">WebSockets Overview</h1>
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<hr />
+<p>Up until now, you’ve seen communication between the Web browser and your backend server occur in the <em>request/response cycle</em> of HTTP 1.1.</p>
+<figure>
+<img src="images/image-http-exchange.svg" alt="HTTP Exchange" /><figcaption>HTTP Exchange</figcaption>
+</figure>
+<p>The <em>Client</em> makes an HTTP request, like <strong>GET /home HTTP/1.1</strong>. The <em>Server</em> receives that request, translates it, and returns an HTTP response, like <strong>HTTP/1.1 200 OK</strong>. One request, one response. That is great for getting data and asking the server to create new resources, but it does not support the demands of Web applications that need “real-time communication” or to receive messages from the server <em>without</em> an HTTP request. The <a href="https://tools.ietf.org/html/rfc6455">WebSockets</a> standard fills that hole. (That’s a link to the RFC. It’s … dense.)</p>
+<p>Check out this <a href="https://caniuse.com/#search=WebSockets">link to caniuse.com</a> that tracks the support of WebSockets (and a whole bunch of other things) in browsers for the desktop and mobile. You can see that <em>everything</em> supports WebSockets (except Opera Mini which fails to support pretty much anything, stupid Opera Mini).</p>
+<p>Since the technology is now well-supported, it makes sense to learn it so that you can do <em>amazing</em> things in your Web application.</p>
+<p>In this article, you will learn about how WebSockets work from the perspectives of the communication between the client and the server.</p>
+<p><strong>Just one thing</strong>: there are <em>lots</em> of libraries out there for you to use that make this WebSocket thing “easy”. In the same way that this curriculum challenges you to use <code>fetch</code> rather than some other AJAX library like <code>axios</code>, learning WebSockets teaches you about the <em>technology</em> and how it works. Once you know that, then you can use <em>any</em> library (like socket.io) to ease your development. But, giving you the deeper knowledge is what this is providing for you.</p>
+<h2 id="key-points-about-web-sockets">Key points about Web sockets</h2>
+<h3 id="persistent-connections">Persistent Connections</h3>
+<p>In the traditional model of request/response, the client makes a connection to the server, makes the request, the server responds on the same connection, then the connection can be closed. The next time your browser wants to make a request to the Web server, it may need to establish that connection, again.</p>
+<p>WebSockets create a <em>persistent connection</em>, one that doesn’t close unless it doesn’t get used. This means that the TCP/IP handshake that needs to occur between the browser and server does not need to happen with every single request. This has two benefits:</p>
+<ol type="1">
+<li>Your front-end application does not need to establish that connection <em>every single time</em>. This makes the application feel snappier.</li>
+<li>The connection is <em>two-way</em>! While it’s open, the server can send messages to the client <em>whenever it wants to</em>! That is mind-blowing because HTTP 1.1 cannot support that without jumping through crazy hoops that can cause your server to crash.</li>
+</ol>
+<p>The way it happens is an extra HTTP header in the HTTP request. Here’s an example.</p>
+<pre><code>GET ws://WebSocket.example.com/ HTTP/1.1
+Origin: http://example.com
+Connection: Upgrade
+Host: WebSocket.example.com
+Upgrade: WebSocket</code></pre>
+<p>So, checkout two things about this:</p>
+<ol type="1">
+<li>The protocol is “ws” which, you can probably guess, means “WebSocket”. (There’s also a “wss” which is like “HTTPS” but for WebSockets Secure.)</li>
+<li>The “Connection” header tells the server that the browser is requesting an upgrade for the normal HTTP 1.1 connection</li>
+<li>The “Upgrade” header tells the server that the browser specifically wants a WebSocket</li>
+</ol>
+<p>If the server supports WebSockets, it says “COOL!” and returns something like the following headers in the response.</p>
+<pre><code>HTTP/1.1 101 WebSocket Protocol Handshake
+Date: Thu, 7 May 2020 17:07:34 GMT
+Connection: Upgrade
+Upgrade: WebSocket</code></pre>
+<p>This confirms that the server is good with upgrading the connection. When both the client and server agree, they just don’t close the connection.</p>
+<p>Boom! Persistent!</p>
+<h3 id="messages-not-requests-and-responses">Messages, not requests and responses</h3>
+<p>Once the connection exists between the browser and the server, either of the two can send a <em>message</em> over the connection. It’s a <em>message</em> with a sender and a receiver. It is <em>not</em> a request/response. There is no request. There is no response. There are just two actors sending messages back and forth, like two kids in school passing notes back and forth in class. The server doesn’t have to wait for a request to send a message. The client can sends a message <em>without</em> the expectation of a response.</p>
+<p>Just like in TCP/IP, when data gets chopped up into packets and datagrams, messages over WebSockets get chopped up into <em>frames</em>. Each frame contains extra information to help ensure the integrity of the message as it traverses between sender and recipient. It’s not super important to know what those parts are because you’re not writing code to implement the standard; instead, the browser will do it for you automatically, just like using <code>fetch</code> means you don’t have to format the HTTP request.</p>
+<h2 id="client-side-code">Client-side code</h2>
+<p>Just like the browser has the <code>fetch</code> method to easily make HTTP 1.1 requests, it provides a <code>WebSocket</code> class for you to create objects that manage the connection between the browser and the server. You just give the constructor the WebSocket URL that you want your browser to connect to.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="co">// This is EXAMPLE CODE ONLY!</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="co">// There is no sockets.example.com!</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="kw">const</span> socket <span class="op">=</span> <span class="kw">new</span> <span class="at">WebSocket</span>(<span class="st">&#39;wss://sockets.example.com&#39;</span>)<span class="op">;</span></a></code></pre></div>
+<p>Now, with <code>fetch</code>, that <em>sends</em> a request and, when a response comes back, the <code>Promise</code> gets fulfilled and you do stuff with it. That’s not how <code>WebSocket</code> objects work. They <em>can’t</em> work that way.</p>
+<p>Instead of a <code>Promise</code>, you add event listeners to the <code>WebSocket</code> object in the same way that you add event listeners to <code>input</code> or <code>button</code> elements to capture specific kinds of events. For the WebSocket, the events are</p>
+<ul>
+<li><strong>message</strong> fired when a message fully arrived over the WebSocket from the server</li>
+<li><strong>close</strong> fired when the WebSocket closes for some reason, the status code being in the “code” property of the event and the reason in the “reason” property of the event object</li>
+<li><strong>error</strong> fired when the WebSocket can’t even connect</li>
+<li><strong>open</strong> fired when the WebSocket opens</li>
+</ul>
+<p>Then, the <code>WebSocket</code> object has two methods for you to use, <code>send</code> to send a message to the server, and <code>close</code> to close the connection. Here’s what some code could look like that uses that <code>socket</code> opened above.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="co">// This is EXAMPLE CODE ONLY!</span></a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="co">// When the socket is open, send a message!</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="va">socket</span>.<span class="at">addEventListener</span>(<span class="st">&#39;open&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="va">socket</span>.<span class="at">send</span>(<span class="st">&#39;I am LEGENDARY!&#39;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-5" title="5"></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="co">// When you get a message, add it to your state store.</span></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="va">socket</span>.<span class="at">addEventListener</span>(<span class="st">&#39;message&#39;</span><span class="op">,</span> event <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-8" title="8">  <span class="at">dispatch</span>(<span class="at">gotMessage</span>(<span class="va">event</span>.<span class="at">data</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-10" title="10"></a>
+<a class="sourceLine" id="cb4-11" title="11"><span class="co">// Print out that something bad happened</span></a>
+<a class="sourceLine" id="cb4-12" title="12"><span class="va">socket</span>.<span class="at">addEventListener</span>(<span class="st">&#39;error&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-13" title="13">  <span class="va">console</span>.<span class="at">error</span>(<span class="st">&#39;Something bad happened... :-(&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-14" title="14"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-15" title="15"></a>
+<a class="sourceLine" id="cb4-16" title="16"><span class="co">// When the socket closes, update the state</span></a>
+<a class="sourceLine" id="cb4-17" title="17"><span class="co">// of the application!</span></a>
+<a class="sourceLine" id="cb4-18" title="18"><span class="va">socket</span>.<span class="at">addEventListener</span>(<span class="st">&#39;close&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-19" title="19">  <span class="at">dispatch</span>(<span class="at">justDisconnected</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-20" title="20"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p><strong>Note</strong>: just like with DOM elements where you could use <code>el.onclick = () =&gt; {...}</code> to add an event handler. You can do something like <code>socket.onmessage = () =&gt; {...}</code>, too. But, that’s just not nice because you can’t add more than one listener. So, if you see that in the documentation, somewhere, remember that you can always use <code>addEventListener</code> rather than the <code>on«event»</code> properties.</p>
+<p>All of that is just provided for you in the browser! There’s a lot of code under all of that to allow your JavaScript that easy-to-use API! Thanks, browser makers!</p>
+<p>You can give it a shot yourself. Create a new HTML 5 file with all of the normal stuff and add this code in there.</p>
+<p>In the body of the document, put this.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode html"><code class="sourceCode html"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">&lt;div&gt;</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="kw">&lt;button</span><span class="ot"> id=</span><span class="st">&quot;connect&quot;</span><span class="kw">&gt;</span>Connect<span class="kw">&lt;/button&gt;</span></a>
+<a class="sourceLine" id="cb5-3" title="3">  <span class="kw">&lt;button</span><span class="ot"> id=</span><span class="st">&quot;send-message&quot;</span><span class="kw">&gt;</span>Send<span class="kw">&lt;/button&gt;</span></a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="kw">&lt;button</span><span class="ot"> id=</span><span class="st">&quot;disconnect&quot;</span><span class="kw">&gt;</span>Disconnect<span class="kw">&lt;/button&gt;</span></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="kw">&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="kw">&lt;div</span><span class="ot"> id=</span><span class="st">&quot;messages&quot;</span><span class="kw">&gt;&lt;/div&gt;</span></a></code></pre></div>
+<p>Now, create a <code>script</code> element <em>after</em> the content you just added (so you don’t have to wait for “DOMContentLoaded”). This is just regular-old DOM code with the socket message stuff in there, too. Have a look and try it out! Change the code so that you can see how changes affect it!</p>
+<p>This code uses a <em>real</em> WebSocket server, wss://echo.websocket.org!</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">const</span> connect <span class="op">=</span> <span class="va">document</span>.<span class="at">getElementById</span>(<span class="st">&#39;connect&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="kw">const</span> disconnect <span class="op">=</span> <span class="va">document</span>.<span class="at">getElementById</span>(<span class="st">&#39;disconnect&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="kw">const</span> sendMessage <span class="op">=</span> <span class="va">document</span>.<span class="at">getElementById</span>(<span class="st">&#39;send-message&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="kw">const</span> messages <span class="op">=</span> <span class="va">document</span>.<span class="at">getElementById</span>(<span class="st">&#39;messages&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-5" title="5"></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="kw">let</span> socket <span class="op">=</span> <span class="kw">null</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-7" title="7"></a>
+<a class="sourceLine" id="cb6-8" title="8"><span class="va">connect</span>.<span class="at">addEventListener</span>(<span class="st">&#39;click&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-9" title="9">  <span class="va">messages</span>.<span class="at">innerHTML</span> <span class="op">+=</span> <span class="vs">`&lt;p&gt;Opening WebSocket...&lt;/p&gt;`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-10" title="10">  socket <span class="op">=</span> <span class="kw">new</span> <span class="at">WebSocket</span>(<span class="st">&quot;wss://echo.websocket.org/&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-11" title="11"></a>
+<a class="sourceLine" id="cb6-12" title="12">  <span class="va">socket</span>.<span class="at">addEventListener</span>(<span class="st">&#39;open&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-13" title="13">    <span class="va">messages</span>.<span class="at">innerHTML</span> <span class="op">+=</span> <span class="vs">`&lt;p&gt;CONNECTED!&lt;/p&gt;`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-14" title="14">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-15" title="15"></a>
+<a class="sourceLine" id="cb6-16" title="16">  <span class="va">socket</span>.<span class="at">addEventListener</span>(<span class="st">&#39;message&#39;</span><span class="op">,</span> event <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-17" title="17">    <span class="va">messages</span>.<span class="at">innerHTML</span> <span class="op">+=</span> <span class="vs">`&lt;p&gt;Received &quot;</span><span class="sc">${</span><span class="va">event</span>.<span class="at">data</span><span class="sc">}</span><span class="vs">&quot;&lt;/p&gt;`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-18" title="18">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-19" title="19"></a>
+<a class="sourceLine" id="cb6-20" title="20">  <span class="va">socket</span>.<span class="at">addEventListener</span>(<span class="st">&#39;error&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-21" title="21">    <span class="va">messages</span>.<span class="at">innerHTML</span> <span class="op">+=</span> <span class="vs">`&lt;p&gt;ERROR&lt;/p&gt;`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-22" title="22">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-23" title="23"></a>
+<a class="sourceLine" id="cb6-24" title="24">  <span class="va">socket</span>.<span class="at">addEventListener</span>(<span class="st">&#39;close&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-25" title="25">    <span class="va">messages</span>.<span class="at">innerHTML</span> <span class="op">+=</span> <span class="vs">`&lt;p&gt;Socket closed&lt;/p&gt;`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-26" title="26">    socket <span class="op">=</span> <span class="kw">null</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-27" title="27">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-28" title="28"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-29" title="29"></a>
+<a class="sourceLine" id="cb6-30" title="30"><span class="va">disconnect</span>.<span class="at">addEventListener</span>(<span class="st">&#39;click&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-31" title="31">  <span class="cf">if</span> (<span class="op">!</span>socket) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-32" title="32">    <span class="va">messages</span>.<span class="at">innerHTML</span> <span class="op">+=</span> <span class="vs">`&lt;p&gt;Socket not open.&lt;/p&gt;`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-33" title="33">    <span class="cf">return</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-34" title="34">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-35" title="35"></a>
+<a class="sourceLine" id="cb6-36" title="36">  <span class="va">socket</span>.<span class="at">close</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-37" title="37"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-38" title="38"></a>
+<a class="sourceLine" id="cb6-39" title="39"><span class="va">sendMessage</span>.<span class="at">addEventListener</span>(<span class="st">&#39;click&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-40" title="40">  <span class="cf">if</span> (<span class="op">!</span>socket) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-41" title="41">    <span class="va">messages</span>.<span class="at">innerHTML</span> <span class="op">+=</span> <span class="vs">`&lt;p&gt;Socket not open.&lt;/p&gt;`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-42" title="42">    <span class="cf">return</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-43" title="43">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-44" title="44">  <span class="va">messages</span>.<span class="at">innerHTML</span> <span class="op">+=</span> <span class="vs">`&lt;p&gt;Sending &quot;WebSockets are cool!&quot;&lt;/p&gt;`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-45" title="45">  <span class="va">socket</span>.<span class="at">send</span>(<span class="st">&#39;WebSockets are cool!&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-46" title="46"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Here’s an interesting thing. After you play around with the code, refresh the page and connect to the server. Then, just wait. Likely, eventually, the socket will close due to disuse. Many libraries (like socket.io) keep the connection “warm” by sending little <em>ping</em> methods to the server to let the server know that it really does want to keep that connection open. If it doesn’t close, then you have a <em>really</em> good and stable Internet connection!</p>
+<h2 id="server-side-code">Server-side code</h2>
+<p>If that’s the client-side code above, the question that might be bothering you is “How hard is the server-side code?” Well, luckily, it’s just about the same level of ease with the <a href="https://github.com/websockets/ws">ws</a> package for Node.js.</p>
+<p>Because WebSockets are a browser-based technology, the implementations that you will find on the server can vary widely. Luckily, the <strong>ws</strong> API is an event-driven API, too. It provides these events for you to use to build a WebSocket server using the <code>Server</code> object.</p>
+<ul>
+<li>The <strong>connection</strong> event occurs when the HTTP handshake completes but the connection has <em>not</em> upgraded. It’s callback receives a <code>WebSocket</code> that allows you to communicate with the client.</li>
+<li>The <strong>headers</strong> event which allows you to inspect and modify headers before they are sent back to the client.</li>
+<li>The <strong>listening</strong> event which fires when the underlying server is bound to a <em>network socket</em>, not a Web socket.</li>
+</ul>
+<p>Then, the server has a <code>close</code> method which lets it shut down. It’s got some other methods, too, about handling upgrades and stuff, which are outside the scope of this article. You are encouraged to go check out the API docs in a later article.</p>
+<p>Those last two are some pretty low-level events that you won’t necessarily have to pay attention to unless you’re doing some <em>really</em> advanced stuff. However, you <em>will</em> want to pay attention to the <strong>connection</strong> property because that is how you know a client is connected. Then, when the connection gets upgraded, the callback gets a <code>WebSocket</code> object so that your server can send messages to the browser.</p>
+<p>Here’s the code to write an “echo” server like you just used in the client-side stuff above. Put this in a file, install “ws” using <code>npm install ws</code>, and run it with <code>node «filename»</code>. Then, change the URL in the HTML file that you created from wss://echo.websocket.org/ to ws://localhost:8080. Everything still works!</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">const</span> WebSocket <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;ws&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-2" title="2"></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="kw">const</span> server <span class="op">=</span> <span class="kw">new</span> <span class="va">WebSocket</span>.<span class="at">Server</span>(<span class="op">{</span> <span class="dt">port</span><span class="op">:</span> <span class="dv">8080</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-4" title="4"></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="va">server</span>.<span class="at">on</span>(<span class="st">&#39;connection&#39;</span><span class="op">,</span> webSocket <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-6" title="6">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;client connecting...&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-7" title="7"></a>
+<a class="sourceLine" id="cb7-8" title="8">  <span class="kw">let</span> interval <span class="op">=</span> <span class="kw">null</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-9" title="9">  <span class="at">setInterval</span>(() <span class="kw">=&gt;</span> <span class="va">webSocket</span>.<span class="at">send</span>(<span class="st">&#39;Hello?&#39;</span>)<span class="op">,</span> <span class="dv">1000</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-10" title="10"></a>
+<a class="sourceLine" id="cb7-11" title="11">  <span class="va">webSocket</span>.<span class="at">on</span>(<span class="st">&#39;message&#39;</span><span class="op">,</span> message <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-12" title="12">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;received: %s&#39;</span><span class="op">,</span> message)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-13" title="13">    <span class="va">webSocket</span>.<span class="at">send</span>(message)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-14" title="14">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-15" title="15"></a>
+<a class="sourceLine" id="cb7-16" title="16">  <span class="va">webSocket</span>.<span class="at">on</span>(<span class="st">&#39;close&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-17" title="17">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Connection closed.&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-18" title="18">    <span class="at">clearInterval</span>(interval)</a>
+<a class="sourceLine" id="cb7-19" title="19">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-20" title="20"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>You can see that a server gets created using port 8080. That server then waits for connections with <code>server.on('connection', ...)</code>. When the connection occurs, the callback gets called and <code>webSocket</code> gets set to the actual <code>WebSocket</code> instance that you can use to send (and receive) messages to (and from) the client. Then, it creates an interval that sends a “Hello?” message to the client every second or so.</p>
+<p>You subscribe to messages using <code>webSocket.on('message', ...)</code>. When a message arrives from the browser, the callback gets called with the content of the data in the <code>message</code> variable. Normally, that’ll be a JSON-formatted string that you can use to do things with your code.</p>
+<p>Finally, when the <code>WebSocket</code> object closes, it prints a message to the console and clears that interval.</p>
+<p>That’s how nice <strong>ws</strong> makes it to write WebSocket-enabled. Thank you, <strong>ws</strong>!</p>
+<p>A really cool thing about <strong>ws</strong> is that it can track clients for you when you create the <code>Server</code> object by passing in the <a href="https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketserveroptions-callback"><code>clientTracking</code> option</a> when you construct it. Then, the <code>clients</code> property on the <code>Server</code> object will have all of the clients on it so you can broadcast messages to <em>everyone</em>!</p>
+<h2 id="what-youve-learned">What you’ve learned</h2>
+<ol type="1">
+<li>WebSockets are a persistent connection between the browser and server</li>
+<li>It’s a two-way connection, messages can flow in both directions</li>
+<li>The “Connection” header is used to request an upgrade. The “Upgrade” header specifically requests a WebSocket.</li>
+<li>Client-side code is an event-driven model with <strong>open</strong>, <strong>close</strong>, <strong>message</strong>, and <strong>error</strong> events</li>
+<li>Server-side code is an event-driven model that waits for <strong>connection</strong> events on a <code>Server</code> object which, then, provides a <code>WebSocket</code> object nearly identical to the <code>WebSocket</code> used on the client side.</li>
+</ol>

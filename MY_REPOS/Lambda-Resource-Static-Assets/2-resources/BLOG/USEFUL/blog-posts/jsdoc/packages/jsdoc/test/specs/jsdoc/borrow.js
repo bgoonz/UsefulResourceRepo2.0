@@ -1,0 +1,3 @@
+xdescribe('jsdoc/borrow', () => {
+    // TODO
+});

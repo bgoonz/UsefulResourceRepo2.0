@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h1 id="responsive-web-design-and-javascript">Responsive Web Design and JavaScript</h1>
+<blockquote>
+<p>Is your RWD tool belt feeling a little light? You’re probably missing the right JavaScript. Rob Tarr has just what you may be looking for.</p>
+</blockquote>
+<p>If you haven’t read <a href="https://alistapart.com/article/responsive-web-design/">Ethan’s article</a>, stop now, read it, and then come back here.</p>
+<p>Now, let’s talk about some responsive web design. For over a year now, we’ve been developing responsive websites almost exclusively at Sparkbox, and I’ve found something missing in our responsive tool belt—a good way to handle JavaScript.</p>
+<h2 id="example">Example</h2>
+<p>Recently, I was working on a secondary navigation with two sections. At media queries for smaller sized screens, the navigation had links to show and hide each section using jQuery animations. This posed a problem, however. After they were hidden, jQuery left <code>style="display: none"</code> on the elements. After resizing the browser and jumping to a media query for a larger sized screen, these elements should have been shown without the need for the additional links, but they were hidden because of the inline style. </p>
+<pre><code>&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;utf-8&quot;&gt;
+  &lt;title&gt;Media Query Testing&lt;/title&gt;
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;css/style.css&quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;nav id=&quot;secondary-nav&quot; class=&quot;secondary&quot;&gt;   
+     &lt;div class=&quot;button-group&quot;&gt;
+       &lt;a href=&quot;#quick-links&quot; class=&quot;mobile-button&quot;&gt;Quick Links&lt;/a&gt;
+       &lt;a href=&quot;#site-search&quot; class=&quot;mobile-button search-button&quot;&gt;Site Search&lt;/a&gt;
+     &lt;/div&gt;
+     &lt;ul id=&quot;quick-links&quot; class=&quot;quick-links-menu secondary-menu&quot;&gt;
+       &lt;li&gt;&lt;a href=&quot;#&quot; title=&quot;&quot;&gt;News&lt;/a&gt;&lt;/li&gt;
+       &lt;li&gt;&lt;a href=&quot;#&quot; title=&quot;&quot;&gt;Account Info&lt;/a&gt;&lt;/li&gt;
+       &lt;li&gt;&lt;a href=&quot;#&quot; title=&quot;&quot;&gt;FAQ&lt;/a&gt;&lt;/li&gt;
+       &lt;li&gt;&lt;a href=&quot;#&quot; title=&quot;&quot;&gt;Help&lt;/a&gt;&lt;/li&gt;
+     &lt;/ul&gt;
+     &lt;fieldset id=&quot;site-search&quot; class=&quot;site-search secondary-menu&quot;&gt;
+       &lt;input class=&quot;search-field&quot; type=&quot;search&quot; name=&quot;site-search&quot;&gt;
+       &lt;input class=&quot;search-submit&quot; type=&quot;submit&quot; value=&quot;Search&quot;&gt;
+     &lt;/fieldset&gt;
+   &lt;/nav&gt;
+  &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;js/mediaCheck.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;js/script.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<p>Now, I know that everyone likes to say that only developers change their browser sizes to see how things respond. There are real problems with this type of thinking. What if the user maximizes their window or makes it smaller based on the content? This might switch media queries, triggering a break in the secondary navigation. Here’s another example that is pretty relevant – what if the controlling media query is somewhere around 900px? A simple orientation change of an iPad would cause these navigation elements to disappear. Oops. Do you care now?</p>
+<h2 id="solution">Solution</h2>
+<p>The solution to this problem lies in the elusive <code>matchMedia</code> method; it provides events triggered by media queries.</p>
+<p>In order to run code based on media queries, I’m using <code>mediaCheck</code> (a wrapper I’ve written around <code>matchMedia</code> to fire events when entering or leaving a designated media query) to trigger the cleanup code when entering larger media queries.</p>
+<pre><code>$(function() {
+  function secondaryNavLinks( e ) {
+    var $toOpen = $( $( e.target ).attr( &quot;href&quot; ) + &quot;:hidden&quot; );
+    $( &quot;#secondary-nav&quot; ).children( &quot;.secondary-menu:visible&quot; ).slideUp();
+    $toOpen.slideDown();
+    e.preventDefault();
+  }
+
+  function secondaryNavCleanup() {
+    $( &quot;.secondary-menu&quot; ).removeAttr( &quot;style&quot; );
+  }
+
+  $( &quot;.secondary a&quot; ).on( &quot;click&quot;, secondaryNavLinks );
+
+  mediaCheck({
+    media: &#39;(min-width: 800px)&#39;,
+    entry: function() {
+      secondaryNavCleanup();
+    },
+  });
+});</code></pre>
+<p>Now when the 600px media query is fired, it will remove the <code>style</code> attributes and all is well with the secondary nav.</p>
+<p><code>mediaCheck</code> provides a nice wrapper to easily turn code on and off based on media queries. Switching behaviors and cleaning up code between media queries is now made simple. JavaScript mischief managed.</p>
+<pre><code>var mediaCheck = function(options) {
+  var mq,
+      matchMedia = window.matchMedia !== undefined;
+
+  if (matchMedia) {
+    mqChange = function(mq, options) {
+      if (mq.matches) {
+        options.entry();
+      } else {
+        options.exit();
+      }
+    };
+
+    createListener = function(mqDetails) {
+      mq = window.matchMedia(mqDetails.media);
+      mq.addListener(function() {
+        mqChange(mq, mqDetails);
+      });
+      mqChange(mq, mqDetails);
+    };
+
+    createListener(options);
+  }
+};</code></pre>
+<p>Take it out for a test drive, kick the tires, and <a href="https://github.com/sparkbox/mediaCheck">look under the hood</a>. Feel free to ask questions and contribute, and let’s move the web forward together.</p>
+<p><a href="https://sparkbox.com/foundry/responsive_web_design_and_javascript">Source</a></p>
+</body></html>

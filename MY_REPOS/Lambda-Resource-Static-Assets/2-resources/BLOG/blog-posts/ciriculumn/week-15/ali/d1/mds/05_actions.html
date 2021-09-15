@@ -1,0 +1,84 @@
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<hr />
+<h1 id="actions">Actions</h1>
+<p>As you’ve already learned from an earlier article, <strong>actions</strong> are the only way to trigger changes to the store’s state. Remember, actions are simple POJOs with a mandatory <code>type</code> key and optional payload keys containing new information. They get sent using <code>store.dispatch()</code> and are the primary drivers of the Redux loop.</p>
+<p>When you finish this article, you should be able to:</p>
+<ul>
+<li>Write an action creator function to facilitate in the creation of action objects</li>
+<li>Use constants to define action types to prevent simple typos in action type string literals</li>
+</ul>
+<h2 id="using-action-creators">Using action creators</h2>
+<p>When an action is dispatched, any new state data must be passed along as the <strong>payload</strong>. The example below passes a payload key of <code>fruit</code> with the new state data, ‘orange’:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">const</span> addOrange <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="dt">fruit</span><span class="op">:</span> <span class="st">&#39;orange&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="op">};</span></a>
+<a class="sourceLine" id="cb1-5" title="5"></a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="va">store</span>.<span class="at">dispatch</span>(addOrange)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="va">console</span>.<span class="at">log</span>(<span class="va">store</span>.<span class="at">getState</span>())<span class="op">;</span> <span class="co">// [ &#39;orange&#39; ]</span></a></code></pre></div>
+<p>However, when these action payloads are generated dynamically, it becomes necessary to extrapolate the creation of the action object into a function. These functions are called <strong>action creators</strong>. The JavaScript objects they return are the <strong>actions</strong>. To initiate a dispatch, you pass the result of calling an action creator to <code>store.dispatch()</code>.</p>
+<p>For example, an action creator function to create ‘ADD_FRUIT’ actions looks like this:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">const</span> addFruit <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-3" title="3">    <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-4" title="4">    fruit<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-5" title="5">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb2-6" title="6"><span class="op">};</span></a></code></pre></div>
+<p>You can also rewrite the above arrow function to use an implicit return value:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">const</span> addFruit <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  fruit<span class="op">,</span></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<blockquote>
+<p>While either approach for defining action creators using arrow functions works, the latter approach of using an implicit return value makes it more difficult to debug the Redux cycle (you’ll see why later in this lesson).</p>
+</blockquote>
+<p>Now we can add any <code>fruit</code> to the store using our action creator <code>addFruit(fruit)</code>, instead of having to define an action object for each fruit:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">addFruit</span>(<span class="st">&#39;apple&#39;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">addFruit</span>(<span class="st">&#39;strawberry&#39;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">addFruit</span>(<span class="st">&#39;lychee&#39;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="va">console</span>.<span class="at">log</span>(<span class="va">store</span>.<span class="at">getState</span>())<span class="op">;</span> <span class="co">// [ &#39;orange&#39;, &#39;apple&#39;, &#39;strawberry&#39;, &#39;lychee&#39; ]</span></a></code></pre></div>
+<h2 id="preventing-typos-in-action-type-string-literals">Preventing typos in action type string literals</h2>
+<p>Update your actions to include <code>'ADD_FRUIT'</code>, <code>'ADD_FRUITS'</code>, <code>'SELL_FRUIT'</code>, and <code>'SELL_OUT'</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">const</span> ADD_FRUIT <span class="op">=</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="kw">const</span> ADD_FRUITS <span class="op">=</span> <span class="st">&#39;ADD_FRUITS&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="kw">const</span> SELL_FRUIT <span class="op">=</span> <span class="st">&#39;SELL_FRUIT&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="kw">const</span> SELL_OUT <span class="op">=</span> <span class="st">&#39;SELL_OUT&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-5" title="5"></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="kw">const</span> addFruit <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb5-7" title="7">  <span class="dt">type</span><span class="op">:</span> ADD_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-8" title="8">  fruit<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-10" title="10"></a>
+<a class="sourceLine" id="cb5-11" title="11"><span class="kw">const</span> addFruits <span class="op">=</span> (fruits) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb5-12" title="12">  <span class="dt">type</span><span class="op">:</span> ADD_FRUITS<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-13" title="13">  fruits<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-14" title="14"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-15" title="15"></a>
+<a class="sourceLine" id="cb5-16" title="16"><span class="kw">const</span> sellFruit <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb5-17" title="17">  <span class="dt">type</span><span class="op">:</span> SELL_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-18" title="18">  fruit<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-19" title="19"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-20" title="20"></a>
+<a class="sourceLine" id="cb5-21" title="21"><span class="kw">const</span> sellOut <span class="op">=</span> () <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb5-22" title="22">  <span class="dt">type</span><span class="op">:</span> SELL_OUT<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-23" title="23"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Notice that constants were used for all of the fruit action types. This prevents simple typos in the reducer’s case clauses (i.e. <code>'ADD_FRIUT'</code>) from unexpectedly not matching the appropriate action type (i.e. <code>'ADD_FRUIT'</code>). Creating constants for the action type string literals ensures that an error is thrown if the constant name is mistyped.</p>
+<h2 id="reviewing-a-completed-fruit-stand-example">Reviewing a completed Fruit Stand example</h2>
+<p>To review and run a completed Fruit Stand example application, clone the <a href="https://github.com/appacademy-starters/redux-fruit-stand-examples">redux-fruit-stand-examples</a> repo.</p>
+<p>After cloning the repo, open a terminal and browse to the <code>fruit-stand-redux</code> folder. Run the command <code>npm install</code> to install the project’s dependencies. Then use the command <code>node app.js</code> to run the Fruit Stand application. You should see the following output:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1"><span class="ex">Default</span> Redux Store (empty fruit list)<span class="bu">:</span></a>
+<a class="sourceLine" id="cb6-2" title="2">[]</a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="ex">Redux</span> Store:</a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="bu">[</span> <span class="st">&#39;orange&#39;</span>, <span class="st">&#39;apple&#39;</span><span class="bu"> ]</span></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="ex">Redux</span> Store:</a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="bu">[</span> <span class="st">&#39;orange&#39;</span>, <span class="st">&#39;apple&#39;</span>, <span class="st">&#39;orange&#39;</span>, <span class="st">&#39;lychee&#39;</span>, <span class="st">&#39;grapefruit&#39;</span><span class="bu"> ]</span></a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="ex">Updated</span> Redux Store:</a>
+<a class="sourceLine" id="cb6-8" title="8"><span class="bu">[</span> <span class="st">&#39;orange&#39;</span>, <span class="st">&#39;orange&#39;</span>, <span class="st">&#39;lychee&#39;</span>, <span class="st">&#39;grapefruit&#39;</span><span class="bu"> ]</span></a>
+<a class="sourceLine" id="cb6-9" title="9"><span class="ex">Reset</span> Redux Store (empty fruit list)<span class="bu">:</span></a>
+<a class="sourceLine" id="cb6-10" title="10">[]</a></code></pre></div>
+<p>The <code>reduxSAR.js</code> file contains the action types, reducer, store, and action creator functions. The <code>app.js</code> file contains the code that interacts with the Redux store. The <code>appWithSubscription.js</code> file also contains code that interacts with the store but subscribes a callback function (using the <code>store.subscribe</code> method) to listen for and log state updates to the console.</p>
+<h2 id="what-you-learned">What you learned</h2>
+<p>In this article, you learned how to write an action creator function to facilitate in the creation of action objects. You also learned how to use constants to define action types to prevent simple typos in action type string literals.</p>
+<h2 id="see-also">See also…</h2>
+<p>To learn more about actions, see the official <a href="http://redux.js.org/docs/basics/Actions.html">Redux documentation</a>.</p>

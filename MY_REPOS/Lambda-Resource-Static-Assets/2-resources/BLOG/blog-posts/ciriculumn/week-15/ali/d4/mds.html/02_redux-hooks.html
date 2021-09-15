@@ -1,0 +1,237 @@
+<h1 id="introduction-to-hooks-in-redux">Introduction to Hooks in Redux</h1>
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<hr />
+<p>In previous lessons and projects, you have learned to build <strong>React</strong> components using <strong>Redux</strong>. Now it’s time to explore ways to modify your approach using hooks.</p>
+<p>When you complete this lesson, you will be able to</p>
+<ul>
+<li>Use Redux in a function component with the <code>useSelector</code> and <code>useDispatch</code> hooks</li>
+</ul>
+<h2 id="using-hooks-with-redux">Using hooks with Redux</h2>
+<p>In order to use hooks in Redux, your application will need to utilize the <code>react-redux</code> package. If you need a refresher on what this kind of application looks like, see the <a href="#starting-point-for-ip-address-project">Starting Point</a> section at the end of this reading or clone the <a href="https://github.com/appacademy-starters/intro-to-redux-hooks">intro-to-redux-hooks</a> repository from GitHub and look at the <strong>starter</strong> folder.</p>
+<h2 id="getting-started">Getting Started</h2>
+<p>Consider a simple application that displays the user’s current IP Address with a button to start the lookup. You many even include a loading message which shows while the server call is running.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="co">// ./src/App.js</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> useEffect<span class="op">,</span> useState <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-4" title="4"></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="kw">const</span> App <span class="op">=</span> props <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-6" title="6">  <span class="kw">const</span> [ip<span class="op">,</span> setIP] <span class="op">=</span> <span class="at">useState</span>(<span class="kw">null</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-7" title="7">  <span class="kw">const</span> [loading<span class="op">,</span> setLoading] <span class="op">=</span> <span class="at">useState</span>(<span class="kw">false</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-8" title="8"></a>
+<a class="sourceLine" id="cb1-9" title="9">  <span class="kw">const</span> getMyIP <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-10" title="10">    <span class="at">setIP</span>(<span class="st">&#39;(coming soon)&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-11" title="11">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb1-12" title="12"></a>
+<a class="sourceLine" id="cb1-13" title="13">  <span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-14" title="14">    <span class="at">setLoading</span>(ip <span class="op">===</span> <span class="st">&quot;&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-15" title="15">  <span class="op">},</span> [ip])<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-16" title="16"></a>
+<a class="sourceLine" id="cb1-17" title="17">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb1-18" title="18">    <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-19" title="19">      <span class="op">&lt;</span>h1<span class="op">&gt;</span>Get My IP&lt;/h1<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-20" title="20"></a>
+<a class="sourceLine" id="cb1-21" title="21">      <span class="op">{</span>loading</a>
+<a class="sourceLine" id="cb1-22" title="22">        <span class="op">?</span> <span class="op">&lt;</span>p<span class="op">&gt;</span><span class="va">Loading</span>...&lt;/p<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-23" title="23">        : <span class="op">&lt;</span>p<span class="op">&gt;{</span>ip<span class="op">}</span>&lt;/p<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-24" title="24">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-25" title="25">      <span class="op">&lt;</span>button </a>
+<a class="sourceLine" id="cb1-26" title="26">        onClick<span class="op">={</span>getMyIP<span class="op">}</span> </a>
+<a class="sourceLine" id="cb1-27" title="27">        disabled<span class="op">={</span>loading<span class="op">}</span></a>
+<a class="sourceLine" id="cb1-28" title="28">      <span class="op">&gt;{</span>ip <span class="op">?</span> <span class="st">&#39;Again&#39;</span> : <span class="st">&#39;Go&#39;</span><span class="op">}</span>&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-29" title="29">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-30" title="30">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-31" title="31"><span class="op">};</span></a>
+<a class="sourceLine" id="cb1-32" title="32"></a>
+<a class="sourceLine" id="cb1-33" title="33"><span class="im">export</span> <span class="im">default</span> App<span class="op">;</span></a></code></pre></div>
+<p>Notice that this framework uses your knowledge of the <code>useState</code> hook to simulate the server call and the <code>useEffect</code> hook to cause the loading indicator to show at the appropriate times.</p>
+<p>Now you can update this example to use Redux hooks to replace the fake loading of <code>ip</code>.</p>
+<h2 id="useselector"><code>useSelector</code></h2>
+<p>Begin by importing <code>useSelector</code> from the <em>React Redux</em> package.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="im">import</span> <span class="op">{</span> useSelector <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react-redux&#39;</span><span class="op">;</span></a></code></pre></div>
+<p>Assuming you have a reducer with the property <code>ipAddress</code>, then you can use the <code>useSelector</code> hook to access the <code>ipAddress</code> from your Redux store’s state.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">const</span> ip <span class="op">=</span> <span class="at">useSelector</span>(state <span class="kw">=&gt;</span> <span class="va">state</span>.<span class="at">ipAddress</span>)<span class="op">;</span></a></code></pre></div>
+<p>In the sample <em>App.js</em> above, using the <code>useSelector</code> hook would replace <code>const [ip, setIP] = useState('')</code>. Your component would receive the <code>ip</code> via your Redux store’s <code>state.ipAddress</code>, instead of the component’s <code>ip</code> state.</p>
+<blockquote>
+<p>As a reminder, the <code>useState</code> hook in this example is simply mimicking a fetch response. Upon clicking the button with the <code>getMyIP</code> click handler, a fetch call is mimicked with the <code>setIP('(coming soon)')</code> method. You will need to remove this line as well. Don’t worry you’ll replace it momentarily using another Redux hook.</p>
+</blockquote>
+<p>You can access any available property this way and even call <code>useSelector()</code> multiple times within a single function component. You can even use props or route parameters to determine what to extract from the store.</p>
+<p>Here is an example using props. Assume you have a store with a <code>users</code> object in its state. Furthermore, you want to get just <code>user</code> based on the <code>id</code> provided in a prop to a function component.</p>
+<p>Here is the component’s code. See if you can spot where the “magic” happens.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="im">import</span> React <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="im">import</span> <span class="op">{</span> useSelector <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react-redux&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-3" title="3"></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="kw">const</span> UserCard <span class="op">=</span> props <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-5" title="5">  <span class="kw">const</span> user <span class="op">=</span> <span class="at">useSelector</span>(state <span class="kw">=&gt;</span> <span class="va">state</span>.<span class="at">users</span>[<span class="va">props</span>.<span class="at">id</span>])<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-6" title="6">  <span class="cf">return</span> <span class="op">&lt;</span>div<span class="op">&gt;{</span><span class="va">todo</span>.<span class="at">text</span><span class="op">}</span>&lt;/div<span class="op">&gt;;</span></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="op">};</span></a>
+<a class="sourceLine" id="cb4-8" title="8"></a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="im">export</span> <span class="im">default</span> UserCard<span class="op">;</span></a></code></pre></div>
+<p>If you said the magic happens in the function passed to the <code>useSelector</code> hook, then you would be correct. Specifically the square bracket notation is used to get just a part of the <code>users</code> object. Remember, you’re passing a function as the argument to <code>useSelector</code>; therefore you can use all your skills to determine the right object or value to <code>return</code>.</p>
+<h2 id="usedispatch"><code>useDispatch</code></h2>
+<p>In order to trigger an action in <strong>Redux</strong>, you will need to utilize a different hook; specifically, <code>useDispatch()</code>. This hook returns a function which you can call to dispatch the action.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">const</span> dispatch <span class="op">=</span> <span class="at">useDispatch</span>()<span class="op">;</span></a></code></pre></div>
+<p>Exactly how you use dispatch depends on your Redux setup. There are some minor differences based on whether you decided to use <code>redux-thunk</code> in your project. The configuration of Redux is beyond the scope of this reading and is something you saw in previous activities. Two solutions are provided in the sample, so you can make the choice which works best for your project. Here’s a quick look at these two options.</p>
+<h3 id="option-a-generic-redux-no-thunk">Option A: Generic Redux (no thunk)</h3>
+<p>In this configuration, you will need to dispatch actions created in your Redux component (e.g. <em>src/store/ipAddress.js</em>). For example, one possible action creator function might look like <code>export const setIP = ip =&gt; ({ type: SET_IP, ip });</code>.</p>
+<p>Any functions which perform loading operations will need to be asynchronous and return the value or object retrieved; perhaps in a scenario like this…</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="co">// relevant snippet from of src/store/ipAddress.js</span></a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="im">export</span> <span class="kw">const</span> loadIP <span class="op">=</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-4" title="4">  <span class="co">// ...</span></a>
+<a class="sourceLine" id="cb6-5" title="5">  <span class="co">// do stuff here like a fetch with await</span></a>
+<a class="sourceLine" id="cb6-6" title="6">  <span class="co">// ...</span></a>
+<a class="sourceLine" id="cb6-7" title="7">  <span class="co">// return the result</span></a>
+<a class="sourceLine" id="cb6-8" title="8">  <span class="cf">return</span> origin</a>
+<a class="sourceLine" id="cb6-9" title="9"><span class="op">};</span></a></code></pre></div>
+<p>Back in the component with the UI (e.g. <em>src/App.js</em>), you’ll need to start by importing these functions as well as adding <code>useDispatch</code> to the import for <strong>Redux</strong>.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="im">import</span> <span class="op">{</span> useDispatch<span class="op">,</span> useSelector <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react-redux&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="im">import</span> <span class="op">{</span> loadIP<span class="op">,</span> setIP <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;./store/ipAddress&quot;</span><span class="op">;</span></a></code></pre></div>
+<p>Then use these with your button click handler. Notice you dispatch is using the action to set the value of the ip variable that you just got with <code>useSelector</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="co">// relevant snippet from src/App.js</span></a>
+<a class="sourceLine" id="cb8-2" title="2"></a>
+<a class="sourceLine" id="cb8-3" title="3">  <span class="kw">const</span> dispatch <span class="op">=</span> <span class="at">useDispatch</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-4" title="4"></a>
+<a class="sourceLine" id="cb8-5" title="5">  <span class="kw">const</span> getMyIP <span class="op">=</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-6" title="6">    <span class="at">dispatch</span>(<span class="at">setIP</span>(<span class="st">&quot;&quot;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-7" title="7"></a>
+<a class="sourceLine" id="cb8-8" title="8">    <span class="kw">const</span> origin <span class="op">=</span> <span class="cf">await</span> <span class="at">loadIP</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-9" title="9">    <span class="at">dispatch</span>(<span class="at">setIP</span>(origin))<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-10" title="10">  <span class="op">};</span></a></code></pre></div>
+<p>The example dispatches two values for the IP Address. The first dispatch call sets the IP address to an empty string (so that the old value no longer shows in the UI while the newer value is loading). The second, of course, is the result of the fetch (or any other kind of service call, of course).</p>
+<p>One advantage of this approach is that you will not need to install <code>redux-thunk</code> or add it to the <strong>Redux</strong> configuration. However, this comes with the trade-off that actions will be dispatched throughout the application, including in UI components.</p>
+<h3 id="option-b-using-redux-thunk">Option B: Using Redux Thunk</h3>
+<p>Now consider the difference using <code>redux-thunk</code>. The action function remains unchanged (<code>export const setIP = ip =&gt; ({ type: SET_IP, ip });</code>). The <code>loadIP</code> function will do its own dispatching (this means a double function in the declaration that results in the code below).</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="co">// relevant snippet from ./src/App.js</span></a>
+<a class="sourceLine" id="cb9-2" title="2"></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="im">export</span> <span class="kw">const</span> loadIP <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="kw">async</span> dispatch <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-4" title="4">  <span class="at">dispatch</span>(<span class="at">setIP</span>(<span class="st">&quot;&quot;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-5" title="5"></a>
+<a class="sourceLine" id="cb9-6" title="6">  <span class="co">// ...</span></a>
+<a class="sourceLine" id="cb9-7" title="7">  <span class="co">// do stuff here like a fetch with await</span></a>
+<a class="sourceLine" id="cb9-8" title="8">  <span class="co">// ...</span></a>
+<a class="sourceLine" id="cb9-9" title="9">  <span class="co">// dispatch the result</span></a>
+<a class="sourceLine" id="cb9-10" title="10">  <span class="at">dispatch</span>(<span class="at">setIP</span>(origin))<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-11" title="11"><span class="op">};</span></a></code></pre></div>
+<p>In the component (e.g. _src/App.js), you’ll need to import only the <code>loadIP()</code> function (and not the <code>setIP</code> action creator function) (while still importing <code>useDispatch</code>, of course).</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1"><span class="im">import</span> <span class="op">{</span> useDispatch<span class="op">,</span> useSelector <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react-redux&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="im">import</span> <span class="op">{</span> loadIP <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;./store/ipAddress&quot;</span><span class="op">;</span></a></code></pre></div>
+<p>Then the click handler for the button simplifies to</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" title="1"><span class="co">// relevant snippet from ./src/App.js</span></a>
+<a class="sourceLine" id="cb11-2" title="2"></a>
+<a class="sourceLine" id="cb11-3" title="3">  <span class="kw">const</span> getMyIP <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb11-4" title="4">    <span class="at">dispatch</span>(<span class="at">loadIP</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb11-5" title="5">  <span class="op">};</span></a></code></pre></div>
+<p>The advantages of this approach using <strong>Redux Thunk</strong> is the separation of responsibilities where the load and action dispatches are all together resulting in simplified handling within the UI components.</p>
+<p>The trade-off is double functions in your Redux (like <code>export const loadIP = () =&gt; async dispatch =&gt; {</code>) and the one-time install and setup of <code>redux-thunk</code>.</p>
+<p>Ultimately the decision on the approach is made by each development team based on their personal preference.</p>
+<h2 id="refactoring-an-existing-component">Refactoring an existing component</h2>
+<p>In order to refactor an existing class component from the classic approach to using hooks, there are several steps that need to be taken:</p>
+<ul>
+<li>Change component definition from class to function
+<ul>
+<li>Switch state handling to the <code>useState</code> hook</li>
+<li>Use the <code>useEffect</code> hook for side-effect management, instead of the <code>componentDidMount</code> and <code>componentDidUpdate</code> methods</li>
+<li>Create or move event handlers to constant functions</li>
+</ul></li>
+<li>Use one or multiple <code>useSelector</code> hooks to replace the <code>mapStateToProps</code> function</li>
+<li>Invoke the <code>useDispatch</code> hook to use <code>dispatch</code> and replace the <code>mapDispatchToProps</code> function</li>
+<li>Simplify the <code>export</code> to just the component name by removing <code>connect</code></li>
+<li>Delete any imports that are no longer in use</li>
+</ul>
+<p>The best way to understand exactly what to do is to see an example. This will be provided in an upcoming video lesson.</p>
+<h2 id="what-you-have-learned">What you have learned</h2>
+<p>The <code>react-redux</code> package comes with several hooks which can be used to replace <code>mapStateToProps</code>, <code>mapDispatchToProps</code> and <code>connect</code>. Hooks are used with function components, so remember to start with one if you intend to use hooks; otherwise you’ll need to convert your class component to a function component.</p>
+<p>The <code>useSelector</code> hook give you access to any and all props that are exposed through the state in a Redux store by passing in a function to resolve the state property you want (e.g. <code>useSelector(state =&gt; state.theProp)</code>). The <code>useDispatch</code> hook allows you to trigger an action directly or by calling a function that uses <code>redux-thunk</code> to dispatch the action.</p>
+<p>Using hooks with <strong>React Redux</strong> can improve the readability and maintainability of a <strong>React</strong> project.</p>
+<h2 id="additional-resources">Additional resources</h2>
+<p>For future reference, there are a few additional (advanced and rarely used) features in the <a href="https://react-redux.js.org/next/api/hooks">official documentation on hooks in React Redux</a>.</p>
+<h2 id="starting-point-for-ip-address-project">Starting point for IP address project</h2>
+<p>As promised, here is an example of setting up the framework with Redux for the “Get My IP” application discussed throughout this reading. This version includes <strong>Redux Thunk</strong>.</p>
+<p>You may access the starter project, the solution project with Redux Thunk, and the solution project without Redux Thunk by cloning the <a href="https://github.com/appacademy-starters/intro-to-redux-hooks">intro-to-redux-hooks</a> repository.</p>
+<p>Start with <code>create-react-app</code> and install <code>react-redux</code>, <code>redux-thunk</code> and their dependencies (e.g. <code>redux</code>) as you’ve done previously.</p>
+<p>Wrap your application in the <strong>Redux Provider</strong> …</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" title="1"><span class="co">// ./src/index.js</span></a>
+<a class="sourceLine" id="cb12-2" title="2"></a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb12-4" title="4"><span class="im">import</span> ReactDOM <span class="im">from</span> <span class="st">&#39;react-dom&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb12-5" title="5"><span class="im">import</span> <span class="op">{</span> Provider <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react-redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb12-6" title="6"><span class="im">import</span> App <span class="im">from</span> <span class="st">&#39;./App&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb12-7" title="7"><span class="im">import</span> configureStore <span class="im">from</span> <span class="st">&#39;./store/configureStore&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb12-8" title="8"></a>
+<a class="sourceLine" id="cb12-9" title="9"><span class="kw">const</span> store <span class="op">=</span> <span class="at">configureStore</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-10" title="10"></a>
+<a class="sourceLine" id="cb12-11" title="11"><span class="va">ReactDOM</span>.<span class="at">render</span>(</a>
+<a class="sourceLine" id="cb12-12" title="12">  <span class="op">&lt;</span><span class="va">React</span>.<span class="at">StrictMode</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb12-13" title="13">    <span class="op">&lt;</span>Provider store<span class="op">={</span>store<span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb12-14" title="14">      <span class="op">&lt;</span>App /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb12-15" title="15">    &lt;/Provider<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb12-16" title="16">  &lt;/<span class="va">React</span>.<span class="at">StrictMode</span><span class="op">&gt;,</span></a>
+<a class="sourceLine" id="cb12-17" title="17">  <span class="va">document</span>.<span class="at">getElementById</span>(<span class="st">&#39;root&#39;</span>)</a>
+<a class="sourceLine" id="cb12-18" title="18">)<span class="op">;</span></a></code></pre></div>
+<p>… and configure a <strong>Redux</strong> store …</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" title="1"><span class="co">// ./src/store/configureStore.js</span></a>
+<a class="sourceLine" id="cb13-2" title="2"></a>
+<a class="sourceLine" id="cb13-3" title="3"><span class="im">import</span> <span class="op">{</span> createStore<span class="op">,</span> applyMiddleware<span class="op">,</span> combineReducers<span class="op">,</span> compose <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb13-4" title="4"><span class="im">import</span> thunk <span class="im">from</span> <span class="st">&#39;redux-thunk&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb13-5" title="5"><span class="im">import</span> ipAddress <span class="im">from</span> <span class="st">&#39;./ipAddress&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb13-6" title="6"></a>
+<a class="sourceLine" id="cb13-7" title="7"><span class="kw">const</span> composeEnhancers <span class="op">=</span> <span class="va">window</span>.<span class="at">__REDUX_DEVTOOLS_EXTENSION_COMPOSE__</span> <span class="op">||</span> compose<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-8" title="8"></a>
+<a class="sourceLine" id="cb13-9" title="9"><span class="kw">const</span> reducer <span class="op">=</span> <span class="at">combineReducers</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb13-10" title="10">  ipAddress<span class="op">,</span></a>
+<a class="sourceLine" id="cb13-11" title="11"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-12" title="12"></a>
+<a class="sourceLine" id="cb13-13" title="13"><span class="kw">const</span> configureStore <span class="op">=</span> initialState <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-14" title="14">  <span class="cf">return</span> <span class="at">createStore</span>(</a>
+<a class="sourceLine" id="cb13-15" title="15">    reducer<span class="op">,</span></a>
+<a class="sourceLine" id="cb13-16" title="16">    initialState<span class="op">,</span></a>
+<a class="sourceLine" id="cb13-17" title="17">    <span class="at">composeEnhancers</span>(<span class="at">applyMiddleware</span>(thunk))<span class="op">,</span></a>
+<a class="sourceLine" id="cb13-18" title="18">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-19" title="19"><span class="op">};</span></a>
+<a class="sourceLine" id="cb13-20" title="20"></a>
+<a class="sourceLine" id="cb13-21" title="21"><span class="im">export</span> <span class="im">default</span> configureStore<span class="op">;</span></a></code></pre></div>
+<p>… which includes a <strong>reducer</strong>, an <strong>action creator</strong> function, and a <strong>thunk action creator</strong> function …</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb14-1" title="1"><span class="co">// ./src/store/ipAddress.js</span></a>
+<a class="sourceLine" id="cb14-2" title="2"></a>
+<a class="sourceLine" id="cb14-3" title="3"><span class="im">import</span> <span class="op">{</span> ipUrl <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../config&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb14-4" title="4"></a>
+<a class="sourceLine" id="cb14-5" title="5"><span class="kw">const</span> SET_IP <span class="op">=</span> <span class="st">&#39;ipAddress/SET_IP&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb14-6" title="6"></a>
+<a class="sourceLine" id="cb14-7" title="7"><span class="im">export</span> <span class="kw">const</span> setIP <span class="op">=</span> ip <span class="kw">=&gt;</span> (<span class="op">{</span> <span class="dt">type</span><span class="op">:</span> SET_IP<span class="op">,</span> ip <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-8" title="8"></a>
+<a class="sourceLine" id="cb14-9" title="9"><span class="im">export</span> <span class="kw">const</span> loadIP <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="kw">async</span> dispatch <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-10" title="10">  <span class="at">dispatch</span>(<span class="at">setIP</span>(<span class="st">&quot;&quot;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-11" title="11"></a>
+<a class="sourceLine" id="cb14-12" title="12">  <span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> <span class="at">fetch</span>(<span class="vs">`</span><span class="sc">${</span>ipUrl<span class="sc">}</span><span class="vs">/ip`</span><span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-13" title="13">    <span class="dt">method</span><span class="op">:</span> <span class="st">&#39;get&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb14-14" title="14">    <span class="dt">headers</span><span class="op">:</span> <span class="op">{</span> <span class="st">&#39;Content-Type&#39;</span><span class="op">:</span> <span class="st">&#39;application/json&#39;</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb14-15" title="15">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-16" title="16"></a>
+<a class="sourceLine" id="cb14-17" title="17">  <span class="cf">if</span> (<span class="va">response</span>.<span class="at">ok</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-18" title="18">    <span class="kw">let</span> <span class="op">{</span> origin <span class="op">}</span> <span class="op">=</span> <span class="cf">await</span> <span class="va">response</span>.<span class="at">json</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-19" title="19">    <span class="co">// obscure last segment for privacy purposes</span></a>
+<a class="sourceLine" id="cb14-20" title="20">    origin <span class="op">=</span> <span class="va">origin</span>.<span class="at">split</span>(<span class="st">&#39;.&#39;</span><span class="op">,</span> <span class="dv">3</span>).<span class="at">join</span>(<span class="st">&#39;.&#39;</span>) <span class="op">+</span> <span class="st">&quot;.xxx&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb14-21" title="21">    <span class="co">// dispatch the result</span></a>
+<a class="sourceLine" id="cb14-22" title="22">    <span class="at">dispatch</span>(<span class="at">setIP</span>(origin))<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-23" title="23">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb14-24" title="24"></a>
+<a class="sourceLine" id="cb14-25" title="25"><span class="op">};</span></a>
+<a class="sourceLine" id="cb14-26" title="26"></a>
+<a class="sourceLine" id="cb14-27" title="27"><span class="im">export</span> <span class="im">default</span> <span class="kw">function</span> <span class="at">reducer</span>(state <span class="op">=</span> <span class="op">{},</span> action) <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-28" title="28">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-29" title="29">    <span class="cf">case</span> <span class="dt">SET_IP</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-30" title="30">      <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-31" title="31">        ...<span class="at">state</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb14-32" title="32">        <span class="dt">ip</span><span class="op">:</span> <span class="va">action</span>.<span class="at">ip</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb14-33" title="33">      <span class="op">};</span></a>
+<a class="sourceLine" id="cb14-34" title="34">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb14-35" title="35"></a>
+<a class="sourceLine" id="cb14-36" title="36">    <span class="cf">default</span><span class="op">:</span> <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-37" title="37">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb14-38" title="38"><span class="op">}</span></a></code></pre></div>
+<p>… that relies on the application configuration …</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb15-1" title="1"><span class="co">// ./src/config.js</span></a>
+<a class="sourceLine" id="cb15-2" title="2"></a>
+<a class="sourceLine" id="cb15-3" title="3"><span class="im">export</span> <span class="kw">const</span> ipUrl <span class="op">=</span> <span class="va">process</span>.<span class="va">env</span>.<span class="at">REACT_APP_BASEURL</span> <span class="op">||</span> <span class="vs">`https://httpbin.org`</span><span class="op">;</span></a></code></pre></div>
+<p>… to fetch the IP Address using the <a href="https://httpbin.org/ip">ip query at httpbin.org</a>.</p>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>;
+<p>Thanks to everybody who has already been testing the release candidate. We've received some good feedback and as a
+    result we're going to do a second release candidate. The changes are minimal. We haven't changed the behavior of any
+    APIs we exposed in the previous release candidate. Here's a summary of the changes:</p>
+<ul>
+<li>Introduced a new API (<code>React.cloneElement</code>, see below for details).</li>
+<li>Fixed a bug related to validating <code>propTypes</code> when using the new <code>React.addons.createFragment</code> API.</li>
+<li>Improved a couple warning messages.</li>
+<li>Upgraded jstransform and esprima.</li>
+</ul>
+<p>The release candidate is available for download:</p>
+<ul>
+<li><strong>React</strong><br />
+Dev build with warnings: <a href="https://fb.me/react-0.13.0-rc2.js" class="uri">https://fb.me/react-0.13.0-rc2.js</a><br />
+Minified build for production: <a href="https://fb.me/react-0.13.0-rc2.min.js" class="uri">https://fb.me/react-0.13.0-rc2.min.js</a><br />
+</li>
+<li><strong>React with Add-Ons</strong><br />
+Dev build with warnings: <a href="https://fb.me/react-with-addons-0.13.0-rc2.js" class="uri">https://fb.me/react-with-addons-0.13.0-rc2.js</a><br />
+Minified build for production: <a href="https://fb.me/react-with-addons-0.13.0-rc2.min.js" class="uri">https://fb.me/react-with-addons-0.13.0-rc2.min.js</a><br />
+</li>
+<li><strong>In-Browser JSX transformer</strong><br />
+<a href="https://fb.me/JSXTransformer-0.13.0-rc2.js" class="uri">https://fb.me/JSXTransformer-0.13.0-rc2.js</a></li>
+</ul>
+<p>We've also published version <code>0.13.0-rc2</code> of the <code>react</code> and <code>react-tools</code> packages
+    on npm and the <code>react</code> package on bower.</p>
+<hr />
+<h2 id="reactcloneelement">React.cloneElement</h2>
+<p>In React v0.13 RC2 we will introduce a new API, similar to <code>React.addons.cloneWithProps</code>, with this signature:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="va">React</span>.<span class="at">cloneElement</span>(element<span class="op">,</span> props<span class="op">,</span> ...<span class="at">children</span>)<span class="op">;</span></a></code></pre></div>
+<p>Unlike <code>cloneWithProps</code>, this new function does not have any magic built-in behavior for merging
+    <code>style</code> and <code>className</code> for the same reason we don't have that feature from
+    <code>transferPropsTo</code>. Nobody is sure what exactly the complete list of magic things are, which makes it
+    difficult to reason about the code and difficult to reuse when <code>style</code> has a different signature (e.g. in
+    the upcoming React Native).</p>
+<p><code>React.cloneElement</code> is <em>almost</em> equivalent to:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="op">&lt;</span><span class="va">element</span>.<span class="at">type</span> <span class="op">{</span>...<span class="va">element</span>.<span class="at">props</span><span class="op">}</span> <span class="op">{</span>...<span class="at">props</span><span class="op">}&gt;{</span>children<span class="op">}</span>&lt;/<span class="va">element</span>.<span class="at">type</span><span class="op">&gt;</span></a></code></pre></div>
+<p>However, unlike JSX and <code>cloneWithProps</code>, it also preserves <code>ref</code>s. This means that if you get
+    a child with a <code>ref</code> on it, you won't accidentally steal it from your ancestor. You will get the same
+    <code>ref</code> attached to your new element.</p>
+<p>One common pattern is to map over your children and add a new prop. There were many issues reported about <code>cloneWithProps</code> losing the ref, making it harder to reason about your code. Now following the same pattern with <code>cloneElement</code> will work as expected. For example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">var</span> newChildren <span class="op">=</span> <span class="va">React</span>.<span class="va">Children</span>.<span class="at">map</span>(<span class="kw">this</span>.<span class="va">props</span>.<span class="at">children</span><span class="op">,</span> <span class="kw">function</span>(child) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="cf">return</span> <span class="va">React</span>.<span class="at">cloneElement</span>(child<span class="op">,</span> <span class="op">{</span> <span class="dt">foo</span><span class="op">:</span> <span class="kw">true</span> <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<blockquote>
+<p>Note: <code>React.cloneElement(child, { ref: 'newRef' })</code> <em>DOES</em> override the <code>ref</code> so it is still not possible for two parents to have a ref to the same child, unless you use callback-refs.</p>
+</blockquote>
+<p>This was a critical feature to get into React 0.13 since props are now immutable. The upgrade path is often to clone the element, but by doing so you might lose the <code>ref</code>. Therefore, we needed a nicer upgrade path here. As we were upgrading callsites at Facebook we realized that we needed this method. We got the same feedback from the community. Therefore we decided to make another RC before the final release to make sure we get this in.</p>
+<p>We plan to eventually deprecate <code>React.addons.cloneWithProps</code>. We're not doing it yet, but this is a good
+    opportunity to start thinking about your own uses and consider using <code>React.cloneElement</code> instead. We'll
+    be sure to ship a release with deprecation notices before we actually remove it so no immediate action is necessary.
+</p>
+</body></html>

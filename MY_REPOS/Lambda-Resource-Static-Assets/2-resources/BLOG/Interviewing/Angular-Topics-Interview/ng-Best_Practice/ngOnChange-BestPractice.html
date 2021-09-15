@@ -1,0 +1,54 @@
+<p><strong>ngOnChanges</strong> runs whenever any of the inputs change, if you use setter/getters for the inputs you want to listen to they will only run when that input is being changed.</p>
+<p>When it comes to subscribing to property changes in Angular, I think most people would immediately think of <strong>ngOnChanges</strong> lifecycle hook. A typical example looks like this:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">ngOnChanges</span>(changes<span class="op">:</span> SimpleChanges) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="fu">if</span> (<span class="va">changes</span><span class="op">.</span><span class="at">key1</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-3" title="3">      <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`key1 is changed from </span><span class="sc">${</span><span class="va">changes</span><span class="op">.</span><span class="va">key1</span><span class="op">.</span><span class="at">previousValue</span><span class="sc">}</span><span class="vs"> to </span><span class="sc">${</span><span class="va">changes</span><span class="op">.</span><span class="va">key1</span><span class="op">.</span><span class="at">currentValue</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="fu">if</span> (<span class="va">changes</span><span class="op">.</span><span class="at">key2</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-6" title="6">    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`key2 is changed from </span><span class="sc">${</span><span class="va">changes</span><span class="op">.</span><span class="va">key2</span><span class="op">.</span><span class="at">previousValue</span><span class="sc">}</span><span class="vs"> to </span><span class="sc">${</span><span class="va">changes</span><span class="op">.</span><span class="va">key2</span><span class="op">.</span><span class="at">currentValue</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-7" title="7">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-8" title="8">  <span class="co">// ...</span></a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="op">}</span></a></code></pre></div>
+<p>One advantage of ngOnChanges() is that you get all changes at once if your component has several <span class="citation" data-cites="Input">@Input</span>()s.</p>
+<p>If your code only depends on a single <span class="citation" data-cites="Input">@Input</span>() a setter is probably the better approach.</p>
+<p>Now <strong>ngOnChanges</strong> has the following issues:</p>
+<p>It combines change detection of ALL input properties into one ngOnChanges hook function. And then we need to separate those properties with an if statement making it less readable especially when there are many properties to be watched.</p>
+<p>The interface of SimpleChanges accepts any string as its key, making it possible for typos. For example, changes.typo_key will not be complained about by the TypeScript compiler.</p>
+<p>SimpleChange.previousValue and SimpleChange.currentValue are typed to any instead of the desired property type.</p>
+<p>So a common alternative to <strong>ngOnChanges</strong>, which is to use a setter function. It looks like this:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb2-1" title="1"><span class="im">export</span> <span class="kw">class</span> AppComponent <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">    <span class="kw">private</span> _title<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-3" title="3"></a>
+<a class="sourceLine" id="cb2-4" title="4">    @<span class="fu">Input</span>()</a>
+<a class="sourceLine" id="cb2-5" title="5">    <span class="kw">set</span> <span class="fu">title</span>(value<span class="op">:</span> <span class="dt">string</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-6" title="6">        <span class="va">this</span><span class="op">.</span><span class="at">_title</span> <span class="op">=</span> value<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-7" title="7">        <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`title is changed to </span><span class="sc">${</span>value<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-8" title="8">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-9" title="9"></a>
+<a class="sourceLine" id="cb2-10" title="10">    <span class="kw">get</span> <span class="fu">title</span>()<span class="op">:</span> <span class="dt">string</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-11" title="11">        <span class="cf">return</span> <span class="va">this</span><span class="op">.</span><span class="at">_title</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-12" title="12">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="op">}</span></a></code></pre></div>
+<p>So the common patter to replace <strong>ngOnChanges</strong> with setter function is following</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb3-1" title="1"> @<span class="fu">Input</span>()</a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="kw">set</span> <span class="fu">someInput</span>( val ) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-3" title="3">    <span class="va">this</span><span class="op">.</span><span class="fu">runSomething</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-5" title="5"></a>
+<a class="sourceLine" id="cb3-6" title="6">  <span class="fu">ngOnChanges</span>(changes) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-7" title="7">     <span class="va">this</span><span class="op">.</span><span class="fu">runSomething</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-8" title="8">  <span class="op">}</span></a></code></pre></div>
+<p>Advantages - This decouples the different properties. The setter function (on-change hook) is located together with <span class="citation" data-cites="Input">@Input</span>() for better readability.</p>
+<p>Personally, I only use this method when there are multiple inputs that are all used together in a synchronous computation. If there are multiple inputs that are independently used, then the use of ngOnChanges requires you to explicitly check which properties were changed, since it is invoked for every input property change. This quickly makes the use of the ngOnChanges method unergonomic.</p>
+<p>So for single Input changes, Responding to input changes with property accessor functions, is a better way</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">class</span> MyComponent <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">    <span class="kw">public</span> parts<span class="op">:</span> <span class="dt">string</span><span class="op">[]</span> <span class="op">=</span> <span class="op">[];</span></a>
+<a class="sourceLine" id="cb4-3" title="3">    @<span class="fu">Input</span>() <span class="kw">public</span> <span class="kw">set</span> <span class="fu">name</span>(value<span class="op">:</span> <span class="dt">string</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-4" title="4">        <span class="va">this</span><span class="op">.</span><span class="at">parts</span> <span class="op">=</span> <span class="va">value</span><span class="op">.</span><span class="fu">split</span>(<span class="st">&quot; &quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-5" title="5">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-6" title="6">    <span class="kw">public</span> <span class="kw">get</span> <span class="fu">name</span>()<span class="op">:</span> <span class="dt">string</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-7" title="7">        <span class="cf">return</span> <span class="va">this</span><span class="op">.</span><span class="va">parts</span><span class="op">.</span><span class="fu">join</span>(<span class="st">&quot; &quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-8" title="8">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="op">}</span></a></code></pre></div>
+<p>Note that this can be made less verbose by omitting the getter function. This is possible because you are often only interested in the derived value that is computed in the setter function rather than the original input value.</p>
+<p>The property accessor function approach works best if you have multiple input properties which are not tied together to compute a derived value from these inputs.</p>

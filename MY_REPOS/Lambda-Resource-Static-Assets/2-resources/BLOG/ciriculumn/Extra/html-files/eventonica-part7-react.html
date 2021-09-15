@@ -1,0 +1,105 @@
+<h1 id="adding-a-react-frontend-to-your-eventonica-api">Adding a React frontend to your Eventonica API</h1>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li>The API server with database from <a href="./eventonica-part6-postgres.md">Eventonica 6</a></li>
+</ul>
+<h3 id="primary-goals">Primary Goals</h3>
+<ul>
+<li>Get experience writing your own React code</li>
+<li>By the end of this project, you should have a full-stack app you wrote including the database, backend, and frontend, all working together.</li>
+</ul>
+<h3 id="overviewinstructions">Overview/Instructions</h3>
+<p>In this project, you’ll create a React frontend for your Eventonica API. You will have less than 2 days, so be aware of your pace.</p>
+<h4 id="step-1-requirements">Step 1: Requirements</h4>
+<p>You will be using the same Express API from your existing Eventonica project. You can use the same styling or make it better, but it does not have to support all the features of Part 6. Here are the features that must be included:</p>
+<ul>
+<li>Events
+<ul>
+<li>list</li>
+<li>add (from a form, not Ticketmaster)</li>
+<li>delete</li>
+</ul></li>
+<li>Users
+<ul>
+<li>list</li>
+<li>add</li>
+<li>delete</li>
+</ul></li>
+</ul>
+<p>If you want to implement the rest of them, consider it an optional bonus.</p>
+<h4 id="step-2-set-up-react-app">Step 2: Set up React App</h4>
+<h5 id="note-when-following-these-steps-you-will-now-have-two-servers-running">Note: when following these steps you will now have <strong>TWO SERVERS</strong> running:</h5>
+<ol type="1">
+<li>The first one is your existing Express server that talks to the database and serves your API routes</li>
+<li>The second will be a server that just serves React assets and enables hot reloading of changes - and it will proxy calls to your API server to avoid CORS isuses.</li>
+</ol>
+<p>For this project, we’ll use create-react-app to set up the React frontend. There are many possible ways to set up React, and we’re going to describe one specific setup that will make it easy for you to deploy your project later.</p>
+<ul>
+<li>Use <code>create-react-app</code> to create a new React App, with <code>npx create-react-app eventonica-react</code>. If you haven’t used create-react-app before, you can read more about what it sets up here: https://www.codecademy.com/articles/how-to-create-a-react-app</li>
+<li>Now we’ll set up your React app so it can talk to your existing Express app. Add a top-level config value to <code>package.json</code> that says <code>"proxy": "http://localhost:3000"</code>
+<ul>
+<li>Proxy will requests that set an “Accept” header of “application/json” to the server that is running at port 3000, which in our case is our Express API server</li>
+<li>Other requests from the browser for assets like CSS will continue to be served by your port 3001 React app</li>
+</ul></li>
+<li>In package.json, update the line that says <code>"start": "react-scripts start",</code> to instead say <code>"start": "PORT=3001 react-scripts start",</code>.
+<ul>
+<li>This will make sure your React app isn’t trying to run on the same port as your Express app, because your React app will now run on port 3001. Each port can only be used by one app at a time.</li>
+</ul></li>
+</ul>
+<p>Here’s an example of what <code>package.json</code> might look like now:</p>
+<pre><code>{
+  &quot;name&quot;: &quot;eventonica-react&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;private&quot;: true,
+  &quot;dependencies&quot;: {
+    &quot;react&quot;: &quot;^16.8.3&quot;,
+    &quot;react-dom&quot;: &quot;^16.8.3&quot;,
+    &quot;react-scripts&quot;: &quot;2.1.5&quot;
+  },
+  &quot;scripts&quot;: {
+    &quot;start&quot;: &quot;PORT=3001 react-scripts start&quot;,
+    &quot;build&quot;: &quot;react-scripts build&quot;,
+    &quot;test&quot;: &quot;react-scripts test&quot;,
+    &quot;eject&quot;: &quot;react-scripts eject&quot;
+  },
+  &quot;eslintConfig&quot;: {
+    &quot;extends&quot;: &quot;react-app&quot;
+  },
+  &quot;browserslist&quot;: [
+    &quot;&gt;0.2%&quot;,
+    &quot;not dead&quot;,
+    &quot;not ie &lt;= 11&quot;,
+    &quot;not op_mini all&quot;
+  ],
+  &quot;proxy&quot;: &quot;http://localhost:3000&quot;
+}</code></pre>
+<p><strong>Note: the “proxy” key is <em>OUTSIDE</em> “browerslist” as a top-level config. If you put it inside “browserslist” it will neither work nor complain that your config is wrong</strong></p>
+<ul>
+<li>In your React app directory, run <code>npm install</code>.</li>
+<li>Make sure your React app works by running <code>npm start</code>. You should be able to go to <code>http://localhost:3001/</code> and see it running.</li>
+<li>In another Terminal tab, run your Express app. Once they are both running, you’re ready to code React!</li>
+</ul>
+<h4 id="step-3-write-the-react-code">Step 3: Write the React code</h4>
+<ul>
+<li>Build out your UI! You should use React to build the UI according to your design. Take a look at <code>src/index.js</code> and <code>src/App.js</code> as starting points.</li>
+<li>One of the advantages of React is reusability: think about what sorts of components you will need more than once - some examples could include styled buttons or an event info card. These are the things that you should make into components. Then all you have to do is pass in the different text or functions as props, while the rest can simply be repeated.</li>
+</ul>
+<h3 id="troubleshooting">Troubleshooting</h3>
+<h4 id="when-trying-to-make-an-api-request-i-get-a-cors-error">When trying to make an API request, I get a CORS error</h4>
+<p>You are making a request to your Express server directly. Because it’s on a different port, browsers block this for security reasons. If you set up the proxy as above you should just make fetch requests to <code>/path</code> (no server/port listed) and it will proxy it correctly so you won’t have issues.</p>
+<h4 id="my-api-request-gets-a-404">My API request gets a 404</h4>
+<ul>
+<li>Check the log of your Express API server - you enabled <a href="https://www.npmjs.com/package/morgan">morgan</a> logging, right? 😇</li>
+<li>If the request is making it there, maybe the path is wrong</li>
+<li>If the request is not making it there, make sure you’re calling fetch with an Accept header. If you don’t, it will be handled by your React app server, which does not know about your Express routes</li>
+<li>Your fetch calls should look something like: <code>fetch('/data', { headers: { "Accept": "application/json" } })</code> will make be sent to the configured proxy, e.g. <code>http://localhost:3000/data</code></li>
+</ul>
+<h4 id="supplemental-materials">Supplemental Materials</h4>
+<ul>
+<li>Example of <a href="https://reactjs.org/docs/faq-ajax.html">calling API from React component using fetch</a></li>
+</ul>
+<h4 id="challenges">Challenges</h4>
+<ul>
+<li>Once you have your app working, it might be helpful to put all the code for calling your API in a dedicated module, perhaps called <code>eventonica-api.js</code> and then calling it from your component</li>
+<li>Add some Enzyme tests</li>
+</ul>

@@ -1,0 +1,165 @@
+EventTarget : Object
+
+EventTargets are Objects that fire events.  EventTargets usually
+expose an <code>on<em>event</em></code> property for each event where you can
+assign a %%/Function|Function%% to be called when the event fires.
+
+You can also use %%#addEventListener|**addEventListener()**%% to
+hook up multiple listeners to the same event.
+
+Spec:
+https://dom.spec.whatwg.org/#interface-eventtarget
+
+----
+prototype.addEventListener(type : String, listener(event : Event) : undefined, [useCapture : Boolean]) : undefined
+
+Adds **listener** to the list of callbacks called when the specified
+event is fired. If **useCapture** is true, **listener** will be called
+in the capture phase of the event routing (ie, during the walk down the tree
+to the target instead of on the way up after firing on the target).
+
+Unlike using the <code>on<em>event</em></code> style of listening to
+events, **addEventListener** allows more than one listener
+to be associated with the event.
+
+Use %%#removeEventListener|**removeEventListener()**%%
+to stop listening to the event.
+
+<htmlexample>
+<!-- This example demonstrates adding 'click' listeners and capture/bubbling -->
+<div id='div'>
+  <button id='button'>click</button>
+</div>
+<script>
+var body = document.body;
+body.addEventListener('click', function(event) {
+  console.log('body capture');
+}, true);
+
+var div = document.getElementById('div');
+div.addEventListener('click', function(event) {
+  console.log('div capture');
+}, true);
+
+var button = document.getElementById('button');
+button.addEventListener('click', function(event) {
+  console.log('button capture');
+}, true);
+
+button.addEventListener('click', function(event) {
+  console.log('button bubble');
+}, false);
+
+div.addEventListener('click', function(event) {
+  console.log('div bubble');
+}, false);
+
+body.addEventListener('click', function(event) {
+  console.log('body bubble');
+}, false);
+</script>
+</htmlexample>
+
+----
+prototype.addEventListener( \
+  type : String, \
+  listener(event : Event) : undefined, \
+  options : { \
+    capture = false: Boolean /* call listener in the capture phase */, \
+    once = false: Boolean /* remove **listener** after firing */, \
+    passive = false: Boolean /* set to **true** if you'll never call %%/Event#preventDefault|**event.preventDefault()**%%. Allows browser to provide perf optimizations like smoother scrolling. */ \
+  }) : undefined
+
+----
+prototype.addEventListener(type : String, listener : EventListener, [useCapture : Boolean]) : undefined
+
+----
+prototype.addEventListener( \
+  type : String, \
+  listener : EventListener, \
+  options : { \
+    capture = false: Boolean /* call listener in the capture phase */, \
+    once = false: Boolean /* remove **listener** after firing */, \
+    passive = false: Boolean /* set to **true** if you'll never call %%/Event#preventDefault|**event.preventDefault()**%%. Allows browser to provide perf optimizations like smoother scrolling. */ \
+  }) : undefined
+
+----
+prototype.dispatchEvent(event : Event) : Boolean
+
+Raises **event** on **this**. If %%/Event#bubbles|**event.bubbles**%% is **true**,
+and **this** is an %%Node|Node%%, the event will propagate through the ancestor
+hierarchy.
+
+<htmlexample>
+<div id='parent'>
+  Parent
+  <div id='child'>
+    --Child
+  </div>
+</div>
+<script>
+  var phaseNames = { };
+  phaseNames[Event.CAPTURING_PHASE] = 'capture';
+  phaseNames[Event.AT_TARGET] = 'atTarget';
+  phaseNames[Event.BUBBLING_PHASE] = 'bubble';
+
+  var listener = function(event) {
+    console.log(' phase=' + phaseNames[event.eventPhase] +
+                ' type=' + event.type);
+  };
+  var parent = document.getElementById('parent');
+  var child = document.getElementById('child');
+
+  parent.addEventListener('customEvent', listener, /* capture = */ true);
+  child.addEventListener('customEvent', listener);
+  parent.addEventListener('customEvent', listener);
+
+  console.log('dispatching bubbles=false event')
+  var nonBubblingEvent = new Event('customEvent');
+  child.dispatchEvent(nonBubblingEvent);
+
+  console.log('\ndispatching bubbles=true event')
+  var nonBubblingEvent = new Event('customEvent', { bubbles: true });
+  child.dispatchEvent(nonBubblingEvent);
+</script>
+</htmlexample>
+
+----
+prototype.removeEventListener(type : String, listener(event : Event) : undefined, [useCapture : Boolean]) : undefined
+
+----
+prototype.removeEventListener( \
+  type : String, \
+  listener(event : Event) : undefined, \
+  options : { \
+    capture = false: Boolean /* removes the listener hooked to the capture phase */ \
+  }) : undefined
+
+----
+prototype.removeEventListener(type : String, listener : EventListener, [useCapture : Boolean]) : undefined
+
+----
+prototype.removeEventListener( \
+  type : String, \
+  listener : EventListener, \
+  options : { \
+    capture = false: Boolean /* removes the listener hooked to the capture phase */ \
+  }) : undefined
+
+----
+Details:
+
+EventTarget can also be used as a base class to provide event handling for user
+defined types.
+
+<example>
+class Foo extends EventTarget {
+}
+
+const foo = new Foo();
+foo.addEventListener('myEvent', e => {
+  console.log('myEvent fired. detail:', e.detail);
+});
+
+foo.dispatchEvent(new CustomEvent('myEvent', { detail: 'extra data' }));
+</example>

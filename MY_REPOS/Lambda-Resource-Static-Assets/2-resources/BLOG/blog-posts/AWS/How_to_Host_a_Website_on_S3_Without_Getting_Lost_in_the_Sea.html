@@ -1,0 +1,177 @@
+<h1 id="how-to-host-a-website-on-s3-without-getting-lost-in-the-sea">How to Host a Website on S3 Without Getting Lost in the Sea</h1>
+<blockquote>
+<p>In this post you are going to learn more about Amazon Web Services (AWS) via a practical example, hosting a static website on Amazon Simple…</p>
+</blockquote>
+<p>In this post you are going to learn more about Amazon Web Services (AWS) via a practical example, hosting a static website on Amazon Simple Storage Service (S3) . In five simple and easy steps you can have a static website hosted on S3.</p>
+<p>While there are many cloud providers available, I use AWS because:</p>
+<ul>
+<li>They have the “Free Tier" which is a huge benefit when combined with already low costs.</li>
+<li>Their services offer unmatched scale, elasticity, performance, and security.</li>
+<li>It is one of the easiest to learn when you use it for practical examples.</li>
+</ul>
+<p>There are other cloud platforms out there such as Microsoft Azure, Google Cloud Platform, and IBM Cloud Computing. They each have a similar service to S3, so the concepts in this post apply to these other providers as well.</p>
+<p>Most websites are becoming static websites which means they run zero server side code and consist of only HTML, CSS and JavaScript. With no server side code to run, there is no reason to host them on a traditional server.</p>
+<p>By using the static website hosting feature on an S3 bucket, we host static websites for one to two dollars a month and scale to handle millions of users.</p>
+<p>I am a huge believer in learning by doing. The first service I learned from AWS was S3. I learned it by going through the process of hosting my <a href="https://www.kylegalbraith.com/">personal site</a> on it. This jump started my passion for all things Amazon Web Services. It is what led me to becoming a certified AWS Solutions Architect.</p>
+<p>With the background out of the way, are you hungry to learn more about AWS by completing a practical example? Then let’s jump in.</p>
+<p>In November 2004, Amazon announced their first service for AWS, Simple Queue Service (SQS). That was the first inkling at what we often call the cloud, but it wasn’t viewed as a big disruption to the status quo.</p>
+<p>In Spring 2006, Amazon introduced Simple Storage Service (S3). Unlike SQS, S3 would not only disrupt status quo, but would go on to be the foundational service of AWS.</p>
+<p>S3 consists of buckets which are storage containers for files. A bucket is a high availability and high durability flat object store with no hierarchy.</p>
+<p>Since 2006, the service has evolved to be much more. S3 is a foundational building block for other AWS services in the eco-system. Don’t believe me? Look at the event log for when S3 in Virginia went offline earlier this year.</p>
+<p>As you can see from this graphic there were a lot of AWS services affected by the outage. This is because several AWS services rely on S3 internally as well.</p>
+<figure>
+<img src="https://miro.medium.com/max/2688/1*28Zx7SaU3twFDC1U-LgUAg.jpeg" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<p>Source: <a href="https://regmedia.co.uk/2017/02/28/awsoutageboard.jpg">https://regmedia.co.uk/2017/02/28/awsoutageboard.jpg</a></p>
+<p>In fact, the <a href="https://status.aws.amazon.com/">AWS Health Dashboard</a> is hosted out of S3. Hey what a segue right?</p>
+<figure>
+<img src="https://miro.medium.com/max/4096/1*xVhHKrplvA6U99BPSyRocA.png" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<p>Before you begin hosting your awesome static website out of S3, you need a bucket first. For this blog post, it is <strong>critical</strong> that your bucket has the same name as your domain name.</p>
+<p>If your website domain is www.my-awesome-site.com, then your bucket name must be www.my-awesome-site.com.</p>
+<p>The reasoning for this has to do with how requests are routed to S3. The request comes into the bucket, and then S3 uses the Host header in the request to route to the appropriate bucket.</p>
+<p>Host: <a href="http://www.my-awesome-site.com/">www.my-awesome-site.com</a></p>
+<figure>
+<img src="https://miro.medium.com/max/60/1*FqIAlrVzlFWYzBL0-6MaXw.png?q=20" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<figure>
+<img src="https://miro.medium.com/max/4096/1*FqIAlrVzlFWYzBL0-6MaXw.png" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<p>Alright, you have your bucket. It has the same name as your domain name, yes? Time to configure the bucket for static website hosting.</p>
+<p>Guess what? Turning on static website hosting for your bucket is as simple as a few clicks in the AWS Console.</p>
+<ul>
+<li>Navigate to S3 in the AWS Console.</li>
+<li>Click into your bucket.</li>
+<li>Click the “Properties" section.</li>
+<li>Click the “Static website hosting" option.</li>
+<li>Select “Use this bucket to host a website".</li>
+<li>Enter “index.html" as the Index document.</li>
+</ul>
+<p>Or if you are all about command lines and would rather not have a graphical user interface (GUI) in your way, this <a href="https://aws.amazon.com/cli/">AWS CLI</a> command turns website hosting on for your bucket.</p>
+<p>aws s3 website s3://www.my-awesome-site.com/ –index-document index.html –error-document error.html</p>
+<p>Your bucket is configured for static website hosting, and you now have an S3 website url like this <code>http://www.my-awesome-site.com.s3-website-us-east-1.amazonaws.com/</code>.</p>
+<p>Your bucket serves your static website, so it must be accessible to anyone in the world. This is referred to as anonymous access to the bucket.</p>
+<p>By default, any new buckets created in an AWS account deny you the ability to add a public access bucket policy. This is in response to the recent leaky buckets where private information has been exposed to bad actors. However, for our use case, we <strong>need</strong> a public access bucket policy. To allow this you must complete the following steps before adding your bucket policy.</p>
+<ol type="1">
+<li>Click into your bucket.</li>
+<li>Select the “Permissions" tab at the top.</li>
+<li>Under “Public Access Settings" we want to click “Edit".</li>
+<li>Change “Block new public bucket policies", “Block public and cross-account access if bucket has public policies", and “Block new public ACLs and uploading public objects" to be false and Save.</li>
+</ol>
+<p>You must complete this step before adding the bucket policy to your static website bucket.</p>
+<p>Now you must update the Bucket Policy of your bucket to have public read access to anyone in the world. The steps to update the policy of your bucket in the AWS Console are as follows:</p>
+<ul>
+<li>Navigate to S3 in the AWS Console.</li>
+<li>Click into your bucket.</li>
+<li>Click the “Permissions" section.</li>
+<li>Select “Bucket Policy".</li>
+<li>Add the following Bucket Policy and then Save</li>
+</ul>
+<p>{<br />
+“Version": “2008-10-17",<br />
+“Id": “PolicyForPublicWebsiteContent",<br />
+“Statement": [<br />
+{<br />
+“Sid": “PublicReadGetObject",<br />
+“Effect": “Allow",<br />
+“Principal": {<br />
+“AWS": “*"<br />
+},<br />
+“Action": “s3:GetObject",<br />
+“Resource": “arn:aws:s3:::<a href="http://www.ultimatefantasysupercross.com/*">www.my-awesome-site.com/*</a>"<br />
+}<br />
+]<br />
+}</p>
+<p>Or for the command line fans out there, if <code>policy.json</code> is the above bucket policy, then use:</p>
+<p>aws s3api put-bucket-policy –bucket <a href="http://www.my-awesome-site.com/">www.my-awesome-site.com</a> –policy file://policy.json</p>
+<p>It is important to note the <code>"Principal": { "AWS": "*" }</code>section of the bucket policy. This part of the policy opens up your bucket to anyone in the world. Any object in this bucket is available to the public via the S3 website url. <strong>Don’t put anything in this bucket that you’re not willing to share with the world.</strong></p>
+<figure>
+<img src="https://miro.medium.com/max/60/1*DwS-jbsz3ErXX7GqAXAw8w.png?q=20" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<figure>
+<img src="https://miro.medium.com/max/4096/1*DwS-jbsz3ErXX7GqAXAw8w.png" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<p>You have a bucket that is configured for static website hosting. It has an S3 website url. You understand that this bucket is accessible to the world? You are cruising right through this.</p>
+<p>In order for a user to load your S3 website you’ll need to provide mapping from your domain name <a href="http://www.my-awesome-site.com%2C/">www.my-awesome-site.com,</a> to your S3 website url <a href="http://www.my-awesome-site.com.s3-website-us-east-1.amazonaws.com./">www.my-awesome-site.com.s3-website-us-east-1.amazonaws.com.</a> This mapping is often referred to as a CNAME record inside of your Domain Name Servers (DNS) records.</p>
+<p>www.my-awesome-site.com CNAME www.my-awesome-site.com.s3-website-us-east-1.amazonaws.com</p>
+<p>The process to complete this step varies depending on who your DNS provider is. In general this is what you are looking for within your DNS provider:</p>
+<ul>
+<li>Create a record for a host like <code>www</code></li>
+<li>The record type must be <code>CNAME (Canonical name)</code></li>
+<li>The value must be your S3 website url <code>www.my-awesome-site.com.s3-website-us-east-1.amazonaws.com</code></li>
+</ul>
+<figure>
+<img src="https://miro.medium.com/max/60/1*Br5bHMQcZkkflbfZdTWZ5Q.png?q=20" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<figure>
+<img src="https://miro.medium.com/max/4096/1*Br5bHMQcZkkflbfZdTWZ5Q.png" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<p>Your bucket is configured for static website hosting. You have a CNAME record in your DNS records that resolves to the S3 website url? Awesome, it’s showtime then.</p>
+<p>Remember S3 is a flat object store, which means each object in the bucket represents a key without any hierarchy. While the AWS S3 Console makes you believe there is a directory structure, there isn’t. Everything stored in S3 is keys with prefixes.</p>
+<p>This is important to note because if you have a website structure like this:</p>
+<p>about/<br />
+index.html<br />
+contact/<br />
+index.html<br />
+css/<br />
+styles.min.css<br />
+…<br />
+…<br />
+index.html</p>
+<p>It is easy to assume that this is a traditional directory structure. In fact, the AWS S3 Console makes you believe this as well.</p>
+<p>But in actuality <code>about</code> is not a directory. It is a <em>prefix</em> for the <code>index.html</code> key.</p>
+<p>With that out of the way, let’s upload your static website into your newly configured S3 website bucket!</p>
+<p>If you are a GUI person, then you upload your static website to S3 via the AWS Console by completing these steps:</p>
+<ul>
+<li>Navigate to S3 in the AWS Console.</li>
+<li>Click into your bucket.</li>
+<li>Click the “Upload" button.</li>
+<li>Drag and drop or select “Add files", and add the entire static website directory.</li>
+<li>Click “Next".</li>
+<li>Leave the default permissions S3 offers.</li>
+<li>Click “Next".</li>
+<li>Leave the default permissions for “Set properties".</li>
+<li>Click “Next".</li>
+<li>Click “Upload".</li>
+</ul>
+<p>For the command line gurus out there, those 10 steps are reduced to one command line operation.</p>
+<p>aws s3 cp personal-blog/src/_site/ s3://www.my-awesome-site.com/ –recursive</p>
+<p>Your static website has been uploaded to your S3 website bucket. You can go to <code>www.my-awesome-site.com</code> and your static website loads from your S3 bucket.</p>
+<figure>
+<img src="https://miro.medium.com/max/60/1*k7rpwiLB6KKh3j5YTHXg1Q.png?q=20" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<figure>
+<img src="https://miro.medium.com/max/4096/1*k7rpwiLB6KKh3j5YTHXg1Q.png" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<p>In five simple and easy steps you have learned how to host your static website out of AWS S3. Not to mention you scored some benefits from moving your static website to S3.</p>
+<p><strong>Low cost</strong> — Hosting a website in S3 does not incur extra charges. You are paying standard S3 prices on GET requests and Data Transfer out of the bucket when a user visits your site.</p>
+<ul>
+<li>GET Requests cost $0.004 per 10,000 requests</li>
+<li>Data Transfer Out cost $0.090 per GB (up to 10 TB / month)</li>
+</ul>
+<p>A Cost breakdown example: Let’s say that <a href="http://www.my-awesome-site.com/">www.my-awesome-site.com</a> loads 20 resources. The total size of those resources per visit is 1MB. The average total monthly visits is 20,000. Then we estimate the total cost of S3 on a monthly basis at around <strong>$1.96</strong> per month.</p>
+<p>Not long ago, you paid $10/month, so $2 is worth it.</p>
+<p><strong>Maintenance</strong> — Your static website now resides in S3. There is no longer any server side code to maintain and no web servers to configure and keep up to date.</p>
+<p><strong>Scale</strong> — S3 is a high availability and durable service that AWS maintains. If your website goes from 10 users a day to 10 million, S3 scales your website automatically.</p>
+<p><strong>Security</strong> — There is no server running that you maintain. Thus you avoid making configuration errors that make you vulnerable to attacks. You are still responsible for the security of your bucket<strong>. Remember your website bucket is public!</strong></p>
+<p>Those are some serious wins under your belt. With an S3 website setup, you have a foundation to build on to extend and leverage even more of AWS.</p>
+<figure>
+<img src="https://miro.medium.com/max/60/1*lAk337rCVdJBsCe13Szmwg.png?q=20" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<figure>
+<img src="https://miro.medium.com/max/4096/1*lAk337rCVdJBsCe13Szmwg.png" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<p>There is a lot of information out there about AWS and the wide range of services they offer. It is difficult to find the information you need to learn and make quick progress.</p>
+<p>It is my hope that this post helped you cut through all the information and accomplish something practical. In my honest opinion the best way to learn AWS is to learn by doing. So in five simple and easy to understand steps you were able to learn how to host your static website out of AWS S3.</p>
+<p>Did you find this post helpful in learning more about AWS? If you have any questions or are blocked somewhere along the line, please <a href="https://www.kylegalbraith.com/">reach out to me</a>. I am more then happy to help out.</p>
+<figure>
+<img src="https://miro.medium.com/max/60/1*VqpqxIxmMWTvRzKraxQOKg.png?q=20" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<figure>
+<img src="https://miro.medium.com/max/4000/1*VqpqxIxmMWTvRzKraxQOKg.png" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<p>If you enjoyed this post and are hungry to start learning more about Amazon Web Services, I have created a new course on how to host, secure, and deliver static websites on AWS! It is a book and video course that cuts through the sea of information to <strong>accelerate your learning</strong> of AWS. Giving you a framework that enables you to learn complex things by actually using them.</p>
+<p><a href="https://www.kylegalbraith.com/learn-aws/">Head on over to the landing page to get a copy for yourself!</a> Use the promo code <strong>medium235</strong> to get 35% off your purchase.</p>
+<p>Want to add free SSL to your static website and optimize your delivery latency? Then give my follow up post a read on <a href="https://medium.freecodecamp.org/how-to-make-use-of-cloudfront-for-secure-delivery-of-static-websites-to-the-world-d2f54e8b096">how to use AWS CloudFront for secure low latency delivery of your S3 website</a>.</p>
+<h2 id="if-you-enjoyed-this-dont-forget-to-hit-that-green-to-show-your-support">If you enjoyed this, don’t forget to hit that green ❤ to show your support!</h2>
+<p><a href="https://medium.com/@kyle.galbraith/how-to-host-a-website-on-s3-without-getting-lost-in-the-sea-e2b82aa6cd38">Source</a></p>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h3 id="question-what-is-typeofnan-and-why-is-nan-nan-or-nan-nan-returning-false.">Question: What is typeof(NaN) ? And why is <code>NaN === NaN</code> or <code>NaN == NaN</code> returning false.</h3>
+<p><strong>Answer:</strong>“number”</p>
+<p><a href="https://javascriptrefined.io/nan-and-typeof-36cd6e2a4e43">From this excellent Blog</a></p>
+<p>First, NaN is not a keyword (unlike true, false, null, etc..), it is a property of the global object. The value of NaN is the same as the value of Number.NaN:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">NaN</span> <span class="co">// NaN</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="va">Number</span>.<span class="at">NaN</span> <span class="co">// NaN</span></a></code></pre></div>
+<p>There are several ways in which NaN can happen:</p>
+<ul>
+<li>Division of zero by zero</li>
+<li>Dividing an infinity by an infinity</li>
+<li>Multiplication of an infinity by a zero</li>
+<li>Any operation in which NaN is an operand</li>
+<li>Converting a non-numeric string or undefined into a number</li>
+</ul>
+<p>The ECMAScript standard states that Numbers should be IEEE-754 floating point data. This includes Infinity, -Infinity, and also NaN. By definition, NaN is the return value from operations which have an undefined numerical result. Hence why, in JavaScript, aside from being part of the global object, it is also part of the Number object: Number.NaN. It is still a numeric data type, but <a href="http://en.wikipedia.org/wiki/Real_number">it is undefined as a real number</a>. NaN also represents any number outside of the ECMAScript domain of definition.</p>
+<p>NaN is unordered According to the IEEE 754 floating-point standard, comparison with NaN always returns an unordered result. That is, NaN is not equal to, greater than, or less than anything, including itself:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">NaN</span> <span class="op">&lt;</span> <span class="dv">1</span> <span class="co">// false</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="kw">NaN</span> <span class="op">&gt;</span> <span class="dv">1</span> <span class="co">// false</span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">NaN</span> <span class="op">==</span> <span class="kw">NaN</span> <span class="co">// false</span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="co">// But we can still check for NaN:</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="at">isNaN</span>(<span class="kw">NaN</span>) <span class="co">// true</span></a></code></pre></div>
+<p>This is why you cannot determine whether a given value is NaN by comparing it to NaN, and instead you must use the isNaN() function. It is not surprising, then, that the native implementation of the function isNaN() could be simply replaced with:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="co">// Native implementation</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="kw">function</span> <span class="at">isNaN</span>(x) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="co">// Coerce into number</span></a>
+<a class="sourceLine" id="cb3-4" title="4">  x <span class="op">=</span> <span class="at">Number</span>(x)</a>
+<a class="sourceLine" id="cb3-5" title="5">  <span class="co">// if x is NaN, NaN != NaN is true, otherwise it&#39;s false</span></a>
+<a class="sourceLine" id="cb3-6" title="6">  <span class="cf">return</span> x <span class="op">!=</span> x</a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="op">}</span></a></code></pre></div>
+<h3 id="booleans-are-not-nans">Booleans are not NaNs</h3>
+<p>Consider the following code:</p>
+<pre><code>isNaN(true);  // false
+isNaN(false); // false
+</code></pre>
+<p>This is because booleans are considered and implemented as numerical values with a single binary digit (i.e., bit), thus they are coerced into their respective bit representations:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="at">Number</span>(<span class="kw">true</span>) <span class="co">// 1</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="at">Number</span>(<span class="kw">false</span>) <span class="co">// 0</span></a></code></pre></div>
+<hr />
+<h2 id="now-various-explanations-from-blogs-and-stackoverflow">Now Various Explanations from Blogs and <a href="https://stackoverflow.com/questions/2801601/why-does-typeof-nan-return-number">Stackoverflow</a></h2>
+<h4 id="explanations-1">Explanations-1</h4>
+<p><code>NaN != NaN</code> because they are not necessary the SAME non-number. Thus it makes a lot of sense… Also why floats have both +0.00 and -0.00 that are not the same. Rounding may do that they are actually not zero.</p>
+<p>As for typeof, that depends on the language. And most languages will say that NaN is a float, double or number depending on how they classify it… I know of no languages that will say this is an unknown type or null.</p>
+<h6 id="it-is-not-a-peculiarity-of-javascript-but-common-computer-science-principle.">It is not a peculiarity of javascript but common computer science principle.</h6>
+<p>From http://en.wikipedia.org/wiki/NaN:</p>
+<p>There are three kinds of operation which return NaN:</p>
+<p>Operations with a NaN as at least one operand</p>
+<p>Indeterminate forms</p>
+<ul>
+<li>The divisions 0/0, ∞/∞, ∞/−∞, −∞/∞, and −∞/−∞</li>
+<li>The multiplications 0×∞ and 0×−∞</li>
+<li>The power 1^∞</li>
+<li>The additions ∞ + (−∞), (−∞) + ∞ and equivalent subtractions.</li>
+</ul>
+<p>Real operations with complex results:</p>
+<ul>
+<li>The square root of a negative number</li>
+<li>The logarithm of a negative number</li>
+<li>The tangent of an odd multiple of 90 degrees (or π/2 radians)</li>
+<li>The inverse sine or cosine of a number which is less than −1 or greater than +1.</li>
+</ul>
+<p>All these values may not be the same. A simple test for a NaN is to test <code>value == value</code> is false.</p>
+<h4 id="explanations-2">Explanations-2</h4>
+<p><code>NaN != NaN</code> because they are not necessary the SAME non-number. Thus it makes a lot of sense… Also why floats have both +0.00 and -0.00 that are not the same. Rounding may do that they are actually not zero.</p>
+<p>As for typeof, that depends on the language. And most languages will say that NaN is a float, double or number depending on how they classify it… I know of no languages that will say this is an unknown type or null.</p>
+<h4 id="explanation-3">Explanation-3</h4>
+<p><code>NaN</code> just means the specific value cannot be represented within the limitations of the numeric type (although that could be said for all numbers that have to be rounded to fit, but <code>NaN</code> is a special case).</p>
+<p>A specific <code>NaN</code> is not considered equal to another <code>NaN</code> because they may be different values. However, <code>NaN</code> is still a number type, just like 2718 or 31415.</p>
+<hr />
+<p>To explain in layman’s terms:</p>
+<p>A comparison with a NaN always returns an unordered result even when comparing with itself. The comparison predicates are either signalling or non-signalling, the signalling versions signal an invalid exception for such comparisons. The equality and inequality predicates are non-signalling so x = x returning false can be used to test if x is a quiet NaN.</p>
+<p>All this means is (broken down into parts):</p>
+<p>A comparison with a NaN always returns an unordered result even when comparing with itself.</p>
+<p>Basically, a <code>NaN</code> is not equal to any other number, including another <code>NaN</code>, and even including <em>itself</em>.</p>
+<p>The comparison predicates are either signalling or non-signalling, the signalling versions signal an invalid exception for such comparisons.</p>
+<p>Attempting to do comparison (less than, greater than, and so on) operations between a <code>NaN</code> and another number can either result in an exception being thrown (signalling) or just getting false as the result (non-signalling or quiet).</p>
+<p>The equality and inequality predicates are non-signalling so x = x returning false can be used to test if x is a quiet NaN.</p>
+<p>Tests for equality (equal to, not equal to) are never signalling so using them will not cause an exception. If you have a regular number <code>x</code>, then <code>x == x</code> will always be true. If <code>x</code> is a <code>NaN</code>, then <code>x == x</code> will always be false. It’s giving you a way to detect <code>NaN</code> easily (quietly).</p>
+<h4 id="important-references-to-standards">Important References to Standards</h4>
+<p>The ECMAScript (JavaScript) standard specifies that <code>Numbers</code> are <a href="http://en.wikipedia.org/wiki/IEEE_754">IEEE 754</a> floats, which include <code>NaN</code> as a possible value.</p>
+<h3 id="ecma-262-5e-section-4.3.19-number-value"><a href="http://ecma262-5.com/ELS5_Section_4.htm#Section_4.3.19">ECMA 262 5e Section 4.3.19</a>: Number value</h3>
+<p>primitive value corresponding to a double-precision 64-bit binary format IEEE 754 value.</p>
+<h3 id="ecma-262-5e-section-4.3.23-nan"><a href="http://ecma262-5.com/ELS5_Section_4.htm#Section_4.3.23">ECMA 262 5e Section 4.3.23</a>: NaN</h3>
+<p>Number value that is a IEEE 754 “Not-a-Number” value.</p>
+<h3 id="ieee-754-on-wikipedia"><a href="http://en.wikipedia.org/wiki/IEEE_754">IEEE 754</a> on Wikipedia</h3>
+<p>The IEEE Standard for Floating-Point Arithmetic is a technical standard established by the Institute of Electrical and Electronics Engineers and the most widely used standard for floating-point computation […]</p>
+<p>The standard defines</p>
+<ul>
+<li><em>arithmetic formats</em>: sets of binary and decimal floating-point data, which consist of finite numbers (including signed zeros and subnormal numbers), infinities, and <strong>special “not a number” values (NaNs)</strong></li>
+</ul>
+</body></html>

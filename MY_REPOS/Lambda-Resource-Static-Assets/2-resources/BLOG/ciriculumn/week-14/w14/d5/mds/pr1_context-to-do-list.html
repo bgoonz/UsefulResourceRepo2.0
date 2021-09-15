@@ -1,0 +1,287 @@
+<h1 id="react-context-to-do-list-project">React Context To-do List Project</h1>
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<!-- code_chunk_output -->
+<ul>
+<li><a href="#phase-1-set-up-your-project">Phase 1: Set up your project</a>
+<ul>
+<li><a href="#create-a-context">Create a context</a></li>
+</ul></li>
+<li><a href="#phase-2-provider-wrapper-component">Phase 2: Provider wrapper component</a>
+<ul>
+<li><a href="#set-default-state">Set default state</a></li>
+<li><a href="#create-a-task">Create a task</a></li>
+<li><a href="#delete-a-task">Delete a task</a></li>
+<li><a href="#use-a-provider-component">Use a provider component</a></li>
+</ul></li>
+<li><a href="#phase-3-consumer-wrapper-component">Phase 3: Consumer wrapper component</a></li>
+<li><a href="#phase-4-access-context-through-contexttype">Phase 4: Access context through contextType</a></li>
+</ul>
+<!-- /code_chunk_output -->
+<hr />
+<p>Today you’ll be building a to-do list application with React and local storage. Instead of threading props from a parent to its children and grandchildren, you’ll use Context to share information with any of your application’s components!</p>
+<p>As a reminder, Context gives you a convenient way to pass data through the component tree without having to manually
+    thread props. This project will also give you a better understanding of how to share and update "global" data across
+    a React application.</p>
+<p>In this project, you will:</p>
+<ul>
+<li>Create and use a <code>TodoContext</code> to share global information</li>
+<li>Create an <code>AppWithContext</code> wrapper component that uses <code>Provider</code> to set the default value of <code>TodoContext</code> in your application</li>
+<li>Create a <code>TodoFormWithContext</code> wrapper component that uses <code>Consumer</code> to allow child components to subscribe to the application’s global <code>TodoContext</code></li>
+<li>Use the <code>static contextType</code> property to access the global <code>TodoContext</code> in a class component</li>
+<li>Update the global value of the <code>TodoContext</code> from a nested component</li>
+<li>Use a <code>debugger</code> to investigate the context value from nested component</li>
+</ul>
+<h2 id="phase-1-set-up-your-project">Phase 1: Set up your project</h2>
+<p>Begin by using the <code>create-react-app</code> package to create a React application:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="ex">npx</span> create-react-app context-to-do-list --template @appacademy/simple</a></code></pre></div>
+<p>Next, set up your application file structure based on the file tree below. To begin, you’ll want two subdirectories within <code>src</code>: <code>components</code> and <code>contexts</code>.</p>
+<pre><code>├── package-lock.json
+├── package.json
+├── public
+│   └── index.html
+└── src
+    ├── App.js
+    ├── AppWithContext.js
+    ├── components
+    │   ├── Task.js
+    │   ├── TodoForm.js
+    │   └── TodoList.js
+    ├── contexts
+    │   └── TodoContext.js
+    └── index.js</code></pre>
+<p>Within your <code>components</code> directory, you’ll want a <code>Task</code> component:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="co">// ./src/components/Task.js</span></a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-4" title="4"></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="kw">const</span> Task <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-6" title="6">  <span class="kw">const</span> handleClick <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-7" title="7">    <span class="co">// </span><span class="al">TODO</span><span class="co">: Delete task</span></a>
+<a class="sourceLine" id="cb3-8" title="8">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-9" title="9">  </a>
+<a class="sourceLine" id="cb3-10" title="10">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb3-11" title="11">    <span class="op">&lt;</span>li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb3-12" title="12">      <span class="op">&lt;</span>h1<span class="op">&gt;</span>Hi<span class="op">,</span> I<span class="st">&#39;m a task in your to-do list!&lt;/h1&gt;</span></a>
+<a class="sourceLine" id="cb3-13" title="13">      <span class="op">&lt;</span>button onClick<span class="op">={</span>handleClick<span class="op">}&gt;</span>Delete Task&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb3-14" title="14">    &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb3-15" title="15">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-16" title="16"><span class="op">}</span></a>
+<a class="sourceLine" id="cb3-17" title="17"></a>
+<a class="sourceLine" id="cb3-18" title="18"><span class="im">export</span> <span class="im">default</span> Task<span class="op">;</span></a></code></pre></div>
+<p>You’ll also want a <code>TodoList</code> component:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="co">// ./src/components/TodoList.js</span></a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="co">// import Task from &#39;./Task&#39;;</span></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="co">// </span><span class="al">TODO</span><span class="co">: Import context</span></a>
+<a class="sourceLine" id="cb4-6" title="6"></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="kw">class</span> TodoList <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-8" title="8">  <span class="co">// </span><span class="al">TODO</span><span class="co">: Access context</span></a>
+<a class="sourceLine" id="cb4-9" title="9"></a>
+<a class="sourceLine" id="cb4-10" title="10">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-11" title="11">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb4-12" title="12">      <span class="op">&lt;</span>ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-13" title="13">        <span class="op">{</span><span class="co">/* </span><span class="al">TODO</span><span class="co">: Render a `Task` component for each of the `tasks` stored in context */</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb4-14" title="14">      &lt;/ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-15" title="15">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-16" title="16">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-17" title="17"><span class="op">}</span> </a>
+<a class="sourceLine" id="cb4-18" title="18"></a>
+<a class="sourceLine" id="cb4-19" title="19"><span class="im">export</span> <span class="im">default</span> TodoList<span class="op">;</span></a></code></pre></div>
+<p>You’ll also want a <code>TodoForm</code> component:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="co">// ./src/components/TodoForm.js</span></a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="co">// </span><span class="al">TODO</span><span class="co">: Import TodoContext</span></a>
+<a class="sourceLine" id="cb5-5" title="5"></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="kw">class</span> TodoForm <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-7" title="7">  <span class="at">constructor</span>(props) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-8" title="8">    <span class="kw">super</span>(props)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-9" title="9">    <span class="co">// </span><span class="al">TODO</span><span class="co">: Set default `inputValue` state</span></a>
+<a class="sourceLine" id="cb5-10" title="10">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-11" title="11"></a>
+<a class="sourceLine" id="cb5-12" title="12">  handleInputChange <span class="op">=</span> (e) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-13" title="13">    <span class="co">// </span><span class="al">TODO</span><span class="co">: Update `inputValue` state</span></a>
+<a class="sourceLine" id="cb5-14" title="14">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-15" title="15">  </a>
+<a class="sourceLine" id="cb5-16" title="16">  handleSubmit <span class="op">=</span> (e) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-17" title="17">    <span class="va">e</span>.<span class="at">preventDefault</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-18" title="18">    <span class="co">// </span><span class="al">TODO</span><span class="co">: Create a task based on the `inputValue`</span></a>
+<a class="sourceLine" id="cb5-19" title="19">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-20" title="20"></a>
+<a class="sourceLine" id="cb5-21" title="21">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-22" title="22">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb5-23" title="23">      <span class="op">&lt;</span>form onSubmit<span class="op">={</span><span class="kw">this</span>.<span class="at">handleSubmit</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb5-24" title="24">        <span class="op">&lt;</span>input</a>
+<a class="sourceLine" id="cb5-25" title="25">          type<span class="op">=</span><span class="st">&quot;text&quot;</span></a>
+<a class="sourceLine" id="cb5-26" title="26">          placeholder<span class="op">=</span><span class="st">&quot;Add a todo&quot;</span></a>
+<a class="sourceLine" id="cb5-27" title="27">          value<span class="op">={</span><span class="co">/* </span><span class="al">TODO</span><span class="co">: Set the `inputValue` state as the input&#39;s value */</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-28" title="28">          onChange<span class="op">={</span><span class="kw">this</span>.<span class="at">handleInputChange</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-29" title="29">        /&gt;</a>
+<a class="sourceLine" id="cb5-30" title="30">      &lt;/form<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-31" title="31">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-32" title="32">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-33" title="33"><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-34" title="34"></a>
+<a class="sourceLine" id="cb5-35" title="35"><span class="kw">const</span> TodoFormWithContext <span class="op">=</span> () <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb5-36" title="36">  <span class="co">// </span><span class="al">TODO</span><span class="co">: Use a Consumer component to wrap the TodoForm</span></a>
+<a class="sourceLine" id="cb5-37" title="37">  <span class="co">// </span><span class="al">TODO</span><span class="co">: Pass the `createTask` method stored in the context value as a prop to TodoForm</span></a>
+<a class="sourceLine" id="cb5-38" title="38">)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-39" title="39"></a>
+<a class="sourceLine" id="cb5-40" title="40"><span class="im">export</span> <span class="im">default</span> TodoFormWithContext<span class="op">;</span></a></code></pre></div>
+<p>Now you’ll update your <code>App</code> component to render the <code>TodoForm</code> and <code>TodoList</code>
+    components, along with a "To-do List" header.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="co">// ./src/App.js</span></a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="im">import</span> TodoForm <span class="im">from</span> <span class="st">&#39;./components/TodoForm&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="im">import</span> TodoList <span class="im">from</span> <span class="st">&#39;./components/TodoList&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-6" title="6"></a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="kw">const</span> App <span class="op">=</span> () <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb6-8" title="8">  <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-9" title="9">    <span class="op">&lt;</span>h1<span class="op">&gt;</span>To<span class="op">-</span><span class="cf">do</span> List&lt;/h1<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-10" title="10">    <span class="op">&lt;</span>TodoForm /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-11" title="11">    <span class="op">&lt;</span>TodoList /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-12" title="12">  &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-13" title="13">)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-14" title="14"></a>
+<a class="sourceLine" id="cb6-15" title="15"><span class="im">export</span> <span class="im">default</span> App<span class="op">;</span></a></code></pre></div>
+<h3 id="create-a-context">Create a context</h3>
+<p>Let’s get started on creating the <code>TodoContext</code> that will store your to-do list application’s global information! Within your <code>contexts</code> directory, you’ll set up the <code>TodoContext.js</code> file. Create and export a <code>TodoContext</code> by using the <code>createContext()</code> method, like so:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="co">// ./src/contexts/TodoContext.js</span></a>
+<a class="sourceLine" id="cb7-2" title="2"></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="im">import</span> <span class="op">{</span> createContext <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-4" title="4"></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="kw">const</span> TodoContext <span class="op">=</span> <span class="at">createContext</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-6" title="6"></a>
+<a class="sourceLine" id="cb7-7" title="7"><span class="im">export</span> <span class="im">default</span> TodoContext<span class="op">;</span></a></code></pre></div>
+<p>Now that you have a <code>TodoContext</code> set up, you can work on providing the context value from a parent <code>TodoContext.Provider</code> component. In the next phase, you’ll create an <code>AppWithContext</code> to wrap your <code>App</code> component with a parent <code>TodoContext.Provider</code> component. This will provide the context <code>value</code> to the <code>App</code> component and any of its child or grandchildren components.</p>
+<h2 id="phase-2-provider-wrapper-component">Phase 2: Provider wrapper component</h2>
+<p>Create a <code>AppWithContext</code> wrapper component. This wrapper component will take care of <em>providing</em> the context value. Start off with this code skeleton of the <code>AppWithContext</code> component:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="co">// ./src/AppWithContext.js</span></a>
+<a class="sourceLine" id="cb8-2" title="2"></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="co">// </span><span class="al">TODO</span><span class="co">: Import TodoContext</span></a>
+<a class="sourceLine" id="cb8-5" title="5"><span class="co">// </span><span class="al">TODO</span><span class="co">: Import App</span></a>
+<a class="sourceLine" id="cb8-6" title="6"></a>
+<a class="sourceLine" id="cb8-7" title="7"><span class="kw">class</span> AppWithContext <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-8" title="8">  <span class="at">constructor</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-9" title="9">    <span class="kw">super</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-10" title="10">    <span class="kw">const</span> storedTasks <span class="op">=</span> <span class="va">JSON</span>.<span class="at">parse</span>(<span class="va">localStorage</span>.<span class="at">getItem</span>(<span class="st">&#39;tasks&#39;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-11" title="11">    <span class="co">// </span><span class="al">TODO</span><span class="co">: Set up default state (tasks, createTask, deleteTask)</span></a>
+<a class="sourceLine" id="cb8-12" title="12">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-13" title="13"></a>
+<a class="sourceLine" id="cb8-14" title="14">  createTask <span class="op">=</span> (task) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-15" title="15">    <span class="co">// </span><span class="al">TODO</span><span class="co">: Use the built-in Date `getTime` method to generate the `nextTaskId` for the `newTask`</span></a>
+<a class="sourceLine" id="cb8-16" title="16">    <span class="co">// </span><span class="al">TODO</span><span class="co">: Generate a `newTask` object, structured with proper &quot;state shape&quot;</span></a>
+<a class="sourceLine" id="cb8-17" title="17">    <span class="co">// </span><span class="al">TODO</span><span class="co">: Update the `tasks` state</span></a>
+<a class="sourceLine" id="cb8-18" title="18">    <span class="co">// </span><span class="al">TODO</span><span class="co">: Invoke the `updateLocalStorageTasks` method</span></a>
+<a class="sourceLine" id="cb8-19" title="19">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-20" title="20">  </a>
+<a class="sourceLine" id="cb8-21" title="21">  deleteTask <span class="op">=</span> (id) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-22" title="22">    <span class="co">// </span><span class="al">TODO</span><span class="co">: Delete the task based on the task `id`</span></a>
+<a class="sourceLine" id="cb8-23" title="23">    <span class="co">// </span><span class="al">TODO</span><span class="co">: Update the `tasks` state</span></a>
+<a class="sourceLine" id="cb8-24" title="24">    <span class="co">// </span><span class="al">TODO</span><span class="co">: Invoke the `updateLocalStorageTasks` method</span></a>
+<a class="sourceLine" id="cb8-25" title="25">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-26" title="26"></a>
+<a class="sourceLine" id="cb8-27" title="27">  updateLocalStorageTasks <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-28" title="28">    <span class="va">console</span>.<span class="at">log</span>(<span class="kw">this</span>.<span class="va">state</span>.<span class="at">tasks</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-29" title="29">    <span class="kw">const</span> jsonTasks <span class="op">=</span> <span class="va">JSON</span>.<span class="at">stringify</span>(<span class="kw">this</span>.<span class="va">state</span>.<span class="at">tasks</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-30" title="30">    <span class="va">localStorage</span>.<span class="at">setItem</span>(<span class="st">&#39;tasks&#39;</span><span class="op">,</span> jsonTasks)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-31" title="31">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-32" title="32">  </a>
+<a class="sourceLine" id="cb8-33" title="33">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-34" title="34">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb8-35" title="35">      <span class="co">// </span><span class="al">TODO</span><span class="co">: Use a Provider component to wrap the App component</span></a>
+<a class="sourceLine" id="cb8-36" title="36">      <span class="co">// </span><span class="al">TODO</span><span class="co">: Use the AppWithContext state as the Provider component&#39;s `value`</span></a>
+<a class="sourceLine" id="cb8-37" title="37">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-38" title="38">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-39" title="39"><span class="op">}</span></a>
+<a class="sourceLine" id="cb8-40" title="40"></a>
+<a class="sourceLine" id="cb8-41" title="41"><span class="im">export</span> <span class="im">default</span> AppWithContext<span class="op">;</span></a></code></pre></div>
+<p>Begin by importing the <code>TodoContext</code> and <code>App</code> component. Next, you’ll want to set up a default state with <code>tasks</code>, <code>createTask</code>, <code>deleteTask</code>.</p>
+<h3 id="set-default-state">Set default state</h3>
+<p>Set the value of the <code>tasks</code> state to the <code>storedTasks</code>, <em>or</em> an empty object (<code>{}</code>) if <code>storedTasks</code> is null. Notice how <code>storedTasks</code> is simply accessing the local storage item with a name of <code>tasks</code>, and parsing the JSON string back to JavaScript.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">const</span> storedTasks <span class="op">=</span> <span class="va">JSON</span>.<span class="at">parse</span>(<span class="va">localStorage</span>.<span class="at">getItem</span>(<span class="st">&#39;tasks&#39;</span>))<span class="op">;</span></a></code></pre></div>
+<p>For the <code>createTask</code> state and <code>deleteTask</code> state, you’ll want to set the state values to their prospective methods, like so:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1">createTask<span class="op">:</span> <span class="kw">this</span>.<span class="at">createTask</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb10-2" title="2">deleteTask<span class="op">:</span> <span class="kw">this</span>.<span class="at">deleteTask</span><span class="op">,</span></a></code></pre></div>
+<h3 id="create-a-task">Create a task</h3>
+<p>Now you’ll define the <code>createTask</code> method. Use the built-in Date <code>getTime</code> method to generate the <code>nextTaskId</code> for the <code>newTask</code>. You’ll also want to generate a <code>newTask</code> object. You can use square brackets around the <code>nextTaskId</code> to use the generated integer as a key:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">const</span> newTask <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb11-2" title="2">  [nextTaskId]<span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb11-3" title="3">    <span class="dt">id</span><span class="op">:</span> nextTaskId<span class="op">,</span></a>
+<a class="sourceLine" id="cb11-4" title="4">    <span class="dt">message</span><span class="op">:</span> task<span class="op">,</span></a>
+<a class="sourceLine" id="cb11-5" title="5">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb11-6" title="6"><span class="op">};</span></a></code></pre></div>
+<p>As you might remember, the <code>tasks</code> state is set to the <code>storedTasks</code>, <em>or</em> an empty object (<code>{}</code>) as default. You might be wondering why you are using an object instead of an array. You are being prepared to work with <a href="https://redux.js.org/recipes/structuring-reducers/normalizing-state-shape/#designing-a-normalized-state">normalized state shape</a>! The <code>byId</code> slice of state in the Redux documentation’s example illustrates the state format you will be building today. Similarly to how each post has its ID as a key, each task will have its ID as a key, as well as <code>id</code> and <code>message</code> properties.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" title="1">byId <span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-2" title="2">  <span class="st">&quot;post1&quot;</span> <span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-3" title="3">    <span class="dt">id </span><span class="op">:</span> <span class="st">&quot;post1&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb12-4" title="4">    <span class="dt">author </span><span class="op">:</span> <span class="st">&quot;user1&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb12-5" title="5">    <span class="dt">body </span><span class="op">:</span> <span class="st">&quot;......&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb12-6" title="6">    <span class="dt">comments </span><span class="op">:</span> [<span class="st">&quot;comment1&quot;</span><span class="op">,</span> <span class="st">&quot;comment2&quot;</span>]</a>
+<a class="sourceLine" id="cb12-7" title="7">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb12-8" title="8">  <span class="st">&quot;post2&quot;</span> <span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-9" title="9">    <span class="dt">id </span><span class="op">:</span> <span class="st">&quot;post2&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb12-10" title="10">    <span class="dt">author </span><span class="op">:</span> <span class="st">&quot;user2&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb12-11" title="11">    <span class="dt">body </span><span class="op">:</span> <span class="st">&quot;......&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb12-12" title="12">    <span class="dt">comments </span><span class="op">:</span> [<span class="st">&quot;comment3&quot;</span><span class="op">,</span> <span class="st">&quot;comment4&quot;</span><span class="op">,</span> <span class="st">&quot;comment5&quot;</span>]</a>
+<a class="sourceLine" id="cb12-13" title="13">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb12-14" title="14"><span class="op">},</span></a></code></pre></div>
+<p>In the future, you’ll be working with Redux and will manage much more data. Feel free to view the <a href="https://redux.js.org/recipes/structuring-reducers/normalizing-state-shape/#normalizing-state-shape">nested state shape with an array</a> and read more about how using normalized state shape is an improvement. The documentation explains how "compared to the original nested format, this is an improvement in several ways."</p>
+<p>After generating a <code>newTask</code> object, you’ll want to update the <code>tasks</code> state with the new object and then update the tasks stored in local storage. First, let’s take a closer look at the <code>updateLocalStorageTasks</code> method. You’ll see that it takes care of logging the tasks to your DevTools console, converting the JavaScript <code>tasks</code> object into a JSON string, and then storing the tasks in local storage, under the name <code>tasks</code>.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" title="1">updateLocalStorageTasks <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="kw">this</span>.<span class="va">state</span>.<span class="at">tasks</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-3" title="3">  <span class="kw">const</span> jsonTasks <span class="op">=</span> <span class="va">JSON</span>.<span class="at">stringify</span>(<span class="kw">this</span>.<span class="va">state</span>.<span class="at">tasks</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-4" title="4">  <span class="va">localStorage</span>.<span class="at">setItem</span>(<span class="st">&#39;tasks&#39;</span><span class="op">,</span> jsonTasks)<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-5" title="5"><span class="op">}</span></a></code></pre></div>
+<p>You can spread the <code>tasks</code> slice of state and the attributes of the <code>newTask</code> to generate a collection of updated tasks. When a state update depends on a previous state value, you need to <a href="https://reactjs.org/docs/state-and-lifecycle.html#state-updates-may-be-asynchronous">pass a function</a> into the <code>setState</code> method to reliably get the previous state value. Since your <code>createTask</code> method relies on the previous state to produce the next state, the method’s <code>setState</code> invocation will look something like this:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">this</span>.<span class="at">setState</span>((state<span class="op">,</span> props) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb14-2" title="2">  <span class="dt">tasks</span><span class="op">:</span> <span class="op">{</span> ...<span class="va">state</span>.<span class="at">tasks</span><span class="op">,</span> ...<span class="at">newTask</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb14-3" title="3"><span class="op">}</span>))<span class="op">;</span></a></code></pre></div>
+<p>After the <code>tasks</code> slice of state has been updated, you’ll want to update the tasks stored in local storage by invoking the <code>updateLocalStorageTasks</code> method. The <code>setState()</code> method takes an optional callback as its second parameter so that you can have asynchronous behavior with <code>setState()</code>. Note that you can’t <code>await</code> on a <code>setState()</code> method since it doesn’t return a promise!</p>
+<p>Invoke <code>setState</code> with a callback that invokes the <code>updateLocalStorageTasks</code> method, so that the method is invoked after the state is set:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">this</span>.<span class="at">setState</span>((state<span class="op">,</span> props) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb15-2" title="2">  <span class="dt">tasks</span><span class="op">:</span> <span class="op">{</span> ...<span class="va">state</span>.<span class="at">tasks</span><span class="op">,</span> ...<span class="at">newTask</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb15-3" title="3"><span class="op">}</span>)<span class="op">,</span> () <span class="kw">=&gt;</span> <span class="kw">this</span>.<span class="at">updateLocalStorageTasks</span>())<span class="op">;</span></a></code></pre></div>
+<h3 id="delete-a-task">Delete a task</h3>
+<p>Delete a task based on the task’s <code>id</code>. Since your <code>tasks</code> state is structured as an object, you can use the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/delete">delete operator</a> to delete a specific task. Although you can delete a specific tasks directly from the <code>tasks</code> slice of state, it’s best practice not to do so.</p>
+<p>It’s best practice to maintain immutable state, meaning that you should not directly delete a task from the <code>tasks</code> slice of state with the delete operator. You can maintain immutable state by making a copy of the <code>tasks</code> slice of state with spread syntax, and then using the delete operator to delete a specific task within the <code>setState</code> method.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">this</span>.<span class="at">setState</span>((state<span class="op">,</span> props) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb16-2" title="2">  <span class="kw">const</span> tasksWithDeletion <span class="op">=</span> <span class="op">{</span> ...<span class="va">state</span>.<span class="at">tasks</span> <span class="op">};</span></a>
+<a class="sourceLine" id="cb16-3" title="3">  <span class="kw">delete</span> tasksWithDeletion[id]<span class="op">;</span></a>
+<a class="sourceLine" id="cb16-4" title="4">  <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb16-5" title="5">    <span class="dt">tasks</span><span class="op">:</span> tasksWithDeletion<span class="op">,</span></a>
+<a class="sourceLine" id="cb16-6" title="6">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb16-7" title="7"><span class="op">}</span>))<span class="op">;</span></a></code></pre></div>
+<blockquote>
+<p><strong>Reminder:</strong> when a state update depends on a previous state value, you need to pass a function into the <code>setState</code> method to reliably access the previous state.</p>
+</blockquote>
+<p>Just like how you used an optional callback to invoke the <code>updateLocalStorageTasks</code> method asynchronously within the <code>createTask</code> method, you’ll do the same for task deletion.</p>
+<h3 id="use-a-provider-component">Use a provider component</h3>
+<p>Now it’s time to provide context to your application. Use a <code>Provider</code> component (<code>&lt;TodoContext.Provider&gt;</code>) to wrap the <code>App</code> component in the <code>render</code> method. You’ll use the <code>AppWithContext</code> state as the Provider component’s <code>value</code>.</p>
+<p>As a reminder, rendering the <code>Provider</code> component and nesting the <code>App</code> component as a child within the <code>Provider</code> component will provide the context <code>value</code> (global state of the application) to your application. The <code>App</code> component and any of its child or grandchildren components will then be able to access any information stored within the context <code>value</code>. Since your <code>App</code> component renders the rest of your application’s components, the context value will be provided to any of its child components as well - even if they were not directly rendered as a child component of <code>&lt;TodoContext.Provider&gt;</code>!</p>
+<p>Lastly, take a moment to update your <code>index.js</code> to render your new <code>AppWithContext</code> component instead of the <code>App</code> component. This will not result in any breaking changes, as you have simply replaced the <code>App</code> component with another component that wraps and renders it.</p>
+<h2 id="phase-3-consumer-wrapper-component">Phase 3: Consumer wrapper component</h2>
+<p>It’s time to set up a consumer wrapper component to allow the <code>TodoForm</code> component to <em>consume</em> the <code>TodoContext</code>. Begin by importing <code>TodoContext</code> into the file and updating the return of the <code>TodoFormWithContext</code>. Within the <code>TodoFormWithContext</code>, you use a <code>Consumer</code> component (<code>&lt;TodoContext.Consumer&gt;</code>) to wrap the <code>TodoForm</code> and pass render props.</p>
+<p>Pass the <code>createTask</code> method stored in the context <code>value</code> as a prop to the <code>TodoForm</code>. Since you set the <code>AppWithContext</code> state as the <code>value</code> in the <code>&lt;TodoContext.Provider&gt;</code>, you can access anything stored in the <code>AppWithContext</code> state through the <code>value</code> prop referenced within the <code>&lt;TodoContext.Consumer&gt;</code>:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb17-1" title="1"><span class="op">&lt;</span><span class="va">TodoContext</span>.<span class="at">Consumer</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb17-2" title="2">  <span class="op">{</span>value <span class="kw">=&gt;</span> <span class="co">/* </span><span class="al">TODO</span><span class="co">: Pass the `createTask` method as a prop to TodoForm */</span> <span class="op">}</span></a>
+<a class="sourceLine" id="cb17-3" title="3">&lt;/<span class="va">TodoContext</span>.<span class="at">Consumer</span><span class="op">&gt;</span></a></code></pre></div>
+<p>Now that you have the consumer wrapper component set up, it’s time to work on the <code>TodoForm</code> component. Set the default <code>inputValue</code> state to an empty string and update <code>inputValue</code> state within the <code>handleInputChange</code> method. You’ll also want to set the <code>inputValue</code> state as the form input’s value so that the input is a <a href="https://reactjs.org/docs/forms.html#controlled-components">controlled component</a>.</p>
+<p>On form submission, you’ll want to create a task based on the <code>inputValue</code> by invoking the <code>createTask</code> prop passed from the context consumer. As a reminder, the <code>createTask</code> method updates the <code>tasks</code> stored in the <code>AppWithContext</code> state. This means that whenever the <code>createTask</code> method is invoked, the global <code>tasks</code> state will update and any components that subscribe to the context (via a <code>Consumer</code> component or <code>static contextType</code>) will have access to the updated tasks.</p>
+<p>Before moving onto the next phase, use a <code>debugger</code> to investigate what actions happen when you submit the <code>TodoForm</code>. Set two <code>debugger</code> statements: one in the <code>handleSubmit</code> method defined in <code>TodoForm</code> and another in the <code>createTask</code> method defined in <code>AppWithContext</code>. With these two debugger statements, you can trace whether invoking <code>this.props.createTask</code> really invokes the <code>createTask</code> method in the <code>AppWithContext</code> component.</p>
+<figure>
+<img src="https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/react-context/assets/debugger-createTask.gif" alt="debugger-createTask" /><figcaption>debugger-createTask</figcaption>
+</figure>
+<h2 id="phase-4-access-context-through-contexttype">Phase 4: Access context through contextType</h2>
+<p>Now you’ll access context by using the <code>static contextType</code> property instead of setting up a consumer wrapper component. Uncomment the import statement for <code>Task</code> and import the <code>TodoContext</code> into your <code>TodoList.js</code> file. Set the <code>TodoList</code> component’s <code>static contextType</code> property to the <code>TodoContext</code>. By setting the <code>contextType</code> property, the <code>TodoList</code> component gains access to the context value via <code>this.context</code>. As a reminder, you can use a <code>debugger</code> statement to investigate <code>this.context</code> to view everything stored as the context value before moving forward.</p>
+<figure>
+<img src="https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/react-context/assets/debugger-context.gif" alt="debugger-context" /><figcaption>debugger-context</figcaption>
+</figure>
+<p>Access the <code>tasks</code> and <code>deleteTask</code> method stored within the context value. Map over each of the <code>tasks</code> and render a <code>Task</code> component for each task. Since your tasks are currently formatted as an object, you’ll need to convert the object to an iterable array before mapping over them. You can use the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/values">Object.values</a> method to access an array containing the object’s property values.</p>
+<p>You’ll want to set a task ID <code>key</code> for each of the tasks, as well as pass the task as a prop for each <code>Task</code> component rendered. In order to keep the <code>Task</code> component as a function component, you’ll pass the <code>deleteTask</code> method from context as a prop into each rendered <code>Task</code> as well. As a reminder, the <code>static contextType</code> property can only be used in class components.</p>
+<p>Now have the <code>Task</code> component take in the props. Then update the click handler to invoke the <code>deleteTask</code> prop with the task’s ID. You’ll also want to replace the "Hi, I’m a task in your to-do list!" message with the task’s message.</p>
+<p>Congratulations! You have just built a to-do list application with React Context! You used a context provider to set a global context value, used a context consumer to pass render props into a consuming component, and used the <code>static contextType</code> property to give a class component access to the context value. In the next Context project, you’ll work on using Context to store a user’s login session information.</p>

@@ -1,0 +1,47 @@
+<h1 id="middleware">Middleware</h1>
+<p>When a dispatch is made, the middleware intercepts the action before it reaches the reducer.</p>
+<h2 id="applying-middleware-to-a-redux-store">Applying middleware to a Redux store</h2>
+<p>In the redux library’s <code>createStore</code> function used to instantiate a <code>store</code>. <code>createStore</code> accepts three arguments: (reducer, preloadedState, enhancer)</p>
+<p>Middleware is given to the <code>store</code> via the optional <code>enhancer</code> argument.</p>
+<p>Ex:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="co">// ./src/store.js</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="im">import</span> <span class="op">{</span> createStore<span class="op">,</span> applyMiddleware <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="im">import</span> logger <span class="im">from</span> <span class="st">&#39;redux-logger&#39;</span><span class="op">;</span> <span class="co">// third-party logger middleware</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="co">// the logger middleware prints the store&#39;s state before and after an action is processed.</span></a>
+<a class="sourceLine" id="cb1-6" title="6"></a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="im">import</span> rootReducer <span class="im">from</span> <span class="st">&#39;./reducers/rootReducer&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-8" title="8"></a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="kw">const</span> configureStore <span class="op">=</span> (preloadedState <span class="op">=</span> <span class="op">{}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-10" title="10">  <span class="cf">return</span> <span class="at">createStore</span>(</a>
+<a class="sourceLine" id="cb1-11" title="11">    rootReducer<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-12" title="12">    preloadedState<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-13" title="13">    <span class="at">applyMiddleware</span>(logger)<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-14" title="14">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-15" title="15"><span class="op">};</span></a>
+<a class="sourceLine" id="cb1-16" title="16"></a>
+<a class="sourceLine" id="cb1-17" title="17"><span class="im">export</span> <span class="im">default</span> configureStore<span class="op">;</span></a></code></pre></div>
+<h2 id="how-to-write-a-middleware-function">How to write a middleware function</h2>
+<p>A Redux middleware must always have the following signature:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">const</span> middleware <span class="op">=</span> store <span class="kw">=&gt;</span> next <span class="kw">=&gt;</span> action <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2"> <span class="co">// swhatever logic we want to do</span></a>
+<a class="sourceLine" id="cb2-3" title="3"> <span class="cf">return</span> <span class="at">next</span>(action)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="op">};</span></a></code></pre></div>
+<ol type="1">
+<li><p>Middleware receives the <code>store</code> as an argument and returns a function.</p></li>
+<li><p>That function takes the <code>next</code> link in the middleware chain as an argument and returns another function.</p></li>
+<li><p>This function receives the <code>action</code> and then triggers any side effects before returning the result of <code>next(action)</code>.</p></li>
+</ol>
+<p>Example of our own logger middleware:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1">  <span class="co">// utils/logger.js</span></a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="kw">const</span> logger <span class="op">=</span> store <span class="kw">=&gt;</span> next <span class="kw">=&gt;</span> action <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-4" title="4">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Action received:&#39;</span><span class="op">,</span> action)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;State pre-dispatch:&#39;</span><span class="op">,</span> <span class="va">store</span>.<span class="at">getState</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-6" title="6"></a>
+<a class="sourceLine" id="cb3-7" title="7">    <span class="kw">let</span> result <span class="op">=</span> <span class="at">next</span>(action)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-8" title="8"></a>
+<a class="sourceLine" id="cb3-9" title="9">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;State post-dispatch:&#39;</span><span class="op">,</span> <span class="va">store</span>.<span class="at">getState</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-10" title="10"></a>
+<a class="sourceLine" id="cb3-11" title="11">    <span class="cf">return</span> result<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-12" title="12">  <span class="op">};</span></a></code></pre></div>

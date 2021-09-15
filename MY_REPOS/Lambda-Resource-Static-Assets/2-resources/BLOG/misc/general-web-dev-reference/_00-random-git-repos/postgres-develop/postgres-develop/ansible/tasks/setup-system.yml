@@ -1,0 +1,63 @@
+# DigitalOcean's ubuntu droplet isn't up to date with installed packages, and on
+# a fresh install I see 71 security upgrades available.
+- name: System - apt update and apt upgrade
+  apt: update_cache=yes upgrade=yes
+  # SEE http://archive.vn/DKJjs#parameter-upgrade
+
+- name: Wait for /var/lib/apt/lists/lock
+  become: yes
+  shell:  while sudo fuser /var/lib/apt/lists/lock; do sleep 10; done;
+  tags: 
+    - update
+    - update-only
+
+- name: Wait for /var/lib/dpkg/lock-frontend
+  become: yes
+  shell:  while sudo fuser /var/lib/dpkg/lock-frontend; do sleep 10; done;
+  tags: 
+    - update
+    - update-only
+
+- name: add universe repository for bionic
+  apt_repository: 
+    repo: deb http://archive.ubuntu.com/ubuntu bionic universe
+    state: present
+
+- name: Install python
+  become: yes   
+  apt:
+    pkg:
+      - python
+      - python-pip
+      - python3
+      - python3-pip
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install security tools
+  become: yes  
+  apt:
+    pkg:
+      - ufw
+      - fail2ban
+      - unattended-upgrades
+    update_cache: yes
+    cache_valid_time: 3600
+  
+- name: Adjust APT update intervals
+  copy: 
+    src: files/apt_periodic
+    dest: /etc/apt/apt.conf.d/10periodic
+
+- name: Install psycopg2 to enable ansible postgreSQL features
+  pip: 
+    name: psycopg2-binary
+
+- name: System - Create services.slice
+  template:
+    src: files/services.slice.j2
+    dest: /etc/systemd/system/services.slice
+
+- name: System - systemd reload
+  systemd: daemon_reload=yes
+

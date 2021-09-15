@@ -1,0 +1,175 @@
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<!-- code_chunk_output -->
+<ul>
+<li><a href="#usestate">useState</a></li>
+<li><a href="#useeffect">useEffect</a>
+<ul>
+<li><a href="#skipping-effects-with-the-dependency-array">Skipping effects with the dependency array</a></li>
+<li><a href="#asynchronous-effects">Asynchronous effects</a></li>
+<li><a href="#effect-cleanup">Effect cleanup</a></li>
+</ul></li>
+<li><a href="#usecontext">useContext</a></li>
+<li><a href="#what-you-have-learned">What you have learned</a></li>
+</ul>
+<!-- /code_chunk_output -->
+<hr />
+<h1 id="intro-to-react-hooks">Intro to React Hooks</h1>
+<p>React Hooks are a way for function components to have the same functionality as class components that make use of component lifecycle methods. Hooks are simply functions that allow components to utilize React features without explicitly using the lifecycle methods.</p>
+<p>Before React Hooks, the only way to use lifecycle methods were through class components. Hooks allow you to manage a component’s state and lifecycle within function components. They are helpful in extracting stateful logic from a component to be independently tested and reused - it’s much more complicated to test the functionality of logic in a component’s lifecycle methods. After reading this article, you will:</p>
+<ul>
+<li>Have a general understanding of the features of basic React hooks</li>
+<li>Understand how the basic Hooks connect to features of React class components (i.e. lifecycle methods)</li>
+<li>Create function components that use state and other React features</li>
+<li>Use the <code>useState</code> hook to manage a component’s state</li>
+<li>Use the <code>useEffect</code> hook to manage <em>side effect</em> operations (i.e. data fetching)</li>
+<li>Use the <code>useContext</code> hook to access a context object</li>
+</ul>
+<h2 id="usestate">useState</h2>
+<p>Up to this point, you have set a component’s default state within a component’s <code>constructor</code> method. The <code>useState</code> hook replaces the need to use a constructor to declare a default state with <code>this.state</code>. You can use the <code>useState</code> hook to set and name a default slice of state without a <code>constructor()</code> method. You can set a default state simply by invoking the <code>useState</code> hook. The <strong>with hooks</strong> example below sets the default <code>inputValue</code> state to be <code>'Default input value here!'</code> by invoking the <code>useState</code> hook with the string <code>'Default input value here!'</code>.</p>
+<p><strong>with hooks</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">const</span> FormWithHooks <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="kw">const</span> [inputValue<span class="op">,</span> setInputValue] <span class="op">=</span> <span class="at">useState</span>(<span class="st">&#39;Default input value here!&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="op">};</span></a></code></pre></div>
+<p><strong>without hooks</strong></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">class</span> FormWithoutHooks <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span>  </a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="at">constructor</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-3" title="3">    <span class="kw">super</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-4" title="4">    <span class="kw">this</span>.<span class="at">state</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-5" title="5">      <span class="dt">inputValue</span><span class="op">:</span> <span class="st">&#39;Default input value here!&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-6" title="6">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb2-7" title="7">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="op">}</span></a></code></pre></div>
+<p>When you use the <code>useState</code> hook to set up a slice of state, you also set up a prospective function to update that slice of state. In this example, you can update a slice of state by invoking <code>setInputValue</code>, instead of invoking the <code>this.setState()</code> method.</p>
+<p><strong>with hooks</strong></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">const</span> updateInputVal <span class="op">=</span> e <span class="kw">=&gt;</span> <span class="at">setInputValue</span>(<span class="va">e</span>.<span class="va">target</span>.<span class="at">value</span>)<span class="op">;</span></a></code></pre></div>
+<p><strong>without hooks</strong></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1">updateInputVal <span class="op">=</span> e <span class="kw">=&gt;</span> <span class="kw">this</span>.<span class="at">setState</span>(<span class="op">{</span> <span class="dt">inputValue</span><span class="op">:</span> <span class="va">e</span>.<span class="va">target</span>.<span class="at">value</span> <span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>In general, React Hooks help clean up your code <strong>a lot</strong>! For example, when using the <code>useState</code> hook, you can also simply reference <code>inputValue</code> throughout the component, instead of <code>this.state.inputValue</code>. Compare the difference between the code for the <code>FormWithHooks</code> and <code>FormWithoutHooks</code> components below.</p>
+<p><strong>with hooks</strong></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">const</span> FormWithHooks <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="kw">const</span> [inputValue<span class="op">,</span> setInputValue] <span class="op">=</span> <span class="at">useState</span>(<span class="st">&#39;&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-3" title="3">  <span class="kw">const</span> updateInputVal <span class="op">=</span> e <span class="kw">=&gt;</span> <span class="at">setInputValue</span>(<span class="va">e</span>.<span class="va">target</span>.<span class="at">value</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-4" title="4"></a>
+<a class="sourceLine" id="cb5-5" title="5">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="op">&lt;</span>form<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-7" title="7">      <span class="op">&lt;</span>input</a>
+<a class="sourceLine" id="cb5-8" title="8">        type<span class="op">=</span><span class="st">&quot;text&quot;</span></a>
+<a class="sourceLine" id="cb5-9" title="9">        value<span class="op">={</span>inputValue<span class="op">}</span></a>
+<a class="sourceLine" id="cb5-10" title="10">        onChange<span class="op">={</span>updateInputVal<span class="op">}</span></a>
+<a class="sourceLine" id="cb5-11" title="11">        placeholder<span class="op">=</span><span class="st">&quot;Type something!&quot;</span></a>
+<a class="sourceLine" id="cb5-12" title="12">      /&gt;</a>
+<a class="sourceLine" id="cb5-13" title="13">    &lt;/form<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-14" title="14">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-15" title="15"><span class="op">};</span></a></code></pre></div>
+<p><strong>without hooks</strong></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">class</span> FormWithoutHooks <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span>  </a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="at">constructor</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-3" title="3">    <span class="kw">super</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-4" title="4">    <span class="kw">this</span>.<span class="at">state</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-5" title="5">      <span class="dt">inputValue</span><span class="op">:</span> <span class="st">&#39;&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-6" title="6">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb6-7" title="7">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb6-8" title="8"></a>
+<a class="sourceLine" id="cb6-9" title="9">  updateInputVal <span class="op">=</span> e <span class="kw">=&gt;</span> <span class="kw">this</span>.<span class="at">setState</span>(<span class="op">{</span> <span class="dt">inputValue</span><span class="op">:</span> <span class="va">e</span>.<span class="va">target</span>.<span class="at">value</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-10" title="10">  </a>
+<a class="sourceLine" id="cb6-11" title="11">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-12" title="12">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb6-13" title="13">      <span class="op">&lt;</span>form<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-14" title="14">        <span class="op">&lt;</span>input</a>
+<a class="sourceLine" id="cb6-15" title="15">          type<span class="op">=</span><span class="st">&quot;text&quot;</span></a>
+<a class="sourceLine" id="cb6-16" title="16">          value<span class="op">={</span><span class="kw">this</span>.<span class="va">state</span>.<span class="at">inputValue</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb6-17" title="17">          onChange<span class="op">={</span><span class="kw">this</span>.<span class="at">updateInputVal</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb6-18" title="18">          placeholder<span class="op">=</span><span class="st">&quot;Type something!&quot;</span></a>
+<a class="sourceLine" id="cb6-19" title="19">        /&gt;</a>
+<a class="sourceLine" id="cb6-20" title="20">      &lt;/form<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-21" title="21">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-22" title="22">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-23" title="23"><span class="op">}</span></a></code></pre></div>
+<p>When refactoring your projects to implement React Hooks, you can always refactor component by component, starting out with refactoring the component’s state management.</p>
+<h2 id="useeffect">useEffect</h2>
+<p>The <code>useEffect</code> hook is used to manage side effect operations. An example of a side effect operation you are familiar with is data fetching. Similarly to the <code>componentDidMount</code> or <code>componentDidUpdate</code> lifecycle methods, the <code>useEffect</code> hook will automatically run.</p>
+<p>Take a moment to notice how using the <code>useEffect</code> hook simply means invoking the <code>useEffect</code> function. You can invoke the function with one or two arguments, with the first argument always being a function, and then second argument being an optional <em>dependency array</em>.</p>
+<p>When the <code>useEffect</code> hook is invoked <strong>without</strong> a second argument, the function will be invoked after every render:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-2" title="2">  <span class="co">// Side effect logic invoked after every render</span></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>When the <code>useEffect</code> hook is invoked <strong>with an empty array</strong>, the function is only invoked once, when a component mounts (think of <code>componentDidMount</code>):</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-2" title="2">  <span class="co">// Side effect logic invoked once, when a component mounts</span></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="op">},</span> [])<span class="op">;</span></a></code></pre></div>
+<p>When the <code>useEffect</code> hook is invoked <strong>with an array of dependencies</strong>, the function is invoked whenever a dependency changes (think of <code>componentDidUpdate</code>):</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-2" title="2">  <span class="co">// Side effect logic invoked every time the `dependentVariable` changes</span></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="op">},</span> [dependentVariable])<span class="op">;</span></a></code></pre></div>
+<h3 id="skipping-effects-with-the-dependency-array">Skipping effects with the dependency array</h3>
+<p>This second argument of the <code>useEffect</code> hook is known as the <em>dependency array</em>. You can optimize the performance for your component by using the dependency array to skip effects. The dependency array is a collection of dependent variables. Similarly to how the <code>componentDidUpdate</code> lifecycle method listens for a change in the component, the <code>useEffect</code> hook listen for changes to variables in the dependency array to determine whether or not to run the <em>effect</em> again.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-2" title="2">  <span class="co">// Side effect logic</span></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="op">},</span> [<span class="co">/* Dependency array */</span>])<span class="op">;</span></a></code></pre></div>
+<h3 id="asynchronous-effects">Asynchronous effects</h3>
+<p>You are familiar with using <code>async/await</code> to await a database fetch. If you’d like to make an asynchronous fetch within a <code>useEffect</code> hook, you would declare an asynchronous function within the hook. Then, you would invoke the asynchronous functions from within the hook.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb11-2" title="2">  <span class="kw">const</span> fetchSomething <span class="op">=</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb11-3" title="3">    <span class="co">// Fetch call</span></a>
+<a class="sourceLine" id="cb11-4" title="4">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb11-5" title="5"></a>
+<a class="sourceLine" id="cb11-6" title="6">  <span class="at">fetchSomething</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb11-7" title="7"><span class="op">},</span> [<span class="co">/* Dependency array */</span>])<span class="op">;</span></a></code></pre></div>
+<p>The function passed in as the <code>useEffect</code> hook’s first argument <strong>cannot</strong> be an asynchronous function - this is why you need to define and invoke the asynchronous function from within the hook’s first function argument.</p>
+<p>In the example below, the <code>useEffect</code> hooks runs an asynchronous fetch of a puppy, based on a <code>puppyId</code> input. The hook’s dependency array references <code>props.match.params.puppyId</code>. Since the <code>useEffect</code> hook’s dependency array references the <code>puppyId</code> parameter, the application will only fetch whenever the <code>puppyId</code> parameter changes. This optimizes the code, because now the effect is only run upon the change of a specific variable - <code>puppyId</code>!</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-2" title="2">  <span class="kw">const</span> fetchPuppy <span class="op">=</span> <span class="kw">async</span> (puppyId) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-3" title="3">    <span class="kw">const</span> puppy <span class="op">=</span> <span class="cf">await</span> <span class="at">fetch</span>(<span class="vs">`https://api.puppies.example/</span><span class="sc">${</span>puppyId<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-4" title="4">    <span class="kw">const</span> puppyJSON <span class="op">=</span> <span class="cf">await</span> <span class="va">res</span>.<span class="at">json</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-5" title="5">    <span class="cf">return</span> puppyJSON<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-6" title="6">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb12-7" title="7"></a>
+<a class="sourceLine" id="cb12-8" title="8">  <span class="at">fetchPuppy</span>(<span class="va">props</span>.<span class="va">match</span>.<span class="va">params</span>.<span class="at">puppyId</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-9" title="9"><span class="op">},</span> [<span class="va">props</span>.<span class="va">match</span>.<span class="va">params</span>.<span class="at">puppyId</span>])<span class="op">;</span></a></code></pre></div>
+<p>Using a dependency array also prevents endless loops. Without the dependency array, a fetch call invoked within a <code>useEffect</code> hook would constantly run and your code would error out.</p>
+<p>Alternatively, you can invoke the asynchronous effect with an <a href="https://en.wikipedia.org/wiki/Immediately_invoked_function_expression">IIFE</a> (immediately invoked function expression). Take the example syntax below:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-2" title="2">  (<span class="kw">async</span> <span class="kw">function</span> <span class="at">fetchSomething</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-3" title="3">    <span class="co">// Fetch call</span></a>
+<a class="sourceLine" id="cb13-4" title="4">  <span class="op">}</span>)()<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-5" title="5"><span class="op">},</span> [<span class="co">/* Dependency array */</span>])<span class="op">;</span></a></code></pre></div>
+<h3 id="effect-cleanup">Effect cleanup</h3>
+<p>In a class component, you might use the <code>componentWillUnmount</code> lifecycle method to handle <em>cleanup</em>. In order to <em>cleanup</em> an effect, you would need to return a function from within the <code>useEffect</code> hook. Having the <code>useEffect</code> hook’s callback return another function results in the cleanup behavior of <code>componentWillUnmount</code>.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb14-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-2" title="2">  <span class="cf">return</span> <span class="kw">function</span> <span class="at">cleanup</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-3" title="3">    <span class="co">// Cleanup logic</span></a>
+<a class="sourceLine" id="cb14-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb14-5" title="5"><span class="op">},</span> [<span class="co">/* Dependency array */</span>])<span class="op">;</span></a></code></pre></div>
+<p>In a later lesson, you will learn about how to use WebSockets. When you use a WebSocket, you create a connection. What if you want to close that connection? Closing a connection sounds like a <em>cleanup</em> task! It is common to invoke the WebSocket’s <code>close</code> method in a <em>cleanup</em> function. The example below makes use of the <em>dependency array</em> and a <em>cleanup</em> function.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb15-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb15-2" title="2">  <span class="cf">if</span> (<span class="op">!</span>username) <span class="op">{</span></a>
+<a class="sourceLine" id="cb15-3" title="3">    <span class="cf">return</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb15-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb15-5" title="5"></a>
+<a class="sourceLine" id="cb15-6" title="6">  <span class="kw">const</span> ws <span class="op">=</span> <span class="kw">new</span> <span class="at">WebSocket</span>(<span class="st">&#39;ws://localhost:8080&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb15-7" title="7">  <span class="va">webSocket</span>.<span class="at">current</span> <span class="op">=</span> ws<span class="op">;</span></a>
+<a class="sourceLine" id="cb15-8" title="8">  </a>
+<a class="sourceLine" id="cb15-9" title="9">  <span class="cf">return</span> <span class="kw">function</span> <span class="at">cleanup</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb15-10" title="10">    <span class="cf">if</span> (<span class="va">webSocket</span>.<span class="at">current</span> <span class="op">!==</span> <span class="kw">null</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb15-11" title="11">      <span class="va">webSocket</span>.<span class="va">current</span>.<span class="at">close</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb15-12" title="12">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb15-13" title="13">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb15-14" title="14"><span class="op">},</span> [username])<span class="op">;</span></a></code></pre></div>
+<p>Similar to the behavior of <code>componentDidUpdate</code>, the effect is re-run whenever the <code>username</code> changes. The <code>useEffect</code> hook below takes care of setting up a new WebSocket connection. The hook’s <em>cleanup</em> function will be run whenever the component unmounts. Replacing the <code>componentWillUnmount</code> lifecycle method, the <em>cleanup</em> function will take care of closing the WebSocket connection when the component unmounts.</p>
+<h2 id="usecontext">useContext</h2>
+<p>You can use the <code>useContext</code> hook to access a context object to read and subscribe to context changes. The <code>useContext</code> hooks replaces the <code>static contextType</code> property in class components. Whenever you used the <code>static contextType</code> property in a class component, you were able to access a context object via referencing <code>this.context</code>. When you use the <code>useContext</code> hook, you can access a context object via whatever you name the context! In the example below, the <code>useContext</code> hook is invoked and its return value (the <code>MyContext</code> object) is named <code>context</code> - this means you can access the <code>MyContext</code> object anywhere within the component via referencing <code>context</code>.</p>
+<p><strong>with hooks</strong></p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">const</span> context <span class="op">=</span> <span class="at">useContext</span>(MyContext)<span class="op">;</span>    <span class="co">// Makes `MyContext` available as `context`</span></a>
+<a class="sourceLine" id="cb16-2" title="2"><span class="kw">const</span> banana <span class="op">=</span> <span class="at">useContext</span>(BananaContext)<span class="op">;</span> <span class="co">// Makes `BananaContext` available as `banana`</span></a>
+<a class="sourceLine" id="cb16-3" title="3"><span class="kw">const</span> puppy <span class="op">=</span> <span class="at">useContext</span>(PuppyContext)<span class="op">;</span>   <span class="co">// Makes `PuppyContext` available as `puppy`</span></a></code></pre></div>
+<p><strong>without hooks</strong></p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">static</span> contextType <span class="op">=</span> MyContext<span class="op">;</span> <span class="co">// Makes `MyContext` available as `this.context`</span></a></code></pre></div>
+<p>When using the <code>useContext</code> hook to access a context object, you would still use a <code>&lt;Context.Provider&gt;</code> to set the context’s <code>value</code>.</p>
+<h2 id="what-you-have-learned">What you have learned</h2>
+<p>In this article, you have learned about the general features of the basic React hooks (<code>useState</code>, <code>useEffect</code>, and <code>useContext</code>). You should now understand the functionality of how the basic Hooks connect to the features of React class components. You should be able to use the:</p>
+<ul>
+<li><code>useState</code> hook to manage a function component’s state</li>
+<li><code>useEffect</code> hook to manage running, skipping, and cleaning up effects</li>
+<li><code>useContext</code> hook to access a context object</li>
+</ul>

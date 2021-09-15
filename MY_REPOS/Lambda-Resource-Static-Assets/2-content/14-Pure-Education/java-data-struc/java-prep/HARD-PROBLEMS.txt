@@ -1,0 +1,1921 @@
+Problem             Category    Steps
+----------------------------------
+GenerateIPAddresses backtrack       1.  Validate length of input: min 4, max 12 characters
+                                    2.  Provide "isValid" function
+                                        a.  Split input on the '.' (split("\\.")
+                                        b.  Convert each part to integer (Integer.parseInt(s))
+                                        c.  return false if:
+                                            1.  length > 3 || val < 0 || val > 255
+                                            2.  length > 1 && val = 0
+                                            3.  length > 1 && val != 0 && s.charAt(0) == '0'
+                                    3.  Initialize variable "newAddress" to input, i.e. "25525511135" or "1111"
+                                    4.  Create 3 loops to place "." at some position and check if valid:
+                                            for(int i = 1; i < size - 2; ++i)
+                                            {
+                                              for(int j = i + 1; j < size - 1; ++j)
+                                              {
+                                                for(int k = j + 1; k < size; ++k)
+                                                {
+                                                  newAddress = newAddress.substring(0, k) + "." + newAddress.substring(k);
+                                                  newAddress = newAddress.substring(0, j) + "." + newAddress.substring(j);
+                                                  newAddress = newAddress.substring(0, i) + "." + newAddress.substring(i);
+                                                  if(isValid(newAddress))
+                                                  {
+                                                    result.add(newAddress);
+                                                  }
+                                                  newAddress = address;
+                                                }
+                                              }
+                                            }
+
+PlaceQueens         backtracking    1.  Recursive function signature:
+                                            boolean solve(int col)
+                                        a.  Base case
+                                                if(col >= size)
+                                                {
+                                                  return true;
+                                                }
+                                        b.  Iterate though rows:
+                                                for(int row = 0; row < size; ++row)
+                                                {
+                                                  if(isSafe(row, col))
+                                                  {
+                                                    solution[row][col] = 1;
+                                                    if(solve(col + 1))
+                                                    {
+                                                      return true;
+                                                    }
+                                                    solution[row][col] = 0;
+                                                  }
+                                                }
+                                                return false;
+                                    2.  Tricky part is inside "isSafe" to check if queens are placed on the same diagonal
+                                        a.  Use position and differences of absolute values:
+                                                boolean isSafe(int x, int y)
+                                                {
+                                                    for(int i = 0; i < size; ++i)
+                                                    {
+                                                        //  check rows (solution[x][i] == 1)
+                                                        //  check cols (solution[i][y] == 1)
+                                                        //  check diagonals
+                                                        for(int j = 0; j < size; ++j)
+                                                        {
+                                                            if(solution[i][j] == 1 && Math.abs(i - x) == Math.abs(j - y))
+                                                                return false;
+                                                        }
+                                                    }
+                                                }
+
+Sudoku              backtracking    1.  Validate board signature:
+                                            boardValid(int row, int col, Integer val)
+                                        a.  Loop 9 times.
+                                                for(int i = 0; i < 9; ++i)
+                                                For each iteration:
+                                                1.  Check rows
+                                                        board[row][i] != null && board[row][i] == val
+                                                2.  Check cols
+                                                        board[i][col] != null && board[i][col] == val
+                                                3.  Check boxes
+                                                        board[3 * (row / 3) + i / 3][3 * (col / 3) + i % 3] != null &&
+                                                        board[3 * (row / 3) + i / 3][3 * (col / 3) + i % 3] == val
+                                    2.  Solve - create triple loop: rows, cols, vals
+                                            for(int row = 0; row < 9; ++row)
+                                            {
+                                                for(int col = 0; col < 9; ++col)
+                                                {
+                                                    //  continue if not null
+                                                    for(Integer val = 1; val <= 9; ++val)
+                                                    {
+                                                        if(boardValid(row, col, val))
+                                                        {
+                                                            board[row][col] = val;
+                                                            if(solve())
+                                                            {
+                                                              return true;
+                                                            }
+                                                            board[row][col] = null;
+                                                    }
+                                                }
+                                                return false;
+                                            }
+                                            return true;
+
+TravellingSalesman      recursion   1.  Store adjacency matrix, for example:
+                                            int[][] distances = {
+                                                {0, 20, 42, 25},
+                                                {20, 0, 30, 34},
+                                                {42, 30, 0, 10},
+                                                {25, 34, 10, 0},
+                                            };
+                                    2.  Create VISITED_ALL mask corresponding to the size of the adjacency matrix
+                                            VISITED_ALL = (1 << distances.length) - 1;
+                                    3.  Call recursive function:
+                                            int tsp(int mask, int pos)
+                                        a.  Base case:
+                                                if(mask == VISITED_ALL)
+                                                {
+                                                  return distances[pos][0];
+                                                }
+                                        b.  Loop through all cities(i.e. columns) in the distance adjacency matrix
+                                                int min = Integer.MAX_VALUE;
+                                                for(int city = 0; city < distances.length; ++city)
+                                                {
+                                                  if((mask & (1 << city)) == 0) // city has not been visited
+                                                  {
+                                                    int ans = distances[pos][city] + tsp(mask | (1 << city), city);
+                                                    min = Math.min(min, ans);
+                                                  }
+                                                }
+                                            c.  Return minimum distance
+
+EggDrop             recursion       1.  Recursive function:
+                                            drop(int topFloor, int eggs)
+                                    2.  Base case:
+                                        Note: if there is only one egg, # of drops == # of floors
+                                            if(eggs == 1 || topFloor == 0 || topFloor == 1)
+                                            {
+                                              return topFloor;
+                                            }
+                                    3.  Use loop to compute min of 1 + max
+                                            for(int currentFloor = 1; currentFloor <= topFloor; ++currentFloor)
+                                            {
+                                              int max = Math.max(drop(currentFloor - 1, eggs - 1), drop(topFloor - currentFloor, eggs));
+                                              min = Math.min(min, 1 + max);
+                                            }
+                                    4.  Return min
+
+Knapsack            recursion       1.  Recursive function:
+                                            int knapsack(int capacity, int[] weights, int[] values, int index)
+                                    3.  Base case: capacity of index is 0
+                                            if(capacity == 0 || index < 0)
+                                            {
+                                              return 0;
+                                            }
+                                    4.  If the weight of current item is greater than capacity, move on to the next item
+                                            if(weights[index] > capacity)
+                                            {
+                                              return knapsack(capacity, weights, values, index - 1);
+                                            }
+                                    5.  Compute "include" and "exclude" values:
+                                            int include = values[index] + knapsack(capacity - weights[index], weights, values, index - 1);
+                                            int exclude = knapsack(capacity, weights, values, index - 1);
+                                    6.  Return max of include & exclude:
+                                            Math.max(include, exclude);
+
+MakeChange          recursion       1.  Make sure to start with the most valuable coin
+                                    2.  Consider 2 base cases:
+                                        a.  When amount == 0 and we return 1 (on nothing if saving combinations)
+                                        b.  When amount or index < 0 and we return 0 (on nothing if saving combinations)
+                                                if(amount == 0)
+                                                {
+                                                    String[] vals = s.split(",");
+                                                    int[] ans = Arrays.stream(vals).mapToInt(Integer::valueOf).toArray();
+                                                    result.add(ans);
+                                                    return;
+                                                }
+                                                if(index < 0 || amount < 0)
+                                                {
+                                                    return;
+                                                }
+                                    3.  Call recursively twice: with smaller coin and smaller amount:
+                                            makeChangeAndPrint(result, coins, index - 1, amount, s);
+                                            s += coins[index] + ",";
+                                            makeChangeAndPrint(result, coins, index, amount - coins[index], s);
+                                    4.  Number of combinations is the sum of include and exclude.
+
+ChangeWithLeastCoins                1.  Make sure denominations are sorted and start with the most valuable coin
+                                    2.  Store data in member variables
+                                            private int amountRemaining;
+                                            private int[] denominations;
+                                            private int numberCoins;
+                                    3.  Base case
+                                            if(amountRemaining == 0)
+                                            {
+                                                return numberCoins;
+                                            }
+                                    4.  Use loop to compute number of coins and the amount remaining and call recursively
+                                            for(int i = 0; i < denominations.length; ++i)
+                                            {
+                                                if(amountRemaining >= denominations[i])
+                                                {
+                                                    numberCoins += amountRemaining / denominations[i];
+                                                    amountRemaining %= denominations[i];
+                                                    break;
+                                                }
+                                            }
+                                            return makeChange();
+
+NSum                recursion       1.  Using Stack - Make sure array is sorted in ascending when using Stack
+                                        a.  Recursive function signature:
+                                                public List<int[]> generateSubsets()
+                                                {
+                                                    generateSubset(0);
+                                                    return results;
+                                                }
+                                        b.  Use Stack for individual elements and currentSumOnStack to check when the sum is equal to target
+                                        c.  Call recursive function with the next index and check for base case:
+                                                private void generateSubset(int index)
+                                                {
+                                                    if(currentSumOnStack == target)
+                                                    {
+                                                        saveCombination();
+                                                    }
+
+                                                    for(int i = index; i < data.length; i++)
+                                                    {
+                                                        if(currentSumOnStack + data[i] <= target)
+                                                        {
+                                                             stack.push(data[i]);
+                                                             currentSumOnStack += data[i];
+                                                             generateSubset(i + 1);
+                                                             currentSumOnStack -= stack.pop();
+                                                        }
+                                                    }
+                                                }
+
+                                    2.  Using recursion. Array does not need to be sorted
+                                        a.  Recursive call:
+                                                int nSum(int[] arr, int amount, int index)
+                                        b.  Bases cases:
+                                                if(amount == 0)
+                                                {
+                                                    return 1;
+                                                }
+                                                if(amount < 0 || index < 0)
+                                                {
+                                                    return 0;
+                                                }
+                                        c.  Check for elements that are too large
+                                                if(arr[index] > amount)
+                                                {
+                                                    return nSum(arr, amount, index - 1);
+                                                }
+                                        d.  Return sum of include and exclude:
+                                                int exclude = nSum(arr, amount - arr[index], index - 1);
+                                                int include = nSum(arr, amount, index - 1);
+                                                return exclude + include;
+
+PhoneNumbersWithKnight              1.  List out possible moves
+                                            MOVES = {{4,6},{6,8},{7,9},{4,8},{0,3,9},{},{1,7,0},{2,6},{1,3},{2,4}};
+                                    2.  Recursive function signatures:
+                                            int count(int current, int move)
+                                            List<String> countAndKeep(int current, int move)
+                                    3.  Base case: Move == numberOfDigits
+                                            if(move == numDigits)       if(move == numDigits)
+                                            {                           {
+                                               return 1;                    result.add(sb.toString());
+                                            }                               return;
+                                                                        }
+                                    4.  Iterate through all possible moves and call recursively with next move
+                                            int sum = 0;
+                                            int numMoves = MOVES[current].length;
+                                            for(int i = 0; i < numMoves; ++i)
+                                            {
+                                                sum += count(MOVES[current][i], move + 1);
+                                            }
+                                    5.  To save possible combinations, delete prior move and add the current move
+                                            int numMoves = MOVES[current].length;
+                                            for(int i = 0; i < numMoves; ++i)
+                                            {
+                                              sb.delete(move, sb.length());
+                                              sb.append(MOVES[current][i]);
+                                              countAndKeep(MOVES[current][i], move + 1, sb, result);
+                                            }
+
+PowerSet            recursion       1.  Recursive function signature:
+                                            List<List<Character>> powerSet(List<Character> list)
+                                    2.  Base case: if list is empty, add Empty List to the result
+                                            if(list.isEmpty())
+                                            {
+                                              result.add(new ArrayList<>());
+                                              return result;
+                                            }
+                                    3.  Save first element and the remainder:
+                                            Character first = list.get(0);
+                                            List<Character> remainder = new ArrayList<>(list.subList(1, list.size()));
+                                    4.  Make recursive calls on the remainder:
+                                            for(List<Character> subList : powerSet(remainder))
+                                    5.  Add first and sublist to the new list and add new list and sublist to result
+                                            List<Character> newList = new ArrayList<>();
+                                            newList.add(first);
+                                            newList.addAll(subList);
+                                            result.add(newList);
+                                            result.add(subList);
+
+StringPermutations  recursion       1.  Recursive function signature:
+                                            List<String> stringPermutations(String s)
+                                    2.  Consider 2 cases:
+                                        a.  number of characters > 1
+                                        b.  number of characters == 1
+                                                if(s.length() > 1)
+                                                {
+                                                    ...
+                                                }
+                                                else
+                                                {
+                                                  result.add(s);
+                                                }
+                                    3.  Use first element and the remainder:
+                                            char firstChar = s.charAt(0);
+                                            String rem = s.substring(1);
+                                    4.  Call recursively on the remainder and loop through results:
+                                        Note: use of "<=" in the loop
+                                            for(String word : stringPermutations(rem))
+                                            {
+                                                for(int i = 0; i <= word.length(); ++i)
+                                                {
+                                                    String str = insertChatAt(word, firstChar, i);
+                                                    result.add(str);
+                                                }
+                                            }
+                                    5.  Helper function
+                                            String insertChatAt(String s, char c, int i)
+                                            {
+                                                String start = s.substring(0, i);
+                                                String end = s.substring(i);
+                                                return start + c + end;
+                                            }
+
+EditDistance        recursion       1.  Recursive function signature:
+                                            int editDistance(String s1, String s2, int len1, int len2)
+                                    2.  Base cases:
+                                            if(len1 == 0)
+                                            {
+                                              return len2;
+                                            }
+                                            if(len2 == 0)
+                                            {
+                                              return len1;
+                                            }
+                                    3.  Compare last char of two strings:
+                                        a.  If equal, proceed to check next character:
+                                                if(s1.charAt(len1 - 1) == s2.charAt(len2 - 1))
+                                                {
+                                                  return editDistance(s1, s2, len1 - 1, len2 - 1);
+                                                }
+                                        b.  If not equal return 1 + min:
+                                                return 1 + min(editDistance(s1, s2, len1, len2 - 1),
+                                                        editDistance(s1, s2, len1 - 1, len2),
+                                                        editDistance(s1, s2, len1 - 1, len2 - 1));
+
+AddUptoN            recursion       1.  Recursive function signature:
+                                            int combinations(List<int []> result, int offset, int amount, String s)
+                                    2.  Base cases:
+                                            if(amount == 0)
+                                            {
+                                              String[] vals = s.split(",");
+                                              int[] ans = Arrays.stream(vals).mapToInt(Integer::valueOf).toArray();
+                                              result.add(ans);
+                                              return 1;
+                                            }
+                                            if(offset == 0 || amount < 0)
+                                            {
+                                              return 0;
+                                            }
+                                    3.  Return sum of include and exclude:
+                                            int exclude = combinations(result, offset - 1, amount, s);
+                                            s += offset + ",";  // 1, 1, 1, 1, 1 will be the first combination
+                                            int include = combinations(result, offset, amount - offset, s);
+                                            return exclude + include;
+
+CombinationOfFactors    recursion   1.  Recursive function signature
+                                            void combinations(int number, int start, int product, List<Integer> current, List<List<Integer>> result)
+                                    2.  Base cases:
+                                            if(start > number || product > number)
+                                            {
+                                                return;
+                                            }
+                                            if(product == number)
+                                            {
+                                                result.add(new ArrayList<>(current));
+                                                return;
+                                            }
+                                    3.  Accumulate factors
+                                            for(int i = start; i < number; ++i)
+                                            {
+                                                if(i * product > number)
+                                                {
+                                                    break;
+                                                }
+
+                                                if(number % i == 0)
+                                                {
+                                                    current.add(i);
+                                                    combinations(number, i, i * product, current, result);
+                                                    current.remove(current.size() - 1);
+                                                }
+                                            }
+
+GameStrategy        recursion       1.  Strategies for user:
+                                        a.  User chooses left coin:
+                                                User collects: Left coin + min(F(Vi+2, Vj), F(Vi+1,Vj-1))
+                                        b.  User chooses right coin:
+                                                User collects:  Right coin + min(F(Vi+1,Vj-i), F(Vi,Vj-2))
+                                    2.  Recursive function signature
+                                            int optimalStrategy(int [] coins, int leftIndex, int rightIndex)
+                                    3.  Base cases:
+                                            if(leftIndex == rightIndex)
+                                            {
+                                              return coins[leftIndex];
+                                            }
+                                            if(rightIndex == leftIndex + 1)
+                                            {
+                                              return Math.max(coins[leftIndex], coins[rightIndex]);
+                                            }
+                                    4.  Return max value
+                                            int leftMin = Math.min(optimalStrategy(coins, leftIndex + 2, rightIndex),
+                                                optimalStrategy(coins, leftIndex + 1, rightIndex - 1));
+                                            int rightMin = Math.min(optimalStrategy(coins, leftIndex + 1, rightIndex - 1),
+                                                optimalStrategy(coins, leftIndex, rightIndex - 2));
+                                            return Math.max(coins[leftIndex] + leftMin, coins[rightIndex] + rightMin);
+
+ReverseStack        recursion       1.  Implement insertAtBottom recursive function
+                                    2.  Always check if stack is empty
+                                            void insertAtBottom(Stack<Integer> s, int val)
+                                            {
+                                                if(s.empty())
+                                                {
+                                                    s.push(val);
+                                                }
+                                                else
+                                                {
+                                                    int tmp = s.pop();
+                                                    insertAtBottom(s, val);
+                                                    s.push(tmp);
+                                                }
+                                            }
+
+                                            public static void reverseStack(Stack<Integer> s)
+                                            {
+                                                if(!s.empty())
+                                                {
+                                                    int val = s.pop();
+                                                    reverseStack(s);
+                                                    insertAtBottom(s, val);
+                                                }
+                                            }
+
+Subsequence         string          1.  Subsequence match. Note: this is different from patternMatch
+                                            boolean subsequenceMatch(String str, String pat)
+                                            {
+                                                int patIdx = 0;
+                                                for(int strIdx = 0; strIdx < str.length() && patIdx < pat.length(); ++strIdx)
+                                                {
+                                                    if(str.charAt(strIdx) == pat.charAt(patIdx))
+                                                    {
+                                                        patIdx++;
+                                                    }
+                                                }
+
+                                                return patIdx == pat.length();
+                                            }
+
+                    recursion       2.  LongestCommonSubsequence - Length
+                                        a.  Recursive function signature
+                                                int longestCommonSubsequenceLength(char[] a1, char[] a2, int len1, int len2)
+                                        b.  Base case:
+                                                if(len1 == 0 || len2 == 0)
+                                                {
+                                                  return 0;
+                                                }
+                                        c.  If last characters match return 1 + process next char.
+                                            Otherwise return max
+                                                if(a1[len1 - 1] == a2[len2 - 1])
+                                                {
+                                                    return 1 + longestCommonSubsequenceLength(a1, a2, len1 - 1, len2 - 1);
+                                                }
+                                                else
+                                                {
+                                                    return Math.max(longestCommonSubsequenceLength(a1, a2, len1 - 1, len2),
+                                                        longestCommonSubsequenceLength(a1, a2, len1, len2 - 1));
+                                                }
+
+                                    3.  LongestCommonSubsequence - String
+                                        a.  Recursive function signature
+                                                String longestCommonSubsequence(char[] a1, char[] a2, int len1, int len2)
+                                        b.  Base case:
+                                                if(len1 == 0 || len2 == 0)
+                                                {
+                                                    return "";
+                                                }
+                                        c.  Handle last character match and mismatch
+                                                if(a1[len1 - 1] == a2[len2 - 1])
+                                                {
+                                                    return longestCommonSubsequence(a1, a2, len1 - 1, len2 - 1) + a1[len1 - 1];
+                                                }
+                                                else
+                                                {
+                                                    String s1 = longestCommonSubsequence(a1, a2, len1 - 1, len2);
+                                                    String s2 = longestCommonSubsequence(a1, a2, len1, len2 - 1);
+                                                    return s1.length() > s2.length() ? s1 : s2;
+                                                }
+
+WildcardMatch       recursion       1.  Recursive function signature
+                                            boolean wildcardMatch(String str, String pattern)
+                                    2.  Iterate for as long as the length of pattern is > 0
+                                            while(pattern.length() > 0)
+                                    3.  Consider three cases:
+                                        a.  Pattern contains '?'
+                                                if(str.length() == 0)
+                                                {
+                                                    return false;
+                                                }
+                                                str = str.substring(1);
+                                                pattern = pattern.substring(1);
+                                        b.  Pattern contains '*'
+                                                if(wildcardMatch(str, pattern.substring(1)))
+                                                {
+                                                    return true;
+                                                }
+                                                if(str.length() > 0 && wildcardMatch(str.substring(1), pattern))
+                                                {
+                                                    return true;
+                                                }
+                                                return false;
+                                        c.  Pattern contains regular char
+                                                if(str.length() == 0 || str.charAt(0) != pattern.charAt(0))
+                                                {
+                                                    return false;
+                                                }
+                                                str = str.substring(1);
+                                                pattern = pattern.substring(1);
+
+HanoiTowers         recursion       1.  Each HanoiTower has a stack of disks:
+                                            Stack<Integer> disks = new Stack<>();
+                                    2.  Method to move disk from source to destination
+                                            void moveTo(HanoiTower dest)
+                                            {
+                                                dest.disks.push(disks.pop());
+                                            }
+                                    3.  In a static method, create 3 towers and place on disks on the first tower
+                                            HanoiTower[] towers = new HanoiTower[3];
+                                            for(int i = 0; i < 3; ++i)
+                                            {
+                                              towers[i] = new HanoiTower();
+                                            }
+                                            for(int i = 2; i >= 0; --i)
+                                            {
+                                              towers[0].disks.push(i);
+                                            }
+                                    4.  Call moveDisks on the tower that has all disks passing two other towers as destination and buffer
+                                            towers[0].moveDisks(3, towers[1], towers[2])
+                                    5.  Recursive implementation of moveDisks.
+                                        Note:
+                                        a.  destination and buffer towers are switched on each recursive call.
+                                        b.  second recursive call is on buffer tower with this tower serving as the buffer
+                                                void moveDisks(int n, HanoiTower dest, HanoiTower buffer)
+                                                {
+                                                    if(n > 0)
+                                                    {
+                                                        moveDisks(n - 1, buffer, dest);
+                                                        moveTo(dest);
+                                                        buffer.moveDisks(n - 1, dest, this);
+                                                    }
+                                                }
+
+RodCutting          recursion       1.  Determine maximum value from cutting the rod given prices of segments
+                                    2.  Implementation
+                                            int maxValue(int[] prices, int n)
+                                            {
+                                                if(n == 0)
+                                                {
+                                                    return 0;
+                                                }
+
+                                                int max = Integer.MIN_VALUE;
+                                                for(int i = 0; i < n; ++i)
+                                                {
+                                                    max = Math.max(max, prices[i] + maxValue(prices, n - i - 1));
+                                                }
+                                                return max;
+                                            }
+
+CitySkyline         heaps           1.  Function signature:
+                                            List<int[]> generateSkyline()
+                                    2.  buildings[][] is an array of building[] where each building[] is {x, y, height}
+                                    3.  From each building[] create a list of left and right Edge objects {pos, height, LEFT/RIGHT}
+                                    4.  Soft edges by:
+                                            a.  Position from left to right
+                                            b.  LEFT edges by height descending
+                                            c.  RIGHT edges by height ascending
+                                            d.  Others, left before right
+                                                void sortEdges(List<Edge> edges)
+                                                {
+                                                    edges.sort((e1, e2) -> {
+                                                        if(e1.pos != e2.pos) return e1.pos - e2.pos;
+                                                        if(e1.type == Edge.Type.LEFT && e2.type == Edge.Type.LEFT) return e2.height - e1.height;
+                                                        if(e1.type == Edge.Type.RIGHT && e2.type == Edge.Type.RIGHT) return e1.height - e2.height;
+                                                        return Edge.Type.LEFT.compareTo(Edge.Type.RIGHT);
+                                                    });
+                                                }
+                                    5.  Create a maxHeap priority queue to store Edge heights
+                                            PriorityQueue<Integer> pq = new PriorityQueue<>(10, Collections.reverseOrder());
+                                        a.  Create a collection to store results, i.e. the skyline
+                                                List<int[]> result = new ArrayList<>();
+                                        b.  Iterate over list of edges
+                                            1.  For LEFT edges
+                                                a.  If PQ is empty or the current edge's height > pq.peek(), add current edge to result
+                                                        result.add(new int[] {edge.pos, edge.height});
+                                                b.  In either case, offer height of the current left edge to the PQ
+                                                        pq.offer(edge.height);
+                                            2.  For RIGHT edges
+                                                a.  Remove Edge's height from the PQ
+                                                b.  If PQ is empty or the current edge's height > pq.peek(), add current edge to result
+                                                        if(pq.isEmpty() || pq.peek() < edge.height)
+                                                    Note: If PQ is empty, the height of the edge will be 0.
+                                                        int [] skyline = {edge.pos, pq.isEmpty() ? 0 : pq.peek()};
+                                            List<int[]> result = new ArrayList<>();
+                                            for(Edge edge : edges)
+                                            {
+                                                if(edge.type == Edge.Type.LEFT)
+                                                {
+                                                    if(pq.isEmpty() || pq.peek() < edge.height)
+                                                    {
+                                                        result.add(new int[] {edge.pos, edge.height});
+                                                    }
+                                                    pq.offer(edge.height);
+                                                }
+                                                else
+                                                {
+                                                    pq.remove(edge.height);
+                                                    if(pq.isEmpty() || pq.peek() < edge.height)
+                                                    {
+                                                        int [] skyline = {edge.pos, pq.isEmpty() ? 0 : pq.peek()};
+                                                        result.add(skyline);
+                                                    }
+                                                }
+                                            }
+
+MeetingRooms        heaps           1.  Consider inputs: [4, 9], [2, 15], [16, 23], [9, 29], [30, 45]
+                                    2.  Sort input based on start time:
+                                            Arrays.sort(intervals, Comparator.comparingInt((int[] a) -> a[0]));
+                                            [2, 15], [4, 9], [9, 29], [16, 23], [30, 45]
+                                    3.  Place end time of the first meeting into min PriorityQueue
+                                            PriorityQueue<Integer> pq = new PriorityQueue<>();
+                                            pq.offer(intervals[0][1]);
+                                    4.  Iterate over other intervals (starting with index 1)
+                                            for(int i = 1; i < intervals.length; ++i)
+                                            a.  Start time of next interval is > pq.peek(), i.e. end time of prior interval
+                                                    pq.poll();
+                                            b.  Start time of next interval is < pq.peek(), i.e. end time of prior interval
+                                                    roomCount++;
+                                            c.  Offer end time of the current interval to priority queue:
+                                                    pq.offer(interval[1]);
+                                                Note: because this is a min priority queue, lower value will stay at the top
+                                            for(int i = 1; i < intervals.length; ++i)
+                                            {
+                                                int[] interval = intervals[i];
+                                                if(interval[0] >= pq.peek())
+                                                {
+                                                    pq.poll();
+                                                }
+                                                else
+                                                {
+                                                    roomCount++;
+                                                }
+                                                pq.offer(interval[1]);
+                                            }
+
+                                    5.  Return roomCount
+
+SetPartition        heaps           1.  Partition a set into two subsets such that the difference of subset sums is minimum
+                                    2.  Create a MaxHeap priority queue
+                                            PriorityQueue<Integer> pq = new PriorityQueue<>(a.length, Collections.reverseOrder());
+                                    3.  Add all items to the PQ:
+                                            for(int i : a)
+                                            {
+                                              pq.add(i);
+                                            }
+                                    4.  While number of items on PQ > 1:
+                                            while(pq.size() > 1)
+                                            {
+                                              int v1 = pq.poll();
+                                              int v2 = pq.poll();
+                                              pq.add(v1 - v2);
+                                            }
+                                    5.  Return last item from PQ:
+                                            return pq.poll();
+
+BestMeetingPoint    matrix          1.  Consider input:
+                                            {1, 0, 0, 0, 1},
+                                            {0, 1, 0, 1, 0},
+                                            {0, 0, 1, 0, 0}
+                                    2.  If all people were standing in a straight line, the best meeting point would be
+                                        the location of the person in the middle.
+                                    3.  Create collections to store row and column locations:
+                                            List<Integer> rowList = new ArrayList<>();
+                                            List<Integer> colList = new ArrayList<>();
+
+                                            int rows = grid.length;
+                                            int cols = grid[0].length;
+                                            for(int row = 0; row < rows; ++row)
+                                            {
+                                              for(int col = 0; col < cols; ++col)
+                                              {
+                                                if(grid[row][col] == 1)
+                                                {
+                                                  rowList.add(row);
+                                                  colList.add(col);
+                                                }
+                                              }
+                                            }
+                                    4.  Sum up distances to the midpoint
+                                            int sum = 0;
+                                            int midRow = rowList.get(rowList.size() / 2);
+                                            for(int row : rowList)
+                                            {
+                                              sum += Math.abs(row - midRow);
+                                            }
+
+                                            colList.sort(Comparator.naturalOrder());
+                                            int midCol = colList.get(colList.size() / 2);
+                                            for(int col : colList)
+                                            {
+                                              sum += Math.abs(col - midCol);
+                                            }
+
+RotateBy90          matrix          1.  Always consider a 3x3 Matrix
+                                            1 2 3
+                                            4 5 6
+                                            7 8 9
+                                    2.  Two loops:
+                                            i: 0 .. grid.length / 2;
+                                            j: 0 .. grid.length - 1 - i
+                                        This means that the outer loop i will execute once and the inner j loop will execute twice
+                                        Which is exactly what we need to rotate a 3x3 matrix
+                                    3.  We have following indices:
+                                        a.  First iteration
+                                                i: 0
+                                                j: 0
+                                                rows - i - 1: 2
+                                                rows - j - 1: 2
+                                        b.  Second iteration
+                                                i: 0
+                                                j: 1
+                                                rows - i - 1: 2
+                                                rows - j - 1: 1
+                                    4.  For clockwise rotation (shown for first iteration only):
+                                        Note: i to j and j to i: i -> j, j -> i
+                                        a.  save grid[0][0] to temp var
+                                                int tmp = matrix[i][j];
+                                        b.  Move grid[2][0] to grid[0][0]
+                                                matrix[i][j] = matrix[rows - 1 - j][i];
+                                        c.  Move grid[2][2] to grid[2][0]
+                                                matrix[rows - 1 - j][i] = matrix[rows - 1 - i][rows - 1 - j];
+                                        d.  Move grid[0][2] to grid[2][2]
+                                                matrix[rows - 1 - i][rows - 1 - j] = matrix[j][rows - 1 - i];
+                                        e.  Move grid[0][0] to grid[0][2]
+                                                matrix[j][rows - 1 - i] = tmp;
+
+
+FractionToDecimal   numbers         1.  Consider 4 / 7 which would be represented as "0.(571428)"
+                                    2.  Base conditions
+                                            if(n == 0)
+                                            {
+                                              return "0";
+                                            }
+                                            if(d == 0)
+                                            {
+                                              return "";
+                                            }
+
+                                            String result = "";
+                                            if((n < 0) ^ (d < 0))
+                                            {
+                                              result += "-";
+                                            }
+                                    3.  Check result and remainder. Return if remainder is 0.
+                                            long num = Math.abs(n);
+                                            long denom = Math.abs(d);
+
+                                            result += num / denom;
+
+                                            long remainder = num % denom * 10;
+                                            if(remainder == 0)
+                                            {
+                                              return result;
+                                            }
+                                    4.  If the remainder is not 0, reinit remainder as:
+                                            remainder = remainder % denom * 10;
+
+                                            result += ".";
+                                            Map<Long, Integer> map = new HashMap<>();
+                                            while(remainder != 0)
+                                            {
+                                              if(map.containsKey(remainder))
+                                              {
+                                                int beg = map.get(remainder);
+                                                String part1 = result.substring(0, beg);
+                                                String part2 = result.substring(beg);
+                                                result = part1 +"(" + part2 + ")";
+                                                return result;
+                                              }
+                                              map.put(remainder, result.length());
+                                              result += remainder / denom;
+                                              remainder = remainder % denom * 10;
+                                            }
+                                            return result;
+
+GasStations         numbers         1.  Input is provided in a 2D array, for example:
+                                            {4, 6},
+                                            {6, 5},
+                                            {1, 3},
+                                            {7, 4},
+                                        Where the first value is the amount of petrol and the next value is the distance to the next station.
+                                        To make it easier, we convert each coordinate to a Unit {petrol, distance}
+                                            unitList = Arrays.stream(data).map((int[] a) -> new Unit(a[0], a[1])).collect(Collectors.toList());
+                                    2.  Find the first station where the journey can be started:
+                                            int supply = 0;
+                                            for(int i = 0; i < unitList.size(); ++i)
+                                            {
+                                              Unit unit = unitList.get(i);
+                                              if(unit.distance > unit.petrol + supply)
+                                              {
+                                                continue;
+                                              }
+                                    3.  Check if we can visit all stations from "good" starting point.
+                                        If the next station can be reached, increment supply
+                                              int j = 0;
+                                              for(; j < unitList.size(); ++j)
+                                              {
+                                                Unit currentUnit = unitList.get((i + j) % unitList.size());
+                                                if(currentUnit.distance > currentUnit.petrol + supply)
+                                                {
+                                                  break;
+                                                }
+                                                supply += currentUnit.petrol - currentUnit.distance;
+                                              }
+                                    4.  If we could visit all stations from last "good" station, return index
+                                          if(j == unitList.size())
+                                          {
+                                            return i;
+                                          }
+                                    5.  Otherwise, set supply to 0 and try from the next station:
+                                            supply = 0;
+
+NumberToWords       numbers         1.  Create arrays to store ones and teens, tens, big numbers:
+                                              static String[] numNames = {
+                                                      "",
+                                                      "one",
+                                                      ...
+                                                      "nineteen"
+                                                  };
+                                              static String[] tenNames = {
+                                                      "",
+                                                      "ten",
+                                                      ...
+                                                      "ninety",
+                                                  };
+                                              static String[] bigNumNames = {
+                                                      "",
+                                                      "thousand",
+                                                      "million",
+                                                      ...
+                                                      "quintillion"
+                                                  };
+                                        2.  Main loop inside convert function:
+                                                String current = "";
+                                                int bigNumPlace = 0;
+                                                do
+                                                {
+                                                  long n = number % 1000;
+                                                  if(n != 0)
+                                                  {
+                                                    String s = convertLessThan1000((int)n);
+                                                    current = s + bigNumNames[bigNumPlace++] + current;
+                                                  }
+                                                  number /= 1000;
+                                                } while (number > 0);
+                                                 return prefix + current;
+
+GenPrimes           numbers             1.  Add first prime number (2) to primes:
+                                                int[] primes = new int[n];
+                                                int count = 0;
+                                                primes[count++] = 2;
+                                        2.  Set first nextCandidate to 3
+                                                int nextCandidate = 3;
+                                        3.  Iterate until we generate required number of primes.
+                                            Note: make sure to use "<=" and not "<" when checking upper limit
+                                                while(count < n)
+                                                {
+                                                  boolean isPrime = true;
+                                                  for(int i = 0; primes[i] <= Math.sqrt(nextCandidate); ++i)
+                                                  {
+                                                    if(nextCandidate % primes[i] == 0)
+                                                    {
+                                                      isPrime = false;
+                                                      break;
+                                                    }
+                                                  }
+                                                  if(isPrime)
+                                                  {
+                                                    primes[count++] = nextCandidate;
+                                                  }
+                                                  nextCandidate += 2;
+                                                }
+
+CompareVersions     numbers             1.  Following versions should be equal:
+                                                "1.1", "1.1.0"
+                                        2.  Convert String containing version to array of Strings:
+                                                String[] ar1 = v1.split("\\.");
+                                                String[] ar2 = v2.split("\\.");
+                                        3.  Check array components from left to right
+                                                while(i < ar1.length || i < ar2.length)
+                                        4.  If both components are present, compare their values:
+                                                if(i < ar1.length && i < ar2.length)
+                                                {
+                                                    int val = Integer.parseInt(ar1[i]) - Integer.parseInt(ar2[i]);
+                                                    if(val < 0)
+                                                    {
+                                                      return -1;
+                                                    }
+                                                    if(val > 0)
+                                                    {
+                                                      return 1;
+                                                    }
+                                                }
+                                        5.  Consider cases when one string has more parts than the second and values are not 0
+                                                else if(i < ar1.length)
+                                                {
+                                                    if(Integer.parseInt(ar1[i]) != 0)
+                                                    {
+                                                      return 1;
+                                                    }
+                                                }
+                                                else if(i < ar2.length)
+                                                {
+                                                    if(Integer.parseInt(ar2[i]) != 0)
+                                                    {
+                                                      return -1;
+                                                    }
+                                                }
+
+ToRomanNumeral      numbers             1.  Create 2 arrays corresponding to decimals and roman numerals
+                                                String[] romSym = {"M","CM","D","CD", "C","XC","L","XL","X","IX","V","IV","I"};
+                                                int[] decimals = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+                                        2.  Iterate through decimals array and append corresponding roman numeral
+                                                for(int i = 0; i < decimals.length; ++i)
+                                                {
+                                                  while(num >= decimals[i])
+                                                  {
+                                                    sb.append(romSym[i]);
+                                                    num -= decimals[i];
+                                                  }
+                                                  if(num == 0)
+                                                  {
+                                                    break;
+                                                  }
+                                                }
+
+AreaUnderHistogram  stacksqueue         1.  Iterate through elements in the heights array
+                                                while(i < heights.length)
+                                        2.  Use Stack to store index of the heights array
+                                        3.  For each element in the heights array:
+                                            a.  Push index to stack if the stack is empty or the current bar is higher that last value on the stack
+                                                    if(stack.empty() || heights[i] >= heights[stack.peek()])
+                                                    {
+                                                        stack.push(i++);
+                                                    }
+                                            b.  Otherwise, pop last item from stack and compute current area
+                                                    int h = heights[stack.pop()];
+                                                    int w = stack.empty() ? i : i - stack.peek() - 1;
+                                                    max = Math.max(max, h * w);
+                                        4.  After the main loop, process items remaining on the stack:
+                                                while(!stack.empty())
+                                                {
+                                                  int h = heights[stack.pop()];
+                                                  int w = stack.empty() ? i : i - stack.peek() - 1;
+                                                  max = Math.max(max, h * w);
+                                                }
+
+CanConnect      stacksqueues            1.  Function signature
+                                                boolean pathExists(String[][] paths, String from, String to)
+                                        2.  Convert 2D array of Source, Destination to Map
+                                                Map<String, Set<String>> pathMap = Arrays.stream(paths).collect(
+                                                    HashMap::new,
+                                                    (map, item) -> map.computeIfAbsent(item[0], e -> new HashSet<>()).add(item[1]),
+                                                    HashMap::putAll);
+                                        3.  Create a visited set:
+                                                Set<String> visited = new HashSet<>();
+                                        4.  Create a queue and add "from" item:
+                                                Queue<String> queue = new LinkedList<>();
+                                                queue.add(from);
+                                        5.  Use BFS
+                                                while(!queue.isEmpty())
+                                                {
+                                                  String item = queue.remove();
+                                                  Set<String> destSet = pathMap.get(item);
+
+                                                  if(destSet != null)
+                                                  {
+                                                    if (destSet.contains(to))
+                                                    {
+                                                      return true;
+                                                    }
+                                                    destSet.removeAll(visited);
+                                                    visited.addAll(destSet);
+                                                    queue.addAll(destSet);
+                                                  }
+                                                }
+
+Celebrity       stacksqueues            1.  For example, person at index 2 is a celebrity
+                                                0, 0, 1, 0
+                                                0, 0, 1, 0
+                                                0, 0, 0, 0
+                                                0, 0, 1, 0
+                                        2.  Function knows(a,b) returns data[a][b] == 1
+                                        3.  Push row indexes onto the stack
+                                                for(int i = 0; i < data.length; ++i)
+                                                {
+                                                  stack.push(i);
+                                                }
+                                        4.  Reduce stack to contain only the celebrity
+                                            a.  if 'a' knows 'b', 'a' can't be a celebrity
+                                            b.  if 'a' does not know 'b', 'b' can't be a celebrity
+                                                    while(stack.size() > 1)
+                                                    {
+                                                      int a = stack.pop();
+                                                      int b = stack.pop();
+                                                      if(knows(a,b)) // a can't be a celebrity
+                                                      {
+                                                        stack.push(b);
+                                                      }
+                                                      else // b can't be a celebrity
+                                                      {
+                                                        stack.push(a);
+                                                      }
+                                                    }
+                                        5.  Celebrity may not be present. Check if the last person on the stack is a celebrity
+                                                int lastPerson = stack.pop();
+                                                for(int i = 0; i < data.length; ++i)
+                                                {
+                                                  if(i != lastPerson &&
+                                                      (knows(lastPerson, i) || !knows(i, lastPerson)))
+                                                  {
+                                                    return -1;
+                                                  }
+                                                }
+
+MergeIntervals      stacksqueues        1.  Sort intervals by starting time
+                                                Arrays.sort(input, Comparator.comparingInt((int[] ar) -> ar[0]));
+                                        2.  Create Stack to store intervals and push the first interval onto the stack
+                                                Stack<int[]> stack = new Stack<>();
+                                                stack.push(input[0]);
+                                        3.  Process remaining intervals
+                                                for(int i = 1 ; i < input.length; ++i)
+                                        4.  Compare start time of current interval with end time of prior interval
+                                            a.  If start time of current interval is <= to end time of prior interval - merge
+                                                If end time of current interval is > than end time of the prior interval, modify prior interval
+                                                    if(input[i][0] <= stack.peek()[1])
+                                                    {
+                                                        if(input[i][1] > stack.peek()[1])
+                                                        {
+                                                            int[] item = stack.pop();
+                                                            item[1] = input[i][1];
+                                                            stack.push(item);
+                                                        }
+                                                    }
+                                            b.  Otherwise, push current interval on the stack
+                                                    stack.push(input[i]);
+
+Maze                stacksqueues        1.  Use BFS to solve
+                                                boolean solveBFS()
+                                                {
+                                                    Queue<int[]> queue = new LinkedList<>();
+                                                    queue.add(new int[] {0, 0});
+                                                    while(!queue.isEmpty())
+                                                    {
+                                                        int[] pt = queue.poll();
+                                                        if(pt[0] == maze.length - 1 && pt[1] == maze[0].length - 1)
+                                                        {
+                                                            return true;
+                                                        }
+
+                                                        int[] newPt1 = new int[] {pt[0] + 1, pt[1]};
+                                                        int[] newPt2 = new int[] {pt[0], pt[1] + 1};
+                                                        if(isValid(newPt1))
+                                                        {
+                                                            queue.add(newPt1);
+                                                        }
+                                                        if(isValid(newPt2))
+                                                        {
+                                                            queue.add(newPt2);
+                                                        }
+                                                    }
+                                                    return false;
+                                                }
+
+MouseAndCheese      stacksqueues        1.  Matrix values have following meaning:
+                                                0   -   Can't move
+                                                1   -   Can move
+                                                9   -   Cheese
+                                        2.  Identify valid moves:
+                                                static int[] X_MOVES = {-1, 0, 0, 1};
+                                                static int[] Y_MOVES = {0, -1, 1, 0};
+                                        3.  Create a DistancePoint utility class to track current position and number of moves made
+                                                static class DistancePoint
+                                                {
+                                                    DistancePoint(int x, int y, int distance)
+                                                    {
+                                                        this.x = x;
+                                                        this.y = y;
+                                                        this.distance = distance;
+                                                    }
+
+                                                    int x, y;
+                                                    int distance;
+                                                }
+                                        4.  Create visited array:
+                                                boolean [][] visited = new boolean[maze.length][maze[0].length];
+                                        5.  Create queue and push upper-left coordinate (which is guaranteed to be equal to 1)
+                                                Queue<DistancePoint> queue = new LinkedList<>();
+                                                queue.add(new DistancePoint(start[0], start[1], 0));
+                                        6.  Use BFS to solve
+                                                while(!queue.isEmpty())
+                                                {
+                                                  DistancePoint lastPoint = queue.poll();
+
+                                                  if(maze[lastPoint.x][lastPoint.y] == 9)
+                                                  {
+                                                    return lastPoint.distance;
+                                                  }
+
+                                                  for(int i = 0; i < 4; ++i)
+                                                  {
+                                                    int x = lastPoint.x + X_MOVES[i];
+                                                    int y = lastPoint.y + Y_MOVES[i];
+
+                                                    if(isValid(x, y) && !visited[x][y])
+                                                    {
+                                                      visited[x][y] = true;
+                                                      DistancePoint distancePoint = new DistancePoint(x, y, lastPoint.distance + 1);
+                                                      queue.offer(distancePoint);
+                                                    }
+                                                  }
+                                                }
+
+PhoneNumberAlpha    stacksqueues        1.  Create a table of letters corresponding to digits
+                                                String[] TABLE = {
+                                                  "",
+                                                  "",
+                                                  "abc",
+                                                  "def",
+                                                  "ghi",
+                                                  "jkl",
+                                                  "mno",
+                                                  "pqrs",
+                                                  "tuv",
+                                                  "wxyz"
+                                                };
+                                        2.  Pass in int[] containing the number, i.e. {2, 3}
+                                        3.  We can lookup letters for a give digit using:
+                                                String val = TABLE[number[s.length()]];
+                                        4.  Solve using BFS
+                                                public List<String> generateCombinations()
+                                                {
+                                                    List<String> result = new ArrayList<>();
+
+                                                    Queue<String> queue = new LinkedList<>();
+                                                    queue.add("");
+                                                    while(!queue.isEmpty())
+                                                    {
+                                                      String s = queue.remove();
+                                                      if(s.length() == numberOfDigits)
+                                                      {
+                                                        result.add(s);
+                                                      }
+                                                      else
+                                                      {
+                                                        String val = TABLE[number[s.length()]];
+                                                        for(int i = 0; i < val.length(); ++i)
+                                                        {
+                                                          queue.add(s + val.charAt(i));
+                                                        }
+                                                      }
+                                                    }
+                                                    return result;
+                                                }
+
+ShortestKnightWalk  stacksqueue         1.  Identify valid moves
+                                                static int[] X_MOVES = {2, 1, -1, -2, -2, -1,  1,  2};
+                                                static int[] Y_MOVES = {1, 2,  2,  1, -1, -2, -2, -1};
+                                        2.  Create a helper class to track coordinates and distance travelled.
+                                                static class DistancePoint
+                                                {
+                                                    int x, y, distance;
+                                                    DistancePoint(int x, int y, int distance)
+                                                    {
+                                                      this.x = x;
+                                                      this.y = y;
+                                                      this.distance = distance;
+                                                    }
+                                                }
+                                        3.  Create visited array and initialize with start position
+                                                boolean[][] visited = new boolean[SIZE][SIZE];
+                                                visited[position[0]][position[1]] = true;
+                                        4.  Create queue and initialize with start position:
+                                                Queue<DistancePoint> queue = new LinkedList<>();
+                                                queue.add(new DistancePoint(position[0], position[1], 0));
+                                        5.  Use BFS and track number of moves with DistancePoint
+                                                while(!queue.isEmpty())
+                                                {
+                                                  DistancePoint dp = queue.poll();
+
+                                                  //  Check for winner
+                                                  if(dp.x == target[0] && dp.y == target[1])
+                                                  {
+                                                    return dp.distance;
+                                                  }
+
+                                                  for(int i = 0; i < SIZE; ++i)
+                                                  {
+                                                    int nextX = dp.x + X_MOVES[i];
+                                                    int nextY = dp.y + Y_MOVES[i];
+
+                                                    if(isValid(nextX, nextY) && !visited[nextX][nextY])
+                                                    {
+                                                      visited[nextX][nextY] = true;
+                                                      queue.offer(new DistancePoint(nextX, nextY, dp.distance + 1));
+                                                    }
+                                                  }
+                                                }
+
+RodCutting          dynamic             1.  Determine maximum value from cutting the rod give prices of segments
+                                        2.  Implementation
+                                                public static int maxValue(int[] prices)
+                                                {
+                                                    int [] dp = new int[prices.length + 1];
+
+                                                    for(int i = 1; i <= prices.length; ++i)
+                                                    {
+                                                        int max = Integer.MIN_VALUE;
+                                                        for(int j = 0; j < i; ++j)
+                                                        {
+                                                            max = Math.max(max, prices[j] + dp[i - j - 1]);
+                                                        }
+                                                        dp[i] = max;
+                                                    }
+
+                                                    return dp[dp.length - 1];
+                                                }
+
+BuyStock            dynamic             1.  For two-transactions create left and right arrays with same size as input
+                                            a.  Left
+                                                    int min = prices[0];
+                                                    for(int i = 1; i < prices.length; ++i)
+                                                    {
+                                                      left[i] = Math.max(left[i - 1], prices[i] - min);
+                                                      min = Math.min(min, prices[i]);
+                                                    }
+                                            b.  Right
+                                                    int max = prices[prices.length - 1];
+                                                    for(int i = prices.length - 2; i >= 0; i--)
+                                                    {
+                                                      right[i] = Math.max(right[i + 1], max - prices[i]);
+                                                      max = Math.max(max, prices[i]);
+                                                    }
+                                        c.  Thus, we can end up with something that looks like:
+                                                Prices: 1, 4, 5, 7, 6, 3, 2, 9
+                                                Left:   0, 3, 4, 6, 6, 6, 6, 8
+                                                Right:  8, 7, 7, 7, 7, 7, 7, 0
+                                    2.  Return max of left + right
+                                            int[] sumArray = new int[prices.length];
+                                            Arrays.setAll(sumArray, i -> left[i] + right[i]);
+                                            return Arrays.stream(sumArray).max().getAsInt();
+
+RussianDoll         dynamic         1.  Consider envelop sizes:
+                                                    {9, 7},
+                                                    {9, 8},
+                                                    {9, 10},
+                                                    {10, 8},
+                                        a.  We can fit {9, 7} inside {10, 8} but not {9, 10} or {9, 8}.
+                                            Therefore, we need to sort envelopes by first dimension and in reverse order by second dimension
+                                                Arrays.sort(envelopes, Comparator.comparingInt((int[] arr) -> arr[0])
+                                                    .thenComparing((int[] arr) -> arr[1], Comparator.reverseOrder()));
+                                    2.  Compare x,y coord of each envelope to the one prior and create a dynamic array with increasing values
+                                            for (int i = 1; i < envelopes.length; ++i)
+                                            {
+                                                if (envelopes[i][0] > envelopes[i - 1][0] && envelopes[i][1] > envelopes[i - 1][1])
+                                                {
+                                                    dp[i] = dp[i - 1] + 1;
+                                                }
+                                                else
+                                                {
+                                                    dp[i] = 1;
+                                                }
+                                            }
+                                    3.  Return max value from DP array
+                                            Arrays.stream(dp).max().getAsInt();
+
+EditDistance        dynamic         1.  Create DP array with extra row and column
+                                            dp = new int[len1 + 1][len2 + 1];
+                                    2.  Initialize DP top row and left col with index:
+                                              a b c d e f
+                                            0 1 2 3 4 5 6
+                                          a 1 0 0 0 0 0 0
+                                          b 2 0 0 0 0 0 0
+                                          c 3 0 0 0 0 0 0
+                                          d 4 0 0 0 0 0 0
+                                          e 5 0 0 0 0 0 0
+                                          f 6 0 0 0 0 0 0
+
+                                        a.  Pay attention to use length of the other string:
+                                            1.  Initialize top row
+                                                    for(int i = 1; i <= len2; ++i)
+                                                    {
+                                                      dp[0][i] = i;
+                                                    }
+                                            2.  Initialize first col
+                                                    for(int i = 1; i <= len1; ++i)
+                                                    {
+                                                      dp[i][0] = i;
+                                                    }
+                                    3.  Start a double loop to compare characters of two strings
+                                        a.  If equal, copy diagonally from above
+                                        b.  If not equal, choose 1 + min(top, left, diagonal)
+                                            for(int i = 1; i <= len1; ++i)
+                                            {
+                                                for(int j = 1; j <= len2; ++j)
+                                                {
+                                                    if(s1.charAt(i - 1) == s2.charAt(j - 1))
+                                                    {
+                                                        dp[i][j] = dp[i - 1][j - 1];
+                                                    }
+                                                    else
+                                                    {
+                                                        dp[i][j] = 1 + min(
+                                                            dp[i][j - 1],
+                                                            dp[i - 1][j],
+                                                            dp[i - 1][j - 1]);
+                                                    }
+                                                }
+                                            }
+                                    4.  Return value in last coord of the DP array
+                                            return dp[len1][len2];
+
+OneEditDistance     dynamic         1.  Make sure that lengths of strings are at most 1 unit apart
+                                    2.  Set string pointers to 0 and iterate until both less than lengths of strings
+                                            while(s1Pos < len1 && s2Pos < len2)
+                                    3.  On first difference, increment one or both string pointers
+                                            if(count == 1)
+                                            {
+                                              return false;
+                                            }
+                                            if(len1 > len2)
+                                            {
+                                              s1Pos++;
+                                            }
+                                            else if(len2 > len1)
+                                            {
+                                              s2Pos++;
+                                            }
+                                            else
+                                            {
+                                              s1Pos++;
+                                              s2Pos++;
+                                            }
+                                            count++;
+                                    4.  After loop, check for extra characters at the end:
+                                        if(s1Pos < len1 || s2Pos < len2)
+                                        {
+                                          count++;
+                                        }
+                                        return count == 1;
+
+EggDrop             dynamic         1.  Create DP where:
+                                        Rows: Number of eggs
+                                        Cols: Number of floors + 1
+                                    2. Initialize DP
+                                        a.  Set col1 to 1.
+                                        b.  Set first row to i, i.e.: 0, 1, 2, 3, ..., last floor
+                                    3.  Three loops: eggs, floors, first to current floor
+                                        for(int egg = 1; i < eggs; ++i)
+                                        {
+                                          for(int j = 2; j <= topFloor; ++j)
+                                          {
+                                            for(int currentFloor = 1; currentFloor <= j; ++currentFloor)
+                                            {
+                                            }
+                                          }
+                                        }
+                                    4.  Compute max in inner loop.
+                                            int max = Math.max(dp[egg - 1][currentFloor - 1], dp[egg][j - currentFloor]);
+                                    5.  Compute min as 1 + max
+                                            min = Math.min(min, 1 + max);
+                                    6.  All loops:
+                                            for(int egg = 1; egg < eggs; ++egg)
+                                            {
+                                              for(int j = 2; j <= topFloor; ++j)
+                                              {
+                                                int min = Integer.MAX_VALUE;
+                                                for(int currentFloor = 1; currentFloor <= j; ++currentFloor) // floors
+                                                {
+                                                  int max = Math.max(dp[egg - 1][currentFloor - 1], dp[egg][j - currentFloor]);
+                                                  min = Math.min(min, 1 + max);
+                                                }
+                                                dp[egg][j] = min;
+                                              }
+                                            }
+
+ShortestDistanceFromAllBuildings    1.  Buildings are designated with 1, obstacles with 2, empty land with 0
+                                            1 0 2 0 1
+                                            0 0 0 0 0
+                                            0 0 1 0 0
+                                        Position [1, 2] would be an ideal place to build house.
+                                        We update the DP array once for each building, setting the distance from the given building to each available position.
+                                        First Iteration     Second Iteration    Third Iteration
+                                        ---------------     ----------------    ---------------
+                                        0 1 0 5 0           0 6 0 6 0           0  9 0 9  0
+                                        1 2 3 4 5           6 6 6 6 6           9  8 7 8  9
+                                        2 3 0 5 6           8 8 0 8 8          10  9 0 9 10
+                                        Return min value from DP for accessible position, i.e. input coordinate is 0.
+                                    2.  Identify valid moves:
+                                            int[] X_MOVES = {1, -1, 0,  0};
+                                            int[] Y_MOVES = {0,  0, 1, -1};
+                                    3.  Create a DistancePoint class to track coordinates and total distance
+                                            static class DistancePoint
+                                            {
+                                              DistancePoint(int x, int y, int distance)
+                                              {
+                                                this.x = x;
+                                                this.y = y;
+                                                this.distance = distance;
+                                              }
+                                              int x, y;
+                                              int distance;
+                                            }
+                                    4.  Save building locations to List<int[]>
+                                    5.  Update DP array multiple times - once for each building:
+                                            for (int[] building : buildings)
+                                            a. Create visited array, queue, and add first DistancePoint to the queue
+                                                    boolean [][] visited = new boolean[grid.length][grid[0].length];
+                                                    Queue<DistancePoint> queue = new LinkedList<>();
+                                                    queue.add(new DistancePoint(building[0], building[1], 0));
+                                            b.  Add all valid DistancePoints to the queue and update the DP array:
+                                                    while(!queue.isEmpty())
+                                                    {
+                                                      DistancePoint distancePoint = queue.poll();
+                                                      for (int i = 0; i < 4; ++i)
+                                                      {
+                                                        int xMove = distancePoint.x + X_MOVES[i];
+                                                        int yMove = distancePoint.y + Y_MOVES[i];
+                                                        if (isValid(xMove, yMove) && !visited[xMove][yMove])
+                                                        {
+                                                          visited[xMove][yMove] = true;
+                                                          dp[xMove][yMove] += distancePoint.distance + 1;
+                                                          queue.add(new DistancePoint(xMove, yMove, distancePoint.distance + 1));
+                                                        }
+                                                      }
+                                                    }
+                                    6.  Return valid Min from the DP array
+                                            int min = Integer.MAX_VALUE;
+                                            for(int i = 0; i < grid.length; ++i)
+                                            {
+                                              for(int j = 0; j < grid[0].length; ++j)
+                                              {
+                                                if(grid[i][j] == 0)
+                                                {
+                                                  min = Math.min(min, dp[i][j]);
+                                                }
+                                              }
+                                            }
+
+UniquePaths         dynamic         1.  Consider maze input:
+                                            {1, 1, 0, 1}
+                                            {0, 1, 1, 0}
+                                            {0, 1, 1, 1}
+                                            {0, 0, 1, 1}
+                                            {0, 0, 1, 1}
+                                    2.  Initialize first row and column of the DP array from values in maze
+                                            {1, 1, 0, 1}
+                                            {0, 0, 0, 0}
+                                            {0, 0, 0, 0}
+                                            {0, 0, 0, 0}
+                                            {0, 0, 0, 0}
+                                        a.  Init first row:
+                                                for(int i = 0; i < cols; ++i)
+                                                {
+                                                  dp[0][i] = maze[0][i];
+                                                }
+                                        b.  Init first col
+                                                for(int i = 0; i < rows; ++i)
+                                                {
+                                                  dp[i][0] = maze[i][0];
+                                                }
+                                    3.  From coordinate (1,1) sum values in DP array from above and to the left
+                                            for(int i = 1; i < rows; ++i)
+                                            {
+                                              for(int j = 1; j < cols; ++j)
+                                              {
+                                                if(maze[i][j] != 0)
+                                                {
+                                                  dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+                                                }
+                                              }
+                                            }
+                                        To produce:
+                                            {1, 1, 0, 1}
+                                            {0, 1, 1, 0}
+                                            {0, 1, 2, 2}
+                                            {0, 0, 2, 4}
+                                            {0, 0, 2, 6}
+
+Subsequence         dynamic         1.  Longest Common Subsequence
+                                        a.  Consider two strings: "abcdefg" and "acefj".
+                                            The longest subsequence would be 4 and include: "acef"
+                                        b.  Create a DP 2D array with extra row and column:
+                                                int[][] dp = new int[len1 + 1][len2 + 1];
+                                        c.  Compare chars left-to-right and increment value in DP array on match
+                                                for(int i = 1; i <= len1; ++i)
+                                                {
+                                                  for(int j = 1; j <= len2; ++j)
+                                                  {
+                                                    if(a1[i - 1] == a2[j - 1])
+                                                    {
+                                                      dp[i][j] = dp[i - 1][j - 1] + 1;
+                                                    }
+                                                    else
+                                                    {
+                                                      dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                                                    }
+                                                  }
+                                                }
+                                        d.  Return last coordinate from the DP array
+                                                return dp[len1][len2];
+
+                                    2.  Longest Increasing Run Range
+                                        a.  Populate values in the DP array
+                                                int[] dp = new int[a.length];
+                                                dp[0] = 1;
+                                                for (int i = 1; i < a.length; ++i)
+                                                {
+                                                  if (a[i] > a[i - 1])
+                                                  {
+                                                    dp[i] = dp[i - 1] + 1;
+                                                  }
+                                                  else
+                                                  {
+                                                    dp[i] = 1;
+                                                  }
+                                                }
+                                        b.  Find DP maxValue and maxIndex
+                                                int maxVal = Integer.MIN_VALUE, maxIndex = Integer.MIN_VALUE;
+                                                for (int i = 0; i < dp.length; ++i)
+                                                {
+                                                  if (dp[i] > maxVal)
+                                                  {
+                                                    maxVal = dp[i];
+                                                    maxIndex = i;
+                                                  }
+                                                }
+                                        c.  Return range:
+                                                int minIndex = maxIndex - maxVal + 1;
+                                                return new int[] {minIndex, maxIndex};
+
+                                    3.  Longest Increasing Subsequence
+                                        Consider following example:
+                                        {10, 22, 9, 33, 21, 50, 41, 60, 80} -> {10, 22, 33, 50, 60, 80}
+                                        a.  Initialize DP array with 1
+                                                int [] dp = new int[a.length];
+                                                Arrays.fill(dp, 1);
+                                        b.  Set values in DP array:
+                                                for(int i = 1; i < a.length; ++i)
+                                                {
+                                                  for(int j = 0; j < i; ++j)
+                                                  {
+                                                    if(a[i] > a[j] && dp[i] <= dp[j])
+                                                    {
+                                                      dp[i] = dp[j] + 1;
+                                                    }
+                                                  }
+                                                }
+                                            { 1, 2, 1, 3, 2, 4, 4, 5, 6}
+                                        c.  Return max from the DP array:
+                                                return Arrays.stream(dp).max().getAsInt();
+                                    4.  Longest Common Substring
+                                        a.  Strings: "abxcxyze" and "jxyzkl" have "xyz" in common
+                                        b.  Mark matching chars with 1 in the DP array
+                                            boolean matchFound = false;
+                                                for(int i = 0; i < len1; ++i)
+                                                {
+                                                  for(int j = 0; j < len2; ++j)
+                                                  {
+                                                    if(s1.charAt(i) == s2.charAt(j))
+                                                    {
+                                                      dp[i][j] = 1;
+                                                      matchFound = true;
+                                                    }
+                                                  }
+                                                }
+                                        c.  Find longest common match
+                                                int max = 0;
+                                                int xPos = -1;
+                                                for(int i = 0; i < dp.length; ++i)
+                                                {
+                                                  for(int j = 0; j < dp[0].length; ++j)
+                                                  {
+                                                    if(dp[i][j] == 1)
+                                                    {
+                                                      int len = 1;
+                                                      for(int m = 1; m < dp.length - i; ++m)
+                                                      {
+                                                        if(dp[i + m][j + m] == 1)
+                                                        {
+                                                          len++;
+                                                        }
+                                                        else
+                                                        {
+                                                          break;
+                                                        }
+                                                      }
+                                                      if(len > max)
+                                                      {
+                                                        max = len;
+                                                        xPos = i;
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                        d.  Return substring
+                                                s1.substring(xPos, xPos + max);
+
+KnightMoveProbability   dynamic     1.  Function signature
+                                            double computeProbability(int xStart, int yStart, int steps)
+                                    2.  Initialize valid moves:
+                                            int[] X_MOVES = {2, 1, -1, -2, -2, -1,  1,  2};
+                                            int[] Y_MOVES = {1, 2,  2,  1, -1, -2, -2, -1};
+                                    3.  Construct a 3D DP array and initialize for 0 steps, i.e. probability = 1
+                                            double dp[][][] = new double[SIZE][SIZE][steps + 1];
+                                            Arrays.fill(dp[0][0], 1);
+                                    4.  Increment value in DP array for each valid move:
+                                            for(int step = 1; step <= steps; ++step)
+                                            {
+                                              for(int x = 0; x < SIZE; ++x)
+                                              {
+                                                for(int y = 0; y < SIZE; ++y)
+                                                {
+                                                  double probability = 0.0;
+                                                  for(int i = 0; i < SIZE; ++i)
+                                                  {
+                                                    int nextX = x + X_MOVES[i];
+                                                    int nextY = y + Y_MOVES[i];
+                                                    if(isValid(nextX, nextY))
+                                                    {
+                                                      probability += dp[x][y][step - 1] / 8.0;
+                                                    }
+                                                  }
+                                                  dp[x][y][step] = probability;
+                                                }
+                                              }
+                                            }
+                                    5.  Return last value from DP array
+                                            return dp[xStart][yStart][steps];
+
+RainWater           dynamic         1.  Consider input and left + right arrays
+                                        heights = 0  1  0  2  1  0  1  3  2  1  2  1
+                                        left    = 0  1  1  2  2  2  2  3  3  3  3  3
+                                        right   = 3  3  3  3  3  3  3  3  2  2  2  1
+                                        --------------------------------------------
+                                        Accum:    0  0  1  0  1  2  1  0  0  1  0  0
+
+                                    2. Compute DP arrays
+                                        a.  Left array
+                                                left[0] = heights[0];
+                                                for(int i = 1; i < heights.length; i++)
+                                                {
+                                                  left[i] = Math.max(heights[i], left[i - 1]);
+                                                }
+                                        b.  Right array
+                                                right[heights.length - 1] = heights[heights.length - 1];
+                                                for(int i = heights.length - 2; i >= 0; --i)
+                                                {
+                                                  right[i] = Math.max(heights[i], right[i + 1]);
+                                                }
+                                    3. Compute total
+                                            int total = 0;
+                                            for(int i = 0; i < heights.length; i++)
+                                            {
+                                              total += Math.min(left[i], right[i]) - heights[i];
+                                            }
+
+DecodeWays          dynamic         1.  Create isValid function to check validity of last and last two numbers
+                                            boolean isValid(String s)
+                                            {
+                                              if(s.charAt(0) == '0')
+                                              {
+                                                return false;
+                                              }
+                                              int val = Integer.parseInt(s);
+                                              return val >= 1 && val <= 26;
+                                            }
+                                    2.  Create DP array with one extra space and initialize
+                                            dp = new int[s.length() + 1];
+                                            d[0] = 1;
+                                            dp[1] = isValid(s.substring(0, 1) ? 1 : 0
+                                    3.  Process remaining characters
+                                        a.  If last char is valid, add previous value
+                                        b.  If last 2 chars are valid, add previous two values
+                                                for(int i = 2; i <= s.length(); ++i)
+                                                {
+                                                  if(isValid(s.substring(i - 1, i)))
+                                                  {
+                                                    dp[i] += dp[i - 1];
+                                                  }
+                                                  if(isValid(s.substring(i - 2, i)))
+                                                  {
+                                                    dp[i] += dp[i - 2];
+                                                  }
+                                                }
+
+
+Knapsack            dynamic
+PascalTriangle      dynamic
+PerfectSquares      dynamic
+
+GraphColoring       graphs          1.  Use Adjacency matrix to convey connections between vertices:
+                                            int[][] adjMatrix = {
+                                                {0, 1, 0, 1, 1},
+                                                {1, 0, 1, 0, 1},
+                                                {0, 1, 0, 1, 0},
+                                                {1, 0, 1, 0, 1},
+                                                {1, 1, 0, 1, 0},
+                                            };
+                                    2.  Convert number of colors to char[], i,e, {'a', 'b', 'c', 'd'}
+                                            colors = IntStream.range(0, m)
+                                                    .mapToObj(c -> Character.toString((char) (c + 'a')))
+                                                    .collect(Collectors.joining()).toCharArray();
+                                    3.  Create class member to track vertex to color mapping:
+                                            Map<Integer,Character> vertexToColorMap = new HashMap<>();
+                                    4.  Iterate through verteces:
+                                            for(int vertex = 0; vertex < adjMatrix.length; ++vertex)
+                                            a.  Check if all vertices have been colored:
+                                                    if(vertexToColorMap.size() == adjMatrix.length)
+                                                    {
+                                                        return true;
+                                                    }
+                                            b.  Prepare all colors that may be used for this vertex
+                                                    String colorStr = new String(colors);
+                                                    List<Character> allColors = colorStr.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
+                                            c.  Remove color of the current vertex
+                                                    Character vertexColor = vertexToColorMap.get(vertex);
+                                                    if(vertexColor == null)
+                                                    {
+                                                        vertexToColorMap.put(vertex, allColors.get(0));
+                                                        allColors.remove(0);
+                                                    }
+                                                    else
+                                                    {
+                                                        allColors.remove(vertexColor);
+                                                    }
+                                            d.  Check adjacent neighbors of the current vertex
+                                                    int[] neighbors = adjMatrix[vertex];
+                                                    for(int neighbor = 0; neighbor < neighbors.length; ++neighbor)
+                                                    {
+                                                        //  If the neighbor is not self and path exist to the neighbor
+                                                        if(neighbor != vertex && neighbors[neighbor] == 1)
+                                                        {
+                                                            Character neighborColor = vertexToColorMap.get(neighbor);
+                                                            if(neighborColor == null)
+                                                            {
+                                                                vertexToColorMap.put(neighbor, allColors.get(0));
+                                                                allColors.remove(0);
+                                                            }
+                                                            else
+                                                            {
+                                                                allColors.remove(vertexColor);
+                                                            }
+                                                        }
+                                                    }
+                                    5.  Return true if all vertices have been colored
+                                            return vertexToColorMap.size() == adjMatrix.length
+
+DijkstraShortestPathDirected        1.  Define class Vertex comparable by distance:
+                                        a.  Members
+                                            1.  String name
+                                            2.  boolean visited
+                                            3.  Vertex predecessor
+                                            4.  List<Edge> adjList = new ArrayList<>();
+                                            5.  int distance
+                                        b.  Initialize Vertex.distance to Integer.MAX_VALUE;
+                                    2.  Define class Edge
+                                        a.  Members:
+                                            1.  int weight
+                                            2.  Vertex fromVertex
+                                            3.  Vertex toVertex
+                                        b.  Use constructor to add edge to the AdjacencyList of fromVertex
+                                                public Edge(int weight, Vertex fromVertex, Vertex toVertex)
+                                                {
+                                                  this.weight = weight;
+                                                  this.fromVertex = fromVertex;
+                                                  this.toVertex = toVertex;
+
+                                                  fromVertex.addNeighbor(this);
+                                                }
+                                    3.  Compute shortest path from some source Vertex to all other verteces
+                                        a.  Method signature:
+                                                void computePath(Vertex sourceVertex)
+                                        b.  Set source vertex distance to 0
+                                                sourceVertex.distance = 0;
+                                        c.  Create a min PriorityQueue and add source vertext to it.
+                                                PriorityQueue<Vertex> pq = new PriorityQueue<>();
+                                                pq.add(sourceVertex);
+                                        d.  Use BFS to visit Vertices from AdjacencyList. Set distance and predecessor
+                                                while(!pq.isEmpty())
+                                                {
+                                                  Vertex vertex = pq.poll();
+                                                  if(!vertex.visited)
+                                                  {
+                                                    vertex.visited = true;
+                                                    for(Edge edge : vertex.adjList)
+                                                    {
+                                                      Vertex targetVertex = edge.toVertex;
+                                                      int distance = vertex.distance + edge.weight;
+                                                      if(targetVertex.distance > distance)
+                                                      {
+                                                        targetVertex.distance = distance;
+                                                        targetVertex.predecessor = vertex;
+                                                        pq.add(targetVertex);
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                    4.  Compute shortest path from ANY vertex
+                                        int getShortestPath(Vertex targetVertex, List<Vertex> result)
+                                        {
+                                            for(Vertex vertex = targetVertex; vertex != null; vertex = vertex.predecessor)
+                                            {
+                                                result.add(vertex);
+                                            }
+                                            int distance = result.get(0).distance;
+                                            Collections.reverse(result);
+                                            return distance;
+                                        }
+
+KruskalMinSpanTree  graphs          1.  Use Node to establish parent-child relationships between Vertices and to prevent cycles.
+                                        Each Vertex will contain a Node.
+                                    2.  Sort edges by their weight
+                                    3.  Start off with all Vertices being disjoint
+
+LongestStringWithNUnique    strings 1.  Create a map to hold unique character counts
+                                            Map<Character, Integer> map = new HashMap<>();
+                                    2.  Initialize variables:
+                                            int max = 0, start = 0;
+                                    3.  Loop through string's characters and on each iteration:
+                                            for(int i = 0; i < s.length(); ++i)
+                                        a.  Add next character to the map along with the count:
+                                                map.merge(c, 1, Integer::sum);
+                                        b.  If map count exceeds N
+                                            1.  Capture max length so far:
+                                                    max = Math.max(max, i - start);
+                                            2.  Remove first character from Map while advancing the start pointer
+                                                    while(map.size() > n)
+                                                    {
+                                                      char t = s.charAt(start);
+                                                      int count = map.get(t);
+                                                      if(count > 1)
+                                                      {
+                                                        map.put(t, count - 1);
+                                                      }
+                                                      else
+                                                      {
+                                                        map.remove(t);
+                                                      }
+                                                      start++;
+                                                    }
+                                    4.  Return maximum length:
+                                            return Math.max(max, s.length() - start);
+
+ReplaceWithNextGreatest trees       1.  Replace every element of an array with the least greater element on its right
+                                        From:   { 10, 100, 93, 32, 35, 65, 80, 90, 94,  6 }
+                                        To:     { 32, -1,  94, 35, 65, 80, 90, 94, -1, -1 }
+                                        The challenge is to do this in less than O(n*n) time.
+                                    2.  Create a tree by navigating array in reverse and return value of in-order successor
+                                            TreeNode<Integer> insert(TreeNode<Integer> root, int key, AtomicInteger successor)
+                                            {
+                                              if(root == null)
+                                              {
+                                                return new TreeNode<>(key);
+                                              }
+                                              if(key < root.data)
+                                              {
+                                                successor.set(root.data);
+                                                root.left = insert(root.left, key, successor);
+                                              }
+                                              else if(key > root.data)
+                                              {
+                                                root.right = insert(root.right, key, successor);
+                                              }
+                                              return root;
+                                            }
+                                    3.  Populate array in-place with in-order successor.
+                                        Last items will be -1 since there is nothing after the last item.
+                                            void findInorderSuccessor(int[] a)
+                                            {
+                                              TreeNode<Integer> root = null;
+                                              for(int i = a.length - 1; i >= 0; --i)
+                                              {
+                                                AtomicInteger successor = new AtomicInteger(-1);
+                                                root = insert(root, a[i], successor);
+                                                a[i] = successor.get();
+                                              }
+                                            }

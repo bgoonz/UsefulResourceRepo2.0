@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="./prism.css">
+    <script async defer src="./prism.js"></script>
+</head>
+
+<body>;
+    <h3 id="synopsis">Synopsis</h3>
+    <div class="sourceCode" id="cb1">
+        <pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="ex">npm</span> link (in package dir)</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="ex">npm</span> link [<span class="op">&lt;</span>@scope<span class="op">&gt;</span>/]<span class="op">&lt;</span>pkg<span class="op">&gt;</span>[@<span class="op">&lt;</span>version<span class="op">&gt;</span>]</a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="ex">alias</span>: npm ln</a></code></pre>
+    </div>
+    <h3 id="description">Description</h3>
+    <p>This is handy for installing your own stuff, so that you can work on it and test iteratively without having to
+        continually rebuild.</p>
+    <p>Package linking is a two-step process.</p>
+    <p>First, <code>npm link</code> in a package folder will create a symlink in the global folder
+        <code>{prefix}/lib/node_modules/&lt;package&gt;</code> that links to the package where the <code>npm link</code>
+        command was executed. It will also link any bins in the package to <code>{prefix}/bin/{name}</code>. Note that
+        <code>npm link</code> uses the global prefix (see <code>npm prefix -g</code> for its value).
+        </p>
+    <p>Next, in some other location, <code>npm link package-name</code> will create a symbolic link from
+        globally-installed <code>package-name</code> to <code>node_modules/</code> of the current folder.</p>
+    <p>Note that <code>package-name</code> is taken from <code>package.json</code>, <em>not</em> from the directory
+        name.</p>
+    <p>The package name can be optionally prefixed with a scope. See <a href="/using-npm/scope"><code>scope</code></a>.
+        The scope must be preceded by an @-symbol and followed by a slash.</p>
+    <p>When creating tarballs for <code>npm publish</code>, the linked packages are "snapshotted" to their current state
+        by resolving the symbolic links, if they are included in <code>bundleDependencies</code>.</p>
+    <p>For example:</p>
+    <div class="sourceCode" id="cb2">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="bu">cd</span> ~/projects/node-redis    <span class="co"># go into the package directory</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="ex">npm</span> link                    <span class="co"># creates global link</span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="bu">cd</span> ~/projects/node-bloggy   <span class="co"># go into some other package directory.</span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="ex">npm</span> link redis              <span class="co"># link-install the package</span></a></code></pre>
+    </div>
+    <p>Now, any changes to <code>~/projects/node-redis</code> will be reflected in
+        <code>~/projects/node-bloggy/node_modules/node-redis/</code>. Note that the link should be to the package name,
+        not the directory name for that package.
+        </p>
+    <p>You may also shortcut the two steps in one. For example, to do the above use-case in a shorter way:</p>
+    <div class="sourceCode" id="cb3">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="bu">cd</span> ~/projects/node-bloggy  <span class="co"># go into the dir of your main project</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="ex">npm</span> link ../node-redis     <span class="co"># link the dir of your dependency</span></a></code></pre>
+    </div>
+    <p>The second line is the equivalent of doing:</p>
+    <div class="sourceCode" id="cb4">
+        <pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">(</span><span class="bu">cd</span> ../node-redis<span class="kw">;</span> <span class="ex">npm</span> link<span class="kw">)</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="ex">npm</span> link redis</a></code></pre>
+    </div>
+    <p>That is, it first creates a global link, and then links the global installation target into your project’s
+        <code>node_modules</code> folder.
+        </p>
+    <p>Note that in this case, you are referring to the directory name, <code>node-redis</code>, rather than the package
+        name <code>redis</code>.</p>
+    <p>If your linked package is scoped (see <a href="/using-npm/scope"><code>scope</code></a>) your link command must
+        include that scope, e.g.</p>
+    <div class="sourceCode" id="cb5">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" title="1"><span class="ex">npm</span> link @myorg/privatepackage</a></code></pre>
+    </div>
+    <h3 id="caveat">Caveat</h3>
+    <p>Note that package dependencies linked in this way are <em>not</em> saved to <code>package.json</code> by default,
+        on the assumption that the intention is to have a link stand in for a regular non-link dependency. Otherwise,
+        for example, if you depend on <code>redis@^3.0.1</code>, and ran <code>npm link redis</code>, it would replace
+        the <code>^3.0.1</code> dependency with <code>file:../path/to/node-redis</code>, which you probably don’t want!
+        Additionally, other users or developers on your project would run into issues if they do not have their folders
+        set up exactly the same as yours.</p>
+    <p>If you are adding a <em>new</em> dependency as a link, you should add it to the relevant metadata by running
+        <code>npm install &lt;dep&gt; --package-lock-only</code>.
+        </p>
+    <p>If you <em>want</em> to save the <code>file:</code> reference in your <code>package.json</code> and
+        <code>package-lock.json</code> files, you can use <code>npm link &lt;dep&gt; --save</code> to do so.
+        </p>
+    <h3 id="see-also">See Also</h3>
+    <ul>
+        <li><a href="/using-npm/developers">npm developers</a></li>
+        <li><a href="/configuring-npm/package-json">package.json</a></li>
+        <li><a href="/commands/npm-install">npm install</a></li>
+        <li><a href="/configuring-npm/folders">npm folders</a></li>
+        <li><a href="/commands/npm-config">npm config</a></li>
+        <li><a href="/configuring-npm/npmrc">npmrc</a></li>
+    </ul>
+</body>
+
+</html>

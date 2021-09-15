@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h2 id="when-node-is-single-threaded-how-does-it-handle-concurrency">When Node is single-threaded how does it handle concurrency</h2>
+<p><a href="https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/">The official Doc</a> has some very good explanation.</p>
+<h2 id="some-key-points">1&gt; Some Key points &gt;&gt;</h2>
+<ul>
+<li><p>A&gt; The simple ans is - With callback function and event-loop</p></li>
+<li><p>B&gt; With callback function and event-loop, Node transfer execution of the callback function (like, in setTimeout, Promise, fs.readFile) to a queue the output of which follows a FIFO design, while the rest of the code, will get executed. So that’s how node is non-blocking.</p></li>
+</ul>
+<p>And whatever was transferred to the separate queue for those callbacks will be executed on a FIFO basis, so the code that was in the queue first, will return its result first. And then the next one in the queue.</p>
+<h2 id="httpscodeburst.iohow-node-js-single-thread-mechanism-work-understanding-event-loop-in-nodejs-230f7440b0ea">2&gt; https://codeburst.io/how-node-js-single-thread-mechanism-work-understanding-event-loop-in-nodejs-230f7440b0ea</h2>
+<p>Some of the popular server side technology like PHP, ASP.NET, Ruby &amp; Java Servers all follow Multi-threaded where each client request results in the instantiation of a new thread or even a process, but in Node.js, requests are run on the same thread.</p>
+<h2 id="single-threaded-event-loop-model-processing-steps">3&gt; Single Threaded Event Loop Model Processing Steps:</h2>
+<p>https://www.journaldev.com/7462/node-js-architecture-single-threaded-event-loop</p>
+<ul>
+<li><p>Clients Send request to Web Server.</p></li>
+<li><p>Node JS Web Server internally maintains a Limited Thread pool (4 by default) to provide services to the Client Requests.</p></li>
+<li><p>Node JS Web Server receives those requests and places them into a Queue. It is known as “Event Queue”.</p></li>
+<li><p>Node JS Web Server internally has a Component, known as “Event Loop”. It uses indefinite loop to receive requests and process them.</p></li>
+<li><p><strong>Event Loop uses Single Thread only</strong>. It is the main heart of Node JS Architecture.</p></li>
+<li><p>Event Loop checks if any Client Request is placed in the Event Queue. If no, then waits for incoming requests indefinitely.</p></li>
+<li><p>If yes, then picks up one Client Request from Event Queue</p></li>
+<li><p>Starts processing that Client Request</p></li>
+<li><p>If that Client Request Does Not requires any Blocking IO Operations, then processes everything, prepares response and sends it back to client.</p></li>
+<li><p>If that Client Request requires some Blocking IO Operations like interacting with Database, File System, External Services then it will follow different approach as below</p>
+<ul>
+<li><ol type="A">
+<li>Checks Threads availability from Internal Thread Pool</li>
+</ol></li>
+<li><ol start="2" type="A">
+<li>Picks up one Thread and assign this Client Request to that thread.</li>
+</ol></li>
+<li><ol start="3" type="A">
+<li>That Thread is responsible for taking that request, process it, perform Blocking IO operations, prepare response and sending it back to the Event Loop - PAUL NOTE - THIS IS THE MOST IMPORTANT KEY POINT</li>
+</ol></li>
+<li><ol start="4" type="A">
+<li>Event Loop in turn, sends that Response to the respective Client.</li>
+</ol></li>
+</ul></li>
+</ul>
+<h1 id="actual-implementation-of-the-above-event-loop-callback-process">ACTUAL IMPLEMENTATION OF THE ABOVE EVENT-LOOP-CALLBACK PROCESS</h1>
+<ul>
+<li><p>Say “n” number of Clients Send request to Web Server. Let us assume they are accessing our Web Application concurrently.</p></li>
+<li>Let us assume, our Clients are Client-1, Client-2… and Client-n.</li>
+<li>Web Server internally maintains a Limited Thread pool. Let us assume “m” number of Threads in Thread pool.</li>
+<li>Node JS Web Server receives Client-1, Client-2… and Client-n Requests and places them in the Event Queue.</li>
+<li>Node JS Even Loop Picks up those requests one by one.</li>
+<li>Even Loop pickups Client-1 Request-1</li>
+<li>Checks whether Client-1 Request-1 does require any Blocking IO Operations or takes more time for complex computation tasks.</li>
+<li>As this request is simple computation and Non-Blocking IO task, it does not require separate Thread to process it.</li>
+<li>Event Loop process all steps provided in that Client-1 Request-1 Operation (Here Operations means Java Script’s functions) and prepares Response-1</li>
+<li>Event Loop sends Response-1 to Client-1</li>
+<li>Even Loop pickups Client-2 Request-2</li>
+<li>Checks whether Client-2 Request-2does require any Blocking IO Operations or takes more time for complex computation tasks.</li>
+<li>As this request is simple computation and Non-Blocking IO task, it does not require separate Thread to process it.</li>
+<li>Event Loop process all steps provided in that Client-2 Request-2 Operation and prepares Response-2</li>
+<li>Event Loop sends Response-2 to Client-2</li>
+<li>Even Loop pickups Client-n Request-n</li>
+<li>Checks whether Client-n Request-n does require any Blocking IO Operations or takes more time for complex computation tasks.</li>
+<li>As this request is very complex computation or Blocking IO task, Even Loop does not process this request.</li>
+<li>Event Loop picks up Thread T-1 from Internal Thread pool and assigns this Client-n Request-n to Thread T-1</li>
+<li>Thread T-1 reads and process Request-n, perform necessary Blocking IO or Computation task, and finally prepares Response-n</li>
+<li>Thread T-1 sends this Response-n to Event Loop</li>
+<li><p>Event Loop in turn, sends this Response-n to Client-n</p></li>
+</ul>
+<p>Here Client Request is a call to one or more Java Script Functions. Java Script Functions may call other functions or may utilize its Callback functions nature.</p>
+<p>So Each Client Request looks like as shown below:</p>
+<p>function (other-function, callback-function)</p>
+<h2 id="so-in-a-nutshell---event-loop-allows-node.js-to-perform-non-blocking-io-operation-despite-the-fact-that-javascript-is-single-threaded-by-offloads-operations-to-the-system-kernel-whenever-possible.-so-the-question-is-if-node-pushes-all-those-responsibilities-down-to-the-kernel-then-why-would-a-thread-pool-be-needed-its-so-because-the-kernel-doesnt-support-doing-everything-asynchronously.-in-those-cases-node-has-to-lock-a-thread-for-the-duration-of-the-operation-so-it-can-continue-executing-the-event-loop-without-blocking.">So in a nutshell - event loop allows Node.js to perform non-blocking I/O operation, despite the fact that JavaScript is single-threaded &amp; by offloads operations to the system kernel whenever possible. So, the question is if Node pushes all those responsibilities down to the kernel then why would a thread pool be needed?” It’s so because the kernel doesn’t support doing everything asynchronously. In those cases Node has to lock a thread for the duration of the operation so it can continue executing the event loop without blocking.</h2>
+<h2 id="official-doc---since-most-modern-kernels-are-multi-threaded-they-can-handle-multiple-operations-executing-in-the-background.-when-one-of-these-operations-completes-the-kernel-tells-node.js-so-that-the-appropriate-callback-may-be-added-to-the-poll-queue-to-eventually-be-executed."><a href="https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/">Official Doc</a> - Since most modern kernels are multi-threaded, they can handle multiple operations executing in the background. When one of these operations completes, the kernel tells Node.js so that the appropriate callback may be added to the poll queue to eventually be executed.</h2>
+<h2 id="httpswww.fpcomplete.comblog201612concurrency-and-node">2&gt; https://www.fpcomplete.com/blog/2016/12/concurrency-and-node</h2>
+<p>When Node.JS first came onto the scene it successfully popularized the event-loop. Ryan Dahl correctly identified a serious problem with the way that I/O is generally handled in concurrent environments. Many web servers, for example achieve concurrency by creating a new thread for every connection. In most platforms, this comes at a substantial cost. The default stack size in Java is 512KB, which means that if you have 1000 concurrent connections, your program will consume half a gigabyte of memory just for stack space. Additionally, forking threads in most systems costs an enormous amount of time, as does performing a context switch between two threads.</p>
+<p>To address these issues, Node.JS uses a single thread with an event-loop. In this way, Node can handle 1000s of concurrent connections without any of the traditional detriments associated with threads. There is essentially no memory overhead per-connection, and there is no context switching.</p>
+<p>General Read</p>
+<p>1&gt; https://medium.com/the-node-js-collection/what-you-should-know-to-really-understand-the-node-js-event-loop-and-its-metrics-c4907b19da4c</p>
+<p>There is only one thread that executes JavaScript code and this is the thread where the event loop is running. The execution of callbacks (know that every userland code in a running Node.js application is a callback) is done by the event loop.</p>
+<p>2&gt; Great example - https://codeburst.io/how-node-js-single-thread-mechanism-work-understanding-event-loop-in-nodejs-230f7440b0ea</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">var</span> sockets <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;websocket.io&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3">    httpServer <span class="op">=</span> <span class="va">sockets</span>.<span class="at">listen</span>(<span class="dv">4000</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-4" title="4"></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="va">httpServer</span>.<span class="at">on</span>(<span class="st">&#39;onConnection&#39;</span><span class="op">,</span> <span class="kw">function</span>(socket) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-6" title="6"></a>
+<a class="sourceLine" id="cb1-7" title="7">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;connected……&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-8" title="8"></a>
+<a class="sourceLine" id="cb1-9" title="9">    <span class="va">httpServer</span>.<span class="at">send</span>(<span class="st">&#39;Web socket connected.&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-10" title="10"></a>
+<a class="sourceLine" id="cb1-11" title="11">    <span class="va">httpServer</span>.<span class="at">on</span>(<span class="st">&#39;message&#39;</span><span class="op">,</span> <span class="kw">function</span>(data) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-12" title="12"></a>
+<a class="sourceLine" id="cb1-13" title="13">        <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;message received:&#39;</span><span class="op">,</span> data)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-14" title="14"></a>
+<a class="sourceLine" id="cb1-15" title="15">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-16" title="16"></a>
+<a class="sourceLine" id="cb1-17" title="17">    <span class="va">httpServer</span>.<span class="at">on</span>(<span class="st">&#39;close&#39;</span><span class="op">,</span> <span class="kw">function</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-18" title="18"></a>
+<a class="sourceLine" id="cb1-19" title="19">        <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;socket closed!&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-20" title="20">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-21" title="21"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Here when sockets.listen(4000) executes, a Web-Socket server is created on a single thread — event loop which listens continuously on port 4000. When a web or app client connects to it, it fires the ‘onConnection’ event which the loop picks up and immediately publishes to the thread pool and is ready to receive the next request and this is the main functionality differentiation between NodeJs based servers and other IIS/ Apache based servers, NodeJs for every connection request do not create a new thread instead it receives all request on single thread and delegates it to be handled by many background workers to do the task as required. Libuv library handles this workers in collaboration with OS kernel. Libuv is the magical library that handles the queueing and processing of asynchronous events utilizing powerful kernel, today most modern kernels are multi-threaded, they can handle multiple operations executing in the background. When one of these operations completes, the kernel tells Node.js so that the appropriate callback may be added to the poll queue to eventually be executed.</p>
+<p>Node has a pool of Thread and you must be scratching your head wondering if Node pushes all those responsibilities down to the kernel then why would a thread pool be needed?” It’s so because the kernel doesn’t support doing everything asynchronously. In those cases Node has to lock a thread for the duration of the operation so it can continue executing the event loop without blocking.</p>
+<h2 id="node.js-handle-thousands-of-concurrent-requests-per-second-when-writing-them-to-mongo">3&gt; node.js handle thousands of concurrent requests per second, when writing them to Mongo?</h2>
+<p>Generally the web server and the database server are 2 different machines, because of Async nature, the event loop gets free after forwarding the read/write request to database server. That is why, a Node JS HTTP server can handle a large number of requests while the process of complex read/write operations could be in-progress on database server(s).</p>
+<h3 id="section"></h3>
+<ul>
+<li><ol type="1">
+<li>Further Resources - <a href="Very%20famous%20video">https://youtu.be/8aGhZQkoFbQ</a></li>
+</ol></li>
+<li><ol start="2" type="1">
+<li><a href="https://nodejs.org/ja/docs/guides/dont-block-the-event-loop/">https://nodejs.org/ja/docs/guides/dont-block-the-event-loop/</a></li>
+</ol></li>
+</ul>
+</body></html>

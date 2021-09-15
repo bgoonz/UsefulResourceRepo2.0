@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="./prism.css">
+    <script async defer src="./prism.js"></script>
+</head>
+
+<body>;
+    <h3 id="synopsis">Synopsis</h3>
+    <div class="sourceCode" id="cb1">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="ex">npm</span> outdated [[<span class="op">&lt;</span>@scope<span class="op">&gt;</span>/]<span class="op">&lt;</span>pkg<span class="op">&gt;</span> ...]</a></code></pre>
+    </div>
+    <h3 id="description">Description</h3>
+    <p>This command will check the registry to see if any (or, specific) installed packages are currently outdated.</p>
+    <p>By default, only the direct dependencies of the root project are shown. Use <code>--all</code> to find all
+        outdated meta-dependencies as well.</p>
+    <p>In the output:</p>
+    <ul>
+        <li><code>wanted</code> is the maximum version of the package that satisfies the semver range specified in
+            <code>package.json</code>. If there’s no available semver range (i.e. you’re running <code>npm outdated
+                --global</code>, or the package isn’t included in <code>package.json</code>), then <code>wanted</code>
+            shows the currently-installed version.
+        </li>
+        <li><code>latest</code> is the version of the package tagged as latest in the registry. Running <code>npm
+                publish</code> with no special configuration will publish the package with a dist-tag of
+            <code>latest</code>. This may or may not be the maximum version of the package, or the most-recently
+            published version of the package, depending on how the package’s developer manages the latest <a
+                href="/commands/npm-dist-tag">dist-tag</a>.
+        </li>
+        <li><code>location</code> is where in the physical tree the package is located.</li>
+        <li><code>depended by</code> shows which package depends on the displayed dependency</li>
+        <li><code>package type</code> (when using <code>--long</code> / <code>-l</code>) tells you whether this package
+            is a <code>dependency</code> or a dev/peer/optional dependency. Packages not included in
+            <code>package.json</code> are always marked <code>dependencies</code>.
+        </li>
+        <li><code>homepage</code> (when using <code>--long</code> / <code>-l</code>) is the <code>homepage</code> value
+            contained in the package’s packument</li>
+        <li>Red means there’s a newer version matching your semver requirements, so you should update now.</li>
+        <li>Yellow indicates that there’s a newer version <em>above</em> your semver requirements (usually new major, or
+            new 0.x minor) so proceed with caution.</li>
+    </ul>
+    <h3 id="an-example">An example</h3>
+    <div class="sourceCode" id="cb2">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1">$ <span class="ex">npm</span> outdated</a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="ex">Package</span>      Current   Wanted   Latest  Location                  Depended by</a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="ex">glob</span>          5.0.15   5.0.15    6.0.1  node_modules/glob         dependent-package-name</a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="ex">nothingness</span>    0.0.3      git      git  node_modules/nothingness  dependent-package-name</a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="ex">npm</span>            3.5.1    3.5.2    3.5.1  node_modules/npm          dependent-package-name</a>
+<a class="sourceLine" id="cb2-6" title="6"><span class="ex">local-dev</span>      0.0.3   linked   linked  local-dev                 dependent-package-name</a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="ex">once</span>           1.3.2    1.3.3    1.3.3  node_modules/once         dependent-package-name</a></code></pre>
+    </div>
+    <p>With these <code>dependencies</code>:</p>
+    <div class="sourceCode" id="cb3">
+        <pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb3-1" title="1"><span class="fu">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="dt">&quot;glob&quot;</span><span class="fu">:</span> <span class="st">&quot;^5.0.15&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="dt">&quot;nothingness&quot;</span><span class="fu">:</span> <span class="st">&quot;github:othiym23/nothingness#master&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb3-4" title="4">  <span class="dt">&quot;npm&quot;</span><span class="fu">:</span> <span class="st">&quot;^3.5.1&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb3-5" title="5">  <span class="dt">&quot;once&quot;</span><span class="fu">:</span> <span class="st">&quot;^1.3.1&quot;</span></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="fu">}</span></a></code></pre>
+    </div>
+    <p>A few things to note:</p>
+    <ul>
+        <li><code>glob</code> requires <code>^5</code>, which prevents npm from installing <code>glob@6</code>, which is
+            outside the semver range.</li>
+        <li>Git dependencies will always be reinstalled, because of how they’re specified. The installed committish
+            might satisfy the dependency specifier (if it’s something immutable, like a commit SHA), or it might not, so
+            <code>npm outdated</code> and <code>npm update</code> have to fetch Git repos to check. This is why
+            currently doing a reinstall of a Git dependency always forces a new clone and install.
+        </li>
+        <li><code>npm@3.5.2</code> is marked as "wanted", but "latest" is <code>npm@3.5.1</code> because npm uses
+            dist-tags to manage its <code>latest</code> and <code>next</code> release channels. <code>npm update</code>
+            will install the <em>newest</em> version, but <code>npm install npm</code> (with no semver range) will
+            install whatever’s tagged as <code>latest</code>.</li>
+        <li><code>once</code> is just plain out of date. Reinstalling <code>node_modules</code> from scratch or running
+            <code>npm update</code> will bring it up to spec.
+        </li>
+    </ul>
+    <h3 id="configuration">Configuration</h3>
+    <h4 id="json">json</h4>
+    <ul>
+        <li>Default: false</li>
+        <li>Type: Boolean</li>
+    </ul>
+    <p>Show information in JSON format.</p>
+    <h4 id="long">long</h4>
+    <ul>
+        <li>Default: false</li>
+        <li>Type: Boolean</li>
+    </ul>
+    <p>Show extended information.</p>
+    <h4 id="parseable">parseable</h4>
+    <ul>
+        <li>Default: false</li>
+        <li>Type: Boolean</li>
+    </ul>
+    <p>Show parseable output instead of tree view.</p>
+    <h4 id="global">global</h4>
+    <ul>
+        <li>Default: false</li>
+        <li>Type: Boolean</li>
+    </ul>
+    <p>Check packages in the global install prefix instead of in the current project.</p>
+    <h4 id="all">all</h4>
+    <ul>
+        <li>Default: false</li>
+        <li>Type: Boolean</li>
+    </ul>
+    <p>Display all outdated dependencies on the tree.</p>
+    <h3 id="see-also">See Also</h3>
+    <ul>
+        <li><a href="/commands/npm-update">npm update</a></li>
+        <li><a href="/commands/npm-dist-tag">npm dist-tag</a></li>
+        <li><a href="/using-npm/registry">npm registry</a></li>
+        <li><a href="/configuring-npm/folders">npm folders</a></li>
+    </ul>
+</body>
+
+</html>

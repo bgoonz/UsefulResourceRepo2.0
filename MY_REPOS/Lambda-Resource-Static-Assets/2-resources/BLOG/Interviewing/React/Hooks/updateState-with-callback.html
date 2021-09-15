@@ -1,0 +1,43 @@
+<p>From <a href="https://reactjs.org/docs/hooks-reference.html#functional-updates">React official guide</a></p>
+<p>Unlike the setState method found in class components, useState does not automatically merge update objects. You can replicate this behavior by combining the function updater form with object spread syntax:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="at">setState</span>((prevState) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="co">// Object.assign would also work</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="cf">return</span> <span class="op">{</span> ...<span class="at">prevState</span><span class="op">,</span> ...<span class="at">updatedValues</span> <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="op">}</span>)</a></code></pre></div>
+<p>Another option is useReducer, which is more suited for managing state objects that contain multiple sub-values.</p>
+<h3 id="the-key-point-and-guidance-to-update-states">The key point and guidance to update states</h3>
+<p>Just as with setState in a class component you need to be careful when updating state derived from something that already is in state i.e. your new state depends on the old state. State updates using hooks are also batched and hence whenever you want to update state based on previous one its better to use the callback pattern.</p>
+<p>The callback pattern to update state also comes in handy when the setter doesn’t receive updated value from enclosed closure due to it being defined only once. An example of such as case if the useEffect being called only on initial render when adds a listener that updates state on an event.</p>
+<p>If you e.g. update a count twice in a row, it will not work as expected if you don’t use the function version of updating the state.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">const</span> <span class="op">{</span> useState <span class="op">}</span> <span class="op">=</span> React</a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">function</span> <span class="at">App</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="kw">const</span> [count<span class="op">,</span> setCount] <span class="op">=</span> <span class="at">useState</span>(<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb2-5" title="5"></a>
+<a class="sourceLine" id="cb2-6" title="6">  <span class="co">// This will be bad, might lead to more bugs because such code often end up inside a closure which has an outdated value of myState.</span></a>
+<a class="sourceLine" id="cb2-7" title="7">  <span class="kw">function</span> <span class="at">brokenIncrement</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-8" title="8">    <span class="at">setCount</span>(count <span class="op">+</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb2-9" title="9">    <span class="at">setCount</span>(count <span class="op">+</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb2-10" title="10">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-11" title="11"></a>
+<a class="sourceLine" id="cb2-12" title="12">  <span class="co">// The recommended way is to use a function to update the state</span></a>
+<a class="sourceLine" id="cb2-13" title="13">  <span class="kw">function</span> <span class="at">increment</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-14" title="14">    <span class="at">setCount</span>((count) <span class="kw">=&gt;</span> count <span class="op">+</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb2-15" title="15">    <span class="at">setCount</span>((count) <span class="kw">=&gt;</span> count <span class="op">+</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb2-16" title="16">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-17" title="17"></a>
+<a class="sourceLine" id="cb2-18" title="18">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb2-19" title="19">    <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-20" title="20">      <span class="op">&lt;</span>div<span class="op">&gt;{</span>count<span class="op">}</span>&lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-21" title="21">      <span class="op">&lt;</span>button onClick<span class="op">={</span>brokenIncrement<span class="op">}&gt;</span>Broken increment&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-22" title="22">      <span class="op">&lt;</span>button onClick<span class="op">={</span>increment<span class="op">}&gt;</span>Increment&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-23" title="23">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-24" title="24">  )</a>
+<a class="sourceLine" id="cb2-25" title="25"><span class="op">}</span></a>
+<a class="sourceLine" id="cb2-26" title="26"></a>
+<a class="sourceLine" id="cb2-27" title="27"><span class="va">ReactDOM</span>.<span class="at">render</span>(<span class="op">&lt;</span>App /<span class="op">&gt;,</span> <span class="va">document</span>.<span class="at">getElementById</span>(<span class="st">&quot;root&quot;</span>))</a></code></pre></div>
+<h4 id="reference">Reference</h4>
+<ul>
+<li><a href="https://stackoverflow.com/questions/55342406/updating-and-merging-state-object-using-react-usestate-hook">https://stackoverflow.com/questions/55342406/updating-and-merging-state-object-using-react-usestate-hook</a></li>
+<li></li>
+</ul>

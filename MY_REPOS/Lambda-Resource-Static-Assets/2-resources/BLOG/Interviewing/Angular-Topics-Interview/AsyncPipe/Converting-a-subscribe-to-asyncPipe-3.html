@@ -1,0 +1,71 @@
+<p>Another use case to follow the best practice of <strong>always use async pipe when possible and only use .subscribe when side effect is an absolute necessity.</strong></p>
+<p>Another way to think about this is, side effects in logic are hard to maintain and how prematured .subscribe forces developers to make unecessary side effects.</p>
+<p><strong>Observable is an abstraction of asynchronous stream of data. For example, when we look at Observable<string>, it represents a stream of strings which will be delivered one by one over the time.Observable is an abstraction of asynchronous stream of data.</strong></p>
+<pre><code>Now why would we care?</code></pre>
+<p>We need to care because stream of data coming in an asynchronous fashion is extremely hard to think about. And it is even harder when multiple streams need to be combined. It becomes very error prone to code around it. To do such operations, we can use RxJS operators.</p>
+<p>RxJS operators, allow us to operate directly on observables, modifying , combining, aggregating, filtering data of observables.</p>
+<p>You are safe as long as you stay in the Observable.</p>
+<p>We must try to keep the observable as long as possible, combining it or modifying it using RxJS operators. As long as we stay within the observable, we do not need to think about the bigger picture. All we need to think about is what to do with the single string we receive. We don’t need to care about the fact that we will receive multiple values over the time hence the safety. <strong>The power of RxJS is that each operation is assured to receive the output of the previous operation as its own input.</strong> This is an extremely powerful model which allows developers to easily follow the code logic making it predictable.</p>
+<p>But if we keep the Observable modifying it around, how do we display data? This is where we have been used to <strong>.subscribe</strong>.</p>
+<h4 id="subscribe-function">Subscribe function</h4>
+<p>We pass the observable around, combining it, saving it to different variables with different combination of operators but at the end, an Observable<T> is useless on its own. We need a way to “terminate” the observale and extract the type T out of it. That is what .subscribe is used for. To subscribe to the resulting stream and terminate the observable.</p>
+<p>Now we could do the following:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb2-1" title="1">    expenses<span class="op">:</span> Expense<span class="op">[];</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="fu">ngOnInit</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-4" title="4">    <span class="va">this</span><span class="op">.</span><span class="fu">getExpenses</span>()</a>
+<a class="sourceLine" id="cb2-5" title="5">        .<span class="fu">subscribe</span>(expenses <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-6" title="6">            <span class="va">this</span><span class="op">.</span><span class="at">expenses</span> <span class="op">=</span> expenses<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-7" title="7">        <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="op">}</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb3-1" title="1">   expenses<span class="op">:</span> Expense<span class="op">[]</span> <span class="op">=</span> <span class="op">[];</span></a>
+<a class="sourceLine" id="cb3-2" title="2">filter <span class="op">=</span> <span class="st">&quot;food&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-3" title="3"></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="fu">ngOnInit</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="va">this</span><span class="op">.</span><span class="fu">getExpenses</span>()</a>
+<a class="sourceLine" id="cb3-6" title="6">        .<span class="fu">subscribe</span>(expenses <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-7" title="7">            <span class="va">this</span><span class="op">.</span><span class="at">expenses</span> <span class="op">=</span> <span class="va">expenses</span><span class="op">.</span><span class="fu">filter</span>(e <span class="kw">=&gt;</span> <span class="va">e</span><span class="op">.</span><span class="at">type</span> <span class="op">===</span> <span class="va">this</span><span class="op">.</span><span class="at">filter</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-8" title="8">        <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-9" title="9"></a>
+<a class="sourceLine" id="cb3-10" title="10">    <span class="va">this</span><span class="op">.</span><span class="fu">getFilter</span>()</a>
+<a class="sourceLine" id="cb3-11" title="11">        .<span class="fu">subscribe</span>(filter <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-12" title="12">            <span class="va">this</span><span class="op">.</span><span class="at">filter</span> <span class="op">=</span> filter<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-13" title="13">            <span class="va">this</span><span class="op">.</span><span class="at">expenses</span> <span class="op">=</span> <span class="va">this</span><span class="op">.</span><span class="va">expenses</span><span class="op">.</span><span class="fu">filter</span>(e <span class="kw">=&gt;</span> <span class="va">e</span><span class="op">.</span><span class="at">type</span> <span class="op">===</span> filter)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-14" title="14">        <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-15" title="15"><span class="op">}</span></a></code></pre></div>
+<p>Now we can already appreciate the benefit of only subscribing when necessary and using the RxJS combinators:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb4-1" title="1">expenses<span class="op">:</span> Expense<span class="op">[]</span> <span class="op">=</span> <span class="op">[];</span></a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="fu">ngOnInit</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-4" title="4">    <span class="va">this</span><span class="op">.</span><span class="fu">getExpenses</span>()</a>
+<a class="sourceLine" id="cb4-5" title="5">        .<span class="fu">combineLatest</span>(<span class="va">this</span><span class="op">.</span><span class="fu">getFilter</span>())</a>
+<a class="sourceLine" id="cb4-6" title="6">        .<span class="fu">subscribe</span>((<span class="op">[</span>expenses<span class="op">,</span> filter<span class="op">]</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-7" title="7">            <span class="va">this</span><span class="op">.</span><span class="at">expenses</span> <span class="op">=</span> <span class="va">expenses</span><span class="op">.</span><span class="fu">filter</span>(e <span class="kw">=&gt;</span> <span class="va">e</span><span class="op">.</span><span class="at">type</span> <span class="op">===</span> filter)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-8" title="8">        <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="op">}</span></a></code></pre></div>
+<p>But as I said earlier, we are safe from asynchronousy as long as we stay in the observable therefore we can do even better and never actually use subscribe by using async pipe.</p>
+<p>But as soon as it becomes more complex, like if we need to get a list of expense type to filter, it becomes hard to combine.</p>
+<h4 id="finaly-the-best-solution-is-with-async-pipe">Finaly the best solution is with Async Pipe</h4>
+<p>In order to keep the observable, we would transform it as such:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb5-1" title="1">expenses$<span class="op">:</span> Observable<span class="op">&lt;</span>Expense<span class="op">[]&gt;;</span></a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="fu">ngOnInit</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-4" title="4">    <span class="va">this</span><span class="op">.</span><span class="at">expenses$</span> <span class="op">=</span> <span class="va">this</span><span class="op">.</span><span class="fu">getExpenses</span>()</a>
+<a class="sourceLine" id="cb5-5" title="5">        .<span class="fu">combineLatest</span>(<span class="va">this</span><span class="op">.</span><span class="fu">getFilter</span>())</a>
+<a class="sourceLine" id="cb5-6" title="6">        .<span class="fu">map</span>((<span class="op">[</span>expenses<span class="op">,</span> filter<span class="op">]</span>) <span class="kw">=&gt;</span> <span class="va">expenses</span><span class="op">.</span><span class="fu">filter</span>(e <span class="kw">=&gt;</span> <span class="va">e</span><span class="op">.</span><span class="at">type</span> <span class="op">===</span> filter))<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="op">}</span></a></code></pre></div>
+<p>The dollar $ is a convention to know that the variable is an observable. Then to display from the UI, we would need to use the async pipe.</p>
+<p><code>{{ expenses$ | async }}</code></p>
+<p>Now if I want to pass the <code>expenses</code> list as a state down to a Child, we want to remove the observable from Child component. So we want to make a binding using <code>[expenses]="{{ expenses$ | async }}"</code> so that the Child component itself taking as <span class="citation" data-cites="Input">@Input</span> <code>expenses</code> will be without observable, and this Child component does not need to know anything about the way the Observable is arrived.</p>
+<h4 id="best-practices">Best practices</h4>
+<p>To summarize, those are the best practices to ensure validity of the logic:</p>
+<ol type="1">
+<li>Prefer assignments rather than callbacks, assign Observable rather than subscription,</li>
+<li>Let the framework terminate the Observable</li>
+<li>Leverage the power of Angular components and Angular async pipe to code without asynchronousy,</li>
+<li>Use libraries like reselect, rxjs to manipulate observable,</li>
+<li>Make sure the external variables used inside the rx operators function are const.</li>
+</ol>
+<h5 id="we-should-always-use-async-pipe-when-possible-and-only-use-.subscribe-when-side-effect-is-an-absolute-necessity-as-we-are-safe-as-long-as-we-stay-in-the-observable.-the-code-terminating-the-observable-should-be-the-framework-angular-and-the-last-piece-the-ui.">we should always use async pipe when possible and only use .subscribe when side effect is an absolute necessity as we are safe as long as we stay in the observable. The code terminating the observable should be the framework (Angular) and the last piece (the UI).</h5>
+<h4 id="further-reading">Further Reading</h4>
+<p><a href="https://kimsereyblog.blogspot.com/2018/05/async-pipe-versus-subscribe-in-angular.html">https://kimsereyblog.blogspot.com/2018/05/async-pipe-versus-subscribe-in-angular.html</a></p>

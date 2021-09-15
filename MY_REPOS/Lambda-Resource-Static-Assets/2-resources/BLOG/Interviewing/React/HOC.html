@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<p>A higher-order component is a function, that takes a component and returns a new component. I like to think of them as parameterized components. Many times I find myself creating several components with very similar logic, with only 1 or 2 changes. Once I find a use case like this, it’s very simple to abstract the shared logic, and put the logic that changes into parameters.</p>
+<p>Since components are just functions and HOCs are just functions that return other functions, we can use functional concepts to chain them using utilities methods such as compose, which is provided by many libraries (it’s included in Redux!).</p>
+<p>So HOCs are to tackle the situation when I have to share the same functionality across multiple components.</p>
+<p>A Higher Order Component is just a way to enhance normal components. How does it work ? It adds props to your components !</p>
+<p>Let’s see a basic example: you have two components, DisplayHello and DisplayQuestion. They both need to access the same info, the nickname of our user. The basic way to do that is to propagate props from the root of your app (which maintains a state) as presented below:</p>
+<h3 id="app.js">App.js:</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> Component <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="im">import</span> DisplayHello <span class="im">from</span> <span class="st">&quot;./DisplayHello&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="im">import</span> DisplayQuestion <span class="im">from</span> <span class="st">&quot;./DisplayQuestion&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-4" title="4"></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="kw">class</span> App <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-6" title="6">  state <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-7" title="7">    <span class="dt">username</span><span class="op">:</span> <span class="st">&quot;ovrsea&quot;</span></a>
+<a class="sourceLine" id="cb1-8" title="8">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb1-9" title="9"></a>
+<a class="sourceLine" id="cb1-10" title="10">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-11" title="11">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb1-12" title="12">      <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-13" title="13">        <span class="op">&lt;</span>DisplayHello username<span class="op">={</span><span class="kw">this</span>.<span class="va">state</span>.<span class="at">username</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb1-14" title="14">        <span class="op">&lt;</span>DisplayQuestion username<span class="op">={</span><span class="kw">this</span>.<span class="va">state</span>.<span class="at">username</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb1-15" title="15">      &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-16" title="16">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-17" title="17">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-18" title="18"><span class="op">}</span></a>
+<a class="sourceLine" id="cb1-19" title="19"></a>
+<a class="sourceLine" id="cb1-20" title="20"><span class="im">export</span> <span class="im">default</span> App<span class="op">;</span></a></code></pre></div>
+<h3 id="displayhello.js">DisplayHello.js:</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> Component <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">class</span> DisplayHello <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-5" title="5">    <span class="cf">return</span> <span class="op">&lt;</span>p<span class="op">&gt;</span>Hello <span class="op">{</span><span class="kw">this</span>.<span class="va">props</span>.<span class="at">username</span><span class="op">}</span> <span class="op">!</span>&lt;/p<span class="op">&gt;;</span></a>
+<a class="sourceLine" id="cb2-6" title="6">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="op">}</span></a>
+<a class="sourceLine" id="cb2-8" title="8"></a>
+<a class="sourceLine" id="cb2-9" title="9"><span class="im">export</span> <span class="im">default</span> DisplayHello<span class="op">;</span></a></code></pre></div>
+<h3 id="displayquestion.js">DisplayQuestion.js:</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> Component <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="kw">class</span> DisplayQuestion <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-4" title="4">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="cf">return</span> <span class="op">&lt;</span>div<span class="op">&gt;</span>What <span class="cf">do</span> you want to order today<span class="op">,</span> <span class="op">{</span><span class="kw">this</span>.<span class="va">props</span>.<span class="at">username</span><span class="op">}</span> <span class="op">?</span>&lt;/div<span class="op">&gt;;</span></a>
+<a class="sourceLine" id="cb3-6" title="6">  }</a>
+<a class="sourceLine" id="cb3-7" title="7">}</a>
+<a class="sourceLine" id="cb3-8" title="8"></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="im">export</span> <span class="im">default</span> DisplayQuestion<span class="op">;</span></a></code></pre></div>
+<p>However, it could become heavy to handle if you have a lot of information and/or components. It is not the role of the root to handle your app data ! This is where HOC are useful. We create a component which “pushes” the info to the components which need them ! How does it work ? It is just a function that takes a component as input and returns the same component with new props. The code of this magic trick is below :</p>
+<h3 id="ourfirststore-higher-order-compoenent">ourFirstStore Higher Order Compoenent</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> Component <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="im">export</span> <span class="im">default</span> <span class="kw">function</span> <span class="at">ourFirstStore</span>(WrappedComponent) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-3" title="3">  <span class="cf">return</span> <span class="kw">class</span> <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-4" title="4">    state <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-5" title="5">      <span class="dt">username</span><span class="op">:</span> <span class="st">&quot;ovrsea&quot;</span></a>
+<a class="sourceLine" id="cb4-6" title="6">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb4-7" title="7"></a>
+<a class="sourceLine" id="cb4-8" title="8">    <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-9" title="9">      <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb4-10" title="10">        <span class="op">&lt;</span>WrappedComponent username<span class="op">={</span><span class="kw">this</span>.<span class="va">state</span>.<span class="at">username</span><span class="op">}</span> <span class="op">{</span>...<span class="va">this</span>.<span class="at">props</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb4-11" title="11">      )<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-12" title="12">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-13" title="13">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb4-14" title="14"><span class="op">}</span></a></code></pre></div>
+<h3 id="displayhello-updated">DisplayHello updated:</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> Component <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="im">import</span> ourFirstStore <span class="im">from</span> <span class="st">&quot;./ourFirstStore&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-3" title="3"></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="kw">class</span> DisplayHello <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-5" title="5">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="cf">return</span> <span class="op">&lt;</span>p<span class="op">&gt;</span>Hello <span class="op">{</span><span class="kw">this</span>.<span class="va">props</span>.<span class="at">username</span><span class="op">}</span> <span class="op">!</span>&lt;/p<span class="op">&gt;;</span></a>
+<a class="sourceLine" id="cb5-7" title="7">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-9" title="9"></a>
+<a class="sourceLine" id="cb5-10" title="10"><span class="im">export</span> <span class="im">default</span> <span class="at">ourFirstStore</span>(DisplayHello)<span class="op">;</span></a></code></pre></div>
+<h3 id="displayquestion-updated">DisplayQuestion updated:</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> Component <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="im">import</span> ourFirstStore <span class="im">from</span> <span class="st">&quot;./ourFirstStore&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-3" title="3"></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="kw">class</span> DisplayQuestion <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-5" title="5">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-6" title="6">    <span class="cf">return</span> <span class="op">&lt;</span>div<span class="op">&gt;</span>What <span class="cf">do</span> you want to order today<span class="op">,</span> <span class="op">{</span><span class="kw">this</span>.<span class="va">props</span>.<span class="at">username</span><span class="op">}</span> <span class="op">?</span>&lt;/div<span class="op">&gt;;</span></a>
+<a class="sourceLine" id="cb6-7" title="7">  }</a>
+<a class="sourceLine" id="cb6-8" title="8">}</a>
+<a class="sourceLine" id="cb6-9" title="9"></a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="im">export</span> <span class="im">default</span> <span class="at">ourFirstStore</span>(DisplayQuestion)<span class="op">;</span></a></code></pre></div>
+<h3 id="and-app.js-updated">And App.js updated</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> Component <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="im">import</span> DisplayHello <span class="im">from</span> <span class="st">&quot;./DisplayHello&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="im">import</span> DisplayQuestion <span class="im">from</span> <span class="st">&quot;./DisplayQuestion&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-4" title="4"></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="kw">class</span> App <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-6" title="6">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-7" title="7">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb7-8" title="8">      <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-9" title="9">        <span class="op">&lt;</span>DisplayHello /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-10" title="10">        <span class="op">&lt;</span>DisplayQuestion /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-11" title="11">      &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-12" title="12">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-13" title="13">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-14" title="14"><span class="op">}</span></a>
+<a class="sourceLine" id="cb7-15" title="15"></a>
+<a class="sourceLine" id="cb7-16" title="16"><span class="im">export</span> <span class="im">default</span> App<span class="op">;</span></a></code></pre></div>
+<h4 id="you-can-notice-that-all-the-data-is-now-in-the-wrapper-and-not-in-app.js-anymore.-we-just-created-a-very-basic-data-store-accessible-anywhere-in-your-app">You can notice that all the data is now in the wrapper and not in App.js anymore. We just created a very basic data store accessible anywhere in your app !</h4>
+<h3 id="redux-uses-the-same-idea-to-give-you-the-possibility-to-access-the-data-but-also-to-modify-your-store.-and-as-we-have-seen-this-data-and-methods-are-accessible-through-props.-this-is-why-we-have-to-mapstatetoprops-and-mapdispatchtoprops">Redux uses the same idea to give you the possibility to access the data, but also to modify your store. And as we have seen, this data and methods are accessible through props. This is why we have to… mapStateToProps and mapDispatchToProps !</h3>
+</body></html>

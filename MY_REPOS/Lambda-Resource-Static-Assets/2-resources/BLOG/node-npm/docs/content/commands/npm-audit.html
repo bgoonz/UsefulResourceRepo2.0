@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="./prism.css">
+    <script async defer src="./prism.js"></script>
+</head>
+
+<body>;
+    <h3 id="synopsis">Synopsis</h3>
+    <div class="sourceCode" id="cb1">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="ex">npm</span> audit [--json] [--production] [--audit-level=(low<span class="kw">|</span><span class="ex">moderate</span><span class="kw">|</span><span class="ex">high</span><span class="kw">|</span><span class="ex">critical</span>)]</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="ex">npm</span> audit fix [--force<span class="kw">|</span><span class="ex">--package-lock-only</span><span class="kw">|</span><span class="ex">--dry-run</span><span class="kw">|</span><span class="ex">--production</span><span class="kw">|</span><span class="ex">--only</span>=(dev<span class="kw">|</span><span class="ex">prod</span>)]</a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="ex">common</span> options: [--production] [--only=(dev<span class="kw">|</span><span class="ex">prod</span>)]</a></code></pre>
+    </div>
+    <h3 id="description">Description</h3>
+    <p>The audit command submits a description of the dependencies configured in your project to your default registry
+        and asks for a report of known vulnerabilities. If any vulnerabilities are found, then the impact and
+        appropriate remediation will be calculated. If the <code>fix</code> argument is provided, then remediations will
+        be applied to the package tree.</p>
+    <p>The command will exit with a 0 exit code if no vulnerabilities were found.</p>
+    <p>Note that some vulnerabilities cannot be fixed automatically and will require manual intervention or review. Also
+        note that since <code>npm audit fix</code> runs a full-fledged <code>npm install</code> under the hood, all
+        configs that apply to the installer will also apply to <code>npm install</code> – so things like <code>npm audit
+            fix --package-lock-only</code> will work as expected.</p>
+    <p>By default, the audit command will exit with a non-zero code if any vulnerability is found. It may be useful in
+        CI environments to include the <code>--audit-level</code> parameter to specify the minimum vulnerability level
+        that will cause the command to fail. This option does not filter the report output, it simply changes the
+        command’s failure threshold.</p>
+    <h3 id="audit-endpoints">Audit Endpoints</h3>
+    <p>There are two audit endpoints that npm may use to fetch vulnerability information: the <code>Bulk Advisory</code>
+        endpoint and the <code>Quick Audit</code> endpoint.</p>
+    <h4 id="bulk-advisory-endpoint">Bulk Advisory Endpoint</h4>
+    <p>As of version 7, npm uses the much faster <code>Bulk Advisory</code> endpoint to optimize the speed of
+        calculating audit results.</p>
+    <p>npm will generate a JSON payload with the name and list of versions of each package in the tree, and POST it to
+        the default configured registry at the path <code>/-/npm/v1/security/advisories/bulk</code>.</p>
+    <p>Any packages in the tree that do not have a <code>version</code> field in their package.json file will be
+        ignored. If any <code>--omit</code> options are specified (either via the <code>--omit</code> config, or one of
+        the shorthands such as <code>--production</code>, <code>--only=dev</code>, and so on), then packages will be
+        omitted from the submitted payload as appropriate.</p>
+    <p>If the registry responds with an error, or with an invalid response, then npm will attempt to load advisory data
+        from the <code>Quick Audit</code> endpoint.</p>
+    <p>The expected result will contain a set of advisory objects for each dependency that matches the advisory range.
+        Each advisory object contains a <code>name</code>, <code>url</code>, <code>id</code>, <code>severity</code>,
+        <code>vulnerable_versions</code>, and <code>title</code>.
+        </p>
+    <p>npm then uses these advisory objects to calculate vulnerabilities and meta-vulnerabilities of the dependencies
+        within the tree.</p>
+    <h4 id="quick-audit-endpoint">Quick Audit Endpoint</h4>
+    <p>If the <code>Bulk Advisory</code> endpoint returns an error, or invalid data, npm will attempt to load advisory
+        data from the <code>Quick Audit</code> endpoint, which is considerably slower in most cases.</p>
+    <p>The full package tree as found in <code>package-lock.json</code> is submitted, along with the following pieces of
+        additional metadata:</p>
+    <ul>
+        <li><code>npm_version</code></li>
+        <li><code>node_version</code></li>
+        <li><code>platform</code></li>
+        <li><code>arch</code></li>
+        <li><code>node_env</code></li>
+    </ul>
+    <p>All packages in the tree are submitted to the Quick Audit endpoint. Omitted dependency types are skipped when
+        generating the report.</p>
+    <h4 id="scrubbing">Scrubbing</h4>
+    <p>Out of an abundance of caution, npm versions 5 and 6 would "scrub" any packages from the submitted report if
+        their name contained a <code>/</code> character, so as to avoid leaking the names of potentially private
+        packages or git URLs.</p>
+    <p>However, in practice, this resulted in audits often failing to properly detect meta-vulnerabilities, because the
+        tree would appear to be invalid due to missing dependencies, and prevented the detection of vulnerabilities in
+        package trees that used git dependencies or private modules.</p>
+    <p>This scrubbing has been removed from npm as of version 7.</p>
+    <h4 id="calculating-meta-vulnerabilities-and-remediations">Calculating Meta-Vulnerabilities and Remediations</h4>
+    <p>npm uses the <a href="http://npm.im/@npmcli/metavuln-calculator"><code>@npmcli/metavuln-calculator</code></a>
+        module to turn a set of security advisories into a set of "vulnerability" objects. A "meta-vulnerability" is a
+        dependency that is vulnerable by virtue of dependence on vulnerable versions of a vulnerable package.</p>
+    <p>For example, if the package <code>foo</code> is vulnerable in the range <code>&gt;=1.0.2 &lt;2.0.0</code>, and
+        the package <code>bar</code> depends on <code>foo@^1.1.0</code>, then that version of <code>bar</code> can only
+        be installed by installing a vulnerable version of <code>foo</code>. In this case, <code>bar</code> is a
+        "metavulnerability".</p>
+    <p>Once metavulnerabilities for a given package are calculated, they are cached in the <code>~/.npm</code> folder
+        and only re-evaluated if the advisory range changes, or a new version of the package is published (in which
+        case, the new version is checked for metavulnerable status as well).</p>
+    <p>If the chain of metavulnerabilities extends all the way to the root project, and it cannot be updated without
+        changing its dependency ranges, then <code>npm audit fix</code> will require the <code>--force</code> option to
+        apply the remediation. If remediations do not require changes to the dependency ranges, then all vulnerable
+        packages will be updated to a version that does not have an advisory or metavulnerability posted against it.</p>
+    <h3 id="exit-code">Exit Code</h3>
+    <p>The <code>npm audit</code> command will exit with a 0 exit code if no vulnerabilities were found. The <code>npm
+            audit fix</code> command will exit with 0 exit code if no vulnerabilities are found <em>or</em> if the
+        remediation is able to successfully fix all vulnerabilities.</p>
+    <p>If vulnerabilities were found the exit code will depend on the <code>audit-level</code> configuration setting.
+    </p>
+    <h3 id="examples">Examples</h3>
+    <p>Scan your project for vulnerabilities and automatically install any compatible updates to vulnerable
+        dependencies:</p>
+    <div class="sourceCode" id="cb2">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1">$ <span class="ex">npm</span> audit fix</a></code></pre>
+    </div>
+    <p>Run <code>audit fix</code> without modifying <code>node_modules</code>, but still updating the pkglock:</p>
+    <div class="sourceCode" id="cb3">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1">$ <span class="ex">npm</span> audit fix --package-lock-only</a></code></pre>
+    </div>
+    <p>Skip updating <code>devDependencies</code>:</p>
+    <div class="sourceCode" id="cb4">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1">$ <span class="ex">npm</span> audit fix --only=prod</a></code></pre>
+    </div>
+    <p>Have <code>audit fix</code> install SemVer-major updates to toplevel dependencies, not just SemVer-compatible
+        ones:</p>
+    <div class="sourceCode" id="cb5">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" title="1">$ <span class="ex">npm</span> audit fix --force</a></code></pre>
+    </div>
+    <p>Do a dry run to get an idea of what <code>audit fix</code> will do, and <em>also</em> output install information
+        in JSON format:</p>
+    <div class="sourceCode" id="cb6">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1">$ <span class="ex">npm</span> audit fix --dry-run --json</a></code></pre>
+    </div>
+    <p>Scan your project for vulnerabilities and just show the details, without fixing anything:</p>
+    <div class="sourceCode" id="cb7">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb7-1" title="1">$ <span class="ex">npm</span> audit</a></code></pre>
+    </div>
+    <p>Get the detailed audit report in JSON format:</p>
+    <div class="sourceCode" id="cb8">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb8-1" title="1">$ <span class="ex">npm</span> audit --json</a></code></pre>
+    </div>
+    <p>Fail an audit only if the results include a vulnerability with a level of moderate or higher:</p>
+    <div class="sourceCode" id="cb9">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb9-1" title="1">$ <span class="ex">npm</span> audit --audit-level=moderate</a></code></pre>
+    </div>
+    <h3 id="see-also">See Also</h3>
+    <ul>
+        <li><a href="/commands/npm-install">npm install</a></li>
+        <li><a href="/configuring-npm/package-locks">package-locks</a></li>
+        <li><a href="/using-npm/config">config</a></li>
+    </ul>
+</body>
+
+</html>

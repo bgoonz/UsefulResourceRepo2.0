@@ -1,0 +1,94 @@
+<h1 id="encapsulate-collection">Encapsulate collection</h1>
+<p>We have the following code:</p>
+<pre><code>function Order() {
+         this.orderLines = [];
+         this.orderTotal = 0;
+}
+Order.prototype.getOrderLines = function() {
+         return this.orderLines;
+};
+Order.prototype.addOrderLine = function(orderLine) {
+         this.orderTotal += orderLine.total;
+         this.orderLines.push(orderLine);
+};
+Order.prototype.removeOrderLine = function(orderLineItem) {
+         var orderTotal, orderLine;
+         orderLine = this.orderLines.map(function(order) {
+                  return order === orderLineItem;
+         })[0];
+
+         if(typeof orderLine === &#39;undefined&#39; || orderLine === null) {
+                  return;
+         }
+         this.orderTotal -= orderLine.total;
+         this.orderLines.splice(this.orderTotal, 1);
+};</code></pre>
+<pre><code>var order = new Order();
+order.addOrderLine( { total: 10 } );
+console.log(order.getOrderLines());  // [ { total: 10 } ]
+console.log(order.orderTotal);   // 10</code></pre>
+<p>The problem with this code is that anyone could get access to orderLines and add or modify values without increasing or decreasing orderTotal.</p>
+<pre><code>order.orderLines[0] = { total: 20 };
+console.log(order.getOrderLines()); // [ { total: 20 } ]
+console.log(order.orderTotal);  // 10;</code></pre>
+<hr />
+<p>Modify the code to encapsulate the collection to avoid this issue.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">function</span> <span class="at">Order</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">         <span class="kw">this</span>.<span class="at">orderLines</span> <span class="op">=</span> []<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-3" title="3">         <span class="kw">this</span>.<span class="at">orderTotal</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="op">}</span></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="va">Order</span>.<span class="va">prototype</span>.<span class="at">getOrderLines</span> <span class="op">=</span> <span class="kw">function</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-6" title="6">         <span class="cf">return</span> <span class="kw">this</span>.<span class="at">orderLines</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="op">};</span></a>
+<a class="sourceLine" id="cb4-8" title="8"><span class="va">Order</span>.<span class="va">prototype</span>.<span class="at">addOrderLine</span> <span class="op">=</span> <span class="kw">function</span>(orderLine) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-9" title="9">         <span class="kw">this</span>.<span class="at">orderTotal</span> <span class="op">+=</span> <span class="va">orderLine</span>.<span class="at">total</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-10" title="10">         <span class="kw">this</span>.<span class="va">orderLines</span>.<span class="at">push</span>(orderLine)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-11" title="11"><span class="op">};</span></a>
+<a class="sourceLine" id="cb4-12" title="12"><span class="va">Order</span>.<span class="va">prototype</span>.<span class="at">removeOrderLine</span> <span class="op">=</span> <span class="kw">function</span>(orderLineItem) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-13" title="13">         <span class="kw">var</span> orderTotal<span class="op">,</span> orderLine<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-14" title="14">         orderLine <span class="op">=</span> <span class="kw">this</span>.<span class="va">orderLines</span>.<span class="at">map</span>(<span class="kw">function</span>(order) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-15" title="15">                  <span class="cf">return</span> order <span class="op">===</span> orderLineItem<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-16" title="16">         <span class="op">}</span>)[<span class="dv">0</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-17" title="17"></a>
+<a class="sourceLine" id="cb4-18" title="18">         <span class="cf">if</span>(<span class="kw">typeof</span> orderLine <span class="op">===</span> <span class="st">&#39;undefined&#39;</span> <span class="op">||</span> orderLine <span class="op">===</span> <span class="kw">null</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-19" title="19">                  <span class="cf">return</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-20" title="20">         <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-21" title="21">         <span class="kw">this</span>.<span class="at">orderTotal</span> <span class="op">-=</span> <span class="va">orderLine</span>.<span class="at">total</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-22" title="22">         <span class="kw">this</span>.<span class="va">orderLines</span>.<span class="at">splice</span>(<span class="kw">this</span>.<span class="at">orderTotal</span><span class="op">,</span> <span class="dv">1</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-23" title="23"><span class="op">};</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">function</span> <span class="at">Order</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2">         <span class="kw">var</span> orderLines<span class="op">,</span> orderTotal<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-3" title="3">         orderLines <span class="op">=</span> []<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-4" title="4">         orderTotal <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-5" title="5">         <span class="kw">this</span>.<span class="at">getOrderLines</span> <span class="op">=</span> <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-6" title="6">            <span class="cf">return</span> orderLines<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-7" title="7">         <span class="op">};</span></a>
+<a class="sourceLine" id="cb5-8" title="8">         <span class="kw">this</span>.<span class="at">getOrderTotal</span> <span class="op">=</span> <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-9" title="9">            <span class="cf">return</span> orderTotal<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-10" title="10">         <span class="op">};</span></a>
+<a class="sourceLine" id="cb5-11" title="11">         <span class="kw">this</span>.<span class="at">setOrderTotal</span> <span class="op">=</span> <span class="kw">function</span> (total) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-12" title="12">            orderTotal <span class="op">+=</span> total<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-13" title="13">         <span class="op">};</span></a>
+<a class="sourceLine" id="cb5-14" title="14"><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-15" title="15"><span class="va">Order</span>.<span class="va">prototype</span>.<span class="at">addOrderLine</span> <span class="op">=</span> <span class="kw">function</span> (orderLine) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-16" title="16">    <span class="kw">var</span> orderLines<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-17" title="17">    orderLines <span class="op">=</span> <span class="kw">this</span>.<span class="at">getOrderLines</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-18" title="18">    <span class="kw">this</span>.<span class="at">setOrderTotal</span>(<span class="va">orderLine</span>.<span class="at">total</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-19" title="19">    <span class="va">orderLines</span>.<span class="at">push</span>(orderLine)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-20" title="20"><span class="op">};</span></a>
+<a class="sourceLine" id="cb5-21" title="21"><span class="va">Order</span>.<span class="va">prototype</span>.<span class="at">removeOrderLine</span> <span class="op">=</span> <span class="kw">function</span>(orderLineItem) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-22" title="22">         <span class="kw">var</span> orderTotal<span class="op">,</span> orderLine<span class="op">,</span> orderLines<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-23" title="23">         orderLines <span class="op">=</span> <span class="kw">this</span>.<span class="at">getOrderLines</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-24" title="24">         orderLine <span class="op">=</span> <span class="kw">this</span>.<span class="va">orderLines</span>.<span class="at">map</span>(<span class="kw">function</span>(order) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-25" title="25">                  <span class="cf">return</span> order <span class="op">===</span> orderLineItem<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-26" title="26">         <span class="op">}</span>)[<span class="dv">0</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-27" title="27"></a>
+<a class="sourceLine" id="cb5-28" title="28">         <span class="cf">if</span>(<span class="kw">typeof</span> orderLine <span class="op">===</span> <span class="st">&#39;undefined&#39;</span> <span class="op">||</span> orderLine <span class="op">===</span> <span class="kw">null</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-29" title="29">                  <span class="cf">return</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-30" title="30">         <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-31" title="31"></a>
+<a class="sourceLine" id="cb5-32" title="32">         <span class="kw">this</span>.<span class="at">setOrderTotal</span>( (<span class="op">-</span><span class="dv">1</span> <span class="op">*</span> <span class="va">orderLine</span>.<span class="at">total</span>) )<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-33" title="33">         <span class="va">orderLines</span>.<span class="at">splice</span>( <span class="kw">this</span>.<span class="at">getOrderTotal</span>()<span class="op">,</span> <span class="dv">1</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-34" title="34"><span class="op">};</span></a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">var</span> order <span class="op">=</span> <span class="kw">new</span> <span class="at">Order</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="at">assert</span>(<span class="kw">typeof</span> <span class="va">order</span>.<span class="at">orderLines</span> <span class="op">===</span> <span class="st">&#39;undefined&#39;</span>)<span class="op">;</span></a></code></pre></div>

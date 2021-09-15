@@ -1,0 +1,1106 @@
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<hr />
+<h1 id="tic-tac-toe-online-project">Tic-Tac-Toe Online Project</h1>
+<p>In this project, you’ll get a chance to practice your newly acquired WebSockets skills by building an interactive game! Earlier, you built a Tic-Tac-Toe game that could be played locally, within a single browser session. Now you’ll extend the game to use WebSockets so that it can be played online, across two different browser sessions. You’ll also convert the client-side code to use React components.</p>
+<h2 id="phase-0-reviewing-the-application-design-and-architecture">Phase 0: Reviewing the application design and architecture</h2>
+<p>Here’s a high level description of the design and architecture of the application:</p>
+<ul>
+<li>Node.js and Express will be used to create a simple web application.
+<ul>
+<li>The server will serve static files from a <code>public</code> directory. In production the <code>public</code> directory would contain a production build of the React client application.</li>
+</ul></li>
+<li>The <a href="https://www.npmjs.com/package/ws"><code>ws</code> npm package</a> will be used to create a WebSocket server.
+<ul>
+<li>The WebSocket server will enable two-way communication between two users as they play a game of tic-tac-toe.</li>
+<li>All game state will live on the server. As players take turns, the game state will be updated on the server and the WebSocket server will be used to broadcast state updates to the clients to keep their game boards in sync.</li>
+</ul></li>
+<li>The client application will be built using React web components.
+<ul>
+<li>Some components will require state, but you’re welcome to use either class or function components with Hooks.</li>
+<li>Global state requirements in the client application will be relatively simple, so while you could use a Context or Redux to maintain your application’s state, neither one is really a requirement to use.</li>
+</ul></li>
+<li>Players will be prompted for their “player name" when they first browse to the web application.
+<ul>
+<li>To keep things simple, the server will start a new game as soon as two players have connected to the server.</li>
+<li>If a player unexpectedly quits the game (i.e. closes their browser) then the game will abort for the remaining player.</li>
+</ul></li>
+</ul>
+<p>The initial version of this project will be fun and challenging, giving you ample opportunity to practice your WebSocket skills. There’s also lots of interesting ways that this project can be extended beyond the initial requirements.</p>
+<p>Ready to get started building your online tic-tac-toe game? <strong>Let’s go!</strong></p>
+<h2 id="phase-1-setting-up-the-client-and-server-projects">Phase 1: Setting up the client and server projects</h2>
+<p>This project will actually be split into two projects: a Node.js project for the Express server application and a Create React App project for the client application.</p>
+<h3 id="stubbing-out-the-server-project">Stubbing out the server project</h3>
+<p>To save you a bit of time, we’ve provided you with a repo of starter files for the server project. Create a top level folder for your project; name it something like <code>tic-tac-toe-online</code>. Browse into that folder and clone this repository:</p>
+<p><a href="https://github.com/appacademy-starters/tic-tac-toe-online-starter.git">https://github.com/appacademy-starters/tic-tac-toe-online-starter.git</a></p>
+<p>Once the repo has finished cloning, you can browse into the <code>server</code> folder and install the server
+    project’s dependencies by running the command <code>npm install</code>. Once the dependencies have finished
+    installing, test the application by running <code>npm start</code> and browsing to
+    <code>http://localhost:8080/</code>. You should see a very simple web page displaying the heading “Tic-Tac-Toe
+    Online".</p>
+<p>Take a moment to review the <code>app.js</code> file’s contents:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="co">// ./app.js</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw">const</span> express <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;express&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="kw">const</span> path <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;path&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="kw">const</span> <span class="op">{</span> createServer <span class="op">}</span> <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;http&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="kw">const</span> morgan <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;morgan&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-7" title="7"></a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="kw">const</span> <span class="op">{</span> port <span class="op">}</span> <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;./config&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-9" title="9"></a>
+<a class="sourceLine" id="cb1-10" title="10"><span class="kw">const</span> app <span class="op">=</span> <span class="at">express</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-11" title="11"></a>
+<a class="sourceLine" id="cb1-12" title="12"><span class="va">app</span>.<span class="at">use</span>(<span class="at">morgan</span>(<span class="st">&#39;dev&#39;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-13" title="13"><span class="va">app</span>.<span class="at">use</span>(<span class="va">express</span>.<span class="at">static</span>(<span class="va">path</span>.<span class="at">join</span>(__dirname<span class="op">,</span> <span class="st">&#39;/public&#39;</span>)))<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-14" title="14"></a>
+<a class="sourceLine" id="cb1-15" title="15"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;*&#39;</span><span class="op">,</span> (req<span class="op">,</span> res) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-16" title="16">  <span class="va">res</span>.<span class="at">sendFile</span>(<span class="va">path</span>.<span class="at">join</span>(__dirname<span class="op">,</span> <span class="st">&#39;public&#39;</span><span class="op">,</span> <span class="st">&#39;index.html&#39;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-17" title="17"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-18" title="18"></a>
+<a class="sourceLine" id="cb1-19" title="19"><span class="kw">const</span> server <span class="op">=</span> <span class="at">createServer</span>(app)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-20" title="20"></a>
+<a class="sourceLine" id="cb1-21" title="21"><span class="va">server</span>.<span class="at">listen</span>(port<span class="op">,</span> () <span class="kw">=&gt;</span> <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Listening on http://localhost:</span><span class="sc">${</span>port<span class="sc">}</span><span class="vs">`</span>))<span class="op">;</span></a></code></pre></div>
+<p>This simple Express application will:</p>
+<ul>
+<li>Attempt to match incoming requests to static files located in the <code>public</code> folder; and</li>
+<li>If a matching static file isn’t found, then the <code>./public/index.html</code> file will be served for all other requests.</li>
+</ul>
+<p>In the next section, you’ll use Create React App to create a client project. Once you’ve built your React client application, you can create and copy the production build into the <code>public</code> folder. This allows the one Express application to serve both the client and server parts of the application.</p>
+<blockquote>
+<p>Remember that configuring Express to serve the <code>./public/index.html</code> file for any request that doesn’t match a static file, allows you to “deep link" to any of your React application’s routes (if you use routing in your client application).</p>
+</blockquote>
+<p>One thing to note about the above <code>app</code> module, is that the <code>http.createServer</code> method is being used to create the HTTP server instead of calling the <code>listen</code> method on the Express Application (<code>app</code>) object. In a bit, you’ll see how using this approach will allow you to use the same server for both HTTP and WebSocket requests.</p>
+<h3 id="stubbing-out-the-client-project">Stubbing out the client project</h3>
+<p>After stubbing out the server project, browse back up to the top level project folder and use Create React App to create your client project:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">npx</span> create-react-app client --template @appacademy/simple</a></code></pre></div>
+<p>When the command completes, browse into the <code>client</code> and run <code>npm start</code>. The Create React App development server should start and open your client application into your default browser. If it doesn’t automatically happen, you can manually open a browser and browse to <code>http://localhost:3000/</code>. When the page loads, you should see a heading displaying the text “Hello world!"</p>
+<h2 id="phase-2-stubbing-out-the-react-components">Phase 2: Stubbing out the React components</h2>
+<p>The React client application will be relatively simple: it’ll contain just three components (at least initially):</p>
+<ul>
+<li>An <code>App</code> component (this is already in your project);</li>
+<li>A <code>Home</code> component; and</li>
+<li>A <code>Game</code> component.</li>
+</ul>
+<p>Go ahead and stub out the <code>Home</code> and <code>Game</code> components within a <code>components</code> folder. The <code>Home</code> component will require state so use a class component or a function component with the <code>useState</code> Hook (we’ll be using Hooks in the instructions). The <code>Game</code> component doesn’t require any state, so a function component will work fine.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="co">// ./src/components/Home.js</span></a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> useState <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-4" title="4"></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="kw">const</span> Home <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-6" title="6">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb3-7" title="7">    <span class="op">&lt;</span>h2<span class="op">&gt;</span>Home&lt;/h2<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb3-8" title="8">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="op">}</span></a>
+<a class="sourceLine" id="cb3-10" title="10"></a>
+<a class="sourceLine" id="cb3-11" title="11"><span class="im">export</span> <span class="im">default</span> Home<span class="op">;</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="co">// ./src/components/Game.js</span></a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" title="4"></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="kw">const</span> Game <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-6" title="6">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb4-7" title="7">    <span class="op">&lt;</span>h2<span class="op">&gt;</span>Game&lt;/h2<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-8" title="8">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="op">}</span></a>
+<a class="sourceLine" id="cb4-10" title="10"></a>
+<a class="sourceLine" id="cb4-11" title="11"><span class="im">export</span> <span class="im">default</span> Game<span class="op">;</span></a></code></pre></div>
+<p>Import the <code>useState</code> Hook into the <code>App</code> module and refactor the <code>App</code> component from a function declaration to an arrow function expression. Then update the <code>App</code> component to import and render the <code>Home</code> and <code>Game</code> components:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="co">// ./src/App.js</span></a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> useState <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-4" title="4"></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="im">import</span> Home <span class="im">from</span> <span class="st">&#39;./components/Home&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="im">import</span> Game <span class="im">from</span> <span class="st">&#39;./components/Game&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-7" title="7"></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="kw">const</span> App <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-9" title="9">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb5-10" title="10">    <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-11" title="11">      <span class="op">&lt;</span>h1<span class="op">&gt;</span>Tic<span class="op">-</span>Tac<span class="op">-</span>Toe Online&lt;/h1<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-12" title="12">      <span class="op">&lt;</span>Home /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-13" title="13">      <span class="op">&lt;</span>Game /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-14" title="14">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-15" title="15">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-16" title="16"><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-17" title="17"></a>
+<a class="sourceLine" id="cb5-18" title="18"><span class="im">export</span> <span class="im">default</span> App<span class="op">;</span></a></code></pre></div>
+<p>Also notice that application heading was updated to “Tic-Tac-Toe Online". Do the same for the title in the <code>./public/index.html</code> file:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode html"><code class="sourceCode html"><a class="sourceLine" id="cb6-1" title="1"><span class="dt">&lt;!DOCTYPE </span>html<span class="dt">&gt;</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="kw">&lt;html</span><span class="ot"> lang=</span><span class="st">&quot;en&quot;</span><span class="kw">&gt;</span></a>
+<a class="sourceLine" id="cb6-3" title="3">  <span class="kw">&lt;head&gt;</span></a>
+<a class="sourceLine" id="cb6-4" title="4">    <span class="kw">&lt;meta</span><span class="ot"> charset=</span><span class="st">&quot;utf-8&quot;</span> <span class="kw">/&gt;</span></a>
+<a class="sourceLine" id="cb6-5" title="5">    <span class="kw">&lt;title&gt;</span>Tic-Tac-Toe Online<span class="kw">&lt;/title&gt;</span></a>
+<a class="sourceLine" id="cb6-6" title="6">  <span class="kw">&lt;/head&gt;</span></a>
+<a class="sourceLine" id="cb6-7" title="7">  <span class="kw">&lt;body&gt;</span></a>
+<a class="sourceLine" id="cb6-8" title="8">    <span class="kw">&lt;div</span><span class="ot"> id=</span><span class="st">&quot;root&quot;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb6-9" title="9">  <span class="kw">&lt;/body&gt;</span></a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="kw">&lt;/html&gt;</span></a></code></pre></div>
+<p>Go ahead and run your client application again (<code>npm start</code>) to ensure that the <code>Home</code> and <code>Game</code> components render as expected. Don’t worry that they’re both displaying at the same time; we’ll fix that in a bit.</p>
+<h2 id="phase-3-rendering-the-game-board">Phase 3: Rendering the game board</h2>
+<p>Before turning our attention to using WebSockets to implement the interaction between the client and server, let’s update the <code>Game</code> component to render the game board.</p>
+<h3 id="adding-the-styles">Adding the styles</h3>
+<p>To start, add a CSS module file named <code>Game.module.css</code> to the <code>./src/components</code> folder containing the following:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode css"><code class="sourceCode css"><a class="sourceLine" id="cb7-1" title="1"><span class="co">/* ./src/components/Game.module.css */</span></a>
+<a class="sourceLine" id="cb7-2" title="2"></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="fu">.game</span> {</a>
+<a class="sourceLine" id="cb7-4" title="4">  <span class="kw">margin</span>: <span class="bu">auto</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-5" title="5">  <span class="kw">width</span>: <span class="dv">402</span><span class="dt">px</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-6" title="6">}</a>
+<a class="sourceLine" id="cb7-7" title="7"></a>
+<a class="sourceLine" id="cb7-8" title="8"><span class="fu">.players</span> {</a>
+<a class="sourceLine" id="cb7-9" title="9">  <span class="kw">display</span>: grid<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-10" title="10">  <span class="kw">height</span>: <span class="dv">20</span><span class="dt">px</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-11" title="11">  <span class="kw">width</span>: <span class="dv">400</span><span class="dt">px</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-12" title="12">  <span class="kw">grid-template-columns</span>: <span class="dv">1</span>fr <span class="dv">1</span>fr<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-13" title="13">  <span class="kw">grid-template-rows</span>: <span class="dv">1</span>fr<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-14" title="14">}</a>
+<a class="sourceLine" id="cb7-15" title="15"></a>
+<a class="sourceLine" id="cb7-16" title="16"><span class="fu">.tic_tac_toe_board</span> {</a>
+<a class="sourceLine" id="cb7-17" title="17">  <span class="kw">display</span>: grid<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-18" title="18">  <span class="kw">height</span>: <span class="dv">400</span><span class="dt">px</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-19" title="19">  <span class="kw">width</span>: <span class="dv">400</span><span class="dt">px</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-20" title="20">  <span class="kw">grid-template-columns</span>: <span class="dv">1</span>fr <span class="dv">1</span>fr <span class="dv">1</span>fr<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-21" title="21">  <span class="kw">grid-template-rows</span>: <span class="dv">1</span>fr <span class="dv">1</span>fr <span class="dv">1</span>fr<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-22" title="22">  <span class="kw">background-color</span>: <span class="cn">black</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-23" title="23">  <span class="kw">margin</span>: <span class="dv">32</span><span class="dt">px</span> <span class="dv">0</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-24" title="24">}</a>
+<a class="sourceLine" id="cb7-25" title="25"></a>
+<a class="sourceLine" id="cb7-26" title="26"><span class="fu">.actions</span> {</a>
+<a class="sourceLine" id="cb7-27" title="27">  <span class="kw">display</span>: flex<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-28" title="28">}</a>
+<a class="sourceLine" id="cb7-29" title="29"></a>
+<a class="sourceLine" id="cb7-30" title="30"><span class="fu">.announcement</span> {</a>
+<a class="sourceLine" id="cb7-31" title="31">  <span class="kw">font-size</span>: <span class="dv">1.4</span><span class="dt">em</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-32" title="32">  <span class="kw">text-align</span>: <span class="dv">center</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-33" title="33">}</a>
+<a class="sourceLine" id="cb7-34" title="34"></a>
+<a class="sourceLine" id="cb7-35" title="35"><span class="fu">.col_1</span> {</a>
+<a class="sourceLine" id="cb7-36" title="36">  <span class="kw">justify-self</span>: start<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-37" title="37">}</a>
+<a class="sourceLine" id="cb7-38" title="38"></a>
+<a class="sourceLine" id="cb7-39" title="39"><span class="fu">.col_2</span> {</a>
+<a class="sourceLine" id="cb7-40" title="40">  <span class="kw">justify-self</span>: <span class="dv">center</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-41" title="41">}</a>
+<a class="sourceLine" id="cb7-42" title="42"></a>
+<a class="sourceLine" id="cb7-43" title="43"><span class="fu">.col_3</span> {</a>
+<a class="sourceLine" id="cb7-44" title="44">  <span class="kw">justify-self</span>: end<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-45" title="45">}</a>
+<a class="sourceLine" id="cb7-46" title="46"></a>
+<a class="sourceLine" id="cb7-47" title="47"><span class="fu">.row_1</span> {</a>
+<a class="sourceLine" id="cb7-48" title="48">  <span class="kw">align-self</span>: start<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-49" title="49">}</a>
+<a class="sourceLine" id="cb7-50" title="50"></a>
+<a class="sourceLine" id="cb7-51" title="51"><span class="fu">.row_2</span> {</a>
+<a class="sourceLine" id="cb7-52" title="52">  <span class="kw">align-self</span>: <span class="dv">center</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-53" title="53">}</a>
+<a class="sourceLine" id="cb7-54" title="54"></a>
+<a class="sourceLine" id="cb7-55" title="55"><span class="fu">.row_3</span> {</a>
+<a class="sourceLine" id="cb7-56" title="56">  <span class="kw">align-self</span>: end<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-57" title="57">}</a>
+<a class="sourceLine" id="cb7-58" title="58"></a>
+<a class="sourceLine" id="cb7-59" title="59"><span class="fu">.spacer</span> {</a>
+<a class="sourceLine" id="cb7-60" title="60">  <span class="kw">flex</span>: <span class="dv">1</span> <span class="dv">0</span> <span class="dv">0</span><span class="dt">px</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-61" title="61">}</a>
+<a class="sourceLine" id="cb7-62" title="62"></a>
+<a class="sourceLine" id="cb7-63" title="63"><span class="fu">.square</span> {</a>
+<a class="sourceLine" id="cb7-64" title="64">  <span class="kw">background-color</span>: <span class="cn">white</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-65" title="65">  <span class="kw">height</span>: <span class="dv">130</span><span class="dt">px</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-66" title="66">  <span class="kw">width</span>: <span class="dv">130</span><span class="dt">px</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-67" title="67">}</a></code></pre></div>
+<p>Then add the following global styles to the <code>index.css</code> file:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode css"><code class="sourceCode css"><a class="sourceLine" id="cb8-1" title="1"><span class="co">/* ./src/index.css */</span></a>
+<a class="sourceLine" id="cb8-2" title="2"></a>
+<a class="sourceLine" id="cb8-3" title="3">body<span class="op">,</span> button<span class="op">,</span> input {</a>
+<a class="sourceLine" id="cb8-4" title="4">  <span class="kw">font-family</span>: Arial<span class="op">,</span> Helvetica<span class="op">,</span> <span class="dv">sans-serif</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-5" title="5">}</a>
+<a class="sourceLine" id="cb8-6" title="6"></a>
+<a class="sourceLine" id="cb8-7" title="7">button<span class="op">,</span> input {</a>
+<a class="sourceLine" id="cb8-8" title="8">  <span class="kw">font-size</span>: <span class="dv">1.1</span><span class="dt">em</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-9" title="9">}</a></code></pre></div>
+<h3 id="the-initial-game-board">The initial game board</h3>
+<p>In the <code>Game</code> component, be sure to import your CSS module file, then update the <code>render</code> method to this:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="co">// ./src/components/Game.js</span></a>
+<a class="sourceLine" id="cb9-2" title="2"></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="im">import</span> styles <span class="im">from</span> <span class="st">&#39;./Game.module.css&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb9-5" title="5"></a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="kw">const</span> Game <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-7" title="7">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb9-8" title="8">    <span class="op">&lt;</span>div className<span class="op">={</span><span class="va">styles</span>.<span class="at">game</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb9-9" title="9">      <span class="op">&lt;</span>div className<span class="op">={</span><span class="va">styles</span>.<span class="at">players</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb9-10" title="10">        <span class="op">&lt;</span>div<span class="op">&gt;</span>Player <span class="dt">X</span><span class="op">:</span> <span class="op">{</span><span class="co">/* </span><span class="al">TODO</span><span class="co"> Render player 1 name */</span><span class="op">}</span>&lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb9-11" title="11">        <span class="op">&lt;</span>div<span class="op">&gt;</span>Player <span class="dt">O</span><span class="op">:</span> <span class="op">{</span><span class="co">/* </span><span class="al">TODO</span><span class="co"> Render player 2 name */</span><span class="op">}</span>&lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb9-12" title="12">      &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb9-13" title="13">      <span class="op">&lt;</span>h3 className<span class="op">={</span><span class="va">styles</span>.<span class="at">announcement</span><span class="op">}&gt;</span>TODO&lt;/h3<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb9-14" title="14">      <span class="op">&lt;</span>div className<span class="op">={</span><span class="va">styles</span>.<span class="at">tic_tac_toe_board</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb9-15" title="15">        <span class="op">{</span><span class="co">/* </span><span class="al">TODO</span><span class="co"> Render game board squares */</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb9-16" title="16">      &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb9-17" title="17">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb9-18" title="18">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-19" title="19"><span class="op">}</span></a>
+<a class="sourceLine" id="cb9-20" title="20"></a>
+<a class="sourceLine" id="cb9-21" title="21"><span class="im">export</span> <span class="im">default</span> Game<span class="op">;</span></a></code></pre></div>
+<p>Later in the project, once we have the game state available to us, we’ll replace the <code>TODO</code>s with the player names. We’ll also be able to render some action buttons below the game board when a game is ended to allow users to play again or quit.</p>
+<h3 id="rendering-the-game-board-squares">Rendering the game board squares</h3>
+<p>For now, let’s turn our attention to rendering the game board squares. In the original tic-tac-toe project, the game board squares were represented by the following HTML:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode html"><code class="sourceCode html"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">&lt;div</span><span class="ot"> id=</span><span class="st">&#39;square-0&#39;</span><span class="ot"> class=</span><span class="st">&#39;square row-1 col-1&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="kw">&lt;div</span><span class="ot"> id=</span><span class="st">&#39;square-1&#39;</span><span class="ot"> class=</span><span class="st">&#39;square row-1 col-2&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="kw">&lt;div</span><span class="ot"> id=</span><span class="st">&#39;square-2&#39;</span><span class="ot"> class=</span><span class="st">&#39;square row-1 col-3&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb10-4" title="4"><span class="kw">&lt;div</span><span class="ot"> id=</span><span class="st">&#39;square-3&#39;</span><span class="ot"> class=</span><span class="st">&#39;square row-2 col-1&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb10-5" title="5"><span class="kw">&lt;div</span><span class="ot"> id=</span><span class="st">&#39;square-4&#39;</span><span class="ot"> class=</span><span class="st">&#39;square row-2 col-2&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb10-6" title="6"><span class="kw">&lt;div</span><span class="ot"> id=</span><span class="st">&#39;square-5&#39;</span><span class="ot"> class=</span><span class="st">&#39;square row-2 col-3&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb10-7" title="7"><span class="kw">&lt;div</span><span class="ot"> id=</span><span class="st">&#39;square-6&#39;</span><span class="ot"> class=</span><span class="st">&#39;square row-3 col-1&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb10-8" title="8"><span class="kw">&lt;div</span><span class="ot"> id=</span><span class="st">&#39;square-7&#39;</span><span class="ot"> class=</span><span class="st">&#39;square row-3 col-2&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb10-9" title="9"><span class="kw">&lt;div</span><span class="ot"> id=</span><span class="st">&#39;square-8&#39;</span><span class="ot"> class=</span><span class="st">&#39;square row-3 col-3&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a></code></pre></div>
+<p>In the original tic-tac-toe project, the element <code>id</code> attribute values were used to select individual elements in the DOM. We’re using React instead manipulating the DOM directly, so we won’t need those element <code>id</code> attributes. We’re using <a href="https://github.com/css-modules/css-modules">CSS Modules</a> for our game board styles, so we need to avoid hyphens in our CSS class names. We also need to use the <code>className</code> attribute instead of <code>class</code>. Accounting for all of that, let’s update the <code>TODO</code> comment for rendering game board squares in the <code>Game</code> component to this:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode html"><code class="sourceCode html"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">&lt;div</span><span class="ot"> className=</span><span class="st">&#39;square row_1 col_1&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="kw">&lt;div</span><span class="ot"> className=</span><span class="st">&#39;square row_1 col_2&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb11-3" title="3"><span class="kw">&lt;div</span><span class="ot"> className=</span><span class="st">&#39;square row_1 col_3&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="kw">&lt;div</span><span class="ot"> className=</span><span class="st">&#39;square row_2 col_1&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb11-5" title="5"><span class="kw">&lt;div</span><span class="ot"> className=</span><span class="st">&#39;square row_2 col_2&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb11-6" title="6"><span class="kw">&lt;div</span><span class="ot"> className=</span><span class="st">&#39;square row_2 col_3&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb11-7" title="7"><span class="kw">&lt;div</span><span class="ot"> className=</span><span class="st">&#39;square row_3 col_1&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb11-8" title="8"><span class="kw">&lt;div</span><span class="ot"> className=</span><span class="st">&#39;square row_3 col_2&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb11-9" title="9"><span class="kw">&lt;div</span><span class="ot"> className=</span><span class="st">&#39;square row_3 col_3&#39;</span><span class="kw">&gt;&lt;/div&gt;</span></a></code></pre></div>
+<p>We need to track when players click on a specific square and determine which square index (<code>0</code> through <code>8</code>) that they clicked on. To do that, let’s define a <code>Square</code> function component in your <code>Game.js</code> file for rendering squares:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">const</span> Square <span class="op">=</span> (<span class="op">{</span> squareIndex<span class="op">,</span> row<span class="op">,</span> col <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-2" title="2">  <span class="kw">const</span> rowStyleName <span class="op">=</span> <span class="vs">`row_</span><span class="sc">${</span>row<span class="sc">}</span><span class="vs">`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb12-3" title="3">  <span class="kw">const</span> colStyleName <span class="op">=</span> <span class="vs">`col_</span><span class="sc">${</span>col<span class="sc">}</span><span class="vs">`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb12-4" title="4"></a>
+<a class="sourceLine" id="cb12-5" title="5">  <span class="kw">const</span> handleClick <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-6" title="6">    <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Clicked on square index: </span><span class="sc">${</span>squareIndex<span class="sc">}</span><span class="vs">...`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-7" title="7">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb12-8" title="8"></a>
+<a class="sourceLine" id="cb12-9" title="9">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb12-10" title="10">    <span class="op">&lt;</span>div</a>
+<a class="sourceLine" id="cb12-11" title="11">      onClick<span class="op">={</span>handleClick<span class="op">}</span></a>
+<a class="sourceLine" id="cb12-12" title="12">      className<span class="op">={</span><span class="vs">`</span><span class="sc">${</span><span class="va">styles</span>.<span class="at">square</span><span class="sc">}</span><span class="vs"> </span><span class="sc">${</span>styles[rowStyleName]<span class="sc">}</span><span class="vs"> </span><span class="sc">${</span>styles[colStyleName]<span class="sc">}</span><span class="vs">`</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb12-13" title="13">        <span class="op">{</span><span class="co">/* </span><span class="al">TODO</span><span class="co"> Render square &quot;X&quot; or &quot;O&quot; image */</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb12-14" title="14">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb12-15" title="15">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-16" title="16"><span class="op">};</span></a></code></pre></div>
+<p>Notice how the component accepts <code>squareIndex</code>, <code>row</code>, and <code>col</code> props to determine what index this square represents and to render the correct CSS Module class names.</p>
+<p>Now we can use the <code>Square</code> component in the <code>Game</code> component’s <code>render</code> method. Replace each <code>&lt;div&gt;</code> with the <code>.square</code> class to be a <code>&lt;Square&gt;</code> component taking in a <code>squareIndex</code> prop, a <code>row</code> prop, and a <code>col</code> prop. For reference, here are the entire contents of the <code>./src/components/Game.js</code> file:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" title="1"><span class="co">// ./src/components/Game.js</span></a>
+<a class="sourceLine" id="cb13-2" title="2"></a>
+<a class="sourceLine" id="cb13-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb13-4" title="4"><span class="im">import</span> styles <span class="im">from</span> <span class="st">&#39;./Game.module.css&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb13-5" title="5"></a>
+<a class="sourceLine" id="cb13-6" title="6"><span class="kw">const</span> Square <span class="op">=</span> (<span class="op">{</span> squareIndex<span class="op">,</span> row<span class="op">,</span> col <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-7" title="7">  <span class="kw">const</span> rowStyleName <span class="op">=</span> <span class="vs">`row_</span><span class="sc">${</span>row<span class="sc">}</span><span class="vs">`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb13-8" title="8">  <span class="kw">const</span> colStyleName <span class="op">=</span> <span class="vs">`col_</span><span class="sc">${</span>col<span class="sc">}</span><span class="vs">`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb13-9" title="9"></a>
+<a class="sourceLine" id="cb13-10" title="10">  <span class="kw">const</span> handleClick <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-11" title="11">    <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Clicked on square index: </span><span class="sc">${</span>squareIndex<span class="sc">}</span><span class="vs">...`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-12" title="12">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb13-13" title="13"></a>
+<a class="sourceLine" id="cb13-14" title="14">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb13-15" title="15">    <span class="op">&lt;</span>div</a>
+<a class="sourceLine" id="cb13-16" title="16">      onClick<span class="op">={</span>handleClick<span class="op">}</span></a>
+<a class="sourceLine" id="cb13-17" title="17">      className<span class="op">={</span><span class="vs">`</span><span class="sc">${</span><span class="va">styles</span>.<span class="at">square</span><span class="sc">}</span><span class="vs"> </span><span class="sc">${</span>styles[rowStyleName]<span class="sc">}</span><span class="vs"> </span><span class="sc">${</span>styles[colStyleName]<span class="sc">}</span><span class="vs">`</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb13-18" title="18">        <span class="op">{</span><span class="co">/* </span><span class="al">TODO</span><span class="co"> Render square &quot;X&quot; or &quot;O&quot; image */</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb13-19" title="19">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb13-20" title="20">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-21" title="21"><span class="op">};</span></a>
+<a class="sourceLine" id="cb13-22" title="22"></a>
+<a class="sourceLine" id="cb13-23" title="23"><span class="kw">const</span> Game <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-24" title="24">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb13-25" title="25">    <span class="op">&lt;</span>div className<span class="op">={</span><span class="va">styles</span>.<span class="at">game</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb13-26" title="26">      <span class="op">&lt;</span>div className<span class="op">={</span><span class="va">styles</span>.<span class="at">players</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb13-27" title="27">        <span class="op">&lt;</span>div<span class="op">&gt;</span>Player <span class="dt">X</span><span class="op">:</span> <span class="op">{</span><span class="co">/* </span><span class="al">TODO</span><span class="co"> Render player 1 name */</span><span class="op">}</span>&lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb13-28" title="28">        <span class="op">&lt;</span>div<span class="op">&gt;</span>Player <span class="dt">O</span><span class="op">:</span> <span class="op">{</span><span class="co">/* </span><span class="al">TODO</span><span class="co"> Render player 2 name */</span><span class="op">}</span>&lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb13-29" title="29">      &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb13-30" title="30">      <span class="op">&lt;</span>h3 className<span class="op">={</span><span class="va">styles</span>.<span class="at">announcement</span><span class="op">}&gt;</span>TODO&lt;/h3<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb13-31" title="31">      <span class="op">&lt;</span>div className<span class="op">={</span><span class="va">styles</span>.<span class="at">tic_tac_toe_board</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb13-32" title="32">        <span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">0</span><span class="op">}</span> row<span class="op">={</span><span class="dv">1</span><span class="op">}</span> col<span class="op">={</span><span class="dv">1</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb13-33" title="33">        <span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">1</span><span class="op">}</span> row<span class="op">={</span><span class="dv">1</span><span class="op">}</span> col<span class="op">={</span><span class="dv">2</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb13-34" title="34">        <span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">2</span><span class="op">}</span> row<span class="op">={</span><span class="dv">1</span><span class="op">}</span> col<span class="op">={</span><span class="dv">3</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb13-35" title="35">        <span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">3</span><span class="op">}</span> row<span class="op">={</span><span class="dv">2</span><span class="op">}</span> col<span class="op">={</span><span class="dv">1</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb13-36" title="36">        <span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">4</span><span class="op">}</span> row<span class="op">={</span><span class="dv">2</span><span class="op">}</span> col<span class="op">={</span><span class="dv">2</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb13-37" title="37">        <span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">5</span><span class="op">}</span> row<span class="op">={</span><span class="dv">2</span><span class="op">}</span> col<span class="op">={</span><span class="dv">3</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb13-38" title="38">        <span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">6</span><span class="op">}</span> row<span class="op">={</span><span class="dv">3</span><span class="op">}</span> col<span class="op">={</span><span class="dv">1</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb13-39" title="39">        <span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">7</span><span class="op">}</span> row<span class="op">={</span><span class="dv">3</span><span class="op">}</span> col<span class="op">={</span><span class="dv">2</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb13-40" title="40">        <span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">8</span><span class="op">}</span> row<span class="op">={</span><span class="dv">3</span><span class="op">}</span> col<span class="op">={</span><span class="dv">3</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb13-41" title="41">      &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb13-42" title="42">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb13-43" title="43">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-44" title="44"><span class="op">}</span></a>
+<a class="sourceLine" id="cb13-45" title="45"></a>
+<a class="sourceLine" id="cb13-46" title="46"><span class="im">export</span> <span class="im">default</span> Game<span class="op">;</span></a></code></pre></div>
+<p>Run your client application again (<code>npm start</code>); this time you should see your empty tic-tac-toe game board displayed:</p>
+<figure>
+<img src="https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/websockets/assets/websockets-initial-tic-tac-toe-game-board.png" alt="websockets-initial-tic-tac-toe-game-board" /><figcaption>websockets-initial-tic-tac-toe-game-board</figcaption>
+</figure>
+<h2 id="phase-4-prompting-users-for-their-player-names">Phase 4: Prompting users for their player names</h2>
+<p>Before users start a game of tic-tac-toe, let’s prompt them for their player name. Requiring each user to have a player name will make it easier for us to prompt a player to take their turn (i.e. “Select a square {player name}!").</p>
+<h3 id="setting-up-a-simple-form">Setting up a simple form</h3>
+<p>In the <code>Home</code> component, add a new state variable named <code>playerName</code>. We’re using Hooks, so we’ll call the <code>useState</code> Hook to declare the state variable:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">const</span> [playerName<span class="op">,</span> setPlayerName] <span class="op">=</span> <span class="at">useState</span>(<span class="st">&#39;&#39;</span>)<span class="op">;</span></a></code></pre></div>
+<p>Now add a simple form, containing a single <code>&lt;input&gt;</code> element and a <code>&lt;button&gt;</code> element, to prompt the user for their player name. Let’s also change the <code>&lt;h2&gt;</code> heading element to “Welcome!" and add a brief welcome message that prompts the user for their player name:</p>
+<pre class="jsx"><code>&lt;div&gt;
+  &lt;h2&gt;Welcome!&lt;/h2&gt;
+  &lt;p&gt;Please provide your player name and 
+    click the &quot;Play Game&quot; button to start a game.&lt;/p&gt;
+  &lt;form onSubmit={onSubmit}&gt;
+    &lt;input type=&#39;text&#39; value={playerName}
+      onChange={onChange} /&gt;
+    &lt;button&gt;Play Game&lt;/button&gt;
+  &lt;/form&gt;
+&lt;/div&gt;</code></pre>
+<p>Notice that the <code>&lt;form&gt;</code> and <code>&lt;input&gt;</code> elements respectively reference <code>onSubmit</code> and <code>onChange</code> event handler functions. Go ahead and add those event handler functions. The <code>onSubmit</code> event handler function should prevent the form’s default submit action and the <code>onChange</code> event handler function should use the target <code>&lt;input&gt;</code> element’s <code>value</code> to update the <code>playerName</code> state variable.</p>
+<p>At this point, you should be able to enter and remove characters in the <code>&lt;input&gt;</code> element and click the “Play Game" button, though nothing will occur (as expected since your <code>onSubmit</code> function simply prevents the form’s default submit action).</p>
+<h3 id="validating-the-form">Validating the form</h3>
+<p>To ensure that the user enters a player name before starting a game, let’s add validation to our form.</p>
+<p>Add another state variable named <code>errors</code> to your <code>Home</code> component with an initial value of an empty array (i.e. <code>[]</code>):</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">const</span> [errors<span class="op">,</span> setErrors] <span class="op">=</span> <span class="at">useState</span>([])<span class="op">;</span></a></code></pre></div>
+<p>In the <code>onSubmit</code> event handler function, declare a variable named <code>errorsToSet</code> set to an empty array. If the <code>playerName</code> state variable is falsy push a message onto the <code>errorsToSet</code> array containing the text “Please provide a player name." Then if the <code>errorsToSet</code> array contains an element, use it to set the <code>errors</code> state variable by invoking <code>setErrors</code>.</p>
+<p>When updating state variables that reference objects and arrays, always prefer to update the state variables with new objects or arrays instead of modifying or mutating the existing objects or arrays. For example, instead of pushing an element onto the <code>errors</code> state variable in the <code>onSubmit</code> event handler function, we’re creating a new array, pushing an element onto the new array, and then passing the new array into a call to <code>setErrors</code>.</p>
+<p>To render the validation errors, you can create a <code>ValidationErrors</code> subcomponent in your <code>Home.js</code> file like this:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">const</span> ValidationErrors <span class="op">=</span> (<span class="op">{</span> errors <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb17-2" title="2">  <span class="cf">if</span> (errors <span class="op">===</span> <span class="kw">null</span> <span class="op">||</span> <span class="va">errors</span>.<span class="at">length</span> <span class="op">===</span> <span class="dv">0</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb17-3" title="3">    <span class="cf">return</span> <span class="kw">null</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb17-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb17-5" title="5"></a>
+<a class="sourceLine" id="cb17-6" title="6">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb17-7" title="7">    <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb17-8" title="8">      <span class="op">&lt;</span>p<span class="op">&gt;</span>Please correct the following <span class="dt">errors</span><span class="op">:</span>&lt;/p<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb17-9" title="9">      <span class="op">&lt;</span>ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb17-10" title="10">        <span class="op">{</span> <span class="va">errors</span>.<span class="at">map</span>(error <span class="kw">=&gt;</span> <span class="op">&lt;</span>li key<span class="op">={</span>error<span class="op">}&gt;{</span>error<span class="op">}</span>&lt;/li<span class="op">&gt;</span>) <span class="op">}</span></a>
+<a class="sourceLine" id="cb17-11" title="11">      &lt;/ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb17-12" title="12">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb17-13" title="13">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb17-14" title="14"><span class="op">};</span></a></code></pre></div>
+<p>And then add it just above the form passing in the <code>errors</code> state variable:</p>
+<pre class="jsx"><code>&lt;ValidationErrors errors={errors} /&gt;
+&lt;form onSubmit={onSubmit}&gt;
+  &lt;input type=&#39;text&#39; value={playerName}
+    onChange={onChange} /&gt;
+  &lt;button&gt;Play Game&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+<h3 id="passing-the-player-name-up-to-the-app-component">Passing the player name up to the <code>App</code> component</h3>
+<p>Now that the <code>Home</code> component has a form to prompt the user for their player name, we need a way to pass the player name back up to the <code>App</code> component so that it can be kept with all of the other global state (that’s yet to be defined).</p>
+<p>In the <code>App</code> component, call the <code>useState</code> Hook to declare a <code>playerName</code> state variable:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb19-1" title="1"><span class="kw">const</span> [playerName<span class="op">,</span> setPlayerName] <span class="op">=</span> <span class="at">useState</span>(<span class="st">&#39;&#39;</span>)<span class="op">;</span></a></code></pre></div>
+<p>Next, declare an <code>updatePlayerName</code> function that accepts a <code>playerName</code> parameter and calls <code>setPlayerName</code> to update the <code>playerName</code> state variable:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">const</span> updatePlayerName <span class="op">=</span> (playerName) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-2" title="2">  <span class="at">setPlayerName</span>(playerName)<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-3" title="3"><span class="op">};</span></a></code></pre></div>
+<p>Then pass the <code>updatePlayerName</code> function into the <code>Home</code> component as a prop:</p>
+<pre class="jsx"><code>&lt;Home updatePlayerName={updatePlayerName} /&gt;</code></pre>
+<p>Back in the <code>App</code> component, use destructuring to get a reference to the <code>updatePlayerName</code> prop and call it within the <code>onSubmit</code> event handler function:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">const</span> Home <span class="op">=</span> (<span class="op">{</span> updatePlayerName <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb22-2" title="2">  <span class="co">// Code removed for brevity.</span></a>
+<a class="sourceLine" id="cb22-3" title="3"></a>
+<a class="sourceLine" id="cb22-4" title="4">  <span class="kw">const</span> onSubmit <span class="op">=</span> (e) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb22-5" title="5">    <span class="va">e</span>.<span class="at">preventDefault</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb22-6" title="6"></a>
+<a class="sourceLine" id="cb22-7" title="7">    <span class="kw">const</span> errorsToSet <span class="op">=</span> []<span class="op">;</span></a>
+<a class="sourceLine" id="cb22-8" title="8"></a>
+<a class="sourceLine" id="cb22-9" title="9">    <span class="cf">if</span> (<span class="op">!</span>playerName) <span class="op">{</span></a>
+<a class="sourceLine" id="cb22-10" title="10">      <span class="va">errorsToSet</span>.<span class="at">push</span>(<span class="st">&#39;Please provide a player name.&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb22-11" title="11">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb22-12" title="12"></a>
+<a class="sourceLine" id="cb22-13" title="13">    <span class="cf">if</span> (<span class="va">errorsToSet</span>.<span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb22-14" title="14">      <span class="at">setErrors</span>(errorsToSet)<span class="op">;</span></a>
+<a class="sourceLine" id="cb22-15" title="15">      <span class="cf">return</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb22-16" title="16">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb22-17" title="17"></a>
+<a class="sourceLine" id="cb22-18" title="18">    <span class="at">updatePlayerName</span>(playerName)<span class="op">;</span></a>
+<a class="sourceLine" id="cb22-19" title="19">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb22-20" title="20"></a>
+<a class="sourceLine" id="cb22-21" title="21">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb22-22" title="22">    <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb22-23" title="23">      <span class="op">{</span><span class="co">/* Code removed for brevity. */</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb22-24" title="24">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb22-25" title="25">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb22-26" title="26"><span class="op">}</span></a></code></pre></div>
+<p>Lastly, update the <code>App</code> component to render the <code>Game</code> component if there’s a player name, otherwise render the <code>Home</code> component:</p>
+<pre class="jsx"><code>&lt;div&gt;
+  &lt;h1&gt;Tic-Tac-Toe Online&lt;/h1&gt;
+  {playerName ? (
+    &lt;Game playerName={playerName} /&gt;
+  ) : (
+    &lt;Home updatePlayerName={updatePlayerName} /&gt;
+  )}
+&lt;/div&gt;</code></pre>
+<blockquote>
+<p>There are multiple ways to conditionally display elements in JSX. The above example uses an inline expression. Earlier you saw an example of using a subcomponent to conditionally displaying validation messages. Feel free to use the approach that you feel is easiest to write and read.</p>
+</blockquote>
+<h3 id="testing">Testing</h3>
+<p>Take a moment to test your validation error rendering by submitting an empty player name. You should see your <code>'Please provide a player name.'</code> error rendered. Upon a valid form submission to set the <code>playerName</code>, your application should be rendering the <code>&lt;Game&gt;</code> component instead of <code>&lt;Home&gt;</code>. Test that this is working before moving forward.</p>
+<p>If you test your client application again, you should see the <code>Home</code> component displayed first, prompting you to enter your player name. Click the “Play Game" button without entering a player name to test that you receive a validation error message asking you to enter a player name. Then provide a player name and click the “Play Game" button. You should now see the <code>Game</code> component being displayed.</p>
+<blockquote>
+<p>It’s worth noting that we haven’t done anything to prevent a user from entering a player name that’s already been provided by another player. For now, we’ll make a point to enter unique player names when testing so that we can turn our attention to setting up the client/server interaction using WebSockets.</p>
+</blockquote>
+<h2 id="phase-5-setting-up-websockets">Phase 5: Setting up WebSockets</h2>
+<p>Things are moving nicely along! With the player name available, we’re ready to set up the WebSocket server and update the client to connection to the server and send a message.</p>
+<p>As you set up the server and client to use WebSockets, you’ll notice that the APIs are very similar. Both the server and the client can send and receive messages (that’s the “two-way" communication that we’re looking for) and both fire events when an errors occur or when connections are closed. An important distinction between the server and the client is that only the server <em>is listening for new connections</em> and only the client <em>can initiate a new connection</em>.</p>
+<h3 id="update-the-server">Update the server</h3>
+<p>We’ll be using the <code>ws</code> npm package to set up a WebSocket server, so install it in your server project using npm:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb24-1" title="1"><span class="ex">npm</span> install ws@^7.0.0</a></code></pre></div>
+<p>In the <code>app</code> module (the <code>app.js</code> file), import the <code>ws</code> module as <code>WebSocket</code>:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">const</span> WebSocket <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;ws&#39;</span>)<span class="op">;</span></a></code></pre></div>
+<p>Just after the call to the <code>createServer</code> function (i.e. <code>const server = createServer(app);</code>), create a WebSocket server by calling the <code>WebSocket.Server</code> method with the <code>new</code> keyword:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">const</span> wss <span class="op">=</span> <span class="kw">new</span> <span class="va">WebSocket</span>.<span class="at">Server</span>(<span class="op">{</span> server <span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Notice that we’re passing in the existing HTTP server by setting the <code>server</code> variable as a property on an options object. After creating the WebSocket server we can listen for connections by listening for <code>connection</code> events:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb27-1" title="1"><span class="va">wss</span>.<span class="at">on</span>(<span class="st">&#39;connection&#39;</span><span class="op">,</span> (ws) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb27-2" title="2"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>When a WebSocket connection is established, the callback function will be called with the WebSocket passed in via the <code>ws</code> parameter. We can then listen for <code>message</code> and <code>close</code> events on the WebSocket:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb28-1" title="1"><span class="va">wss</span>.<span class="at">on</span>(<span class="st">&#39;connection&#39;</span><span class="op">,</span> (ws) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb28-2" title="2">  <span class="va">ws</span>.<span class="at">on</span>(<span class="st">&#39;message&#39;</span><span class="op">,</span> (jsonData) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb28-3" title="3">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb28-4" title="4"></a>
+<a class="sourceLine" id="cb28-5" title="5">  <span class="va">ws</span>.<span class="at">on</span>(<span class="st">&#39;close&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb28-6" title="6">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb28-7" title="7"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p><code>message</code> events are fired when a message is received from the client while <code>close</code> events are fired when the WebSocket connection is closed. For now, just add a <code>TODO</code> comment for the <code>close</code> event handler callback function:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb29-1" title="1"><span class="va">ws</span>.<span class="at">on</span>(<span class="st">&#39;close&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb29-2" title="2">  <span class="co">// </span><span class="al">TODO</span><span class="co"> Cleanup the player that&#39;s associated with this WS.</span></a>
+<a class="sourceLine" id="cb29-3" title="3"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>In the <code>message</code> event handler callback function, define a parameter named <code>jsonData</code> and call a function named <code>processIncomingMessage</code> passing in the <code>jsonData</code> parameter and the enclosed <code>ws</code> parameter (from the <code>connection</code> event handler callback function):</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb30-1" title="1"><span class="va">ws</span>.<span class="at">on</span>(<span class="st">&#39;message&#39;</span><span class="op">,</span> (jsonData) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb30-2" title="2">  <span class="at">processIncomingMessage</span>(jsonData<span class="op">,</span> ws)<span class="op">;</span></a>
+<a class="sourceLine" id="cb30-3" title="3"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>The <code>jsonData</code> parameter is set to the data for the incoming message which will be formatted as JSON (we’ll see how to do that from the client in just a bit).</p>
+<p>Now declare a <code>processIncomingMessage</code> function that logs the <code>jsonData</code> to the console (to help with testing and debugging) and uses the <code>JSON.parse</code> method to parse the <code>jsonData</code> to a JavaScript object:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">const</span> processIncomingMessage <span class="op">=</span> (jsonData<span class="op">,</span> ws) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb31-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Processing incoming message </span><span class="sc">${</span>jsonData<span class="sc">}</span><span class="vs">...`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb31-3" title="3"></a>
+<a class="sourceLine" id="cb31-4" title="4">  <span class="kw">const</span> message <span class="op">=</span> <span class="va">JSON</span>.<span class="at">parse</span>(jsonData)<span class="op">;</span></a>
+<a class="sourceLine" id="cb31-5" title="5"><span class="op">};</span></a></code></pre></div>
+<p>The structure of the WebSocket message is completely up to us to decide. The WS specification has no opinion about the structure of the message payload. For this application, on both the client and server, let’s use the following message structure:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb32-1" title="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb32-2" title="2">  <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;the-message-type&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb32-3" title="3">  <span class="dt">data</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb32-4" title="4">    <span class="co">// One or more properties for the message data.</span></a>
+<a class="sourceLine" id="cb32-5" title="5">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb32-6" title="6"><span class="op">}</span></a></code></pre></div>
+<p>Using the above general message structure, when the client sends a message to add a new player, the message will look like this:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb33-1" title="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb33-2" title="2">  <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;add-new-player&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb33-3" title="3">  <span class="dt">data</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb33-4" title="4">    <span class="dt">playerName</span><span class="op">:</span> <span class="st">&#39;[the player name]&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb33-5" title="5">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb33-6" title="6"><span class="op">}</span></a></code></pre></div>
+<p>After parsing the JSON formatted data to an object, we can switch on the <code>message.type</code> property to process specific message types:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">const</span> processIncomingMessage <span class="op">=</span> (jsonData<span class="op">,</span> ws) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb34-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Processing incoming message </span><span class="sc">${</span>jsonData<span class="sc">}</span><span class="vs">...`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb34-3" title="3"></a>
+<a class="sourceLine" id="cb34-4" title="4">  <span class="kw">const</span> message <span class="op">=</span> <span class="va">JSON</span>.<span class="at">parse</span>(jsonData)<span class="op">;</span></a>
+<a class="sourceLine" id="cb34-5" title="5"></a>
+<a class="sourceLine" id="cb34-6" title="6">  <span class="cf">switch</span> (<span class="va">message</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb34-7" title="7">    <span class="cf">case</span> <span class="st">&#39;add-new-player&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb34-8" title="8">      <span class="at">addNewPlayer</span>(<span class="va">message</span>.<span class="va">data</span>.<span class="at">playerName</span><span class="op">,</span> ws)<span class="op">;</span></a>
+<a class="sourceLine" id="cb34-9" title="9">      <span class="cf">break</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb34-10" title="10">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb34-11" title="11">      <span class="cf">throw</span> <span class="kw">new</span> <span class="at">Error</span>(<span class="vs">`Unknown message type: </span><span class="sc">${</span><span class="va">message</span>.<span class="at">type</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb34-12" title="12">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb34-13" title="13"><span class="op">};</span></a></code></pre></div>
+<p>Notice how we’re throwing an error if the message type is an unexpected or unknown message type. This will help us when testing and debugging if something goes wrong with the client message type.</p>
+<p>For now, just stub out the <code>addNewPlayer</code> function:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb35-1" title="1"><span class="kw">const</span> addNewPlayer <span class="op">=</span> (playerName<span class="op">,</span> ws) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb35-2" title="2">  <span class="co">// </span><span class="al">TODO</span><span class="co"> Handle adding the new player.</span></a>
+<a class="sourceLine" id="cb35-3" title="3"><span class="op">};</span></a></code></pre></div>
+<h3 id="updating-the-client">Updating the client</h3>
+<p>Before we can test the WebSocket server, we need to update the client to create a WebSocket connection and send a message to the server.</p>
+<p>To start, add an <code>.env</code> file to the root of the <code>client</code> folder with the following contents:</p>
+<pre><code>REACT_APP_WS_URL=ws://localhost:8080</code></pre>
+<p>Notice that we use <code>ws</code> instead of <code>http</code> to specify the WebSocket URL. The <code>localhost:8080</code> hostname and port is the Express server that’s hosting the WebSocket server. Defining an environment variable will make it easier for you later on to set the WebSocket URL to the correct value for each environment.</p>
+<blockquote>
+<p>If you were using HTTPS (SSL/TLS) for your HTTP traffic, you’d need to use <code>wss</code> instead of <code>ws</code> to indicate that you want to make a secure WebSocket connection. Failing to do that would result in a browser error.</p>
+</blockquote>
+<p>At the top of the <code>App</code> module, import two additional Hooks, <code>useEffect</code> and <code>useRef</code>:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb37-1" title="1"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> useState<span class="op">,</span> useEffect<span class="op">,</span> useRef <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a></code></pre></div>
+<p>The <code>useEffect</code> Hook give us a way to add code to function components that will cause side effects. We’ll put all of the code that’s responsible for creating and configuring the WebSocket in a <code>useEffect</code> Hook as the WebSocket will cause side effects as it sends messages to the server.</p>
+<p>The <code>useRef</code> Hook gives us a convenient way to store a reference to an object that will persist for the full lifetime of the component. We’ll use it in just a bit to store away the WebSocket object so that we can interact with it later on.</p>
+<p>Inside of the <code>App</code> component, just after the call to the <code>useState</code> Hook to declare the <code>playerName</code> state variable, call the <code>useRef</code> Hook to declare a <code>webSocket</code> variable:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb38-1" title="1"><span class="kw">const</span> webSocket <span class="op">=</span> <span class="at">useRef</span>(<span class="kw">null</span>)<span class="op">;</span></a></code></pre></div>
+<p>Then call the <code>useEffect</code> Hook and pass in an arrow function:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb39-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb39-2" title="2"></a>
+<a class="sourceLine" id="cb39-3" title="3"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>By default, the function passed into the <code>useEffect</code> Hook (referred to as the “effect") will run after every completed render. We can change the default behavior by passing in a second argument that’s an array of values that the effect depends on:</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb40-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb40-2" title="2"></a>
+<a class="sourceLine" id="cb40-3" title="3"><span class="op">},</span> [playerName])<span class="op">;</span></a></code></pre></div>
+<p>Now our effect will only run when the <code>playerName</code> state variable is changed. We can add an additional optimization by immediately returning from the function if the <code>playerName</code> variable doesn’t have a value (for our particular use case, it doesn’t make any sense to create a WebSocket if we don’t have a <code>playerName</code> value):</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb41-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb41-2" title="2">  <span class="cf">if</span> (<span class="op">!</span>playerName) <span class="op">{</span></a>
+<a class="sourceLine" id="cb41-3" title="3">    <span class="cf">return</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb41-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb41-5" title="5"></a>
+<a class="sourceLine" id="cb41-6" title="6"><span class="op">},</span> [playerName])<span class="op">;</span></a></code></pre></div>
+<p>Within the effect, create a new client-side WebSocket object by passing in the URL of the WebSocket server, represented by the <code>REACT_APP_WS_URL</code> environment variable. Then set the <code>webSocket</code> ref object’s <code>current</code> property to an object literal with a <code>ws</code> property for the WebSocket:</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb42-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb42-2" title="2">  <span class="cf">if</span> (<span class="op">!</span>playerName) <span class="op">{</span></a>
+<a class="sourceLine" id="cb42-3" title="3">    <span class="cf">return</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb42-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb42-5" title="5"></a>
+<a class="sourceLine" id="cb42-6" title="6">  <span class="kw">const</span> ws <span class="op">=</span> <span class="kw">new</span> <span class="at">WebSocket</span>(<span class="va">process</span>.<span class="va">env</span>.<span class="at">REACT_APP_WS_URL</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb42-7" title="7"></a>
+<a class="sourceLine" id="cb42-8" title="8">  <span class="co">// </span><span class="al">TODO</span><span class="co"> Define event listeners.</span></a>
+<a class="sourceLine" id="cb42-9" title="9"></a>
+<a class="sourceLine" id="cb42-10" title="10">  <span class="va">webSocket</span>.<span class="at">current</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb42-11" title="11">    ws<span class="op">,</span></a>
+<a class="sourceLine" id="cb42-12" title="12">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb42-13" title="13"><span class="op">},</span> [playerName])<span class="op">;</span></a></code></pre></div>
+<p>Setting the <code>webSocket</code> ref object’s <code>current</code> property to an object literal (instead of the WebSocket object directly) gives us a safe, convenient way to add references to inline helper functions (we’ll write one later in this project).</p>
+<blockquote>
+<p>It’s worth noting that updating or changing the <code>webSocket</code> ref object’s <code>current</code> property won’t cause the component to render. The ref object’s <code>current</code> property is similar in function to an ES2015 class instance field.</p>
+</blockquote>
+<p>We can also return a cleanup function from our effect. This function will be called before the effect is ran so that the previous execution of the effect can be properly cleaned up. To cleanup our effect, we need to call the <code>close</code> method on the WebSocket object (if it’s available) to close the connection to the server:</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb43-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb43-2" title="2">  <span class="cf">if</span> (<span class="op">!</span>playerName) <span class="op">{</span></a>
+<a class="sourceLine" id="cb43-3" title="3">    <span class="cf">return</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb43-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb43-5" title="5"></a>
+<a class="sourceLine" id="cb43-6" title="6">  <span class="kw">const</span> ws <span class="op">=</span> <span class="kw">new</span> <span class="at">WebSocket</span>(<span class="va">process</span>.<span class="va">env</span>.<span class="at">REACT_APP_WS_URL</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb43-7" title="7"></a>
+<a class="sourceLine" id="cb43-8" title="8">  <span class="co">// </span><span class="al">TODO</span><span class="co"> Define event listeners.</span></a>
+<a class="sourceLine" id="cb43-9" title="9"></a>
+<a class="sourceLine" id="cb43-10" title="10">  <span class="va">webSocket</span>.<span class="at">current</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb43-11" title="11">    ws<span class="op">,</span></a>
+<a class="sourceLine" id="cb43-12" title="12">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb43-13" title="13"></a>
+<a class="sourceLine" id="cb43-14" title="14">  <span class="cf">return</span> <span class="kw">function</span> <span class="at">cleanup</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb43-15" title="15">    <span class="cf">if</span> (<span class="va">webSocket</span>.<span class="at">current</span> <span class="op">!==</span> <span class="kw">null</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb43-16" title="16">      <span class="va">webSocket</span>.<span class="va">current</span>.<span class="va">ws</span>.<span class="at">close</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb43-17" title="17">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb43-18" title="18">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb43-19" title="19"><span class="op">},</span> [playerName])<span class="op">;</span></a></code></pre></div>
+<p>The WebSocket object provides four events:</p>
+<ul>
+<li><code>open</code> - Fires when the connection is opened;</li>
+<li><code>message</code> - Fires when a message is received;</li>
+<li><code>error</code> - Fires when the connection has been closed because of an error; and</li>
+<li><code>close</code> - Fires when the connection is closed.</li>
+</ul>
+<p>We can listen for these events by assigning an event listener to the following properties. Replace the <code>TODO</code> comment for defining event listeners to the WebSocket event listeners below:</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb44-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb44-2" title="2">  <span class="cf">if</span> (<span class="op">!</span>playerName) <span class="op">{</span></a>
+<a class="sourceLine" id="cb44-3" title="3">    <span class="cf">return</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb44-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb44-5" title="5"></a>
+<a class="sourceLine" id="cb44-6" title="6">  <span class="kw">const</span> ws <span class="op">=</span> <span class="kw">new</span> <span class="at">WebSocket</span>(<span class="va">process</span>.<span class="va">env</span>.<span class="at">REACT_APP_WS_URL</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb44-7" title="7"></a>
+<a class="sourceLine" id="cb44-8" title="8">  <span class="va">ws</span>.<span class="at">onopen</span> <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb44-9" title="9">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb44-10" title="10">  </a>
+<a class="sourceLine" id="cb44-11" title="11">  <span class="va">ws</span>.<span class="at">onmessage</span> <span class="op">=</span> (e) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb44-12" title="12">    <span class="va">console</span>.<span class="at">log</span>(e)<span class="op">;</span></a>
+<a class="sourceLine" id="cb44-13" title="13">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb44-14" title="14">  </a>
+<a class="sourceLine" id="cb44-15" title="15">  <span class="va">ws</span>.<span class="at">onerror</span> <span class="op">=</span> (e) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb44-16" title="16">    <span class="va">console</span>.<span class="at">error</span>(e)<span class="op">;</span></a>
+<a class="sourceLine" id="cb44-17" title="17">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb44-18" title="18">  </a>
+<a class="sourceLine" id="cb44-19" title="19">  <span class="va">ws</span>.<span class="at">onclose</span> <span class="op">=</span> (e) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb44-20" title="20">    <span class="va">console</span>.<span class="at">log</span>(e)<span class="op">;</span></a>
+<a class="sourceLine" id="cb44-21" title="21">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb44-22" title="22"></a>
+<a class="sourceLine" id="cb44-23" title="23">  <span class="va">webSocket</span>.<span class="at">current</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb44-24" title="24">    ws<span class="op">,</span></a>
+<a class="sourceLine" id="cb44-25" title="25">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb44-26" title="26"></a>
+<a class="sourceLine" id="cb44-27" title="27">  <span class="cf">return</span> <span class="kw">function</span> <span class="at">cleanup</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb44-28" title="28">    <span class="cf">if</span> (<span class="va">webSocket</span>.<span class="at">current</span> <span class="op">!==</span> <span class="kw">null</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb44-29" title="29">      <span class="va">webSocket</span>.<span class="va">current</span>.<span class="va">ws</span>.<span class="at">close</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb44-30" title="30">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb44-31" title="31">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb44-32" title="32"><span class="op">},</span> [playerName])<span class="op">;</span></a></code></pre></div>
+<blockquote>
+<p>There are two ways to assign event listeners: using the above properties (i.e. <code>onopen</code>, <code>onmessage</code>, <code>onerror</code>, or <code>onclose</code>) or using the <code>addEventListener</code> method and passing in the event name and a callback function (i.e. <code>ws.addEventListener('message', (e) =&gt; console.log(e));</code>). Either approach is valid; use the one that you or your team prefers.</p>
+</blockquote>
+<p>When the WebSocket connection is opened, send an <code>add-new-player</code> message to the server with the <code>playerName</code> value as the message data:</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb45-1" title="1"><span class="va">ws</span>.<span class="at">onopen</span> <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb45-2" title="2">  <span class="kw">const</span> message <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb45-3" title="3">    <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;add-new-player&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb45-4" title="4">    <span class="dt">data</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb45-5" title="5">      playerName<span class="op">,</span></a>
+<a class="sourceLine" id="cb45-6" title="6">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb45-7" title="7">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb45-8" title="8"></a>
+<a class="sourceLine" id="cb45-9" title="9">  <span class="va">ws</span>.<span class="at">send</span>(<span class="va">JSON</span>.<span class="at">stringify</span>(message))<span class="op">;</span></a>
+<a class="sourceLine" id="cb45-10" title="10"><span class="op">};</span></a></code></pre></div>
+<p>The message structure for the outgoing message aligns with what we described earlier when we set up the WebSocket server. Notice how you are manually structuring the <code>message</code> object to generate the message structure below. Also notice that the <code>JSON.stringify</code> method is used to format the message as JSON (as the server is expecting it to be) before passing it to the WebSocket <code>send</code> method.</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb46-1" title="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb46-2" title="2">  <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;add-new-player&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb46-3" title="3">  <span class="dt">data</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb46-4" title="4">    <span class="dt">playerName</span><span class="op">:</span> <span class="st">&#39;[the player name]&#39;</span></a>
+<a class="sourceLine" id="cb46-5" title="5">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb46-6" title="6"><span class="op">}</span></a></code></pre></div>
+<h3 id="testing-1">Testing</h3>
+<p>Start your server by running <code>npm start</code> from a terminal within the <code>server</code> folder then start the client by running <code>npm start</code> within the <code>client</code> folder. In the client, enter a player name and click the “Play Game" button. In the server’s terminal window, you should see something similar to the following output:</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb47-1" title="1"><span class="ex">Processing</span> incoming message {<span class="st">&quot;type&quot;</span>:<span class="st">&quot;add-new-player&quot;</span>,<span class="st">&quot;data&quot;</span>:{<span class="st">&quot;playerName&quot;</span>:<span class="st">&quot;[the player name you entered]&quot;</span>}}<span class="ex">...</span></a></code></pre></div>
+<p><strong>Congrats!</strong> You just created a WebSocket server, initiated a WebSocket connection from a React application, and received the WebSocket message on the server.</p>
+<p>Notice that we don’t have set up CORS to give the client application access to the WebSocket server that’s running on a different <code>localhost</code> port. WebSocket connections aren’t restricted to same-origin like HTTP requests are.</p>
+<h2 id="phase-6-starting-a-game">Phase 6: Starting a game</h2>
+<p>Once two players have connected to the server using WebSockets, we’re ready to start a game. To do that, we need define a couple of classes to track player and game state data on the server.</p>
+<h3 id="tracking-player-and-game-state-data-on-the-server">Tracking player and game state data on the server</h3>
+<p>Add a <code>game-state.js</code> file to the root of the server project. Then define two classes in the module:</p>
+<ul>
+<li>A <code>Player</code> class to track connected players; and</li>
+<li>A <code>Game</code> class to encapsulate the logic and state for a game of tic-tac-toe.</li>
+</ul>
+<div class="sourceCode" id="cb48"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb48-1" title="1"><span class="kw">class</span> Player <span class="op">{</span></a>
+<a class="sourceLine" id="cb48-2" title="2">  <span class="at">constructor</span>(playerName<span class="op">,</span> ws) <span class="op">{</span></a>
+<a class="sourceLine" id="cb48-3" title="3">    <span class="kw">this</span>.<span class="at">playerName</span> <span class="op">=</span> playerName<span class="op">;</span></a>
+<a class="sourceLine" id="cb48-4" title="4">    <span class="kw">this</span>.<span class="at">ws</span> <span class="op">=</span> ws<span class="op">;</span></a>
+<a class="sourceLine" id="cb48-5" title="5">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb48-6" title="6"></a>
+<a class="sourceLine" id="cb48-7" title="7">  <span class="at">getData</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb48-8" title="8">    <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb48-9" title="9">      <span class="dt">playerName</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">playerName</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb48-10" title="10">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb48-11" title="11">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb48-12" title="12"><span class="op">}</span></a></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb49-1" title="1"><span class="kw">class</span> Game <span class="op">{</span></a>
+<a class="sourceLine" id="cb49-2" title="2">  <span class="at">constructor</span>(player1) <span class="op">{</span></a>
+<a class="sourceLine" id="cb49-3" title="3">    <span class="kw">this</span>.<span class="at">player1</span> <span class="op">=</span> player1<span class="op">;</span></a>
+<a class="sourceLine" id="cb49-4" title="4">    <span class="kw">this</span>.<span class="at">player2</span> <span class="op">=</span> <span class="kw">null</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb49-5" title="5">    <span class="kw">this</span>.<span class="at">player1Symbol</span> <span class="op">=</span> <span class="st">&#39;X&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb49-6" title="6">    <span class="kw">this</span>.<span class="at">player2Symbol</span> <span class="op">=</span> <span class="st">&#39;O&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb49-7" title="7">    <span class="kw">this</span>.<span class="at">currentPlayer</span> <span class="op">=</span> player1<span class="op">;</span></a>
+<a class="sourceLine" id="cb49-8" title="8">    <span class="kw">this</span>.<span class="at">squareValues</span> <span class="op">=</span> [<span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb49-9" title="9">    <span class="kw">this</span>.<span class="at">gameOver</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb49-10" title="10">    <span class="kw">this</span>.<span class="at">winner</span> <span class="op">=</span> <span class="kw">null</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb49-11" title="11">    <span class="kw">this</span>.<span class="at">statusMessage</span> <span class="op">=</span> <span class="kw">null</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb49-12" title="12">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb49-13" title="13"></a>
+<a class="sourceLine" id="cb49-14" title="14">  <span class="at">getPlayers</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb49-15" title="15">    <span class="cf">return</span> [<span class="kw">this</span>.<span class="at">player1</span><span class="op">,</span> <span class="kw">this</span>.<span class="at">player2</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb49-16" title="16">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb49-17" title="17"></a>
+<a class="sourceLine" id="cb49-18" title="18">  <span class="at">getData</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb49-19" title="19">    <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb49-20" title="20">      <span class="dt">player1</span><span class="op">:</span> <span class="kw">this</span>.<span class="va">player1</span>.<span class="at">getData</span>()<span class="op">,</span></a>
+<a class="sourceLine" id="cb49-21" title="21">      <span class="dt">player2</span><span class="op">:</span> <span class="kw">this</span>.<span class="va">player2</span>.<span class="at">getData</span>()<span class="op">,</span></a>
+<a class="sourceLine" id="cb49-22" title="22">      <span class="dt">player1Symbol</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">player1Symbol</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb49-23" title="23">      <span class="dt">player2Symbol</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">player2Symbol</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb49-24" title="24">      <span class="dt">currentPlayer</span><span class="op">:</span> <span class="kw">this</span>.<span class="va">currentPlayer</span>.<span class="at">getData</span>()<span class="op">,</span></a>
+<a class="sourceLine" id="cb49-25" title="25">      <span class="dt">squareValues</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">squareValues</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb49-26" title="26">      <span class="dt">gameOver</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">gameOver</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb49-27" title="27">      <span class="dt">winner</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">winner</span> <span class="op">?</span> <span class="kw">this</span>.<span class="va">winner</span>.<span class="at">getData</span>() : <span class="kw">null</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb49-28" title="28">      <span class="dt">statusMessage</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">statusMessage</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb49-29" title="29">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb49-30" title="30">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb49-31" title="31"><span class="op">}</span></a></code></pre></div>
+<p>Be sure to export both classes from the module:</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb50-1" title="1"><span class="va">module</span>.<span class="at">exports</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb50-2" title="2">  Game<span class="op">,</span></a>
+<a class="sourceLine" id="cb50-3" title="3">  Player<span class="op">,</span></a>
+<a class="sourceLine" id="cb50-4" title="4"><span class="op">};</span></a></code></pre></div>
+<p>The <code>Player</code> class is a simple class that’s used to associate a player name with a WebSocket connection. The <code>getData</code> method is a convenience method that we’ll call when creating WebSocket messages to get the data for the player.</p>
+<p>The <code>Game</code> class encapsulates our game state on the server. When the client app interacts with the server, the game state on the server will be updated. We’ll be adding additional methods to this class as we implement functionality in the game. This class also has a <code>getData</code> method that’ll be used to get the data for the game when creating WebSocket messages.</p>
+<p>Ideally, our player and game state data would be persisted to a database, so that if/when the server is restarted, the data would not be lost. To keep things as simple as possible for now, we’ll just store the data in memory.</p>
+<h3 id="sending-the-start-game-message-to-the-client">Sending the <code>start-game</code> message to the client</h3>
+<p>Now we can update the <code>addNewPlayer</code> function in the <code>app</code> module to create a new game when the first player connects and to start the game when the second player connects.</p>
+<p>Import the <code>Game</code> and <code>Player</code> classes into the <code>app</code> module (the <code>app.js</code> file):</p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb51-1" title="1"><span class="kw">const</span> <span class="op">{</span> Game<span class="op">,</span> Player <span class="op">}</span> <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;./game-state&#39;</span>)<span class="op">;</span></a></code></pre></div>
+<p>Declare a <code>game</code> variable just after the line of code that creates the WebSocket server (i.e. <code>const wss = new WebSocket.Server({ server });</code>):</p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb52-1" title="1"><span class="kw">let</span> game <span class="op">=</span> <span class="kw">null</span><span class="op">;</span></a></code></pre></div>
+<p>This module-level global variable is how we’ll be persisting the game across WebSocket messages.</p>
+<p>Navigate to the <code>addNewPlayer</code> function in the <code>app</code> module and instantiate an instance of the <code>Player</code> class, passing in the <code>playerName</code> and <code>ws</code> parameters:</p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb53-1" title="1"><span class="kw">const</span> addNewPlayer <span class="op">=</span> (playerName<span class="op">,</span> ws) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb53-2" title="2">  <span class="kw">const</span> player <span class="op">=</span> <span class="kw">new</span> <span class="at">Player</span>(playerName<span class="op">,</span> ws)<span class="op">;</span></a>
+<a class="sourceLine" id="cb53-3" title="3">  <span class="co">// </span><span class="al">TODO</span></a>
+<a class="sourceLine" id="cb53-4" title="4"><span class="op">};</span></a></code></pre></div>
+<p>Then add an <code>if</code>/<code>else if</code>/<code>else</code> statement that does the following:</p>
+<ul>
+<li><code>if</code> the <code>game</code> global variable is <code>null</code>, then instantiate an instance of the <code>Game</code> class, passing in the new player (who becomes player “1")</li>
+<li><code>else if</code> the game’s <code>player2</code> property is <code>null</code>, then set the game’s <code>player2</code> property to the instantiated player and call the <code>startGame</code> function (we’ll define that function is just a bit)</li>
+<li><code>else</code> log to the console that we’re ignoring a player addition (<code>`Ignoring player ${playerName}...`</code>) and <code>close()</code> the player’s WebSocket connection (more about this in a bit)</li>
+</ul>
+<blockquote>
+<p>Ignoring player additions once a game has been started isn’t ideal, but for now, it’s a stop gap so that we can focus on implementing the game. In the bonus phases for this project, you’ll get a chance to extend the server to support multiple concurrent games.</p>
+</blockquote>
+<div class="sourceCode" id="cb54"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb54-1" title="1"><span class="kw">const</span> addNewPlayer <span class="op">=</span> (playerName<span class="op">,</span> ws) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb54-2" title="2">  <span class="kw">const</span> player <span class="op">=</span> <span class="kw">new</span> <span class="at">Player</span>(playerName<span class="op">,</span> ws)<span class="op">;</span></a>
+<a class="sourceLine" id="cb54-3" title="3"></a>
+<a class="sourceLine" id="cb54-4" title="4">  <span class="cf">if</span> (game <span class="op">===</span> <span class="kw">null</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb54-5" title="5">    game <span class="op">=</span> <span class="kw">new</span> <span class="at">Game</span>(player)<span class="op">;</span></a>
+<a class="sourceLine" id="cb54-6" title="6">  <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> (<span class="va">game</span>.<span class="at">player2</span> <span class="op">===</span> <span class="kw">null</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb54-7" title="7">    <span class="va">game</span>.<span class="at">player2</span> <span class="op">=</span> player<span class="op">;</span></a>
+<a class="sourceLine" id="cb54-8" title="8">    <span class="at">startGame</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb54-9" title="9">  <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb54-10" title="10">    <span class="co">// </span><span class="al">TODO</span><span class="co"> Ignore any additional player connections.</span></a>
+<a class="sourceLine" id="cb54-11" title="11">    <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Ignoring player </span><span class="sc">${</span>playerName<span class="sc">}</span><span class="vs">...`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb54-12" title="12">    <span class="va">ws</span>.<span class="at">close</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb54-13" title="13">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb54-14" title="14"><span class="op">};</span></a></code></pre></div>
+<p>Once the <code>game</code> global variable holds a reference to an instance of the <code>Game</code> class and its <code>player1</code> and <code>player2</code> properties are both set to instances of the <code>Player</code> class, we can use the players’ WebSocket connections to broadcast a message containing the current game state. To do that, define a function named <code>startGame</code> that:</p>
+<ul>
+<li>Calls the Game <code>getData</code> method to get the data for the current game state;</li>
+<li>Sets the <code>data.statusMessage</code> property to a message that prompts the current player to select a square; and</li>
+<li>Calls the <code>broadcastMessage</code> function (we’ll define this helper function in just a bit) to send a <code>start-game</code> message to both players.</li>
+</ul>
+<div class="sourceCode" id="cb55"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb55-1" title="1"><span class="kw">const</span> startGame <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb55-2" title="2">  <span class="kw">const</span> data <span class="op">=</span> <span class="va">game</span>.<span class="at">getData</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb55-3" title="3">  <span class="va">data</span>.<span class="at">statusMessage</span> <span class="op">=</span> <span class="vs">`Select a square </span><span class="sc">${</span><span class="va">game</span>.<span class="va">currentPlayer</span>.<span class="at">playerName</span><span class="sc">}</span><span class="vs">!`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb55-4" title="4">  <span class="at">broadcastMessage</span>(<span class="st">&#39;start-game&#39;</span><span class="op">,</span> data<span class="op">,</span> <span class="va">game</span>.<span class="at">getPlayers</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb55-5" title="5"><span class="op">};</span></a></code></pre></div>
+<p>Remember that the structure of the messages that are sent between the client and the server is completely up to us to define. The structure of the <code>start-game</code> message type will look like this (before it’s formatted as JSON):</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb56-1" title="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb56-2" title="2">  <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;start-game&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb56-3" title="3">  <span class="dt">data</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb56-4" title="4">    <span class="dt">player1</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb56-5" title="5">      <span class="dt">playerName</span><span class="op">:</span> <span class="st">&#39;Bob&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb56-6" title="6">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb56-7" title="7">    <span class="dt">player2</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb56-8" title="8">      <span class="dt">playerName</span><span class="op">:</span> <span class="st">&#39;Sally&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb56-9" title="9">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb56-10" title="10">    <span class="dt">player1Symbol</span><span class="op">:</span> <span class="st">&#39;X&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb56-11" title="11">    <span class="dt">player2Symbol</span><span class="op">:</span> <span class="st">&#39;O&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb56-12" title="12">    <span class="dt">currentPlayer</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb56-13" title="13">      <span class="dt">playerName</span><span class="op">:</span> <span class="st">&#39;Bob&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb56-14" title="14">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb56-15" title="15">    <span class="dt">squareValues</span><span class="op">:</span> [<span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span><span class="op">,</span> <span class="st">&#39;&#39;</span>]<span class="op">,</span></a>
+<a class="sourceLine" id="cb56-16" title="16">    <span class="dt">gameOver</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb56-17" title="17">    <span class="dt">winner</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb56-18" title="18">    <span class="dt">statusMessage</span><span class="op">:</span> <span class="st">&#39;Select a square Bob!&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb56-19" title="19">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb56-20" title="20"><span class="op">}</span></a></code></pre></div>
+<blockquote>
+<p>To see where this data structure is defined, see the Game and Player <code>getData</code> methods. In a bit, we’ll update the React client to use this data to render the UI for the game.</p>
+</blockquote>
+<p>All that’s left to do on the server (at least for now), is to define the <code>broadcastMessage</code> helper function!</p>
+<p>The <code>broadcastMessage</code> function accepts a message <code>type</code>, the message <code>data</code>, and an array of <code>Player</code> class instances. The message <code>type</code> and <code>data</code> are used to create a simple object literal which in turn is formatted as JSON using the <code>JSON.stringify</code> method. To assist with testing and debugging, the message JSON is logged to the console. Then the <code>players</code> array is enumerated using the Array <code>forEach</code> method.</p>
+<p>Remember that each <code>Player</code> class instance holds a reference to the player’s WebSocket connection via the <code>ws</code> property. The WebSocket connection object provides a <code>send</code> method that when called, sends a message to the connected client. The first argument passed into the <code>send</code> method is the message to send and the second argument is a callback function that’s called if an error occurs when sending the message. For now, just log any errors to the console.</p>
+<p>Your <code>broadcastMessage</code> helper function should look something like this:</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb57-1" title="1"><span class="kw">const</span> broadcastMessage <span class="op">=</span> (type<span class="op">,</span> data<span class="op">,</span> players) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb57-2" title="2">  <span class="kw">const</span> message <span class="op">=</span> <span class="va">JSON</span>.<span class="at">stringify</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb57-3" title="3">    type<span class="op">,</span></a>
+<a class="sourceLine" id="cb57-4" title="4">    data<span class="op">,</span></a>
+<a class="sourceLine" id="cb57-5" title="5">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb57-6" title="6"></a>
+<a class="sourceLine" id="cb57-7" title="7">  <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Broadcasting message </span><span class="sc">${</span>message<span class="sc">}</span><span class="vs">...`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb57-8" title="8"></a>
+<a class="sourceLine" id="cb57-9" title="9">  <span class="va">players</span>.<span class="at">forEach</span>((player) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb57-10" title="10">    <span class="va">player</span>.<span class="va">ws</span>.<span class="at">send</span>(message<span class="op">,</span> (err) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb57-11" title="11">      <span class="cf">if</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb57-12" title="12">        <span class="co">// </span><span class="al">TODO</span><span class="co"> Handle errors.</span></a>
+<a class="sourceLine" id="cb57-13" title="13">        <span class="va">console</span>.<span class="at">error</span>(err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb57-14" title="14">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb57-15" title="15">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb57-16" title="16">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb57-17" title="17"><span class="op">};</span></a></code></pre></div>
+<h3 id="processing-the-start-game-message-on-the-client">Processing the <code>start-game</code> message on the client</h3>
+<p>Before we update the <code>App</code> component to handle the processing of <code>start-game</code> messages received from the server, let’s update the <code>Game</code> component to display a “Waiting for game to start…" message when the <code>Game</code> component initially loads. The first player to provide their player name and connect to the server will see this message while they wait for the second player to provide their player name and connect to the server.</p>
+<p>Add another <code>useState</code> Hook to initialize a <code>game</code> state variable to the <code>App</code> component just below the existing <code>useState</code> Hook that initializes the <code>playerName</code> state variable:</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb58-1" title="1"><span class="kw">const</span> [game<span class="op">,</span> setGame] <span class="op">=</span> <span class="at">useState</span>(<span class="kw">null</span>)<span class="op">;</span></a></code></pre></div>
+<p>Then pass the <code>game</code> state variable into the <code>Game</code> component as a prop:</p>
+<div class="sourceCode" id="cb59"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb59-1" title="1"><span class="op">&lt;</span>Game playerName<span class="op">={</span>playerName<span class="op">}</span> game<span class="op">={</span>game<span class="op">}</span> /&gt;</a></code></pre></div>
+<p>Update the <code>Game</code> component to destructure the <code>playerName</code> and <code>game</code> props. Then have your component use a ternary statement to check the truthiness of the <code>game</code> prop to conditionally display the following “Waiting for game to start…" message (instead of the game board) if the <code>game</code> prop is falsy:</p>
+<div class="sourceCode" id="cb60"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb60-1" title="1"><span class="op">&lt;</span>h3 className<span class="op">={</span><span class="va">styles</span>.<span class="at">announcement</span><span class="op">}&gt;</span>Waiting <span class="cf">for</span> game to <span class="va">start</span>...&lt;/h3<span class="op">&gt;</span></a></code></pre></div>
+<p>Now let’s update the <code>App</code> component to process the <code>start-game</code> message from the server! Update the WebSocket <code>onmessage</code> event listener function to:</p>
+<ul>
+<li>Log the <code>e.data</code> property to the console;</li>
+<li>Call the <code>JSON.parse</code> method to parse the JSON formatted message data; and</li>
+<li>Switch on the <code>message.type</code> property to handle the <code>start-game</code> message type.</li>
+</ul>
+<div class="sourceCode" id="cb61"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb61-1" title="1"><span class="va">ws</span>.<span class="at">onmessage</span> <span class="op">=</span> (e) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb61-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Processing incoming message </span><span class="sc">${</span><span class="va">e</span>.<span class="at">data</span><span class="sc">}</span><span class="vs">...`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb61-3" title="3"></a>
+<a class="sourceLine" id="cb61-4" title="4">  <span class="kw">const</span> message <span class="op">=</span> <span class="va">JSON</span>.<span class="at">parse</span>(<span class="va">e</span>.<span class="at">data</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb61-5" title="5"></a>
+<a class="sourceLine" id="cb61-6" title="6">  <span class="cf">switch</span> (<span class="va">message</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb61-7" title="7">    <span class="cf">case</span> <span class="st">&#39;start-game&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb61-8" title="8">      <span class="at">setGame</span>(<span class="va">message</span>.<span class="at">data</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb61-9" title="9">      <span class="cf">break</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb61-10" title="10">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb61-11" title="11">      <span class="cf">throw</span> <span class="kw">new</span> <span class="at">Error</span>(<span class="vs">`Unknown message type: </span><span class="sc">${</span><span class="va">message</span>.<span class="at">type</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb61-12" title="12">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb61-13" title="13"><span class="op">};</span></a></code></pre></div>
+<p>To process the <code>start-game</code> message and update the <code>game</code> state variable, we just need to call the <code>setGame</code> method passing in the <code>message.data</code> property. Updating the <code>game</code> state variable will cause React to re-render the <code>Game</code> component.</p>
+<h3 id="updating-the-game-component-to-render-the-game-state">Updating the <code>Game</code> component to render the game state</h3>
+<p>To render the game state, update the <code>Game</code> component’s JSX to use the following game state properties:</p>
+<ul>
+<li>The <code>game.player1Symbol</code>, <code>game.player2Symbol</code>, <code>game.player1.playerName</code>, and <code>game.player2.playerName</code> properties can be used to display the player information above the game board (replace the <code>Player X: ...</code> and <code>Player O: ...</code> TODO notes).</li>
+<li>The <code>&lt;h3&gt;</code> element with a <code>className</code> referencing <code>styles.announcement</code> can be updated to display the <code>game.statusMessage</code> property as content. The <code>game.statusMessage</code> property will be used going forward to communicate to the players the current status of the game.</li>
+<li>The <code>game.squareValues</code> array can be used to set a <code>value</code> prop on each <code>Square</code> subcomponent to render either an “X" or “O" when appropriate:</li>
+</ul>
+<div class="sourceCode" id="cb62"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb62-1" title="1"><span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">0</span><span class="op">}</span> value<span class="op">={</span><span class="va">game</span>.<span class="at">squareValues</span>[<span class="dv">0</span>]<span class="op">}</span> row<span class="op">={</span><span class="dv">1</span><span class="op">}</span> col<span class="op">={</span><span class="dv">1</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb62-2" title="2"><span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">1</span><span class="op">}</span> value<span class="op">={</span><span class="va">game</span>.<span class="at">squareValues</span>[<span class="dv">1</span>]<span class="op">}</span> row<span class="op">={</span><span class="dv">1</span><span class="op">}</span> col<span class="op">={</span><span class="dv">2</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb62-3" title="3"><span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">2</span><span class="op">}</span> value<span class="op">={</span><span class="va">game</span>.<span class="at">squareValues</span>[<span class="dv">2</span>]<span class="op">}</span> row<span class="op">={</span><span class="dv">1</span><span class="op">}</span> col<span class="op">={</span><span class="dv">3</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb62-4" title="4"><span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">3</span><span class="op">}</span> value<span class="op">={</span><span class="va">game</span>.<span class="at">squareValues</span>[<span class="dv">3</span>]<span class="op">}</span> row<span class="op">={</span><span class="dv">2</span><span class="op">}</span> col<span class="op">={</span><span class="dv">1</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb62-5" title="5"><span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">4</span><span class="op">}</span> value<span class="op">={</span><span class="va">game</span>.<span class="at">squareValues</span>[<span class="dv">4</span>]<span class="op">}</span> row<span class="op">={</span><span class="dv">2</span><span class="op">}</span> col<span class="op">={</span><span class="dv">2</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb62-6" title="6"><span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">5</span><span class="op">}</span> value<span class="op">={</span><span class="va">game</span>.<span class="at">squareValues</span>[<span class="dv">5</span>]<span class="op">}</span> row<span class="op">={</span><span class="dv">2</span><span class="op">}</span> col<span class="op">={</span><span class="dv">3</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb62-7" title="7"><span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">6</span><span class="op">}</span> value<span class="op">={</span><span class="va">game</span>.<span class="at">squareValues</span>[<span class="dv">6</span>]<span class="op">}</span> row<span class="op">={</span><span class="dv">3</span><span class="op">}</span> col<span class="op">={</span><span class="dv">1</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb62-8" title="8"><span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">7</span><span class="op">}</span> value<span class="op">={</span><span class="va">game</span>.<span class="at">squareValues</span>[<span class="dv">7</span>]<span class="op">}</span> row<span class="op">={</span><span class="dv">3</span><span class="op">}</span> col<span class="op">={</span><span class="dv">2</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb62-9" title="9"><span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">8</span><span class="op">}</span> value<span class="op">={</span><span class="va">game</span>.<span class="at">squareValues</span>[<span class="dv">8</span>]<span class="op">}</span> row<span class="op">={</span><span class="dv">3</span><span class="op">}</span> col<span class="op">={</span><span class="dv">3</span><span class="op">}</span> /&gt;</a></code></pre></div>
+<p>To render the “X" and “O"s in the game board squares, download the following SVG files:</p>
+<ul>
+<li><a href="https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/websockets/assets/playerX.svg">playerX.svg</a></li>
+<li><a href="https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/websockets/assets/playerO.svg">playerO.svg</a></li>
+</ul>
+<p>Then add a new folder named <code>assets</code> to the <code>src</code> folder and copy the SVG files into new folder.</p>
+<p>Back in the <code>Game</code> module, import the SVG files at the top of the module:</p>
+<div class="sourceCode" id="cb63"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb63-1" title="1"><span class="im">import</span> playerX <span class="im">from</span> <span class="st">&#39;../assets/playerX.svg&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb63-2" title="2"><span class="im">import</span> playerO <span class="im">from</span> <span class="st">&#39;../assets/playerO.svg&#39;</span><span class="op">;</span></a></code></pre></div>
+<p>Just above the definition for the <code>Square</code> subcomponent, define a <code>SquareImage</code> subcomponent that’ll render a square’s image using an <code>&lt;img&gt;</code> element:</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb64-1" title="1"><span class="kw">const</span> SquareImage <span class="op">=</span> (<span class="op">{</span> value <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb64-2" title="2">  <span class="cf">if</span> (value <span class="op">===</span> <span class="st">&#39;&#39;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb64-3" title="3">    <span class="cf">return</span> <span class="kw">null</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb64-4" title="4">  <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> (value <span class="op">===</span> <span class="st">&#39;X&#39;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb64-5" title="5">    <span class="cf">return</span> <span class="op">&lt;</span>img src<span class="op">={</span>playerX<span class="op">}</span> alt<span class="op">=</span><span class="st">&#39;X&#39;</span> /&gt;</a>
+<a class="sourceLine" id="cb64-6" title="6">  <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb64-7" title="7">    <span class="cf">return</span> <span class="op">&lt;</span>img src<span class="op">={</span>playerO<span class="op">}</span> alt<span class="op">=</span><span class="st">&#39;O&#39;</span> /&gt;</a>
+<a class="sourceLine" id="cb64-8" title="8">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb64-9" title="9"><span class="op">};</span></a></code></pre></div>
+<blockquote>
+<p>Notice that we can simply set the <code>&lt;img&gt;</code> element’s <code>src</code> attribute to the imported <code>playerX</code> or <code>playerO</code> SVG files. This is possible because of the front-end build process provided by Create React App. Create React App configures webpack with support for loading images (as well as CSS, fonts, and other file types) which allows you to add an image file to your project, import it directly into a module, and render it in a React component.</p>
+</blockquote>
+<p>Now we can update the <code>Square</code> subcomponent. Add a <code>value</code> prop and render the <code>SquareImage</code> component inside of the <code>&lt;div&gt;</code> element:</p>
+<div class="sourceCode" id="cb65"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb65-1" title="1"><span class="kw">const</span> Square <span class="op">=</span> (<span class="op">{</span> squareIndex<span class="op">,</span> value<span class="op">,</span> row<span class="op">,</span> col <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb65-2" title="2">  <span class="kw">const</span> rowStyleName <span class="op">=</span> <span class="vs">`row_</span><span class="sc">${</span>row<span class="sc">}</span><span class="vs">`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb65-3" title="3">  <span class="kw">const</span> colStyleName <span class="op">=</span> <span class="vs">`col_</span><span class="sc">${</span>col<span class="sc">}</span><span class="vs">`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb65-4" title="4"></a>
+<a class="sourceLine" id="cb65-5" title="5">  <span class="kw">const</span> handleClick <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb65-6" title="6">    <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Clicked on square index: </span><span class="sc">${</span>squareIndex<span class="sc">}</span><span class="vs">...`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb65-7" title="7">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb65-8" title="8"></a>
+<a class="sourceLine" id="cb65-9" title="9">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb65-10" title="10">    <span class="op">&lt;</span>div</a>
+<a class="sourceLine" id="cb65-11" title="11">      onClick<span class="op">={</span>handleClick<span class="op">}</span></a>
+<a class="sourceLine" id="cb65-12" title="12">      className<span class="op">={</span><span class="vs">`</span><span class="sc">${</span><span class="va">styles</span>.<span class="at">square</span><span class="sc">}</span><span class="vs"> </span><span class="sc">${</span>styles[rowStyleName]<span class="sc">}</span><span class="vs"> </span><span class="sc">${</span>styles[colStyleName]<span class="sc">}</span><span class="vs">`</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb65-13" title="13">        <span class="op">&lt;</span>SquareImage value<span class="op">={</span>value<span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb65-14" title="14">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb65-15" title="15">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb65-16" title="16"><span class="op">};</span></a></code></pre></div>
+<h3 id="handling-closed-connections">Handling closed connections</h3>
+<p>Before we test our latest changes, let’s handle closed connections on both the server and the client. If we don’t handle closed connections, it’d be very easy for the state to get out of sync between the server and the client.</p>
+<p>On the client, handling closed connections is relatively straightforward. Update the <code>onclose</code> event listener function to log a message that the connection closed, reset the <code>webSocket</code> ref object, and reset the <code>playerName</code> and <code>game</code> state variables:</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb66-1" title="1"><span class="va">ws</span>.<span class="at">onclose</span> <span class="op">=</span> (e) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb66-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Connection closed: </span><span class="sc">${</span>e<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb66-3" title="3">  <span class="va">webSocket</span>.<span class="at">current</span> <span class="op">=</span> <span class="kw">null</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb66-4" title="4">  <span class="at">setPlayerName</span>(<span class="st">&#39;&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb66-5" title="5">  <span class="at">setGame</span>(<span class="kw">null</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb66-6" title="6"><span class="op">};</span></a></code></pre></div>
+<blockquote>
+<p>Resetting the ref object and state variables will return the user back to the initial application state which results in the player being prompted again for their player name. This is essentially throwing up our hands and declaring “images/oh no… something went wrong… let’s try that again". Not ideal, but for now, it’ll allow us to keep our focus on finishing the initial implementation of the game.</p>
+</blockquote>
+<p>On the server, update the WebSocket <code>close</code> event handler callback function to this:</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb67-1" title="1"><span class="va">ws</span>.<span class="at">on</span>(<span class="st">&#39;close&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb67-2" title="2">  <span class="co">// If there&#39;s a game available...</span></a>
+<a class="sourceLine" id="cb67-3" title="3">  <span class="cf">if</span> (game <span class="op">!==</span> <span class="kw">null</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb67-4" title="4">    <span class="kw">const</span> <span class="op">{</span> player1<span class="op">,</span> player2 <span class="op">}</span> <span class="op">=</span> game<span class="op">;</span></a>
+<a class="sourceLine" id="cb67-5" title="5"></a>
+<a class="sourceLine" id="cb67-6" title="6">    <span class="co">// If the closed WS belonged to either player 1 or player 2</span></a>
+<a class="sourceLine" id="cb67-7" title="7">    <span class="co">// then we need to abort the game.</span></a>
+<a class="sourceLine" id="cb67-8" title="8">    <span class="cf">if</span> (<span class="va">player1</span>.<span class="at">ws</span> <span class="op">===</span> ws <span class="op">||</span> (player2 <span class="op">!==</span> <span class="kw">null</span> <span class="op">&amp;&amp;</span> <span class="va">player2</span>.<span class="at">ws</span> <span class="op">===</span> ws)) <span class="op">{</span></a>
+<a class="sourceLine" id="cb67-9" title="9">      <span class="co">// If the closed WS doesn&#39;t belong to player 1</span></a>
+<a class="sourceLine" id="cb67-10" title="10">      <span class="co">// then close their WS, otherwise if there&#39;s a</span></a>
+<a class="sourceLine" id="cb67-11" title="11">      <span class="co">// player 2 then close their WS.</span></a>
+<a class="sourceLine" id="cb67-12" title="12">      <span class="cf">if</span> (<span class="va">player1</span>.<span class="at">ws</span> <span class="op">!==</span> ws) <span class="op">{</span></a>
+<a class="sourceLine" id="cb67-13" title="13">        <span class="va">player1</span>.<span class="va">ws</span>.<span class="at">close</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb67-14" title="14">      <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> (player2 <span class="op">!==</span> <span class="kw">null</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb67-15" title="15">        <span class="va">player2</span>.<span class="va">ws</span>.<span class="at">close</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb67-16" title="16">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb67-17" title="17">      game <span class="op">=</span> <span class="kw">null</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb67-18" title="18">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb67-19" title="19">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb67-20" title="20"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Handling closed connections on the server is a little trickier than it is on the client. On the server we need to determine if there’s an active game, and if there is we need to check if the closed connection belonged to either player 1 or player 2 (if player 2 is available).</p>
+<h3 id="testing-2">Testing</h3>
+<p>To test the changes to the server and the client, start both the server and the client. Then, in the browser, provide a player name for the first player. You should see the message “Waiting for game to start…" displayed in the browser.</p>
+<p>In the terminal window where you started the server, you should see the following message:</p>
+<div class="sourceCode" id="cb68"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb68-1" title="1"><span class="ex">Processing</span> incoming message {<span class="st">&quot;type&quot;</span>:<span class="st">&quot;add-new-player&quot;</span>,<span class="st">&quot;data&quot;</span>:{<span class="st">&quot;playerName&quot;</span>:<span class="st">&quot;[the player 1 name you entered]&quot;</span>}}<span class="ex">...</span></a></code></pre></div>
+<p>Now open a second browser tab and browse to <code>http://localhost:3000</code> and enter a player name for the second player. This time, you should see the game board displayed in the browser.</p>
+<figure>
+<img src="https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/websockets/assets/websockets-start-game-tic-tac-toe-game-board.png" alt="websockets-start-game-tic-tac-toe-game-board" /><figcaption>websockets-start-game-tic-tac-toe-game-board</figcaption>
+</figure>
+<p>In the server terminal window, you should see the following messages:</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb69-1" title="1"><span class="ex">Processing</span> incoming message {<span class="st">&quot;type&quot;</span>:<span class="st">&quot;add-new-player&quot;</span>,<span class="st">&quot;data&quot;</span>:{<span class="st">&quot;playerName&quot;</span>:<span class="st">&quot;[the player 2 name you entered]&quot;</span>}}<span class="ex">...</span></a>
+<a class="sourceLine" id="cb69-2" title="2"><span class="ex">Broadcasting</span> message {<span class="st">&quot;type&quot;</span>:<span class="st">&quot;start-game&quot;</span>,<span class="st">&quot;data&quot;</span>:{<span class="st">&quot;player1&quot;</span>:{<span class="st">&quot;playerName&quot;</span>:<span class="st">&quot;[player 1 name]&quot;</span>},<span class="st">&quot;player2&quot;</span>:{<span class="st">&quot;playerName&quot;</span>:<span class="st">&quot;[player 2 name]]&quot;</span>},<span class="st">&quot;player1Symbol&quot;</span>:<span class="st">&quot;X&quot;</span>,<span class="st">&quot;player2Symbol&quot;</span>:<span class="st">&quot;O&quot;</span>,<span class="st">&quot;currentPlayer&quot;</span>:{<span class="st">&quot;playerName&quot;</span>:<span class="st">&quot;[player 1 name]&quot;</span>},<span class="st">&quot;squareValues&quot;</span>:[<span class="st">&quot;&quot;</span>,<span class="st">&quot;&quot;</span>,<span class="st">&quot;&quot;</span>,<span class="st">&quot;&quot;</span>,<span class="st">&quot;&quot;</span>,<span class="st">&quot;&quot;</span>,<span class="st">&quot;&quot;</span>,<span class="st">&quot;&quot;</span>,<span class="st">&quot;&quot;</span>],<span class="st">&quot;gameOver&quot;</span>:<span class="ex">false</span>,<span class="st">&quot;winner&quot;</span>:null,<span class="st">&quot;statusMessage&quot;</span>:<span class="st">&quot;Select a square [player 1 name]!&quot;</span>}}<span class="ex">...</span></a></code></pre></div>
+<h2 id="phase-7-supporting-player-turns">Phase 7: Supporting player turns</h2>
+<p>With the game started, we can turn our attention towards supporting player turns, so that they can select squares on the game board! Clicking a game board square will result in three things happening:</p>
+<ul>
+<li>The client will handle the game board square click in the <code>Game</code> component and send a <code>select-game-square</code> message to the server;</li>
+<li>The server will receive and process the <code>select-game-square</code> message, check the status of the game to see if the game has ended, and send an <code>update-game</code> or <code>end-game</code> message back to the client; and</li>
+<li>The client will receive the <code>update-game</code> or <code>end-game</code> message and re-render the <code>Game</code> component with the new game state.</li>
+</ul>
+<blockquote>
+<p>Now that the general WebSocket plumbing is in place to support the two-way communication between the server and client, the remaining phases in this project will let you apply what you’ve learned with less guidance.</p>
+</blockquote>
+<h3 id="updating-the-client-to-handle-game-board-square-clicks">Updating the client to handle game board square clicks</h3>
+<p>Add an additional prop named <code>selectGameSquare</code> to the <code>Game</code> component (we’ll set this prop from within the <code>App</code> component in just a bit):</p>
+<div class="sourceCode" id="cb70"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb70-1" title="1"><span class="kw">const</span> Game <span class="op">=</span> (<span class="op">{</span> playerName<span class="op">,</span> game<span class="op">,</span> selectGameSquare <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb70-2" title="2">  <span class="co">// Code removed for brevity.</span></a>
+<a class="sourceLine" id="cb70-3" title="3"><span class="op">}</span></a></code></pre></div>
+<p>To handle game board square clicks, define a function within the <code>Game</code> component named <code>selectSquare</code> that:</p>
+<ul>
+<li>Accepts a <code>squareIndex</code> parameter;</li>
+<li>Immediately returns if the game is over or if the player is not the current player (see the <code>game.gameOver</code> and <code>game.currentPlayer.playerName</code> properties); and</li>
+<li>Calls the <code>selectGameSquare</code> prop and passing in the <code>squareIndex</code> parameter.</li>
+</ul>
+<p>In the <code>Game</code> components JSX, pass the <code>selectSquare</code> function into each of the <code>&lt;Square&gt;</code> components using a prop of the same name:</p>
+<div class="sourceCode" id="cb71"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb71-1" title="1"><span class="op">&lt;</span>Square squareIndex<span class="op">={</span><span class="dv">0</span><span class="op">}</span> value<span class="op">={</span><span class="va">game</span>.<span class="at">squareValues</span>[<span class="dv">0</span>]<span class="op">}</span> row<span class="op">={</span><span class="dv">1</span><span class="op">}</span> col<span class="op">={</span><span class="dv">1</span><span class="op">}</span> selectSquare<span class="op">={</span>selectSquare<span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb71-2" title="2"><span class="op">{</span><span class="co">/* Other components removed for brevity. */</span><span class="op">}</span></a></code></pre></div>
+<p>In the <code>Square</code> subcomponent, update the prop destructuring to get a reference to the <code>selectSquare</code> prop. Then call the <code>selectSquare</code> prop from within the <code>handleClick</code> event handler function passing in the <code>squareIndex</code> prop value.</p>
+<p>In the <code>App</code> component, we need to handle the square selection and send a <code>select-game-square</code> message to the server. Start by defining a function named <code>selectGameSquare</code> that accepts a <code>squareIndex</code> parameter and sends a <code>select-game-square</code> message to the server that looks like this (before its converted to JSON):</p>
+<div class="sourceCode" id="cb72"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb72-1" title="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb72-2" title="2">  <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;select-game-square&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb72-3" title="3">  <span class="dt">data</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb72-4" title="4">    <span class="dt">squareIndex</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb72-5" title="5">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb72-6" title="6"><span class="op">}</span></a></code></pre></div>
+<p>To see an example of how to send a message to the server, look for where the <code>ws.send</code> method is being called. To help make it a bit easier to send messages to the server (and to keep our code DRY), define a helper function named <code>sendMessage</code> within the effect that creates the WebSocket object. Add a property to the object literal that’s assigned to the <code>webSocket</code> ref object’s <code>current</code> property so that you can call it from elsewhere in the component (i.e. <code>webSocket.current.sendMessage('select-game-square', { squareIndex })</code>):</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb73-1" title="1"><span class="kw">const</span> sendMessage <span class="op">=</span> (type<span class="op">,</span> data) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb73-2" title="2">  <span class="co">// </span><span class="al">TODO</span><span class="co"> Create and send the message to the server.</span></a>
+<a class="sourceLine" id="cb73-3" title="3"><span class="op">};</span></a>
+<a class="sourceLine" id="cb73-4" title="4"></a>
+<a class="sourceLine" id="cb73-5" title="5"><span class="va">webSocket</span>.<span class="at">current</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb73-6" title="6">  ws<span class="op">,</span></a>
+<a class="sourceLine" id="cb73-7" title="7">  sendMessage<span class="op">,</span></a>
+<a class="sourceLine" id="cb73-8" title="8"><span class="op">};</span></a></code></pre></div>
+<p>The <code>sendMessage</code> function should accept <code>type</code> and <code>data</code> parameters and combine them into an object literal to create our self-imposed WebSocket message structure:</p>
+<div class="sourceCode" id="cb74"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb74-1" title="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb74-2" title="2">  <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;the-message-type&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb74-3" title="3">  <span class="dt">data</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb74-4" title="4">    <span class="co">// One or more properties for the message data.</span></a>
+<a class="sourceLine" id="cb74-5" title="5">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb74-6" title="6"><span class="op">}</span></a></code></pre></div>
+<p>Use the <code>JSON.stringify</code> method to convert the message to JSON, then log the message to the console (to assist with testing and debugging), and passing the JSON message into a call to the <code>ws.send</code> method. Now update the <code>onopen</code> event listener function to make use of the <code>sendMessage</code> function:</p>
+<div class="sourceCode" id="cb75"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb75-1" title="1"><span class="va">ws</span>.<span class="at">onopen</span> <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb75-2" title="2">  <span class="at">sendMessage</span>(<span class="st">&#39;add-new-player&#39;</span><span class="op">,</span> <span class="op">{</span> playerName <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb75-3" title="3"><span class="op">};</span></a></code></pre></div>
+<blockquote>
+<p>Be careful passing the argument for the <code>sendMessage</code> <code>data</code> parameter. Think about the shape of the <code>data</code> property for each message type. If you get the message structure wrong, the server will start to throw errors when receiving messages from the client, so keep an eye out for that.</p>
+</blockquote>
+<p>To wrap up this part of the updates, add a <code>selectGameSquare</code> prop on the <code>Game</code> component and set it to a reference to the <code>selectGameSquare</code> function:</p>
+<div class="sourceCode" id="cb76"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb76-1" title="1"><span class="op">&lt;</span>Game playerName<span class="op">={</span>playerName<span class="op">}</span> game<span class="op">={</span>game<span class="op">}</span> selectGameSquare<span class="op">={</span>selectGameSquare<span class="op">}</span> /&gt;</a></code></pre></div>
+<h3 id="testing-the-changes-so-far">Testing the changes so far</h3>
+<p>Start the client and the server and open an additional browser tab so that you can enter two player names. In the player 1 browser tab, click a game board square. In the browser developer tools console you should see output confirmation that a message was sent to the server:</p>
+<div class="sourceCode" id="cb77"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb77-1" title="1"><span class="ex">Sending</span> message <span class="dt">{&quot;type&quot;:&quot;select-game-square&quot;,&quot;data&quot;:{&quot;squareIndex&quot;:0}}</span>...</a></code></pre></div>
+<p>In the server terminal window you should see that an “unknown message type" error has occurred:</p>
+<div class="sourceCode" id="cb78"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb78-1" title="1"><span class="ex">Processing</span> incoming message <span class="dt">{&quot;type&quot;:&quot;select-game-square&quot;,&quot;data&quot;:{&quot;squareIndex&quot;:0}}</span>...</a>
+<a class="sourceLine" id="cb78-2" title="2">[<span class="ex">path</span> to top-level project folder]/solution/server/app.js:75</a>
+<a class="sourceLine" id="cb78-3" title="3">      <span class="ex">throw</span> new Error(<span class="kw">`</span><span class="ex">Unknown</span> message type: <span class="va">${message</span><span class="er">.type</span><span class="va">}</span><span class="kw">`</span>);</a>
+<a class="sourceLine" id="cb78-4" title="4">      ^</a>
+<a class="sourceLine" id="cb78-5" title="5"></a>
+<a class="sourceLine" id="cb78-6" title="6"><span class="ex">Error</span>: Unknown message type: select-game-square</a>
+<a class="sourceLine" id="cb78-7" title="7">    <span class="ex">at</span> processIncomingMessage ([path to top-level project folder]/solution/server/app.js:75:13)</a>
+<a class="sourceLine" id="cb78-8" title="8">    <span class="ex">at</span> WebSocket.<span class="op">&lt;</span>anonymous<span class="op">&gt;</span> ([path to top-level project folder]/solution/server/app.js:81:5)</a>
+<a class="sourceLine" id="cb78-9" title="9">    <span class="ex">at</span> WebSocket.emit (events.js:305:20)</a>
+<a class="sourceLine" id="cb78-10" title="10">    <span class="ex">at</span> Receiver.receiverOnMessage ([path to top-level project folder]/solution/server/node_modules/ws/lib/websocket.js:800:20)</a>
+<a class="sourceLine" id="cb78-11" title="11">    <span class="ex">at</span> Receiver.emit (events.js:305:20)</a>
+<a class="sourceLine" id="cb78-12" title="12">    <span class="ex">at</span> Receiver.dataMessage ([path to top-level project folder]/solution/server/node_modules/ws/lib/receiver.js:436:14)</a>
+<a class="sourceLine" id="cb78-13" title="13">    <span class="ex">at</span> Receiver.getData ([path to top-level project folder]/solution/server/node_modules/ws/lib/receiver.js:366:17)</a>
+<a class="sourceLine" id="cb78-14" title="14">    <span class="ex">at</span> Receiver.startLoop ([path to top-level project folder]/solution/server/node_modules/ws/lib/receiver.js:142:22)</a>
+<a class="sourceLine" id="cb78-15" title="15">    <span class="ex">at</span> Receiver._write ([path to top-level project folder]/solution/server/node_modules/ws/lib/receiver.js:77:10)</a>
+<a class="sourceLine" id="cb78-16" title="16">    <span class="ex">at</span> doWrite (_stream_writable.js:464:12)</a></code></pre></div>
+<p>Stop and restart the server and enter your player names again. In the player 2 browser tab, make sure that when you click a game board square a message isn’t sent to the server. To confirm that a message wasn’t sent, you shouldn’t see any output in the browser developer tools console and you shouldn’t see any errors in the server terminal window.</p>
+<h3 id="updating-the-server-to-process-select-game-square-messages">Updating the server to process <code>select-game-square</code> messages</h3>
+<p>As the server error indicated while testing, we need to update the server so that it can process <code>select-game-square</code> messages.</p>
+<p>To start, update the <code>processIncomingMessage</code> function by adding a <code>case</code> statement to the <code>message.type</code> switch statement so that it can handle <code>select-game-square</code> values. Within that <code>case</code> statement, call the <code>selectGameSquare</code> function passing in the <code>message.data.squareIndex</code> property and the enclosing function’s <code>ws</code> parameter.</p>
+<p>Next, define three new functions: <code>endGame</code> (not a reference to the Avengers movie), <code>updateGame</code>, and <code>selectGameSquare</code>:</p>
+<div class="sourceCode" id="cb79"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb79-1" title="1"><span class="kw">const</span> endGame <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb79-2" title="2">  <span class="co">// </span><span class="al">TODO</span></a>
+<a class="sourceLine" id="cb79-3" title="3"><span class="op">};</span></a>
+<a class="sourceLine" id="cb79-4" title="4"></a>
+<a class="sourceLine" id="cb79-5" title="5"><span class="kw">const</span> updateGame <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb79-6" title="6">  <span class="co">// </span><span class="al">TODO</span></a>
+<a class="sourceLine" id="cb79-7" title="7"><span class="op">};</span></a>
+<a class="sourceLine" id="cb79-8" title="8"></a>
+<a class="sourceLine" id="cb79-9" title="9"><span class="kw">const</span> selectGameSquare <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb79-10" title="10"><span class="op">};</span></a></code></pre></div>
+<p>We’ll implement the <code>endGame</code> and <code>updateGame</code> functions in a bit, so for now, just add <code>TODO</code> comments in their function bodies as a reminder.</p>
+<p>For the <code>selectGameSquare</code> function implementation:</p>
+<ul>
+<li>Define two parameters, <code>squareIndex</code> and <code>ws</code>;</li>
+<li>Call the <code>game.getPlayers</code> method to get the players for the game and use the <code>ws</code> parameter to determine which player is selecting the square (<em>hint:</em> remember that the <code>Player</code> class contains a property that holds a reference to the player’s WebSocket connection);</li>
+<li>After determining the player that’s taking a turn (i.e. selecting a square), call a new method on the <code>game</code> object, <code>selectSquare</code>, passing in the player and the <code>squareIndex</code> parameter;</li>
+<li>After selecting the square, call another new method on the <code>game</code> object, <code>checkGameStatus</code>, to determine if the game has ended (either as a win for a player or in a draw);</li>
+<li>If the game has ended, call the <code>endGame</code> method and set the <code>game</code> variable to <code>null</code> (setting the <code>game</code> variable to <code>null</code> allows a new game to be started); and</li>
+<li>If the game hasn’t ended, call the <code>updateGame</code> method.</li>
+</ul>
+<p>In the <code>Game</code> class (located in the <code>game-state</code> module), we have two new methods to implement: <code>selectSquare</code> and <code>checkGameStatus</code>.</p>
+<p>For the <code>selectSquare</code> method implementation:</p>
+<ul>
+<li>Define two parameters, <code>player</code> and <code>squareIndex</code>;</li>
+<li>As a bit of defensive coding, immediately return from the function if the selected square index value (i.e. <code>this.squareValues[squareIndex]</code>) is not an empty string (i.e. <code>''</code> or <code>""</code>);</li>
+<li>Using the <code>this.player1</code> and <code>this.player2</code> properties, determine if the <code>player</code> parameter represents player “1" or player “2", then set the selected square index to that player’s symbol using either the <code>this.player1Symbol</code> or <code>this.player2Symbol</code> property; and</li>
+<li>Now that the selected square index has been set the current player’s symbol, it’s time to end the current player’s turn by updating the <code>this.currentPlayer</code> property to reference the other player.</li>
+</ul>
+<p>For the <code>checkGameStatus</code> method implementation:</p>
+<ul>
+<li>Use the <code>this.squareValues</code> property, which is an array of the game board’s square values, to determine if either player has won the game (be sure to check each row, column, diagonal) or if the game has ended in a draw;
+<ul>
+<li>There are <em>many</em> ways to iterate over the array of square values to determine if a player has won the game;</li>
+<li>Remember that you built a tic-tac-toe game in an earlier project, so feel free to reference that project for a solution to this coding problem;</li>
+</ul></li>
+<li>If the game is over (either in a win or draw), set the <code>this.gameOver</code> property to <code>true</code>;</li>
+<li>Set the <code>this.winner</code> property to the player that won the game (if the game ended in a draw, leave the property set to <code>null</code>); and</li>
+<li>Optionally return the <code>this.gameOver</code> property value from the function so that it can be called from within a conditional statement expression.</li>
+</ul>
+<p>Back in the <code>app</code> module, we can turn our attention back to implementing the <code>endGame</code> and <code>updateGame</code> functions.</p>
+<p>For the <code>endGame</code> function implementation:</p>
+<ul>
+<li>Call the <code>game.getPlayers</code> method to get an array of the players;</li>
+<li>Call the <code>game.getData</code> method to get the game state data;</li>
+<li>Set the <code>data.statusMessage</code> property to an appropriate message to indicate the end of the game (e.g. “Winner: [player name]" or “Winner: Draw!");
+<ul>
+<li>Consider adding a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get">class getter function</a> named <code>gameOverMessage</code> to the <code>Game</code> class that returns a string for the <code>data.statusMessage</code>; and</li>
+</ul></li>
+<li>Send an <code>end-game</code> message to each of the players by calling the <code>broadcastMessage</code> function passing in the string literal <code>'end-game'</code>, the data returned by the <code>game.getData</code> method, and the array of players returned by the <code>game.getPlayers</code> method.</li>
+</ul>
+<p>For the <code>updateGame</code> function implementation:</p>
+<ul>
+<li>Call the <code>game.getPlayers</code> method to get an array of the players;</li>
+<li>Call the <code>game.getData</code> method to get the game state data;</li>
+<li>Set the <code>data.statusMessage</code> property to an appropriate message to prompt the next player to take their turn (i.e. “Select a square [current player name]!"); and</li>
+<li>Send an <code>update-game</code> message to each of the players by calling the <code>broadcastMessage</code> function passing in the string literal <code>'update-game'</code>, the data returned by the <code>game.getData</code> method, and the array of players returned by the <code>game.getPlayers</code> method.</li>
+</ul>
+<p>That’s a lot of coding! Pat yourself on the back; you just completed the server part of the project!</p>
+<h3 id="updating-the-client-to-process-update-game-and-end-game-messages">Updating the client to process <code>update-game</code> and <code>end-game</code> messages</h3>
+<p>Now it’s time to complete the client part of the project by updating it to process <code>update-game</code> and <code>end-game</code> messages.</p>
+<p>In the <code>App</code> component’s effect function that creates the WebSocket object, update the <code>onmessage</code> event listener function to process <code>update-game</code> and <code>end-game</code> message types by updating the <code>game</code> state variable. To do this, call the <code>setGame</code> function and pass in the <code>message.data</code> property.</p>
+<p>Updating the <code>game</code> state variable will cause the <code>Game</code> component to re-render. When it does, we need to display two buttons within the <code>Game</code> if the game has ended (i.e. the <code>game.gameOver</code> property is set to <code>true</code>):</p>
+<ul>
+<li>A “Play Again" button that when clicked allows the user to play another game;
+<ul>
+<li>To play another game, set the <code>game</code> state variable in the <code>App</code> component to <code>null</code> and call the <code>sendMessage</code> function to send an <code>add-new-player</code> message (be sure to pass the player’s name for the message’s data); and</li>
+</ul></li>
+<li>A “Quit" button that when clicked resets all of the local state in the client;
+<ul>
+<li>A convenient way to reset all of the local state is to set the <code>playerName</code> state variable to an empty string (i.e. <code>''</code> or <code>""</code>). Doing this results in the effect’s <code>cleanup</code> function being called which will close the WebSocket connection.</li>
+</ul></li>
+</ul>
+<p>For the layout of the buttons, render the following JSX below the game board:</p>
+<div class="sourceCode" id="cb80"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb80-1" title="1"><span class="op">{</span> <span class="va">game</span>.<span class="at">gameOver</span> <span class="op">&amp;&amp;</span> (</a>
+<a class="sourceLine" id="cb80-2" title="2">  <span class="op">&lt;</span>div className<span class="op">={</span><span class="va">styles</span>.<span class="at">actions</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb80-3" title="3">    <span class="op">&lt;</span>button onClick<span class="op">={</span>playAgainClick<span class="op">}&gt;</span>Play Again&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb80-4" title="4">    <span class="op">&lt;</span>div className<span class="op">={</span><span class="va">styles</span>.<span class="at">spacer</span><span class="op">}&gt;</span>&lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb80-5" title="5">    <span class="op">&lt;</span>button onClick<span class="op">={</span>quit<span class="op">}&gt;</span>Quit&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb80-6" title="6">  &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb80-7" title="7">)<span class="op">}</span></a></code></pre></div>
+<h3 id="testing-3">Testing</h3>
+<p>Everything is in place now to play a complete game of tic-tac-toe! Start the client and the server and run through (at a minimum) the following testing scenarios:</p>
+<ul>
+<li>Test that player 1 can win a game;</li>
+<li>Test that player 2 can win a game;</li>
+<li>Test that completing any row, column, or diagonal wins the game;</li>
+<li>Test that a game can be played to a draw;</li>
+<li>Test that you can choose to play again at the conclusion of a game; and</li>
+<li>Test that you can quit at the conclusion of a game.</li>
+</ul>
+<p>Excellent job using WebSockets to create an online version of tic-tac-toe!</p>
+<h2 id="bonus-phases">Bonus Phases</h2>
+<p>Now that you’ve built a <em>basic</em> version of the tic-tac-toe game, there are a lot of ways that you could extend this application.</p>
+<h3 id="adding-redux-or-context">Adding Redux or Context</h3>
+<p>The state needs for the React application were relatively simple, so we didn’t use Redux or Context. But that doesn’t mean that you can’t still add either one for additional practice.</p>
+<h3 id="support-multiple-concurrent-games">Support multiple concurrent games</h3>
+<p>After two players have connected to the server and a game is started, all subsequent WebSocket connections are ignored (i.e. closed immediately after they’re opened). Ideally, you’d continue to add new games as players are connected to the server. To do this, you’ll need a way to track multiple game instances on the server and to cleanup those instances when a game has been completed.</p>
+<h3 id="player-name-validation">Player name validation</h3>
+<p>Currently, when adding a new player, the player name isn’t validated to ensure that it’s unique. Ideally, when a user submits a player name that’s already being used in an active game, the server would return a message to indicate to the client that the supplied player name is already in use so the user could provide a different player name.</p>
+<h3 id="connection-health-checks">Connection health checks</h3>
+<p>In production, servers can be aggressive about closing inactive WebSocket connections. In some environments, WebSocket connections might be closed after only 60 seconds of inactivity. To keep connections alive, you can add ping/pong health checks to the WebSocket server.</p>
+<p>The WebSockets protocol supports the idea of a server sending a “ping" message to a client, and if the client is still connected, it’ll send a “pong" message back to the server. For details on how to do this with the <code>ws</code> npm package, see <a href="https://www.npmjs.com/package/ws#how-to-detect-and-close-broken-connections">this example in the official documentation</a>.</p>
+<blockquote>
+<p>Technically speaking, there’s no reason why a client couldn’t also send “ping" messages to the server (instead of waiting for the server to send a “ping") but the browser’s WebSocket API doesn’t currently support sending “ping" messages.</p>
+</blockquote>
+<h3 id="adding-a-player-lobby">Adding a player lobby</h3>
+<p>Instead of immediately associating new players with games, you could place them into a player “lobby". If the server arbitrarily limited the number of active games to a small number of games (1-3), the server could add the first two players in line to a game upon the conclusion of one of the active games. Alternatively, you could allow players in the lobby to challenge another player in the lobby. There are lots of ways to implement a lobby… have fun with it!</p>
+<h3 id="adding-database-persistence">Adding database persistence</h3>
+<p>Instead of keeping player and game state in memory on the server, you could persist both to a PostgreSQL database. This would allow the server to be restarted without losing all of the data. You could also implement win/loss/draw history for each player.</p>
+<h3 id="deploying-to-production">Deploying to production</h3>
+<p>Deploying applications into a new environment can often be challenging. As with most things in life, practice helps, so deploy your Tic-Tac-Toe Online game into a cloud platform like <a href="https://www.heroku.com/">Heroku</a>.</p>

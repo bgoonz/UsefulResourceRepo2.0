@@ -1,0 +1,7 @@
+// Array.of(..)
+// Array.from(..)
+// copyWithin(..)
+// fill(..)
+// find(..)
+// findIndex(..)
+// entries() 、 values() 、 keys()

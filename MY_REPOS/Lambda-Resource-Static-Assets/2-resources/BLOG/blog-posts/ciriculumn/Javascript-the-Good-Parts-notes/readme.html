@@ -1,0 +1,902 @@
+<h1 id="notes-on-douglas-crockfords-javascript-the-good-parts-rocket">Notes on <em>Douglas Crockford’s</em> Javascript the Good Parts :rocket:</h1>
+<blockquote>
+<p>These are <em>notes</em> on the book <code>Javascript the Good Parts</code> which was published in <strong>2008, before es6</strong>. There have not been any revised editions of the book published at the time of writing, see http://www.github.com/dwyl/Javascript-the-Good-Parts-notes/issues/33 for the ongoing conversation on this.</p>
+</blockquote>
+<p>This book calls out the best parts of Javascript and tells you what to avoid (the ‘bad parts’). It’s about making sure you <strong>know the really important parts of the language</strong> and <strong>create good habits</strong> instead of having to break bad ones down the line.</p>
+<p>The idea of these notes is to collect the excellent information from an already dense book into note form, <strong>translating these ideas into <em>‘plain English’</em></strong> where possible and <em>adding explanations</em> throughout where the book might not make things obvious as it assumes prior knowledge.</p>
+<p>You can <a href="https://amzn.to/2HfF5CR">buy the book</a> or follow <a href="https://github.com/douglascrockford">Douglas Crockford on Github</a>.</p>
+<p><a href="https://github.com/iteles/Javascript-the-Good-Parts-notes/issues"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat" alt="contributions welcome" /></a> <strong>Please don’t hesitate to submit PRs</strong> to improve these notes wherever you feel something can be clarified, improved on or have an example added to it.</p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#chapter1">Chapter 1 - Good Parts</a></li>
+<li><a href="#chapter2">Chapter 2 - Grammar</a></li>
+<li><a href="#chapter3">Chapter 3 - Objects</a></li>
+<li><a href="#chapter4">Chapter 4 - Functions</a></li>
+<li><a href="#chapter5">Chapter 5 - Inheritance</a></li>
+<li><a href="#chapter6">Chapter 6 - Arrays</a></li>
+<li><a href="#chapter7">Chapter 7 - Regular Expressions</a></li>
+<li><a href="#chapter8">Chapter 8 - Methods</a></li>
+<li><a href="#chapter9">Chapter 9 - Style</a></li>
+<li><a href="#chapter10">Chapter 10 - Beautiful Features</a></li>
+<li><a href="#AppendixA">Appendix A - the Awful Parts</a></li>
+<li><a href="#AppendixB">Appendix B - the Bad Parts</a></li>
+<li><a href="#AppendixC">Appendix C - JSLint</a></li>
+</ul>
+<h2 id="chapter-1---good-parts"><a name="chapter1"/> Chapter 1 - Good Parts</h2>
+<blockquote>
+<p>Most programming languages contain good parts and bad parts. I discovered that I could be a better programmer by using only the good parts and avoiding the bad parts. After all, how can you build something good out of bad parts?</p>
+</blockquote>
+<p>The best parts of Javascript include: * functions * loose typing (variables are declared as variables, without a type) * dynamic objects * object literal notation (where you can create an object already with a list of key/value pairs inside curly braces)</p>
+<p>The worst parts include global variables - there is a common <em>global object</em> namespace where they’re all lumped together and they’re essential to the language.</p>
+<p>Javascript has a <em>class free</em> object makeup, relying instead on objects inheriting properties directly from other objects - this is <strong>prototypal inheritance</strong>.</p>
+<h2 id="chapter-2---grammar"><a name="chapter2"/> Chapter 2 - Grammar</h2>
+<p>Always use // for comments, even multi-line ones to avoid having to escape <code>/*</code> characters.</p>
+<h3 id="numbers">Numbers</h3>
+<ul>
+<li>There is a single, 64-bit floating point number type.</li>
+<li><code>NaN</code> (Not-a-Number) is not equal to any value (including itself) and is essentially an <strong>illegal number value</strong>, but <em>typeOf(NaN)===number is true</em></li>
+<li>Use <code>isNaN(number)</code> to check for NaNs</li>
+</ul>
+<p>Number methods are discussed in <a href="#chapter8">Chapter 8</a>.</p>
+<h3 id="strings">Strings</h3>
+<ul>
+<li>16-bit character set and don’t have character types.</li>
+<li>Backslashes (\) are used for <strong>escaping characters</strong> that could cause problems in strings.</li>
+<li>Strings are <strong>immutable</strong>.</li>
+</ul>
+<p>Single quotes are often used to define a String in JavaScript, but if a person’s name has an apostrophe (and the developer does not know the difference between an apostrophe and single quote) it is useful to “escape” the apostrophe character:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">var</span> name <span class="op">=</span> <span class="st">&#39;Patrick O</span><span class="sc">\&#39;</span><span class="st">Brian&#39;</span><span class="op">;</span> <span class="co">// using a backslash in front of the apostrophe</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;name:&#39;</span><span class="op">,</span> name)<span class="op">;</span> <span class="co">// name: Patrick O&#39;Brian</span></a></code></pre></div>
+<p>further reading: https://webdesignledger.com/common-typography-mistakes-apostrophes-versus-quotation-marks</p>
+<figure>
+<img src="https://cloud.githubusercontent.com/assets/194400/25989405/e47ff6aa-36f3-11e7-9e3d-c7a3da6f1872.png" title="Backslash Example" alt="BackSlashExample" /><figcaption>BackSlashExample</figcaption>
+</figure>
+<p>String methods are discussed in <a href="#chapter8">Chapter 8</a>.</p>
+<h3 id="statements">Statements</h3>
+<ul>
+<li><em>Inside</em> a function, the var statement creates variables local to that function</li>
+<li><em>switch, while, for</em> and <em>do</em> statements can have an optional <strong>label</strong> which can be used with <code>break</code> and <code>continue</code> to provide more precise <a href="http://www.tutorialspoint.com/cgi-bin/practice.cgi?file=javascript_19">control over exactly which statement to break or continue</a>. Format: <code>labelname: statement</code> and then <code>continue labelname;</code></li>
+<li>ES2015 presents two new keywords for declaring variables, <em>let</em> and <em>const</em>. Whereas the <em>var</em> keyword is function scoped (the variables are local to the function), <em>let</em> and <em>const</em> are both block scoped, which means they are local to any statement with {}.</li>
+<li><em>falsy</em> values:
+<ul>
+<li>false</li>
+<li>null</li>
+<li>undefined</li>
+<li>Empty string ’ ’</li>
+<li>The number 0</li>
+<li>The number NaN</li>
+</ul></li>
+<li>All other values are <em>truthy</em> including all objects &amp; the string ‘false’</li>
+<li>If no matches are found in <code>case</code> statements, the optional default statement is executed, otherwise the matching case statement is carried out</li>
+<li>When using a <em>for in</em> loop, usually a good idea to use <code>hasOwnProperty(variable)</code> to <strong>make sure the property belongs to the object you want</strong> and is not instead an inherited property from the prototype chain:</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="cf">for</span> (myvariable <span class="kw">in</span> object) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">        <span class="cf">if</span> (<span class="va">object</span>.<span class="at">hasOwnProperty</span>(myvariable)) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-3" title="3">        ... <span class="co">//statements to be executed</span></a>
+<a class="sourceLine" id="cb2-4" title="4">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="op">}</span></a></code></pre></div>
+<ul>
+<li>A <em>do while</em> statement is always executed at least once as the while condition is only checked after the first iteration of the loop</li>
+<li><code>catch</code> clause in a <em>try</em> statement <strong>must create a new variable</strong> that will catch the exception object</li>
+<li>Scope of <code>throw</code> statement is the <code>try</code> block it’s in, or the <code>try</code> of the function it’s in</li>
+<li>If there is no <code>return</code> statement, <code>return===undefined</code></li>
+<li><code>break</code> exits the statement and <code>continue</code> forces a new iteration of the loop, both with the optional <em>label</em> mentioned above</li>
+</ul>
+<h3 id="expressions">Expressions</h3>
+<ul>
+<li>For <code>expression ? expression2 : expression3</code>, if expression is <em>truthy</em>, execute expresion2; if it’s <em>falsy</em>, execute expression3</li>
+<li><em>Invocation</em> is <code>(expression1, expression2, etc)</code></li>
+<li><em>refinement</em> is either <code>.name</code> or <code>[expression]</code> as used in an array</li>
+</ul>
+<h3 id="literals">Literals</h3>
+<ul>
+<li><em>Names</em> or <em>strings</em> used for specifying new objects (<a href="#chapter3"><strong>object literals</strong></a>) or arrays (<a href="#chapter6"><strong>array literals</strong></a>)</li>
+<li>Properties of the object are expressions and must be known at compile time</li>
+</ul>
+<h3 id="functions">Functions</h3>
+<ul>
+<li>A function literal defines a function value</li>
+<li>More details in <a href="#chapter4">Chapter 4</a></li>
+</ul>
+<h2 id="chapter-3---objects"><a name="chapter3"/> Chapter 3 - Objects</h2>
+<p>Javascript simple types: * numbers <em>(has object-like methods but they are immutable)</em> * strings <em>(has object-like methods but they are immutable)</em> * booleans <em>(has object-like methods but they are immutable)</em> * null * undefined</p>
+<p><strong>All other values are <em>objects</em></strong> including arrays and functions.</p>
+<p>Objects are <strong>class free</strong>, can contain other objects and can inherit properties from their prototypes (which can <em>reduce object initialisation time and memory consumption</em>).</p>
+<h3 id="object-literals">Object Literals</h3>
+<ul>
+<li>An object literal is <em>zero or more comma-separated name/value pairs surrounded by curly braces</em> {}</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="kw">var</span> empty_object <span class="op">=</span> <span class="op">{};</span></a>
+<a class="sourceLine" id="cb3-3" title="3"></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="kw">var</span> today <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="dt">day</span><span class="op">:</span> <span class="st">&quot;Wednesday&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-6" title="6">    <span class="dt">month</span><span class="op">:</span> <span class="st">&quot;April&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-7" title="7">    <span class="dt">year</span><span class="op">:</span> <span class="dv">2014</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-8" title="8"></a>
+<a class="sourceLine" id="cb3-9" title="9">    <span class="dt">weather</span><span class="op">:</span> <span class="op">{</span> <span class="co">//objects can contain nested objects like this one</span></a>
+<a class="sourceLine" id="cb3-10" title="10">        <span class="dt">morning</span><span class="op">:</span> <span class="st">&quot;sunny&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-11" title="11">        <span class="dt">afternoon</span><span class="op">:</span> <span class="st">&quot;cloudy&quot;</span></a>
+<a class="sourceLine" id="cb3-12" title="12">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-13" title="13"><span class="op">}</span></a></code></pre></div>
+<h3 id="retrieval">Retrieval</h3>
+<ul>
+<li>Can be done with either dot notation <code>today.weather.morning</code> or with square brackets <code>today['month']</code></li>
+<li>Or operand (||) can be used to fill in default values for nonexistent data to prevent and <em>undefined</em> error: <code>var weath = today.weather.evening || "unknown"</code></li>
+</ul>
+<h3 id="update">Update</h3>
+<ul>
+<li>Assigning a property value to an object <strong>overwrites</strong> any existing property values with that property name</li>
+</ul>
+<h3 id="reference">Reference</h3>
+<ul>
+<li>Objects refer to each other, they don’t hold duplicate copies of data</li>
+</ul>
+<h3 id="prototype">Prototype</h3>
+<ul>
+<li>Every object has a prototype object from which it inherits properties</li>
+<li><em>Object.prototype</em> comes standard with Javascript and is almost like a ‘root parent’ <img src="https://docs.google.com/drawings/d/1NdiIkHd9Cg2j6W4QcJ1X3DEhGXD2gacMXRuURcoE5T4/pub?w=960&amp;h=720" title="Object prototype diagram from @sporto" alt="Object prototype diagram" /></li>
+<li>The <code>Object.create</code> method is now available in ES5 (but the method is in the book if required for older versions)</li>
+<li>If an object does not have a property you ask it for, it will <strong>keep looking up the prototype chain until it finds it</strong>
+<ul>
+<li>If the property <em>does note exist</em> anywhere in the chain, it will return <em>undefined</em></li>
+</ul></li>
+<li>A new property is <em>immediately visible</em> to all of the objects below it in the chain once created</li>
+</ul>
+<p>More details in <a href="#chapter6">Chapter 6</a></p>
+<h3 id="reflection">Reflection</h3>
+<ul>
+<li>Determining what properties an object has</li>
+<li>Using <code>typeof</code> <strong>includes all properties in the prototype chain</strong> including functions</li>
+<li>To avoid inherited properties, use <code>hasOwnProperty(type);</code> which returns <em>true</em> if that property exists only in that object itself (not the chain)</li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="va">today</span>.<span class="at">hasOwnProperty</span>(<span class="st">&#39;number&#39;</span>)  <span class="co">//will return true</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="va">today</span>.<span class="at">hasOwnProperty</span>(<span class="st">&#39;constructor&#39;</span>)   <span class="co">//will return false</span></a></code></pre></div>
+<h3 id="enumeration">Enumeration</h3>
+<ul>
+<li>Best way to enumerate all the properties you want is a for loop:</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">var</span> i<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="kw">var</span> properties <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb5-3" title="3">    <span class="st">&#39;day&#39;</span><span class="op">,</span> <span class="st">&#39;month&#39;</span><span class="op">,</span> <span class="st">&#39;year&#39;</span></a>
+<a class="sourceLine" id="cb5-4" title="4">    ]<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="cf">for</span> (i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="va">properties</span>.<span class="at">length</span><span class="op">;</span> i<span class="op">++</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="va">document</span>.<span class="at">writeIn</span>(properties[i] <span class="op">+</span> <span class="st">&#39;:&#39;</span> <span class="op">+</span> today[properties[i]])<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="op">}</span></a></code></pre></div>
+<ul>
+<li>This ensures you get the <strong>properties you want</strong> (i.e. not up the prototype chain) and in the <strong>order you want</strong>, as opposed to a <em>for in</em> loop which achieves neither of these</li>
+</ul>
+<h3 id="delete">Delete</h3>
+<ul>
+<li>Removes property from object, but also <strong>reveals property from further up the prototype chain</strong> if it exists</li>
+<li>Format: <code>delete today.month</code></li>
+</ul>
+<h3 id="global-abatement">Global Abatement</h3>
+<ul>
+<li>One way to mitigate the risks of global variables is to <em>create a single global variable</em> which then contains your whole application</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">var</span> MYAPP <span class="op">=</span> <span class="op">{}</span></a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="va">MYAPP</span>.<span class="at">today</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-4" title="4">    <span class="dt">day</span><span class="op">:</span> <span class="st">&quot;Wednesday&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-5" title="5">    <span class="dt">month</span><span class="op">:</span> <span class="st">&quot;April&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-6" title="6">    <span class="dt">year</span><span class="op">:</span> <span class="dv">2014</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-7" title="7"></a>
+<a class="sourceLine" id="cb6-8" title="8">    <span class="dt">weather</span><span class="op">:</span> <span class="op">{</span> <span class="co">//objects can contain nested objects like this one</span></a>
+<a class="sourceLine" id="cb6-9" title="9">        <span class="dt">morning</span><span class="op">:</span> <span class="st">&quot;sunny&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-10" title="10">        <span class="dt">afternoon</span><span class="op">:</span> <span class="st">&quot;cloudy&quot;</span></a>
+<a class="sourceLine" id="cb6-11" title="11">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-12" title="12"><span class="op">}</span></a>
+<a class="sourceLine" id="cb6-13" title="13"><span class="co">//Making sure all other variables (like today) are contained within this one global variable (MYAPP) means none of them have global scope and therefore the risk of naming conflicts, etc in your application is reduced</span></a></code></pre></div>
+<ul>
+<li><a href="#chapter4">Closures</a> are also a way of mitigating the risks of global variables</li>
+<li>Note: <strong>Most <a href="http://coding.smashingmagazine.com/2012/07/27/journey-through-the-javascript-mvc-jungle/">Javascript MVCs</a> these days (2014) will take care of wrapping your app for you</strong></li>
+</ul>
+<h2 id="chapter-4---functions"><a name="chapter4"/> Chapter 4 - Functions</h2>
+<blockquote>
+<p>The best thing about JavaScript is its implementation of functions.</p>
+</blockquote>
+<h3 id="function-objects">Function Objects</h3>
+<ul>
+<li>Functions are objects linked to <em>function.prototype</em> (which is linked to <em>Object.prototype</em>).</li>
+<li>As well as usual object behaviour, they can be <strong>invoked</strong>.</li>
+</ul>
+<h3 id="function-literal">Function Literal</h3>
+<ul>
+<li>A function literal has 4 parts:
+<ul>
+<li>The (reserved) word <code>function</code> itself</li>
+<li>An <em>optional</em> name (un-named functions are considered <em>anonymous</em> functions)</li>
+<li>Comma-seperated parameters of the function, in parentheses - <code>(parameters)</code></li>
+<li>Set of statements in curly brackets to be carried out when the function is invoked - <code>{statements}</code></li>
+</ul></li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="co">//Format of a function</span></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="kw">function</span> <span class="at">name</span> (parameterA<span class="op">,</span> parameterB)<span class="op">{</span></a>
+<a class="sourceLine" id="cb7-3" title="3">    statements<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="op">}</span></a></code></pre></div>
+<p><a name="nestedFunctions"/> * Functions can be nested within functions and the inner function can access all the parameters of the outer function as well as its own</p>
+<h3 id="invocation">Invocation</h3>
+<ul>
+<li>Stops the current function from running and tells the function you have invoked both to start and to use the arguments (values in parentheses) you have passed it in the invocation <code>function (parameters)</code>
+<ul>
+<li>If arguments &gt; number of arguments expected, the <strong>extra values will be ignored</strong></li>
+<li>If arguments &lt; number of arguments expected, the function will assume <strong>undefined in place of the missing arguments</strong></li>
+<li>No error is thrown</li>
+</ul></li>
+<li><strong>Note:</strong> The difference between an <em>argument</em> and a <em>parameter</em> is that a parameter is usually what is used in the function literal, when you’re setting up the function (almost like the placeholder for the actual values that the function will use when it is active) and an argument is usually the value passed to a function at the time it is invoked</li>
+<li>Parameters <code>this</code> and <code>arguments</code> are also passed to the function when it is invoked, but their value depends on how the function is invoked</li>
+</ul>
+<h4 id="method-invocation-pattern">Method Invocation Pattern</h4>
+<ul>
+<li>When a function is <strong>stored as the property of the object</strong> (invoked with a dot . expression) it is called on and is called a <em>method</em></li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="va">myObject</span>.<span class="at">incrementFunction</span>()<span class="op">;</span></a></code></pre></div>
+<ul>
+<li>The method is <strong>bound to the object</strong> and therefore can use <code>this</code> to <strong>retrieve or update values from the object</strong></li>
+<li>These methods are <strong>highly reusable</strong></li>
+<li>Because their <em>object context</em> comes from <code>this</code> they are considered <em>public methods</em></li>
+</ul>
+<h4 id="function-invocation-pattern">Function Invocation Pattern</h4>
+<ul>
+<li>When a function is <em>not</em> the property of an object, it is invoked as a <em>function</em></li>
+</ul>
+<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">var</span> sum <span class="op">=</span> <span class="at">add</span>(<span class="dv">3</span><span class="op">,</span> <span class="dv">4</span>)<span class="op">;</span></a></code></pre></div>
+<ul>
+<li>These functions are <strong>bound to the global object</strong> (<em>a “mistake in the design of the language” according to Douglas Crockford)</em> and consequently so is <code>this</code><a href="#nestedFunctions">even in inner functions</a></li>
+<li>Invoking <code>this</code> within an inner function will therefore refer to its <em>own</em> <code>this</code> and <strong>not</strong> the one in global scope</li>
+</ul>
+<p><strong>Workaround:</strong> Artificially create a new <code>this</code>:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1"><span class="va">myObject</span>.<span class="at">double</span> <span class="op">=</span> <span class="kw">function</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-2" title="2">    <span class="co">//in the book, the var here is called `that` but name changed for clarity</span></a>
+<a class="sourceLine" id="cb10-3" title="3">    <span class="kw">var</span> globalScopeThis <span class="op">=</span> <span class="kw">this</span><span class="op">;</span> <span class="co">//workaround</span></a>
+<a class="sourceLine" id="cb10-4" title="4"></a>
+<a class="sourceLine" id="cb10-5" title="5">    <span class="kw">var</span> innerFunc <span class="op">=</span> <span class="kw">function</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-6" title="6">        <span class="va">globalScopeThis</span>.<span class="at">value</span> <span class="op">=</span> <span class="at">add</span>(<span class="va">globalScopeThis</span>.<span class="at">value</span><span class="op">,</span> <span class="va">globalScopeThis</span>.<span class="at">value</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-7" title="7">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb10-8" title="8"></a>
+<a class="sourceLine" id="cb10-9" title="9">    <span class="at">innerFunc</span>()<span class="op">;</span> <span class="co">//invoke innerFunc as function</span></a>
+<a class="sourceLine" id="cb10-10" title="10"><span class="op">};</span></a>
+<a class="sourceLine" id="cb10-11" title="11"></a>
+<a class="sourceLine" id="cb10-12" title="12"><span class="va">myObject</span>.<span class="at">double</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-13" title="13"><span class="va">console</span>.<span class="at">log</span>(<span class="va">myObject</span>.<span class="at">value</span>)<span class="op">;</span></a></code></pre></div>
+<h4 id="constructor-invocation-pattern">Constructor Invocation Pattern</h4>
+<ul>
+<li>When a function is created with <code>new</code>, that function contains a link to the function’s prototype</li>
+<li>This means that methods that were created for the <strong>prototype function are also available</strong> to the function created using <code>new</code></li>
+</ul>
+<div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" title="1"><span class="co">//create a function Quo that takes a string - Quo will be our prototype function as we will see</span></a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="kw">var</span> Quo <span class="op">=</span> <span class="kw">function</span> (string)<span class="op">{</span></a>
+<a class="sourceLine" id="cb11-3" title="3">    <span class="kw">this</span>.<span class="at">status</span> <span class="op">=</span> string<span class="op">;</span></a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="op">}</span></a>
+<a class="sourceLine" id="cb11-5" title="5"></a>
+<a class="sourceLine" id="cb11-6" title="6"><span class="co">//Now create a get_status method for Quo - this will be a public method</span></a>
+<a class="sourceLine" id="cb11-7" title="7"><span class="va">Quo</span>.<span class="va">prototype</span>.<span class="at">get_status</span> <span class="op">=</span> <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb11-8" title="8">    <span class="cf">return</span> <span class="kw">this</span>.<span class="at">status</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb11-9" title="9"><span class="op">}</span></a>
+<a class="sourceLine" id="cb11-10" title="10"></a>
+<a class="sourceLine" id="cb11-11" title="11"><span class="co">//create a new instance of Quo using the prefix NEW</span></a>
+<a class="sourceLine" id="cb11-12" title="12"><span class="kw">var</span> myQuo <span class="op">=</span> <span class="kw">new</span> <span class="at">Quo</span>(<span class="st">&quot;happy&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb11-13" title="13"></a>
+<a class="sourceLine" id="cb11-14" title="14"><span class="co">//because of the use of the new prefix, myQuo is an instance of Quo which means it can access the public method get_status from it&#39;s prototype</span></a>
+<a class="sourceLine" id="cb11-15" title="15"><span class="va">document</span>.<span class="at">writeIn</span>(<span class="va">myQuo</span>.<span class="at">get_status</span>())<span class="op">;</span>     <span class="co">//returns &#39;happy&#39;</span></a></code></pre></div>
+<ul>
+<li><strong>This style of constructor pattern is not recommended</strong>, there will be better examples in <a href="#chapter5">Chapter 5</a> - this is noted again in <a href="#new">Appendix B</a></li>
+<li>The first letter of a constructor function (in this case Quo) <strong>must <em>always</em> be capitalized</strong></li>
+</ul>
+<h4 id="apply-invocation-pattern">Apply Invocation Pattern</h4>
+<ul>
+<li>The <code>apply</code> method lets you <strong>choose the value to be bound to <code>this</code></strong></li>
+<li>It also takes the parameters for a function in an array</li>
+<li>Format: <code>function.apply(valueForThis, arrayOfParamentersForFunction);</code></li>
+</ul>
+<div class="sourceCode" id="cb12"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">var</span> array <span class="op">=</span> [<span class="dv">5</span><span class="op">,</span> <span class="dv">2</span>]    <span class="co">//will be the parameters for our function</span></a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="kw">var</span> sum <span class="op">=</span> <span class="va">add</span>.<span class="at">apply</span>(<span class="kw">null</span><span class="op">,</span> array)<span class="op">;</span>     <span class="co">//value of &#39;this&#39; is null and value of sum is 7 as the &#39;apply&#39; method passes 5 and 2 to the &#39;add&#39; method</span></a></code></pre></div>
+<h3 id="arguments">Arguments</h3>
+<ul>
+<li>Another default parameter of functions is the <code>arguments</code> array which contains all the arguments that were supplied when the function was invoked</li>
+<li>This means you don’t have to know the exact number of arguments when you build a function because you can loop through all the arguments provided at invocation with the use of the default <code>arguments</code> array</li>
+</ul>
+<div class="sourceCode" id="cb13"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" title="1"><span class="co">//inside the function</span></a>
+<a class="sourceLine" id="cb13-2" title="2"><span class="cf">for</span> (i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="kw">arguments</span>.<span class="at">length</span><span class="op">;</span> i<span class="op">++</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-3" title="3">    dosomething<span class="op">;</span>  <span class="co">//e.g. sum +=arguments[i]</span></a>
+<a class="sourceLine" id="cb13-4" title="4"><span class="op">}</span></a></code></pre></div>
+<ul>
+<li><code>arguments</code> <strong>lacks all the array methods except .length</strong> because of a bug</li>
+</ul>
+<h3 id="return">Return</h3>
+<ul>
+<li>When a function gets to a <code>return</code> statement, it returns immediately <strong>without carrying out the remaining statements in the function</strong></li>
+<li>A function <strong>always returns a <code>value</code></strong> or if unspecified, it returns <code>undefined</code></li>
+<li>“If the function was invoked with the <code>new</code> prefix (used when creating a new object so it <strong>must</strong> return an object) and the <code>return</code> value is not an object, then <code>this</code> (the new object) is returned instead.”</li>
+</ul>
+<h3 id="exceptions">Exceptions</h3>
+<ul>
+<li>A <code>throw</code> statement interrupts the execution of the code is used to handle expected exceptions like an incorrect type of argument (e.g. a string where a number is expected)</li>
+<li>Each <code>throw</code> statement should have an <strong>exception object</strong> with a <code>name</code> holding the type of exception and a <code>message</code> with an explanation of it + any other properties you like</li>
+</ul>
+<div class="sourceCode" id="cb14"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb14-1" title="1"><span class="co">//Thinking through what exceptions could happen in an add function, the main function contains the throw statement with the exception object</span></a>
+<a class="sourceLine" id="cb14-2" title="2"><span class="kw">var</span> add <span class="op">=</span> <span class="kw">function</span> (a<span class="op">,</span>b) <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-3" title="3">    <span class="cf">if</span> (<span class="kw">typeof</span> a <span class="op">!==</span> <span class="st">&#39;number&#39;</span> <span class="op">||</span> <span class="kw">typeof</span> b <span class="op">!==</span> <span class="st">&#39;number&#39;</span>)<span class="op">{</span></a>
+<a class="sourceLine" id="cb14-4" title="4">        <span class="cf">throw</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-5" title="5">            <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;TypeError&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb14-6" title="6">            <span class="dt">message</span><span class="op">:</span> <span class="st">&#39;The add function requires numbers&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb14-7" title="7">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb14-8" title="8">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb14-9" title="9">    <span class="cf">return</span> a <span class="op">+</span> b<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-10" title="10"><span class="op">}</span></a></code></pre></div>
+<ul>
+<li>When you write a function to use <em>add()</em>, you include a <code>try</code> block where the exception object from the <code>throw</code> statement in <em>add()</em> will pass control to a <strong>single catch clause for all exceptions</strong></li>
+</ul>
+<div class="sourceCode" id="cb15"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb15-1" title="1"><span class="co">//When you use the function later on, add a try block with a catch clause to catch the exception object</span></a>
+<a class="sourceLine" id="cb15-2" title="2"><span class="kw">var</span> try_it <span class="op">=</span> <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb15-3" title="3">    <span class="cf">try</span><span class="op">{</span></a>
+<a class="sourceLine" id="cb15-4" title="4">        <span class="at">add</span>(<span class="st">&quot;seven&quot;</span>)<span class="op">;</span>   <span class="co">//will throw an exception as it is not a number</span></a>
+<a class="sourceLine" id="cb15-5" title="5">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb15-6" title="6">    <span class="cf">catch</span> (e) <span class="op">{</span></a>
+<a class="sourceLine" id="cb15-7" title="7">        <span class="va">document</span>.<span class="at">writeIn</span>(<span class="va">e</span>.<span class="at">name</span> <span class="op">+</span> <span class="st">&#39;:&#39;</span> <span class="op">+</span> <span class="va">e</span>.<span class="at">message</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb15-8" title="8">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb15-9" title="9"><span class="op">}</span></a>
+<a class="sourceLine" id="cb15-10" title="10"></a>
+<a class="sourceLine" id="cb15-11" title="11"><span class="at">try_it</span>()<span class="op">;</span>    <span class="co">//you could rewrite this function so the argument is passed in here where it is invoked</span></a></code></pre></div>
+<h3 id="augmenting-types">Augmenting Types</h3>
+<ul>
+<li>Adding a method to the prototype of an object <code>Object.prototype</code> (or function, array, string, number, regular expression or boolean), you make it available to all the instances of that object so you don’t have to use the <code>prototype</code> property again</li>
+<li>By augmenting the <em>basic types</em> (essentially the root prototypes), we can improve Javascript overall</li>
+<li>For example, adding a method named <em>trim</em> to remove spaces from the end of strings, available to all String instances in your code:</li>
+</ul>
+<div class="sourceCode" id="cb16"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb16-1" title="1"><span class="va">String</span>.<span class="at">method</span> (<span class="st">&#39;trim&#39;</span><span class="op">,</span> <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb16-2" title="2">    <span class="cf">return</span> <span class="kw">this</span>.<span class="at">replace</span>(<span class="ss">/ˆ</span><span class="sc">\s+|\s+$</span><span class="ss">/g</span><span class="op">,</span> <span class="st">&#39;&#39;</span>)<span class="op">;</span>     <span class="co">//uses regular expression</span></a>
+<a class="sourceLine" id="cb16-3" title="3"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<ul>
+<li>To be on the safe side, create a method conditionally, <strong>only when you know the method is missing</strong></li>
+</ul>
+<div class="sourceCode" id="cb17"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb17-1" title="1"><span class="co">//Makes a method available to all functions, ONLY when it definitely does not already exist</span></a>
+<a class="sourceLine" id="cb17-2" title="2"></a>
+<a class="sourceLine" id="cb17-3" title="3"><span class="va">Function</span>.<span class="va">prototype</span>.<span class="at">method</span> (methodName<span class="op">,</span> func) <span class="op">{</span></a>
+<a class="sourceLine" id="cb17-4" title="4">    <span class="cf">if</span> (<span class="op">!</span><span class="kw">this</span>.<span class="at">prototype</span>[methodName])<span class="op">{</span></a>
+<a class="sourceLine" id="cb17-5" title="5">        <span class="kw">this</span>.<span class="at">prototype</span>[methodName] <span class="op">=</span> func<span class="op">;</span></a>
+<a class="sourceLine" id="cb17-6" title="6">        <span class="cf">return</span> <span class="kw">this</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb17-7" title="7">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb17-8" title="8"><span class="op">};</span></a></code></pre></div>
+<ul>
+<li>Remember that <strong><em>for in</em> statements don’t work well with prototypes</strong></li>
+</ul>
+<h3 id="recursion">Recursion</h3>
+<ul>
+<li>Used when a task can be divided into <strong>simple sub-problems</strong> and a function can <em>call itself repeatedly</em> to solve them Takes the format:</li>
+</ul>
+<div class="sourceCode" id="cb18"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">var</span> variable <span class="op">=</span> <span class="kw">function</span> <span class="at">functionName</span> (parameters)<span class="op">{</span></a>
+<a class="sourceLine" id="cb18-2" title="2">    <span class="co">//wrap the statements to be executed and the recursive call in a loop statement so it doesn&#39;t recurse forever</span></a>
+<a class="sourceLine" id="cb18-3" title="3">    <span class="co">//statements to be executed in the function;</span></a>
+<a class="sourceLine" id="cb18-4" title="4">    <span class="at">functionName</span>(<span class="kw">arguments</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb18-5" title="5"><span class="op">};</span></a>
+<a class="sourceLine" id="cb18-6" title="6"></a>
+<a class="sourceLine" id="cb18-7" title="7"><span class="at">functionName</span> (initialArguments)<span class="op">;</span> <span class="co">//initial call to the function</span></a></code></pre></div>
+<ul>
+<li>Javascript <strong>does not have <em>tail recursion optimization</em></strong> and therefore does not optimize recursive functions - this also means they sometimes fail if they “recurse very deeply”; On a side note, <em>tail call optimization</em> is now supported in <a href="https://www.ecma-international.org/ecma-262/7.0/index.html#sec-tail-position-calls">ECMA-262</a></li>
+</ul>
+<h3 id="scope">Scope</h3>
+<ul>
+<li>A <em>block</em> is a set of statements contained in curly brackets {}</li>
+<li>Javascript <strong>does not have block scope</strong> but <strong>does have function scope</strong>
+<ul>
+<li>All variables declared <em>anywhere</em> within a function are <strong>available everywhere in that function</strong> - i.e. and inner function will have access to the variables of the outer function in which it is defined</li>
+<li>A variable can be <em>overwritten</em> with a new value in an inner function and that new value’s scope will be just the body of the inner function - as soon as you’re back out to the outer function, the value of that variable will revert to what it was before the inner function began its execution</li>
+<li>All variable should be <strong>declared at the top of the function body</strong></li>
+</ul></li>
+</ul>
+<h3 id="closure">Closure</h3>
+<ul>
+<li>Inner functions have <strong>access to the actual parameters of the outer functions (not copies)</strong></li>
+<li>If an object is created as a result of a function and assigned to myObject, myObject continues to share access to the variables in the functions that created it (actual variables, not copies)
+<ul>
+<li>It has access to <em>the context in which it was created</em> - this is <em>closure</em></li>
+<li>This includes later on, even if <em>the outer function has completed its execution and returned</em>, when the inner function is called, it will still have <strong>access to all the variables it had access to at the time it was defined</strong> (i.e. the variables that were <em>in context</em> when the inner function was defined)</li>
+</ul></li>
+</ul>
+<h3 id="callbacks">Callbacks</h3>
+<ul>
+<li>A <em>callback function</em> is a function passed to another function as a parameter and executed in this other function</li>
+<li>When making a request to a server, use an <em>asynchronous request</em> as asynchronous functions return immediately, therefore freeing up the client
+<ul>
+<li>In this example, we pass the callback function to the asynchronous request as a parameter so the callback function will only be called when a response is available</li>
+</ul>
+<div class="sourceCode" id="cb19"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb19-1" title="1">request <span class="op">=</span> <span class="at">prepare_the_request</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb19-2" title="2"><span class="at">send_request_asynchronously</span>(request<span class="op">,</span> <span class="kw">function</span>(response)<span class="op">{</span>     <span class="co">//function being passed in as a parameter</span></a>
+<a class="sourceLine" id="cb19-3" title="3">  <span class="at">display</span>(response)<span class="op">;</span></a>
+<a class="sourceLine" id="cb19-4" title="4"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div></li>
+</ul>
+<h3 id="module"><a name="Module"/> Module</h3>
+<ul>
+<li>A module is a function or object whose contents can be used, but its state and implementation are hidden</li>
+<li>It is essentially using function scope and closures keep the variables and functions contained within as private as well as binding them to a non-global object - <strong>whilst still being accessible</strong></li>
+<li>Using the <em>module pattern</em> is <strong>widely used and good practice</strong> as it promotes information hiding (avoiding naming conflicts, etc) and encapsulation
+<ul>
+<li>This is a <a href="http://css-tricks.com/how-do-you-structure-javascript-the-module-pattern-edition/">good article on how to use the module pattern</a> with examples</li>
+</ul></li>
+<li>It can also be used to produce <strong>secure objects</strong> (see <a href="#DurableObject">durable objects</a> below)
+<ul>
+<li>Methods contained in the object do not make use of <code>this</code> or <code>that</code> so it becomes impossible to change them from outside of the object except in ways explicitly permitted by the methods (like passing them a parameter)</li>
+<li>The methods can be <em>replaced</em> but the secrets of how these methods function (like how they generate a number for example) can’t be revealed because they are not tied to a global object</li>
+</ul>
+<div class="sourceCode" id="cb20"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">var</span> Serial_maker <span class="op">=</span> <span class="kw">function</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-2" title="2"></a>
+<a class="sourceLine" id="cb20-3" title="3">  <span class="co">//all variables defined in this object are now fixed and hidden from anything outside this function</span></a>
+<a class="sourceLine" id="cb20-4" title="4">  <span class="co">//see page 42 of book for full example</span></a>
+<a class="sourceLine" id="cb20-5" title="5"><span class="op">};</span></a>
+<a class="sourceLine" id="cb20-6" title="6"><span class="co">//calls to methods passing them parameters are made here</span></a></code></pre></div></li>
+<li><strong>Note:</strong> Whilst Javascript variables are usually lowercase, there is some convention around capitalizing the first letter of a Module</li>
+</ul>
+<h3 id="cascade">Cascade</h3>
+<ul>
+<li>Some methods return nothing, albeit <code>undefined</code></li>
+<li>If we alter these methods to <strong>return <code>this</code> instead of <code>undefined</code></strong>, they return the object which can then be passed to the next method, e.g <code>getElement(myBox).move(350,150)</code> gets the element and then passes is to the <em>move</em> function for the next action
+<ul>
+<li>This enables <em>cascades</em>, where you <strong>call many methods on the same object in sequence because the object is passed from one method to the next</strong> (usually separated by <code>.</code> as above)</li>
+</ul></li>
+<li>Cascades also stop you from trying to do too much in one method and makes your code more descriptive</li>
+</ul>
+<h3 id="curry">Curry</h3>
+<ul>
+<li>A <code>curry</code> method allows you to <em>partially evaluate</em> an existing function
+<ul>
+<li>An example is below where the function <em>expects <strong>two</strong> arguments</em>, but it is first invoked with only <strong>one</strong> (in this case using <code>curry</code> as in <code>add.curry(10);</code>) and then later passed the second argument</li>
+</ul></li>
+<li>It can also be explained as transforming a function that takes multiple arguments (<code>add(a,b)</code>) into a chain of functions that take a single argument each (<code>addA = add(A); addA(B);</code> where the two functions are now <code>add()</code> &amp; <code>addA()</code>)</li>
+</ul>
+<div class="sourceCode" id="cb21"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb21-1" title="1"><span class="co">//set up a simple function that we will customise with curry</span></a>
+<a class="sourceLine" id="cb21-2" title="2"><span class="kw">var</span> add <span class="op">=</span> <span class="kw">function</span> (a<span class="op">,</span>b)<span class="op">{</span></a>
+<a class="sourceLine" id="cb21-3" title="3">    <span class="cf">return</span> a <span class="op">+</span> b<span class="op">;</span></a>
+<a class="sourceLine" id="cb21-4" title="4"><span class="op">}</span></a>
+<a class="sourceLine" id="cb21-5" title="5"></a>
+<a class="sourceLine" id="cb21-6" title="6"><span class="kw">var</span> addTen <span class="op">=</span> <span class="va">add</span>.<span class="at">curry</span>(<span class="dv">10</span>)<span class="op">;</span>      <span class="co">//passes 10 as the first argument to the add() function</span></a>
+<a class="sourceLine" id="cb21-7" title="7"><span class="at">addTen</span>(<span class="dv">20</span>)<span class="op">;</span>                     <span class="co">//The use of the curry method in addTen means addTen === add(10, 20);</span></a></code></pre></div>
+<ul>
+<li>Javascript <strong>does not have a <code>curry</code> method</strong> natively but this can be added to the <code>Function.protoype</code>:</li>
+</ul>
+<div class="sourceCode" id="cb22"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb22-1" title="1"><span class="va">Function</span>.<span class="at">method</span>(<span class="st">&#39;curry&#39;</span><span class="op">,</span> <span class="kw">function</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb22-2" title="2">    <span class="kw">var</span> slice <span class="op">=</span> <span class="va">Array</span>.<span class="va">prototype</span>.<span class="at">slice</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb22-3" title="3">        args <span class="op">=</span> <span class="va">slice</span>.<span class="at">apply</span>(<span class="kw">arguments</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb22-4" title="4">        that <span class="op">=</span> <span class="kw">this</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb22-5" title="5">    <span class="cf">return</span> <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb22-6" title="6">        <span class="cf">return</span> <span class="va">that</span>.<span class="at">apply</span>(<span class="kw">null</span><span class="op">,</span> <span class="va">args</span>.<span class="at">concat</span>(<span class="va">slice</span>.<span class="at">apply</span>(<span class="kw">arguments</span>)))<span class="op">;</span></a>
+<a class="sourceLine" id="cb22-7" title="7">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb22-8" title="8"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h3 id="memoization">Memoization</h3>
+<ul>
+<li>Storing the results of previous operations in objects (such as arrays) allows them to be reused <strong>without having to keep recalculating the value</strong> - this optimization is called <em>memoization</em>
+<ul>
+<li>Adding an object to store the results <em>memoizes the function</em></li>
+</ul></li>
+<li>Particularly useful when a function is <strong>recursive</strong> and uses the results of its previous iteration in the current iteration</li>
+<li>A <em>memoizer</em> function can be created to help memoize future functions:</li>
+</ul>
+<div class="sourceCode" id="cb23"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb23-1" title="1"><span class="kw">var</span> meoizer <span class="op">=</span> <span class="kw">function</span> (memo<span class="op">,</span> fundamental) <span class="op">{</span></a>
+<a class="sourceLine" id="cb23-2" title="2">    <span class="kw">var</span> shell <span class="op">=</span> <span class="kw">function</span> (n) <span class="op">{</span></a>
+<a class="sourceLine" id="cb23-3" title="3">        <span class="kw">var</span> result <span class="op">=</span> memo[n]<span class="op">;</span></a>
+<a class="sourceLine" id="cb23-4" title="4">        <span class="cf">if</span> (<span class="kw">typeof</span> result <span class="op">!==</span> <span class="st">&#39;number&#39;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb23-5" title="5">            result <span class="op">=</span> <span class="at">fundamental</span>(shell<span class="op">,</span> n)<span class="op">;</span></a>
+<a class="sourceLine" id="cb23-6" title="6">            memo[n] <span class="op">=</span> result<span class="op">;</span></a>
+<a class="sourceLine" id="cb23-7" title="7">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb23-8" title="8">        <span class="cf">return</span> result<span class="op">;</span></a>
+<a class="sourceLine" id="cb23-9" title="9">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb23-10" title="10">    <span class="cf">return</span> shell<span class="op">;</span></a>
+<a class="sourceLine" id="cb23-11" title="11"><span class="op">}</span></a></code></pre></div>
+<h2 id="chapter-5---inheritance"><a name="chapter5"/> Chapter 5 - Inheritance</h2>
+<blockquote>
+<p>Javascript is a prototypal language, which means that objects inherit directly from other objects</p>
+</blockquote>
+<p>Main benefit of inheritance is <strong>code reuse</strong> - you only have to specify differences.</p>
+<p>Javascript can <em>mimic</em> classical inheritance but has a much <strong>richer set of code reuse patterns</strong> * This chapter looks at the more straightforward patterns but it is always best to <strong>keep it simple</strong></p>
+<h3 id="pseudoclassical">Pseudoclassical</h3>
+<ul>
+<li>The pseudoclassical code reuse pattern essentially has constructor functions (functions invoked using the <code>new</code> prefix) work like classes to mimic the classical structure
+<ul>
+<li>All properties are public</li>
+<li>If you forget to use the <code>new</code> prefix, <code>this</code> is not bound to the new object - it is instead bound to the global object and you’ll be unwittingly altering these instead!</li>
+</ul></li>
+<li>There is no need to use it, <strong>there are better code reuse patterns in JavaScript</strong></li>
+</ul>
+<h3 id="object-specifiers">Object Specifiers</h3>
+<p>Rather than: <code>var myObject = maker (f, l, m, c, s)</code> which has too many parameters to remember in the right order, use an <em>object specifier</em>:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb24-1" title="1"><span class="kw">var</span> myObject <span class="op">=</span> <span class="at">maker</span> (<span class="op">{</span>      <span class="co">//note curly braces</span></a>
+<a class="sourceLine" id="cb24-2" title="2">    <span class="dt">first</span><span class="op">:</span> f<span class="op">,</span></a>
+<a class="sourceLine" id="cb24-3" title="3">    <span class="dt">last</span><span class="op">:</span> l<span class="op">,</span></a>
+<a class="sourceLine" id="cb24-4" title="4">    <span class="dt">state</span><span class="op">:</span> s<span class="op">,</span></a>
+<a class="sourceLine" id="cb24-5" title="5">    <span class="dt">city</span><span class="op">:</span> c</a>
+<a class="sourceLine" id="cb24-6" title="6">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb24-7" title="7"><span class="op">;</span>)</a></code></pre></div>
+<p>to contain them. They can now be <strong>listed in any order</strong></p>
+<p>Also useful to pass object specifiers to JSON (<a href="#AppendixE">see Appendix E notes</a>)</p>
+<h3 id="prototypal">Prototypal</h3>
+<ul>
+<li>Zero classes, <strong>one object inherits from another</strong></li>
+<li>Create an object literal of a useful object and then make an instance of it using the format <code>var myObject = Object.create(originalObjectName)</code></li>
+<li>When you then customise the new object (adding properties or methods through the dot notation for example), this is <em>differential inheritance</em>, where you specify the <strong>differences from the original object</strong></li>
+</ul>
+<h3 id="functional">Functional</h3>
+<ul>
+<li><strong>All properties of an object are visible</strong> (Javascript has no classes so there is no such thing as a ‘private variable’ which can only be seen within a class as per other languages)</li>
+<li>When you use a <em>function</em> to create your original object and the same with the object instances, you’re essentially utilising Javascript functional scope to create private properties and methods The below is an example of how you would create an original object, the <code>name</code> and <code>saying</code> properties are now completely private and only accessible to the <code>get_name</code> and <code>says</code> method</li>
+</ul>
+<div class="sourceCode" id="cb25"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">var</span> mammal <span class="op">=</span> <span class="kw">function</span> (spec) <span class="op">{</span></a>
+<a class="sourceLine" id="cb25-2" title="2">    <span class="kw">var</span> that <span class="op">=</span> <span class="op">{};</span>    <span class="co">//that is a new object which is basically a container of &#39;secrets&#39; shared to the rest of the inheritance chain</span></a>
+<a class="sourceLine" id="cb25-3" title="3"></a>
+<a class="sourceLine" id="cb25-4" title="4">    <span class="va">that</span>.<span class="at">get_name</span> <span class="op">=</span> <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb25-5" title="5">        <span class="cf">return</span> <span class="va">spec</span>.<span class="at">name</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb25-6" title="6">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb25-7" title="7"></a>
+<a class="sourceLine" id="cb25-8" title="8">    <span class="va">that</span>.<span class="at">says</span> <span class="op">=</span> <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb25-9" title="9">        <span class="cf">return</span> <span class="va">spec</span>.<span class="at">saying</span> <span class="op">||</span> <span class="st">&#39;&#39;</span><span class="op">;</span>  <span class="co">//returns an empty string if no &#39;saying&#39; argument is passed through the spec object when calling mammal</span></a>
+<a class="sourceLine" id="cb25-10" title="10">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb25-11" title="11">    <span class="cf">return</span> that<span class="op">;</span>     <span class="co">//returns the object that contains the now private properties and methods (under functional scope)</span></a>
+<a class="sourceLine" id="cb25-12" title="12"><span class="op">}</span></a>
+<a class="sourceLine" id="cb25-13" title="13"></a>
+<a class="sourceLine" id="cb25-14" title="14"><span class="kw">var</span> myMammal <span class="op">=</span> <span class="at">mammal</span>(<span class="op">{</span><span class="dt">name</span><span class="op">:</span> <span class="st">&#39;Herb&#39;</span><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Creating an object ‘cat’ can now inherit from the <code>mammal</code> constructor and only pay attention to the differences between it and <code>mammal</code>:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">var</span> cat <span class="op">=</span> <span class="kw">function</span> (spec) <span class="op">{</span></a>
+<a class="sourceLine" id="cb26-2" title="2">    <span class="va">spec</span>.<span class="at">saying</span> <span class="op">=</span> <span class="va">spec</span>.<span class="at">saying</span> <span class="op">||</span> <span class="st">&#39;meow&#39;</span><span class="op">;</span>   <span class="co">//if spec.saying doesn&#39;t already exists, make it &#39;meow&#39;</span></a>
+<a class="sourceLine" id="cb26-3" title="3">    <span class="kw">var</span> that <span class="op">=</span> <span class="at">mammal</span>(spec)<span class="op">;</span>      <span class="co">//here the object &#39;container of secrets&#39; is set up inheriting from mammal already</span></a>
+<a class="sourceLine" id="cb26-4" title="4"></a>
+<a class="sourceLine" id="cb26-5" title="5">    <span class="co">//functions and property augmentations happen here</span></a>
+<a class="sourceLine" id="cb26-6" title="6"></a>
+<a class="sourceLine" id="cb26-7" title="7">    <span class="cf">return</span> that<span class="op">;</span>      <span class="co">//as above</span></a>
+<a class="sourceLine" id="cb26-8" title="8"><span class="op">}</span></a></code></pre></div>
+<ul>
+<li>Requires less effort and gives <strong>better encapsulation</strong> and <strong>information hiding</strong> than the pseudoclassical pattern, as well as <strong>access to super methods</strong> (see page 54 of book for super method example)</li>
+<li><a name="DurableObject"/> An <strong>object</strong> created using the functional pattern <em>and</em> making <strong>no use of <code>this</code> or <code>that</code></strong> is a <em>durable object</em> and cannot be compromised by attackers
+<ul>
+<li>Briefly also discussed in <a href="#Module">Module</a> section above</li>
+</ul></li>
+<li>If you do want something to have access to the object’s private properties and methods, you pass it the <code>that</code> bundle (i.e. your ‘container of secrets’)</li>
+</ul>
+<h3 id="parts">Parts</h3>
+<ul>
+<li>An object can be composed out of a set of parts
+<ul>
+<li>For example, you can create a function that provides the object it is passed with a number of methods (which are defined in this function), where each method is a part that is added to the object</li>
+</ul></li>
+</ul>
+<h2 id="chapter-6---arrays"><a name="chapter6"/> Chapter 6 - Arrays</h2>
+<p>Javascript only has <strong>array-like objects</strong> which are slower than ‘real’ arrays.</p>
+<p><strong>Retrieval and updating</strong> of properties works the <strong>same as with an object <em>except with integer property names</em></strong>.</p>
+<p>Arrays have their <strong>own literal format</strong> and their own set of methods (<a href="#chapter8">Chapter 8 - Methods</a>).</p>
+<h3 id="array-literals">Array Literals</h3>
+<ul>
+<li>An array literal is a <strong>pair of square brackets surrounding zero or more comma-seperated values</strong> <code>[a, b, c, etc]</code>
+<ul>
+<li>The first value will get the property name ‘0’, the second will be ‘1’ and so on</li>
+</ul></li>
+<li>Javascript allows an array to contain <strong>any mixture of values</strong></li>
+</ul>
+<h3 id="length">Length</h3>
+<ul>
+<li>If you add to the array, the <code>length</code> property will increase to contain the new element - it will not give an error</li>
+<li>If you set the <code>.length</code> to a smaller number than the current length of the array, it will <strong>delete any properties with a subscript &gt;= the new <code>length</code></strong></li>
+<li>The <code>push()</code> method is sometimes useful to add an element to the end of an array <code>numbers.push('go')    //adds the element 'go' to the end of the numbers array</code></li>
+</ul>
+<h3 id="delete-1">Delete</h3>
+<ul>
+<li>Elements can be deleted from the array object using <code>delete</code> but this <strong>leaves a hole in the array</strong></li>
+<li>Use <code>array.splice(keyInArray, howManyElementsToDelete)</code> which changes the keys for the remaining values in the array so there is no hole left
+<ul>
+<li>May be <em>slow</em></li>
+</ul></li>
+</ul>
+<h3 id="enumeration-1">Enumeration</h3>
+<ul>
+<li>A <code>for</code> statement can be used to iterate over all the properties of an array (as it is an object)</li>
+<li><strong>Do not use <code>for in</code></strong> as it does not iterate through the properties in order and sometimes pulls in from further up the prototype chain</li>
+</ul>
+<h3 id="confusion">Confusion</h3>
+<blockquote>
+<p>The rule is simple: when the property names [keys] are small sequential integers, you should use an array. Otherwise, use an object.</p>
+</blockquote>
+<ul>
+<li>Arrays are most useful when property names are integers <em>but</em> they can also accept strings as property names</li>
+<li>Javascript doesn’t have a good way of telling an object from an array as <code>typeof array === object</code></li>
+<li>To accurately detect arrays, have to define our own function:</li>
+</ul>
+<div class="sourceCode" id="cb27"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">var</span> is_array <span class="op">=</span> <span class="kw">function</span> (value) <span class="op">{</span></a>
+<a class="sourceLine" id="cb27-2" title="2">    <span class="cf">return</span> <span class="va">Object</span>.<span class="va">prototype</span>.<span class="va">toString</span>.<span class="at">apply</span>(value) <span class="op">===</span> <span class="st">&#39;[object Array]&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb27-3" title="3">    <span class="co">//apply(value) binds `value` to `this` &amp; returns true if `this` is an array</span></a>
+<a class="sourceLine" id="cb27-4" title="4"><span class="op">}</span></a></code></pre></div>
+<h3 id="methods">Methods</h3>
+<ul>
+<li>Array methods are stored in <code>Array.prototype</code> which can be augmented using the format:</li>
+</ul>
+<div class="sourceCode" id="cb28"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb28-1" title="1"><span class="co">//capital A in Array means this refers to the prototype</span></a>
+<a class="sourceLine" id="cb28-2" title="2"><span class="va">Array</span>.<span class="at">method</span>(<span class="st">&#39;reduce&#39;</span><span class="op">,</span> <span class="kw">function</span> (parameters)<span class="op">{</span></a>
+<a class="sourceLine" id="cb28-3" title="3">    <span class="co">//define variables and function</span></a>
+<a class="sourceLine" id="cb28-4" title="4">    <span class="co">//return a value</span></a>
+<a class="sourceLine" id="cb28-5" title="5"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<ul>
+<li>Remember, <strong>every array inherits and can use the methods you add to <code>Array.prototype</code></strong></li>
+<li>You can also add methods <em>directly to an array</em> because they are objects
+<ul>
+<li><code>myArray.total = function () { //statements to execute; }</code> adds a ‘total’ function to the array <code>myArray</code></li>
+</ul></li>
+<li><strong>DO NOT USE:</strong> <code>Object.create()</code> will create an object - lacking the <code>length</code> property - not an array.</li>
+</ul>
+<h3 id="dimensions">Dimensions</h3>
+<ul>
+<li>Using <code>[]</code> will create an empty array as they are not initialized in JavaScript</li>
+<li>Accessing a missing element will give you <code>undefined</code></li>
+<li>If you have an algorithm that relies on the array not being empty and not having <code>undefined</code> values, you can write a function that will prep your array to have a certain number of defined values, essentially initializing it with certain values in place
+<ul>
+<li>An <code>Array.dim</code> function is outlined on page 63 which will allow <code>var myArray = Array.dim(10,0)</code> to make an array with 10 zeroes starting from the first position in the array(0)</li>
+</ul></li>
+<li>Javascript only has <strong>one dimensional arrays</strong> but <strong><em>can</em> have array of arrays</strong></li>
+<li>Two dimensional arrays (matrices) will have to be set up by the programmer
+<ul>
+<li>page 63 gives a method for this and for explicitly setting cell values so as not to have an empty matrix</li>
+</ul></li>
+</ul>
+<h2 id="chapter-7---regular-expressions"><a name="chapter7"/> Chapter 7 - Regular Expressions</h2>
+<blockquote>
+<p>A <em>regular expression</em> is the specification of the syntax of a simple language</p>
+</blockquote>
+<p>Used with <code>regexp.exec</code>, <code>regexp.test</code>, <code>string.match</code>, <code>string.replace</code>, <code>string.search</code> and <code>string.split</code> to interact with string (more in <a href="#chapter8">Chapter 8 - Methods</a>)</p>
+<p>Quite convoluted and difficult to read as they <strong>do not allow comments or whitespace</strong> so a JavaScript regular expression <strong>must be on a single line</strong></p>
+<h3 id="an-example">An Example</h3>
+<p><code>/ˆ(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([ˆ?#]*))?(?:\?([ˆ#]*))?(?:#(.*))?$/</code></p>
+<p>Breaking it down one portion (<a href="#Factors">factor</a>) at a time: * Note that the string starts and ends with a slash <code>/</code> * <code>ˆ</code> indicates the beginning of a string * <code>(?:([A-Za-z]+):)?</code> * <code>(?:...)</code> indicates a <a href="#Noncapturing"><em>noncapturing group</em></a>, where the ‘…’ is replaced by the group that you wish to match, but not save to anywhere * Suffix <code>?</code> indicates the group is optional, so it could or could not exist in the string - it could even exist more than once * <code>()</code> around the <em>([A-Za-z]+)</em> indicates a <a href="#Capturing"><em>capturing group</em></a> which is therefore captured and placed in the <code>result</code> array * They groups are placed in the array in order, so the first will appear in <code>result[1]</code> * <strong>Noncapturing groups are preferred to capturing groups</strong> because capturing groups have a performance penalty (on account of saving to the result array) * You can also have <strong>capturing groups <em>within</em> noncapturing groups</strong> such as <a href="http://www.rexegg.com/regex-disambiguation.html"><code>(?:Bob says: (\w+))</code></a> * <code>[...]</code> indicates a character class * <code>A-Za-z</code> is a character class containing all 26 letters of the alphabet in both upper and lower case * Suffix <code>+</code> means character class will be matched <em>one or more times</em> * Suffix <code>:</code> is matched literally (so the letters will be followed by a colon in this case) * <code>(\/{0,3})</code> * <code>\/</code> The backslash <code>\</code> <em>escapes</em> the forward slash <code>/</code> (which traditionally symbolises the end of the regular expression literal) and together they indicate that the forward slash <code>/</code> should be matched * Suffix <code>{0,3}</code> means the slash <code>/</code> will be matched between 0 and 3 times * <code>([0-9.\-A-Za-z]+)</code> * String made up of one or more (note the <code>+</code> at the end denoting possible multiple occurrences) digits, letters (upper or lower case), full stops (.) or hyphens (-) * Note that the hyphen was escaped with a backslash <code>\-</code> as hyphens usually denote a <em>range</em> but in this case is a hyphen within the expression * <code>(?::(\d+))?</code> * <code>\d</code> represents a <em>digit character</em> so this will be a sequence of <em>one or more</em> digit characters (as per the <code>+</code>) * The digit characters will be immediately preceded by a colon <code>:</code> * <code>(\d+)</code> will be the fourth capturing group in this expression, it is also <em>optional</em> (<code>?</code>) and inside a non-capturing group <code>(?:...)</code> * <code>(?:\/([ˆ?#]*))?</code> * Another optional group (<code>?</code>), beginning with a literal slash <code>/</code> (escaped by the backslash) * The <code>ˆ</code> at the beginning of character class <code>[ˆ?#]</code> means it includes <em>all</em> characters <em>except</em> ? and # * This actually leaves the regexp open to attack because too many characters are included in the character class * The <code>*</code> indicates the character class will appear <em>zero or more</em> times * <code>(?:\?([ˆ#]*))?</code> * We’ve seen everything here before: An optional capturing group starting with a literal <code>?</code> (escaped by the backslash) with zero or more characters that are not # * <code>(?:#(.*))?</code> * Final optional group beginning with a <code>#</code> * <code>.</code> matches any character <em>except a line ending character</em> * <code>$</code> represents the end of a string</p>
+<ul>
+<li>Note: <strong><code>ˆ</code> and <code>$</code> are important because they anchor the regexp</strong> and checks whether the string matched against it contains <em>only</em> what is in the regexp
+<ul>
+<li>If <code>ˆ</code> and <code>$</code> weren’t present, it would check that the string <em>contained</em> the regexp but wouldn’t necessarily be only made up of this</li>
+<li>Using only <code>ˆ</code> checks the string <em>starts</em> with the regexp</li>
+<li>Using only <code>$</code> checks the string <em>ends</em> with the regexp</li>
+</ul></li>
+</ul>
+<p><strong>Another example</strong> <code>/ˆ-?\d+(?:\.\d*)?(?:e[+\-]?\d+)?$/i;</code></p>
+<p>Most of this we have seen before but here are the new bits: * The <code>i</code> at the end means <em>ignore case</em> when matching letters * <code>-?</code> means the minus sign is optional * <code>(?:\.\d*)</code> matches a decimal point followed by <em>zero or more</em> digits (123.6834.4442284 <em>does not match</em>) * Note this expression only uses <em>noncapturing</em> groups</p>
+<h3 id="construction">Construction</h3>
+<p>3 flags exist in regular expressions: <code>i</code> means insensitive - ignore the character case, <code>g</code> means global - to match multiple items and <code>m</code> means multiline - where ˆ and $ can match line-ending characters</p>
+<p>Two ways to build a regular expression: 1. <em>Regular Expression literals</em> as per the examples above start and end with a slash <code>/</code> * Here the flags are appended after the final slash, for example <code>/i</code> * Be careful: <code>RegExp</code> objects made by regular expression literals share a single instance 2. Use <code>RegExp</code> constructor * The first parameter is the string to be made into a <code>RegExp</code> object, the second is the flag * Useful when all information for creating the regular expression is not available at time of programming * Backslashes mean something in the constructor, so these must be doubled and quotes must be escaped</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb29-1" title="1"><span class="co">//example creating a regular expression object that matches a JavaScript string</span></a>
+<a class="sourceLine" id="cb29-2" title="2"></a>
+<a class="sourceLine" id="cb29-3" title="3"><span class="kw">var</span> my_regexp <span class="op">=</span> <span class="kw">new</span> <span class="at">RegExp</span>(<span class="st">&quot;&#39;(?:</span><span class="sc">\\\\</span><span class="st">.|[ˆ</span><span class="sc">\\\\\\</span><span class="st">&#39;])*&#39;&quot;</span><span class="op">,</span> <span class="st">&#39;g&#39;</span>)<span class="op">;</span></a></code></pre></div>
+<h3 id="elements">Elements</h3>
+<h4 id="regexp-choice">Regexp Choice</h4>
+<p><code>|</code> provides a match if any of the sequences provided match.</p>
+<p>In <code>"into".match(/in|int/);</code>, the <em>in</em> will be a match so it doesn’t even look at the <em>int</em>.</p>
+<h4 id="regexp-sequence">Regexp Sequence</h4>
+<p>A <em>regexp sequence</em> is made up of one or more regexp <a href="#Factors">factors</a>. If there are no quantifiers after the factor (like <code>?</code>, <code>*</code> or <code>+</code>), the factor will be <strong>matched one time</strong>.</p>
+<h4 id="regexp-factor"><a name="Factors"/> Regexp Factor</h4>
+<blockquote>
+<p>A <em>regexp factor</em> can be a character, a parenthesized group, a character class, or an escape sequence.</p>
+</blockquote>
+<p>It’s essentially a portion of the full <code>RegExp</code>, like what we broke down the regexp above into.</p>
+<ul>
+<li>The following special characters must all be <em>escaped</em> with a backslash <code>\</code> to be taken literally, or they will take on an alternative meaning:  / [ ] ( ) { } ? + * | . ˆ$</li>
+<li>The <code>\</code> prefix <strong>does not make letters or digits literal</strong></li>
+<li>When unescaped:
+<ul>
+<li><code>.</code> matches any character except line-ending</li>
+<li><code>ˆ</code> matches the beginning of the text when <code>lastIndex</code> property is zero, or matches line-ending character when the <code>m</code> flag is present</li>
+<li>Having <code>ˆ</code> inside a <a href="#RegexpClass">character class</a> means NOT, so [ˆ0-9] means <em>does not</em> match a digit</li>
+<li><code>$</code> matches the beginning of the text or a line-ending character when the <code>m</code> flag is present</li>
+</ul></li>
+</ul>
+<h4 id="regexp-escape">Regexp Escape</h4>
+<p>As well as escaping special characters in regexp factors, the backslash has additional uses: * As in strings, <code>\f</code> is the formfeed character, <code>\n</code> is new line, <code>\r</code> is carriage return, <code>\t</code> is tab and <code>\u</code> specifies Unicode as a 16-bit hex. But <strong><code>\b</code> is <em>not</em> a backspace character</strong> * <code>\d</code> === [0-9] and <code>\D</code> is the opposite, NOT (ˆ) a digit, [ˆ0-9] * <code>\s</code> matches is a partial set of Unicode whitespace characters and <code>\S</code> is the opposite * <code>\w</code> === [0-9A-Za-z] and <code>\W</code> === [ˆ0-9A-Za-z] but <strong>useless for any real world language</strong> (because of accents on letters, etc) * <code>\1</code> refers to the text captured in group 1 so it is matched again later on in the regexp * <code>\2</code> refers to group 2, <code>\3</code> to group 3 and so on</p>
+<p>*<code>\b</code> is a <em>bad part</em>. It was supposed to be a word-boundary anchor but is useless for multilingual applications</p>
+<h4 id="regexp-group">Regexp Group</h4>
+<p>Four kinds of groups: * <a name="Capturing"/> <strong>Capturing:</strong> <code>(...)</code> where each group is captured into the <code>result</code> array - the first capturing group in the regexp goes into <code>result[1]</code>, the second into <code>result[2]</code> and so on * <a name="Noncapturing"/> <strong>Noncapturing</strong> <code>(?:...)</code> where the text is matched, but not captured and saved anywhere, making is <em>slightly faster</em> than a capturing group (has no bearing on numbering of capturing groups) * <em>Positive lookahead</em>, a <strong>bad</strong> part: <code>(?=...)</code> acts like a noncapturing group except after the match is made, it goes back to where text started * <em>Negative lookahead</em>, a <strong>bad</strong> part: <code>(?!...)</code> is like a positive lookahead but only matches if there is no match with what is in it</p>
+<h4 id="regexp-class"><a name="RegexpClass"/> Regexp Class</h4>
+<ul>
+<li>Conveniently and easily specifies one of a set of characters using square brackets <code>[]</code>, for example vowels: <code>[aeiou]</code></li>
+<li>Can shorten specification of all 32 ASCII special characters to <strong>[!-/:-@[-`{-˜]</strong> (note that the ` in this piece of code is a back-tick)</li>
+<li>Also allows <code>ˆ</code> as the first character after the opening <code>[</code> to mean <em>NOT</em> the characters in the character set</li>
+</ul>
+<h4 id="regexp-class-escape">Regexp Class Escape</h4>
+<p>There are <strong><em>specific</em> characters that must be escaped in a character class</strong>: - / [   ] ˆ</p>
+<h4 id="regexp-quantifier">Regexp Quantifier</h4>
+<p>A <em>quantifier</em> at the end of a factor indicates how many times the factor should be matched * A number in curly braces means the factor should match that many times, so <code>/o{3}</code> matches <em>ooo</em> * Two comma-seperated numbers in curly braces provide the <em>range</em> of times a factor should match, so <code>{3,5}</code> indicates it will match 3, 4 or 5 times * <em>Zero or <strong>one</strong></em> times (same thing as saying something is optional) can be <code>?</code> or <code>{0,1}</code> * <em>Zero or <strong>more</strong></em> times can be <code>*</code> or <code>{0,}</code> * <em>One or <strong>more</strong></em> times can be <code>+</code> or <code>{1,}</code></p>
+<p><strong>Prefer to use ‘zero or more’ or ‘one or more’ matching over the ‘zero or one’ matching</strong> - i.e. prefer <em>greedy</em> matching over <em>lazy</em> matching</p>
+<h2 id="chapter-8---methods"><a name="chapter8"/> Chapter 8 - Methods</h2>
+<h3 id="arrays">Arrays</h3>
+<h4 id="array.concatitem"><em>array</em>.concat(<em>item…</em>)</h4>
+<p>Produces <strong>new array</strong> copying the original array with the <code>items</code> appended to it (does not modify the original array like <code>array.push(item)</code> does). If the <code>item</code> is an array, its elements are appended.</p>
+<h4 id="array.joinseparator"><em>array</em>.join(<em>separator</em>)</h4>
+<p>Creates a string of all the array’s elements, separated by the <code>separator</code>. Use an empty string <code>separator</code> (’’) to join without separation.</p>
+<h4 id="array.pop"><em>array</em>.pop()</h4>
+<p>Removes <em>last element</em> of array. Returns <code>undefined</code> for empty arrays.</p>
+<h4 id="array.pushitem"><em>array</em>.push(<em>item…</em>)</h4>
+<p><strong>Modifies the <em>array</em></strong>, appending <code>items</code> onto the end. Returns the new <code>length</code> of the array.</p>
+<h4 id="array.reverse"><em>array</em>.reverse()</h4>
+<p><em>Modifies</em> the array by <strong>reversing the order of the elements</strong>.</p>
+<h4 id="array.shift"><em>array</em>.shift()</h4>
+<p>Removes the <em>first</em> element of the array (does not leave a hole in the array - same effect as using the <code>.splice(a,b)</code> method) and returns that first element.</p>
+<h4 id="array.slicestart-end"><em>array</em>.slice(<em>start, end</em>)</h4>
+<p>Different to <code>splice</code>.</p>
+<p>‘slice’ creates a <strong>new array</strong>, copying from the <code>start</code> element and stopping at the element <em>before</em> the <code>end</code> value given. If no <code>end</code> is given, default is <code>array.length</code>.</p>
+<p>Negative values for <code>start</code> and <code>end</code> will have <code>array.length</code> added to them and if <code>start</code>&gt;<code>end</code>, it will return an <strong>empty</strong> array.</p>
+<h4 id="array.sortcomparefn"><em>array</em>.sort(<em>comparefn</em>)</h4>
+<p>JavaScript has a <code>sort()</code> method which was created only to compare strings and therefore sorts numbers incorrectly (it will sort them as 1, 15, 2, 23, 54 for example). Therefore, we have to write a comparison function which returns <em>0</em> if the two elements you are comparing are equal, a <em>positive number</em> if the first element should come first and a <em>negative number</em> if the second element should come first. Then pass this comparison function to <code>sort()</code> as a parameter to allow it to sort array elements <em>intelligently</em>.</p>
+<p>Page 80-82 in the book takes you through various iterations of the comparison functions - for numbers, simple strings, objects and objects with multiple keys (for example if you want to sort objects by first <em>and</em> last names). These should be taken from the book when required.</p>
+<h4 id="array.splicestart-deletecount-item"><em>array</em>.splice(<em>start, deleteCount, item…</em>)</h4>
+<p>Removes elements from the array making sure there are no holes left in the array. It is most popularly used for deleting elements from an array.</p>
+<p>It removes the <code>deleteCount</code> number of elements from the array starting from the <code>start</code> position. If there are <code>item</code> parameters passed to it, it will replace the deleted elements in the array with the <code>items</code>.</p>
+<p>It returns an <strong>array containing the deleted elements</strong>.</p>
+<h4 id="array.unshiftitem"><em>array</em>.unshift(<em>item…</em>)</h4>
+<p>Works like <code>push</code> but adds items <strong>to the front of the array</strong> instead of the end. Returns the new <code>length</code> of the array.</p>
+<h3 id="function">Function</h3>
+<h4 id="function.applythisarg-argarray"><em>function</em>.apply(<em>thisArg, [argArray]</em>)</h4>
+<p>The <code>apply</code> method invokes a function, passing in the object that will be bound to <code>this</code> and <em>optional</em> array of arguments.</p>
+<h3 id="number">Number</h3>
+<h4 id="number.toexponentionalfractiondigits"><em>number</em>.toExponentional(<em>fractionDigits</em>)</h4>
+<p>Converts <em>number</em> to a string in <strong>exponential form</strong> (e.g. 3.14e+0). <code>fractionDigits</code> (from 0 to 20) gives the number of decimal places.</p>
+<h4 id="number.tofixedfractiondigits"><em>number</em>.toFixed(<em>fractionDigits</em>)</h4>
+<p>Converts <em>number</em> to a string in <strong>decimal form</strong> (e.g. 3.1415927). <code>fractionDigits</code> (from 0 to 20) gives the number of decimal places.</p>
+<h4 id="number.toprecisionprecision"><em>number</em>.toPrecision(<em>precision</em>)</h4>
+<p>Converts <em>number</em> to a string in decimal form (e.g. 3.1415927). The difference from <code>toFixed</code> is that <code>precision</code> (from 0 to 21) gives the number of <strong>total digits</strong>.</p>
+<h4 id="number.tostringradix"><em>number</em>.toString(<em>radix</em>)</h4>
+<p>Converts <em>number</em> to a <strong>string</strong>. <code>radix</code> is an <em>optional</em> parameter between 2 and 36 and gives the <em>base</em>. The default radix is 10.</p>
+<h3 id="object">Object</h3>
+<h4 id="object.hasownpropertyname"><em>object</em>.hasOwnProperty(<em>name</em>)</h4>
+<p><strong>Does not look at the property chain</strong>. Returns true if the <em>object</em> contains the property <code>name</code>.</p>
+<h3 id="regexp">RegExp</h3>
+<h4 id="regexp.execstring"><em>regexp</em>.exec(<em>string</em>)</h4>
+<p>Most powerful (and <em>slowest</em>) regexp method.</p>
+<p>Checks the <code>string</code> against the <em>regexp</em> (starting at position 0) and returns an <strong>array</strong> containing the matches. The <em>regexp</em> is set up with various capturing groups and these determine the elements that go in the array: * the 0 element of the array will contain the part of <code>string</code> that matched the <em>regexp</em> * element 1 of the array will contain the text captured by the first capturing group in <em>regexp</em> * element 2 of the array will contain the text captured by the second capturing group in <em>regexp</em> and so on * if the match fails, it returns <code>null</code></p>
+<p>If the <strong><em>regexp</em> contains a <code>g</code> flag</strong> (e.g. <code>var regexp = /[ˆ&lt;&gt;]+|&lt;(\/?)([A-Za-z]+)([ˆ&lt;&gt;]*)&gt;/g;</code>), there is a lot more to look out for: * Searching begins at <code>regexp.lastIndex</code> (initially zero) * If a match is found, <code>lastIndex</code> becomes the position of the <em>first character of the match</em> * If <strong>no</strong> match is found, <code>lastIndex</code> is reset to zero * If searching for multiple occurrences of a pattern by calling <code>exec</code> in a loop, ensure you <em>reset <code>lastIndex</code></em> when exiting the loop and remember <code>ˆ</code> only matches <em>when <code>lastIndex</code> is equal to zero</em></p>
+<p>Example on page 87 of the book is worth reading to improve understanding.</p>
+<h4 id="regexp.teststring"><em>regexp</em>.test(<em>string</em>)</h4>
+<p>Simplest (and <em>fastest</em>) regexp method.</p>
+<p>If <em>regexp</em> matches the <code>string</code> it returns <em>true</em>. Otherwise it returns <em>false</em>. <strong>Do not use the <code>g</code> flag with this method</strong>.</p>
+<h3 id="string">String</h3>
+<h4 id="string.charatpos"><em>string</em>.charAt(<em>pos</em>)</h4>
+<p>Returns character at position <code>pos</code> in the string <em>starting from 0</em>. If <code>pos</code> is less than zero or bigger than the string itself it return an <strong>empty string</strong>.</p>
+<h4 id="string.charcodeatpos"><em>string</em>.charCodeAt(<em>pos</em>)</h4>
+<p>Same as <code>charAt</code> except it returns the <strong>integer</strong> that represents the <em>code point value of the character at position <code>pos</code></em>. Returns <code>NaN</code> if <em>string</em>.length &lt; <code>pos</code> &lt; 0.</p>
+<h4 id="string.concatstring"><em>string</em>.concat(<em>string…</em>)</h4>
+<p>Creates <strong>new string</strong> concatenating various strings. <code>+</code> tends to be used instead of this method (e.g. <code>var cat = 'c'+'a'+'t';</code>)</p>
+<h4 id="string.indexofsearchstring-position"><em>string</em>.indexOf(<em>searchString, position</em>)</h4>
+<p>Searches for <code>searchString</code> within <em>string</em> starting at position <code>position</code> (an optional parameter). If <code>position</code> is not provided, search starts at the beginning of the <em>string</em>. Returns the integer <em>position of the first matched character</em> or <em>-1</em> if no match is found.</p>
+<h4 id="string.lastindexofsearchstring-position"><em>string</em>.lastIndexOf(<em>searchString, position</em>)</h4>
+<p>Same as <code>indexOf</code> but searches <strong>from the end of the string</strong> instead of the beginning.</p>
+<h4 id="string.localecomparethat"><em>string</em>.localeCompare(<em>that</em>)</h4>
+<p>Compares <em>string</em> to <code>that</code> parameter and returns: * 0 if <em>string</em> === <code>that</code> * -1 if <em>string</em> &lt; <code>that</code></p>
+<p><em>NB. ‘a’ &lt; ‘A’, comparison is not just in length.</em></p>
+<h4 id="string.matchregexp"><em>string</em>.match(<em>regexp</em>)</h4>
+<p>Works the same way as <code>regexp.exec(string)</code> <strong>if</strong> there is no <code>g</code> flag in the <code>regexp</code>.</p>
+<p>If there is a <code>g</code> flag in teh <code>regexp</code>, it produces an array of the matches <strong>but excludes the capturing groups</strong></p>
+<h4 id="string.replacesearchvalue-replacevalue"><em>string</em>.replace(<em>searchValue, replaceValue</em>)</h4>
+<p>Searches for the <code>searchValue</code> in <em>string</em> and replaces it with the <code>replaceValue</code>.</p>
+<p>If <code>searchValue</code> is a: * <strong>string</strong>, only its <em>first occurrence</em> will be replaced with the <code>replaceValue</code> * <strong>regexp with a g flag</strong>, <em>all occurrences</em> will be replaced with the <code>replaceValue</code>; otherwise, only the <em>first occurrence</em> will be replaced</p>
+<p>If <code>replaceValue</code> is a: * <strong>string</strong>, a <code>$</code> value has a special meaning when used in the <code>replaceValue</code> that conveys what to replace - see table on page 90 for possible variations on <code>$</code> * <strong>function</strong>, it is called for each match and the <em>string result of the function</em> is used as the replacement text * string result of the first call will replace capture group 1 of the <em>string</em> and so on</p>
+<h4 id="string.searchregexp"><em>string</em>.search(<em>regexp</em>)</h4>
+<p>Similar to <code>.indexOf(string)</code> but takes a <code>regexp</code> instead of a <code>string</code>, returning the <strong>position of the first match</strong> (or -1 if there is no match). The <code>g</code> flag is <strong>ignored</strong>.</p>
+<h4 id="string.slicestart-end"><em>string</em>.slice(<em>start, end</em>)</h4>
+<p>Creates a <strong>new string</strong> by copying the characters from the <code>start</code> position to the character before the <code>end</code> position in <em>string</em>.</p>
+<p>The <code>end</code> parameter is <em>optional</em> and defaults to <em>string</em>.length. If either parameter is negative, <em>string</em>.length is added to it.</p>
+<h4 id="string.splitseparator-limit"><em>string</em>.split(<em>separator, limit</em>)</h4>
+<p>Creates an <strong>array of strings</strong> by splitting apart <em>string</em> at the points where the <code>separator</code> appears (e.g. if the separator is ‘.’, ab.cd’ becomes [‘ab’, ‘cd’]). * If separator is an <em>empty string</em>, an array of single characters is produced. * <code>limit</code> is <em>optional</em> and determines how many pieces are to be split off from the original <em>string</em>. * The <code>separator</code> can be a <code>regexp</code> but * text from capturing groups within the regexp will be included in the split - e.g. in <code>var e = text.split(/\s*(,)\s*/);</code> the commas (,) will each be included as a separate element in the resulting array * some systems <em>ignore empty strings</em> when the <code>separator</code> is a <code>regexp</code></p>
+<h4 id="string.substringstart-end"><em>string</em>.substring(<em>start, end</em>)</h4>
+<p>No reason to use, <strong>use <code>slice</code> instead</strong>.</p>
+<h4 id="string.tolocalelowercase"><em>string</em>.toLocaleLowerCase()</h4>
+<p>Produces a <strong>new string</strong> converted to lower case, <em>using the rules for the particular locale</em> (geography).</p>
+<h4 id="string.tolocaleuppercase"><em>string</em>.toLocaleUpperCase()</h4>
+<p>Produces a <strong>new string</strong> converted to upper case, <em>using the rules for the particular locale</em> (geography).</p>
+<h4 id="string.tolowercase"><em>string</em>.toLowerCase()</h4>
+<p>Produces a <strong>new string</strong> converted to lower case.</p>
+<h4 id="string.touppercase"><em>string</em>.toUpperCase()</h4>
+<p>Produces a <strong>new string</strong> converted to upper case.</p>
+<h4 id="string.fromcharcodechar">String.fromCharCode(<em>char…</em>)</h4>
+<p>Produces a <strong>new string</strong> from a series of numbers. <code>var a = String.fromCharCode(67, 97, 116);    //a === 'Cat'</code> <em>NB. You’re calling the prototype here, not replacing ‘String’ with your own variable.</em></p>
+<h2 id="chapter-9---style"><a name="chapter9"/> Chapter 9 - Style</h2>
+<blockquote>
+<p>JavaScripts’s loose typing and excessive error tolerance provide little compile-time assurance of our programs’ quality, so to compensate, we should code with strict discipline.</p>
+</blockquote>
+<ul>
+<li><p>We should <strong>avoid</strong> the <em>bad parts</em> of JavaScript, but also the <strong>useful parts that can be occasionally dangerous</strong> &gt;the likelihood a program will work [as intended] is significantly enhanced by our ability to read it</p></li>
+<li>Must be written in a clear, consistent style, including:
+<ul>
+<li>Good use of whitespace</li>
+<li>Put at most one statement on a line</li>
+<li>If you have to break a statement into 2 or more lines, indent the 2nd line onwards (an extra four spaces)</li>
+<li><em>Always</em> use blocks (curly braces {}) with structured statements like <code>if</code> and <code>while</code> to avoid confusion on what the statement is actually doing
+<ul>
+<li>Put the opening brace <code>{</code> on the same (first) line as the statement to avoid JavaScript’s <a href="#SemicolonInsertion">semicolon insertion</a> issues - i.e <code>if (a) { ...</code></li>
+</ul></li>
+<li>Use line comments <code>//comment</code> and not block commenting (unless you’re <em>commenting out</em> code)</li>
+<li>Declare all your variables at the <strong>beginning of the function</strong>, due to JavaScript’s functional scope &gt; I use a single global variable to contain an application or library. Every object has its own namespace, so it is easy to use objects to organize my code. Use of closure provides further information hiding, increasing the strength of my modules.</li>
+</ul></li>
+</ul>
+<h2 id="chapter-10---beautiful-features"><a name="chapter10"/> Chapter 10 - Beautiful Features</h2>
+<p>Each feature you add to something has a lot of different costs (documentation costs, specification, design, testing and development costs) and these are often not properly accounted for. &gt; Features that offer value to a minority of users impose a cost on all users</p>
+<blockquote>
+<p>We cope with the complexity of feature-driven design by finding and sticking with the good parts. For example, microwaves do a ton of different things, but most people just use one setting, the timer and the clock. So why not design with just the good parts?</p>
+</blockquote>
+<h2 id="appendix-a---the-awful-parts"><a name="AppendixA"/> Appendix A - the Awful Parts</h2>
+<p><strong>Need to know what all the pitfalls are with these parts.</strong></p>
+<h3 id="global-variables">Global variables</h3>
+<p>These are variables that are visible throughout the code in any scope. They can be <strong>changed at any time</strong> by any part of the program which makes them <strong>unreliable in larger complex programs</strong>. This can also lead to naming conflicts which can cause your code to fail or you to accidentally overwrite a global variable.</p>
+<p>Defined in three ways: * Using a <code>var</code> statement <strong>outside</strong> of any function; <code>var foo = value</code>; * By adding a property to the global object (container of all global variables), such as <code>window</code> in browsers; <code>window.foo = value;</code> * Using a variable without declaring it with <code>var</code>, which makes it an <em>implied global</em>; <code>foo = value</code></p>
+<h3 id="scope-1">Scope</h3>
+<p>Although JavaScript has block <em>syntax</em> (i.e. is written in blocks) like a lot of other programming languages, it has <strong>functional scope</strong> and <em>not</em> block scope.</p>
+<p>Variables should all be declared at the top of the function and not littered throughout the block.</p>
+<h3 id="semicolon-insertion"><a name="SemicolonInsertion"/> Semicolon Insertion</h3>
+<p>Attempts to correct faulty programs by automatically inserting semicolons. <strong>Do not depend on this</strong> as it can hide underlying issues.</p>
+<p>Also ensure opening curly braces ({) are on the first line of a statement, otherwise semicolons will be erroneously inserted and cause problems:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb30-1" title="1"><span class="co">//Ensure curly braces open on the first line of a statement</span></a>
+<a class="sourceLine" id="cb30-2" title="2"><span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb30-3" title="3">    <span class="dt">status</span><span class="op">:</span> <span class="kw">true</span>    <span class="co">//for example</span></a>
+<a class="sourceLine" id="cb30-4" title="4"><span class="op">};</span></a>
+<a class="sourceLine" id="cb30-5" title="5"><span class="co">//instead of</span></a>
+<a class="sourceLine" id="cb30-6" title="6"><span class="cf">return</span></a>
+<a class="sourceLine" id="cb30-7" title="7"><span class="op">{</span></a>
+<a class="sourceLine" id="cb30-8" title="8">    <span class="dt">status</span><span class="op">:</span><span class="kw">true</span></a>
+<a class="sourceLine" id="cb30-9" title="9"><span class="op">};</span></a></code></pre></div>
+<h3 id="reserved-words">Reserved Words</h3>
+<p>Most JavaScript reserved words are not used in the language but <strong>cannot be used to name variables or parameters</strong>.</p>
+<p>If used as the key in object literals, they <em>must</em> be quoted. For example <code>object - {'case' : value};</code> or <code>object['final'] = value;</code> as <em>case</em> and <em>final</em> are both reserved words.</p>
+<h3 id="unicode">Unicode</h3>
+<p>JavaScript characters are 16 bits which only cover the original Unicode Basic Multilingual Place.</p>
+<h3 id="typeof">typeof</h3>
+<p>Watch out for: * <code>typeof null</code> which returns ‘object’ instead of ‘null’ * incorrect reporting on typeof regular expressions, with some implementations returning ‘object’ and some returning ‘function’ * arrays are objects in JavaScript so <code>typeof array</code> will return ‘object’</p>
+<p>All <code>object</code>s are <em>truthy</em> and <code>null</code> is <em>falsy</em>, so you can use the following to tell them apart:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb31-1" title="1"><span class="cf">if</span> (my_value <span class="op">&amp;&amp;</span> <span class="kw">typeof</span> my_value <span class="op">===</span> <span class="st">&#39;object&#39;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb31-2" title="2">    <span class="co">//then my value is definitely an object or an array because not only is its &#39;typeof&#39; an object but it&#39;s also truthy (first statement)</span></a>
+<a class="sourceLine" id="cb31-3" title="3"><span class="op">}</span></a></code></pre></div>
+<h3 id="nan">NaN</h3>
+<ul>
+<li><code>typeof NaN === 'number'</code> even though it stands for <em>not-a-number</em></li>
+<li>If you have a chain of formulas that together produce a <code>NaN</code> then at least <em>one</em> of them will have generated <code>NaN</code></li>
+<li>Surprisingly <code>NaN !=== NaN</code></li>
+<li><code>isNaN(value)</code> can be used to distinguish numbers from NaN</li>
+</ul>
+<p>For numbers, best use your own isNumber formula:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb32-1" title="1"><span class="kw">var</span> isNumber <span class="op">=</span> <span class="kw">function</span> <span class="at">isNumber</span>(value) <span class="op">{</span></a>
+<a class="sourceLine" id="cb32-2" title="2">    <span class="cf">return</span> <span class="kw">typeof</span> value <span class="op">===</span> <span class="st">&#39;number&#39;</span> <span class="op">&amp;&amp;</span> <span class="at">isFinite</span>(value)<span class="op">;</span>    <span class="co">//isFinite() rejects NaN and Infinity, but is only good for numbers, not strings</span></a>
+<a class="sourceLine" id="cb32-3" title="3"><span class="op">}</span></a></code></pre></div>
+<h3 id="phony-arrays">Phony Arrays</h3>
+<p>JavaScript <strong>doesn’t have real arrays</strong>, it has <em>array-like objects</em>.</p>
+<ul>
+<li>Good: No need to give them dimensions and don’t generate out-of-bounds errors</li>
+<li>Bad: Slower than ‘real’ arrays</li>
+</ul>
+<p>To test if value is an array:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb33-1" title="1"><span class="cf">if</span> (my_value <span class="op">&amp;&amp;</span> <span class="kw">typeof</span> my_value <span class="op">===</span> <span class="st">&#39;object&#39;</span> <span class="op">&amp;&amp;</span> <span class="kw">typeof</span> <span class="va">my_value</span>.<span class="at">length</span> <span class="op">===</span> <span class="st">&#39;number&#39;</span> <span class="op">&amp;&amp;</span></a>
+<a class="sourceLine" id="cb33-2" title="2">    <span class="op">!</span>(<span class="va">my_value</span>.<span class="at">propertyIsEnumerable</span>(<span class="st">&#39;length&#39;</span>))) <span class="op">{</span></a>
+<a class="sourceLine" id="cb33-3" title="3">        <span class="co">//my_value is definitely an array!</span></a>
+<a class="sourceLine" id="cb33-4" title="4"><span class="op">}</span></a></code></pre></div>
+<p>The <code>arguments</code> array isn’t an array, just an object with a length property.</p>
+<h3 id="falsy-values">Falsy Values</h3>
+<p><code>0</code>, <code>NaN</code>, <code>''</code>, <code>false</code>, <code>null</code> and <code>undefined</code> are all <em>falsy</em> values, but <strong>they are not interchangeable</strong>. When testing for a missing member of an object for example, you need to use <code>undefined</code> and not <code>null</code>.</p>
+<p><code>undefined</code> and <code>NaN</code> are actually global variables instead of constants but <strong>don’t change their values</strong>.</p>
+<h3 id="object-1">Object</h3>
+<p>JavaScript objects inherit members from the prototype chain so they are <em>never truly empty</em>.</p>
+<p>To test for membership without prototype chain involvement, use the <code>hasOwnProperty</code> method or limit your results (for example, to specific types like number so you know you’re not dragging in object members from up the prototype for example if that’s what’s causing the problem).</p>
+<h2 id="appendix-b---the-bad-parts"><a name="AppendixB"/> Appendix B - the Bad Parts</h2>
+<p><strong>Avoid these altogether</strong></p>
+<ul>
+<li><code>==</code> <strong>and</strong> <code>!=</code>: Don’t function properly when result is false, use <code>===</code> or <code>!==</code> instead</li>
+<li><code>with</code> <strong>statement</strong>: Intended to provide a shortcut to properties of an object but results vary every time it is run</li>
+<li><code>eval</code>: Adds unnecessary complication and compromises the security of the application
+<ul>
+<li>Giving string arguments to <code>setTimeout</code> and <code>setInterval</code> should also be avoided as this makes them act like <code>eval</code></li>
+</ul></li>
+<li><code>continue</code> <strong>statement</strong>: Forces a loop into its next iteration but the code is usually much improved when re-written <em>without</em> <code>continue</code></li>
+<li><code>switch</code> <strong>fall through</strong>: In a <code>switch</code> statement, each <code>case</code> falls through to the next <code>case</code> unless you explicitly disrupt the flow, but using these <em>intentional</em> fall throughs makes the <em>unintentional</em> ones that are causing errors basically impossible to find
+<ul>
+<li>This is one of those parts of JavaScript that appears useful but you’re better off avoiding because it’s occasionally very dangerous</li>
+</ul></li>
+<li><strong>Block-less statements</strong>: <em>Always</em> use curly braces <code>{}</code> to block in statements so as to avoid misinterpretation and aid error finding</li>
+<li><strong>Bitwise operators</strong>: Shouldn’t really be doing this kind of manipulations because they are quite slow in JavaScript, therefore there shouldn’t be a need to use <code>&amp;</code>, <code>|</code>, <code>ˆ</code>, <code>˜</code>, <code>&gt;&gt;</code>, <code>&gt;&gt;&gt;</code> or <code>&lt;&lt;</code>
+<ul>
+<li>This doesn’t mean you can’t use <code>&amp;&amp;</code> for example</li>
+</ul></li>
+<li><code>++</code> <strong>and</strong> <code>--</code>: This one seems debatable to me; Douglas Crockford finds it makes his coding style much more cryptic and difficult to read (the book uses <code>+=1</code> and <code>-=1</code> instead)</li>
+</ul>
+<p><strong>The function statement vs the function expression:</strong> To use JavaScript well, important to understand that <strong>functions are values</strong>. * A function <em>statement</em> is shorthand for a var statement with a function value, so <code>function foo() {}</code> (a function statement) means pretty much the same as <code>var foo = function foo(){};</code> (a function expression) * Logically, to write the language well you should define a function before using it, but in JavaScript, function statements (using just <code>function foo(){}</code>) are <em>hoisted</em> to the top of the scope in which they are defined - this encourages sloppy programming and should be avoided * function statements also don’t function consistently in <code>if</code> statements * if you need to start a function expression with the word <em>function</em>, <strong>wrap it in parentheses</strong> (), or JavaScript assumes it’s a function <em>statement</em></p>
+<p><strong>Typed wrappers:</strong> <strong>Don’t use <code>new Boolean</code> or <code>new String</code> or <code>new Number</code></strong>, it’s completely unnecessary. Also avoid <code>new Object</code> and <code>new Array</code> and use <code>{}</code> and <code>[]</code> instead.</p>
+<p><strong><a name="new"/><code>new</code> operator:</strong> Functions that are intended to be used with <code>new</code> (conventionally starting with a capital letter) should be avoided (don’t define them) as they can cause all kinds of issues and complex bugs which are difficult to catch.</p>
+<p><strong>void</strong>: In JavaScript, this actually <em>takes</em> a value and <em>returns</em> <code>undefined</code>, which is hugely confusing and not helpful. <strong>Don’t use it</strong>.</p>
+<h2 id="appendix-c---jslint"><a name="AppendixC"/> Appendix C - JSLint</h2>
+<p>JSLint is a <strong>code quality tool</strong> for JavaScript which checks your syntax.</p>
+<p>Having read through this appendix (you can read more about <a href="http://www.jslint.com">JSLint here</a>), I tend more towards <a href="http://jshint.com/about/"><strong><em>JSHint</em></strong></a>, a <em>fork</em> of JSLint. It allows programmers to customise for themselves which the good parts and bad parts are and define their own subset, although naturally there are a number of pre-defined options. <a href="https://github.com/nelsonic/learn-jshint">This is a really fantastic article on using JSHint</a>; it’s simple and aimed at having you using JSHint in a few minutes as well as providing various sources for pre-defined subsets.</p>
+<p>Interesting article on prototypes: http://sporto.github.io/blog/2013/02/22/a-plain-english-guide-to-javascript-prototypes/</p>

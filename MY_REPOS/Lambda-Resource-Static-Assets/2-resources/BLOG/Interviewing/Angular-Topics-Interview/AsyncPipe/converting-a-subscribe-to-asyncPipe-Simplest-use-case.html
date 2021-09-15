@@ -1,0 +1,38 @@
+<h4 id="the-use-case-here-is-a-simple-consumption-of-an-observable-returned-by-a-service-funciton">The use case here is a simple consumption of an Observable returned by a service funciton</h4>
+<p>First assumne I have a `serviceFunctionReturningObservable()`` function that returns me an observable of the following signature. And in the parent component.ts file I want to subscribe to that obeservable and pass down that subscribed data down to Childrent to be consumed.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb1-1" title="1">    <span class="fu">serviceFunctionReturningObservable</span>( flag<span class="op">:</span> Flag )<span class="op">:</span></a>
+<a class="sourceLine" id="cb1-2" title="2">    Observable<span class="op">&lt;</span><span class="dt">boolean</span><span class="op">&gt;</span> <span class="op">{}</span></a></code></pre></div>
+<h3 id="my-initial-code-with-regular-.subscribe-was-as-below-we-will-convert-it-to-asyncpipe-in-the-next-step-and-ditch-.subscribe">My initial code with regular .subscribe() was as below (we will convert it to asyncPipe in the next step and ditch .subscribe())</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// first declare a variable with type at the top of the .ts file, which will hold the subscribed data</span></a>
+<a class="sourceLine" id="cb2-2" title="2">isSomeBooleanVarToPassDownToChildComp<span class="op">:</span> <span class="dt">boolean</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-3" title="3"></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="co">// An then inside ngOnInit</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="fu">ngOnInit</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-6" title="6">    <span class="va">this</span><span class="op">.</span><span class="at">someService</span></a>
+<a class="sourceLine" id="cb2-7" title="7">        .<span class="fu">serviceFunctionReturningObservable</span>(userUpload)</a>
+<a class="sourceLine" id="cb2-8" title="8">        .<span class="fu">subscribe</span>(enabled <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-9" title="9">            <span class="va">this</span><span class="op">.</span><span class="at">isSomeBooleanVarToPassDownToChildComp</span> <span class="op">=</span> enabled<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-10" title="10">        <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="op">};</span></a>
+<a class="sourceLine" id="cb2-12" title="12"></a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="co">// And then in the corresponding .html tempale file, I was accessing this data</span></a>
+<a class="sourceLine" id="cb2-14" title="14"><span class="op">[</span>isSomeBooleanVarToPassDownToChildComp<span class="op">]=</span><span class="st">&quot;isSomeBooleanVarToPassDownToChildComp&quot;</span></a></code></pre></div>
+<h3 id="now-without-using-the-.subscribe-method-and-just-using-asyncpipe">Now without using the .subscribe() method and just using asyncPipe</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb3-1" title="1">    <span class="co">// first declare a variable with type Observable, at the top of the .ts file</span></a>
+<a class="sourceLine" id="cb3-2" title="2">    isSomeBooleanVarToPassDownToChildComp$<span class="op">:</span> Observable<span class="op">&lt;</span><span class="dt">boolean</span><span class="op">&gt;;</span></a>
+<a class="sourceLine" id="cb3-3" title="3"></a>
+<a class="sourceLine" id="cb3-4" title="4">    <span class="fu">ngOnInit</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-5" title="5">        <span class="va">this</span><span class="op">.</span><span class="at">isSomeBooleanVarToPassDownToChildComp$</span> <span class="op">=</span> <span class="va">this</span><span class="op">.</span><span class="fu">featureFlagService</span>(</a>
+<a class="sourceLine" id="cb3-6" title="6">            userUpload</a>
+<a class="sourceLine" id="cb3-7" title="7">        )<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-8" title="8">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-9" title="9"></a>
+<a class="sourceLine" id="cb3-10" title="10">    <span class="co">// And then in the corresponding .html tempale file, I will consume this subsribed data directly with asyncPipe</span></a>
+<a class="sourceLine" id="cb3-11" title="11">    <span class="op">[</span>isSomeBooleanVarToPassDownToChildComp<span class="op">]=</span><span class="st">&quot;isSomeBooleanVarToPassDownToChildComp$ | async&quot;</span></a></code></pre></div>
+<p>In case I had to pipe something with the initial subscribed data I would have to do below</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb4-1" title="1">    <span class="fu">ngOnInit</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">    <span class="va">this</span><span class="op">.</span><span class="at">isSomeBooleanVarToPassDownToChildComp$</span> <span class="op">=</span> <span class="va">this</span><span class="op">.</span><span class="va">featureFlagService</span><span class="op">.</span><span class="fu">serviceFunctionReturningObservable</span>(</a>
+<a class="sourceLine" id="cb4-3" title="3">      <span class="va">FeatureFlag</span><span class="op">.</span><span class="at">accessControl</span></a>
+<a class="sourceLine" id="cb4-4" title="4">    )</a>
+<a class="sourceLine" id="cb4-5" title="5">    .<span class="fu">pipe</span>(<span class="fu">map</span>(value <span class="kw">=&gt;</span> value))<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="op">}</span></a></code></pre></div>

@@ -1,0 +1,154 @@
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<hr />
+<h1 id="pokedex-hooks-project-phase-3">Pokedex Hooks Project: Phase 3</h1>
+<p>At this point, you’ve managed a state-based project with the <code>useState</code> and <code>useEffect</code> hooks and a Redux-based project with the <code>useSelector</code> and <code>useDispatch</code> hooks. Now you’ll work off of the state-based project you built in Phase 2 to manage your application’s state with the <code>useContext</code> hook!</p>
+<p>Begin by creating a new branch for your Context-based application off of your main branch:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">git</span> checkout master</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="fu">git</span> checkout -b context-hooks-app</a></code></pre></div>
+<h2 id="using-the-usecontext-hook-to-manage-application-state">Using the <code>useContext</code> hook to manage application state</h2>
+<p>Think of how you created a Redux cycle to pass Pokedex information through your components. Now you’ll manage your application’s global information by using React Context instead! Remember that you still generate context with the <code>createContext</code> function, just as you would for class components. You also still use <code>&lt;Context.Provider&gt;</code> components to set the <code>value</code> of your context object.</p>
+<p>Think of how you would make use of the <code>useContext</code> hook instead of Redux’s <code>connect()</code> function to pass slices of state as well as functions to update the global state. As you use the <code>useEffect</code> hook for side effect operations, think of conditions where you would want to prevent the effect from running. Remember to set the variables that determine these conditions in the <code>useEffect</code> hook’s dependency array.</p>
+<h3 id="providing-context">Providing context</h3>
+<p>Begin by creating a <code>PokemonContext</code> with the <code>createContext</code> function from React. Then you’ll need to set the context value with a <code>&lt;Context.Provider&gt;</code> component by making a wrapper Provider component for the <code>App</code> component. Create an <code>AppWithContext</code> component as the wrapper component for <code>App</code>.The wrapper component will have the following slices of state:</p>
+<ul>
+<li><code>pokemon</code> - defaults to an empty array.</li>
+<li><code>singlePokemon</code> - defaults to <code>null</code>.</li>
+<li><code>authToken</code> - defaults to the <code>state-pokedex-token</code> item stored in <code>localStorage</code>.</li>
+<li><code>needLogin</code> - defaults to the <em>truthyness</em> of the <code>state-pokedex-token</code> item stored in <code>localStorage</code> (hint: you can use the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_Operators#Double_NOT_!!">double not</a> <code>!!</code> notation).</li>
+</ul>
+<p>The wrapper component will also pass the following functions as the context <code>value</code>:</p>
+<ul>
+<li><code>login(token)</code> - to set the <code>state-pokedex-token</code> item in <code>localStorage</code>, update the <code>authToken</code> state, and update the <code>needLogin</code> state to <code>false</code>.</li>
+<li><code>loadPokemon()</code> - to fetch all pokemon and update the <code>pokemon</code> state.</li>
+<li><code>getOnePokemon(id)</code> - to fetch one pokemon and update the <code>singlePokemon</code> state.</li>
+</ul>
+<p>After you have set up the wrapper component, make sure to replace the <code>App</code> that is rendered in your <code>index.js</code> file with your new <code>AppWithContext</code> wrapper component. Now it’s time to change your application from being a state-based application to a context-based application.</p>
+<p>Begin by removing all props that are passed between components. You’ll use the hooks and the <code>PokemonContext</code> value to manage the global state of your application instead. Make sure to even remove the <code>match</code> prop you access in the <code>PokemonDetail</code> component. You’ll use the <a href="https://reacttraining.com/blog/react-router-v5-1/#useparams">useParams</a> hook from <a href="https://reacttraining.com/blog/react-router-v5-1/">React Router v5.1</a> instead of the <code>match</code> prop.</p>
+<h3 id="consuming-context-with-the-usecontext-hook">Consuming context with the useContext hook</h3>
+<p>Your application’s consuming components should access the <code>PokemonContext</code> through using the <code>useContext</code> hook. Feel free to reference the [Hooks API Reference] to revisit the documentation on the <code>useContext</code> hook. As a reminder, the <code>useContext</code> hook replaces the <code>static contextType</code> property of class components:</p>
+<h3 id="static-contexttype">static contextType</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// Receive access to context in class components:</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="kw">static</span> contextType <span class="op">=</span> PokemonContext<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-3" title="3"></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="co">// Access context with the `contextType` property:</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="kw">this</span>.<span class="at">context</span></a></code></pre></div>
+<h3 id="usecontext">useContext</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="co">// Receive access to context with React Hooks in function components:</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="kw">const</span> context <span class="op">=</span> <span class="at">useContext</span>(PokemonContext)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-3" title="3"></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="co">// Access context with the `useContext` hook:</span></a>
+<a class="sourceLine" id="cb3-5" title="5">context</a></code></pre></div>
+<p>Now it’s time to set up how your application components <em>consume</em> the <code>PokemonContext</code>!</p>
+<p>Feel free to console log the <code>context</code> in any component you are accessing the <code>PokemonContext</code>. It could be helpful to create an application state logging system like so:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">const</span> context <span class="op">=</span> <span class="at">useContext</span>(PokemonContext)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="va">console</span>.<span class="at">log</span>(context)<span class="op">;</span></a></code></pre></div>
+<p>This way upon the mounting of a component, you have a general sense of the <code>context</code> object the component is receiving. Since you’ll be using Hooks and Context to manage your user authentication, you may need to clear your <code>localStorage</code> items to reset your application to allow for future testing and debugging. As a reminder, you can go to the <code>Application</code> tab of your developer tools to find a <code>Storage</code> section with your <code>Local Storage</code> items. There you can right click to delete all items stored in <code>localStorage</code>.</p>
+<h3 id="app">App</h3>
+<p>Take a moment to compare the code that currently lives in your <code>AppWithContext</code> with the code that lives in you <code>App</code> component. Notice how there is a lot of duplicated logic. This is because you <code>App</code> was the main component managing your application’s state-based information. Now that you have moved all the logic to your <code>AppWithContext</code> component, you can refactor your <code>App</code> component to simply use the <code>useContext</code> hook to pass the <code>needLogin</code> value to the <code>&lt;PrivateRoute&gt;</code> it renders. You can also remove all other props passed through the routes. Your refactored <code>App</code> component should look something like this:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="co">// App.js</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> useContext <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="im">import</span> <span class="op">{</span> BrowserRouter<span class="op">,</span> Route<span class="op">,</span> Switch <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react-router-dom&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-4" title="4"></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="im">import</span> <span class="op">{</span> PrivateRoute <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;./routesUtil&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="im">import</span> LoginPanel <span class="im">from</span> <span class="st">&#39;./LoginPanel&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="im">import</span> PokemonBrowser <span class="im">from</span> <span class="st">&#39;./PokemonBrowser&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="im">import</span> <span class="op">{</span> PokemonContext <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;./PokemonContext&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-9" title="9"></a>
+<a class="sourceLine" id="cb5-10" title="10"><span class="kw">const</span> App <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-11" title="11">  <span class="kw">const</span> <span class="op">{</span> needLogin <span class="op">}</span> <span class="op">=</span> <span class="at">useContext</span>(PokemonContext)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-12" title="12"></a>
+<a class="sourceLine" id="cb5-13" title="13">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb5-14" title="14">    <span class="op">&lt;</span>BrowserRouter<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-15" title="15">      <span class="op">&lt;</span>Switch<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-16" title="16">        <span class="op">&lt;</span>Route path<span class="op">=</span><span class="st">&quot;/login&quot;</span> component<span class="op">={</span>LoginPanel<span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb5-17" title="17">        <span class="op">&lt;</span>PrivateRoute</a>
+<a class="sourceLine" id="cb5-18" title="18">          path<span class="op">=</span><span class="st">&quot;/&quot;</span></a>
+<a class="sourceLine" id="cb5-19" title="19">          component<span class="op">={</span>PokemonBrowser<span class="op">}</span></a>
+<a class="sourceLine" id="cb5-20" title="20">          needLogin<span class="op">={</span>needLogin<span class="op">}</span></a>
+<a class="sourceLine" id="cb5-21" title="21">        /&gt;</a>
+<a class="sourceLine" id="cb5-22" title="22">      &lt;/Switch<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-23" title="23">    &lt;/BrowserRouter<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-24" title="24">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-25" title="25"><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-26" title="26"></a>
+<a class="sourceLine" id="cb5-27" title="27"><span class="im">export</span> <span class="im">default</span> App<span class="op">;</span></a></code></pre></div>
+<h3 id="loginpanel">LoginPanel</h3>
+<p>Let’s begin by refactoring your <code>LoginPanel</code> component! The <code>LoginPanel</code> should access the context’s <code>login</code> function. Feel free to also access the <code>authToken</code> value for testing purposes. Note that you can also destructure the context object, like so:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">const</span> <span class="op">{</span> login<span class="op">,</span> authToken <span class="op">}</span> <span class="op">=</span> <span class="at">useContext</span>(PokemonContext)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="va">console</span>.<span class="at">log</span>(authToken)<span class="op">;</span></a></code></pre></div>
+<p>You’ll want to make sure that your <code>LoginPanel</code> has the following slices of state:</p>
+<ul>
+<li><code>loggedIn</code> - defaults to <code>false</code>.</li>
+<li><code>email</code> - defaults to <code>'demo@example.com'</code>.</li>
+<li><code>password</code> - defaults to <code>'password'</code>.</li>
+</ul>
+<p>Your <code>LoginPanel</code> component should also hold the following three functions:</p>
+<ul>
+<li><code>handleSubmit</code> - to make a fetch request to your API, update the <code>loggedIn</code> state, and invoke the context’s <code>login</code> function with the <code>token</code> from the fetch response.</li>
+<li><code>updateEmail</code> - to update the <code>email</code> slice of state.</li>
+<li><code>updatePassword</code> - to update the <code>password</code> slice of state.</li>
+</ul>
+<p>Lastly, your <code>LoginPanel</code> should redirect logged in users to the home page, based on the <code>loggedIn</code> slice of state:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="cf">if</span> (loggedIn) <span class="cf">return</span> <span class="op">&lt;</span>Redirect to<span class="op">=</span><span class="st">&quot;/&quot;</span> /&gt;<span class="op">;</span></a></code></pre></div>
+<p>Now you’ll want to set up your <code>PokemonBrowser</code> component before testing the login flow and home page redirection - you’ll hit a lot of errors if you don’t refactor your <code>PokemonBrowser</code> correctly first.</p>
+<h3 id="pokemonbrowser">PokemonBrowser</h3>
+<p>At this point, your <code>PokemonBrowser</code> component should look something like this:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="im">import</span> React <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="im">import</span> <span class="op">{</span> NavLink<span class="op">,</span> Route <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react-router-dom&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="im">import</span> <span class="op">{</span> imageUrl <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;./config&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="im">import</span> PokemonDetail <span class="im">from</span> <span class="st">&quot;./PokemonDetail&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-5" title="5"></a>
+<a class="sourceLine" id="cb8-6" title="6"><span class="kw">const</span> PokemonBrowser <span class="op">=</span> (<span class="op">{</span> pokemon<span class="op">,</span> token <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-7" title="7">  <span class="cf">if</span> (<span class="op">!</span>pokemon) <span class="cf">return</span> <span class="kw">null</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-8" title="8"></a>
+<a class="sourceLine" id="cb8-9" title="9">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb8-10" title="10">    <span class="op">&lt;</span>main<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-11" title="11">      <span class="op">&lt;</span>nav<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-12" title="12">        <span class="op">{</span><span class="va">pokemon</span>.<span class="at">map</span>((poke) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-13" title="13">          <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb8-14" title="14">            <span class="op">&lt;</span>NavLink key<span class="op">={</span><span class="va">poke</span>.<span class="at">name</span><span class="op">}</span> to<span class="op">={</span><span class="vs">`/pokemon/</span><span class="sc">${</span><span class="va">poke</span>.<span class="at">id</span><span class="sc">}</span><span class="vs">`</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb8-15" title="15">              <span class="op">&lt;</span>div className<span class="op">=</span><span class="st">&quot;nav-entry&quot;</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-16" title="16">                <span class="op">&lt;</span>div className<span class="op">=</span><span class="st">&quot;nav-entry-image&quot;</span></a>
+<a class="sourceLine" id="cb8-17" title="17">                  style<span class="op">={{</span></a>
+<a class="sourceLine" id="cb8-18" title="18">                    <span class="dt">backgroundImage</span><span class="op">:</span> <span class="vs">`url(&#39;</span><span class="sc">${</span>imageUrl<span class="sc">}${</span><span class="va">poke</span>.<span class="at">imageUrl</span><span class="sc">}</span><span class="vs">&#39;)`</span></a>
+<a class="sourceLine" id="cb8-19" title="19">                  <span class="op">}}</span> /&gt;</a>
+<a class="sourceLine" id="cb8-20" title="20">                <span class="op">&lt;</span>h1<span class="op">&gt;{</span><span class="va">poke</span>.<span class="at">name</span><span class="op">}</span>&lt;/h1<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-21" title="21">              &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-22" title="22">            &lt;/NavLink<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-23" title="23">          )<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-24" title="24">        <span class="op">}</span>)<span class="op">}</span></a>
+<a class="sourceLine" id="cb8-25" title="25">      &lt;/nav<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-26" title="26">      <span class="op">&lt;</span>Route</a>
+<a class="sourceLine" id="cb8-27" title="27">        path<span class="op">=</span><span class="st">&quot;/pokemon/:id&quot;</span></a>
+<a class="sourceLine" id="cb8-28" title="28">        render<span class="op">={</span>(props) <span class="kw">=&gt;</span> <span class="op">&lt;</span>PokemonDetail <span class="op">{</span>...<span class="at">props</span><span class="op">}</span> token<span class="op">={</span>token<span class="op">}</span> /&gt;<span class="op">}</span></a>
+<a class="sourceLine" id="cb8-29" title="29">      /&gt;</a>
+<a class="sourceLine" id="cb8-30" title="30">    &lt;/main<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-31" title="31">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-32" title="32"><span class="op">};</span></a>
+<a class="sourceLine" id="cb8-33" title="33"></a>
+<a class="sourceLine" id="cb8-34" title="34"><span class="im">export</span> <span class="im">default</span> PokemonBrowser<span class="op">;</span></a></code></pre></div>
+<p>You won’t need to refactor any existing code within component, except removing the props it receives. You’ll simply use the <code>useContext</code> hook to access the <code>PokemonContext</code> and use the <code>useEffect</code> hook to update the context’s <code>pokemon</code>.</p>
+<p>Begin by having your <code>PokemonBrowser</code> component access the context’s <code>pokemon</code> and <code>loadPokemon</code> function:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">const</span> <span class="op">{</span> pokemon<span class="op">,</span> loadPokemon <span class="op">}</span> <span class="op">=</span> <span class="at">useContext</span>(PokemonContext)<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="va">console</span>.<span class="at">log</span>(pokemon)<span class="op">;</span></a></code></pre></div>
+<p>You’ll want to update the global state by invoking <code>loadPokemon</code> upon load. Since data fetch is considered a <em>side effect operation</em>, you’ll invoke the <code>loadPokemon</code> function within a <code>useEffect</code> hook:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-2" title="2">  <span class="at">loadPokemon</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="op">},</span> [])<span class="op">;</span></a></code></pre></div>
+<p>Note that the hook’s <em>dependency array</em> is empty. If you start your server, you’ll notice that your application will be stuck in an infinite loop to fetch pokemon! Think of what conditions you want your <code>loadPokemon</code> function to be invoked (hint: think of how to use the length of the <code>pokemon</code> array).</p>
+<p>Take a moment to test the user login flow. You want to be redirected to view the <code>PokemonBrowser</code> component. You also want to keep an eye on your backend database logs. Make sure that you are setting correct variables to optimize the fetch calls made from the <code>useEffect</code> hook from your <code>PokemonBrowser</code>!</p>
+<h3 id="pokemondetail">PokemonDetail</h3>
+<p>Instead of using the <code>match.params.id</code> prop, your <code>PokemonDetail</code> component will make use of the <a href="https://reacttraining.com/blog/react-router-v5-1/#useparams">useParams</a> hook from <a href="https://reacttraining.com/blog/react-router-v5-1/">React Router v5.1</a>! Begin by using the <code>useContext</code> hook to give the component access to the context’s <code>singlePokemon</code> and <code>getOnePokemon</code> function.</p>
+<p>Note that you can also rename the object keys to prevent the need to refactor your rendered JSX. In the snippet below, the context’s <code>singlePokemon</code> is renamed to be <code>pokemon</code>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">const</span> <span class="op">{</span> <span class="dt">singlePokemon</span><span class="op">:</span> pokemon<span class="op">,</span> getOnePokemon <span class="op">}</span> <span class="op">=</span> <span class="at">useContext</span>(PokemonContext)<span class="op">;</span></a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="va">console</span>.<span class="at">log</span>(pokemon)<span class="op">;</span></a></code></pre></div>
+<p>This way, you won’t need to refactor any of the render code to render the <code>pokemon</code> in the <code>PokemonContext</code>!</p>
+<p>Have your <code>PokemonDetail</code> component update the global state by invoking the <code>getOnePokemon</code> function with the <code>id</code> from the route parameters upon load. Import the <a href="https://reacttraining.com/blog/react-router-v5-1/#useparams">useParams</a> hook from the <code>react-router-dom</code> package:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" title="1"><span class="im">import</span> <span class="op">{</span> useParams <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react-router-dom&#39;</span><span class="op">;</span></a></code></pre></div>
+<p>Now you can simply invoke the function and destructure the <code>params</code> object it receives!</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">const</span> <span class="op">{</span> id <span class="op">}</span> <span class="op">=</span> <span class="at">useParams</span>()<span class="op">;</span></a></code></pre></div>
+<p>You’ll need to use a <code>useEffect</code> hook to fetch a pokemon based on the <code>id</code> from the route parameters. Just like in your <code>PokemonBrowser</code> component, you need to determine what variables to place in the dependency array so that your application is not stuck in an infinite fetch loop!</p>
+<p>In your <code>useEffect</code> hook, you’ll need to check two conditions. If the single <code>pokemon</code> is <em>falsey</em>, have your component invoke the <code>getOnePokemon</code> function with the <code>id</code> parameter. If the pokemon’s ID is not equal to the route parameter <code>id</code>, also have your component invoke the <code>getOnePokemon</code> function to fetch a specific pokemon! Remember that the <code>id</code> from your route parameters is currently a string, so you’ll need to parse the <code>id</code> in order to make a valid comparison to the pokemon’s ID.</p>
+<p>After you have finished refactoring your state-based React application built with class components to a context-based React application built with function components and React Hooks, compare your context-based application to the redux-based solution. Using Redux instead of Context results in a lot of boilerplate code in your application. React 16 revamped the Context API and deemed the <code>useContext</code> hook as a basic hook to improve React’s built-in state management.</p>
+<p>Redux is a large library with a lot of conceptual knowledge involved. In the next project, you will dive deeper and have more practice with implementing the Redux library for state management. Although you are free to use either Context or Redux to manage the application state of your project next week, you can take today’s bonus project as a chance to dive in deeper and truly learn Redux. Understanding all the conceptual knowledge behind the library will help you architect your own React project and plan your application’s state management.</p>

@@ -1,0 +1,369 @@
+1.  Can't create (new) generic array
+    See FindMedian
+        Following is an error:
+        TreeNode<T>[] result = new TreeNode<T>[2];
+        a.  Create a helper function
+            private static<T> TreeNode<T>[] asArray(Class<?> type, int size)
+            {
+              TreeNode<T>[] array = (TreeNode<T>[])Array.newInstance(type, size);
+              return array;
+            }
+         b. Use reflection to create an array:
+            TreeNode<T> n1 = ...
+            TreeNode<T>[] result = asArray(n1.getClass(), 1);
+
+2.  Following types can not have type parameters
+		a. enums
+		b. anonymous inner classes
+		c. Exceptions
+		    i. It is illegal to define generic type that are directly or indirectly derived from class Throwable.
+
+3.  Concrete parameter types have no wildcards:
+    Concrete:       List<String>, Map<String,Date>
+    Note Concrete:  List<? extends Number>, Map<String,?>
+
+4.  A normal class can implement a generic interface if type parameter of generic interface is a wrapper class.
+        interface GenericInterface<Integer>         class NormalClass implements GenericInterface<Integer>
+        {                                           {
+        }                                           }
+
+5.  Static generic methods can be defined inside a non-generic class:
+        class NonGenericClass
+        {
+          static <T> void genericMethod(T t1)
+          {
+            T t2 = t1;
+            System.out.println(t2);
+          }
+        }
+
+6.  Constructor of a non-generic class can be generic. Not very useful.
+        class NonGenericClass
+        {
+          public <T> NonGenericClass(T t1)
+          {
+            T t2 = t1;
+            System.out.println(t2);
+          }
+        }
+
+        public static void main(String[] args)
+        {
+          NonGenericClass nonGen1 = new NonGenericClass(123);
+          NonGenericClass nonGen2 = new NonGenericClass("abc");
+          NonGenericClass nonGen3 = new NonGenericClass(25.69);
+        }
+
+7.  Type bound parameters. May be used with classes and Methods
+    a.  Classes
+            static class GenericWithBound<T extends Number>
+            {
+                T value;
+                GenericWithBound(T t)
+                {
+                    value = t;
+                }
+
+                int getValue()
+                {
+                    return value.intValue();
+                }
+            }
+
+            public static void main(String[] args)
+            {
+                GenericWithBound<Integer> gwbInt = new GenericWithBound<>(25);
+                System.out.println(gwbInt.getValue());
+
+                GenericWithBound<Double> gwbDbl = new GenericWithBound<>(25.01);
+                System.out.println(gwbInt.getValue());
+
+                //  Following would be a compilation error
+                //GenericWithBound<String> gwbString = new GenericWithBound<>("Hello");
+            }
+
+    b.  Methods
+            public static <T extends Number> void printNumbers(T[] t)
+
+    c.  Primitives and array types may not me used as bound type parameters.
+        i.  Following are errors:
+                class X0 <T extends int > { ... }
+                class X1 <T extends Object[]> { ... }
+
+    d.  A bounded parameter can extend only one class and one or more interfaces
+            class GenericClass <T extends AnyClass & FirstInterface & SecondInterface>
+
+8.  While extending a generic class having bounded type parameter,
+    type parameter must be replaced by either upper bound or it’s sub classes:
+    Good:   class GenericSubClass1 extends GenericSuperClass<Number>
+            class GenericSubClass2 extends GenericSuperClass<Integer>
+    Error:  class GenericSubClass3 extends GenericSuperClass<T extends Number>
+
+9.  Type erasure for bounded types
+    a.  T will be replaced by java.lang.Object when compiled
+            class GenericClassOne<T>
+            {
+                T t;
+            }
+    b.  T will be replaced by java.lang.Number when compiled
+            class GenericClassTwo<T extends Number>
+            {
+                T t;
+            }
+
+10. Effects of erasure
+    a.  Type parameters are erased after compilation.
+        They don’t exist at run time. That’s why you can’t instantiate a type parameter.
+            class GenericClass<T>
+            {
+                T t = new T();      //Compile time error
+
+                <V> void genericMethod()
+                {
+                    V v = new V();   //Compile time error
+                }
+            }
+
+    b.  Can't declare static type parameters:
+            class GenericClass<T>
+            {
+              static T t;        //Compile time error
+            }
+
+    c.  Can't instantiate an arrays whose type is a parameter
+            class GenericClass<T>
+            {
+                T[] t;
+                public GenericClass(T[] t)
+                {
+                    t = new T[5];   //Compile time error
+                    this.t = t;     //But, This is OK
+                }
+            }
+
+    d.  Can't create an array of generic type containing specific type of data
+            public class GenericsInJava
+            {
+              public static void main(String[] args)
+              {
+                GenericClass<Number> gen[] = new GenericClass<Number>[10];   //Compile time error
+                GenericClass<?> gen1[] = new GenericClass<?>[10];            //But, this is fine
+              }
+            }
+
+    e.  Can't create generic exceptions
+            class GenericClass<T> extends Throwable
+            {
+                //Compile time error
+            }
+
+        1.  Following definition is prohibited:
+                class ParametricException<T> extends Exception
+
+11. Raw type List vs parameterized type List<Object>
+    a.  You can pass a List<String> to a parameter of type List, you can’t pass it to a parameter of type List<Object>
+    b.  You lose type safety if you use a raw type like List, but not if you use a parameterized type like List<Object>
+
+12. Unbounded wildcard type Set<?> vs. the raw type Set
+    a.  You can put any element into a collection with a raw type, easily corrupting the collection’s type invariant.
+        You can’t put any element (other than null) into a Collection<?>
+
+    	Raw Type                                                Unbounded Wildcard
+    	-----------------------------------------------------------------------------------------------------
+        ArrayList rawList = new ArrayList();                    ArrayList<?> anyList = new ArrayList<Long>();
+    	ArrayList<String> stringList = new ArrayList<>();       ArrayList<String> stringList = new ArrayList<String>();
+    	rawList = stringList;                                   anyList = stringList;
+    	stringList = rawList; // unchecked warning              stringList = anyList ; //error
+
+13. When raw types must be used
+    a.  Must use raw types in class literals:
+            Legal           Not legal:
+            --------------------------
+            List.class      List<String>.class
+            String[].class  List<?>.class
+            int.class
+    b.  Illegal to use the instanceof operator on parameterized types other than unbounded wildcard
+            if (o instanceof Set)
+            {
+              Set<?> m = (Set<?>) o;
+            ...
+            }
+
+14. Arrays vs Collections
+    a.  Arrays are covariant
+        //  Fails at runtime
+        Object[] objectArray = new Long[1];
+        objectArray[0] = "I don't fit in"; // Throws ArrayStoreException
+
+    b.  //  Won't compile
+        List<Object> ol = new ArrayList<Long>(); // Incompatible types
+
+    c.  Arrays are reified
+        1.  Arrays know and enforce their element types at runtime.
+        2.  A non-reifiable type is one whose runtime representation contains less information than its compile-time representation.
+        3.  Generics, by contrast, are implemented by erasure.
+            This means that they enforce their type constraints only at compile time and discard their element type information at runtime.
+        4.  It is illegal to create an array of a generic type, a parameterized type, or a type parameter:
+            Not legal:  new List<E>[], new List<String>[], new E[]
+        5.  The only parameterized types that are reifiable are unbounded wildcard types:
+                List<?>, Map<?,?>
+
+    d.  To create and array of non-reifiable type use:
+            T[] elements = (T[]) new Object[CAPACITY];
+
+15. Used of bounded wildcards: extends and super.
+    a.  Consider Stack class with pushAll and popAll operations:
+            public class Stack<E>
+            {
+                public Stack();
+                public void pushAll(Iterable<E> src)
+                {
+                    for (E e : src) push(e);
+                }
+                public void popAll(Collection<E> dst)
+                {
+                    while (!isEmpty()) dst.add(pop());
+                }
+            }
+
+        Following operation will not work:
+            Stack<Number> numberStack = new Stack<>();
+            Iterable<Integer> integers = ... ;
+            numberStack.pushAll(integers);
+
+            Even though Integer derives from Number, Iterable<Integer> does not derive from Iterable<Number>
+            To make it work use following signature:
+                public void pushAll(Iterable<? extends E> src)
+                {
+                    for (E e : src) push(e);
+                }
+
+        Following operation will not work:
+            Stack<Number> numberStack = new Stack<Number>();
+            Collection<Object> objects = ... ;
+            numberStack.popAll(objects);
+
+            Even thought Object is a superclass of Number, Collection<Object> is not a superclass of Collection<Number>
+            To make it work use following signature:
+                public void popAll(Collection<? super E> dst)
+                {
+                    while (!isEmpty()) dst.add(pop());
+                }
+
+16. Make max method more flexible:
+    From:   public static <T extends Comparable<T>> T max(List<T> list)
+    To:     public static <T extends Comparable<? super T>> T max(List<? extends T> list)
+
+    Use this for cases when the Comparable interface is defined on the base class.
+    Revise the implementation of the method as well:
+        public static <T extends Comparable<? super T>> T max(List<? extends T> list)
+        {
+          Iterator<? extends T> i = list.iterator();
+          T result = i.next();
+          while (i.hasNext())
+          {
+            T t = i.next();
+            if (t.compareTo(result) > 0) result = t;
+          }
+          return result;
+        }
+
+17. Create an object whose type is a type parameter
+    a.  Consider following class:
+            public class Pair<A,B>
+            {
+                public final A fst;
+                public final B snd;
+                public Pair()
+                {
+                   this.fst = new A() ;  // error
+                   this.snd = new B() ;  // error
+                }
+                public Pair(A fst, B snd)
+                {
+                   this.fst = fst;
+                   this.snd = snd;
+                }
+            }
+
+    b.  Use reflection as a work-around
+            public class Pair <A,B>
+            {
+                public final A fst;
+                public final B snd;
+                public Pair(Class<A> typeA, Class<B> typeB)
+                {
+                    this.fst = typeA.newInstance();
+                    this.snd = typeB.newInstance();
+                }
+                public Pair(A fst, B snd)
+                {
+                    this.fst = fst;
+                    this.snd = snd;
+                }
+            }
+
+18.  Create an array whose component type is a type parameter
+     a. Following will not work:
+            class Sequence <T>
+            {
+              ...
+              public T[] asArray()
+              {
+                T[] array = new T[size] ; // error
+                return array;
+              }
+            }
+
+     b. Use reflection as a work around
+            class Sequence <T>
+            {
+                public T[] asArray(Class<T> type)
+                {
+                    T[] array = (T[])Array.newInstance(type, size);
+                    return array;
+                }
+            }
+
+19. Capture of a wildcard type
+    a.  Consider two possible declarations of the swap method:
+        1:  public static <E> void swap(List<E> list, int i, int j);
+        2:  public static void swap(List<?> list, int i, int j);
+        The second declarations is more flexible. However, you can't put anything inside List<?> other than null.
+    b.  Create a helper method to capture the wildcard:
+    		public static void swap(List<?> list, int i, int j)
+    		{
+    		    swapHelper(list, i, j);
+    		}
+    		private static <E> void swapHelper(List<E> list, int i, int j)
+    		{
+    		    list.set(i, list.set(j, list.get(i)));
+    		}
+
+20. Type is reifiable if the type is completely represented at run time — that is,
+    if erasure does not remove any useful information.
+    Following types are reifiable:
+    ------------------------------
+    A primitive type:                           int
+    nonparameterized class or interface type:   Number, String, Runnable
+    parameterized type in which all type
+    arguments are unbounded wildcards:          List<?>, ArrayList<?>, Map<?, ?>
+    A raw type:                                 List, ArrayList, or Map
+    An array whose component type
+    is reifiable:                               int[], Number[], List<?>[], List[], int[][]
+
+    Following types are NOT reifiable:
+    ------------------------------
+	A type variable:                                T
+	A parameterized type with actual parameters:    List<Number>, ArrayList<String>, or Map<String, Integer>
+	A parameterized type with a bound:              List<? extends Number> or Comparable<? super String>
+
+21. Requirement for a double cast
+    a.  It is illegal to cast a list of objects to a list of strings, so the cast must take place in two steps:
+            public static List<String> promote(List<Object> objs)
+            {
+                for (Object o : objs)
+                if (!(o instanceof String))
+                    throw new ClassCastException();
+                return (List<String>)(List<?>)objs; // unchecked cast
+            }

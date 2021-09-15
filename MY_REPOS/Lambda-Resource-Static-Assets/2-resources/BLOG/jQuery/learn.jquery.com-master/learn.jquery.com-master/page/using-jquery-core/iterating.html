@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="./prism.css">
+    <script async defer src="./prism.js"></script>
+</head>
+
+<body>;
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+            integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+        <link rel="stylesheet" href="./prism.css">
+        <script async defer src="./prism.js"></script>
+    </head>
+
+    <body>;
+        <script>
+            {
+                "title": "Iterating over jQuery and non-jQuery Objects"
+            }
+        </script>
+        <p>jQuery provides an object iterator utility called <code>$.each()</code> as well as a jQuery collection
+            iterator: <code>.each()</code>. These are not interchangeable. In addition, there are a couple of helpful
+            methods called <code>$.map()</code> and <code>.map()</code> that can shortcut one of our common iteration
+            use cases.</p>
+        <h3 id="each"><code>$.each()</code></h3>
+        <p><a href="http://api.jquery.com/jQuery.each/"><code>$.each()</code></a> is a generic iterator function for
+            looping over object, arrays, and array-like objects. Plain objects are iterated via their named properties
+            while arrays and array-like objects are iterated via their indices.</p>
+        <p><code>$.each()</code> is essentially a drop-in replacement of a traditional <code>for</code> or
+            <code>for-in</code> loop. Given:
+        </p>
+        <pre><code>var sum = 0;
+
+var arr = [ 1, 2, 3, 4, 5 ];</code></pre>
+        <p>Then this:</p>
+        <pre><code>for ( var i = 0, l = arr.length; i &lt; l; i++ ) {
+    sum += arr[ i ];
+}
+
+console.log( sum ); // 15</code></pre>
+        <p>Can be replaced with this:</p>
+        <pre><code>$.each( arr, function( index, value ){
+    sum += value;
+});
+
+console.log( sum ); // 15</code></pre>
+        <p>Notice that we don’t have to access <code>arr[ index ]</code> as the value is conveniently passed to the
+            callback in <code>$.each()</code>.</p>
+        <p>In addition, given:</p>
+        <pre><code>var sum = 0;
+var obj = {
+    foo: 1,
+    bar: 2
+}</code></pre>
+        <p>Then this:</p>
+        <pre><code>for (var item in obj) {
+    sum += obj[ item ];
+}
+
+console.log( sum ); // 3</code></pre>
+        <p>Can be replaced with this:</p>
+        <pre><code>
+$.each( obj, function( key, value ) {
+    sum += value;
+});
+
+console.log( sum ); // 3</code></pre>
+        <p>Again, we don’t have to directly access <code>obj[ key ]</code> as the value is passed directly to the
+            callback.</p>
+        <p>Note that <code>$.each()</code> is for plain objects, arrays, array-like objects <em>that are not jQuery
+                collections</em>.</p>
+        <p>This would be considered incorrect:</p>
+        <pre><code>// Incorrect:
+$.each( $( &quot;p&quot; ), function() {
+    // Do something
+});</code></pre>
+        <p>For jQuery collections, use <code>.each()</code>.</p>
+        <h3 id="each-1"><code>.each()</code></h3>
+        <p><a href="http://api.jquery.com/each/"><code>.each()</code></a> is used directly on a jQuery collection. It
+            iterates over each matched element in the collection and performs a callback on that object. The index of
+            the current element within the collection is passed as an argument to the callback. The value (the DOM
+            element in this case) is also passed, but the callback is fired within the context of the current matched
+            element so the <code>this</code> keyword points to the current element as expected in other jQuery
+            callbacks.</p>
+        <p>For example, given the following markup:</p>
+        <pre><code>&lt;ul&gt;
+    &lt;li&gt;&lt;a href=&quot;#&quot;&gt;Link 1&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;#&quot;&gt;Link 2&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;#&quot;&gt;Link 3&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+        <p><code>.each()</code> may be used like so:</p>
+        <pre><code>$( &quot;li&quot; ).each( function( index, element ){
+    console.log( $( this ).text() );
+});
+
+// Logs the following:
+// Link 1
+// Link 2
+// Link 3</code></pre>
+        <h4 id="the-second-argument">The Second Argument</h4>
+        <p>The question is often raised, “If <code>this</code> is the element, why is there a second DOM element
+            argument passed to the callback?”</p>
+        <p>Whether intentional or inadvert, the execution context may change. When consistently using the keyword
+            <code>this</code>, it’s easy to end up confusing ourselves or other developers reading the code. Even if the
+            execution context remains the same, it may be more readable to use the second parameter as a named
+            parameter. For example:
+        </p>
+        <pre><code>$( &quot;li&quot; ).each( function( index, listItem ) {
+
+    this === listItem; // true
+
+    // For example only. You probably shouldn&#39;t call $.ajax() in a loop.
+    $.ajax({
+        success: function( data ) {
+            // The context has changed.
+            // The &quot;this&quot; keyword no longer refers to listItem.
+            this !== listItem; // true
+        }
+    });
+
+});</code></pre>
+        <h4 id="sometimes-.each-isnt-necessary">Sometimes <code>.each()</code> Isn’t Necessary</h4>
+        <p>Many jQuery methods implicitly iterate over the entire collection, applying their behavior to each matched
+            element. For example, this is unnecessary:</p>
+        <pre><code>$( &quot;li&quot; ).each( function( index, el ) {
+    $( el ).addClass( &quot;newClass&quot; );
+});</code></pre>
+        <p>And this is fine:</p>
+        <pre><code>$( &quot;li&quot; ).addClass( &quot;newClass&quot; );</code></pre>
+        <p>Each <code>&lt;li&gt;</code> in the document will have the class “newClass” added.</p>
+        <p>On the other hand, some methods do not iterate over the collection. <code>.each()</code> is required when we
+            need to get information from the element before setting a new value.</p>
+        <p>This will not work:</p>
+        <pre><code>// Doesn&#39;t work:
+$( &quot;input&quot; ).val( $( this ).val() + &quot;%&quot; );
+
+// .val() does not change the execution context, so this === window</code></pre>
+        <p>Rather, this is how it should be written:</p>
+        <pre><code>$( &quot;input&quot; ).each( function( i, el ) {
+    var elem = $( el );
+    elem.val( elem.val() + &quot;%&quot; );
+});</code></pre>
+        <p>The following is a list of methods that require <code>.each()</code>:</p>
+        <ul>
+            <li><a href="http://api.jquery.com/attr/#attr1"><code>.attr()</code></a> (getter)</li>
+            <li><a href="http://api.jquery.com/css/#css1"><code>.css()</code></a> (getter)</li>
+            <li><a href="http://api.jquery.com/data/#data2"><code>.data()</code></a> (getter)</li>
+            <li><a href="http://api.jquery.com/height/#height1"><code>.height()</code></a> (getter)</li>
+            <li><a href="http://api.jquery.com/html/#html1"><code>.html()</code></a> (getter)</li>
+            <li><a href="http://api.jquery.com/innerHeight/"><code>.innerHeight()</code></a></li>
+            <li><a href="http://api.jquery.com/innerWidth/"><code>.innerWidth()</code></a></li>
+            <li><a href="http://api.jquery.com/offset/#offset1"><code>.offset()</code></a> (getter)</li>
+            <li><a href="http://api.jquery.com/outerHeight/"><code>.outerHeight()</code></a></li>
+            <li><a href="http://api.jquery.com/outerWidth/"><code>.outerWidth()</code></a></li>
+            <li><a href="http://api.jquery.com/position/"><code>.position()</code></a></li>
+            <li><a href="http://api.jquery.com/prop/#prop1"><code>.prop()</code></a> (getter)</li>
+            <li><a href="http://api.jquery.com/scrollLeft/#scrollLeft1"><code>.scrollLeft()</code></a> (getter)</li>
+            <li><a href="http://api.jquery.com/scrollTop/#scrollTop1"><code>.scrollTop()</code></a> (getter)</li>
+            <li><a href="http://api.jquery.com/val/#val1"><code>.val()</code></a> (getter)</li>
+            <li><a href="http://api.jquery.com/width/#width1"><code>.width()</code></a> (getter)</li>
+        </ul>
+        <p>Note that in most cases, the “getter” signature returns the result from the first element in a jQuery
+            collection while the setter acts over the entire collection of matched elements. The exception to this is
+            <code>.text()</code> where the getter signature will return a concatenated string of text from all matched
+            elements.
+        </p>
+        <p>In addition to a setter value, the attribute, property, CSS setters, and DOM insertion “setter” methods
+            (i.e. <code>.text()</code> and <code>.html()</code>) accept anonymous callback functions that are applied to
+            each element in the matching set. The arguments passed to the callback are the index of the matched element
+            within the set and the result of the ‘getter’ signature of the method.</p>
+        <p>For example, these are equivalent:</p>
+        <pre><code>$( &quot;input&quot; ).each( function( i, el ) {
+    var elem = $( el );
+    elem.val( elem.val() + &quot;%&quot; );
+});
+
+$( &quot;input&quot; ).val(function( index, value ) {
+    return value + &quot;%&quot;;
+});
+</code></pre>
+        <p>One other thing to keep in mind with this implicit iteration is that traversal methods such as
+            <code>.children()</code> or <code>.parent()</code> will act on each matched element in a collection,
+            returning a combined collection of all children or parent nodes.
+        </p>
+        <h3 id="map"><a href="http://api.jquery.com/map/"><code>.map()</code></a></h3>
+        <p>There is a common iteration use case that can be better handled by using the <code>.map()</code> method.
+            Anytime we want to create an array or concatenated string based on all matched elements in our jQuery
+            selector, we’re better served using <code>.map()</code>.</p>
+        <p>For example instead of doing this:</p>
+        <pre><code>var newArr = [];
+
+$( &quot;li&quot; ).each( function() {
+    newArr.push( this.id );
+});</code></pre>
+        <p>We can do this:</p>
+        <pre><code>$( &quot;li&quot; ).map( function(index, element) {
+    return this.id;
+}).get();</code></pre>
+        <p>Notice the <code>.get()</code> chained at the end. <code>.map()</code> actually returns a jQuery-wrapped
+            collection, even if we return strings out of the callback. We need to use the argument-less version of
+            <code>.get()</code> in order to return a basic JavaScript array that we can work with. To concatenate into a
+            string, we can chain the plain JS <code>.join()</code> array method after <code>.get()</code>.
+        </p>
+        <h3 id="map-1"><a href="http://api.jquery.com/jQuery.map/"><code>$.map</code></a></h3>
+        <p>Like <code>$.each()</code> and <code>.each()</code>, there is a <code>$.map()</code> as well as
+            <code>.map()</code>. The difference is also very similar to both <code>.each()</code> methods.
+            <code>$.map()</code> works on plain JavaScript arrays while <code>.map()</code> works on jQuery element
+            collections. Because it’s working on a plain array, <code>$.map()</code> returns a plain array and
+            <code>.get()</code> does not need to be called – in fact, it will throw an error as it’s not a native
+            JavaScript method.
+        </p>
+        <p>A word of warning: <code>$.map()</code> switches the order of callback arguments. This was done in order to
+            match the native JavaScript <code>.map()</code> method made available in ECMAScript 5.</p>
+        <p>For example:</p>
+        <pre><code>&lt;li id=&quot;a&quot;&gt;&lt;/li&gt;
+&lt;li id=&quot;b&quot;&gt;&lt;/li&gt;
+&lt;li id=&quot;c&quot;&gt;&lt;/li&gt;
+
+&lt;script&gt;
+
+var arr = [{
+    id: &quot;a&quot;,
+    tagName: &quot;li&quot;
+}, {
+    id: &quot;b&quot;,
+    tagName: &quot;li&quot;
+}, {
+    id: &quot;c&quot;,
+    tagName: &quot;li&quot;
+}];
+
+// Returns [ &quot;a&quot;, &quot;b&quot;, &quot;c&quot; ]
+$( &quot;li&quot; ).map( function( index, element ) {
+    return element.id;
+}).get();
+
+// Also returns [ &quot;a&quot;, &quot;b&quot;, &quot;c&quot; ]
+// Note that the value comes first with $.map
+$.map( arr, function( value, index ) {
+    return value.id;
+});
+
+&lt;/script&gt;</code></pre>
+    </body>
+
+    </html>
+</body>
+
+</html>

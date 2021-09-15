@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h3 id="component-rendering-inside-router">Component rendering inside Router</h3>
+<h4 id="if-you-need-to-pass-a-prop-to-a-component-being-rendered-by-react-router-instead-of-using-routes-component-prop-use-its-render-prop-passing-it-an-inline-function-then-pass-along-the-arguments-to-the-element-youre-creating.">If you need to pass a prop to a component being rendered by React Router, instead of using Routes component prop, use its render prop passing it an inline function then pass along the arguments to the element you’re creating.</h4>
+<p>Post React Router uses a declarative, component based approach to routing. What that means is when you want to create a new route, you render a Route component. If you’re familiar with React Router you know that to do that, you pass Route a path and a component to render when the app’s location matches that path.</p>
+<p><code>&lt;Route path='/dashboard' component={Dashboard} /&gt;</code></p>
+<p>Now, what if we also wanted to pass Dashboard a prop? There’s a few different ways to solve this problem but only one right way. The first idea you might have is to just pass it as a prop on Route.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="op">&lt;</span>Route</a>
+<a class="sourceLine" id="cb1-2" title="2">  path<span class="op">=</span><span class="st">&#39;/dashboard&#39;</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  component<span class="op">={</span>Dashboard<span class="op">}</span></a>
+<a class="sourceLine" id="cb1-4" title="4">  isAuthed<span class="op">={</span><span class="kw">true</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb1-5" title="5">/&gt;</a></code></pre></div>
+<p>Unfortunately, this won’t work. React Router won’t forward that prop onto the component. Instead, it will just ignore it.</p>
+<p>The next idea you might have, and a pattern I’ve seen a few places is to pass component an inline function that creates the element.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="op">&lt;</span>Route</a>
+<a class="sourceLine" id="cb2-2" title="2">  path<span class="op">=</span><span class="st">&#39;/dashboard&#39;</span></a>
+<a class="sourceLine" id="cb2-3" title="3">  component<span class="op">={</span>() <span class="kw">=&gt;</span> <span class="op">&lt;</span>Dashboard isAuthed<span class="op">={</span><span class="kw">true</span><span class="op">}</span> /&gt;<span class="op">}</span></a>
+<a class="sourceLine" id="cb2-4" title="4">/&gt;</a></code></pre></div>
+<p>Though technically this will work, it’s not the best solution. The reason for this is because of performance. According to the offical docs…</p>
+<h3 id="when-you-use-the-component-props-the-router-uses-react.createelement-to-create-a-new-react-element-from-the-given-component.-that-means-if-you-provide-an-inline-function-to-the-component-attribute-you-would-create-a-new-component-every-render.-this-results-in-the-existing-component-unmounting-and-the-new-component-mounting-instead-of-just-updating-the-existing-component.">“When you use the component props, the router uses React.createElement to create a new React element from the given component. That means if you provide an inline function to the component attribute, you would create a new component every render. This results in the existing component unmounting and the new component mounting instead of just updating the existing component.”</h3>
+<p>So if you’re not supposed to pass a function to component, what’s the solution? Turns out the React Router team predicted this problem and gave us a handy solution. Instead of using component, use the render prop. render accepts a functional component and that function won’t get unnecessarily remounted like with component. That function will also receive all the same props that component would receive. So you can take those and pass those along to the rendred component.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="op">&lt;</span>Route</a>
+<a class="sourceLine" id="cb3-2" title="2">  path<span class="op">=</span><span class="st">&#39;/dashboard&#39;</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  render<span class="op">={</span>(props) <span class="kw">=&gt;</span> <span class="op">&lt;</span>Dashboard <span class="op">{</span>...<span class="at">props</span><span class="op">}</span> isAuthed<span class="op">={</span><span class="kw">true</span><span class="op">}</span> /&gt;<span class="op">}</span></a>
+<a class="sourceLine" id="cb3-4" title="4">/&gt;</a></code></pre></div>
+<h3 id="so-to-recap-if-you-need-to-pass-a-prop-to-a-component-being-rendered-by-react-router-instead-of-using-routes-component-prop-use-its-render-prop-passing-it-an-inline-function-then-pass-along-the-arguments-to-the-element-youre-creating.">So to recap, if you need to pass a prop to a component being rendered by React Router, instead of using Routes component prop, use its render prop passing it an inline function then pass along the arguments to the element you’re creating.</h3>
+<p>Source: https://tylermcginnis.com/react-router-pass-props-to-components/</p>
+<h4 id="another-implementation-in-my-little-mern-signup-form-with-passport-and-bcrypt">Another implementation in my little MERN signup form with passport, and bcrypt</h4>
+<p><a href="https://github.com/rohan-paul/SignUp-Form-with-Passport/blob/master/src/App.js">https://github.com/rohan-paul/SignUp-Form-with-Passport/blob/master/src/App.js</a></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb4-3" title="3">      <span class="op">&lt;</span>div className<span class="op">=</span><span class="st">&quot;App&quot;</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-4" title="4"></a>
+<a class="sourceLine" id="cb4-5" title="5">        <span class="op">&lt;</span>Navbar updateUser<span class="op">={</span><span class="kw">this</span>.<span class="at">updateUser</span><span class="op">}</span> loggedIn<span class="op">={</span><span class="kw">this</span>.<span class="va">state</span>.<span class="at">loggedIn</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb4-6" title="6">        <span class="op">{</span><span class="co">/* greet user if logged in: */</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb4-7" title="7">        <span class="op">{</span><span class="kw">this</span>.<span class="va">state</span>.<span class="at">loggedIn</span> <span class="op">&amp;&amp;</span></a>
+<a class="sourceLine" id="cb4-8" title="8">          <span class="op">&lt;</span>p<span class="op">&gt;</span>Join the party<span class="op">,</span> <span class="op">{</span><span class="kw">this</span>.<span class="va">state</span>.<span class="at">username</span><span class="op">}!</span>&lt;/p<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-9" title="9">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-10" title="10">        <span class="op">{</span><span class="co">/* Routes to different components */</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb4-11" title="11">        <span class="op">&lt;</span>Route</a>
+<a class="sourceLine" id="cb4-12" title="12">          exact path<span class="op">=</span><span class="st">&quot;/&quot;</span></a>
+<a class="sourceLine" id="cb4-13" title="13">          component<span class="op">={</span>Home<span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb4-14" title="14">        <span class="op">&lt;</span>Route</a>
+<a class="sourceLine" id="cb4-15" title="15">          path<span class="op">=</span><span class="st">&quot;/login&quot;</span></a>
+<a class="sourceLine" id="cb4-16" title="16">          render<span class="op">={</span>() <span class="kw">=&gt;</span></a>
+<a class="sourceLine" id="cb4-17" title="17">            <span class="op">&lt;</span>LoginForm</a>
+<a class="sourceLine" id="cb4-18" title="18">              updateUser<span class="op">={</span><span class="kw">this</span>.<span class="at">updateUser</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb4-19" title="19">            /&gt;<span class="op">}</span></a>
+<a class="sourceLine" id="cb4-20" title="20">        /&gt;</a>
+<a class="sourceLine" id="cb4-21" title="21">        <span class="op">&lt;</span>Route</a>
+<a class="sourceLine" id="cb4-22" title="22">          path<span class="op">=</span><span class="st">&quot;/signup&quot;</span></a>
+<a class="sourceLine" id="cb4-23" title="23">          render<span class="op">={</span>() <span class="kw">=&gt;</span></a>
+<a class="sourceLine" id="cb4-24" title="24">            <span class="op">&lt;</span>Signup/<span class="op">&gt;}</span></a>
+<a class="sourceLine" id="cb4-25" title="25">        /&gt;</a>
+<a class="sourceLine" id="cb4-26" title="26"></a>
+<a class="sourceLine" id="cb4-27" title="27">      &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-28" title="28">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-29" title="29">  <span class="op">}</span></a></code></pre></div>
+</body></html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>4. Client Side Authentication</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="client-side-authentication">Client Side Authentication</h1>
+    <p><strong>Transportability</strong></p>
+    <ul>
+      <li>
+        HTTP headers have a limited character set so that it is compatiple with
+        many systems and cross platform.
+      </li>
+      <li>
+        We can use encoders and hashing to make data more portable over HTTP
+      </li>
+    </ul>
+    <p><strong>Encoding &amp; Hashing Javascript</strong></p>
+    <ul>
+      <li>
+        The Javascript <code>window</code> object comes with built in functions
+        for encoding and decoding base64:
+      </li>
+      <li><code>window.btoa()</code> (Binary to ASCII)</li>
+    </ul>
+    <pre><code>btoa(data);
+// returns =&gt; &lt;base64encodedData&gt;</code></pre>
+    <ul>
+      <li><code>window.atob()</code> (ASCII to Binary)</li>
+    </ul>
+    <pre><code>atob(base64encodedData);
+// returns =&gt; &lt;data&gt;</code></pre>
+    <ul>
+      <li>We can include hashing functions js files and use them globally:</li>
+    </ul>
+    <pre><code>&lt;script src=&quot;md5.js&quot;&gt;&lt;/script&gt;</code></pre>
+    <pre><code>md5(data);
+// returns =&gt; &lt;hashedData&gt;</code></pre>
+    <p><strong>Creating a Token in JS</strong></p>
+    <ul>
+      <li>
+        We can create a basic token by using the building blocks given above:
+      </li>
+    </ul>
+    <pre><code>function makeToken(payload, secret) {
+    const encodedPayload = btoa(JSON.stringify(payload));
+    const encodedSignature = btoa(md5(encodedPayload + btoa(secret)));
+
+    // concatenate payload and signature with &quot;.&quot; separator
+    return `${encodedPayload}.${encodedSignature}`;
+}</code></pre>
+    <ul>
+      <li>How do we verify this token?</li>
+    </ul>
+    <pre><code>function(token, secret) {
+    // destructure the payload and signature
+    const [encodedPayload, encodedSignature] = token.split(&#39;.&#39;);
+
+    // replicate the signature based on the shared secret
+    const signature = btoa(md5(encodedPayload + btoa(secret)));
+
+    // compare the two signatures to verify secret
+    if (signature === encodedSignature) {
+      // decode the payload to use within our app
+      const payload == JSON.parse(atob(encodedPayload));
+      return payload;
+    }
+    else {
+      return &#39;Token not valid.&#39;
+    }
+}</code></pre>
+    <ul>
+      <li>
+        <em
+          >“We would not create or store a secret on the client like this, as
+          nothing is secret in the browser. This is just a demonstration of the
+          algorithm”.</em
+        >
+      </li>
+    </ul>
+    <p><strong>Why Is Encoding, Hashing &amp; Encryption Useful?</strong></p>
+    <ul>
+      <li>
+        <p><strong>Encoding</strong>:</p>
+        <ul>
+          <li>Encoding is a two way representation of data</li>
+          <li>Base64, …, and … are examples</li>
+          <li>It’s useful to make information portable</li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>Hashing</strong>:</p>
+        <ul>
+          <li>Hashing allows us to fingerprint data</li>
+          <li>allows us to verify information integrity</li>
+          <li>Allows us to create signatures</li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>Symmetric Encryption</strong></p>
+        <ul>
+          <li>Uses a shared key to decrypt data</li>
+          <li>Example algorithms?</li>
+          <li>Useful for …</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Asymmetric Encryption</strong>
+        <ul>
+          <li>Uses key pairs (public &amp; private) to decrypt data</li>
+          <li>Example algorithms?</li>
+          <li>Useful for …</li>
+        </ul>
+      </li>
+    </ul>
+    <p><strong>Verifying Tokens in the Browser</strong></p>
+    <ul>
+      <li>
+        <p>
+          A method to verify that the tokens on the front end are valid is to
+          have an <code>/api/verify</code> endpoint which a client can hit with
+          its token present in its headers. The back end would then verify the
+          token and return a success or error back to the client. Based on this
+          server response, our front end app can allow or disallow the user to
+          access particular views.
+        </p>
+      </li>
+      <li>
+        <p>
+          This is a much more robust method than just checking whether a “token”
+          is present in local storage.
+        </p>
+      </li>
+    </ul>
+  </body>
+</html>

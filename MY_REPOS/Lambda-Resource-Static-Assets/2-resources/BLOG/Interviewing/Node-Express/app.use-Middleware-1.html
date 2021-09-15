@@ -1,0 +1,89 @@
+<h1 id="understanding-middleware---the-core-concept-behind-express.js-request-processing-and-routing">Understanding Middleware - the core concept behind Express.js request processing and routing</h1>
+<p>Middleware refers to reusable components that can be plugged into an Express application. Middleware consists of functions that handle HTTP requests, such as the one we would pass to Node’s native http.createServer function. A middleware component can add features by manipulating the request and response objects and then send the response to the client or pass control to the following middleware in the stack.</p>
+<p>To load a middleware into an Express application, we call the app.use() method. The app.use() method takes an optional path parameter as the first argument, which is useful if we want to mount certain functionalities to an endpoint. When using the path parameter, the middleware will be executed only if the URL matches that path. Practical use cases include serving static assets under the /public path or loading special middleware for an admin path</p>
+<p>3&gt; https://medium.com/<span class="citation" data-cites="adamzerner/middleware-in-express-60d75055ba8f">@adamzerner/middleware-in-express-60d75055ba8f</span> - GOOD</p>
+<p>To understand how middleware works in Express, there’s a few things you have to understand:</p>
+<h3 id="you-could-have-multiple-routes-that-match-an-incoming-request.">You could have multiple routes that match an incoming request.</h3>
+<h3 id="routes-are-executed-from-top-to-bottom.">Routes are executed from top to bottom.</h3>
+<h3 id="if-a-route-matches-an-incoming-request-subsequent-routes-that-match-the-incoming-request-wont-be-hit-if-you-dont-call-next.">If a route matches an incoming request, subsequent routes that match the incoming request won’t be hit if you don’t call next().</h3>
+<p>Let me explain.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> <span class="kw">function</span>(req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;one&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-4" title="4"></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> <span class="kw">function</span>(req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-6" title="6">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;two&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Here’s what will happen if there’s an incoming GET / request:</p>
+<p>It will match the first route. The code in the first route will be executed. “The buck stops here”. Even though the second route matches the incoming request.</p>
+<p>So how would we get “two” to be logged as well?</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> <span class="kw">function</span>(req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;one&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="at">next</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-5" title="5"></a>
+<a class="sourceLine" id="cb2-6" title="6"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> <span class="kw">function</span>(req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-7" title="7">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;two&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Now…</p>
+<p>GET / outputs</p>
+<p>one two</p>
+<h2 id="calling-next-allows-the-buck-to-not-stop-here.">Calling <code>next()</code> allows “the buck to NOT stop here”.</h2>
+<h1 id="understanding-app.use-middleware">Understanding app.use() middleware</h1>
+<h2 id="best-explanation---httpsstackoverflow.comquestions15601703difference-between-app-use-and-app-get-in-express-js">1&gt; Best Explanation - https://stackoverflow.com/questions/15601703/difference-between-app-use-and-app-get-in-express-js</h2>
+<p>app.use() is intended for binding middleware to your application. The path is a “mount” or “prefix” path and limits the middleware to only apply to any paths requested that begin with it. It can even be used to embed another application:</p>
+<h2 id="by-specifying-users-as-a-mount-path-app.use-will-respond-to-any-path-that-starts-with-users---which-are-all-of-them-and-regardless-of-http-verb-used">By specifying ‘/users’ as a “mount” path, app.use() will respond to any path that starts with ‘/users’ - which are all of them and regardless of HTTP verb used:</h2>
+<h2 id="get-users">GET /users</h2>
+<h2 id="put-usersfoo">PUT /users/foo</h2>
+<h2 id="post-usersfoobar">POST /users/foo/bar</h2>
+<h2 id="httpsstackoverflow.comquestions11321635nodejs-express-what-is-app-use">2&gt; https://stackoverflow.com/questions/11321635/nodejs-express-what-is-app-use</h2>
+<p>To setup your middleware, you can invoke app.use (<specific_middleware_layer_here>) for every middleware layer that you want to add (it can be generic to all paths, or triggered only on specific path(s) your server handles), and it will add onto your Express middleware stack.</p>
+<p>Middleware layers can be added one by one in multiple invocations of use, or even all at once in series with one invocation.</p>
+<p>Each middleware layer is essentially adding a function that specifically handles something to your flow through the middleware.</p>
+<p><strong>app.use(bodyParser)</strong> - by adding bodyParser, you’re ensuring your server handles incoming requests through the express middleware. So, now parsing the body of incoming requests is part of the procedure that your middleware takes when handling incoming requests – all because you called app.use(bodyParser).</p>
+<h2 id="app.use-defined---httpwww.senchalabs.orgconnectproto.htmlapp.use">3&gt; app.use defined - http://www.senchalabs.org/connect/proto.html#app.use</h2>
+<p>Official - https://expressjs.com/en/guide/using-middleware.html</p>
+<h3 id="middleware-functions-are-functions-that-have-access-to-the-request-object-req-the-response-object-res-and-the-next-middleware-function-in-the-applications-request-response-cycle.-the-next-middleware-function-is-commonly-denoted-by-a-variable-named-next.">Middleware functions are functions that have access to the request object (req), the response object (res), and the next middleware function in the application’s request-response cycle. The next middleware function is commonly denoted by a variable named next.</h3>
+<p>Middleware functions can perform the following tasks:</p>
+<p>Execute any code.</p>
+<p>Make changes to the request and the response objects.</p>
+<p>End the request-response cycle.</p>
+<p>Call the next middleware function in the stack.</p>
+<p>If the current middleware function does not end the request-response cycle, it must call next() to pass control to the next middleware function. Otherwise, the request will be left hanging.</p>
+<h2 id="httpsexpressjs.comenguideusing-middleware.html---from-official-dox">4&gt; https://expressjs.com/en/guide/using-middleware.html - From Official dox</h2>
+<p>Bind application-level middleware to an instance of the app object by using the app.use() and app.METHOD() functions, where METHOD is the HTTP method of the request that the middleware function handles (such as GET, PUT, or POST) in lowercase.</p>
+<p>This example shows a middleware function mounted on the /user/:id path. The function is executed for any type of HTTP request on the /user/:id path.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="va">app</span>.<span class="at">use</span>(<span class="st">&#39;/user/:id&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Request Type:&#39;</span><span class="op">,</span> <span class="va">req</span>.<span class="at">method</span>)</a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="op">}</span>)</a></code></pre></div>
+<p>3&gt; <strong>app.use applies the specified middleware to the main app middleware stack</strong>.</p>
+<p>When attaching middleware ( the function passed to app.use below is the middleware) to the main app stack, the order of attachment matters; if you attach middleware A before middleware B, middleware A will always execute first. You can specify a path for which a particular middleware is applicable. In the below example, “hello world” will always be logged before “happy holidays.”</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="kw">const</span> express <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;express&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="kw">const</span> app <span class="op">=</span> <span class="at">express</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" title="4"></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="va">app</span>.<span class="at">use</span>(<span class="kw">function</span>(req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-6" title="6">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;hello world&quot;</span>)</a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb4-8" title="8"></a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="va">app</span>.<span class="at">use</span>(<span class="kw">function</span>(req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-10" title="10">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;happy world&quot;</span>)</a>
+<a class="sourceLine" id="cb4-11" title="11"><span class="op">}</span>)</a></code></pre></div>
+<h2 id="app.use-acts-as-a-middleware-in-express-apps.-unlike-app.get-and-app.post-or-so-you-actually-can-use-app.use-without-specifying-the-request-url.-in-such-a-case-what-it-does-is-it-gets-executed-every-time-no-matter-what-urls-been-hit.">app.use() acts as a middleware in express apps. Unlike app.get() and app.post() or so, you actually can use app.use() without specifying the request URL. In such a case what it does is, it gets executed every time no matter what URL’s been hit.</h2>
+<h2 id="the-order-of-middleware-loading-is-important">4&gt; The order of middleware loading is important:</h2>
+<p>To load the middleware function, call app.use(), specifying the middleware function. For example, the following code loads the myLogger middleware function before the route to the root path (/).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">var</span> app <span class="op">=</span> <span class="at">express</span>()</a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="kw">var</span> myLogger <span class="op">=</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;LOGGED&#39;</span>)</a>
+<a class="sourceLine" id="cb5-5" title="5">  <span class="at">next</span>()</a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-7" title="7"></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="va">app</span>.<span class="at">use</span>(myLogger)</a>
+<a class="sourceLine" id="cb5-9" title="9"></a>
+<a class="sourceLine" id="cb5-10" title="10"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-11" title="11">  <span class="va">res</span>.<span class="at">send</span>(<span class="st">&#39;Hello World!&#39;</span>)</a>
+<a class="sourceLine" id="cb5-12" title="12"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb5-13" title="13"></a>
+<a class="sourceLine" id="cb5-14" title="14"><span class="va">app</span>.<span class="at">listen</span>(<span class="dv">3000</span>)</a></code></pre></div>

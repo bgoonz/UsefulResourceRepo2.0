@@ -1,0 +1,89 @@
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<hr />
+<h1 id="react-redux-connect">React-Redux: <code>connect()</code></h1>
+<p>The React-Redux library allows you to access the store <code>context</code> set by the <code>&lt;Provider /&gt;</code> in a powerful and convenient way via the <code>connect</code> function. Using <code>connect</code>, you can pass specific slices of the store’s state and specific action-dispatches to a React component as <code>props</code>. A component’s <code>props</code> then serve as its API to the store, making the component more modular and less burdened by Redux boilerplate.</p>
+<p>When you finish this article, you should be able to use the <code>connect</code> function to give a component access to a Redux store.</p>
+<h2 id="calling-connect">Calling <code>connect</code></h2>
+<p>The React-Redux <code>connect</code> function is a <em>higher-order function</em>. It takes two arguments (plus a couple optional arguments you can read more about in the <a href="https://react-redux.js.org/using-react-redux/connect-mapstate#ownprops-optional">docs</a>) and returns a function:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">const</span> createConnectedComponent <span class="op">=</span> <span class="at">connect</span>(</a>
+<a class="sourceLine" id="cb1-2" title="2">  mapStateToProps<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  mapDispatchToProps</a>
+<a class="sourceLine" id="cb1-4" title="4">)<span class="op">;</span></a></code></pre></div>
+<p>The returned function (<code>createConnectedComponent</code>) then takes the React component that needs access to the Redux store and returns a new React component:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">const</span> ConnectedComponent <span class="op">=</span> <span class="at">createConnectedComponent</span>(MyComponent)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="im">export</span> <span class="im">default</span> ConnectedComponent<span class="op">;</span></a></code></pre></div>
+<p><code>ConnectedComponent</code> will render <code>MyComponent</code>, passing along <code>props</code> as determined by the <code>mapStateToProps</code> and <code>mapDispatchToProps</code> arguments.</p>
+<p>You can combine these function calls into a single statement by immediately calling the function returned by the <code>connect</code> method (similarly to how you immediately call a function expression when defining an <a href="https://developer.mozilla.org/en-US/docs/Glossary/IIFE">IIFE</a>):</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">const</span> ConnectedComponent <span class="op">=</span> <span class="at">connect</span>(mapStateToProps<span class="op">,</span> mapDispatchToProps)(MyComponent)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="im">export</span> <span class="im">default</span> ConnectedComponent<span class="op">;</span></a></code></pre></div>
+<p>Typically, to keep things as concise as possible, the <code>ConnectedComponent</code> variable is omitted:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="im">export</span> <span class="im">default</span> <span class="at">connect</span>(mapStateToProps<span class="op">,</span> mapDispatchToProps)(MyComponent)<span class="op">;</span></a></code></pre></div>
+<h2 id="defining-mapstatetopropsstate-ownprops">Defining <code>mapStateToProps(state, [ownProps])</code></h2>
+<p>This first argument to <code>connect</code> is a function, <code>mapStateToProps</code>. It tells <code>connect</code> how to map the <code>state</code> into your component’s <code>props</code>.</p>
+<p>It must take as an argument the store’s <code>state</code> (supplied by the <code>Provider</code>’s store <code>context</code>) and return an object containing the relevant <code>props</code> for your component.</p>
+<pre class="jsx"><code>const MyComponent = ({ name }) =&gt; (
+  &lt;div&gt;{name}&lt;/div&gt;
+);
+
+const mapStateToProps = (state) =&gt; ({
+  name: state.name;
+});
+
+const ConnectedComponent = connect(mapStateToProps)(MyComponent);</code></pre>
+<p>In the example above, <code>ConnectedComponent</code> will render <code>MyComponent</code>, passing <code>name</code> as a prop.</p>
+<h3 id="ownprops-optional"><code>ownProps</code> (optional)</h3>
+<p>A component with explicit <code>props</code> passed down from its parent (e.g. <code>&lt;ConnectedComponent lastName={'Wozniak'}/&gt;</code>) can merge those <code>props</code> with slices of <code>state</code> via <code>ownProps</code>, a optional second argument to <code>mapStateToProps</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">const</span> mapStateToProps <span class="op">=</span> (state<span class="op">,</span> ownProps) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="dt">firstName</span><span class="op">:</span> <span class="va">state</span>.<span class="at">name</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-3" title="3">  <span class="dt">initials</span><span class="op">:</span> <span class="vs">`</span><span class="sc">${</span><span class="va">state</span>.<span class="at">name</span>[<span class="dv">0</span>]<span class="sc">}</span><span class="vs">. </span><span class="sc">${</span><span class="va">ownProps</span>.<span class="at">lastName</span>[<span class="dv">0</span>]<span class="sc">}</span><span class="vs">.`</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-5" title="5"></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="kw">const</span> ConnectedComponent <span class="op">=</span> <span class="at">connect</span>(mapStateToProps)(MyComponent)<span class="op">;</span></a></code></pre></div>
+<p>You can also access React Router props, such <code>match</code> and <code>history</code> through <code>ownProps</code>. Imagine you have a <code>users</code> slice of state, and you want to pass a specific user’s <code>name</code> based on a <code>:userId</code> parameter. You can access the parameter from within the <code>mapStateToProps</code> function with <code>ownProps.match.params.userId</code>:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">const</span> mapStateToProps <span class="op">=</span> (state<span class="op">,</span> ownProps) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb7-2" title="2">  <span class="dt">name</span><span class="op">:</span> <span class="va">state</span>.<span class="at">users</span>[<span class="va">ownProps</span>.<span class="va">match</span>.<span class="va">params</span>.<span class="at">userId</span>].<span class="at">name</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-4" title="4"></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="kw">const</span> ConnectedComponent <span class="op">=</span> <span class="at">connect</span>(mapStateToProps)(MyComponent)<span class="op">;</span></a></code></pre></div>
+<h2 id="defining-mapdispatchtoprops">Defining <code>mapDispatchToProps</code></h2>
+<p><code>mapDispatchToProps</code> is the second argument to <code>connect</code>. It’s a function that accepts the store’s <code>dispatch</code> method and returns an object containing functions that can be called to dispatch actions to the store. These action dispatchers are then passed as <code>props</code> to the component.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">const</span> deleteTodo <span class="op">=</span> (id) <span class="kw">=&gt;</span> (<span class="op">{</span> <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;DELETE_TODO&#39;</span><span class="op">,</span> id <span class="op">}</span>)<span class="op">;</span> <span class="co">// action creators</span></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="kw">const</span> addTodo <span class="op">=</span> (msg) <span class="kw">=&gt;</span> (<span class="op">{</span> <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;ADD_TODO&#39;</span><span class="op">,</span> msg <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-3" title="3"></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="kw">const</span> mapDispatchToProps <span class="op">=</span> (dispatch) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb8-5" title="5">  <span class="dt">handleDelete</span><span class="op">:</span> (id) <span class="kw">=&gt;</span> <span class="at">dispatch</span>(<span class="at">deleteTodo</span>(id))<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-6" title="6">  <span class="dt">handleAdd</span><span class="op">:</span> (msg) <span class="kw">=&gt;</span> <span class="at">dispatch</span>(<span class="at">addTodo</span>(msg))</a>
+<a class="sourceLine" id="cb8-7" title="7"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-8" title="8"></a>
+<a class="sourceLine" id="cb8-9" title="9"><span class="kw">const</span> ConnectedComponent <span class="op">=</span> <span class="at">connect</span>(<span class="kw">null</span><span class="op">,</span> mapDispatchToProps)(MyComponent)<span class="op">;</span></a></code></pre></div>
+<p>Notice that in the example above, the <code>connect</code> function is invoked with <code>null</code> as a placeholder for the <code>mapStateToProps</code> function. The <code>connect</code> function expects <code>mapStateToProps</code> as its first argument and <code>mapDispatchToProps</code> as its second argument.</p>
+<h2 id="putting-it-all-together">Putting it all together</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">const</span> MyComponent <span class="op">=</span> (<span class="op">{</span> firstName<span class="op">,</span> initials<span class="op">,</span> handleAdd<span class="op">,</span> handleDelete <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-2" title="2">  <span class="cf">return</span> <span class="op">&lt;</span>div<span class="op">&gt;</span>...&lt;/div<span class="op">&gt;;</span></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="op">};</span></a>
+<a class="sourceLine" id="cb9-4" title="4"></a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="kw">const</span> mapStateToProps <span class="op">=</span> (state<span class="op">,</span> ownProps) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb9-6" title="6">  <span class="dt">firstName</span><span class="op">:</span> <span class="va">state</span>.<span class="at">name</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb9-7" title="7">  <span class="dt">initials</span><span class="op">:</span> <span class="vs">`</span><span class="sc">${</span><span class="va">state</span>.<span class="at">name</span>[<span class="dv">0</span>]<span class="sc">}</span><span class="vs">. </span><span class="sc">${</span><span class="va">ownProps</span>.<span class="at">lastName</span>[<span class="dv">0</span>]<span class="sc">}</span><span class="vs">.`</span></a>
+<a class="sourceLine" id="cb9-8" title="8"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-9" title="9"></a>
+<a class="sourceLine" id="cb9-10" title="10"><span class="kw">const</span> mapDispatchToProps <span class="op">=</span> (dispatch) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb9-11" title="11">  <span class="dt">handleDelete</span><span class="op">:</span> (id) <span class="kw">=&gt;</span> <span class="at">dispatch</span>(<span class="at">deleteTodo</span>(id))<span class="op">,</span></a>
+<a class="sourceLine" id="cb9-12" title="12">  <span class="dt">handleAdd</span><span class="op">:</span> (msg) <span class="kw">=&gt;</span> <span class="at">dispatch</span>(<span class="at">addTodo</span>(msg))</a>
+<a class="sourceLine" id="cb9-13" title="13"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-14" title="14"></a>
+<a class="sourceLine" id="cb9-15" title="15"><span class="im">export</span> <span class="im">default</span> <span class="at">connect</span>(</a>
+<a class="sourceLine" id="cb9-16" title="16">  mapStateToProps<span class="op">,</span></a>
+<a class="sourceLine" id="cb9-17" title="17">  mapDispatchToProps</a>
+<a class="sourceLine" id="cb9-18" title="18">)(MyComponent)<span class="op">;</span></a></code></pre></div>
+<p><code>MyComponent</code> will receive <code>firstName</code>, <code>initials</code>, <code>handleDelete</code>, and <code>handleAdd</code> as <code>props</code>.</p>
+<p>And remember, unlike the earlier attempt at writing a custom <code>connect</code> higher-order component, the React-Redux library’s <code>connect</code> function <strong>contains logic to optimize the rendering of your connected components</strong>.</p>
+<h2 id="reviewing-a-completed-fruit-stand-example">Reviewing a completed Fruit Stand example</h2>
+<p>To review and run a completed Fruit Stand example application that utilizes the React-Redux library, clone the <a href="https://github.com/appacademy-starters/redux-fruit-stand-examples">redux-fruit-stand-examples</a> repo.</p>
+<p>After cloning the repo, open a terminal and browse to the <code>fruit-stand-redux-with-react-official-bindings</code> folder. Run the command <code>npm install</code> to install the project’s dependencies. Then use the command <code>npm start</code> to run the Fruit Stand application.</p>
+<p>This Fruit Stand example application is a React application created by the Create React App tooling. When running the application using <code>npm start</code>, the application should automatically open in your default browser. If it doesn’t, you can manually browse to <code>http://localhost:3000/</code> to view the application.</p>
+<h2 id="what-you-learned">What you learned</h2>
+<p>In this article, you learned how to use the React-Redux library’s <code>connect</code> function to give a component access to a Redux store.</p>

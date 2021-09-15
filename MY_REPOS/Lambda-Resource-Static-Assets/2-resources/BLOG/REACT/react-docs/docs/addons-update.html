@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>;
+<blockquote>
+<p>Note:</p>
+<p><code>update</code> is a legacy add-on. Use <a href="https://github.com/kolodny/immutability-helper"><code>immutability-helper</code></a> instead.</p>
+</blockquote>
+<p><strong>Importing</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> update <span class="im">from</span> <span class="st">&#39;react-addons-update&#39;</span><span class="op">;</span> <span class="co">// ES6</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">var</span> update <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;react-addons-update&#39;</span>)<span class="op">;</span> <span class="co">// ES5 with npm</span></a></code></pre></div>
+<h2 id="overview">Overview</h2>
+<p>React lets you use whatever style of data management you want, including mutation. However, if you can use immutable
+    data in performance-critical parts of your application it's easy to implement a fast <a
+        href="/docs/react-component.html#shouldcomponentupdate"><code>shouldComponentUpdate()</code></a> method to
+    significantly speed up your app.</p>
+<p>Dealing with immutable data in JavaScript is more difficult than in languages designed for it, like <a
+        href="https://clojure.org/">Clojure</a>. However, we've provided a simple immutability helper,
+    <code>update()</code>, that makes dealing with this type of data much easier, <em>without</em> fundamentally
+    changing how your data is represented. You can also take a look at Facebook's <a
+        href="https://facebook.github.io/immutable-js/docs/">Immutable-js</a> and the <a
+        href="/docs/advanced-performance.html">Advanced Performance</a> section for more detail on Immutable-js.</p>
+<h3 id="the-main-idea">The Main Idea</h3>
+<p>If you mutate data like this:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="va">myData</span>.<span class="va">x</span>.<span class="va">y</span>.<span class="at">z</span> <span class="op">=</span> <span class="dv">7</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="co">// or...</span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="va">myData</span>.<span class="va">a</span>.<span class="va">b</span>.<span class="at">push</span>(<span class="dv">9</span>)<span class="op">;</span></a></code></pre></div>
+<p>You have no way of determining which data has changed since the previous copy has been overwritten. Instead, you need to create a new copy of <code>myData</code> and change only the parts of it that need to be changed. Then you can compare the old copy of <code>myData</code> with the new one in <code>shouldComponentUpdate()</code> using triple-equals:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">const</span> newData <span class="op">=</span> <span class="at">deepCopy</span>(myData)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="va">newData</span>.<span class="va">x</span>.<span class="va">y</span>.<span class="at">z</span> <span class="op">=</span> <span class="dv">7</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="va">newData</span>.<span class="va">a</span>.<span class="va">b</span>.<span class="at">push</span>(<span class="dv">9</span>)<span class="op">;</span></a></code></pre></div>
+<p>Unfortunately, deep copies are expensive, and sometimes impossible. You can alleviate this by only copying objects
+    that need to be changed and by reusing the objects that haven't changed. Unfortunately, in today's JavaScript this
+    can be cumbersome:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">const</span> newData <span class="op">=</span> <span class="at">extend</span>(myData<span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="dt">x</span><span class="op">:</span> <span class="at">extend</span>(<span class="va">myData</span>.<span class="at">x</span><span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-3" title="3">    <span class="dt">y</span><span class="op">:</span> <span class="at">extend</span>(<span class="va">myData</span>.<span class="va">x</span>.<span class="at">y</span><span class="op">,</span> <span class="op">{</span><span class="dt">z</span><span class="op">:</span> <span class="dv">7</span><span class="op">}</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb4-4" title="4">  <span class="op">}</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb4-5" title="5">  <span class="dt">a</span><span class="op">:</span> <span class="at">extend</span>(<span class="va">myData</span>.<span class="at">a</span><span class="op">,</span> <span class="op">{</span><span class="dt">b</span><span class="op">:</span> <span class="va">myData</span>.<span class="va">a</span>.<span class="va">b</span>.<span class="at">concat</span>(<span class="dv">9</span>)<span class="op">}</span>)</a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>While this is fairly performant (since it only makes a shallow copy of <code>log n</code> objects and reuses the
+    rest), it's a big pain to write. Look at all the repetition! This is not only annoying, but also provides a large
+    surface area for bugs.</p>
+<h2 id="update"><code>update()</code></h2>
+<p><code>update()</code> provides simple syntactic sugar around this pattern to make writing this code easier. This code becomes:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="im">import</span> update <span class="im">from</span> <span class="st">&#39;react-addons-update&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="kw">const</span> newData <span class="op">=</span> <span class="at">update</span>(myData<span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="dt">x</span><span class="op">:</span> <span class="op">{</span><span class="dt">y</span><span class="op">:</span> <span class="op">{</span><span class="dt">z</span><span class="op">:</span> <span class="op">{</span><span class="dt">$set</span><span class="op">:</span> <span class="dv">7</span><span class="op">}}},</span></a>
+<a class="sourceLine" id="cb5-5" title="5">  <span class="dt">a</span><span class="op">:</span> <span class="op">{</span><span class="dt">b</span><span class="op">:</span> <span class="op">{</span><span class="dt">$push</span><span class="op">:</span> [<span class="dv">9</span>]<span class="op">}}</span></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>While the syntax takes a little getting used to (though it's inspired by <a
+        href="https://docs.mongodb.com/manual/crud/#query">MongoDB's query language</a>) there's no redundancy, it's
+    statically analyzable and it's not much more typing than the mutative version.</p>
+<p>The <code>$</code>-prefixed keys are called <em>commands</em>. The data structure they are "mutating" is called the <em>target</em>.</p>
+<h2 id="available-commands">Available Commands</h2>
+<ul>
+<li><code>{$push: array}</code> <code>push()</code> all the items in <code>array</code> on the target.</li>
+<li><code>{$unshift: array}</code> <code>unshift()</code> all the items in <code>array</code> on the target.</li>
+<li><code>{$splice: array of arrays}</code> for each item in <code>arrays</code> call <code>splice()</code> on the target with the parameters provided by the item.</li>
+<li><code>{$set: any}</code> replace the target entirely.</li>
+<li><code>{$merge: object}</code> merge the keys of <code>object</code> with the target.</li>
+<li><code>{$apply: function}</code> passes in the current value to the function and updates it with the new returned value.</li>
+</ul>
+<h2 id="examples">Examples</h2>
+<h3 id="simple-push">Simple push</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">const</span> initialArray <span class="op">=</span> [<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="kw">const</span> newArray <span class="op">=</span> <span class="at">update</span>(initialArray<span class="op">,</span> <span class="op">{</span><span class="dt">$push</span><span class="op">:</span> [<span class="dv">4</span>]<span class="op">}</span>)<span class="op">;</span> <span class="co">// =&gt; [1, 2, 3, 4]</span></a></code></pre></div>
+<p><code>initialArray</code> is still <code>[1, 2, 3]</code>.</p>
+<h3 id="nested-collections">Nested collections</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">const</span> collection <span class="op">=</span> [<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="op">{</span><span class="dt">a</span><span class="op">:</span> [<span class="dv">12</span><span class="op">,</span> <span class="dv">17</span><span class="op">,</span> <span class="dv">15</span>]<span class="op">}</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="kw">const</span> newCollection <span class="op">=</span> <span class="at">update</span>(collection<span class="op">,</span> <span class="op">{</span><span class="dv">2</span><span class="op">:</span> <span class="op">{</span><span class="dt">a</span><span class="op">:</span> <span class="op">{</span><span class="dt">$splice</span><span class="op">:</span> [[<span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">13</span><span class="op">,</span> <span class="dv">14</span>]]<span class="op">}}}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="co">// =&gt; [1, 2, {a: [12, 13, 14, 15]}]</span></a></code></pre></div>
+<p>This accesses <code>collection</code>'s index <code>2</code>, key <code>a</code>, and does a splice of one item
+    starting from index <code>1</code> (to remove <code>17</code>) while inserting <code>13</code> and <code>14</code>.
+</p>
+<h3 id="updating-a-value-based-on-its-current-one">Updating a value based on its current one</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">const</span> obj <span class="op">=</span> <span class="op">{</span><span class="dt">a</span><span class="op">:</span> <span class="dv">5</span><span class="op">,</span> <span class="dt">b</span><span class="op">:</span> <span class="dv">3</span><span class="op">};</span></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="kw">const</span> newObj <span class="op">=</span> <span class="at">update</span>(obj<span class="op">,</span> <span class="op">{</span><span class="dt">b</span><span class="op">:</span> <span class="op">{</span><span class="dt">$apply</span><span class="op">:</span> <span class="kw">function</span>(x) <span class="op">{</span><span class="cf">return</span> x <span class="op">*</span> <span class="dv">2</span><span class="op">;}}}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="co">// =&gt; {a: 5, b: 6}</span></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="co">// This is equivalent, but gets verbose for deeply nested collections:</span></a>
+<a class="sourceLine" id="cb8-5" title="5"><span class="kw">const</span> newObj2 <span class="op">=</span> <span class="at">update</span>(obj<span class="op">,</span> <span class="op">{</span><span class="dt">b</span><span class="op">:</span> <span class="op">{</span><span class="dt">$set</span><span class="op">:</span> <span class="va">obj</span>.<span class="at">b</span> <span class="op">*</span> <span class="dv">2</span><span class="op">}}</span>)<span class="op">;</span></a></code></pre></div>
+<h3 id="shallow-merge">(Shallow) Merge</h3>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">const</span> obj <span class="op">=</span> <span class="op">{</span><span class="dt">a</span><span class="op">:</span> <span class="dv">5</span><span class="op">,</span> <span class="dt">b</span><span class="op">:</span> <span class="dv">3</span><span class="op">};</span></a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="kw">const</span> newObj <span class="op">=</span> <span class="at">update</span>(obj<span class="op">,</span> <span class="op">{</span><span class="dt">$merge</span><span class="op">:</span> <span class="op">{</span><span class="dt">b</span><span class="op">:</span> <span class="dv">6</span><span class="op">,</span> <span class="dt">c</span><span class="op">:</span> <span class="dv">7</span><span class="op">}}</span>)<span class="op">;</span> <span class="co">// =&gt; {a: 5, b: 6, c: 7}</span></a></code></pre></div>
+</body></html>

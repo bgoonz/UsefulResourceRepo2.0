@@ -1,0 +1,165 @@
+# Distributed systems
+
+## Notes
+
+- Getting a million users is infinitely harder than scaling a system to handle a million users. Most systems could run comfortably on a Raspberry Pi
+
+## Links
+
+- [Setting up containers, load balancing, and service discovery on light hardware](https://medium.com/@dan.ellis/you-dont-need-1mm-for-a-distributed-system-70901d4741e1)
+- [Ask HN: Any recommended resources to develop system thinking? (2018)](https://news.ycombinator.com/item?id=16704850)
+- [Distributed Systems in One Lesson by Tim Berglund (2017)](https://www.youtube.com/watch?v=Y6Ev8GIlbxc)
+- [Traefik](https://github.com/traefik/traefik) - Modern HTTP reverse proxy and load balancer that makes deploying microservices easy. ([Hello World with Traefik](https://theorangeone.net/posts/hello-world-with-traefik/))
+- [Kit](https://github.com/go-kit/kit) - Standard library for microservices written in Go.
+- [Fear and Loathing in Lock-Free Programming (2017)](https://medium.com/@tylerneely/fear-and-loathing-in-lock-free-programming-7158b1cdd50c)
+- [Reliable Systems Series: Model-Based Testing (2018)](https://medium.com/@tylerneely/reliable-systems-series-model-based-property-testing-e89a433b360)
+- [Awesome Distributed Systems](https://github.com/theanalyst/awesome-distributed-systems)
+- [Kong](https://github.com/Kong/kong) - Cloud-Native API Gateway & Service Mesh.
+- [Disque](https://github.com/antirez/disque) - Distributed message broker.
+- [Mesh](https://github.com/weaveworks/mesh) - Tool for building distributed applications.
+- [Raft](https://github.com/pingcap/raft-rs) - Raft distributed consensus algorithm implemented in Rust.
+- [hraftd](https://github.com/otoolep/hraftd) - Hashicorp's Raft implementation.
+- [In Search of an Understandable Consensus Algorithm](https://raft.github.io/raft.pdf) ([HN](https://news.ycombinator.com/item?id=23113419))
+- [libp2p specification](https://github.com/libp2p/specs) - Technical specifications for the libp2p networking stack.
+- [Class materials for a distributed systems lecture series](https://github.com/aphyr/distsys-class)
+- [Raft Consensus Algorithm](https://raft.github.io/) ([Code](https://github.com/raft/raft.github.io))
+- [Qri](https://github.com/qri-io/qri) - Global dataset version control system (GDVCS) built on the distributed web.
+- [Project Oak](https://github.com/project-oak/oak) - Meaningful control of data in distributed systems.
+- [mudb](https://github.com/mikolalysenko/mudb) - Collection of modules for building realtime client-server networked applications.
+- [Verdi](https://github.com/uwplse/verdi) - Framework for formally verifying distributed systems implementations in Coq.
+- [PingCAP Talent Plan](https://github.com/pingcap/talent-plan) - Series of training courses about writing distributed systems in Go and Rust.
+- [Protocol Labs](https://protocol.ai/) - Build protocols, systems, and tools to improve internet.
+- [Dark Crystal](https://darkcrystal.pw/about) - Open source R&D affinity. Exploring the potential of new and existing technologies in crypto-space to encourage horizontal group collaboration.
+- [Protozoa](http://protozoa.nz/) - Web developers, facilitators, crypto-engineers. Experts in Node.js & distributed systems.
+- [Akka](https://github.com/akka/akka) - Build highly concurrent, distributed, and resilient message-driven applications on the JVM.
+- [Distributed Components](https://distributedcomponents.net/) - Provides reusable infrastructure for formally verifying distributed systems using the Coq proof assistant.
+- [Practical Networked Applications in Rust, Part 1: Non-Networked Key-Value Store](https://arveknudsen.com/posts/practical-networked-applications-in-rust/module-1/) ([HN](https://news.ycombinator.com/item?id=20511271))
+- [LF](https://github.com/zerotier/lf) - Fully Decentralized Fully Replicated Key/Value Store.
+- [Awesome Consensus](https://github.com/dgryski/awesome-consensus) - Curated selection of artisanal consensus algorithms and hand-crafted distributed lock services.
+- [Rezolus](https://github.com/twitter/rezolus) - Tool for collecting detailed systems performance telemetry and exposing burst patterns through high-resolution telemetry.
+- [Cadence](https://github.com/uber/cadence) - Distributed, scalable, durable, and highly available orchestration engine to execute asynchronous long-running business logic in a scalable and resilient way.
+- [Pilosa](https://github.com/pilosa/pilosa) - Open source, distributed bitmap index that dramatically accelerates queries across multiple, massive data sets.
+- [Finagle](https://github.com/twitter/finagle) - Fault tolerant, protocol-agnostic RPC system.
+- [How To Build A Modern Distributed Compute Platform (2018)](https://andygrove.io/how_to_build_a_modern_distributed_compute_platform/)
+- [Chaos Monkey](https://github.com/Netflix/chaosmonkey) - Resiliency tool that helps applications tolerate random instance failures.
+- [Faust](https://github.com/robinhood/faust) - Python Stream Processing.
+- ["Consistency without consensus in production systems" by Peter Bourgon (2014)](https://www.youtube.com/watch?v=em9zLzM8O7c)
+- [Distributed consensus reading list](https://github.com/heidi-ann/distributed-consensus-reading-list)
+- [Titanoboa](https://github.com/mikub/titanoboa) - Community version of fully distributed, highly scalable and fault tolerant workflow orchestration platform for JVM.
+- [Buoyant](https://buoyant.io/) - Helps you deploy and run Linkerd, the fully open source, ultralight service mesh.
+- [Grappa](https://github.com/uwsampa/grappa) - Runtime system for scaling irregular applications on commodity clusters.
+- [MIT Distributed Systems course (2020)](https://pdos.csail.mit.edu/6.824/schedule.html) ([Videos](https://www.youtube.com/playlist?list=PLrw6a1wE39_tb2fErI4-WkMbsvGQk9_UB)) ([Notes](https://timilearning.com/)) ([HN](https://news.ycombinator.com/item?id=24948524))
+- [Correctness proofs of distributed systems with Isabelle/HOL (2019)](https://www.youtube.com/watch?v=Uav5jWHNghY)
+- [Apache Mesos](https://github.com/apache/mesos) - Cluster manager that provides efficient resource isolation and sharing across distributed applications, or frameworks.
+- [Gleam](https://github.com/chrislusf/gleam) - Fast, efficient, and scalable distributed map/reduce system, DAG execution, in memory or on disk, written in pure Go, runs standalone or distributedly.
+- [Learning Distributed Systems - Cloud Native Podcast](https://thepodlets.io/episodes/012-learning-distributed-systems/)
+- [etcd](https://github.com/etcd-io/etcd) - Distributed reliable key-value store for the most critical data of a distributed system.
+- [etcdadm](https://github.com/kubernetes-sigs/etcdadm) - Command-line tool for operating an etcd cluster. It makes it easy to create a new cluster, add a member to, or remove a member from an existing cluster.
+- [Learning to build distributed systems (2019)](https://brooker.co.za/blog/2019/04/03/learning.html) ([Lobsters](https://lobste.rs/s/igiolo/learning_build_distributed_systems))
+- [SwarmKit](https://github.com/docker/swarmkit) - Toolkit for orchestrating distributed systems at any scale. It includes primitives for node discovery, raft-based consensus, task scheduling and more.
+- [How to get started with infrastructure and distributed systems (2016)](http://codecapsule.com/2016/01/03/how-to-get-started-with-infrastructure-and-distributed-systems/)
+- [Advanced Napkin Math: Estimating System Performance from First Principles (2019)](https://www.youtube.com/watch?v=IxkSlnrRFqc) ([Code](https://github.com/sirupsen/napkin-math))
+- [Golimit](https://github.com/myntra/golimit) - Uber ringpop based distributed and decentralized rate limiter.
+- [System Design lectures (2020)](https://www.youtube.com/playlist?list=PL564gOx0bCLouDCUMtmj6hMEu1JS7QYEr)
+- [Awesome Scalability](https://github.com/binhnguyennus/awesome-scalability) - Patterns of Scalable, Reliable, and Performant Large-Scale Systems.
+- [LeetCode System Design Questions](https://leetcode.com/discuss/interview-question/system-design?currentPage=1&orderBy=most_votes&query=)
+- [Grokking the System Design Interview](https://www.educative.io/courses/grokking-the-system-design-interview)
+- [Amazon Builders' Library](https://aws.amazon.com/builders-library/?cards-body.sort-by=item.additionalFields.customSort&cards-body.sort-order=asc) - How Amazon builds and operates software.
+- [Distributed Systems Wiki](https://distributed.systems.wiki/) ([Code](https://github.com/DistributedSystemsWiki/wiki))
+- [Jepsen](https://jepsen.io/) - Distributed Systems Safety Research.
+- [ION](https://github.com/pion/ion) - Distributed RTC system written by pure go and flutter.
+- [Challenges with distributed systems](https://aws.amazon.com/builders-library/challenges-with-distributed-systems/) ([HN](https://news.ycombinator.com/item?id=22382066))
+- [Systems design for Advanced Beginners (2020)](https://robertheaton.com/2020/04/06/systems-design-for-advanced-beginners/)
+- [Performance Under Load (2018)](https://medium.com/@NetflixTechBlog/performance-under-load-3e6fa9a60581)
+- [Veneur](https://github.com/stripe/veneur) - Distributed, fault-tolerant pipeline for runtime data.
+- [Going multi-region](https://www.stopa.io/post/239)
+- [List of distributed systems reading lists](https://gist.github.com/macintux/6227368)
+- [Complexities of Capacity Management for Distributed Services (2020)](https://www.youtube.com/watch?v=pOo0oKNM9I8)
+- [Hermes: a Fast, Fault-Tolerant and Linearizable Replication Protocol (2020)](https://arxiv.org/pdf/2001.09804.pdf)
+- [WormSpace: A Modular Foundation for Simple, Verifiable Distributed Systems](http://flint.cs.yale.edu/flint/publications/socc19.pdf)
+- [Paxos vs Raft: Have we reached consensus on distributed consensus? (2020)](https://arxiv.org/abs/2004.05074) ([HN](https://news.ycombinator.com/item?id=22994420))
+- [Teleforking a process onto a different computer! (2020)](https://thume.ca/2020/04/18/telefork-forking-a-process-onto-a-different-computer/) ([HN](https://news.ycombinator.com/item?id=22987747)) ([Code](https://github.com/trishume/telefork))
+- [Debugging Distributed Systems](https://dl.acm.org/doi/pdf/10.1145/2927299.2940294) ([HN](https://news.ycombinator.com/item?id=22993377))
+- [Distributed systems for fun and profit](http://book.mixu.net/distsys/index.html)
+- [Temporal](https://temporal.io/) - Open source microservices orchestration engine for running mission critical code at any scale. ([Code](https://github.com/temporalio/temporal)) ([Docs](https://docs.temporal.io/docs/get-started/)) ([Why I joined Temporal](https://docs.temporal.io/blog/sergey-why-i-joined-temporal/)) ([Go SDK](https://github.com/temporalio/sdk-go))
+- [Model checker for implementing distributed systems](https://github.com/stateright/stateright)
+- [Arvind Krishnamurthy's research](https://www.cs.washington.edu/people/faculty/arvind)
+- [Distributed Services with Go](https://pragprog.com/titles/tjgo/distributed-services-with-go/)
+- [Fully asynchronous C implementation of the Raft consensus protocol](https://github.com/canonical/raft)
+- [Notes on Distributed Systems for Young Bloods (2013)](https://www.somethingsimilar.com/2013/01/14/notes-on-distributed-systems-for-young-bloods/) ([HN](https://news.ycombinator.com/item?id=23365402))
+- [Paxakos](https://github.com/benschulz/paxakos) - Rust implementation of a distributed consensus algorithm based on Leslie Lamport's Paxos.
+- [Riemann](https://github.com/riemann/riemann) - Network event stream processing system, in Clojure.
+- [Collection of the papers, conference talks, articles, blog posts, interesting Twitter threads, HN/reddit comments on systems engineering](https://github.com/copyconstruct/library)
+- [Tess Rinearson - All Together Now: An Introduction to Distributed Consensus (2019)](https://www.youtube.com/watch?v=vMz3q8Mm1uY)
+- [Slurm](https://slurm.schedmd.com/quickstart.html) - Open source, fault-tolerant, and highly scalable cluster management and job scheduling system for large and small Linux clusters. ([Code](https://github.com/SchedMD/slurm))
+- [Submitit](https://github.com/facebookincubator/submitit) - Lightweight tool for submitting Python functions for computation within a Slurm cluster.
+- [CAP FAQ](https://github.com/henryr/cap-faq)
+- [Readings in Distributed Systems](http://henryr.github.io/distributed-systems-readings/)
+- [Control theory for fun and profit (2020)](https://fauna.com/blog/control-theory-for-fun-and-profit) ([HN](https://news.ycombinator.com/item?id=23576247))
+- [Understanding Replication in Databases and Distributed Systems (2018)](https://www.ic.unicamp.br/~buzato/teaching/2018/mo441/wiesmann00a.pdf)
+- [A plain English introduction to CAP theorem](http://ksat.me/a-plain-english-introduction-to-cap-theorem)
+- [Debugging Incidents in Google's Distributed Systems (2020)](https://queue.acm.org/detail.cfm?id=3404974) ([HN](https://news.ycombinator.com/item?id=23916104))
+- [Odin](https://github.com/theycallmemac/odin) - Programmable, observable and distributed job orchestration system which allows for the scheduling, management and unattended background execution of user created tasks on Linux based systems. ([HN](https://news.ycombinator.com/item?id=24020566))
+- [Verifying Strong Eventual Consistency in Distributed Systems (2017)](https://arxiv.org/pdf/1707.01747.pdf)
+- [Patterns of Distributed Systems (2020)](https://martinfowler.com/articles/patterns-of-distributed-systems/) ([HN](https://news.ycombinator.com/item?id=26089683))
+- [Keeping CALM: When Distributed Consistency Is Easy (2020)](https://cacm.acm.org/magazines/2020/9/246941-keeping-calm/fulltext)
+- [Distributed Systems Notes](https://github.com/Qwe1rty/distributed_systems_notes)
+- [Avoiding fallback in distributed systems](https://aws.amazon.com/builders-library/avoiding-fallback-in-distributed-systems/)
+- [The Reactive Principles](https://principles.reactive.foundation/) - Design Principles for Distributed Applications.
+- [Paxi](https://github.com/ailidani/paxi) - Framework that implements WPaxos and other Paxos protocol variants.
+- [Rafting Trip](https://dabeaz.com/raft.html) - Learn about network programming, concurrency, distributed systems, and more as you tackle the challenge of implementing the Raft distributed consensus algorithm.
+- [Resources for learning distributed systems (2020)](https://lobste.rs/s/vuevqu/resources_for_learning_distributed)
+- [Workload isolation using shuffle-sharding (2020)](https://aws.amazon.com/builders-library/workload-isolation-using-shuffle-sharding/)
+- [Consensus is Harder Than It Looks (2020)](http://brooker.co.za/blog/2020/10/05/consensus.html)
+- [The Little Strangler](https://docs.google.com/document/d/e/2PACX-1vSgPIhl1jt6G7vaeN6NDzBLCatZ2tU_NwjQarpJTSwS2Y5P7gp0N11xPH_6bNq0YE2bkj4B6mA8Gfoe/pub) ([Lobsters](https://lobste.rs/s/ilqthq/little_strangler))
+- [A Review of Consensus Protocols (2020)](https://thomasvilhena.com/2020/10/a-review-of-consensus-protocols) ([HN](https://news.ycombinator.com/item?id=24768971))
+- [Disel: Distributed Separation Logic](https://github.com/DistributedComponents/disel) - Separation-style logic for compositional verification of distributed systems.
+- [raft-zero](https://github.com/Diggsey/raft-zero) - Implementation of the Raft consensus algorithm on top of the act-zero actor framework.
+- [raft-playground](https://github.com/Diggsey/raft-playground) - Application to simulate and test a Raft cluster, using raft-zero.
+- [Building Netflix’s Distributed Tracing Infrastructure (2020)](https://netflixtechblog.com/building-netflixs-distributed-tracing-infrastructure-bb856c319304)
+- [Wikipedia's self-hosted CDN (2020)](https://techblog.wikimedia.org/2020/10/14/wikimedias-cdn/)
+- [Infinite Parallel Universes: State at the Edge (2020)](https://www.infoq.com/presentations/architecture-global-scale/) ([Summary](https://twitter.com/embano1/status/1318277850613600257))
+- [Awesome Chaos Engineering](https://github.com/dastergon/awesome-chaos-engineering)
+- [How you could have come up with Paxos yourself (2020)](https://explain.yshui.dev/distributed%20system/2020/09/20/paxos.html) ([HN](https://news.ycombinator.com/item?id=24906225))
+- [Grafana Tempo](https://github.com/grafana/tempo) - Open source, easy-to-use and high-scale distributed tracing backend. ([Web](https://grafana.com/oss/tempo/)) ([Announcement](https://grafana.com/blog/2020/10/27/announcing-grafana-tempo-a-massively-scalable-distributed-tracing-system/)) ([HN](https://news.ycombinator.com/item?id=24919464))
+- [Principles of chaos engineering](https://principlesofchaos.org/) ([Code](https://github.com/chaos-eng/chaos-eng.github.io/)) ([HN](https://news.ycombinator.com/item?id=24930815))
+- [Testing Distributed Systems](https://asatarin.github.io/testing-distributed-systems/) - Curated list of resources on testing distributed systems. ([Code](https://github.com/asatarin/testing-distributed-systems))
+- [Pegasus: Tolerating Skewed Workloads in Distributed Storage with In-Network Coherence Directories (2020)](https://drkp.net/papers/pegasus-osdi20.pdf) ([Summary](https://twitter.com/danrkports/status/1322361287343525888))
+- [Notes on Paxos (2020)](https://matklad.github.io//2020/11/01/notes-on-paxos.html) ([HN](https://news.ycombinator.com/item?id=24990613))
+- [This is why distributed systems are useful (and I am building one) (2020)](https://abbyssoul.github.io/engineering/2020/06/06/whys-of-distributed-system.html)
+- [Distributed Systems lecture series by Martin Kleppmann (2020)](https://www.youtube.com/playlist?list=PLeKd45zvjcDFUEv_ohr_HdUFe97RItdiB) ([Lectures Notes](https://www.cl.cam.ac.uk/teaching/2021/ConcDisSys/dist-sys-notes.pdf))
+- [Dkron](https://github.com/distribworks/dkron) - Distributed, fault tolerant job scheduling system for cloud native environments. ([Web](https://dkron.io/))
+- [Braft](https://github.com/baidu/braft) - Industrial-grade C++ implementation of the RAFT consensus algorithm.
+- [Distributed Systems course (2020)](http://composition.al/CSE138-2020-03/index.html) ([Notes](https://github.com/ChrisWhealy/DistributedSystemNotes)G)
+- [MirBFT Library](https://github.com/IBM/mirbft) - Consensus library implementing the Mir consensus protocol.
+- [Fairness in multi-tenant systems (2020)](https://aws.amazon.com/builders-library/fairness-in-multi-tenant-systems/)
+- [Advanced Distributed Systems Design course](https://particular.net/adsd)
+- [Raft implementation in Go](https://github.com/eliben/raft)
+- [Loading Shedding Strategies](https://github.com/thmsmlr/load-shedding) - Demonstration of load shedding and how it can make your services more resilient in outages and come back online quicker.
+- [A Byzantine failure in the real world (2020)](https://blog.cloudflare.com/a-byzantine-failure-in-the-real-world/)
+- [Byzantine Eventual Consistency](https://github.com/ept/byzantine-eventual)
+- [Interval Tree Clocks (2020)](https://ferd.ca/interval-tree-clocks.html)
+- [Distributed Systems Reading List](https://dancres.github.io/Pages/) ([HN](https://news.ycombinator.com/item?id=25327077))
+- [Raft Visualization](http://thesecretlivesofdata.com/raft/) ([HN](https://news.ycombinator.com/item?id=25326645))
+- [Meld](https://m-ld.org/) - Decentralized shared state.
+- [Understanding Connections & Pools (2021)](https://sudhir.io/understanding-connections-pools/) ([HN](https://news.ycombinator.com/item?id=25644656))
+- [Fission Whitepaper](https://whitepaper.fission.codes/) ([Code](https://github.com/fission-suite/whitepaper))
+- [Awesome distributed transactions](https://github.com/rystsov/awesome-distributed-transactions)
+- [Rystsov's Blog on distributed systems](http://rystsov.info/)
+- [Compartmentalized Paxos](https://mwhittaker.github.io/publications/compartmentalized_paxos.html) - Scaling Replicated State Machines with Compartmentalization. ([Tweet](https://twitter.com/heidiann360/status/1347961797882621953))
+- [DistSys Reading Group](https://www.youtube.com/channel/UCMKIroHVXvMQRIBhENE6RhQ/videos)
+- [CASPaxos: Replicated State Machines without logs (2018)](https://arxiv.org/abs/1802.07000) ([Code](https://github.com/gryadka/js))
+- [Consensus: Bridging Theory and Practice](https://github.com/ongardie/dissertation) - PhD dissertation on the Raft consensus algorithm.
+- [The Fundamental Mechanism of Scaling (2021)](http://brooker.co.za/blog/2021/01/22/cloud-scale.html)
+- [Ray](https://ray.io/) - Simple, universal API for building distributed applications. Accelerating machine learning workloads. ([Code](https://github.com/ray-project/ray)) ([Docs](https://docs.ray.io/en/master/index.html))
+- [Jepsen](https://github.com/jepsen-io/jepsen) - Framework for distributed systems verification, with fault injection. Clojure library.
+- [How to Move Beyond a Monolithic Data Lake to a Distributed Data Mesh (2019)](https://martinfowler.com/articles/data-monolith-to-mesh.html)
+- [Distributed Systems in Rust](https://github.com/skyzh/raft-kvs) - Training course about the distributed systems in Rust.
+- [rsraft](https://github.com/laurocaetano/rsraft) - Raft implementation in Rust.
+- [Implementing Raft's Leader Election in Rust (2021)](http://laurocaetano.com/programming/2021/01/23/raft-leader-election-rust/)
+- [Effective Fallbacks (2020)](https://raasahsan.com/posts/effective-fallbacks/)
+- [Ask HN: Recommended books and papers on distributed systems? (2021)](https://news.ycombinator.com/item?id=25987664)
+- [Raft implementation in Rust language](https://github.com/akiradeveloper/lol)
+- [Porcupine](https://github.com/anishathalye/porcupine) - Fast linearizability checker for testing the correctness of distributed systems.
+- [Testing Distributed Systems for Linearizability (2017)](https://www.anishathalye.com/2017/06/04/testing-distributed-systems-for-linearizability/)
+- [Namazu](https://github.com/osrg/namazu) - Programmable Fuzzy Scheduler for Testing Distributed Systems.

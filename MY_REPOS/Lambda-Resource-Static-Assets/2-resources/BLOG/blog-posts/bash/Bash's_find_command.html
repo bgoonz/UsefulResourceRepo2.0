@@ -1,0 +1,199 @@
+<h1 id="bashs-find-command">Bash’s find command</h1>
+<blockquote>
+<p>The find command in bash is quite powerful, and knowing the basics might save you some scripting. What does it do? It
+  “finds" files. By default, it outputs their path relative to where you ran find. But, in addition of providing you
+  with advanced “filters" it actually allows you to run commands on each of those files.</p>
+</blockquote>
+<p>The <code>find</code> command in bash is quite powerful, and knowing the basics might save you some scripting.</p>
+<p>What does it do? It “finds" files. By default, it outputs their path relative to where you ran <code>find</code>. But, in addition of providing you with advanced “filters" it actually allows you to run commands on each of those files.</p>
+<h3 id="the-basics">The basics</h3>
+<p>With this structure:</p>
+<pre><code>.
+├── app
+│   ├── index.html
+│   ├── app.js
+│   └── style.css
+└── dist
+    ├── app.js
+    ├── index.html
+    └── style.css
+
+
+$ find
+.
+./app
+./app/app.js
+./app/index.html
+./app/style.css
+./dist
+./dist/app.js
+./dist/index.html
+./dist/style.css</code></pre>
+<p>It lists every folder and files recursively.</p>
+<p>You can specify a path to find items in, like so:</p>
+<pre><code>$ find app
+app
+app/index.html
+app/script
+app/script/app.js
+app/style
+app/style/style.css</code></pre>
+<h3 id="tests-filters">Tests (filters)</h3>
+<p>Some of <code>find</code>’s power comes from it’s ability to <em>filter</em> which files and folder it “selects". They are called <em>tests</em>. So, here are some of them:</p>
+<h4 id="type"><code>-type</code></h4>
+<pre><code>$ find -type f
+./app/app.js
+./app/index.html
+./app/style.css
+./dist/app.js
+./dist/index.html
+./dist/style.css
+$ find -type d
+.
+./app
+./dist</code></pre>
+<p>Here, the filter is <code>-type</code>. You guessed it, <code>-type f</code> selects files, and <code>-type d</code> selects directories. <a href="https://www.gnu.org/software/findutils/manual/html_mono/find.html#Type">More about <code>-type</code></a></p>
+<h4 id="name"><code>-name</code></h4>
+<pre><code>$ find -name &quot;*.js&quot;
+./app/app.js
+./dist/app.js
+$ find -name &quot;*.JS&quot;
+$ find -iname &quot;*.JS&quot;
+./app/app.js
+./dist/app.js</code></pre>
+<p><code>-name</code> takes a glob. The <code>-iname</code> variant is case insensitive. <a href="https://www.gnu.org/software/findutils/manual/html_mono/find.html#Base-Name-Patterns">More about <code>-name</code></a></p>
+<h4 id="path"><code>-path</code></h4>
+<p>This is the exact same as name, except that it doesn’t only apply on the filename, but the whole path (the path that would be outputted). Unlike <code>-path</code> though, <code>*</code> will match both <code>/</code> and leading dots in filename</p>
+<p>Same, you have <code>-ipath</code> for a case <em>insensitive</em> version of it. <a href="https://www.gnu.org/software/findutils/manual/html_mono/find.html#Full-Name-Patterns">More about <code>-path</code></a></p>
+<p>Note: <code>-wholename</code> is the same as <code>-path</code>, but <code>-path</code> is more portable.</p>
+<h3 id="combining-test-operators">Combining test – operators</h3>
+<p>Every expression returns a value except operators. A test returns true if it matches the current file (<code>-name "*.js"</code> returns true for <code>app.js</code>, but not <code>index.html</code>). You can conjugate everything with operators.</p>
+<p>Every operators only applies to the next expression. So, <code>expr1 or expr2 and expr3</code> is the same as <code>(expr1 or expr2) and expr3</code>.</p>
+<h4 id="and"><code>-and</code></h4>
+<pre><code>$ find -name &quot;*.js&quot; -type f
+./app/app.js
+./dist/app.js</code></pre>
+<p>Pretty straight forward, right? You select items that finish with <code>.js</code> <em>and</em> that are file. You can guess the operator <code>-and</code> is the default one. Therefore <code>find -name "*.js" -and -type f</code> is the exact same!</p>
+<h4 id="or"><code>-or</code></h4>
+<p>What if you want <code>.js</code> and <code>.css</code> files? You can use the <code>-or</code> operator:</p>
+<pre><code>$ find -name &quot;*.js&quot; -or -name &quot;*.css&quot; -type f
+./app/app.js
+./app/style.css
+./dist/app.js
+./dist/style.css</code></pre>
+<p>Again, this is the same as <code>find -name "*.js" -or -name "*.css" -and -type f</code>.</p>
+<h4 id="not"><code>-not</code></h4>
+<p>If you want every files that do <em>not</em> end with <code>.js</code>, you can do:</p>
+<pre><code>$ find -not -name &quot;*.js&quot; -type f
+./app/index.html
+./app/style.css
+./dist/index.html
+./dist/style.css</code></pre>
+<h4 id="grouping">Grouping</h4>
+<p>Of course, you can group expressions together. Here, we find every file that finishes by <code>.js</code> or any directories.</p>
+<pre><code>$ find \( -name &quot;*.js&quot; -type f \) -or -type d
+.
+./app
+./app/script
+./app/script/app.js
+./app/style
+./dist
+./dist/app.js</code></pre>
+<p>Thanks to bash (😡), you have to escape the brackets.</p>
+<h4 id="comma">Comma <code>,</code></h4>
+<p>Separates 2 expressions: it evaluates both of them, but only returns the value of the second one.</p>
+<pre><code>$ find -name &quot;whatever&quot; , -name &quot;*.html&quot;
+./app/index.html
+./dist/index.html</code></pre>
+<h4 id="aliases">Aliases</h4>
+<p>You can use some aliases, although I don’t recommend doing so, they aren’t as clear:</p>
+<pre><code>-o = -or
+-a = -and
+! = -not (you&#39;ll need to escape it though, like so \!)</code></pre>
+<p><a href="https://www.gnu.org/software/findutils/manual/html_mono/find.html#Combining-Primaries-With-Operators">More about operators</a></p>
+<h3 id="actions">Actions</h3>
+<p>Now, printing out the filenames if fun, doing some stuff with them is even better! And guess why it actually prints out the filenames: because the default action is <code>-print</code>!</p>
+<pre><code>$ find -type f -print
+./app/app.js
+./app/index.html
+./app/style.css
+./dist/app.js
+./dist/index.html
+./dist/style.css</code></pre>
+<p>It’s exactly what you’d expect, right?</p>
+<p>Note: Just as the tests, actions <strong>return a value</strong> too. Remember this.</p>
+<h4 id="delete"><code>-delete</code></h4>
+<p><code>-delete</code> is a pretty useful action. Guess what it does: deletes files (watch out though: it doesn’t throw what it deletes to the bin, it <em>actually</em> deletes them, like <code>rm</code>).</p>
+<p>If you want to delete every temporary file created by vim (files that end with <code>~</code>), you can just run this:</p>
+<pre><code>$ find -name &quot;*~&quot; -delete</code></pre>
+<p>Gone! Every temp files are gone!</p>
+<p>What I recommend you do before this is run just <code>find -name "*~"</code> so that you see which file are going to be deleted.</p>
+<h4 id="exec"><code>-exec</code></h4>
+<p>If you want to do some more complex things though, you might want to use the action <code>-exec</code>.</p>
+<p>This action takes an undefined number of parameters representing a command that it’s going to run on <em>every</em> selected files. It stops “consuming" arguments as soon as it sees a <code>;</code>. Note that <code>{}</code> will be replace with file’s path. So,</p>
+<pre><code>$ find -name &quot;*~&quot; -delete
+$ # does the same thing as
+$ find -name &quot;*~&quot; -exec rm {} \;</code></pre>
+<p>Note: as you can see, we need to escape the <code>;</code> to prevent bash from interpreting it.</p>
+<p><code>-delete</code> is more efficient though, and more secure. Use it when you can.</p>
+<h5 id="optimizing">Optimizing</h5>
+<p>It’s better to run one command on multiple files than multiple commands on one file each time. For example, the first one is better:</p>
+<pre><code>$ rm 1.jpg 2.jpg 3.jpg
+
+
+$ rm 1.jpg
+$ rm 2.jpg
+$ rm 3.jpg</code></pre>
+<p>Of course, the ability to do that depends on the command, but <code>find</code> gives you the possibility of doing that in your <code>-exec</code> actions.</p>
+<p>Note: It’ll automatically adapt to the maximum command line length of your system.</p>
+<p>In order to do that, you have to use <code>{} +</code>, like so:</p>
+<pre><code>$ find -name &quot;*~&quot; -exec rm {} +</code></pre>
+<p>In this case <code>{} +</code> will be replaced by as many paths as the maximum command line length of your system allows.</p>
+<p>Note that <code>{} +</code> has to be at the <em>end</em> of the command. <a href="https://www.gnu.org/software/findutils/manual/html_mono/find.html#Multiple-Files">More about optimizing</a></p>
+<h3 id="tips-and-tricks">Tips and tricks</h3>
+<h4 id="maxdepth"><code>-maxdepth</code></h4>
+<blockquote>
+<p>Descend at most levels (a non-negative integer) levels of directories below the command line arguments. ‘-maxdepth 0’ means only apply the tests and actions to the command line arguments.</p>
+</blockquote>
+<h4 id="depth"><code>-depth</code></h4>
+<p>The <code>-depth</code> option makes <code>find</code> list folders’ <em>content</em> before itself.</p>
+<p>Note: the <code>-delete</code> action implies <code>-depth</code></p>
+<p>Examples are shown in the <code>-prune</code> explanation.</p>
+<h4 id="prune"><code>-prune</code></h4>
+<p>The <code>-prune</code> action allows you to prevent <code>find</code> from going into a directory that matches some tests. Weirdly enough though, it returns <code>true</code> when it found a directory to ignore. For example:</p>
+<pre><code>$ find -name &quot;app&quot; -prune
+./app</code></pre>
+<p>So, it only lists directories that it ignores. To counter that, just add <code>-or -print</code></p>
+<pre><code>$ find -name &quot;app&quot; -prune -or -print
+.
+./dist
+./dist/app.js
+./dist/index.html
+./dist/style.css</code></pre>
+<blockquote>
+<p>Hold on a sec… <code>-or</code>? But <code>-prune</code> would return false when it looks at <code>./app/app.js</code> for example, why doesn’t it print then?</p>
+</blockquote>
+<p>No, because <code>-prune</code> <strong>excludes</strong> the directory, remember. So, <code>./app/app.js</code> <strong>never</strong> gets looked at.</p>
+<h5 id="gotcha">Gotcha</h5>
+<p>The problem is that it doesn’t play well with <code>-depth</code>. It actually doesn’t work, have a look:</p>
+<pre><code>$ find -depth -name &quot;app&quot; -prune -or -print
+./app/index.html
+./app/script/app.js
+./app/script
+./app/style/style.css
+./app/style
+./dist/app.js
+./dist/index.html
+./dist/style.css
+./dist
+.</code></pre>
+<p>It doesn’t have the time to “prune" the directory since we start from the bottom.</p>
+<p>Remember: <code>-delete</code> implies <code>-depth</code>. Therefore, DO NOT USE <code>-prune</code> with <code>-delete</code>. Instead, “prune" it manually with <code>-path</code>:</p>
+<pre><code>$ find -depth -not -path &quot;*app*&quot;
+./dist/index.html
+./dist/style.css
+./dist
+.</code></pre>
+<p>Ok, I guess that’s it! If you want to learn even more, have a look at the <a href="https://www.gnu.org/software/findutils/manual/html_mono/find.html">documentation</a>.</p>
+<p>Hope it’ll save you some time. If it does, please share this post!</p>
+<p><a href="https://math2001.github.io/article/bashs-find-command/">Source</a></p>

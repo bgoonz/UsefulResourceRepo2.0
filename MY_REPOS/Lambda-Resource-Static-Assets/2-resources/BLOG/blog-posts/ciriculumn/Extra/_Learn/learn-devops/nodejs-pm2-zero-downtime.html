@@ -1,0 +1,242 @@
+<h1 id="zero-downtime-node.js-deployment-using-pm2"><em>Zero Downtime</em> Node.js Deployment using PM2</h1>
+<h2 id="why"><em>Why?</em></h2>
+<p>We want to deploy and run our Node.js app on a <em>generic</em> “cloud” hosting provider Virtual Private Server (VPS) instance.</p>
+<p>PM2 allows us to simplify continuous deployment from our chosen CI service and have more fine-grained control over how our App is run.</p>
+<p>## <em>What?</em></p>
+<p>Use PM2 to deploy your Node.js App to a Digital Ocean Virtual Private Server (VPS) instance with built-in monitoring, great service quality and minimal cost.</p>
+<p>In this guide we will be using the following:</p>
+<ul>
+<li>Digital Ocean Droplet (Virtual Private Server “VPS”)</li>
+<li>CentOS (Operating System) - though any “mainstream linux” will work, and Ubuntu/Debian is the most <em>popular</em>.</li>
+<li>PM2 Process Manager.</li>
+<li>LetsEncrypt Free SSL Certificates.</li>
+</ul>
+<blockquote>
+<p>If you do not <em>already</em> have a Digital Ocean account, please use the following link to register: https://m.do.co/c/29379863a4f8 and get <strong>$10 in Credit</strong>.</p>
+</blockquote>
+<p>## <em>Who?</em></p>
+<p>Developers who have <em>out-grown</em> Heroku (<em>pricing</em>) and want to deploy to a different (<em>affordable</em>) hosting/cloud provider.</p>
+<blockquote>
+<p><strong>Note</strong>: Heroku has <em>many</em> useful features including Logging, Review Apps, permissions and teams which easily justify the cost. But if you have reached $100/month you should consider switching, provided you understand that you will need to work for it!</p>
+</blockquote>
+<h2 id="how"><em>How?</em></h2>
+<p>These are <em>step-by-step</em> instructions, follow them in order and <em>don’t skip</em> steps!</p>
+<h3 id="pre-requisites">0. Pre-requisites</h3>
+<p><em>Before</em> we start, please ensure you have the following:</p>
+<ul>
+<li>[x] Digital Ocean Account (<em>New to “DO”? Please use this link:</em> https://m.do.co/c/29379863a4f8 <em>to register</em>)
+<ul>
+<li>[x] Public SSH Key uploaded to https://cloud.digitalocean.com/settings/security (<em>so that you can login to the instance we are about to launch!</em>) see: https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets</li>
+</ul></li>
+<li>[x] Basic Node.js knowledge</li>
+<li>[x] 30 mins of time.</li>
+</ul>
+<p>### 1. Create the DigitalOcean Instance</p>
+<p>Go to: https://cloud.digitalocean.com/droplets/new and Create a Droplet!</p>
+<blockquote>
+<p><em><strong>Note</strong>: We are using a “blank” instance as opposed to a “One-click app”, because this will show us how to setup “from scratch” and will thus be applicable to <strong>any</strong> cloud provider</em>.</p>
+</blockquote>
+<p>The instance we are creating is a <strong>CentOS 7.5</strong> Droplet with <strong>1GB RAM</strong>.</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/47529746-915da300-d8a0-11e8-936a-149ce21dc926.png" alt="do-1-create-instance" /><figcaption>do-1-create-instance</figcaption>
+</figure>
+<p>Select your desired region (<em>datacenter</em>); (<em>pick the nearest to your users or dev team</em>) e.g:</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/47529745-90c50c80-d8a0-11e8-8853-06b0af10ac60.png" alt="do-2-select-region" /><figcaption>do-2-select-region</figcaption>
+</figure>
+<p>The default <code>hostname</code> for the instance (<em>based on the selected options</em>) is: <code>centos-s-1vcpu-1gb-lon1-01</code> let’s change that to: <code>centos-nodejs-pm2</code> so that we know what the instance <em>does</em> from reading it’s hostname.</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/47529744-90c50c80-d8a0-11e8-81e0-dbe63bc3366f.png" alt="do-3-finalise" /><figcaption>do-3-finalise</figcaption>
+</figure>
+<p>Click Create and wait for the instance to be created.</p>
+<h3 id="login-to-the-instance-via-sshconsole">2. Login to the Instance via SSH/Console</h3>
+<p>Get the instance’s IP (v4) Address, e.g: <code>206.189.26.154</code> from the UI: <img src="https://user-images.githubusercontent.com/194400/47529747-915da300-d8a0-11e8-85ec-5e6ec8ab7a5c.png" alt="do-4-instance-ip-address" /></p>
+<p>and run the following command into your terminal to <strong>login</strong> to the instance <strong>via SSH</strong>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">ssh</span> root@206.189.26.154</a></code></pre></div>
+<p>While logged in as <code>root</code> run the <em>update</em> command:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">yum</span> update -y</a></code></pre></div>
+<p>There are <em>security</em> updates. Wait for the updates to run until you see “<strong>Complete</strong>!”: <br /> <img src="https://user-images.githubusercontent.com/194400/47530712-45f8c400-d8a3-11e8-997a-77ab28e5183b.png" alt="centos-update-complete" /></p>
+<h3 id="install-node.js">3. Install Node.js</h3>
+<p>#### 3.1 Install NVM</p>
+<p>Install Node Version Manager (NVM) from GitHub:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="ex">curl</span> -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh <span class="kw">|</span> <span class="fu">bash</span></a></code></pre></div>
+<p>enable the <code>nvm</code> command line tool by running the command:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1"><span class="bu">source</span> ~/.bashrc</a></code></pre></div>
+<h4 id="install-the-latest-node.js-version-lts">3.2 Install the Latest Node.js Version (LTS)</h4>
+<p>Using NVM, install the latests (LTS) version of Node.js:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" title="1"><span class="ex">nvm</span> install --lts</a></code></pre></div>
+<h3 id="install-pm2-globally">4. Install PM2 <em>Globally</em></h3>
+<p>We install PM2 <em>globally</em> so that it can be used on the server.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1"><span class="ex">npm</span> install pm2 -g</a></code></pre></div>
+<p>You should see: <img src="https://user-images.githubusercontent.com/194400/47531350-472af080-d8a5-11e8-9396-24a7698c5951.png" alt="pm2-installed-successfully" /></p>
+<h3 id="install-git">5. Install Git</h3>
+<p>Install Git CLI so that we can get the latest code from GitHub:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb7-1" title="1"><span class="fu">sudo</span> yum install git -y</a></code></pre></div>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/47531909-c66cf400-d8a6-11e8-83e6-11fa71221ab9.png" alt="git-installed" /><figcaption>git-installed</figcaption>
+</figure>
+<h3 id="add-deployment-sshrsa-public-key">6. Add Deployment SSH/RSA Public key</h3>
+<p>In order to use PM2 as our deployment tool we need to add the deployment key to: 1. The “target” server. In this case we will upload <em>both</em> the <strong><code>public</code></strong> key to the server so that TravisCI can access the server via SSH <strong><em>and</em></strong> the <strong><code>private</code></strong> key so that the VPS can access GitHub to <strong><code>git pull</code></strong> the latest version of the code. 2. GitHub as a “deploy key”. The <strong><code>public</code></strong> needs to be added as a “deploy key” for the repo so that GitHub will accept a <strong><code>git pull</code></strong> request from the server.</p>
+<blockquote>
+<p>If you don’t already have a deployment key, see: <a href="https://github.com/dwyl/learn-travis/blob/master/encrypted-ssh-keys-deployment.md">encrypted-ssh-keys-deployment.md</a></p>
+</blockquote>
+<h4 id="add-the-deployment-ssh-key-the-server">6.1 Add the Deployment SSH Key the Server</h4>
+<p>Add the deployment SSH <strong><code>public</code></strong> key to the list of <code>authorized_keys</code> on the VPS:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb8-1" title="1"><span class="ex">vi</span> /root/.ssh/authorized_keys</a></code></pre></div>
+<p>Add the <strong><code>private</code></strong> key to the server at <code>~/.ssh/deploy_key</code>:</p>
+<p>then set the permissions on the key:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb9-1" title="1"><span class="fu">chmod</span> 400 ~/.ssh/deploy_key</a></code></pre></div>
+<h4 id="add-the-public-key-to-the-deploy-keys-for-the-repo-on-github">6.2 Add the Public Key to the Deploy Keys for the Repo on GitHub</h4>
+<p>Follow the instructions in: https://developer.github.com/v3/guides/managing-deploy-keys/#deploy-keys and add the <code>deploy_key</code> to your project’s “Deploy Keys” on GitHub. e.g: https://github.com/nelsonic/hello-world-node-http-server/settings/keys</p>
+<p>You should see:</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/47536290-24a1d300-d8b7-11e8-98b7-ab547a4c90b6.png" alt="image" /><figcaption>image</figcaption>
+</figure>
+<h3 id="deploy-the-app">7. Deploy The App</h3>
+<p>Ensure that your App’s project/repo has a <code>ecosystem.config.js</code> file.</p>
+<ul>
+<li>Example: <a href="https://github.com/nelsonic/hello-world-node-http-server/blob/5107062aad2b697b968180ec6de202d7e57e4a1a/ecosystem.config.js"><strong><code>ecosystem.config.js</code></strong></a></li>
+<li>Config file Docs: https://pm2.io/doc/en/runtime/guide/ecosystem-file</li>
+<li>Deployment Docs: http://pm2.keymetrics.io/docs/usage/deployment/</li>
+</ul>
+<p>Deploy the app using PM2 from your <em>localhost</em>:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb10-1" title="1"><span class="ex">pm2</span> deploy ecosystem.config.js production setup</a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="ex">pm2</span> deploy production exec <span class="st">&quot;pm2 reload all&quot;</span></a></code></pre></div>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/47532953-b73b7580-d8a9-11e8-894b-d439c7c82a88.png" alt="pm2-deploy-success" /><figcaption>pm2-deploy-success</figcaption>
+</figure>
+<p>PM2 will deploy the app on the default port (3000). <br /> You can view the app by visiting: http://206.189.26.154:3000/</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/47533038-17cab280-d8aa-11e8-9a2b-e8d493f02a28.png" alt="app-deployed" /><figcaption>app-deployed</figcaption>
+</figure>
+<p><em>Checkpoint</em>! This is our first sign of “success” but not a something we are going to send/show to end-users.</p>
+<h3 id="install-nginx">8. Install NGINX</h3>
+<p>Install NGINX so that we can run it as a Proxy for our Node.js App. This will allow us to both HTTPS and multiple Apps on the same server listening on TCP port 80/443.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb11-1" title="1"><span class="fu">sudo</span> yum install epel-release -y <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> yum install nginx -y</a></code></pre></div>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/47533209-c3740280-d8aa-11e8-975f-20980b8e240b.png" alt="image" /><figcaption>image</figcaption>
+</figure>
+<p>Start NGINX with the command:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb12-1" title="1"><span class="ex">nginx</span></a></code></pre></div>
+<p>When you visit http://206.189.26.154 you should see:</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/47533374-60cf3680-d8ab-11e8-9b51-c4cea8fb5494.png" alt="nginx-running" /><figcaption>nginx-running</figcaption>
+</figure>
+<p>This is our <em>second</em> “checkpoint”.</p>
+<h3 id="add-a-proxy_pass-directive-to-nginx.conf">9. Add a <code>proxy_pass</code> directive to <code>nginx.conf</code></h3>
+<p>In order to use NGINX as a proxy for our Node.js App, we need to setup a “proxy pass”.</p>
+<p>Edit the default <code>nginx.conf</code> file:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb13-1" title="1"><span class="ex">vi</span> /etc/nginx/nginx.conf</a></code></pre></div>
+<p>In the <code>nginx.conf</code> file, locate the section that starts with <code>location / {</code> … e.g:</p>
+<pre><code>server {
+    listen       80 default_server;
+    listen       [::]:80 default_server;
+    server_name  _;
+    root         /usr/share/nginx/html;
+
+    # Load configuration files for the default server block.
+    include /etc/nginx/default.d/*.conf;
+
+    location / {
+    }
+
+    error_page 404 /404.html;
+        location = /40x.html {
+    }
+
+    error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+    }
+}</code></pre>
+<p>Change:</p>
+<pre class="nginx"><code>location / {
+}</code></pre>
+<p>To:</p>
+<pre class="nginx"><code>location / {
+   proxy_pass http://localhost:3000;
+}</code></pre>
+<p>Stop and re-start nginx:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb17-1" title="1"><span class="ex">pkill</span> nginx</a>
+<a class="sourceLine" id="cb17-2" title="2"><span class="ex">nginx</span></a></code></pre></div>
+<p>Now when you visit http://206.189.26.154 you should see:</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/47533931-7e050480-d8ad-11e8-9fb8-633d4531d316.png" alt="app-running" /><figcaption>app-running</figcaption>
+</figure>
+<p>Now we are getting closer to something we can show an end-user; no TCP port in the URL.</p>
+<h3 id="update-the-app-on-localhost">10. Update the App on Localhost</h3>
+<p>Make an update to your app on your <code>localhost</code> e.g: change “Hello World!” to “Hello PM2!”</p>
+<p>E.g: https://github.com/nelsonic/hello-world-node-http-server/commit/5107062aad2b697b968180ec6de202d7e57e4a1a</p>
+<h3 id="re-deploy">11. Re-Deploy</h3>
+<p>Re-deploy the app from <code>localhost</code> using the commands:</p>
+<pre><code>pm2 deploy ecosystem.config.js production update
+pm2 deploy ecosystem.config.js production exec &quot;pm2 reload all&quot;</code></pre>
+<p>Now when you visit http://206.189.26.154 you should see:</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/47537037-7a787a00-d8bb-11e8-827d-011b29eee970.png" alt="app-updated" /><figcaption>app-updated</figcaption>
+</figure>
+<h3 id="deploy-from-continuous-integration">12. Deploy From Continuous Integration</h3>
+<p>Luckily deploying the App from Travis-CI is quite straightforward:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode yml"><code class="sourceCode yaml"><a class="sourceLine" id="cb19-1" title="1"><span class="fu">language:</span><span class="at"> node_js</span></a>
+<a class="sourceLine" id="cb19-2" title="2"><span class="fu">node_js:</span></a>
+<a class="sourceLine" id="cb19-3" title="3"><span class="kw">-</span> node</a>
+<a class="sourceLine" id="cb19-4" title="4"></a>
+<a class="sourceLine" id="cb19-5" title="5"><span class="fu">before_install:</span><span class="at"> </span><span class="co"># setup the RSA key for use in Dokku Deployment:</span></a>
+<a class="sourceLine" id="cb19-6" title="6"><span class="kw">-</span> openssl aes-256-cbc -K $encrypted_77965d5bdd4d_key -iv $encrypted_77965d5bdd4d_iv</a>
+<a class="sourceLine" id="cb19-7" title="7">  -in deploy_key.enc -out ./deploy_key -d</a>
+<a class="sourceLine" id="cb19-8" title="8"><span class="kw">-</span> eval <span class="st">&quot;$(ssh-agent -s)&quot;</span></a>
+<a class="sourceLine" id="cb19-9" title="9"><span class="kw">-</span> chmod 600 ./deploy_key</a>
+<a class="sourceLine" id="cb19-10" title="10"><span class="kw">-</span> echo -e <span class="st">&quot;Host $SERVER_IP_ADDRESS</span><span class="sc">\n\t</span><span class="st">StrictHostKeyChecking no</span><span class="sc">\n</span><span class="st">&quot;</span> &gt;&gt; ~/.ssh/config</a>
+<a class="sourceLine" id="cb19-11" title="11"><span class="kw">-</span> ssh-add ./deploy_key</a>
+<a class="sourceLine" id="cb19-12" title="12"></a>
+<a class="sourceLine" id="cb19-13" title="13"><span class="fu">after_success:</span></a>
+<a class="sourceLine" id="cb19-14" title="14">  <span class="kw">-</span> npm install pm2 -g</a>
+<a class="sourceLine" id="cb19-15" title="15">  <span class="kw">-</span> pm2 deploy ecosystem.config.js production update</a>
+<a class="sourceLine" id="cb19-16" title="16">  <span class="kw">-</span> pm2 deploy ecosystem.config.js production exec <span class="st">&quot;pm2 reload all&quot;</span></a></code></pre></div>
+<p>Example: <a href="https://github.com/nelsonic/hello-world-node-http-server/blob/2696dae2fcc05ca43149c06e85922aea4d10b2f1/.travis.yml"><strong><code>.travis.yml</code></strong></a></p>
+<p>Sample output: https://travis-ci.org/nelsonic/hello-world-node-http-server/builds/446453771#L613</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/47538462-66387b00-d8c3-11e8-93d6-e0d22c8d0d6b.png" alt="travis-ci-example" /><figcaption>travis-ci-example</figcaption>
+</figure>
+<h3 id="app-on-subdomain">13. App on Subdomain</h3>
+<p>Login to your Domain Name Service and create a subdomain for your app:</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/47554242-cb5e9180-d900-11e8-9ccc-60dec14901d8.png" alt="pm2.dwyl.io" /><figcaption>pm2.dwyl.io</figcaption>
+</figure>
+<p>Once you have added that, go refill your water glass/bottle while you wait for the DNS to propagate.</p>
+<p>Create the <strong><code>pm2_dwyl_io.conf</code></strong> file:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb20-1" title="1"><span class="ex">vi</span> /etc/nginx/conf.d/pm2_dwyl_io.conf</a></code></pre></div>
+<p>And <em>paste</em> the following:</p>
+<pre class="nginx"><code>
+server {
+    server_name pm2.dwyl.io;
+    listen       80;
+    root         /usr/share/nginx/html;
+
+    location / {
+      proxy_pass http://localhost:3000;
+    }
+
+    error_page 404 /404.html;
+        location = /40x.html {
+    }
+
+    error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+    }
+}  </code></pre>
+<p>Restart nginx:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb22-1" title="1"><span class="ex">nginx</span> -t</a>
+<a class="sourceLine" id="cb22-2" title="2"><span class="co"># if the config test works run:</span></a>
+<a class="sourceLine" id="cb22-3" title="3"><span class="ex">pkill</span> nginx</a>
+<a class="sourceLine" id="cb22-4" title="4"><span class="ex">nginx</span></a></code></pre></div>
+<p>Now when you visit your subdomain in your browser, e.g: http://pm2.dwyl.io <br /> you should see your app being served on the subdomain: <img src="https://user-images.githubusercontent.com/194400/47558630-7f651a00-d90b-11e8-8fe7-1302ad02c4ca.png" alt="image" /></p>
+<h2 id="recommended-furtherbackground-reading">Recommended Further/Background Reading</h2>
+<ul>
+<li>Clustering Node.js apps in 3 minutes https://medium.com/<span class="citation" data-cites="alaabatayneh/clustering-in-node-js-apps-a05e5a9ed444">@alaabatayneh/clustering-in-node-js-apps-a05e5a9ed444</span></li>
+<li>PM2 Process Manager - Zero Downtime — Performance Optimization - Part II https://medium.com/tech-tajawal/process-manager-pm2-performance-optimization-part-ii-6ca8e431a578</li>
+<li>Install NGINX: https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-centos-7</li>
+<li>NGINX upstream proxy: http://nginx.org/en/docs/http/ngx_http_upstream_module.html</li>
+<li>How to Configure NGINX (<em>much better than the “official” docs!</em>): https://www.linode.com/docs/web-servers/nginx/how-to-configure-nginx/</li>
+<li>Install Git on Centos (<em>fairly obvs</em>): https://www.digitalocean.com/community/tutorials/how-to-install-git-on-centos-7</li>
+<li>PM2 show process: https://futurestud.io/tutorials/pm2-list-processes-and-show-process-details</li>
+</ul>

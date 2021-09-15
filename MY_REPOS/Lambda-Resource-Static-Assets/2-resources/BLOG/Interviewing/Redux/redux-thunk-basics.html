@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<p><img src="Redux-Thunk.jpeg"></p>
+<h4 id="thus-in-summary-there-are-two-parts-to-redux-thunk">Thus, in summary there are two parts to Redux-Thunk:</h4>
+<ul>
+<li><ol type="1">
+<li>A thunk creator, which is an action creator that returns a thunk (a.k.a. asynchronous action creators)</li>
+</ol></li>
+<li><ol start="2" type="1">
+<li>The thunk itself, which is the function that is returned from the thunk creator and accepts dispatch and setState as arguments</li>
+</ol></li>
+</ul>
+<p>The reason that we need to use a middleware such as Redux-Thunk is because the Redux store only supports synchronous data flow. Thus, middleware to the rescue! Middleware allows for asynchronous data flow, interprets anything that you dispatch and finally returns a plain object allowing the synchronous Redux data flow to resume. Redux middleware can thus solve for many critical asynchronous needs (e.g., axios requests).</p>
+<h3 id="first-note-that-the-synchronous-and-pure-flow-of-data-through-reduxs-components-is-well-defined-with-distinct-simple-roles.-which-is-as-below--">First note that, the synchronous and pure flow of data through Redux’s components is well-defined with distinct, simple roles. Which is as below -&gt;</h3>
+<h3 id="action-creators-create-objects-objects-are-dispatched-to-the-store-the-store-invokes-reducers-reducers-generate-new-state-listeners-are-notified-of-state-updates.">Action creators create objects → objects are dispatched to the store → the store invokes reducers → reducers generate new state → listeners are notified of state updates.</h3>
+<p>A thunk is another word for a function. It’s a special (and uncommon) name for a function that’s returned by another. Like this:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">function</span> <span class="at">not_a_thunk</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="co">// this one is a &quot;thunk&quot; because it defers work for later:</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="cf">return</span> <span class="kw">function</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;do stuff now&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="op">}</span></a></code></pre></div>
+<p>If I want to execute the “do stuff now” part, you have to call it like <code>not_a_thunk()()</code> – calling it twice, basically.</p>
+<p>At its heart, though, Redux is really simple. Actions are just objects – and they are expected to only be objects. They look like this:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="dt">type</span><span class="op">:</span> <span class="st">&quot;USER_LOGGED_IN&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="dt">username</span><span class="op">:</span> <span class="st">&quot;dave&quot;</span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="op">}</span></a></code></pre></div>
+<p>And, since it’s kind of annoying to build objects by hand all the time, Redux has “action creators” that build these things:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">function</span> <span class="at">userLoggedIn</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-3" title="3">    <span class="dt">type</span><span class="op">:</span> <span class="st">&quot;USER_LOGGED_IN&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-4" title="4">    <span class="dt">username</span><span class="op">:</span> <span class="st">&quot;dave&quot;</span></a>
+<a class="sourceLine" id="cb3-5" title="5">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="op">}</span></a></code></pre></div>
+<p>Same action, but now you can “create” it by calling the userLoggedIn function.</p>
+<p>Isn’t it kind of funny that Redux’s so-called “actions” don’t actually do anything? They’re just objects. Boring and simple and inert.</p>
+<h3 id="section"><strong>**</strong>**<strong>**</strong>*<strong>**</strong>**<strong>**</strong></h3>
+<p>Redux Thunk teaches Redux to recognize special kinds of actions that are in fact functions.</p>
+<p>When an action creator returns a function, that function will get executed by the Redux Thunk middleware. This function doesn’t need to be pure; it is thus allowed to have side effects, including executing asynchronous API calls. The function can also dispatch actions.</p>
+<p>The thunk can be used to delay the dispatch of an action, or to dispatch only if a certain condition is met.</p>
+<p>If Redux Thunk middleware is enabled, any time you attempt to dispatch a function instead of an action object, the middleware will call that function with dispatch method itself as the first argument.</p>
+<p>And then since we “taught” Redux to recognize such “special” action creators (we call them thunk action creators), we can now use them in any place where we would use regular action creators.</p>
+<h3 id="section-1"><strong>**</strong>****<strong>**</strong>****<strong>**</strong>****<strong>**</strong></h3>
+<p><a href="https://medium.com/fullstack-academy/thunks-in-redux-the-basics-85e538a3fe60">https://medium.com/fullstack-academy/thunks-in-redux-the-basics-85e538a3fe60</a></p>
+<h2 id="redux-thunk-source-code-has-only-expanded-to-fourteen-lines-total-from-its-birth-in-2016">Redux-Thunk source code has only expanded to fourteen lines total from its birth in 2016</h2>
+<p>https://github.com/reduxjs/redux-thunk/blob/master/src/index.js</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">function</span> <span class="at">createThunkMiddleware</span>(extraArgument) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="cf">return</span> (<span class="op">{</span> dispatch<span class="op">,</span> getState <span class="op">}</span>) <span class="kw">=&gt;</span> next <span class="kw">=&gt;</span> action <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-3" title="3">    <span class="cf">if</span> (<span class="kw">typeof</span> action <span class="op">===</span> <span class="st">&quot;function&quot;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-4" title="4">      <span class="cf">return</span> <span class="at">action</span>(dispatch<span class="op">,</span> getState<span class="op">,</span> extraArgument)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-5" title="5">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-6" title="6"></a>
+<a class="sourceLine" id="cb4-7" title="7">    <span class="cf">return</span> <span class="at">next</span>(action)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-8" title="8">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="op">}</span></a>
+<a class="sourceLine" id="cb4-10" title="10"></a>
+<a class="sourceLine" id="cb4-11" title="11"><span class="kw">const</span> thunk <span class="op">=</span> <span class="at">createThunkMiddleware</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-12" title="12"><span class="va">thunk</span>.<span class="at">withExtraArgument</span> <span class="op">=</span> createThunkMiddleware<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-13" title="13"></a>
+<a class="sourceLine" id="cb4-14" title="14"><span class="im">export</span> <span class="im">default</span> thunk<span class="op">;</span></a></code></pre></div>
+<h4 id="what-is-a-side-effect">What is a side-effect?</h4>
+<p>“Side Effect” is not a react-specific term. It is a general concept about behaviours of functions. A function is said to have side effect if it trys to modify anything outside its body. For example, if it modifies a global variable, then it is a side effect. If it makes a network call, it is a side effect as well.</p>
+<p>A “side effect” is anything that affects something outside the scope of the function being executed. These can be, say, a network request, which has your code communicating with a third party (and thus making the request, causing logs to be recorded, caches to be saved or updated, all sorts of effects that are outside the function.</p>
+<p>There are more subtle side effects, too. Changing the value of a closure-scoped variable is a side effect. Pushing a new item onto an array that was passed in as an argument is a side effect. Functions that execute without side effects are called “pure” functions: they take in arguments, and they return values. Nothing else happens upon executing the function. This makes the easy to test, simple to reason about, and functions that meet this description have all sorts of useful properties when it comes to optimization or refactoring.</p>
+<p>Pure functions are deterministic (meaning that, given an input, they always return the same output), but that doesn’t mean that all impure functions have side effects. Generating a random value within a function makes it impure, but isn’t a side effect, for example.</p>
+<h4 id="what-is-side-effects-in-redux-or-react">What is side-effects in Redux or React</h4>
+<p>The natural Redux flow is this: some action is dispatched, and as a consequence, some state is changed.</p>
+<p>But, most apps need to reach out to the outside world to be useful — whether by talking to the server, accessing local storage, recording analytics events, or something else entirely.</p>
+<p>That process of calling into the real world is what side-effects are. They are a way of bridging the pure Redux world with the outside world.</p>
+<p>But, we can’t handle side effects in reducers (they’re pure functions, they aren’t meant for making API calls).</p>
+<p>Thunks transform action creators so that they can return functions (rather than JSON objects representing actions). We can then use these functions to make API requests and trigger dispatch calls to our redux store.</p>
+<h3 id="other-sources-to-read">Other sources to Read</h3>
+<p>1&gt; This is the recommended one by thunk’s own github page <a href="https://stackoverflow.com/questions/35411423/how-to-dispatch-a-redux-action-with-a-timeout/35415559#35415559">https://stackoverflow.com/questions/35411423/how-to-dispatch-a-redux-action-with-a-timeout/35415559#35415559</a></p>
+<p>2&gt; <span class="citation" data-cites="gethylgeorge/understanding-how-redux-thunk-works-72de3bdebc50">[https://medium.com/@gethylgeorge/understanding-how-redux-thunk-works-72de3bdebc50]</span>(https://medium.com/<span class="citation" data-cites="gethylgeorge/understanding-how-redux-thunk-works-72de3bdebc50">@gethylgeorge/understanding-how-redux-thunk-works-72de3bdebc50</span>)</p>
+<p>3&gt; <span class="citation" data-cites="shoshanarosenfield/redux-thunk-vs-redux-saga-93fe82878b2d">[https://medium.com/@shoshanarosenfield/redux-thunk-vs-redux-saga-93fe82878b2d]</span>(https://medium.com/<span class="citation" data-cites="shoshanarosenfield/redux-thunk-vs-redux-saga-93fe82878b2d">@shoshanarosenfield/redux-thunk-vs-redux-saga-93fe82878b2d</span>)</p>
+</body></html>

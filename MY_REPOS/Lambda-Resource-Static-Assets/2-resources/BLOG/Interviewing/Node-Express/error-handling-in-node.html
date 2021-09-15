@@ -1,0 +1,71 @@
+<p>There are 2 ways to report an error in middleware to Express. The first, as you saw above, is to throw an exception in the same tick. Because of the async nature of JavaScript, this isn’t very useful. If you throw an error asynchronously, you’ll just crash the server.</p>
+<p><a href="https://expressjs.com/en/guide/error-handling.html">Official Error Handling Doc</a></p>
+<p>Errors that occur in synchronous code inside route handlers and middleware require no extra work. If synchronous code throws an error, then Express will catch and process it. For example:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&quot;/&quot;</span><span class="op">,</span> <span class="kw">function</span>(req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="cf">throw</span> <span class="kw">new</span> <span class="at">Error</span>(<span class="st">&quot;BROKEN&quot;</span>)<span class="op">;</span> <span class="co">// Express will catch this on its own.</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>For errors returned from asynchronous functions invoked by route handlers and middleware, you must pass them to the next() function, where Express will catch and process them. For example:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&quot;/&quot;</span><span class="op">,</span> <span class="kw">function</span>(req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="va">fs</span>.<span class="at">readFile</span>(<span class="st">&quot;/file-does-not-exist&quot;</span><span class="op">,</span> <span class="kw">function</span>(err<span class="op">,</span> data) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-3" title="3">    <span class="cf">if</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-4" title="4">      <span class="at">next</span>(err)<span class="op">;</span> <span class="co">// Pass errors to Express.</span></a>
+<a class="sourceLine" id="cb2-5" title="5">    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-6" title="6">      <span class="va">res</span>.<span class="at">send</span>(data)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-7" title="7">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-8" title="8">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-9" title="9"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h4 id="if-you-pass-anything-to-the-next-function-except-the-string-route-express-regards-the-current-request-as-being-an-error-and-will-skip-any-remaining-non-error-handling-routing-and-middleware-functions.">If you pass anything to the next() function (except the string ‘route’), Express regards the current request as being an error and will skip any remaining non-error handling routing and middleware functions.</h4>
+<h2 id="throw-error-vs-nexterror"><code>throw error</code> vs <code>next(error)</code></h2>
+<p><code>throw error</code> is brute-force ugly way to do error handling in ExpressJS apps. Basically, just throw the exception after it bubbles back up to the route handler.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&quot;/users&quot;</span><span class="op">,</span> <span class="kw">function</span>(req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="va">User</span>.<span class="at">find</span>(<span class="kw">function</span>(err<span class="op">,</span> users) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-3" title="3">    <span class="co">// an error?! let&#39;s crash the app!</span></a>
+<a class="sourceLine" id="cb3-4" title="4">    <span class="cf">if</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-5" title="5">      <span class="cf">throw</span> err<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-6" title="6">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-7" title="7">    <span class="co">// no error? ok, fine. do normal stuff here</span></a>
+<a class="sourceLine" id="cb3-8" title="8">    <span class="co">// res.render... etc.</span></a>
+<a class="sourceLine" id="cb3-9" title="9">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-10" title="10"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>This works. If you don’t mind the app completely blowing chunks at this point and dumping itself entirely.</p>
+<h4 id="but-unhandled-exceptions-should-not-be-allowed-to-crash-and-exit-the-app.">But Unhandled exceptions should not be allowed to crash and exit the app.</h4>
+<p>Therefore, you really want to handle this exception in your callback, properly.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&quot;/users&quot;</span><span class="op">,</span> <span class="kw">function</span>(req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="va">User</span>.<span class="at">find</span>(<span class="kw">function</span>(err<span class="op">,</span> users) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-3" title="3">    <span class="co">// an error? get it out of here!</span></a>
+<a class="sourceLine" id="cb4-4" title="4">    <span class="cf">if</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-5" title="5">      <span class="cf">return</span> <span class="at">next</span>(err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-6" title="6">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-7" title="7"></a>
+<a class="sourceLine" id="cb4-8" title="8">    <span class="co">// no error? good. I&#39;ll do normal stuff here</span></a>
+<a class="sourceLine" id="cb4-9" title="9">    <span class="co">// res.render... etc.</span></a>
+<a class="sourceLine" id="cb4-10" title="10">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-11" title="11"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>The third parameter next calling which (next()) will switch the execution flow to the next handler.</p>
+<p>It’s a simple change, but using <code>return next(err)</code> instead of <code>throw err</code> allows asynchronous code to raise an exception and still have it caught by the error handling pipeline in your app. Instead of putting the app into an unknown state where everything is potential dead or dangerous, calling <code>next(err)</code> tells the Express and Connect frameworks to pass the error along until an error handling middleware of function can properly take care of it.</p>
+<h4 id="when-to-use-next-and-when-to-use-return-next-and-some-important-difference">When to use next() and when to use return next() and some important difference?</h4>
+<p>Most people always write return next() is to ensure that the execution stops after triggering the callback.</p>
+<p>If you don’t do it, you risk triggering the callback a second time later, which usually has devastating results.</p>
+<p>An example of not using <code>return</code> here if you write middleware like this:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="va">app</span>.<span class="at">use</span>((req<span class="op">,</span> res<span class="op">,</span> next) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;This is a middleware&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-3" title="3">  <span class="at">next</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;This is first-half middleware&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-6" title="6"></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="va">app</span>.<span class="at">use</span>((req<span class="op">,</span> res<span class="op">,</span> next) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-8" title="8">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;This is second middleware&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-9" title="9">  <span class="at">next</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-10" title="10"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-11" title="11"></a>
+<a class="sourceLine" id="cb5-12" title="12"><span class="va">app</span>.<span class="at">use</span>((req<span class="op">,</span> res<span class="op">,</span> next) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-13" title="13">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;This is third middleware&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-14" title="14">  <span class="at">next</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-15" title="15"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>You will find out that the output in console is:</p>
+<pre><code>This is a middleware
+This is second middleware
+This is third middleware
+This is first-half middleware</code></pre>
+<p>That is, it runs the code below next() after all middleware function finished.</p>
+<p>However, if you use return next(), it will jump out the callback immediately and the code below return next() in the callback will be unreachable.</p>

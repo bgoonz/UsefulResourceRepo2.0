@@ -1,0 +1,259 @@
+<!-- 
+  This example extends our array example so that you can 
+  display an image by clicking on it. 
+  It uses two templates, one for viewing thumbnails and
+  one for viewing a single image.
+  
+  NB I have found a bug in this code since doing the video
+  see if you can find it and even fix it.
+-->
+
+<head>
+
+<!-- include our libraries and css files -->
+<script src="js/jquery-2.1.4.min.js"></script>
+<script src="js/handlebars-v3.0.3.js"></script>
+
+
+<script src="js/bootstrap.min.js"></script>
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/gallery.css" rel="stylesheet">
+
+</head>
+
+<body role="document">
+
+  <div class="container">
+
+    <!-- the page title -->
+    <div class="page-header">
+      <h1>My photo albums </h1>
+    </div> 
+
+
+    <!-- 
+      the search box. 
+      It is given the navbar-form class so that bootstrap
+      put it in the top navbar
+    -->
+    <div class="navbar-form navbar-right">
+      <input id="searchbox" type="text" class="form-control" placeholder="Search...">
+    </div>
+
+    <!-- 
+      We don't actually use these navigation tabs in this example, but
+      I've included them so that the top nav looks right, and
+      we can extend the example later to use them
+    -->
+    <ul class="nav nav-tabs">
+          <li role=""  id="detailsbtn"><a href="#">Details</a></li>
+          <li role="" id="modalbtn"><a href="#">Modal</a></li>
+    </ul> 
+    <br/><br/>  
+
+    <!-- 
+     the content of the web page starts off empty 
+     because we will fill it later from the template 
+     We use container-fluid because our template uses
+     the bootstrap grid 
+    -->
+    <div id="content"  class="container-fluid"  role="main">
+    </div>
+
+    <!-- 
+      this div will contain the modal dialog which will
+      display the large image
+    -->
+    <div id="modal-container"  >
+    </div>
+  </div>
+    
+  <!-- 
+    This template displays many photos in an album.
+    Is uses the {{#each }} template tag which repeats the 
+    innter bit of the template for each element of an array
+  -->
+  <script id="album-template" type="text/x-handlebars-template">
+
+      <div class="row">
+        {{#each images}} 
+        <div class="col-xs-12 col-md-3"> 
+         <div class="thumbnail" data-id="{{@index}}">
+            <img class="crop-img" src="{{src}}" alt=""/> 
+              
+             <div class="author">
+                <h3> {{title}} </h3>
+                <p> {{author}} </p>
+             </div>
+          </div>
+           
+          </div> <!-- / col -->
+          {{/each}}
+      </div> <!-- / row -->
+    </script>
+
+    <!-- 
+         This second template displays a modal pop-up of the image. 
+         It has quite a bit of boilder plate HTML code but in 
+         essence it just displays and image tag within a 
+         set of divs that define the modal 
+    -->
+    <script id="modal-template" type="text/x-handlebars-template">
+      <div id="imageModal" class="modal fade" role="dialog">
+        <div class="modal-dialog"  style="width:800">
+
+          <div class="modal-content">
+            
+            <div class="modal-body">
+              <img  style="width:100%" src="{{src}}"/>
+            </div>
+            
+          </div>
+
+        </div>
+      </div>
+    </script>
+  </body>
+	
+  <!-- 
+    The javascript code to instantiate the template
+  -->
+  <script type="text/javascript">
+    // get the source code for our two template
+    // and compile them
+    var source   = $("#album-template").html();
+    var template = Handlebars.compile(source);
+
+    source   = $("#modal-template").html();
+    var modal_template = Handlebars.compile(source);
+    
+    // define the data for the template
+    // we define an objects which contains an 
+    // array of other objects. This array will be used
+    // to create multiple images
+    var data = {images:[
+         {
+       src: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Shopping_Center_Magna_Plaza_Amsterdam_2014.jpg/2560px-Shopping_Center_Magna_Plaza_Amsterdam_2014.jpg", 
+           title: "Shopping Center Magna Plaza Amsterdam 2014",
+           author: "Tuxyso", 
+           },
+         {
+       src: "https://upload.wikimedia.org/wikipedia/commons/archive/9/97/20101017074210%21The_Earth_seen_from_Apollo_17.jpg", 
+           title:"The Earth seen from Apollo 17",
+           author:"Ed g2s"
+           },
+         {
+       src:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Barnard_33.jpg/300px-Barnard_33.jpg",
+           title: "horse nebula",
+           author: "John Smith", 
+           },
+         {
+           src:"http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Wwii_woman_worker-edit.jpg/300px-Wwii_woman_worker-edit.jpg",
+           title:"wwii woman worker",
+           author:"Another author", 
+        },
+         {
+       src:"http://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Lijiang_Yunnan_China-Naxi-people-carrying-baskets-01.jpg/300px-Lijiang_Yunnan_China-Naxi-people-carrying-baskets-01.jpg",
+           title:"Lijiang Yunnan China Naxi people carrying baskets-",
+           author:"Wikimedia Commons", 
+           }, 
+         {
+       src:"http://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Stift_G%C3%B6ttweig_Gobelinzimmer_01.JPG/300px-Stift_G%C3%B6ttweig_Gobelinzimmer_01.JPG",
+           title:"Marco's house",
+           author:"Wikimedia Commons", 
+           }, 
+         
+         ]};
+
+    // render the data into the template
+    var html    = template(data);
+    // put the rendered template into the DOM
+    $('#content').html(html);
+
+    // a function to display a clicked
+    // image as a modal
+    // this is added as a click callback
+    // to the thumbnails
+    function displayModal(event){
+        // get the index (position in the array)
+        // of the photo we clicked on
+        // "this" is the element that was clicked on
+        // data("id") gets the attribute data-id
+        // (which we set to the index of the photo in
+        // the array - @index)
+        var imageNumber = $(this).data("id");
+
+        // get the image out of the array using the image
+        // number and render it using the modal template
+        var html    = modal_template(data.images[imageNumber]);
+        // put the modal template in the DOM
+        $('#modal-container').html(html);
+
+        // show the modal
+        $("#imageModal").modal('show');
+    }
+
+    // display the modal when you click on a thumbnail
+    $('.thumbnail').click(displayModal);
+
+    // the search functionality
+    // this happens when a key is pressed 
+    // inside the search box
+    $('#searchbox').keypress(function (e) {
+
+      // check if the key that was pressed
+      // is the return key (it has id 13)
+      // and only do the search if it is
+      if (e.which == 13) {
+
+        // get the search text which is the 
+        // contents of the search box
+        var search_text = $('#searchbox').val();
+
+        // print the search box 
+        // (this is an example of using
+        // console.log for debugging)
+        console.log(search_text)
+
+        // create a new array of data with only
+        // the data that contains the search string
+        var filteredData = {
+
+          // use the filter function which returns
+          // a new array that contains only the 
+          // elements of data.images for which 
+          // the function returns true
+          images: data.images.filter(function(d){
+            
+            // return true if the title contains 
+            // the search text
+            if (d.title.search(search_text) > -1){
+              return true;
+            }
+            
+            // return true if the author contains 
+            // the search text
+            if (d.author.search(search_text) > -1){
+              return true;
+            }
+
+            // if we reach here it means we haven't 
+            // found a match so return false
+            return false;
+          })
+        };
+        
+        // pass the newly filtered data into
+        // the template to generate new html
+        var html    = template(filteredData);
+        $('#content').html(html);
+
+        // display the modal when you click on a thumbnail
+        $('.thumbnail').click(displayModal);
+      }
+    });
+
+  </script>
+
+</body>

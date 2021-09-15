@@ -1,0 +1,1189 @@
+<h1 id="week-15-day-2-react-redux" data-ignore="true">WEEK-15 DAY-2<br><em>React + Redux</em></h1>
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=2 orderedList=false} -->
+<hr />
+<hr />
+<h1 id="redux-learning-objectives-part-2">Redux Learning Objectives: Part 2</h1>
+<p>To keep things as simple as possible when initially learning Redux, you started with using Redux independent of React. Now it’s time to learn how to use Redux within a React application!</p>
+<p>After reading and practicing how to use Redux with React, you should be able to:</p>
+<ul>
+<li>Add Redux actions, reducer(s), and a store to a React project</li>
+<li>Update a React class component to subscribe to a Redux store to listen for state changes</li>
+<li>Update a React component to dispatch actions to a Redux store</li>
+<li>Define multiple reducers to manage individual slices of state</li>
+<li>Use the Redux <code>combineReducers</code> method to combine multiple reducers into a single root reducer</li>
+<li>Update a reducer to delegate a state update to a subordinate reducer</li>
+<li>Describe how container components differ from presentational components</li>
+<li>Write a container component to handle all of the Redux store interaction for one or more presentational components</li>
+<li>Use <code>Object.freeze</code> to prevent the current state within a reducer from being mutated</li>
+<li>Create a Redux store with preloaded state</li>
+</ul>
+<hr />
+<h1 id="using-redux-with-react">Using Redux with React</h1>
+<p>To keep things as simple as possible when initially learning Redux, you started with using Redux independent of React. Now it’s time to learn how to use Redux within a React application!</p>
+<p>When you finish this article, you should be able to:</p>
+<ul>
+<li>Add Redux actions, reducer(s), and a store to a React project</li>
+<li>Update a React class component to subscribe to a Redux store to listen for state changes</li>
+<li>Update a React component to dispatch actions to a Redux store</li>
+</ul>
+<h2 id="integrating-redux-into-a-react-application">Integrating Redux into a React application</h2>
+<p>The techniques shown in this article for integrating Redux into a React application, is just one step in your journey to learn Redux. As you work your way through this lesson, you’ll learn how to improve upon these techniques to improve the organization or your code, the design of your components, and the overall performance of your application.</p>
+<p>In general, the steps to integrate Redux into an existing React application are:</p>
+<ul>
+<li>Set up Redux
+<ul>
+<li>Install the <code>redux</code> npm package</li>
+<li>Define your actions</li>
+<li>Define your reducer(s)</li>
+<li>Create your store</li>
+</ul></li>
+<li>Update components
+<ul>
+<li>Use <code>store.subscribe</code> to listen for state updates</li>
+<li>Call <code>store.getState</code> to retrieve state for rendering</li>
+<li>Call <code>store.dispatch</code> to dispatch actions to the store</li>
+</ul></li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> You’ll start with writing all of the code to interact with the store within each component that needs to render state from the store or to dispatch actions. Later on, you’ll learn how to improve the overall design of your application by using container components. Eventually, you’ll learn how to use the <a href="https://react-redux.js.org/">React-Redux</a> library’s <code>connect</code> method to avoid writing container components by hand.</p>
+</blockquote>
+<h2 id="organizing-your-redux-code">Organizing your Redux code</h2>
+<p>Instead of placing all of your Redux related code into a single file, you’ll separate your store, reducer, and actions into their own files.</p>
+<p>There are a variety of acceptable ways to organize your Redux code within a React project. When starting out with using Redux, organizing your code by type (i.e. separate files or folders for the store, reducers, and actions) often feels natural and makes it easy to find the file that you need to make a change to. As your projects increase in size and complexity, you might find that organizing your files by feature (i.e. locating all the files related to a feature inside of a single folder) will keep you from searching and jumping around a project that contains hundreds of files.</p>
+<blockquote>
+<p><strong>Note:</strong> How a project is organized is highly dependent upon who is working on the project. It’s also not unusual for the organization of a project to evolve and change throughout its lifetime. Don’t struggle too much with deciding on an approach when getting starting a new project. Pick an approach and move on to getting work done!</p>
+</blockquote>
+<h3 id="following-along">Following along</h3>
+<p>If you’d like to follow along, clone the <a href="https://github.com/appacademy-starters/redux-fruit-stand-with-react-starter">react-fruit-stand-with-react-starter</a> repo.</p>
+<p>After cloning the repo, open a terminal and browse to the <code>starter</code> folder within the repo. Run the command <code>npm install</code> to install the project’s dependencies (the <code>redux</code> package is already listed as a dependency). Then use the command <code>npm start</code> to run the Fruit Stand application.</p>
+<p>This Fruit Stand example application is a React application created by the Create React App tooling. When running the application using <code>npm start</code>, the application should automatically open in your default browser. If it doesn’t, you can manually browse to <code>http://localhost:3000/</code> to view the application.</p>
+<h3 id="adding-the-actions">Adding the actions</h3>
+<p>Within the React project’s <code>src</code> folder, add a folder named <code>actions</code>. Within that folder, add a file named <code>fruitActions.js</code> containing the following code:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="co">// ./src/actions/fruitActions.js</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="im">export</span> <span class="kw">const</span> ADD_FRUIT <span class="op">=</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="im">export</span> <span class="kw">const</span> ADD_FRUITS <span class="op">=</span> <span class="st">&#39;ADD_FRUITS&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="im">export</span> <span class="kw">const</span> SELL_FRUIT <span class="op">=</span> <span class="st">&#39;SELL_FRUIT&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="im">export</span> <span class="kw">const</span> SELL_OUT <span class="op">=</span> <span class="st">&#39;SELL_OUT&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-7" title="7"></a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="im">export</span> <span class="kw">const</span> addFruit <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb1-9" title="9">  <span class="dt">type</span><span class="op">:</span> ADD_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-10" title="10">  fruit<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-11" title="11"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-12" title="12"></a>
+<a class="sourceLine" id="cb1-13" title="13"><span class="im">export</span> <span class="kw">const</span> addFruits <span class="op">=</span> (fruits) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb1-14" title="14">  <span class="dt">type</span><span class="op">:</span> ADD_FRUITS<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-15" title="15">  fruits<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-16" title="16"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-17" title="17"></a>
+<a class="sourceLine" id="cb1-18" title="18"><span class="im">export</span> <span class="kw">const</span> sellFruit <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb1-19" title="19">  <span class="dt">type</span><span class="op">:</span> SELL_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-20" title="20">  fruit<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-21" title="21"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-22" title="22"></a>
+<a class="sourceLine" id="cb1-23" title="23"><span class="im">export</span> <span class="kw">const</span> sellOut <span class="op">=</span> () <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb1-24" title="24">  <span class="dt">type</span><span class="op">:</span> SELL_OUT<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-25" title="25"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h3 id="adding-the-reducer">Adding the reducer</h3>
+<p>Within the React project’s <code>src</code> folder, add a folder named <code>reducers</code>. Within that folder, add a file named <code>fruitReducer.js</code> containing the following code:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// ./src/components/fruitReducer.js</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="im">import</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  ADD_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-5" title="5">  ADD_FRUITS<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-6" title="6">  SELL_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-7" title="7">  SELL_OUT<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/fruitActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-9" title="9"></a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-11" title="11">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-12" title="12">    <span class="cf">case</span> <span class="dt">ADD_FRUIT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-13" title="13">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> <span class="va">action</span>.<span class="at">fruit</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-14" title="14">    <span class="cf">case</span> <span class="dt">ADD_FRUITS</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-15" title="15">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> ...<span class="va">action</span>.<span class="at">fruits</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-16" title="16">    <span class="cf">case</span> <span class="dt">SELL_FRUIT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-17" title="17">      <span class="kw">const</span> index <span class="op">=</span> <span class="va">state</span>.<span class="at">indexOf</span>(<span class="va">action</span>.<span class="at">fruit</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-18" title="18">      <span class="cf">if</span> (index <span class="op">!==</span> <span class="dv">-1</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-19" title="19">        <span class="co">// remove first instance of action.fruit</span></a>
+<a class="sourceLine" id="cb2-20" title="20">        <span class="cf">return</span> [...<span class="va">state</span>.<span class="at">slice</span>(<span class="dv">0</span><span class="op">,</span> index)<span class="op">,</span> ...<span class="va">state</span>.<span class="at">slice</span>(index <span class="op">+</span> <span class="dv">1</span>)]<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-21" title="21">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-22" title="22">      <span class="cf">return</span> state<span class="op">;</span> <span class="co">// if action.fruit is not in state, return previous state</span></a>
+<a class="sourceLine" id="cb2-23" title="23">    <span class="cf">case</span> <span class="dt">SELL_OUT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-24" title="24">      <span class="cf">return</span> []<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-25" title="25">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-26" title="26">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-27" title="27">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-28" title="28"><span class="op">};</span></a>
+<a class="sourceLine" id="cb2-29" title="29"></a>
+<a class="sourceLine" id="cb2-30" title="30"><span class="im">export</span> <span class="im">default</span> fruitReducer<span class="op">;</span></a></code></pre></div>
+<h3 id="adding-the-store">Adding the store</h3>
+<p>Within the React project’s <code>src</code> folder, add a file named <code>store.js</code> containing the following code:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="co">// ./src/store.js</span></a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="im">import</span> <span class="op">{</span> createStore <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="im">import</span> fruitReducer <span class="im">from</span> <span class="st">&#39;./reducers/fruitReducer&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-5" title="5"></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="kw">const</span> store <span class="op">=</span> <span class="at">createStore</span>(fruitReducer)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-7" title="7"></a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="im">export</span> <span class="im">default</span> store<span class="op">;</span></a></code></pre></div>
+<h2 id="writing-redux-aware-react-components">Writing Redux aware React components</h2>
+<p><strong>Remember that the integration techniques shown in this article are just a starting point with using Redux with React components.</strong> As you work your way through this lesson, you’ll learn how to improve upon these techniques.</p>
+<h3 id="listening-for-state-changes">Listening for state changes</h3>
+<p>Components that need to render state from the store can use the <code>store.subscribe</code> method to subscribe to listen for state updates. When a state update occurs, the <a href="https://facebook.github.io/react/docs/component-api.html#forceupdate"><code>forceUpdate</code></a> method is called to render the component. Within the component’s <code>render</code> method, the <code>store.getState</code> method is called to retrieve the current state. This approach ensures that whenever state is updated in the store (after the reducer has processed a dispatched action), the component will retrieve and render the updated state.</p>
+<blockquote>
+<p><strong>Note:</strong> Calling <code>forceUpdate</code> causes <code>render</code> to be called without first calling <code>shouldComponentUpdate</code>. Child components will go through their normal lifecycle, including calling <code>shouldComponentUpdate</code> to determine if the child component should render. While this pattern works, it’s a rather blunt instrument for complex components, since re-rendering a parent causes re-rendering of all its children. Later in this lesson, you’ll learn how the <a href="https://react-redux.js.org/">React-Redux</a> library solves this problem.</p>
+</blockquote>
+<p>The <code>componentDidMount</code> and <code>componentWillUnmount</code> class component lifecycle methods can be used to ensure that the component <em>subscribes</em> to the store when it’s mounted and <em>unsubscribes</em> from the store when the component is about to be unmounted:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="co">// ./src/components/FruitList.js</span></a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="im">import</span> store <span class="im">from</span> <span class="st">&#39;../store&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-5" title="5"></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="kw">class</span> FruitList <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-7" title="7">  <span class="at">componentDidMount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-8" title="8">    <span class="kw">this</span>.<span class="at">unsubscribe</span> <span class="op">=</span> <span class="va">store</span>.<span class="at">subscribe</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-9" title="9">      <span class="kw">this</span>.<span class="at">forceUpdate</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-10" title="10">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-11" title="11">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-12" title="12"></a>
+<a class="sourceLine" id="cb4-13" title="13">  <span class="at">componentWillUnmount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-14" title="14">    <span class="cf">if</span> (<span class="kw">this</span>.<span class="at">unsubscribe</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-15" title="15">      <span class="kw">this</span>.<span class="at">unsubscribe</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-16" title="16">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-17" title="17">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-18" title="18"></a>
+<a class="sourceLine" id="cb4-19" title="19">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-20" title="20">    <span class="kw">const</span> fruit <span class="op">=</span> <span class="va">store</span>.<span class="at">getState</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-21" title="21"></a>
+<a class="sourceLine" id="cb4-22" title="22">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb4-23" title="23">      <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-24" title="24">        <span class="op">{</span><span class="va">fruit</span>.<span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb4-25" title="25">          <span class="op">?</span> <span class="op">&lt;</span>ul<span class="op">&gt;{</span><span class="va">fruit</span>.<span class="at">map</span>((fruitName<span class="op">,</span> index) <span class="kw">=&gt;</span> <span class="op">&lt;</span>li key<span class="op">={</span>index<span class="op">}&gt;{</span>fruitName<span class="op">}</span>&lt;/li<span class="op">&gt;</span>)<span class="op">}</span>&lt;/ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-26" title="26">          : <span class="op">&lt;</span>span<span class="op">&gt;</span>No fruit currently <span class="kw">in</span> stock<span class="op">!</span>&lt;/span<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-27" title="27">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-28" title="28">      &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-29" title="29">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-30" title="30">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-31" title="31"><span class="op">}</span></a>
+<a class="sourceLine" id="cb4-32" title="32"></a>
+<a class="sourceLine" id="cb4-33" title="33"><span class="im">export</span> <span class="im">default</span> FruitList<span class="op">;</span></a></code></pre></div>
+<h3 id="dispatching-actions">Dispatching actions</h3>
+<p>Updating a component to dispatch an action to the store is a bit simpler overall than listening for and rendering state updates. You just need to import the appropriate action creator function and use the <code>store.dispatch</code> method within a event handler to dispatch the action:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="co">// ./src/components/FruitQuickAdd.js</span></a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="im">import</span> store <span class="im">from</span> <span class="st">&#39;../store&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="im">import</span> <span class="op">{</span> addFruit <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/fruitActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-6" title="6"></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="kw">class</span> FruitQuickAdd <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-8" title="8">  addFruitClick <span class="op">=</span> (event) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-9" title="9">    <span class="kw">const</span> fruit <span class="op">=</span> <span class="va">event</span>.<span class="va">target</span>.<span class="at">innerText</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-10" title="10">    <span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">addFruit</span>(fruit))<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-11" title="11">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-12" title="12"></a>
+<a class="sourceLine" id="cb5-13" title="13">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-14" title="14">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb5-15" title="15">      <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-16" title="16">        <span class="op">&lt;</span>h3<span class="op">&gt;</span>Quick Add&lt;/h3<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-17" title="17">        <span class="op">&lt;</span>button onClick<span class="op">={</span><span class="kw">this</span>.<span class="at">addFruitClick</span><span class="op">}&gt;</span>APPLE&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-18" title="18">        <span class="op">&lt;</span>button onClick<span class="op">={</span><span class="kw">this</span>.<span class="at">addFruitClick</span><span class="op">}&gt;</span>ORANGE&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-19" title="19">      &lt;/div<span class="op">&gt;</span>  </a>
+<a class="sourceLine" id="cb5-20" title="20">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-21" title="21">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-22" title="22"><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-23" title="23"></a>
+<a class="sourceLine" id="cb5-24" title="24"><span class="im">export</span> <span class="im">default</span> FruitQuickAdd<span class="op">;</span></a></code></pre></div>
+<h3 id="listening-for-state-changes-and-dispatching-actions">Listening for state changes and dispatching actions</h3>
+<p>Sometimes components need to listen for and render state updates <em>and</em> dispatch actions to the store. The <code>FruitSeller</code> component listens for state updates so that it can render a collection of buttons–one for each distinct fruit available in the fruit stand. The component also handles button clicks to dispatch an action to sell a fruit or to sell out all of the fruits.</p>
+<p>Here’s what the component looks like:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="co">// ./src/components/FruitSeller.js</span></a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="im">import</span> store <span class="im">from</span> <span class="st">&#39;../store&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="im">import</span> <span class="op">{</span> sellFruit<span class="op">,</span> sellOut <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/fruitActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-6" title="6"></a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="kw">class</span> FruitSeller <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-8" title="8">  sellFruitClick <span class="op">=</span> (event) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-9" title="9">    <span class="kw">const</span> fruit <span class="op">=</span> <span class="va">event</span>.<span class="va">target</span>.<span class="at">innerText</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-10" title="10">    <span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">sellFruit</span>(fruit))<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-11" title="11">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-12" title="12"></a>
+<a class="sourceLine" id="cb6-13" title="13">  sellOutClick <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-14" title="14">    <span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">sellOut</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-15" title="15">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-16" title="16"></a>
+<a class="sourceLine" id="cb6-17" title="17">  <span class="at">componentDidMount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-18" title="18">    <span class="kw">this</span>.<span class="at">unsubscribe</span> <span class="op">=</span> <span class="va">store</span>.<span class="at">subscribe</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-19" title="19">      <span class="kw">this</span>.<span class="at">forceUpdate</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-20" title="20">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-21" title="21">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-22" title="22"></a>
+<a class="sourceLine" id="cb6-23" title="23">  <span class="at">componentWillUnmount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-24" title="24">    <span class="cf">if</span> (<span class="kw">this</span>.<span class="at">unsubscribe</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-25" title="25">      <span class="kw">this</span>.<span class="at">unsubscribe</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-26" title="26">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-27" title="27">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-28" title="28"></a>
+<a class="sourceLine" id="cb6-29" title="29">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-30" title="30">    <span class="kw">const</span> fruit <span class="op">=</span> <span class="va">store</span>.<span class="at">getState</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-31" title="31">    <span class="kw">const</span> distinctFruit <span class="op">=</span> <span class="va">Array</span>.<span class="at">from</span>(<span class="kw">new</span> <span class="at">Set</span>(fruit)).<span class="at">sort</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-32" title="32"></a>
+<a class="sourceLine" id="cb6-33" title="33">    <span class="cf">if</span> (<span class="va">distinctFruit</span>.<span class="at">length</span> <span class="op">===</span> <span class="dv">0</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-34" title="34">      <span class="cf">return</span> <span class="kw">null</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-35" title="35">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-36" title="36"></a>
+<a class="sourceLine" id="cb6-37" title="37">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb6-38" title="38">      <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-39" title="39">        <span class="op">&lt;</span>h3<span class="op">&gt;</span>Sell&lt;/h3<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-40" title="40">        <span class="op">{</span><span class="va">distinctFruit</span>.<span class="at">map</span>((fruitName<span class="op">,</span> index) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb6-41" title="41">          <span class="op">&lt;</span>button key<span class="op">={</span>index<span class="op">}</span> onClick<span class="op">={</span><span class="kw">this</span>.<span class="at">sellFruitClick</span><span class="op">}&gt;{</span>fruitName<span class="op">}</span>&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-42" title="42">        ))<span class="op">}</span></a>
+<a class="sourceLine" id="cb6-43" title="43">        <span class="op">&lt;</span>button onClick<span class="op">={</span><span class="kw">this</span>.<span class="at">sellOutClick</span><span class="op">}&gt;</span>SELL OUT&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-44" title="44">      &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-45" title="45">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-46" title="46">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-47" title="47"><span class="op">}</span></a>
+<a class="sourceLine" id="cb6-48" title="48"></a>
+<a class="sourceLine" id="cb6-49" title="49"><span class="im">export</span> <span class="im">default</span> FruitSeller<span class="op">;</span></a></code></pre></div>
+<p>The <code>FruitSeller</code> component is sort of a mash up of the <code>FruitList</code> and <code>FruitQuickAdd</code> components!</p>
+<h3 id="practicing-on-your-own">Practicing on your own</h3>
+<p>There’s just one component left to implement: <code>BulkAdd</code>. This is the perfect chance to get a bit of practice on your own to help you cement what you’re learned in this article.</p>
+<h2 id="reviewing-a-completed-fruit-stand-example">Reviewing a completed Fruit Stand example</h2>
+<p>To review and run a completed Fruit Stand example application that uses React with Redux, clone the <a href="https://github.com/appacademy-starters/redux-fruit-stand-examples">redux-fruit-stand-examples</a> repo.</p>
+<p>After cloning the repo, open a terminal and browse to the <code>fruit-stand-redux-with-react</code> folder. Run the command <code>npm install</code> to install the project’s dependencies. Then use the command <code>npm start</code> to run the Fruit Stand application.</p>
+<p>This Fruit Stand example application is a React application created by the Create React App tooling. When running the application using <code>npm start</code>, the application should automatically open in your default browser. If it doesn’t, you can manually browse to <code>http://localhost:3000/</code> to view the application.</p>
+<h2 id="what-you-learned">What you learned</h2>
+<p>In this article, you learned how to add Redux actions, reducer(s), and a store to a React project. You also learned how to update a React class component to subscribe to a Redux store to listen for state changes and to dispatch actions to a Redux store.</p>
+<hr />
+<h1 id="splitting-and-combining-reducers">Splitting and Combining Reducers</h1>
+<p>So far, you’ve been using a single reducer to manage state in your Redux store. As your applications increase in size and complexity, it’ll become necessary to use multiple reducers, each managing a slice of state.</p>
+<p>When you finish this article, you should be able to:</p>
+<ul>
+<li>Define multiple reducers to manage individual slices of state</li>
+<li>Use the Redux <code>combineReducers</code> method to combine multiple reducers into a single root reducer</li>
+<li>Update a reducer to delegate a state update to a subordinate reducer</li>
+</ul>
+<h2 id="splitting-reducers">Splitting reducers</h2>
+<p>Imagine that your fruit stand is extremely successful and it grows so much that you need multiple farmers helping you to keep your stand stocked with fruit. Your application’s state will need to grow to store not only an array of <code>fruit</code> but also a <code>farmers</code> object that keeps track of your farmers.</p>
+<p>Here’s a sample state tree of your updated application:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb7-2" title="2">  <span class="dt">fruit</span><span class="op">:</span> [</a>
+<a class="sourceLine" id="cb7-3" title="3">    <span class="st">&#39;APPLE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-4" title="4">    <span class="st">&#39;APPLE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-5" title="5">    <span class="st">&#39;ORANGE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-6" title="6">    <span class="st">&#39;GRAPEFRUIT&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-7" title="7">    <span class="st">&#39;WATERMELON&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-8" title="8">  ]<span class="op">,</span></a>
+<a class="sourceLine" id="cb7-9" title="9">  <span class="dt">farmers</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-10" title="10">    <span class="dv">1</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-11" title="11">      <span class="dt">id</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-12" title="12">      <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;John Smith&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-13" title="13">      <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-14" title="14">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb7-15" title="15">    <span class="dv">2</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-16" title="16">      <span class="dt">id</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-17" title="17">      <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;Sally Jones&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-18" title="18">      <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-19" title="19">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb7-20" title="20">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-21" title="21"><span class="op">}</span></a></code></pre></div>
+<p>The store now needs to handle new action types like <code>'HIRE_FARMER'</code> and <code>'PAY_FARMER'</code> by updating the <code>farmers</code> slice of state. You could add more cases to your existing reducer, but eventually the existing reducer would become too large and difficult to manage. The solution is to split the reducer into separate <code>fruit</code> and <code>farmers</code> reducers.</p>
+<p>Splitting up the reducer into multiple reducers handling separate, independent <em>slices</em> of state is called <strong>reducer composition</strong>, and it’s the fundamental pattern of building Redux apps. Because each reducer only handles a single <em>slice</em> of state, its <code>state</code> parameter corresponds only to the part of the state that it manages and it only responds to actions that concern that slice of state.</p>
+<p>Split up your popular Fruit Stand application’s reducer into two reducers:</p>
+<ul>
+<li><code>fruitReducer</code> - A reducing function that handles actions updating the <code>fruits</code> slice of state</li>
+<li><code>farmersReducer</code> - A reducing function that handles actions updating the new <code>farmers</code> slice of state</li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="co">// ./src/reducers/fruitReducer.js</span></a>
+<a class="sourceLine" id="cb8-2" title="2"></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="im">import</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-4" title="4">  ADD_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-5" title="5">  ADD_FRUITS<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-6" title="6">  SELL_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-7" title="7">  SELL_OUT<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-8" title="8"><span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/fruitActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-9" title="9"></a>
+<a class="sourceLine" id="cb8-10" title="10"><span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-11" title="11">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-12" title="12">    <span class="cf">case</span> <span class="dt">ADD_FRUIT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb8-13" title="13">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> <span class="va">action</span>.<span class="at">fruit</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-14" title="14">    <span class="cf">case</span> <span class="dt">ADD_FRUITS</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb8-15" title="15">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> ...<span class="va">action</span>.<span class="at">fruits</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-16" title="16">    <span class="cf">case</span> <span class="dt">SELL_FRUIT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb8-17" title="17">      <span class="kw">const</span> index <span class="op">=</span> <span class="va">state</span>.<span class="at">indexOf</span>(<span class="va">action</span>.<span class="at">fruit</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-18" title="18">      <span class="cf">if</span> (index) <span class="op">!==</span> <span class="dv">-1</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-19" title="19">        <span class="co">// remove first instance of action.fruit</span></a>
+<a class="sourceLine" id="cb8-20" title="20">        <span class="cf">return</span> [...<span class="va">state</span>.<span class="at">slice</span>(<span class="dv">0</span><span class="op">,</span> index)<span class="op">,</span> ...<span class="va">state</span>.<span class="at">slice</span>(index <span class="op">+</span> <span class="dv">1</span>)]<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-21" title="21">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-22" title="22">      <span class="cf">return</span> state<span class="op">;</span> <span class="co">// if action.fruit is not in state, return previous state</span></a>
+<a class="sourceLine" id="cb8-23" title="23">    <span class="cf">case</span> <span class="dt">SELL_OUT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb8-24" title="24">      <span class="cf">return</span> []<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-25" title="25">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb8-26" title="26">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-27" title="27">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-28" title="28"><span class="op">};</span></a>
+<a class="sourceLine" id="cb8-29" title="29"></a>
+<a class="sourceLine" id="cb8-30" title="30"><span class="im">export</span> <span class="im">default</span> fruitReducer<span class="op">;</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="co">// ./src/reducers/farmersReducer.js</span></a>
+<a class="sourceLine" id="cb9-2" title="2"></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="im">import</span> <span class="op">{</span> HIRE_FARMER<span class="op">,</span> PAY_FARMER <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/farmersActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb9-4" title="4"></a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="kw">const</span> farmersReducer <span class="op">=</span> (state <span class="op">=</span> <span class="op">{},</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-6" title="6">  <span class="kw">let</span> nextState <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-7" title="7">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-8" title="8">    <span class="cf">case</span> <span class="dt">HIRE_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb9-9" title="9">      <span class="kw">const</span> farmerToHire <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-10" title="10">        <span class="dt">id</span><span class="op">:</span> <span class="va">action</span>.<span class="at">id</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb9-11" title="11">        <span class="dt">name</span><span class="op">:</span> <span class="va">action</span>.<span class="at">name</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb9-12" title="12">        <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb9-13" title="13">      <span class="op">};</span></a>
+<a class="sourceLine" id="cb9-14" title="14">      nextState[<span class="va">action</span>.<span class="at">id</span>] <span class="op">=</span> farmerToHire<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-15" title="15">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-16" title="16">    <span class="cf">case</span> <span class="dt">PAY_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb9-17" title="17">      <span class="kw">const</span> farmerToPay <span class="op">=</span> nextState[<span class="va">action</span>.<span class="at">id</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-18" title="18">      <span class="va">farmerToPay</span>.<span class="at">paid</span> <span class="op">=</span> <span class="op">!</span><span class="va">farmerToPay</span>.<span class="at">paid</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb9-19" title="19">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-20" title="20">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb9-21" title="21">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-22" title="22">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb9-23" title="23"><span class="op">};</span></a>
+<a class="sourceLine" id="cb9-24" title="24"></a>
+<a class="sourceLine" id="cb9-25" title="25"><span class="im">export</span> <span class="im">default</span> farmersReducer<span class="op">;</span></a></code></pre></div>
+<p>You’ll also need to define a module containing the <code>'HIRE_FARMER'</code> and <code>'PAY_FARMER'</code> actions:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1"><span class="co">// ./src/actions/farmersActions.js</span></a>
+<a class="sourceLine" id="cb10-2" title="2"></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="im">export</span> <span class="kw">const</span> HIRE_FARMER <span class="op">=</span> <span class="st">&#39;HIRE_FARMER&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb10-4" title="4"><span class="im">export</span> <span class="kw">const</span> PAY_FARMER <span class="op">=</span> <span class="st">&#39;PAY_FARMER&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb10-5" title="5"></a>
+<a class="sourceLine" id="cb10-6" title="6"><span class="im">export</span> <span class="kw">const</span> hireFarmer <span class="op">=</span> (name) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb10-7" title="7">  <span class="dt">type</span><span class="op">:</span> HIRE_FARMER<span class="op">,</span></a>
+<a class="sourceLine" id="cb10-8" title="8">  <span class="dt">id</span><span class="op">:</span> <span class="kw">new</span> <span class="at">Date</span>().<span class="at">getTime</span>()<span class="op">,</span></a>
+<a class="sourceLine" id="cb10-9" title="9">  name<span class="op">,</span></a>
+<a class="sourceLine" id="cb10-10" title="10"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-11" title="11"></a>
+<a class="sourceLine" id="cb10-12" title="12"><span class="im">export</span> <span class="kw">const</span> payFarmer <span class="op">=</span> (id) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb10-13" title="13">  <span class="dt">type</span><span class="op">:</span> PAY_FARMER<span class="op">,</span></a>
+<a class="sourceLine" id="cb10-14" title="14">  id<span class="op">,</span></a>
+<a class="sourceLine" id="cb10-15" title="15"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h2 id="combining-reducers">Combining reducers</h2>
+<p>Your reducer setup is now much more modular. However, <code>createStore</code> only takes one <code>reducer</code> argument, so you must combine your reducers back into a single reducer to pass to the store. To do this you’ll use the <code>combineReducers</code> method from the <code>redux</code> package and pass it an object that maps state keys to the reducers that handle those slices of state. Below, the <code>combineReducers</code> maps the <code>fruitReducer</code> for the <code>fruit</code> slice of state and the <code>farmersReducer</code> for the <code>farmers</code> slice of state. Invoking the <code>combineReducers</code> function returns a single <code>rootReducer</code> that you can use to create your Redux store.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" title="1"><span class="co">// ./src/reducers/rootReducer.js</span></a>
+<a class="sourceLine" id="cb11-2" title="2"></a>
+<a class="sourceLine" id="cb11-3" title="3"><span class="im">import</span> <span class="op">{</span> combineReducers <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="im">import</span> fruitReducer <span class="im">from</span> <span class="st">&#39;./fruitReducer&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb11-5" title="5"><span class="im">import</span> farmersReducer <span class="im">from</span> <span class="st">&#39;./farmersReducer&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb11-6" title="6"></a>
+<a class="sourceLine" id="cb11-7" title="7"><span class="kw">const</span> rootReducer <span class="op">=</span> <span class="at">combineReducers</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb11-8" title="8">  <span class="dt">fruit</span><span class="op">:</span> fruitReducer<span class="op">,</span></a>
+<a class="sourceLine" id="cb11-9" title="9">  <span class="dt">farmers</span><span class="op">:</span> farmersReducer</a>
+<a class="sourceLine" id="cb11-10" title="10"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb11-11" title="11"></a>
+<a class="sourceLine" id="cb11-12" title="12"><span class="im">export</span> <span class="im">default</span> rootReducer<span class="op">;</span></a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" title="1"><span class="im">import</span> <span class="op">{</span> createStore <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="im">import</span> rootReducer <span class="im">from</span> <span class="st">&#39;./reducers/rootReducer&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb12-3" title="3"></a>
+<a class="sourceLine" id="cb12-4" title="4"><span class="kw">const</span> store <span class="op">=</span> <span class="at">createStore</span>(rootReducer)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-5" title="5"></a>
+<a class="sourceLine" id="cb12-6" title="6"><span class="im">export</span> <span class="im">default</span> store<span class="op">;</span></a></code></pre></div>
+<h2 id="delegating-to-reducers">Delegating to reducers</h2>
+<p>Another aspect of reducer composition involves delegating state updates to subordinate reducers. Consider the farmers reducer. You can modify it so that the <code>farmers</code> (plural) reducer delegates to a <code>farmer</code> (singular) reducer whenever a single farmer’s attributes need to be modified (in this case whenever a farmer has been hired or paid):</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" title="1"><span class="co">// ./src/reducers/farmersReducer.js</span></a>
+<a class="sourceLine" id="cb13-2" title="2"></a>
+<a class="sourceLine" id="cb13-3" title="3"><span class="im">import</span> <span class="op">{</span> HIRE_FARMER<span class="op">,</span> PAY_FARMER <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/farmersActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb13-4" title="4"></a>
+<a class="sourceLine" id="cb13-5" title="5"><span class="kw">const</span> farmerReducer <span class="op">=</span> (state<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-6" title="6">  <span class="co">// State is a farmer object.</span></a>
+<a class="sourceLine" id="cb13-7" title="7">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-8" title="8">    <span class="cf">case</span> <span class="dt">HIRE_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb13-9" title="9">      <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-10" title="10">        <span class="dt">id</span><span class="op">:</span> <span class="va">action</span>.<span class="at">id</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb13-11" title="11">        <span class="dt">name</span><span class="op">:</span> <span class="va">action</span>.<span class="at">name</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb13-12" title="12">        <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb13-13" title="13">      <span class="op">};</span></a>
+<a class="sourceLine" id="cb13-14" title="14">    <span class="cf">case</span> <span class="dt">PAY_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb13-15" title="15">      <span class="cf">return</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> state<span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-16" title="16">        <span class="dt">paid</span><span class="op">:</span> <span class="op">!</span><span class="va">state</span>.<span class="at">paid</span></a>
+<a class="sourceLine" id="cb13-17" title="17">      <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-18" title="18">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb13-19" title="19">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-20" title="20">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb13-21" title="21"><span class="op">};</span></a>
+<a class="sourceLine" id="cb13-22" title="22"></a>
+<a class="sourceLine" id="cb13-23" title="23"><span class="kw">const</span> farmersReducer <span class="op">=</span> (state <span class="op">=</span> <span class="op">{},</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-24" title="24">  <span class="kw">let</span> nextState <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-25" title="25">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-26" title="26">    <span class="cf">case</span> <span class="dt">HIRE_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb13-27" title="27">      nextState[<span class="va">action</span>.<span class="at">id</span>] <span class="op">=</span> <span class="at">farmerReducer</span>(<span class="kw">undefined</span><span class="op">,</span> action)<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-28" title="28">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-29" title="29">    <span class="cf">case</span> <span class="dt">PAY_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb13-30" title="30">      nextState[<span class="va">action</span>.<span class="at">id</span>] <span class="op">=</span> <span class="at">farmerReducer</span>(nextState[<span class="va">action</span>.<span class="at">id</span>]<span class="op">,</span> action)<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-31" title="31">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-32" title="32">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb13-33" title="33">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-34" title="34">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb13-35" title="35"><span class="op">};</span></a>
+<a class="sourceLine" id="cb13-36" title="36"></a>
+<a class="sourceLine" id="cb13-37" title="37"><span class="im">export</span> <span class="im">default</span> farmersReducer<span class="op">;</span></a></code></pre></div>
+<h3 id="catching-and-preventing-state-mutation-bugs">Catching and preventing state mutation bugs</h3>
+<p>Updating the <code>farmersReducer</code> to delegate farmer state updates to the <code>farmerReducer</code> resolved a subtle state mutation bug. Take another look at the original implementation of the <code>farmersReducer</code> function:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">const</span> farmersReducer <span class="op">=</span> (state <span class="op">=</span> <span class="op">{},</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-2" title="2">  <span class="kw">let</span> nextState <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-3" title="3">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-4" title="4">    <span class="cf">case</span> <span class="dt">HIRE_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb14-5" title="5">      <span class="kw">const</span> farmerToHire <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-6" title="6">        <span class="dt">id</span><span class="op">:</span> <span class="va">action</span>.<span class="at">id</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb14-7" title="7">        <span class="dt">name</span><span class="op">:</span> <span class="va">action</span>.<span class="at">name</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb14-8" title="8">        <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb14-9" title="9">      <span class="op">};</span></a>
+<a class="sourceLine" id="cb14-10" title="10">      nextState[<span class="va">action</span>.<span class="at">id</span>] <span class="op">=</span> farmerToHire<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-11" title="11">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-12" title="12">    <span class="cf">case</span> <span class="dt">PAY_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb14-13" title="13">      <span class="kw">const</span> farmerToPay <span class="op">=</span> nextState[<span class="va">action</span>.<span class="at">id</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-14" title="14">      <span class="va">farmerToPay</span>.<span class="at">paid</span> <span class="op">=</span> <span class="op">!</span><span class="va">farmerToPay</span>.<span class="at">paid</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb14-15" title="15">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-16" title="16">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb14-17" title="17">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-18" title="18">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb14-19" title="19"><span class="op">};</span></a></code></pre></div>
+<p>Notice that the <code>state</code> parameter is duplicated to the <code>nextState</code> variable using the <code>Object.assign</code> method:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">let</span> nextState <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> state)<span class="op">;</span></a></code></pre></div>
+<p>While this code correctly creates a duplicate of the <code>state</code> object, <code>nextState</code> is only a
+    shallow duplicate as only the top-level object is duplicated. Each "farmer" object that the <code>state</code>
+    object refers to are still the <em>same</em> objects.</p>
+<p>In the <code>PAY_FARMER</code> case clause, the farmer object is mutated by setting the <code>paid</code> property to a new value:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb16-1" title="1"><span class="cf">case</span> PAY_FARMER<span class="op">:</span></a>
+<a class="sourceLine" id="cb16-2" title="2">  <span class="kw">const</span> farmerToPay <span class="op">=</span> nextState[<span class="va">action</span>.<span class="at">id</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb16-3" title="3">  <span class="va">farmerToPay</span>.<span class="at">paid</span> <span class="op">=</span> <span class="op">!</span><span class="va">farmerToPay</span>.<span class="at">paid</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb16-4" title="4">  <span class="cf">return</span> nextState<span class="op">;</span></a></code></pre></div>
+<p>Now look again at the <code>PAY_FARMER</code> case clause in the version of the <code>farmersReducer</code> that delegates farmer state updates to the <code>farmerReducer</code>:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb17-1" title="1"><span class="cf">case</span> PAY_FARMER<span class="op">:</span></a>
+<a class="sourceLine" id="cb17-2" title="2">  nextState[<span class="va">action</span>.<span class="at">id</span>] <span class="op">=</span> <span class="at">farmerReducer</span>(nextState[<span class="va">action</span>.<span class="at">id</span>]<span class="op">,</span> action)<span class="op">;</span></a>
+<a class="sourceLine" id="cb17-3" title="3">  <span class="cf">return</span> nextState<span class="op">;</span></a></code></pre></div>
+<p>This code calls the <code>farmerReducer</code> by passing in the farmer object for the <code>action.id</code> property value (i.e. <code>nextState[action.id]</code>) and the <code>action</code> parameter. The <code>farmerReducer</code> has a <code>PAY_FARMER</code> case clause that correctly uses the <code>Object.assign</code> method to duplicate the farmer object with the new <code>paid</code> property value (i.e. <code>Object.assign({}, state, { paid: !state.paid })</code>):</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">const</span> farmerReducer <span class="op">=</span> (state<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb18-2" title="2">  <span class="co">// State is a farmer object.</span></a>
+<a class="sourceLine" id="cb18-3" title="3">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb18-4" title="4">    <span class="cf">case</span> <span class="dt">HIRE_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb18-5" title="5">      <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb18-6" title="6">        <span class="dt">id</span><span class="op">:</span> <span class="va">action</span>.<span class="at">id</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb18-7" title="7">        <span class="dt">name</span><span class="op">:</span> <span class="va">action</span>.<span class="at">name</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb18-8" title="8">        <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb18-9" title="9">      <span class="op">};</span></a>
+<a class="sourceLine" id="cb18-10" title="10">    <span class="cf">case</span> <span class="dt">PAY_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb18-11" title="11">      <span class="cf">return</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> state<span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb18-12" title="12">        <span class="dt">paid</span><span class="op">:</span> <span class="op">!</span><span class="va">state</span>.<span class="at">paid</span></a>
+<a class="sourceLine" id="cb18-13" title="13">      <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb18-14" title="14">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb18-15" title="15">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb18-16" title="16">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb18-17" title="17"><span class="op">};</span></a></code></pre></div>
+<p><strong>Catching state mutation bugs is difficult to do.</strong> Leveraging patterns like reducer composition can help you from introducing these kinds of bugs in the first place.</p>
+<h2 id="destructuring-state-in-your-component">Destructuring State in your component</h2>
+<p>If you try to start your Fruit Stand app now, you will probably get an error that looks something like:</p>
+<pre><code>TypeError: object is not iterable (cannot read property Symbol(Symbol.iterator))</code></pre>
+<p>That is because there is one last thing that you need to do in order prepare your fruitstand to use these split reducers: make sure that your component is accessing the right slice of state. Back in your <code>FruitList.js</code> <code>render</code> method, you are currently assigning the return value of your <code>getState()</code> call to ‘fruit’.</p>
+<pre><code>const fruit = store.getState();</code></pre>
+<p>If you <code>console.log</code> or insert a debugger just after this line to see what fruit has been assigned, you will see:</p>
+<pre><code>fruit = {
+  fruit: [],
+  farmers: {}
+}</code></pre>
+<p>Your state shape changed when you created these reducers! You component is trying to iterate over your new state shape, instead of the fruit slice of that state. To give the component access to the array of fruit, destructure this assignment:</p>
+<pre><code>const { fruit } = store.getState();</code></pre>
+<h2 id="reviewing-a-completed-fruit-stand-example-1">Reviewing a completed Fruit Stand example</h2>
+<p>To review and run a completed Fruit Stand example application that contains multiple reducers, clone the <a href="https://github.com/appacademy-starters/redux-fruit-stand-examples">redux-fruit-stand-examples</a> repo.</p>
+<p>After cloning the repo, open a terminal and browse to the <code>fruit-stand-redux-with-react-multiple-reducers</code> folder. Run the command <code>npm install</code> to install the project’s dependencies. Then use the command <code>npm start</code> to run the Fruit Stand application.</p>
+<p>This Fruit Stand example application is a React application created by the Create React App tooling. When running the application using <code>npm start</code>, the application should automatically open in your default browser. If it doesn’t, you can manually browse to <code>http://localhost:3000/</code> to view the application.</p>
+<h2 id="what-you-learned-1">What you learned</h2>
+<p>In this article, you learned how to define multiple reducers to manage individual slices of state. You also learned how to use the Redux <code>combineReducers</code> method to combine multiple reducers into a single root reducer and how to update a reducer to delegate a state update to a subordinate reducer.</p>
+<hr />
+<h1 id="container-components">Container Components</h1>
+<p>As you saw in an earlier article, there can be quite a bit of code involved in connecting a component to the store. Putting all this code into the component with heavy rendering logic tends to cause bloated components and violates the principle of <a href="https://en.wikipedia.org/wiki/Separation_of_concerns">separation of concerns</a>. Therefore, it’s a common pattern in Redux code to separate <strong>presentational components</strong> from their connected counterparts, called <strong>containers</strong>.</p>
+<p>When you finish this article, you should be able to:</p>
+<ul>
+<li>Describe how container components differ from presentational components</li>
+<li>Write a container component to handle all of the Redux store interaction for one or more presentational components</li>
+</ul>
+<h2 id="comparing-presentational-and-container-components">Comparing presentational and container components</h2>
+<p>The distinction between presentational components and containers is not technical but rather functional. Presentational components are concerned with how things look and container components are concerned with how things work.</p>
+<p>Here’s a table outlining the differences:</p>
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 34%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Presentational</th>
+<th>Container</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Purpose</td>
+<td>How things look (markup, styles)</td>
+<td>How things work (data fetching, state updates)</td>
+</tr>
+<tr class="even">
+<td>Aware of Redux</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td>To Read Data</td>
+<td>Read data from <code>props</code></td>
+<td>Subscribe to Redux state</td>
+</tr>
+<tr class="even">
+<td>To Change Data</td>
+<td>Invoke callbacks from <code>props</code></td>
+<td>Dispatch Redux actions</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Note:</strong> You’ll start with writing all of the code for your container components by hand. Later in this lesson, you’ll learn how to create container components using the <a href="https://react-redux.js.org/">React-Redux</a> library’s <code>connect</code> method.</p>
+</blockquote>
+<h2 id="determining-where-to-create-containers">Determining where to create containers</h2>
+<p>Not every component needs to be connected to the store. Generally, you’ll only want to create containers for the ‘big’ components in your app that represent sections of a page and contain smaller purely functional presentational components. These larger container components are responsible for interacting with the store and passing state and dispatch props down to all their presentational children.</p>
+<p>For the Fruit Stand application, a good starting point would be to create two container components,
+    <code>FruitManagerContainer</code> and <code>FarmerManagerContainer</code>, to respectively render the
+    presentational components for the "Fruit" and "Farmers" sections of the page. Here’s a visual representation of that
+    component hierarchy:</p>
+<pre><code>App
+├── FruitManagerContainer
+│   └── FruitManager
+│       ├── FruitList
+│       ├── FruitSeller
+│       ├── FruitQuickAdd
+│       └── FruitBulkAdd
+└── FarmerManagerContainer
+    └── FarmerManager
+        ├── FarmerList
+        │   └── Farmer
+        └── FarmerHire</code></pre>
+<p>Notice that the container component names are a combination of the name of the presentational component that they wrap and the suffix "Container".</p>
+<p>In general, aim to have fewer containers rather than more. Most of the components you’ll write will be presentational, but you’ll need to generate a few containers to connect presentational components to the Redux store.</p>
+<h2 id="writing-a-container-component">Writing a container component</h2>
+<p>While you can write a container component from scratch, you can also refactor an existing React component that interacts with a Redux store into separate container and presentational components.</p>
+<h3 id="using-a-container-component-to-retrieve-state">Using a container component to retrieve state</h3>
+<p>Here’s the current version of the <code>FruitList</code> component that subscribes to the store (using <code>store.subscribe</code>) to know when state has been updated and calls <code>store.getState</code> to retrieve and render the <code>fruit</code> state slice:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb24-1" title="1"><span class="co">// ./src/components/FruitList.js</span></a>
+<a class="sourceLine" id="cb24-2" title="2"></a>
+<a class="sourceLine" id="cb24-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb24-4" title="4"><span class="im">import</span> store <span class="im">from</span> <span class="st">&#39;../store&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb24-5" title="5"></a>
+<a class="sourceLine" id="cb24-6" title="6"><span class="kw">class</span> FruitList <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb24-7" title="7">  <span class="at">componentDidMount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb24-8" title="8">    <span class="kw">this</span>.<span class="at">unsubscribe</span> <span class="op">=</span> <span class="va">store</span>.<span class="at">subscribe</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb24-9" title="9">      <span class="kw">this</span>.<span class="at">forceUpdate</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb24-10" title="10">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb24-11" title="11">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb24-12" title="12"></a>
+<a class="sourceLine" id="cb24-13" title="13">  <span class="at">componentWillUnmount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb24-14" title="14">    <span class="cf">if</span> (<span class="kw">this</span>.<span class="at">unsubscribe</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb24-15" title="15">      <span class="kw">this</span>.<span class="at">unsubscribe</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb24-16" title="16">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb24-17" title="17">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb24-18" title="18"></a>
+<a class="sourceLine" id="cb24-19" title="19">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb24-20" title="20">    <span class="kw">const</span> <span class="op">{</span> fruit <span class="op">}</span> <span class="op">=</span> <span class="va">store</span>.<span class="at">getState</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb24-21" title="21"></a>
+<a class="sourceLine" id="cb24-22" title="22">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb24-23" title="23">      <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb24-24" title="24">        <span class="op">{</span><span class="va">fruit</span>.<span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb24-25" title="25">          <span class="op">?</span> <span class="op">&lt;</span>ul<span class="op">&gt;{</span><span class="va">fruit</span>.<span class="at">map</span>((fruitName<span class="op">,</span> index) <span class="kw">=&gt;</span> <span class="op">&lt;</span>li key<span class="op">={</span>index<span class="op">}&gt;{</span>fruitName<span class="op">}</span>&lt;/li<span class="op">&gt;</span>)<span class="op">}</span>&lt;/ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb24-26" title="26">          : <span class="op">&lt;</span>span<span class="op">&gt;</span>No fruit currently <span class="kw">in</span> stock<span class="op">!</span>&lt;/span<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb24-27" title="27">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb24-28" title="28">      &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb24-29" title="29">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb24-30" title="30">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb24-31" title="31"><span class="op">}</span></a>
+<a class="sourceLine" id="cb24-32" title="32"></a>
+<a class="sourceLine" id="cb24-33" title="33"><span class="im">export</span> <span class="im">default</span> FruitList<span class="op">;</span></a></code></pre></div>
+<p>The <code>FruitManager</code> component is responsible for rendering each of the fruit-related components (i.e. <code>FruitList</code>, <code>FruitSeller</code>, <code>FruitQuickAdd</code>, and <code>FruitBulkAdd</code>), so create a container component named <code>FruitManagerContainer</code> to handle all of the store interaction for the "Fruit" section of the page.</p>
+<p>To review, here’s what the component hierarchy will look like:</p>
+<pre><code>FruitManagerContainer
+└── FruitManager
+    ├── FruitList
+    ├── FruitSeller
+    ├── FruitQuickAdd
+    └── FruitBulkAdd</code></pre>
+<p>As a starting point, here’s the code for the <code>FruitManagerContainer</code> component:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb26-1" title="1"><span class="co">// ./src/components/FruitManagerContainer.js</span></a>
+<a class="sourceLine" id="cb26-2" title="2"></a>
+<a class="sourceLine" id="cb26-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb26-4" title="4"><span class="im">import</span> store <span class="im">from</span> <span class="st">&#39;../store&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb26-5" title="5"><span class="im">import</span> FruitManager <span class="im">from</span> <span class="st">&#39;./FruitManager&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb26-6" title="6"></a>
+<a class="sourceLine" id="cb26-7" title="7"><span class="kw">class</span> FruitManagerContainer <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb26-8" title="8">  <span class="at">componentDidMount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb26-9" title="9">    <span class="kw">this</span>.<span class="at">unsubscribe</span> <span class="op">=</span> <span class="va">store</span>.<span class="at">subscribe</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb26-10" title="10">      <span class="kw">this</span>.<span class="at">forceUpdate</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb26-11" title="11">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb26-12" title="12">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb26-13" title="13"></a>
+<a class="sourceLine" id="cb26-14" title="14">  <span class="at">componentWillUnmount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb26-15" title="15">    <span class="cf">if</span> (<span class="kw">this</span>.<span class="at">unsubscribe</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb26-16" title="16">      <span class="kw">this</span>.<span class="at">unsubscribe</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb26-17" title="17">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb26-18" title="18">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb26-19" title="19"></a>
+<a class="sourceLine" id="cb26-20" title="20">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb26-21" title="21">    <span class="kw">const</span> <span class="op">{</span> fruit <span class="op">}</span> <span class="op">=</span> <span class="va">store</span>.<span class="at">getState</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb26-22" title="22"></a>
+<a class="sourceLine" id="cb26-23" title="23">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb26-24" title="24">      <span class="op">&lt;</span>FruitManager fruit<span class="op">={</span>fruit<span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb26-25" title="25">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb26-26" title="26">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb26-27" title="27"><span class="op">}</span></a>
+<a class="sourceLine" id="cb26-28" title="28"></a>
+<a class="sourceLine" id="cb26-29" title="29"><span class="im">export</span> <span class="im">default</span> FruitManagerContainer<span class="op">;</span></a></code></pre></div>
+<p>Notice that the container component, just like the original version of the <code>FruitList</code> component, subscribes to the store (using <code>store.subscribe</code>) to know when state has been updated and calls <code>store.getState</code> to retrieve the <code>fruit</code> state slice. But instead of directly rendering the <code>fruit</code> state, it sets a prop on the <code>FruitManager</code> component to pass the state down the component hierarchy.</p>
+<p>The <code>FruitManager</code> component receives the <code>fruit</code> prop and in turn uses a prop to pass it down to the <code>FruitList</code> component:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb27-1" title="1"><span class="co">// ./src/components/FruitManager.js</span></a>
+<a class="sourceLine" id="cb27-2" title="2"></a>
+<a class="sourceLine" id="cb27-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb27-4" title="4"><span class="im">import</span> FruitList <span class="im">from</span> <span class="st">&#39;./FruitList&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb27-5" title="5"><span class="im">import</span> FruitSeller <span class="im">from</span> <span class="st">&#39;./FruitSeller&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb27-6" title="6"><span class="im">import</span> FruitQuickAdd <span class="im">from</span> <span class="st">&#39;./FruitQuickAdd&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb27-7" title="7"><span class="im">import</span> FruitBulkAdd <span class="im">from</span> <span class="st">&#39;./FruitBulkAdd&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb27-8" title="8"></a>
+<a class="sourceLine" id="cb27-9" title="9"><span class="kw">const</span> FruitManager <span class="op">=</span> (<span class="op">{</span> fruit <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb27-10" title="10">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb27-11" title="11">    <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb27-12" title="12">      <span class="op">&lt;</span>h2<span class="op">&gt;</span>Available Fruit&lt;/h2<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb27-13" title="13">      <span class="op">&lt;</span>FruitList fruit<span class="op">={</span>fruit<span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb27-14" title="14">      <span class="op">&lt;</span>h2<span class="op">&gt;</span>Fruit Inventory Manager&lt;/h2<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb27-15" title="15">      <span class="op">&lt;</span>FruitSeller /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb27-16" title="16">      <span class="op">&lt;</span>FruitQuickAdd /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb27-17" title="17">      <span class="op">&lt;</span>FruitBulkAdd /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb27-18" title="18">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb27-19" title="19">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb27-20" title="20"><span class="op">};</span></a>
+<a class="sourceLine" id="cb27-21" title="21"></a>
+<a class="sourceLine" id="cb27-22" title="22"><span class="im">export</span> <span class="im">default</span> FruitManager<span class="op">;</span></a></code></pre></div>
+<p>And finally, the <code>FruitList</code> component receives the <code>fruit</code> prop and renders it into an unordered list:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb28-1" title="1"><span class="co">// ./src/components/FruitList.js</span></a>
+<a class="sourceLine" id="cb28-2" title="2"></a>
+<a class="sourceLine" id="cb28-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb28-4" title="4"></a>
+<a class="sourceLine" id="cb28-5" title="5"><span class="kw">const</span> FruitList <span class="op">=</span> (<span class="op">{</span> fruit <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb28-6" title="6">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb28-7" title="7">    <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb28-8" title="8">      <span class="op">{</span><span class="va">fruit</span>.<span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb28-9" title="9">        <span class="op">?</span> <span class="op">&lt;</span>ul<span class="op">&gt;{</span><span class="va">fruit</span>.<span class="at">map</span>((fruitName<span class="op">,</span> index) <span class="kw">=&gt;</span> <span class="op">&lt;</span>li key<span class="op">={</span>index<span class="op">}&gt;{</span>fruitName<span class="op">}</span>&lt;/li<span class="op">&gt;</span>)<span class="op">}</span>&lt;/ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb28-10" title="10">        : <span class="op">&lt;</span>span<span class="op">&gt;</span>No fruit currently <span class="kw">in</span> stock<span class="op">!</span>&lt;/span<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb28-11" title="11">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb28-12" title="12">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb28-13" title="13">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb28-14" title="14"><span class="op">};</span></a>
+<a class="sourceLine" id="cb28-15" title="15"></a>
+<a class="sourceLine" id="cb28-16" title="16"><span class="im">export</span> <span class="im">default</span> FruitList<span class="op">;</span></a></code></pre></div>
+<blockquote>
+<p><strong>Reminder:</strong> Using component props to pass a value down the component hierarchy is known as <em>prop threading</em>.</p>
+</blockquote>
+<p>Notice that the <code>FruitList</code> <em>presentational</em> component, which no longer needs to use the <code>componentDidMount</code> and <code>componentWillUnmount</code> lifecycle methods to subscribe and unsubscribe to the store, can be refactored into a function component. Additionally, the <code>store</code> is no longer imported in the <code>FruitList</code> module, as the <code>FruitList</code> component simply receives and renders the <code>fruit</code> state via a prop without any knowledge of or direct interaction with the store.</p>
+<h3 id="using-a-container-component-to-dispatch-actions">Using a container component to dispatch actions</h3>
+<p>Here’s the current version of the <code>FruitQuickAdd</code> component that dispatches the <code>ADD_FRUIT</code> action to add a fruit to the fruit stand:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb29-1" title="1"><span class="co">// ./src/components/FruitQuickAdd.js</span></a>
+<a class="sourceLine" id="cb29-2" title="2"></a>
+<a class="sourceLine" id="cb29-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb29-4" title="4"><span class="im">import</span> store <span class="im">from</span> <span class="st">&#39;../store&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb29-5" title="5"><span class="im">import</span> <span class="op">{</span> addFruit <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/fruitActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb29-6" title="6"></a>
+<a class="sourceLine" id="cb29-7" title="7"><span class="kw">class</span> FruitQuickAdd <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb29-8" title="8">  addFruitClick <span class="op">=</span> (event) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb29-9" title="9">    <span class="kw">const</span> fruit <span class="op">=</span> <span class="va">event</span>.<span class="va">target</span>.<span class="at">innerText</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb29-10" title="10">    <span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">addFruit</span>(fruit))<span class="op">;</span></a>
+<a class="sourceLine" id="cb29-11" title="11">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb29-12" title="12"></a>
+<a class="sourceLine" id="cb29-13" title="13">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb29-14" title="14">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb29-15" title="15">      <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb29-16" title="16">        <span class="op">&lt;</span>h3<span class="op">&gt;</span>Quick Add&lt;/h3<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb29-17" title="17">        <span class="op">&lt;</span>button onClick<span class="op">={</span><span class="kw">this</span>.<span class="at">addFruitClick</span><span class="op">}&gt;</span>APPLE&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb29-18" title="18">        <span class="op">&lt;</span>button onClick<span class="op">={</span><span class="kw">this</span>.<span class="at">addFruitClick</span><span class="op">}&gt;</span>ORANGE&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb29-19" title="19">      &lt;/div<span class="op">&gt;</span>  </a>
+<a class="sourceLine" id="cb29-20" title="20">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb29-21" title="21">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb29-22" title="22"><span class="op">}</span></a>
+<a class="sourceLine" id="cb29-23" title="23"></a>
+<a class="sourceLine" id="cb29-24" title="24"><span class="im">export</span> <span class="im">default</span> FruitQuickAdd<span class="op">;</span></a></code></pre></div>
+<p>To prepare to refactor the <code>FruitQuickAdd</code> component into a <em>presentational</em> component, update the <code>FruitManagerContainer</code> component to the following code:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb30-1" title="1"><span class="co">// ./src/components/FruitManagerContainer.js</span></a>
+<a class="sourceLine" id="cb30-2" title="2"></a>
+<a class="sourceLine" id="cb30-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb30-4" title="4"><span class="im">import</span> store <span class="im">from</span> <span class="st">&#39;../store&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb30-5" title="5"><span class="im">import</span> <span class="op">{</span> addFruit <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/fruitActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb30-6" title="6"><span class="im">import</span> FruitManager <span class="im">from</span> <span class="st">&#39;./FruitManager&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb30-7" title="7"></a>
+<a class="sourceLine" id="cb30-8" title="8"><span class="kw">class</span> FruitManagerContainer <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb30-9" title="9">  <span class="at">componentDidMount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb30-10" title="10">    <span class="kw">this</span>.<span class="at">unsubscribe</span> <span class="op">=</span> <span class="va">store</span>.<span class="at">subscribe</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb30-11" title="11">      <span class="kw">this</span>.<span class="at">forceUpdate</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb30-12" title="12">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb30-13" title="13">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb30-14" title="14"></a>
+<a class="sourceLine" id="cb30-15" title="15">  <span class="at">componentWillUnmount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb30-16" title="16">    <span class="cf">if</span> (<span class="kw">this</span>.<span class="at">unsubscribe</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb30-17" title="17">      <span class="kw">this</span>.<span class="at">unsubscribe</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb30-18" title="18">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb30-19" title="19">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb30-20" title="20"></a>
+<a class="sourceLine" id="cb30-21" title="21">  add <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb30-22" title="22">    <span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">addFruit</span>(fruit))<span class="op">;</span></a>
+<a class="sourceLine" id="cb30-23" title="23">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb30-24" title="24"></a>
+<a class="sourceLine" id="cb30-25" title="25">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb30-26" title="26">    <span class="kw">const</span> <span class="op">{</span> fruit <span class="op">}</span> <span class="op">=</span> <span class="va">store</span>.<span class="at">getState</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb30-27" title="27"></a>
+<a class="sourceLine" id="cb30-28" title="28">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb30-29" title="29">      <span class="op">&lt;</span>FruitManager</a>
+<a class="sourceLine" id="cb30-30" title="30">        fruit<span class="op">={</span>fruit<span class="op">}</span></a>
+<a class="sourceLine" id="cb30-31" title="31">        add<span class="op">={</span><span class="kw">this</span>.<span class="at">add</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb30-32" title="32">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb30-33" title="33">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb30-34" title="34"><span class="op">}</span></a>
+<a class="sourceLine" id="cb30-35" title="35"></a>
+<a class="sourceLine" id="cb30-36" title="36"><span class="im">export</span> <span class="im">default</span> FruitManagerContainer<span class="op">;</span></a></code></pre></div>
+<p>Notice that the <code>addFruit</code> action creator is imported (at the top of the file) and a new component method named <code>add</code> receives a <code>fruit</code> parameter value and calls <code>store.dispatch</code> to dispatch a <code>ADD_FRUIT</code> action. The <code>render</code> method sets a prop on the <code>FruitManager</code> component to pass the <code>add</code> method down the component hierarchy.</p>
+<p>The <code>FruitManager</code> component receives the <code>add</code> prop and in turn uses a prop to pass it down to the <code>FruitQuickAdd</code> component:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb31-1" title="1"><span class="co">// ./src/components/FruitManager.js</span></a>
+<a class="sourceLine" id="cb31-2" title="2"></a>
+<a class="sourceLine" id="cb31-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb31-4" title="4"><span class="im">import</span> FruitList <span class="im">from</span> <span class="st">&#39;./FruitList&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb31-5" title="5"><span class="im">import</span> FruitSeller <span class="im">from</span> <span class="st">&#39;./FruitSeller&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb31-6" title="6"><span class="im">import</span> FruitQuickAdd <span class="im">from</span> <span class="st">&#39;./FruitQuickAdd&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb31-7" title="7"><span class="im">import</span> FruitBulkAdd <span class="im">from</span> <span class="st">&#39;./FruitBulkAdd&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb31-8" title="8"></a>
+<a class="sourceLine" id="cb31-9" title="9"><span class="kw">const</span> FruitManager <span class="op">=</span> (<span class="op">{</span> fruit<span class="op">,</span> add <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb31-10" title="10">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb31-11" title="11">    <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb31-12" title="12">      <span class="op">&lt;</span>h2<span class="op">&gt;</span>Available Fruit&lt;/h2<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb31-13" title="13">      <span class="op">&lt;</span>FruitList fruit<span class="op">={</span>fruit<span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb31-14" title="14">      <span class="op">&lt;</span>h2<span class="op">&gt;</span>Fruit Inventory Manager&lt;/h2<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb31-15" title="15">      <span class="op">&lt;</span>FruitSeller /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb31-16" title="16">      <span class="op">&lt;</span>FruitQuickAdd add<span class="op">={</span>add<span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb31-17" title="17">      <span class="op">&lt;</span>FruitBulkAdd /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb31-18" title="18">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb31-19" title="19">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb31-20" title="20"><span class="op">};</span></a>
+<a class="sourceLine" id="cb31-21" title="21"></a>
+<a class="sourceLine" id="cb31-22" title="22"><span class="im">export</span> <span class="im">default</span> FruitManager<span class="op">;</span></a></code></pre></div>
+<p>And finally, the <code>FruitQuickAdd</code> component receives the <code>add</code> callback function via a prop and calls it within a <code>handleClick</code> event handler, passing in the target button’s inner text:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb32-1" title="1"><span class="co">// ./src/components/FruitQuickAdd.js</span></a>
+<a class="sourceLine" id="cb32-2" title="2"></a>
+<a class="sourceLine" id="cb32-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb32-4" title="4"></a>
+<a class="sourceLine" id="cb32-5" title="5"><span class="kw">const</span> FruitQuickAdd <span class="op">=</span> (<span class="op">{</span> add <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb32-6" title="6">  <span class="kw">const</span> handleClick <span class="op">=</span> (event) <span class="kw">=&gt;</span> <span class="at">add</span>(<span class="va">event</span>.<span class="va">target</span>.<span class="at">innerText</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb32-7" title="7"></a>
+<a class="sourceLine" id="cb32-8" title="8">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb32-9" title="9">    <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb32-10" title="10">      <span class="op">&lt;</span>h3<span class="op">&gt;</span>Quick Add&lt;/h3<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb32-11" title="11">      <span class="op">&lt;</span>button onClick<span class="op">={</span>handleClick<span class="op">}&gt;</span>APPLE&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb32-12" title="12">      <span class="op">&lt;</span>button onClick<span class="op">={</span>handleClick<span class="op">}&gt;</span>ORANGE&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb32-13" title="13">    &lt;/div<span class="op">&gt;</span>  </a>
+<a class="sourceLine" id="cb32-14" title="14">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb32-15" title="15"><span class="op">};</span></a>
+<a class="sourceLine" id="cb32-16" title="16"></a>
+<a class="sourceLine" id="cb32-17" title="17"><span class="im">export</span> <span class="im">default</span> FruitQuickAdd<span class="op">;</span></a></code></pre></div>
+<p>The change between the original and refactored <code>FruitQuickAdd</code> component isn’t as dramatic as the <code>FruitList</code> component example, but it’s still a significant improvement to the overall separation of concerns. The <code>FruitQuickAdd</code> component is now strictly concerned with rendering the UI and handling user generated events (i.e. button clicks) and the <code>FruitManagerContainer</code> component is now strictly concerned with interacting with the Redux store.</p>
+<h3 id="reviewing-the-completed-container-component">Reviewing the completed container component</h3>
+<p>The <code>FruitManagerContainer</code> <em>container</em> component can continue to be expanded until each of its child <em>presentational</em> components no longer interact directly with the store. Here’s a look at the completed <code>FruitManagerContainer</code> component:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb33-1" title="1"><span class="co">// ./src/components/FruitManagerContainer.js</span></a>
+<a class="sourceLine" id="cb33-2" title="2"></a>
+<a class="sourceLine" id="cb33-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb33-4" title="4"><span class="im">import</span> store <span class="im">from</span> <span class="st">&#39;../store&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb33-5" title="5"><span class="im">import</span> <span class="op">{</span> addFruit<span class="op">,</span> addFruits<span class="op">,</span> sellFruit<span class="op">,</span> sellOut <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/fruitActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb33-6" title="6"><span class="im">import</span> FruitManager <span class="im">from</span> <span class="st">&#39;./FruitManager&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb33-7" title="7"></a>
+<a class="sourceLine" id="cb33-8" title="8"><span class="kw">class</span> FruitManagerContainer <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb33-9" title="9">  <span class="at">componentDidMount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb33-10" title="10">    <span class="kw">this</span>.<span class="at">unsubscribe</span> <span class="op">=</span> <span class="va">store</span>.<span class="at">subscribe</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb33-11" title="11">      <span class="kw">this</span>.<span class="at">forceUpdate</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb33-12" title="12">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb33-13" title="13">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb33-14" title="14"></a>
+<a class="sourceLine" id="cb33-15" title="15">  <span class="at">componentWillUnmount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb33-16" title="16">    <span class="cf">if</span> (<span class="kw">this</span>.<span class="at">unsubscribe</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb33-17" title="17">      <span class="kw">this</span>.<span class="at">unsubscribe</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb33-18" title="18">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb33-19" title="19">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb33-20" title="20"></a>
+<a class="sourceLine" id="cb33-21" title="21">  add <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb33-22" title="22">    <span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">addFruit</span>(fruit))<span class="op">;</span></a>
+<a class="sourceLine" id="cb33-23" title="23">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb33-24" title="24"></a>
+<a class="sourceLine" id="cb33-25" title="25">  addBulk <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb33-26" title="26">    <span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">addFruits</span>(fruit))<span class="op">;</span></a>
+<a class="sourceLine" id="cb33-27" title="27">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb33-28" title="28"></a>
+<a class="sourceLine" id="cb33-29" title="29">  sell <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb33-30" title="30">    <span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">sellFruit</span>(fruit))<span class="op">;</span></a>
+<a class="sourceLine" id="cb33-31" title="31">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb33-32" title="32"></a>
+<a class="sourceLine" id="cb33-33" title="33">  sellAll <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb33-34" title="34">    <span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">sellOut</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb33-35" title="35">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb33-36" title="36"></a>
+<a class="sourceLine" id="cb33-37" title="37">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb33-38" title="38">    <span class="kw">const</span> <span class="op">{</span> fruit <span class="op">}</span> <span class="op">=</span> <span class="va">store</span>.<span class="at">getState</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb33-39" title="39">    <span class="kw">const</span> distinctFruit <span class="op">=</span> <span class="va">Array</span>.<span class="at">from</span>(<span class="kw">new</span> <span class="at">Set</span>(fruit)).<span class="at">sort</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb33-40" title="40"></a>
+<a class="sourceLine" id="cb33-41" title="41">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb33-42" title="42">      <span class="op">&lt;</span>FruitManager</a>
+<a class="sourceLine" id="cb33-43" title="43">        fruit<span class="op">={</span>fruit<span class="op">}</span></a>
+<a class="sourceLine" id="cb33-44" title="44">        distinctFruit<span class="op">={</span>distinctFruit<span class="op">}</span></a>
+<a class="sourceLine" id="cb33-45" title="45">        add<span class="op">={</span><span class="kw">this</span>.<span class="at">add</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb33-46" title="46">        addBulk<span class="op">={</span><span class="kw">this</span>.<span class="at">addBulk</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb33-47" title="47">        sell<span class="op">={</span><span class="kw">this</span>.<span class="at">sell</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb33-48" title="48">        sellAll<span class="op">={</span><span class="kw">this</span>.<span class="at">sellAll</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb33-49" title="49">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb33-50" title="50">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb33-51" title="51"><span class="op">}</span></a>
+<a class="sourceLine" id="cb33-52" title="52"></a>
+<a class="sourceLine" id="cb33-53" title="53"><span class="im">export</span> <span class="im">default</span> FruitManagerContainer<span class="op">;</span></a></code></pre></div>
+<h2 id="reviewing-a-completed-fruit-stand-example-2">Reviewing a completed Fruit Stand example</h2>
+<p>To review and run a completed Fruit Stand example application that utilizes containers, clone the <a href="https://github.com/appacademy-starters/redux-fruit-stand-examples">redux-fruit-stand-examples</a> repo.</p>
+<p>After cloning the repo, open a terminal and browse to the <code>fruit-stand-redux-with-react-containers</code> folder. Run the command <code>npm install</code> to install the project’s dependencies. Then use the command <code>npm start</code> to run the Fruit Stand application.</p>
+<p>This Fruit Stand example application is a React application created by the Create React App tooling. When running the application using <code>npm start</code>, the application should automatically open in your default browser. If it doesn’t, you can manually browse to <code>http://localhost:3000/</code> to view the application.</p>
+<h2 id="what-you-learned-2">What you learned</h2>
+<p>In this article, you learned how container components differ from presentational components. You also learned how to write a container component to handle all of the Redux store interaction for one or more presentational components.</p>
+<hr />
+<h1 id="freezing-objects">Freezing Objects</h1>
+<p>As you learned earlier in this lesson, a reducer must never mutate its arguments. If the state changes, the reducer must return a new object.</p>
+<p>JavaScript provides us with an easy way to enforce this. <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze"><code>Object.freeze</code></a> prevents new properties from being added to an object, and also prevents properties currently on an object from being altered or deleted. Essentially, it renders an object immutable, which is exactly what you want.</p>
+<p>When you finish this article, you should be able to use <code>Object.freeze</code> to prevent the current state within a reducer from being mutated.</p>
+<h2 id="using-object.freeze-to-prevent-state-mutations">Using <code>Object.freeze</code> to prevent state mutations</h2>
+<p>By calling <code>Object.freeze(state)</code> at the top of every reducer, you can ensure that the state is never accidentally mutated. For example, this is what your farmer reducer from the Fruit Stand application would look like:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">const</span> farmersReducer <span class="op">=</span> (state <span class="op">=</span> <span class="op">{},</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb34-2" title="2">  <span class="va">Object</span>.<span class="at">freeze</span>(state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb34-3" title="3">  <span class="kw">let</span> nextState <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb34-4" title="4">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb34-5" title="5">    <span class="cf">case</span> <span class="dt">HIRE_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb34-6" title="6">      <span class="kw">const</span> farmerToHire <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb34-7" title="7">        <span class="dt">id</span><span class="op">:</span> <span class="va">action</span>.<span class="at">id</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb34-8" title="8">        <span class="dt">name</span><span class="op">:</span> <span class="va">action</span>.<span class="at">name</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb34-9" title="9">        <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb34-10" title="10">      <span class="op">};</span></a>
+<a class="sourceLine" id="cb34-11" title="11">      nextState[<span class="va">action</span>.<span class="at">id</span>] <span class="op">=</span> farmerToHire<span class="op">;</span></a>
+<a class="sourceLine" id="cb34-12" title="12">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb34-13" title="13">    <span class="cf">case</span> <span class="dt">PAY_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb34-14" title="14">      <span class="kw">const</span> farmerToPay <span class="op">=</span> nextState[<span class="va">action</span>.<span class="at">id</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb34-15" title="15">      <span class="va">farmerToPay</span>.<span class="at">paid</span> <span class="op">=</span> <span class="op">!</span><span class="va">farmerToPay</span>.<span class="at">paid</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb34-16" title="16">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb34-17" title="17">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb34-18" title="18">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb34-19" title="19">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb34-20" title="20"><span class="op">};</span></a></code></pre></div>
+<p>Now you can be certain that you won’t accidentally mutate the state within the reducer.</p>
+<h3 id="understanding-the-difference-between-deep-and-shallow-freezes">Understanding the difference between deep and shallow freezes</h3>
+<p>Here’s another example:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb35-1" title="1"><span class="kw">const</span> people <span class="op">=</span> <span class="op">{</span> <span class="dt">farmers</span><span class="op">:</span> <span class="op">{</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;Old MacDonald&#39;</span> <span class="op">}</span> <span class="op">};</span></a>
+<a class="sourceLine" id="cb35-2" title="2"><span class="va">Object</span>.<span class="at">freeze</span>(people)<span class="op">;</span></a></code></pre></div>
+<p>When you try to mutate an object that you <em>froze</em> by modifying a property, it will be prevented:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb36-1" title="1"><span class="va">people</span>.<span class="at">farmers</span> <span class="op">=</span> <span class="op">{</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;Young MacDonald&#39;</span> <span class="op">};</span></a>
+<a class="sourceLine" id="cb36-2" title="2">people<span class="op">;</span> <span class="co">// { farmers: { name: &#39;Old MacDonald&#39; } }</span></a></code></pre></div>
+<p><strong>Note: This is not a <em>deep freeze</em>.</strong> <code>Object.freeze</code> performs a <em>shallow freeze</em> as it only applies to the immediate properties of the object itself. Nested objects can still be mutated, so be careful. Here’s an example of this:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb37-1" title="1"><span class="va">people</span>.<span class="va">farmers</span>.<span class="at">name</span> <span class="op">=</span> <span class="st">&#39;Young MacDonald&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb37-2" title="2">people<span class="op">;</span> <span class="co">// { farmers: { name: &#39;Young MacDonald&#39; } }</span></a></code></pre></div>
+<h3 id="object.freeze-and-arrays"><code>Object.freeze</code> and arrays</h3>
+<p>You can also use <code>Object.freeze</code> to freeze an array, so if a reducer’s <code>state</code> parameter is an array, you can still prevent accidental state mutations:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb38-1" title="1"><span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb38-2" title="2">  <span class="va">Object</span>.<span class="at">freeze</span>(state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb38-3" title="3">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb38-4" title="4">    <span class="cf">case</span> <span class="dt">ADD_FRUIT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb38-5" title="5">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> <span class="va">action</span>.<span class="at">fruit</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb38-6" title="6">    <span class="cf">case</span> <span class="dt">ADD_FRUITS</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb38-7" title="7">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> ...<span class="va">action</span>.<span class="at">fruits</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb38-8" title="8">    <span class="cf">case</span> <span class="dt">SELL_FRUIT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb38-9" title="9">      <span class="kw">const</span> index <span class="op">=</span> <span class="va">state</span>.<span class="at">indexOf</span>(<span class="va">action</span>.<span class="at">fruit</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb38-10" title="10">      <span class="cf">if</span> (index <span class="op">!==</span> <span class="dv">-1</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb38-11" title="11">        <span class="co">// remove first instance of action.fruit</span></a>
+<a class="sourceLine" id="cb38-12" title="12">        <span class="cf">return</span> [...<span class="va">state</span>.<span class="at">slice</span>(<span class="dv">0</span><span class="op">,</span> index)<span class="op">,</span> ...<span class="va">state</span>.<span class="at">slice</span>(index <span class="op">+</span> <span class="dv">1</span>)]<span class="op">;</span></a>
+<a class="sourceLine" id="cb38-13" title="13">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb38-14" title="14">      <span class="cf">return</span> state<span class="op">;</span> <span class="co">// if action.fruit is not in state, return previous state</span></a>
+<a class="sourceLine" id="cb38-15" title="15">    <span class="cf">case</span> <span class="dt">SELL_OUT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb38-16" title="16">      <span class="cf">return</span> []<span class="op">;</span></a>
+<a class="sourceLine" id="cb38-17" title="17">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb38-18" title="18">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb38-19" title="19">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb38-20" title="20"><span class="op">};</span></a></code></pre></div>
+<p>When an array is frozen with <code>Object.freeze</code>, its elements cannot be altered and no elements can be added to or removed from the array. Just like with objects, freezing arrays has limitations. If the array’s elements containing objects, properties on those objects can still be mutated.</p>
+<h2 id="what-you-learned-3">What you learned</h2>
+<p>In this article, you learned how to use <code>Object.freeze</code> to prevent the current state within a reducer from being mutated.</p>
+<hr />
+<h1 id="preloaded-state">Preloaded State</h1>
+<p>Currently, when the page in the browser is reloaded, any state data stored in the Redux store is lost. Later in this lesson, you’ll learn how to use Redux to interact with an API to persist state data. Until then (or if your React application doesn’t use an API), you can use the combination of Redux’s ability to create a store with <em>preloaded state</em> with the browser’s local storage to persist store state across page reloads.</p>
+<p>When you finish this article, you should be able to:</p>
+<ul>
+<li>Create a Redux store with preloaded state</li>
+<li>Use the browser’s local storage to persist a Redux store’s state across page reloads</li>
+</ul>
+<h2 id="creating-a-store-with-preloaded-state">Creating a store with preloaded state</h2>
+<p>So far, your Redux stores have initialized with no initial state. Sometimes, though, you may want to take pre-existing data and pass it into the store upon initialization. Such data can be passed to the <code>createStore</code> method using the <code>preloadedState</code> argument:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb39-1" title="1"><span class="kw">const</span> preloadedState <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb39-2" title="2">  <span class="dt">fruit</span><span class="op">:</span> [</a>
+<a class="sourceLine" id="cb39-3" title="3">    <span class="st">&#39;APPLE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb39-4" title="4">    <span class="st">&#39;ORANGE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb39-5" title="5">  ]<span class="op">,</span></a>
+<a class="sourceLine" id="cb39-6" title="6">  <span class="dt">farmers</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb39-7" title="7">    <span class="dv">1</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb39-8" title="8">      <span class="dt">id</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb39-9" title="9">      <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;John Smith&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb39-10" title="10">      <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb39-11" title="11">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb39-12" title="12">    <span class="dv">2</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb39-13" title="13">      <span class="dt">id</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb39-14" title="14">      <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;Sally Jones&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb39-15" title="15">      <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb39-16" title="16">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb39-17" title="17">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb39-18" title="18"><span class="op">};</span></a>
+<a class="sourceLine" id="cb39-19" title="19"></a>
+<a class="sourceLine" id="cb39-20" title="20"><span class="kw">const</span> store <span class="op">=</span> <span class="at">createStore</span>(rootReducer<span class="op">,</span> preloadedState)<span class="op">;</span></a></code></pre></div>
+<p>A couple of things to note about preloading state:</p>
+<ul>
+<li>The <code>preloadedState</code> must match the state shape (as produced by the reducers).</li>
+<li><code>preloadedState</code> is not the same as default state. Default state should always be set in your reducers themselves.</li>
+</ul>
+<h2 id="creating-local-storage-helper-functions">Creating local storage helper functions</h2>
+<p>To assist with using the browser’s local storage to persist a Redux store’s state across page reloads, start with creating a set of helper functions:</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb40-1" title="1"><span class="co">// localStorage.js</span></a>
+<a class="sourceLine" id="cb40-2" title="2"></a>
+<a class="sourceLine" id="cb40-3" title="3"><span class="kw">const</span> STATE_KEY <span class="op">=</span> <span class="st">&#39;fruitstand&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb40-4" title="4"></a>
+<a class="sourceLine" id="cb40-5" title="5"><span class="im">export</span> <span class="kw">const</span> loadState <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb40-6" title="6">  <span class="cf">try</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb40-7" title="7">    <span class="kw">const</span> stateJSON <span class="op">=</span> <span class="va">localStorage</span>.<span class="at">getItem</span>(STATE_KEY)<span class="op">;</span></a>
+<a class="sourceLine" id="cb40-8" title="8">    <span class="cf">if</span> (stateJSON <span class="op">===</span> <span class="kw">null</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb40-9" title="9">      <span class="cf">return</span> <span class="kw">undefined</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb40-10" title="10">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb40-11" title="11">    <span class="cf">return</span> <span class="va">JSON</span>.<span class="at">parse</span>(stateJSON)<span class="op">;</span></a>
+<a class="sourceLine" id="cb40-12" title="12">  <span class="op">}</span> <span class="cf">catch</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb40-13" title="13">    <span class="va">console</span>.<span class="at">warn</span>(err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb40-14" title="14">    <span class="cf">return</span> <span class="kw">undefined</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb40-15" title="15">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb40-16" title="16"><span class="op">};</span></a>
+<a class="sourceLine" id="cb40-17" title="17"></a>
+<a class="sourceLine" id="cb40-18" title="18"><span class="im">export</span> <span class="kw">const</span> saveState <span class="op">=</span> (state) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb40-19" title="19">  <span class="cf">try</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb40-20" title="20">    <span class="kw">const</span> stateJSON <span class="op">=</span> <span class="va">JSON</span>.<span class="at">stringify</span>(state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb40-21" title="21">    <span class="va">localStorage</span>.<span class="at">setItem</span>(STATE_KEY<span class="op">,</span> stateJSON)<span class="op">;</span></a>
+<a class="sourceLine" id="cb40-22" title="22">  <span class="op">}</span> <span class="cf">catch</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb40-23" title="23">    <span class="va">console</span>.<span class="at">warn</span>(err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb40-24" title="24">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb40-25" title="25"><span class="op">};</span></a></code></pre></div>
+<p>The <code>saveState</code> function is responsible for converting the <code>state</code> parameter value into JSON (using the <code>JSON.stringify</code> method) and saving the state JSON string to the browser’s local storage (using the <code>localStorage.setItem</code> method). A <code>try...catch</code> statement is used to catch and log any errors.</p>
+<p>The <code>loadState</code> function is responsible for loading the state JSON from the browser’s local storage (using the <code>localStorage.getItem</code> method). If the state JSON isn’t stored in local storage, <code>undefined</code> is returned so the store’s reducer function can initialize the state to its default value. If the state JSON is successfully retrieved from local storage, it’s parsed into JavaScript objects (using the <code>JSON.parse</code> method) and returned to the caller. A <code>try...catch</code> statement is used to catch and log any errors.</p>
+<h2 id="saving-state-to-local-storage">Saving state to local storage</h2>
+<p>To ensure that the persisted state in local storage doesn’t get out of sync with the store, you want to persist the state whenever it’s updated. Knowing that the store’s reducer is called whenever there’s an action dispatched to update the state, you might be tempted to update your reducer like this:</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb41-1" title="1"><span class="im">import</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb41-2" title="2">  ADD_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb41-3" title="3">  ADD_FRUITS<span class="op">,</span></a>
+<a class="sourceLine" id="cb41-4" title="4">  SELL_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb41-5" title="5">  SELL_OUT<span class="op">,</span></a>
+<a class="sourceLine" id="cb41-6" title="6"><span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/fruitActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb41-7" title="7"><span class="im">import</span> <span class="op">{</span> saveState <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../localStorage&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb41-8" title="8"></a>
+<a class="sourceLine" id="cb41-9" title="9"><span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb41-10" title="10">  <span class="va">Object</span>.<span class="at">freeze</span>(state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb41-11" title="11">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb41-12" title="12">    <span class="cf">case</span> <span class="dt">ADD_FRUIT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb41-13" title="13">      <span class="kw">const</span> nextState <span class="op">=</span> [...<span class="at">state</span><span class="op">,</span> <span class="va">action</span>.<span class="at">fruit</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb41-14" title="14">      <span class="at">saveState</span>(nextState)<span class="op">;</span>  <span class="co">// Persist state data to local storage</span></a>
+<a class="sourceLine" id="cb41-15" title="15">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb41-16" title="16"></a>
+<a class="sourceLine" id="cb41-17" title="17">    <span class="co">// Case clauses removed for brevity.</span></a>
+<a class="sourceLine" id="cb41-18" title="18"></a>
+<a class="sourceLine" id="cb41-19" title="19">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb41-20" title="20">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb41-21" title="21">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb41-22" title="22"><span class="op">};</span></a>
+<a class="sourceLine" id="cb41-23" title="23"></a>
+<a class="sourceLine" id="cb41-24" title="24"><span class="im">export</span> <span class="im">default</span> fruitReducer<span class="op">;</span></a></code></pre></div>
+<p><strong>But don’t do this!</strong> Per the <a href="https://redux.js.org/basics/reducers#handling-actions">official Redux docs on reducers</a>, reducers should stay <em>pure</em> and not cause <em>side effects</em> (like calling APIs or persisting data to local storage).</p>
+<p>To keep your reducers pure, handle persisting state to local storage in the module where you create your store (<code>store.js</code>) by subscribing to listen for state changes:</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb42-1" title="1"><span class="im">import</span> <span class="op">{</span> createStore <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb42-2" title="2"><span class="im">import</span> rootReducer <span class="im">from</span> <span class="st">&#39;./reducers/rootReducer&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb42-3" title="3"><span class="im">import</span> <span class="op">{</span> saveState <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;./localStorage&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb42-4" title="4"></a>
+<a class="sourceLine" id="cb42-5" title="5"><span class="kw">const</span> store <span class="op">=</span> <span class="at">createStore</span>(rootReducer)<span class="op">;</span></a>
+<a class="sourceLine" id="cb42-6" title="6"></a>
+<a class="sourceLine" id="cb42-7" title="7"><span class="va">store</span>.<span class="at">subscribe</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb42-8" title="8">  <span class="at">saveState</span>(<span class="va">store</span>.<span class="at">getState</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb42-9" title="9"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb42-10" title="10"></a>
+<a class="sourceLine" id="cb42-11" title="11"><span class="im">export</span> <span class="im">default</span> store<span class="op">;</span></a></code></pre></div>
+<p>Now whenever the store’s state is updated, the <code>store.getState</code> method is called to get and pass the current state to the <code>saveState</code> method.</p>
+<h2 id="loading-state-from-local-storage">Loading state from local storage</h2>
+<p>Now that you’re persisting state to local storage, you can load state from local storage and pass it to the <code>createStore</code> method as preloaded state:</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb43-1" title="1"><span class="im">import</span> <span class="op">{</span> createStore <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb43-2" title="2"><span class="im">import</span> rootReducer <span class="im">from</span> <span class="st">&#39;./reducers/rootReducer&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb43-3" title="3"><span class="im">import</span> <span class="op">{</span> loadState<span class="op">,</span> saveState <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;./localStorage&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb43-4" title="4"></a>
+<a class="sourceLine" id="cb43-5" title="5"><span class="kw">const</span> preloadedState <span class="op">=</span> <span class="at">loadState</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb43-6" title="6"></a>
+<a class="sourceLine" id="cb43-7" title="7"><span class="kw">const</span> store <span class="op">=</span> <span class="at">createStore</span>(rootReducer<span class="op">,</span> preloadedState)<span class="op">;</span></a>
+<a class="sourceLine" id="cb43-8" title="8"></a>
+<a class="sourceLine" id="cb43-9" title="9"><span class="va">store</span>.<span class="at">subscribe</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb43-10" title="10">  <span class="at">saveState</span>(<span class="va">store</span>.<span class="at">getState</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb43-11" title="11"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb43-12" title="12"></a>
+<a class="sourceLine" id="cb43-13" title="13"><span class="im">export</span> <span class="im">default</span> store<span class="op">;</span></a></code></pre></div>
+<p>With these updates in place, your Redux store’s state will persist across page reloads.</p>
+<h2 id="what-you-learned-4">What you learned</h2>
+<p>In this article, you learned how to create a Redux store with preloaded state. You also learned how to use the browser’s local storage to persist a Redux store’s state across page reloads.</p>
+<hr />
+<h1 id="react-and-redux-to-do-list-project">React and Redux To-Do List Project</h1>
+<p>Today you’ll be building a to-do list application with React and local storage. Instead of using Context to manage and update your application’s state, you’ll set up a Redux store and interact with it using the store’s <code>getState</code>, <code>dispatch</code>, and <code>subscribe</code> methods.</p>
+<p>This project will also give you a better understanding of how to share and update "global" data across a React application by using Redux. You’ll use Redux to dispatch action POJOs through a reducer function, and have your component access an updated version of the Redux store’s state.</p>
+<p>In this project, you will:</p>
+<ul>
+<li>Generate a Redux store to manage your application’s global information</li>
+<li>Define functions to save and load the Redux store’s state with local storage</li>
+<li>Generate a Redux <strong>store</strong> with a preloaded state from local storage by using the <code>createStore</code> method from the Redux library</li>
+<li>Set up a <strong>reducer</strong> to direct different action types to interact with the Redux store in different ways</li>
+<li>Set up <strong>actions</strong> to create a task and delete a task</li>
+<li>Use a <code>debugger</code> to investigate the state from within a component</li>
+</ul>
+<h2 id="phase-1-set-up-project-and-redux-store">Phase 1: Set up project and Redux store</h2>
+<p>Begin by cloning the starter project from https://github.com/appacademy-starters/react-redux-todo-list-starter.</p>
+<p>Take a moment to examine the project’s file tree below. In the next few phases, you’ll follow the <code>TODO</code> notes in each file to implement Redux into your React project.</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb44-1" title="1">├── <span class="ex">package-lock.json</span></a>
+<a class="sourceLine" id="cb44-2" title="2">├── <span class="ex">package.json</span></a>
+<a class="sourceLine" id="cb44-3" title="3">├── <span class="ex">public</span></a>
+<a class="sourceLine" id="cb44-4" title="4">│   └── <span class="ex">index.html</span></a>
+<a class="sourceLine" id="cb44-5" title="5">└── <span class="ex">src</span></a>
+<a class="sourceLine" id="cb44-6" title="6">    ├── <span class="ex">App.js</span></a>
+<a class="sourceLine" id="cb44-7" title="7">    ├── <span class="ex">actions</span></a>
+<a class="sourceLine" id="cb44-8" title="8">    │   └── <span class="ex">taskActions.js</span></a>
+<a class="sourceLine" id="cb44-9" title="9">    ├── <span class="ex">components</span></a>
+<a class="sourceLine" id="cb44-10" title="10">    │   ├── <span class="ex">Task.js</span></a>
+<a class="sourceLine" id="cb44-11" title="11">    │   ├── <span class="ex">TodoForm.js</span></a>
+<a class="sourceLine" id="cb44-12" title="12">    │   └── <span class="ex">TodoList.js</span></a>
+<a class="sourceLine" id="cb44-13" title="13">    ├── <span class="ex">index.js</span></a>
+<a class="sourceLine" id="cb44-14" title="14">    ├── <span class="ex">localStorage.js</span></a>
+<a class="sourceLine" id="cb44-15" title="15">    ├── <span class="ex">reducers</span></a>
+<a class="sourceLine" id="cb44-16" title="16">    │   └── <span class="ex">tasksReducer.js</span></a>
+<a class="sourceLine" id="cb44-17" title="17">    └── <span class="ex">store.js</span></a></code></pre></div>
+<h3 id="local-storage">Local storage</h3>
+<p>Let’s start by setting up some functions in the <code>localStorage.js</code> file to save and load the Redux store’s state with local storage!</p>
+<p>In the <code>loadState</code> function, you’ll want to access the stored tasks state from local storage by using the <code>localStorage.getItem</code> method. If there is no state found, return <code>undefined</code>. However, if the state was found, parse the state from JSON into JavaScript and return the parsed state. If any errors were caught, log the errors with a <code>console.warn</code> statement and have the function return <code>undefined</code>.</p>
+<p>In the <code>saveState</code> function, you’ll want to parse the <code>state</code> input from JavaScript into a JSON string. When you call the <code>saveState</code> function, you’ll invoke the function with the Redux store’s state accessed with the <code>store.getState</code> method. After parsing the state from JavaScript into a JSON string, set the string into local storage. Lastly, you’ll want to catch any errors with a <code>console.warn</code> statement.</p>
+<h3 id="generate-applications-redux-store">Generate application’s Redux store</h3>
+<p>Now that you’ve set up some functions to handle accessing and storing the data with local storage, you’ll want to use those functions in the <code>store.js</code> file. In this file, you’ll use Redux’s <code>createStore</code> function to set up your application’s Redux <code>store</code>. As a reminder, the <code>createStore</code> function takes in a reducer as its first argument, and an optional preloaded state, also referred to as <em>initial</em> state, as its second argument.</p>
+<p>Use the <code>loadState</code> function you just defined to access the <code>preloadedState</code>. Now you’ll invoke the <code>createStore</code> function with the <code>tasksReducer</code> and the <code>preloadedState</code> to generate the application’s Redux store.</p>
+<p>You’ll want your application to update local storage and log the state whenever there an update to the store - this means you’ll want your application to listen for changes to the store with the <code>store.subscribe</code> method and then update local storage with the <code>saveState</code> function and <code>console.log</code> the state upon any change.</p>
+<h2 id="phase-2-actions-and-reducers">Phase 2: Actions and reducers</h2>
+<p>Now that you have your application’s Redux store set up, it’s time to define some action creator functions and reducers! You’ll define action creator functions in the <code>taskActions.js</code> file and set up corresponding case statements for each action type in the <code>tasksReducer.js</code> file.</p>
+<h3 id="define-action-creator-functions">Define action creator functions</h3>
+<p>As a reminder, it is best practice to use constants for action types, instead of string literals, to ensure that errors will be thrown for typos. Start by defining constants for your action types: <code>CREATE_TASK</code> and <code>DELETE_TASK</code>.</p>
+<p>Once you have the constants set up, it’s time to define an action creator function for each action type! Start by thinking of what payload information you want your action POJOs to pass into the reducer function.</p>
+<p>Define a <code>createTask</code> action creator function that returns actions of type <code>CREATE_TASK</code>. You’ll want <code>type</code>, <code>taskId</code>, and <code>taskMessage</code> payload keys for each <code>CREATE_TASK</code> action POJO. Have the action creator function take in a <code>taskMessage</code> and auto-generate the <code>taskId</code>. You can set the <code>taskId</code> to a time-string that is set when the action creator function is invoked. Generate a new <code>Date</code> object and get its time-string with <code>new Date().getTime()</code>. Set the time-string to the <code>taskId</code> payload key and the <code>taskMessage</code> input to the <code>taskMessage</code> payload key.</p>
+<p>Now you’ll want to define the <code>deleteTask</code> action creator function to return actions of type <code>DELETE_TASK</code>. You’ll want the action creator function to take in a <code>taskId</code>. Each <code>DELETE_TASK</code> action POJO should have a <code>type</code> property and a <code>taskId</code> payload key.</p>
+<h3 id="define-tasks-reducer-function">Define tasks reducer function</h3>
+<p>The next step is to finish implementing the <code>tasksReducer</code>! Begin by freezing the <code>state</code> with <code>Object.freeze(state);</code> so that you won’t accidentally mutate the state. As a reminder, Redux follows the immutable state pattern, meaning that a reducer function should never directly mutate state. After freezing the state, import <code>CREATE_TASK</code> and <code>DELETE_TASK</code> string literal constants and set up a switch statement to evaluate a case statement based on each <code>action.type</code>.</p>
+<p>In the <code>CREATE_TASK</code> case, you’ll want to make a copy of the state, structure a <code>newTask</code> POJO, and add the <code>newTask</code> into the copy of the state before returning the copy. Define a <code>nextState</code> variable and use spread syntax (<code>...</code>) to make a copy of the state (<code>{ ...state }</code>). Next, you’ll want to structure the <code>newTask</code> POJO to have an <code>id</code> property set to the action’s <code>taskId</code> payload and a <code>message</code> property set to the action’s <code>taskMessage</code> payload.</p>
+<p>Once you have finished structuring the <code>newTask</code> POJO, key into the <code>nextState</code> with the new task ID and set the value of <code>nextState[newTask.id]</code> to the <code>newTask</code>. Alternatively, you could use the <code>taskId</code> payload and set the value of <code>nextState[action.taskId]</code> to the <code>newTask</code> (this will also accomplish what we want, which is to set up a <code>nextState</code> with keys that are task IDs and values that are task POJOs). At the end of the <code>CREATE_TASK</code> case statement, return the updated <code>nextState</code>.</p>
+<p>In the <code>DELETE_TASK</code> case, you’ll also want to make a copy of the state (<code>{...state }</code>). Set the copy of the state to a <code>stateWithDeletion</code> variable. Since your <code>DELETE_TASK</code> actions have a <code>taskId</code> payload, you can use JavaScript’s <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/delete">delete</a> operator to delete a specific key-value pair from the <code>stateWithDeletion</code> object, based on the <code>taskId</code> payload:</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb45-1" title="1"><span class="kw">delete</span> stateWithDeletion[<span class="va">action</span>.<span class="at">taskId</span>]<span class="op">;</span></a></code></pre></div>
+<p>The last thing left in your <code>DELETE_TASK</code> statement is to return the updated <code>stateWithDeletion</code>! If you compare your initial definition of the <code>nextState</code> and <code>stateWithDeletion</code> variables, you’ll see that they are both copies of the <code>state</code> made with spread syntax. Move the <code>nextState</code> variable outside of the <code>switch</code> statement so that both <code>case</code> statements can reference and update the <code>nextState</code>, instead of the <code>DELETE_TASK</code> case statement creating a new copy of the state and updating it.</p>
+<h2 id="phase-3-dispatch-actions-from-the-devtools-console">Phase 3: Dispatch actions from the DevTools console</h2>
+<p>Now you can test whether you can actually create a task by using the <code>store.dispatch</code> method to dispatch the <code>CREATE_TASK</code> action. As a reminder, dispatching the action will "send" it through the reducer to determine what operation to perform based on the action’s <code>type</code> property. Take a moment to go into your <code>index.js</code> file and import your application’s Redux <code>store</code> and action creator functions:</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb46-1" title="1"><span class="im">import</span> <span class="op">{</span> store <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;./store&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb46-2" title="2"><span class="im">import</span> <span class="op">{</span> createTask<span class="op">,</span> deleteTask <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;./actions/taskActions&#39;</span><span class="op">;</span></a></code></pre></div>
+<p>Now that you’ve had the store and actions imported into the file, you can set them as properties to the <code>window</code> object, so that you can access the <code>store</code> and actions from the developer tools console.</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb47-1" title="1"><span class="va">window</span>.<span class="at">store</span> <span class="op">=</span> store<span class="op">;</span></a>
+<a class="sourceLine" id="cb47-2" title="2"><span class="va">window</span>.<span class="at">createTask</span> <span class="op">=</span> createTask<span class="op">;</span></a>
+<a class="sourceLine" id="cb47-3" title="3"><span class="va">window</span>.<span class="at">deleteTask</span> <span class="op">=</span> deleteTask<span class="op">;</span></a></code></pre></div>
+<p>At this point, your <code>index.js</code> file should look something like this:</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb48-1" title="1"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb48-2" title="2"><span class="im">import</span> ReactDOM <span class="im">from</span> <span class="st">&#39;react-dom&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb48-3" title="3"><span class="im">import</span> App <span class="im">from</span> <span class="st">&#39;./App&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb48-4" title="4"><span class="im">import</span> <span class="op">{</span> store <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;./store&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb48-5" title="5"><span class="im">import</span> <span class="op">{</span> createTask<span class="op">,</span> deleteTask <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;./actions/taskActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb48-6" title="6"></a>
+<a class="sourceLine" id="cb48-7" title="7"><span class="va">window</span>.<span class="at">store</span> <span class="op">=</span> store<span class="op">;</span></a>
+<a class="sourceLine" id="cb48-8" title="8"><span class="va">window</span>.<span class="at">createTask</span> <span class="op">=</span> createTask<span class="op">;</span></a>
+<a class="sourceLine" id="cb48-9" title="9"><span class="va">window</span>.<span class="at">deleteTask</span> <span class="op">=</span> deleteTask<span class="op">;</span></a>
+<a class="sourceLine" id="cb48-10" title="10"></a>
+<a class="sourceLine" id="cb48-11" title="11"><span class="va">ReactDOM</span>.<span class="at">render</span>(</a>
+<a class="sourceLine" id="cb48-12" title="12">  <span class="op">&lt;</span><span class="va">React</span>.<span class="at">StrictMode</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb48-13" title="13">    <span class="op">&lt;</span>App /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb48-14" title="14">  &lt;/<span class="va">React</span>.<span class="at">StrictMode</span><span class="op">&gt;,</span></a>
+<a class="sourceLine" id="cb48-15" title="15">  <span class="va">document</span>.<span class="at">getElementById</span>(<span class="st">&#39;root&#39;</span>)</a>
+<a class="sourceLine" id="cb48-16" title="16">)<span class="op">;</span></a></code></pre></div>
+<p>Open up your browser’s DevTools console and type <code>window.store</code>. Now you should see the <code>store</code> object and its methods: <code>{dispatch: ƒ, subscribe: ƒ, getState: ƒ, replaceReducer: ƒ, Symbol(observable): ƒ}</code>,</p>
+<p>Now type <code>window.store.getState()</code>. You should see an empty object - this is the default state (<code>state = {}</code>) that you set up in the <code>tasksReducer</code>.</p>
+<p>Since you can access your application’s state from the DevTools console, that means you can also dispatch actions by invoking the <code>window.store.dispatch</code> method with an action:</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb49-1" title="1"><span class="va">window</span>.<span class="va">store</span>.<span class="at">dispatch</span>(<span class="va">window</span>.<span class="at">createTask</span>(<span class="st">&#39;learn redux&#39;</span>))<span class="op">;</span></a></code></pre></div>
+<p>You just dispatched a <code>CREATE_TASK</code> action! You’ll see that your updated state was logged - this is because of the <code>console.log</code> statement in the <code>store.subscribe</code> invocation in your <code>index.js</code> file (as you might remember, the <code>store.subscribe</code> method listens for any updates to the store, i.e. dispatch calls). Dispatch another <code>CREATE_TASK</code> action:</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb50-1" title="1"><span class="va">window</span>.<span class="va">store</span>.<span class="at">dispatch</span>(<span class="va">window</span>.<span class="at">createTask</span>(<span class="st">&#39;learn react hooks&#39;</span>))<span class="op">;</span></a></code></pre></div>
+<p>Now if you type <code>window.store.getState()</code> again, you’ll see that the state return from the <code>store.getState</code> method is the same plain old JavaScript object as the state that was logged within the <code>store.subscribe</code> invocation.</p>
+<p>Now let’s place some <code>debugger</code> statements in the <code>tasksReducer</code> and <code>createTask</code> action creator function! Remember to make sure the <code>debugger</code> statement in your <code>tasksReducer</code> is <strong>inside</strong> a case statement. If the <code>debugger</code> is between the switch statement and a case statement, you will never hit that breakpoint!</p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb51-1" title="1"><span class="kw">const</span> tasksReducer <span class="op">=</span> (state <span class="op">=</span> <span class="op">{},</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb51-2" title="2">  <span class="va">Object</span>.<span class="at">freeze</span>(state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb51-3" title="3">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb51-4" title="4">    <span class="cf">case</span> <span class="dt">CREATE_TASK</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb51-5" title="5">      <span class="cf">debugger</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb51-6" title="6">    <span class="co">// CODE SHORTENED FOR BREVITY</span></a></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb52-1" title="1"><span class="im">export</span> <span class="kw">const</span> createTask <span class="op">=</span> (taskMessage) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb52-2" title="2">  <span class="cf">debugger</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb52-3" title="3">  <span class="cf">return</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb52-4" title="4">    <span class="dt">type</span><span class="op">:</span> CREATE_TASK<span class="op">,</span></a>
+<a class="sourceLine" id="cb52-5" title="5">    <span class="dt">taskId</span><span class="op">:</span> <span class="kw">new</span> <span class="at">Date</span>().<span class="at">getTime</span>()<span class="op">,</span></a>
+<a class="sourceLine" id="cb52-6" title="6">    taskMessage<span class="op">,</span></a>
+<a class="sourceLine" id="cb52-7" title="7">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb52-8" title="8"><span class="op">};</span></a></code></pre></div>
+<p>Now dispatch another <code>CREATE_TASK</code> action to hit the two <code>debugger</code> statements you just set:</p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb53-1" title="1"><span class="va">window</span>.<span class="va">store</span>.<span class="at">dispatch</span>(<span class="va">window</span>.<span class="at">createTask</span>(<span class="st">&#39;work on self-care&#39;</span>))<span class="op">;</span></a></code></pre></div>
+<p>Notice how you are now in the <code>Sources</code> tab of your DevTools looking at the <code>taskActions.js</code> file in your project. You can view the value of the <code>taskMessage</code> argument by hovering over the variable or looking at the local scope variables in the DevTools’ right window.</p>
+<figure>
+<img src="https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/redux/assets/react-redux-to-do-list-devtools-1.png" alt="devtools-taskActions" /><figcaption>devtools-taskActions</figcaption>
+</figure>
+<p>If you click the blue play button to continue to the next <code>debugger</code> statement, you’ll land in your <code>tasksReducer.js</code> file and be able to hover over the <code>state</code> to view the value of the Redux store’s previous state <strong>before</strong> the dispatching of the <code>CREATE_TASK</code> action.</p>
+<figure>
+<img src="https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/redux/assets/react-redux-to-do-list-devtools-2.png" alt="devtools-tasksReducer" /><figcaption>devtools-tasksReducer</figcaption>
+</figure>
+<p>Now if you click the blue play button to continue, you’ll exit out of debug mode and your updated state will be logged in the console.</p>
+<p>Congratulations! You just used a <code>debugger</code> to follow the Redux flow of dispatching a <code>CREATE_TASK</code> action! Comment out your <code>debugger</code> statements for now. In the next phase, you’ll work on dispatching actions through a user interface.</p>
+<h2 id="phase-4-dispatch-actions-from-components">Phase 4: Dispatch actions from components</h2>
+<p>Now it’s time to set up a user interface that allows for intuitive dispatching of actions. In the <code>TodoForm</code> component, you’ll set up a button that invokes the <code>createTask</code> action creator function with the <code>inputValue</code> state to dispatch a <code>CREATE_TASK</code> action based on the form input! For each <code>Task</code> component, you’ll set up a button to dispatch a <code>DELETE_TASK</code> action for that task.</p>
+<h3 id="todoform">TodoForm</h3>
+<p>In the <code>TodoForm.js</code> file, import your application’s Redux <code>store</code> instance and the <code>createTask</code> action creator function. Now you’ll want to finish the <code>handleSubmit</code> method so that it dispatches a <code>CREATE_TASK</code> action. Invoke the <code>createTask</code> action creator function with the <code>inputValue</code> state and the <code>store.dispatch</code> method with the invoked action creator function.</p>
+<p>Take a moment to test out the dispatch call generated by your form submission. Type a task in the input field - when you submit, you should see an updated state logged in the DevTools console with your new task!</p>
+<h3 id="todolist">TodoList</h3>
+<p>In the <code>TodoList.js</code> file, import the application’s Redux <code>store</code> instance and the <code>deleteTask</code> action creator function. Now you’ll set up the component’s <code>componentDidMount</code> and <code>componentDidUnmount</code> life-cycle methods.</p>
+<p>In the <code>componentDidMount</code> method, use the store’s <code>subscribe</code> method to force a component to update whenever the state changes:</p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb54-1" title="1"><span class="at">componentDidMount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb54-2" title="2">  <span class="kw">this</span>.<span class="at">unsubscribe</span> <span class="op">=</span> <span class="va">store</span>.<span class="at">subscribe</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb54-3" title="3">    <span class="kw">this</span>.<span class="at">forceUpdate</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb54-4" title="4">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb54-5" title="5"><span class="op">}</span></a></code></pre></div>
+<p>You want to name the subscription as <code>this.unsubscribe</code>, so that you can unsubscribe upon the unmounting of a component. When the <code>componentDidMount</code> life-cycle method is invoked upon the mounting of a component, it will invoke the <code>store.subscribe</code> method to force the component to update whenever the store’s state changes. It will also set a <code>this.unsubscribe</code> variable to the <code>TodoList</code> class, so that <code>this.unsubscribe</code> is accessible from other parts of the component’s code.</p>
+<p>In the <code>componentDidUnmount</code> method, you’ll want to check if the component has mounted by checking if <code>this.unsubscribe</code> has been defined. Whenever a component mounts, the <code>this.unsubscribe</code> variable set in the <code>componentDidMount</code> method will become initialize. If <code>this.unsubscribe</code> is undefined, that means that the component has not invoked the <code>componentDidMount</code> method and has therefore not been mounted yet. If <code>this.unsubscribe</code> is defined, you’ll want to invoke <code>this.unsubscribe</code> to have the component unsubscribe from changes once component unmounts:</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb55-1" title="1"><span class="at">componentWillUnmount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb55-2" title="2">  <span class="cf">if</span> (<span class="kw">this</span>.<span class="at">unsubscribe</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb55-3" title="3">    <span class="kw">this</span>.<span class="at">unsubscribe</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb55-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb55-5" title="5"><span class="op">}</span></a></code></pre></div>
+<p>In the <code>deleteTask</code> method, you’ll want to wrap the invocation of the <code>deleteTask</code> action creator function with the <code>store.dispatch</code> method. The <code>deleteTask</code> action creator function will be invoked based on the <code>this.deleteTask</code> method’s <code>id</code> input. Later in this phase, you’ll pass the <code>TodoList</code> component’s <code>this.deleteTask</code> method as a <code>deleteTask</code> prop into each <code>Task</code> component. Then, whenever the <code>deleteTask</code> prop is invoked from within a <code>Task</code> component, it can simply be invoked with a task ID to dispatch a <code>DELETE_TASK</code> action without needing to import the <code>store</code> into each <code>Task</code> component to invoke <code>store.dispatch</code></p>
+<p>In the component’s <code>render</code> method, access the tasks stored in the Redux store’s state by invoking the <code>store.getState</code> method and saving its return value to a <code>tasksState</code> variable. Now that you can use a <code>debugger</code> statement to view the state and check out what data you are working with!</p>
+<p>If there are no tasks stored in state, you’ll want to have the <code>TodoList</code> component return <code>null</code>. Otherwise if there are tasks stored in state, render a <code>Task</code> component for each of the tasks. For each <code>Task</code> component, you’ll want to use the task’s ID as the <code>key</code> and pass two props: the <code>task</code> object and the <code>this.deleteTask</code> method as a <code>deleteTask</code> prop.</p>
+<h3 id="task">Task</h3>
+<p>Have the <code>Task</code> function component destructure and take in the <code>deleteTask</code> method and <code>task</code> object props. Invoke the <code>deleteTask</code> function passed as a prop in the <code>Task</code> component’s <code>handleClick</code> method and replace the <code>Hi, I'm a task in your to-do list!</code> placeholder text with the <code>task.message</code>.</p>
+<p>As a reminder, the <code>deleteTask</code> action creator function was already wrapped with a <code>store.dispatch</code> call in the <code>TodoList</code> component - this is why the <code>handleClick</code> function in the <code>Task</code> component does not include a <code>store.dispatch</code> invocation. The <code>TodoList</code> component passed the wrapped function as a prop named <code>deleteTask</code> to each <code>Task</code> component. The <code>deleteTask</code> function invoked in the <code>Task</code> component’s <code>handleClick</code> function is the <code>TodoList</code> component’s <code>deleteTask</code> <strong>method</strong>, not the <code>deleteTask</code> <strong>action creator function</strong>.</p>
+<h2 id="phase-5-implement-a-full-redux-cycle">Phase 5: Implement a full Redux cycle</h2>
+<p>In this phase, you’ll implement a full Redux cycle without the guidance of <code>TODO</code> notes or specific, written instructions. Remember, the <code>debugger</code> statement is your friend! If you get stuck, think of where you can place <code>debugger</code> statements to gain more context about your code. As a general guideline, feel free to follow the steps below:</p>
+<ul>
+<li>Set up an action creator function for a <code>RESET_TASK_LIST</code> action</li>
+<li>Set up a reducer case statement for the <code>RESET_TASK_LIST</code> action type</li>
+<li>Create a user interface (button) to dispatch the <code>RESET_TASK_LIST</code> action</li>
+</ul>
+<p>Congratulations! You have just created an application that uses Redux to manage the application’s information. Give yourself a pat on the back! As a reminder, the Redux library is a highly conceptual library to pick up, and when learning anything new practice always makes perfect! If the implementation of Redux feels confusing, always feel free to step back and use a <code>debugger</code> statement to follow the Redux flow: an action is generated, then the action is dispatched to go through a reducer, and then the store is updated.</p>

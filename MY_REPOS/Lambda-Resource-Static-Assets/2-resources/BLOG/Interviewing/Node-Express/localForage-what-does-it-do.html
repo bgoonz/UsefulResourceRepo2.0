@@ -1,0 +1,56 @@
+<h2 id="localforage-is-a-fast-and-simple-storage-library-for-javascript.">localForage is a fast and simple storage library for JavaScript.</h2>
+<p>localForage improves the offline experience of your web app by using asynchronous storage (IndexedDB or WebSQL) with a simple, localStorage-like API.</p>
+<p><a href="https://github.com/localForage/localForage">Official site</a></p>
+<p>An important step on the path toward robust, offline web applications is the ability to store data in the user’s browser. Technologies like IndexedDB and localStorage have provided this functionality to web developers, but they are not without their limitations.</p>
+<p>The localStorage API is really simple to use, but you can only store text data. This limitation can generally be overcome by storing other types of data as JSON strings, but this can be a pain as you have to encode/decode JSON every time you need to store or retrieve some data. Not to mention you still have a problem if you need to store Blobs or files. LocalStorage is also a synchronous API, which means that your app could hang while data is being stored or retrieved.</p>
+<h2 id="example-of-localstorage"><a href="https://hacks.mozilla.org/2014/02/localforage-offline-storage-improved/">Example of Localstorage</a></h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="co">// Our config values we want to store offline.</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw">var</span> config <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="dt">fullName</span><span class="op">:</span> <span class="va">document</span>.<span class="at">getElementById</span>(<span class="st">&#39;name&#39;</span>).<span class="at">getAttribute</span>(<span class="st">&#39;value&#39;</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="dt">userId</span><span class="op">:</span> <span class="va">document</span>.<span class="at">getElementById</span>(<span class="st">&#39;id&#39;</span>).<span class="at">getAttribute</span>(<span class="st">&#39;value&#39;</span>)</a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="op">};</span></a>
+<a class="sourceLine" id="cb1-7" title="7"></a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="co">// Let&#39;s save it for the next time we load the app.</span></a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="va">localStorage</span>.<span class="at">setItem</span>(<span class="st">&#39;config&#39;</span><span class="op">,</span> <span class="va">JSON</span>.<span class="at">stringify</span>(config))<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-10" title="10"></a>
+<a class="sourceLine" id="cb1-11" title="11"><span class="co">// The next time we load the app, we can do:</span></a>
+<a class="sourceLine" id="cb1-12" title="12"><span class="kw">var</span> config <span class="op">=</span> <span class="va">JSON</span>.<span class="at">parse</span>(<span class="va">localStorage</span>.<span class="at">getItem</span>(<span class="st">&#39;config&#39;</span>))<span class="op">;</span></a></code></pre></div>
+<h3 id="and-now-the-localforage-code-for-the-above">And now the localForage code for the above</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1">localForage Code</a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="co">// Save our users.</span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">var</span> users <span class="op">=</span> [ <span class="op">{</span><span class="dt">id</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">fullName</span><span class="op">:</span> <span class="st">&#39;Matt&#39;</span><span class="op">},</span> <span class="op">{</span><span class="dt">id</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">fullName</span><span class="op">:</span> <span class="st">&#39;Bob&#39;</span><span class="op">}</span> ]<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="va">localForage</span>.<span class="at">setItem</span>(<span class="st">&#39;users&#39;</span><span class="op">,</span> users<span class="op">,</span> <span class="kw">function</span>(result) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-5" title="5">    <span class="va">console</span>.<span class="at">log</span>(result)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-6" title="6"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h2 id="issues-with-localstorage">Issues with localStorage:</h2>
+<p><strong>1&gt;</strong> It’s synchronous. We wait until the data has been read from the disk and parsed, regardless of how large it might be. This slows down our app’s responsiveness. This is especially bad on mobile devices; the main thread is halted until the data is fetched, making your app seem slow and even unresponsive.</p>
+<p><strong>2&gt;</strong> It only supports strings. Notice how we had to use JSON.parse and JSON.stringify? That’s because localStorage only supports values that are JavaScript strings. No numbers, booleans, Blobs, etc. This makes storing numbers or arrays annoying, but effectively makes storing Blobs impossible (or at least VERY annoying and slow).</p>
+<p>IndexedDB, on the other hand, is an asynchronous API that includes great support for a wide range of data types, but the API itself is considerably more complex to use.</p>
+<p>Enter localForage, a JavaScript library that provides the ease of use of localStorage with all the advanced features of IndexedDB.</p>
+<p>The localForage JavaScript library was developed by the good folks at Mozilla to provide a simple storage API that has all the capabilities of more complex APIs like IndexedDB, but without the steep learning curve.</p>
+<h3 id="behind-the-scenes-localforage-uses-native-browser-technologies-like-indexeddb-websql-and-localstorage-to-actually-store-data.-the-localforage-api-sits-on-top-of-this-datastore-layer-and-provides-a-number-of-methods-that-can-be-used-for-managing-data.">Behind the scenes, localForage uses native browser technologies like IndexedDB, WebSQL, and localStorage to actually store data. The localForage API sits on top of this datastore layer and provides a number of methods that can be used for managing data.</h3>
+<h3 id="the-other-main-benefit-of-using-localforage-is-that-you-dont-have-to-convert-your-data-structures-to-json-in-order-to-save-them-in-the-datastore.-if-the-underlying-datastore-technology-read-localstorage-doesnt-support-the-data-type-you-provide-then-localforage-will-take-care-of-the-json-wizardry-for-you-so-you-can-just-focus-on-building-your-apps-functionality.">The other main benefit of using localForage is that you don’t have to convert your data structures to JSON in order to save them in the datastore. If the underlying datastore technology (read: localStorage) doesn’t support the data type you provide, then localForage will take care of the JSON wizardry for you so you can just focus on building your app’s functionality.</h3>
+<h2 id="storing-data">Storing Data</h2>
+<p>The localForage library will automatically set up a datastore using the best storage technology that’s available in the user’s browser.</p>
+<p>As with localStorage, the data is stored using key/value pairs. The setItem method is responsible for saving data in the datastore.</p>
+<p><code>localforage.setItem('key', 'value', callbackFunction);</code></p>
+<p>The value here can be any kind of data you want: a string, number, object, or even a file.</p>
+<p>If the key already exists in the datastore, the existing value will simple be overwritten.</p>
+<h3 id="unlike-with-localstorage-the-localforage-api-is-asynchronous-and-therefore-you-shouldnt-expect-the-setitem-method-to-return-a-value.-instead-you-can-pass-a-callback-function-to-the-setitem-method.-this-callback-function-will-be-executed-once-the-data-has-been-stored-and-will-be-passed-the-value-that-was-saved-in-the-datastore.">Unlike with localStorage, the localForage API is asynchronous and therefore you shouldn’t expect the setItem method to return a value. Instead, you can pass a callback function to the setItem method. This callback function will be executed once the data has been stored and will be passed the value that was saved in the datastore.</h3>
+<p>Note: The amount of storage space accessible to localForage is governed by the underlying datastore technology that’s being used. For localStorage, the general limit is 5MB, although this may vary among browsers. More space is available when IndexedDB is being used, but the user may be prompted to approve additional quota if your app needs to store large amounts of data.</p>
+<h2 id="retrieving-data">Retrieving Data</h2>
+<p>Data can be retrieved from the datastore using the getItem method. You should pass in the key of the item you wish to retrieve, as well as a callback function that will be passed the value for the item.</p>
+<p><code>localforage.getItem('key', callbackFunction);</code></p>
+<p>If the specified key doesn’t exist in the datastore, the callback function will be passed null.</p>
+<h2 id="deleting-data">Deleting Data</h2>
+<p>If you want to delete some data, you can use the removeItem method. Pass in the key of the item you wish to delete and a callback function.</p>
+<p><code>localforage.removeItem('key', callbackFunction);</code></p>
+<h2 id="clearing-the-datastore">Clearing The Datastore</h2>
+<p>You can remove all the data from the datastore using the clear method.</p>
+<p><code>localforage.clear(callbackFunction);</code></p>
+<p>Again, this method can be passed a callback function that will be executed when the operation has completed.</p>
+<h3 id="more-reading">More Reading</h3>
+<p>1&gt; <a href="http://blog.teamtreehouse.com/using-localforage-offline-data-storage">http://blog.teamtreehouse.com/using-localforage-offline-data-storage</a></p>
+<p>2&gt; <a href="https://hacks.mozilla.org/2014/02/localforage-offline-storage-improved/">https://hacks.mozilla.org/2014/02/localforage-offline-storage-improved/</a></p>
+<p>3&gt; <a href="https://github.com/rohan-paul/check-pack-items-before-travel/tree/master/src/lib/api.js">My Implemented code with async-await in my To-Do kind of app for checingin/uncheking items before trave</a></p>

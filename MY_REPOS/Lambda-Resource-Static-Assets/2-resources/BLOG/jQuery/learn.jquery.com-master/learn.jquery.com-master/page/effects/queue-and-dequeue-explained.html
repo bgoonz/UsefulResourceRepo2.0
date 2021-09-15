@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<script>{
+    "title": "Queue & Dequeue Explained",
+    "level": "advanced",
+    "source": "http://jqueryfordesigners.com/api-queue-dequeue/"
+}</script>
+<p>When you use the <code>.animate()</code>, <code>.show()</code>, <code>.hide()</code>, <code>.slideUp()</code>, etc. effect methods, you’re adding a job to the effects queue. By default, using <code>.queue()</code> and passing a function, will add it to the effects queue. So we’re creating our own bespoke animation step:</p>
+<pre><code>$( &quot;.box&quot; )
+    .animate({
+        height: 20
+    }, &quot;slow&quot; )
+    .queue(function() {
+        $( &quot;#title&quot; ).html( &quot;We&#39;re in the animation, baby!&quot; );
+    });</code></pre>
+<p>As I said though, these methods come in pairs, so anything you add using <code>.queue()</code>, you need to dequeue to allow the process to continue. In the code above, if I chained more animations on, until I call <code>$( this ).dequeue()</code>, the subsequent animations wouldn’t run:</p>
+<pre><code>$( &quot;.box&quot; )
+    .animate({
+        height: 20
+    }, &quot;slow&quot; )
+    .queue(function() {
+        $( &quot;#title&quot; ).html( &quot;We&#39;re in the animation, baby!&quot; );
+        $( this ).dequeue();
+    }).animate({
+        height: 150
+    });</code></pre>
+<p>Keeping in mind that the animation won’t continue until we’ve explicitly called <code>.dequeue()</code>, we can easily create a pausing plugin, by adding a step in the queue that sets a timer and triggers after <code>delay</code> milliseconds, at which time, it dequeues the element:</p>
+<pre><code>$.fn.pause = function( delay ) {
+    return this.queue(function() {
+        var elem = this;
+        setTimeout(function() {
+            return $( elem ).dequeue();
+        }, delay );
+    });
+};
+
+$( &quot;.box&quot; )
+    .animate({
+        height: 20
+    }, &quot;slow&quot; )
+    .pause( 1000 )
+    .animate({
+        height: 150
+    });</code></pre>
+<p>Remember that the first argument for <code>.queue()</code> and <code>.dequeue()</code> is <code>fx</code>, and that in all of these examples I’m not including it because jQuery sets the argument to <code>fx</code> by default — so I don’t have to specify it.</p>
+</body></html>

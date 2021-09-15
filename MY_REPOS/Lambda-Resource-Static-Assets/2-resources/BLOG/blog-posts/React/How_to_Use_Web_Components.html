@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h1 id="how-to-use-web-components">How to Use Web Components</h1>
+<blockquote>
+<p>In this tutorial, learn how and why to use native web components in a real project using lifecycle methods and the shadow dom.</p>
+</blockquote>
+<p>As of late, I’ve been seeing a lot of hype in the development community regarding web components. And for good reason, of course—they give many people hope that the world of massive JavaScript frameworks is not the final frontier. No more need to <code>npx create-react-app</code> every time you’d like to build a component-based application. But how do you make the jump to web components? I’ll tell you what you need to get started using web components today with a little example project—a single element—and I’ll show you some of the cool features that this technology offers. By the end of this article, you’ll know the basics of building great web components.</p>
+<p>But how do you make the jump to web components? I’ll tell you what you need to get started using web components today with a little example project—a single element—and I’ll show you some of the cool features that this technology offers. By the end of this article, you’ll know the basics of building great web components.</p>
+<p>‘Web components’ refers to a set of three specific technologies that can be used together to create custom components (à la every popular JavaScript frontend framework ever), which are then pieced together into a full application. These technologies are custom elements, HTML <code>template</code>s, and the shadow DOM (more on that later!).</p>
+<p><a href="https://vimeo.com/33430613">Web components have been around in some form since about 2011</a>. However, the <code>template</code> element wasn’t even available in major browsers until around 2013. The custom element registry, which we’ll go over in a minute, wasn’t available until about four years after that. So web components are still a fairly new technology and have only recently started being discussed because of new major features being added to the API.</p>
+<p>When frameworks like React are so mature and widely used compared to web components, what is the point of using something else? On top of being hugely overshadowed by frameworks, native web components have historically been a pretty controversial topic. A lot of concerns have been raised regarding the technology—including those regarding accessibility, <a href="https://lea.verou.me/2020/09/the-failed-promise-of-web-components/">complexity of the web components ecosystem</a>, and <a href="https://dev.to/richharris/why-i-don-t-use-web-components-2cia">issues with progressive enhancement</a>. However, web components can be well-architected, accessible, and simplistic, and I’ll show you how.</p>
+<p>The technology is still <a href="https://caniuse.com/?search=components">very raw</a>, and the W3C is <a href="https://github.com/w3c/webcomponents/">working hard as usual</a> to improve them. Web components also enable developers to create component-based applications using only native technologies that ship with the browser. I believe that web components potentially hold a large place in the future of web development. So I’d like to present a case for actually using web components in reality.</p>
+<p>Let’s go through a little exercise to demonstrate the basics of web components. We’ll make a rudimentary clock component and learn how to set up a basic project to use web components. If you’d like to follow along, clone <a href="https://github.com/jpegzilla/web-components-post">this starter repo</a> and open it up in your editor. The completed project can also be found in the same repo under the <code>completed</code> branch.</p>
+<h3 id="setting-up">Setting Up</h3>
+<p>When creating custom elements, you’re just extending the functionality of the good old <code>HTMLElement</code>. And—while not necessary—I highly recommend setting up a ‘base’ component that you can then use to extend to all your components. This will allow you to add more functionality to all components without writing extra methods on every component you make. It will look something like this:</p>
+<pre><code>class Component extends HTMLElement {
+  addClass(className) {
+    this.classList.add(className)
+  }
+
+  removeClass(className) {
+    this.classList.remove(className)
+  }
+
+  toggleClass(className) {
+    this.classList.toggle(className)
+  }
+
+  setId(id) {
+    this.id = id
+  }
+
+  attr(name, val) {
+    return val
+           ? this.setAttribute(name, val)
+           : this.getAttribute(name)
+  }
+}
+
+export default Component</code></pre>
+<p>Also included in the demo project is a barebones <code>index.html</code> file that links to a <code>main.mjs</code> file and a blank clock component. Let’s take a look!</p>
+<h3 id="base-component-usage">Base Component Usage</h3>
+<p>The only function of this clock component is to tell the time. So of course, only one element is needed. But where does the HTML go? Let’s first go over lifecycle methods and the shadow DOM.</p>
+<h4 id="lifecycle-methods">Lifecycle Methods</h4>
+<p>If you’ve ever used class-based React, you’re probably familiar with the concept of a lifecycle—a method that fires when a component mounts, updates, dismounts, or whatever. That same concept exists in web components! Here are three key callbacks for basic use (and their React equivalent): <code>connectedCallback</code> (<code>componentDidMount</code>), <code>attributeChangedCallback</code>(<code>componentDidUpdate</code>), and <code>disconnectedCallback</code> (<code>componentWillUnmount</code>).</p>
+<p>For the purposes of this clock, we’ll only use <code>connectedCallback</code> because the element needs to immediately render its content after being attached to the DOM. In this case, what’s rendered by the element will be determined by what’s in the shadow DOM.</p>
+<h4 id="the-shadow-dom">The Shadow DOM</h4>
+<p>The shadow DOM is also a pretty important concept here. One of the main draws of web components is the concept of total encapsulation, meaning that a component’s markup and styling are completely independent of anything else in the dom. This can be achieved through the use of the shadow dom.</p>
+<p>If you’ve ever taken a peek into a native media type element—such as <code>video</code> or <code>audio</code>—you’ve probably seen the shadow DOM. You may also have noticed that it’s often impossible or incredibly difficult to override the style of these elements. That’s the power of the shadow DOM. It keeps your custom elements from ‘leaking’ styles to any other element, and it also prevents the shadow DOM itself from being leaked into.</p>
+<p>So let’s set up a little shadow DOM for our clock component. It would look something like the code below. Be mindful to <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/super">call <code>super</code> before you use any parent class methods</a> such as <code>attachShadow</code> because it’s the only way to access such methods.</p>
+<pre><code>class Clock extends Component {
+    constructor() {
+        super()
+
+        this.attachShadow({ mode: &#39;open&#39; })
+     }
+}</code></pre>
+<p>Then, attach some HTML to the shadow DOM inside of <code>connectedCallback</code>:</p>
+<pre><code>connectedCallback() {
+    this.shadowRoot.innerHTML = `
+      &lt;time id=&quot;clock&quot; part=&quot;time&quot;&gt;${this.getTime()}&lt;/time&gt;
+    `
+}</code></pre>
+<p>And here’s the method used above to get the current time, <code>this.getTime</code>:</p>
+<pre><code>getTime() {
+  return new Date().toLocaleTimeString()
+}</code></pre>
+<p>Now, let’s implement some functionality so that the clock can do what clocks typically do. Which is tick. We’ll use a <code>setInterval</code> that updates the text in the shadow DOM. Since this custom element is just extending a DOM element, you have access to <code>getElementById</code>, which we’ll use to set the <code>textContent</code> inside the <code>time</code> element. Your <code>connectedCallback</code> should now look like this:</p>
+<pre><code>connectedCallback() {
+  this.shadowRoot.innerHTML = `
+    &lt;time id=&quot;clock&quot; part=&quot;time&quot;&gt;${this.getTime()}&lt;/time&gt;
+  `
+
+  setInterval(() =&gt; {
+    this.shadowRoot.getElementById(&#39;clock&#39;).textContent =
+      this.getTime()
+  }, 1000)
+}</code></pre>
+<p>If you load <code>index.html</code> now, you’ll see a blank page since you haven’t actually yet registered and inserted your new custom element. Here’s one way to do that! This approach works very well if you need to bulk register custom elements. In <code>main.mjs</code>, you need to iterate through the elements and register them one by one. Of course, we only need one, but I’ll show you the method for the sake of example.</p>
+<pre><code>import Clock from &#39;./components/clock.mjs&#39;
+
+const elements = [Clock]
+
+
+
+elements.forEach(({ name, element }) =&gt; {
+  customElements.define(name, element)
+})</code></pre>
+<p>Now it’s ready to use, and all you have to do is insert it somewhere in your HTML.</p>
+<pre><code>&lt;body&gt;
+  &lt;clock-element/&gt;
+&lt;/body&gt;</code></pre>
+<p>Then take a look at it in a browser. You should see this:</p>
+<p>There’s one more thing in this project that hasn’t been explained. What is that <code>part</code> attribute for our clock component? That’s a way of giving CSS access to styling certain pieces of our components directly. This could be useful, for example, in cases where you want certain parts of your element to be directly targetable in CSS. I’ve added some basic CSS to the <code>index.html</code> file to demonstrate this:</p>
+<pre><code>&lt;style media=&quot;screen&quot;&gt;
+  clock-element::part(time) {
+    color: red;
+  }
+&lt;/style&gt;</code></pre>
+<p>And here’s the result:</p>
+<p>Again, note that the elements that are in the shadow DOM of our component are basically inaccessible to direct selection in CSS. What I mean is that if you wrote a style targeting just the <code>time</code> element within the clock component, whatever style you wrote would not apply. You’d have to either target the <code>clock-element</code> tag itself or use <code>part</code>, which I think is a little cleaner.</p>
+<p>Web components are something you may be able to use today. No polyfills, no nothing. The technology is supported in the latest versions of all major browsers (barring Edge, and Safari has an incomplete but functional implementation). Web components hold a lot of potential to make interesting and useful things. So please, please give web components a try!</p>
+<p><a href="https://sparkbox.com/foundry/how_to_use_web_components_shadow_dom_component_lifecycle">Source</a></p>
+</body></html>

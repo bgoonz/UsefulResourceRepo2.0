@@ -1,0 +1,242 @@
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<hr />
+<h1 id="splitting-and-combining-reducers">Splitting and Combining Reducers</h1>
+<p>So far, you’ve been using a single reducer to manage state in your Redux store. As your applications increase in size and complexity, it’ll become necessary to use multiple reducers, each managing a slice of state.</p>
+<p>When you finish this article, you should be able to:</p>
+<ul>
+<li>Define multiple reducers to manage individual slices of state</li>
+<li>Use the Redux <code>combineReducers</code> method to combine multiple reducers into a single root reducer</li>
+<li>Update a reducer to delegate a state update to a subordinate reducer</li>
+</ul>
+<h2 id="splitting-reducers">Splitting reducers</h2>
+<p>Imagine that your fruit stand is extremely successful and it grows so much that you need multiple farmers helping you to keep your stand stocked with fruit. Your application’s state will need to grow to store not only an array of <code>fruit</code> but also a <code>farmers</code> object that keeps track of your farmers.</p>
+<p>Here’s a sample state tree of your updated application:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">fruit</span><span class="op">:</span> [</a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="st">&#39;APPLE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="st">&#39;APPLE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="st">&#39;ORANGE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-6" title="6">    <span class="st">&#39;GRAPEFRUIT&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-7" title="7">    <span class="st">&#39;WATERMELON&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-8" title="8">  ]<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-9" title="9">  <span class="dt">farmers</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-10" title="10">    <span class="dv">1</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-11" title="11">      <span class="dt">id</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-12" title="12">      <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;John Smith&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-13" title="13">      <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-14" title="14">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb1-15" title="15">    <span class="dv">2</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-16" title="16">      <span class="dt">id</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-17" title="17">      <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;Sally Jones&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-18" title="18">      <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-19" title="19">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb1-20" title="20">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-21" title="21"><span class="op">}</span></a></code></pre></div>
+<p>The store now needs to handle new action types like <code>'HIRE_FARMER'</code> and <code>'PAY_FARMER'</code> by updating the <code>farmers</code> slice of state. You could add more cases to your existing reducer, but eventually the existing reducer would become too large and difficult to manage. The solution is to split the reducer into separate <code>fruit</code> and <code>farmers</code> reducers.</p>
+<p>Splitting up the reducer into multiple reducers handling separate, independent <em>slices</em> of state is called <strong>reducer composition</strong>, and it’s the fundamental pattern of building Redux apps. Because each reducer only handles a single <em>slice</em> of state, its <code>state</code> parameter corresponds only to the part of the state that it manages and it only responds to actions that concern that slice of state.</p>
+<p>Split up your popular Fruit Stand application’s reducer into two reducers:</p>
+<ul>
+<li><code>fruitReducer</code> - A reducing function that handles actions updating the <code>fruits</code> slice of state</li>
+<li><code>farmersReducer</code> - A reducing function that handles actions updating the new <code>farmers</code> slice of state</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// ./src/reducers/fruitReducer.js</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="im">import</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  ADD_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-5" title="5">  ADD_FRUITS<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-6" title="6">  SELL_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-7" title="7">  SELL_OUT<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/fruitActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-9" title="9"></a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-11" title="11">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-12" title="12">    <span class="cf">case</span> <span class="dt">ADD_FRUIT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-13" title="13">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> <span class="va">action</span>.<span class="at">fruit</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-14" title="14">    <span class="cf">case</span> <span class="dt">ADD_FRUITS</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-15" title="15">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> ...<span class="va">action</span>.<span class="at">fruits</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-16" title="16">    <span class="cf">case</span> <span class="dt">SELL_FRUIT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-17" title="17">      <span class="kw">const</span> index <span class="op">=</span> <span class="va">state</span>.<span class="at">indexOf</span>(<span class="va">action</span>.<span class="at">fruit</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-18" title="18">      <span class="cf">if</span> (index) <span class="op">!==</span> <span class="dv">-1</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-19" title="19">        <span class="co">// remove first instance of action.fruit</span></a>
+<a class="sourceLine" id="cb2-20" title="20">        <span class="cf">return</span> [...<span class="va">state</span>.<span class="at">slice</span>(<span class="dv">0</span><span class="op">,</span> index)<span class="op">,</span> ...<span class="va">state</span>.<span class="at">slice</span>(index <span class="op">+</span> <span class="dv">1</span>)]<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-21" title="21">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-22" title="22">      <span class="cf">return</span> state<span class="op">;</span> <span class="co">// if action.fruit is not in state, return previous state</span></a>
+<a class="sourceLine" id="cb2-23" title="23">    <span class="cf">case</span> <span class="dt">SELL_OUT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-24" title="24">      <span class="cf">return</span> []<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-25" title="25">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-26" title="26">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-27" title="27">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-28" title="28"><span class="op">};</span></a>
+<a class="sourceLine" id="cb2-29" title="29"></a>
+<a class="sourceLine" id="cb2-30" title="30"><span class="im">export</span> <span class="im">default</span> fruitReducer<span class="op">;</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="co">// ./src/reducers/farmersReducer.js</span></a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="im">import</span> <span class="op">{</span> HIRE_FARMER<span class="op">,</span> PAY_FARMER <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/farmersActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-4" title="4"></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="kw">const</span> farmersReducer <span class="op">=</span> (state <span class="op">=</span> <span class="op">{},</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-6" title="6">  <span class="kw">let</span> nextState <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-7" title="7">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-8" title="8">    <span class="cf">case</span> <span class="dt">HIRE_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb3-9" title="9">      <span class="kw">const</span> farmerToHire <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-10" title="10">        <span class="dt">id</span><span class="op">:</span> <span class="va">action</span>.<span class="at">id</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-11" title="11">        <span class="dt">name</span><span class="op">:</span> <span class="va">action</span>.<span class="at">name</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-12" title="12">        <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb3-13" title="13">      <span class="op">};</span></a>
+<a class="sourceLine" id="cb3-14" title="14">      nextState[<span class="va">action</span>.<span class="at">id</span>] <span class="op">=</span> farmerToHire<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-15" title="15">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-16" title="16">    <span class="cf">case</span> <span class="dt">PAY_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb3-17" title="17">      <span class="kw">const</span> farmerToPay <span class="op">=</span> nextState[<span class="va">action</span>.<span class="at">id</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-18" title="18">      <span class="va">farmerToPay</span>.<span class="at">paid</span> <span class="op">=</span> <span class="op">!</span><span class="va">farmerToPay</span>.<span class="at">paid</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-19" title="19">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-20" title="20">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb3-21" title="21">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-22" title="22">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-23" title="23"><span class="op">};</span></a>
+<a class="sourceLine" id="cb3-24" title="24"></a>
+<a class="sourceLine" id="cb3-25" title="25"><span class="im">export</span> <span class="im">default</span> farmersReducer<span class="op">;</span></a></code></pre></div>
+<p>You’ll also need to define a module containing the <code>'HIRE_FARMER'</code> and <code>'PAY_FARMER'</code> actions:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="co">// ./src/actions/farmersActions.js</span></a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="im">export</span> <span class="kw">const</span> HIRE_FARMER <span class="op">=</span> <span class="st">&#39;HIRE_FARMER&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="im">export</span> <span class="kw">const</span> PAY_FARMER <span class="op">=</span> <span class="st">&#39;PAY_FARMER&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-5" title="5"></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="im">export</span> <span class="kw">const</span> hireFarmer <span class="op">=</span> (name) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb4-7" title="7">  <span class="dt">type</span><span class="op">:</span> HIRE_FARMER<span class="op">,</span></a>
+<a class="sourceLine" id="cb4-8" title="8">  <span class="dt">id</span><span class="op">:</span> <span class="kw">new</span> <span class="at">Date</span>().<span class="at">getTime</span>()<span class="op">,</span></a>
+<a class="sourceLine" id="cb4-9" title="9">  name<span class="op">,</span></a>
+<a class="sourceLine" id="cb4-10" title="10"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-11" title="11"></a>
+<a class="sourceLine" id="cb4-12" title="12"><span class="im">export</span> <span class="kw">const</span> payFarmer <span class="op">=</span> (id) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb4-13" title="13">  <span class="dt">type</span><span class="op">:</span> PAY_FARMER<span class="op">,</span></a>
+<a class="sourceLine" id="cb4-14" title="14">  id<span class="op">,</span></a>
+<a class="sourceLine" id="cb4-15" title="15"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h2 id="combining-reducers">Combining reducers</h2>
+<p>Your reducer setup is now much more modular. However, <code>createStore</code> only takes one <code>reducer</code> argument, so you must combine your reducers back into a single reducer to pass to the store. To do this you’ll use the <code>combineReducers</code> method from the <code>redux</code> package and pass it an object that maps state keys to the reducers that handle those slices of state. Below, the <code>combineReducers</code> maps the <code>fruitReducer</code> for the <code>fruit</code> slice of state and the <code>farmersReducer</code> for the <code>farmers</code> slice of state. Invoking the <code>combineReducers</code> function returns a single <code>rootReducer</code> that you can use to create your Redux store.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="co">// ./src/reducers/rootReducer.js</span></a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="im">import</span> <span class="op">{</span> combineReducers <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="im">import</span> fruitReducer <span class="im">from</span> <span class="st">&#39;./fruitReducer&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="im">import</span> farmersReducer <span class="im">from</span> <span class="st">&#39;./farmersReducer&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-6" title="6"></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="kw">const</span> rootReducer <span class="op">=</span> <span class="at">combineReducers</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb5-8" title="8">  <span class="dt">fruit</span><span class="op">:</span> fruitReducer<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-9" title="9">  <span class="dt">farmers</span><span class="op">:</span> farmersReducer</a>
+<a class="sourceLine" id="cb5-10" title="10"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-11" title="11"></a>
+<a class="sourceLine" id="cb5-12" title="12"><span class="im">export</span> <span class="im">default</span> rootReducer<span class="op">;</span></a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="im">import</span> <span class="op">{</span> createStore <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="im">import</span> rootReducer <span class="im">from</span> <span class="st">&#39;./reducers/rootReducer&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-3" title="3"></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="kw">const</span> store <span class="op">=</span> <span class="at">createStore</span>(rootReducer)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-5" title="5"></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="im">export</span> <span class="im">default</span> store<span class="op">;</span></a></code></pre></div>
+<h2 id="delegating-to-reducers">Delegating to reducers</h2>
+<p>Another aspect of reducer composition involves delegating state updates to subordinate reducers. Consider the farmers reducer. You can modify it so that the <code>farmers</code> (plural) reducer delegates to a <code>farmer</code> (singular) reducer whenever a single farmer’s attributes need to be modified (in this case whenever a farmer has been hired or paid):</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="co">// ./src/reducers/farmersReducer.js</span></a>
+<a class="sourceLine" id="cb7-2" title="2"></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="im">import</span> <span class="op">{</span> HIRE_FARMER<span class="op">,</span> PAY_FARMER <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/farmersActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-4" title="4"></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="kw">const</span> farmerReducer <span class="op">=</span> (state<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-6" title="6">  <span class="co">// State is a farmer object.</span></a>
+<a class="sourceLine" id="cb7-7" title="7">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-8" title="8">    <span class="cf">case</span> <span class="dt">HIRE_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb7-9" title="9">      <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-10" title="10">        <span class="dt">id</span><span class="op">:</span> <span class="va">action</span>.<span class="at">id</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-11" title="11">        <span class="dt">name</span><span class="op">:</span> <span class="va">action</span>.<span class="at">name</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-12" title="12">        <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb7-13" title="13">      <span class="op">};</span></a>
+<a class="sourceLine" id="cb7-14" title="14">    <span class="cf">case</span> <span class="dt">PAY_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb7-15" title="15">      <span class="cf">return</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> state<span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-16" title="16">        <span class="dt">paid</span><span class="op">:</span> <span class="op">!</span><span class="va">state</span>.<span class="at">paid</span></a>
+<a class="sourceLine" id="cb7-17" title="17">      <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-18" title="18">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb7-19" title="19">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-20" title="20">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-21" title="21"><span class="op">};</span></a>
+<a class="sourceLine" id="cb7-22" title="22"></a>
+<a class="sourceLine" id="cb7-23" title="23"><span class="kw">const</span> farmersReducer <span class="op">=</span> (state <span class="op">=</span> <span class="op">{},</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-24" title="24">  <span class="kw">let</span> nextState <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-25" title="25">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-26" title="26">    <span class="cf">case</span> <span class="dt">HIRE_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb7-27" title="27">      nextState[<span class="va">action</span>.<span class="at">id</span>] <span class="op">=</span> <span class="at">farmerReducer</span>(<span class="kw">undefined</span><span class="op">,</span> action)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-28" title="28">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-29" title="29">    <span class="cf">case</span> <span class="dt">PAY_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb7-30" title="30">      nextState[<span class="va">action</span>.<span class="at">id</span>] <span class="op">=</span> <span class="at">farmerReducer</span>(nextState[<span class="va">action</span>.<span class="at">id</span>]<span class="op">,</span> action)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-31" title="31">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-32" title="32">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb7-33" title="33">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-34" title="34">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-35" title="35"><span class="op">};</span></a>
+<a class="sourceLine" id="cb7-36" title="36"></a>
+<a class="sourceLine" id="cb7-37" title="37"><span class="im">export</span> <span class="im">default</span> farmersReducer<span class="op">;</span></a></code></pre></div>
+<h3 id="catching-and-preventing-state-mutation-bugs">Catching and preventing state mutation bugs</h3>
+<p>Updating the <code>farmersReducer</code> to delegate farmer state updates to the <code>farmerReducer</code> resolved a subtle state mutation bug. Take another look at the original implementation of the <code>farmersReducer</code> function:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">const</span> farmersReducer <span class="op">=</span> (state <span class="op">=</span> <span class="op">{},</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-2" title="2">  <span class="kw">let</span> nextState <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-3" title="3">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-4" title="4">    <span class="cf">case</span> <span class="dt">HIRE_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb8-5" title="5">      <span class="kw">const</span> farmerToHire <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-6" title="6">        <span class="dt">id</span><span class="op">:</span> <span class="va">action</span>.<span class="at">id</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb8-7" title="7">        <span class="dt">name</span><span class="op">:</span> <span class="va">action</span>.<span class="at">name</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb8-8" title="8">        <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb8-9" title="9">      <span class="op">};</span></a>
+<a class="sourceLine" id="cb8-10" title="10">      nextState[<span class="va">action</span>.<span class="at">id</span>] <span class="op">=</span> farmerToHire<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-11" title="11">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-12" title="12">    <span class="cf">case</span> <span class="dt">PAY_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb8-13" title="13">      <span class="kw">const</span> farmerToPay <span class="op">=</span> nextState[<span class="va">action</span>.<span class="at">id</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-14" title="14">      <span class="va">farmerToPay</span>.<span class="at">paid</span> <span class="op">=</span> <span class="op">!</span><span class="va">farmerToPay</span>.<span class="at">paid</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-15" title="15">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-16" title="16">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb8-17" title="17">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-18" title="18">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-19" title="19"><span class="op">};</span></a></code></pre></div>
+<p>Notice that the <code>state</code> parameter is duplicated to the <code>nextState</code> variable using the <code>Object.assign</code> method:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">let</span> nextState <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> state)<span class="op">;</span></a></code></pre></div>
+<p>While this code correctly creates a duplicate of the <code>state</code> object, <code>nextState</code> is only a shallow duplicate as only the top-level object is duplicated. Each “farmer” object that the <code>state</code> object refers to are still the <em>same</em> objects.</p>
+<p>In the <code>PAY_FARMER</code> case clause, the farmer object is mutated by setting the <code>paid</code> property to a new value:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1"><span class="cf">case</span> PAY_FARMER<span class="op">:</span></a>
+<a class="sourceLine" id="cb10-2" title="2">  <span class="kw">const</span> farmerToPay <span class="op">=</span> nextState[<span class="va">action</span>.<span class="at">id</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-3" title="3">  <span class="va">farmerToPay</span>.<span class="at">paid</span> <span class="op">=</span> <span class="op">!</span><span class="va">farmerToPay</span>.<span class="at">paid</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb10-4" title="4">  <span class="cf">return</span> nextState<span class="op">;</span></a></code></pre></div>
+<p>Now look again at the <code>PAY_FARMER</code> case clause in the version of the <code>farmersReducer</code> that delegates farmer state updates to the <code>farmerReducer</code>:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" title="1"><span class="cf">case</span> PAY_FARMER<span class="op">:</span></a>
+<a class="sourceLine" id="cb11-2" title="2">  nextState[<span class="va">action</span>.<span class="at">id</span>] <span class="op">=</span> <span class="at">farmerReducer</span>(nextState[<span class="va">action</span>.<span class="at">id</span>]<span class="op">,</span> action)<span class="op">;</span></a>
+<a class="sourceLine" id="cb11-3" title="3">  <span class="cf">return</span> nextState<span class="op">;</span></a></code></pre></div>
+<p>This code calls the <code>farmerReducer</code> by passing in the farmer object for the <code>action.id</code> property value (i.e. <code>nextState[action.id]</code>) and the <code>action</code> parameter. The <code>farmerReducer</code> has a <code>PAY_FARMER</code> case clause that correctly uses the <code>Object.assign</code> method to duplicate the farmer object with the new <code>paid</code> property value (i.e. <code>Object.assign({}, state, { paid: !state.paid })</code>):</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">const</span> farmerReducer <span class="op">=</span> (state<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-2" title="2">  <span class="co">// State is a farmer object.</span></a>
+<a class="sourceLine" id="cb12-3" title="3">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-4" title="4">    <span class="cf">case</span> <span class="dt">HIRE_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb12-5" title="5">      <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-6" title="6">        <span class="dt">id</span><span class="op">:</span> <span class="va">action</span>.<span class="at">id</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb12-7" title="7">        <span class="dt">name</span><span class="op">:</span> <span class="va">action</span>.<span class="at">name</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb12-8" title="8">        <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb12-9" title="9">      <span class="op">};</span></a>
+<a class="sourceLine" id="cb12-10" title="10">    <span class="cf">case</span> <span class="dt">PAY_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb12-11" title="11">      <span class="cf">return</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> state<span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-12" title="12">        <span class="dt">paid</span><span class="op">:</span> <span class="op">!</span><span class="va">state</span>.<span class="at">paid</span></a>
+<a class="sourceLine" id="cb12-13" title="13">      <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-14" title="14">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb12-15" title="15">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-16" title="16">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb12-17" title="17"><span class="op">};</span></a></code></pre></div>
+<p><strong>Catching state mutation bugs is difficult to do.</strong> Leveraging patterns like reducer composition can help you from introducing these kinds of bugs in the first place.</p>
+<h2 id="destructuring-state-in-your-component">Destructuring State in your component</h2>
+<p>If you try to start your Fruit Stand app now, you will probably get an error that looks something like:</p>
+<pre><code>TypeError: object is not iterable (cannot read property Symbol(Symbol.iterator))</code></pre>
+<p>That is because there is one last thing that you need to do in order prepare your fruitstand to use these split reducers: make sure that your component is accessing the right slice of state. Back in your <code>FruitList.js</code> <code>render</code> method, you are currently assigning the return value of your <code>getState()</code> call to ‘fruit’.</p>
+<pre><code>const fruit = store.getState();</code></pre>
+<p>If you <code>console.log</code> or insert a debugger just after this line to see what fruit has been assigned, you will see:</p>
+<pre><code>fruit = {
+  fruit: [],
+  farmers: {}
+}</code></pre>
+<p>Your state shape changed when you created these reducers! You component is trying to iterate over your new state shape, instead of the fruit slice of that state. To give the component access to the array of fruit, destructure this assignment:</p>
+<pre><code>const { fruit } = store.getState();</code></pre>
+<h2 id="reviewing-a-completed-fruit-stand-example">Reviewing a completed Fruit Stand example</h2>
+<p>To review and run a completed Fruit Stand example application that contains multiple reducers, clone the <a href="https://github.com/appacademy-starters/redux-fruit-stand-examples">redux-fruit-stand-examples</a> repo.</p>
+<p>After cloning the repo, open a terminal and browse to the <code>fruit-stand-redux-with-react-multiple-reducers</code> folder. Run the command <code>npm install</code> to install the project’s dependencies. Then use the command <code>npm start</code> to run the Fruit Stand application.</p>
+<p>This Fruit Stand example application is a React application created by the Create React App tooling. When running the application using <code>npm start</code>, the application should automatically open in your default browser. If it doesn’t, you can manually browse to <code>http://localhost:3000/</code> to view the application.</p>
+<h2 id="what-you-learned">What you learned</h2>
+<p>In this article, you learned how to define multiple reducers to manage individual slices of state. You also learned how to use the Redux <code>combineReducers</code> method to combine multiple reducers into a single root reducer and how to update a reducer to delegate a state update to a subordinate reducer.</p>
