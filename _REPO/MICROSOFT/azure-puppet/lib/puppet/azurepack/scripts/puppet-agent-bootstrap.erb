@@ -1,0 +1,119 @@
+#!/bin/bash
+
+set -u
+#set -e
+
+function redhat_setup(){
+  # Setup the yum Puppet repository
+  cat >/etc/yum.repos.d/puppet.repo <<'EOFYUMREPO'
+[puppetlabs]
+name = Puppetlbas
+baseurl = http://yum.puppetlabs.com/el/$releasever/products/$basearch/
+gpgcheck = 1
+enabled = 1
+gpgkey = http://yum.puppetlabs.com/RPM-GPG-KEY-puppetlabs
+EOFYUMREPO
+
+  # Install Puppet from yum.puppetlabs.com
+  rpm -Uvh http://yum.puppetlabs.com/el/6/products/x86_64/puppetlabs-release-6-6.noarch.rpm
+  yum install -y puppet
+}
+
+function suse_setup(){
+  zypper ar --refresh http://download.opensuse.org/repositories/home:/eclipseagent:/puppet/SLE_11/ repo-puppet  
+  zypper --non-interactive --gpg-auto-import-keys ref
+  zypper install -y puppet
+}
+
+function ubuntu_setup() {
+
+  apt-key adv --recv-key --keyserver pool.sks-keyservers.net 4BD6EC30
+  apt-get update
+  apt-get -y install lsb-release 
+  release=$(lsb_release -c | cut -f 2)
+
+  # Setup the apt Puppet repository
+  cat > /etc/apt/sources.list.d/puppetlabs.list <<EOFAPTREPO
+deb http://apt.puppetlabs.com/ ${release} main dependencies
+EOFAPTREPO
+  apt-get update
+  # Install Puppet from Debian repositories
+  apt-get -y install puppet
+}
+
+function bootstrap_puppet() {
+  case ${breed} in
+    "redhat")
+      redhat_setup ;;
+    "debian")
+      ubuntu_setup ;;
+    "suse")
+      suse_setup ;;
+  esac
+}
+
+function configure_puppet() {
+  cat >/etc/puppet/puppet.conf <<'EOFPUPPETCONF'
+[main]
+  logdir = /var/log/puppet
+  rundir = /var/run/puppet
+  vardir = /var/lib/puppet
+  ssldir = $vardir/ssl
+  pluginsync = true
+  report = true
+  runinterval = 120
+  server = puppet
+  environment = <%= options[:agent_environment] %>
+
+EOFPUPPETCONF
+
+  if [ -f /etc/default/puppet ]; then
+    cat > /etc/default/puppet <<EOFPUPPETDEFAULT
+# 
+
+START=yes
+
+DAEMON_OPTS=""
+EOFPUPPETDEFAULT
+  fi
+}
+
+function start_puppet() {
+  /etc/init.d/puppet restart
+}
+
+
+function update_hosts(){
+  #Remove lines which contain puppet keyword in hosts file.
+  sed --in-place '/puppet/d' /etc/hosts
+  host=<%= options[:puppet_master_ip] %>
+  if ( echo "$host" | egrep -q "[a-zA-Z]" ); then
+   IP=$(host "$host" | grep "has address" | head -1 | awk '{print $NF}')
+  else
+   IP="$host"
+  fi
+  echo "$IP  puppet" >> /etc/hosts
+  echo 'DNS or host is added in /etc/hosts'
+}
+
+function install_puppet_agent() {
+  if [ -f /etc/redhat-release ]; then
+    export breed='redhat'
+  elif [ -f /etc/debian_version ]; then
+    export breed='debian'
+  elif [ -f /etc/SuSE-release ]; then
+    export breed='suse'
+  else
+    echo "This distro is not supported."
+    exit 1
+  fi
+
+  bootstrap_puppet
+  configure_puppet
+  update_hosts
+  start_puppet
+  echo "Puppet installation finished!"
+  exit 0
+}
+
+install_puppet_agent
