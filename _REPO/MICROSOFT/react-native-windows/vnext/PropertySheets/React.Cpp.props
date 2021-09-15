@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup Label="Globals">
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <MinimumVisualStudioVersion>16.0</MinimumVisualStudioVersion>
+    <!-- Use 20H1 SDK (10.0.19041.0)  Support running on RS3+ (10.0.16299.0) -->
+    <WindowsTargetPlatformVersion Condition="'$(WindowsTargetPlatformVersion)'=='' Or '$(WindowsTargetPlatformVersion)'=='10.0.0.0'">10.0.19041.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion Condition="'$(WindowsTargetPlatformMinVersion)'=='' Or '$(WindowsTargetPlatformMinVersion)'=='10.0.0.0'">10.0.16299.0</WindowsTargetPlatformMinVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Configuration">
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <GenerateProjectSpecificOutputFolder>false</GenerateProjectSpecificOutputFolder>
+    <CharacterSet>Unicode</CharacterSet>
+    <EnableWinRtLeanAndMean Condition="'$(EnableWinRtLeanAndMean)' == ''">true</EnableWinRtLeanAndMean>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Desktop">
+    <!-- See https://docs.microsoft.com/en-us/cpp/porting/modifying-winver-and-win32-winnt -->
+    <WinVer>_WIN32_WINNT_WIN8</WinVer>
+    <EnableBeast Condition="'$(EnableBeast)' == ''">0</EnableBeast>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Enables React-Native-Windows ETW Provider : React-Native-Windows-Provider  -->
+    <ENABLE_ETW_TRACING Condition="'$(ENABLE_ETW_TRACING)' == ''">true</ENABLE_ETW_TRACING>
+
+    <!-- Enables routing Systrace events from JavaScript code to our ETW provider -->
+    <ENABLE_JS_SYSTRACE_TO_ETW Condition="'$(ENABLE_JS_SYSTRACE_TO_ETW)' == ''">true</ENABLE_JS_SYSTRACE_TO_ETW>
+  </PropertyGroup>
+
+  <!--
+    Tracing definitions may be checked in Facebook headers. Make sure they get
+    defined for anything with the potential to include them.
+  -->
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions Condition="'$(ENABLE_ETW_TRACING)'=='true'">ENABLE_ETW_TRACING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(ENABLE_JS_SYSTRACE_TO_ETW)'=='true'">ENABLE_JS_SYSTRACE_TO_ETW;WITH_FBSYSTRACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <Import Condition="'$(UseHermes)' == '' or '$(UseV8)' == ''" Project="$(ReactNativeWindowsDir)PropertySheets\JSEngine.props" />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions Condition="'$(UseHermes)'=='true'">USE_HERMES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(UseV8)'=='true'">USE_V8;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(UseFabric)'=='true'">USE_FABRIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <PropertyGroup>
+    <!-- This disables copying the v8 DLL to outputs; it is re-enabled locally in win32 projects -->
+    <V8JSI_NODLLCOPY>true</V8JSI_NODLLCOPY>
+  </PropertyGroup>
+
+  <ImportGroup Label="Defaults">
+    <Import Project="$(Platform).props" />
+    <Import Project="$(Configuration).props" />
+  </ImportGroup>
+
+  <ImportGroup Label="ConfigurationType">
+    <Import Project="$(ConfigurationType)\$(Platform).props" />
+    <Import Project="$(ConfigurationType)\$(Configuration).props" />
+  </ImportGroup>
+
+  <PropertyGroup>
+    <CppStandard Condition="'$(CppStandard)'==''">stdcpp17</CppStandard>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <!--
+        BOOST_ALL_NO_LIB              - Don't require prebuilt Boost DateTime LIB.
+        BOOST_ERROR_CODE_HEADER_ONLY  - Compile Boost error_code members inline. Requires BOOST_SYSTEM_SOURCE.
+        BOOST_NO_RTTI                 - Configure Boost not to use dynamic_cast
+        BOOST_NO_TYPEID               - Configure boost not to check typeid (not to use RTTI)
+        BOOST_SYSTEM_SOURCE           - Build boost::system symbols from sources (drop dependency on boost_system.lib).
+        GTEST_HAS_RTTI                - Let GTest know not to use RTTI
+        WIN32_LEAN_AND_MEAN           - Reduce the Windows API included surface.
+        WINRT_LEAN_AND_MEAN           - Disable rarely used cppwinrt templates that impact compile-time/PCH size.
+      -->
+      <PreprocessorDefinitions>
+        _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;
+        BOOST_ALL_NO_LIB=1;
+        BOOST_ERROR_CODE_HEADER_ONLY;
+        BOOST_NO_RTTI;
+        BOOST_NO_TYPEID;
+        BOOST_SYSTEM_SOURCE;
+        GTEST_HAS_RTTI=0;
+        WIN32_LEAN_AND_MEAN;
+        %(PreprocessorDefinitions)
+      </PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(EnableWinRtLeanAndMean)' == 'true'">
+        WINRT_LEAN_AND_MEAN;
+        %(PreprocessorDefinitions)
+      </PreprocessorDefinitions>
+      <LanguageStandard>$(CppStandard)</LanguageStandard>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <ShowIncludes Condition="'$(ShowIncludes)'=='true'">true</ShowIncludes>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+
+      <!-- Add include directories expected by React Native C++ code and headers -->
+      <AdditionalIncludeDirectories>
+        $(FollyDir);
+        $(FmtDir)include;
+        $(ReactNativeDir)\ReactCommon;
+        $(ReactNativeDir)\ReactCommon\callinvoker;
+        $(ReactNativeDir)\ReactCommon\jsi;
+        $(ReactNativeDir)\ReactCommon\jsiexecutor;
+        $(ReactNativeDir)\ReactCommon\react\nativemodule\core;
+        $(ReactNativeDir)\ReactCommon\react\nativemodule\samples;
+        $(ReactNativeDir)\ReactCommon\reactperflogger;
+        $(ReactNativeDir)\ReactCommon\runtimeexecutor;
+        %(AdditionalIncludeDirectories);
+      </AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(ConfigurationType)' == 'Application' OR '$(ConfigurationType)' == 'DynamicLibrary'">
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+
+</Project>
