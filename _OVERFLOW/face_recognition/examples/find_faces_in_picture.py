@@ -15,7 +15,11 @@ for face_location in face_locations:
 
     # Print the location of each face in this image
     top, right, bottom, left = face_location
-    print("A face is located at pixel location Top: {}, Left: {}, Bottom: {}, Right: {}".format(top, left, bottom, right))
+    print(
+        "A face is located at pixel location Top: {}, Left: {}, Bottom: {}, Right: {}".format(
+            top, left, bottom, right
+        )
+    )
 
     # You can access the actual face itself like this:
     face_image = image[top:bottom, left:right]

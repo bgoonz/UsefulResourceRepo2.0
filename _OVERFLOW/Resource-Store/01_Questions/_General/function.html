@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>function</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="function">function</h1>
+<p>Function<em>(al)</em> utilities.</p>
+<h2 id="afterfn-nfunction">after(fn, n):Function</h2>
+<p>This creates a function that will only call <code>fn</code> if it was called <code>n</code> or more times.</p>
+<pre><code>function onLoaded() {
+    console.log(&#39;all images loaded&#39;);
+}
+
+var imagePaths = [&#39;1.jpg&#39;, &#39;2.jpg&#39;, &#39;3.jpg&#39;];
+var callback = after(onLoaded, imagePaths.length);
+
+forEach(imagePaths, function(path) {
+    asyncLoad(path, callback);
+});</code></pre>
+<h2 id="awaitdelayfn-delayfunction">awaitDelay(fn, delay):Function</h2>
+<p>Returns a function that ensures that <code>fn</code> is only called <em>after</em> <code>delay</code> milliseconds have elapsed. When the returned function is called before the delay has elapsed, it will wait until the delay has elapsed and then call <code>fn</code>. When the returned function is called after the delay has elapsed, it will call <code>fn</code> after the next “tick” (it will always be called asynchronously). The context and arguments that the returned function is called in are applied to <code>fn</code>.</p>
+<p>In the below example <code>onLoaded</code> will not be executed before a 1000 millisecond delay. Even if <code>loadImages</code> loads and calls <code>callback</code> earlier. However, say the images take 1500 milliseconds to load, it will trigger <code>onLoaded</code> immediately.</p>
+<pre><code>var callback = awaitDelay(onLoaded, 1000);
+loadImages(callback);
+function onLoaded(){
+    console.log(&#39;loaded&#39;);
+}</code></pre>
+<p>You can also cancel de delayed call by simply using the native <code>clearTimeout</code> method (like a regular <code>setTimeout</code> call).</p>
+<pre><code>var timeoutId = callback();
+// onLoaded won&#39;t be called since it was canceled before the 1000ms delay
+clearTimeout(timeoutId);</code></pre>
+<h3 id="arguments">Arguments:</h3>
+<ol type="1">
+<li><code>fn</code> (Function) : Target Function</li>
+<li><code>delay</code> (Number) : Delay of execution in milliseconds</li>
+</ol>
+<p>See: <a href="#debounce"><code>debounce()</code></a></p>
+<h2 id="bindfn-context-argsfunction">bind(fn, context, […args]):Function</h2>
+<p>Return a function that will execute in the given context, optionally adding any additional supplied parameters to the beginning of the arguments collection.</p>
+<h3 id="arguments-1">Arguments</h3>
+<ol type="1">
+<li><code>fn</code> (Function) : Target Function</li>
+<li><code>context</code> (Object) : Execution context (object used as <code>this</code>)</li>
+<li><code>[...args]</code> (*) : Arguments (0…n arguments)</li>
+</ol>
+<p>See: <a href="#partial"><code>partial()</code></a>, <a href="./object.html#bindAll">object/bindAll</a></p>
+<h2 id="composefnfunction">compose(…fn):Function</h2>
+<p>Returns the composition of a list of functions, where each function consumes the return value of the function that follows. In math terms, composing the functions <code>f()</code>, <code>g()</code>, and <code>h()</code> produces <code>f(g(h()))</code>.</p>
+<pre><code>function add2(x) { return x + 2 }
+function multi2(x) { return x * 2 }
+map([1, 2, 3], compose(add2, multi2)); // [4, 6, 8]
+
+//same as
+map([1, 2, 3], function(x){
+    return add2( multi2(x) );
+});</code></pre>
+<h2 id="constantvaluefunction">constant(value):Function</h2>
+<p>Returns a new function that will always return <code>value</code> when called.</p>
+<pre><code>var f = constant(&#39;foo&#39;);
+f(); // &#39;foo&#39;
+
+// Provided arguments are ignored; value is always returned
+f(1); // &#39;foo&#39;
+
+f = constant({ foo: &#39;bar&#39; });
+f(); // { foo: &#39;bar&#39; }</code></pre>
+<h2 id="debouncefn-delay-isasapfunction">debounce(fn, delay[, isAsap]):Function</h2>
+<p>Creates a function that will delay the execution of <code>fn</code> until after <code>delay</code> milliseconds have elapsed since the last time it was invoked.</p>
+<p>Subsequent calls to the debounced function will return the result of the last <code>fn</code> call.</p>
+<pre><code>// sometimes less is more
+var lazyRedraw = debounce(redraw, 300);
+foo.on.resize.add(lazyRedraw);</code></pre>
+<p>In this visualization, <code>|</code> is a debounced-function call and <code>X</code> is the actual callback execution:</p>
+<pre><code>Default
+||||||||||||||||||||||||| (pause) |||||||||||||||||||||||||
+                         X                                 X
+
+Debounced with `isAsap == true`:
+||||||||||||||||||||||||| (pause) |||||||||||||||||||||||||
+X                                 X</code></pre>
+<p>You also have the option to cancel the debounced call if it didn’t happen yet:</p>
+<pre><code>lazyRedraw();
+// lazyRedraw won&#39;t be called since `cancel` was called before the `delay`
+lazyRedraw.cancel();</code></pre>
+<p>See: <a href="#throttle"><code>throttle()</code></a></p>
+<h2 id="funcnamefunction">func(name):Function</h2>
+<p>Returns a function that calls a method with given <code>name</code> on supplied object. Useful for iteration methods like <code>array/map</code> and <code>array/forEach</code>.</p>
+<p>See: <a href="#prop"><code>prop()</code></a></p>
+<pre><code>// will call the method `getName()` for each `user`
+var names = map(users, func(&#39;getName&#39;));</code></pre>
+<h2 id="identityval">identity(val):*</h2>
+<p>Returns the first argument provided to it.</p>
+<pre><code>identity(3);     // 3
+identity(1,2,3); // 1
+identity(&#39;foo&#39;); // &quot;foo&quot;</code></pre>
+<h2 id="partialfn-argsfunction">partial(fn, […args]):Function</h2>
+<p>Return a partially applied function supplying default arguments.</p>
+<p>This method is similar to <a href="#bind"><code>bind</code></a>, except it does not alter the this binding.</p>
+<h3 id="arguments-2">Arguments</h3>
+<ol type="1">
+<li><code>fn</code> (Function) : Target Function</li>
+<li><code>[...args]</code> (*) : Arguments (0…n arguments)</li>
+</ol>
+<p>See: <a href="#bind"><code>bind()</code></a></p>
+<pre><code>function add(a, b){ return a + b }
+var add10 = partial(add, 10);
+console.log( add10(2) ); // 12</code></pre>
+<h2 id="propnamefunction">prop(name):Function</h2>
+<p>Returns a function that gets a property with given <code>name</code> from supplied object. Useful for using in conjunction with <code>array/map</code> and/or for creating getters.</p>
+<p>See: <a href="array.html#pluck"><code>array/pluck()</code></a></p>
+<pre><code>var users = [{name:&quot;John&quot;, age:21}, {name:&quot;Jane&quot;, age:25}];
+// [&quot;John&quot;, &quot;Jane&quot;]
+var names = map(users, prop(&#39;name&#39;));</code></pre>
+<h2 id="seriesfnfunction">series(…fn):Function</h2>
+<p>Returns a function that will execute all the supplied functions in order and passing the same parameters to all of them. Useful for combining multiple <code>array/forEach</code> into a single one and/or for debugging.</p>
+<pre><code>// call `console.log()` and `doStuff()` for each item item in the array
+forEach(arr, series(console.log, doStuff));</code></pre>
+<h2 id="throttlefn-intervalfunction">throttle(fn, interval):Function</h2>
+<p>Creates a function that, when executed, will only call the <code>fn</code> function at most once per every <code>interval</code> milliseconds.</p>
+<p>If the throttled function is invoked more than once during the wait timeout, <code>fn</code> will also be called on the trailing edge of the timeout.</p>
+<p>Subsequent calls to the throttled function will return the result of the last <code>fn</code> call.</p>
+<pre><code>// sometimes less is more
+var lazyRedraw = throttle(redraw, 300);
+foo.on.resize.add(lazyRedraw);</code></pre>
+<p>In this visualization, <code>|</code> is a throttled-function call and <code>X</code> is the actual <code>fn</code> execution:</p>
+<pre><code>||||||||||||||||||||||||| (pause) |||||||||||||||||||||||||
+X    X    X    X    X    X        X    X    X    X    X    X</code></pre>
+<p>You also have the option to cancel the throttled call if it didn’t happen yet:</p>
+<pre><code>lazyRedraw();
+setTimeout(function(){
+    lazyRedraw();
+    // lazyRedraw will be called only once since `cancel` was called before
+    // the `interval` for 2nd call completed
+    lazyRedraw.cancel();
+}, 250);</code></pre>
+<p>See: <a href="#debounce"><code>debounce()</code></a></p>
+<h2 id="timeoutfn-millis-context-argsnumber">timeout(fn, millis, context, […args]):Number</h2>
+<p>Functions as a wrapper for <code>setTimeout</code>. Calls a the function <code>fn</code> after a given delay <code>millis</code> in milliseconds. The function is called within the specified context. The return value can be used to clear the timeout using <code>clearTimeout</code>.</p>
+<pre><code>var id = timeout(doStuff, 300, this);
+
+clearTimeout(id);</code></pre>
+<h2 id="timesn-callback-contextvoid">times(n, callback, [context]):void</h2>
+<p>Iterates over a callback <code>n</code> times.</p>
+<h3 id="arguments-3">Arguments</h3>
+<ol type="1">
+<li><code>n</code> (Number) : Number of iterations</li>
+<li><code>callback</code> (Function) : Closure executed for every iteration</li>
+<li><p><code>context</code> (Object) : Execution context (object used as <code>this</code>)</p>
+<p>var output = ’’; times(5, function(i) { output += i.toString(); }); // output: 01234</p></li>
+</ol>
+<h2 id="wrapfn-wrapperfunction">wrap(fn, wrapper):Function</h2>
+<p>Wraps the first <code>fn</code> inside of the <code>wrapper</code> function, passing it as the first argument. This allows the <code>wrapper</code> to execute code before and after the <code>fn</code> runs, adjust the arguments, and execute it conditionally.</p>
+<pre><code>var hello = function(name) { return &quot;hello: &quot; + name; };
+hello = wrap(hello, function(func) {
+  return &quot;before, &quot; + func(&quot;moe&quot;) + &quot;, after&quot;;
+});
+hello();
+// output: &#39;before, hello: moe, after&#39;</code></pre>
+<h2 id="see-partial">See: <a href="#partial"><code>partial()</code></a></h2>
+<p>For more usage examples check specs inside <code>/tests</code> folder. Unit tests are the best documentation you can get…</p>
+</body>
+</html>

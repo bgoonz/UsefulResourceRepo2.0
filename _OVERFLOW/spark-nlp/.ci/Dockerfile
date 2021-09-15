@@ -1,4 +1,4 @@
-FROM hseeberger/scala-sbt:8u212_1.2.8_2.13.0
+FROM hseeberger/scala-sbt:8u282_1.5.4_3.0.0
 
 COPY . /app/spark-nlp
 

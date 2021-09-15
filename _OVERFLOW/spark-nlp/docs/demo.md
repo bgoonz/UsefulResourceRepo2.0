@@ -1,6 +1,6 @@
 ---
 layout: article
-title: 
+title:
 full_width: true
 permalink: /demo
 key: demo
