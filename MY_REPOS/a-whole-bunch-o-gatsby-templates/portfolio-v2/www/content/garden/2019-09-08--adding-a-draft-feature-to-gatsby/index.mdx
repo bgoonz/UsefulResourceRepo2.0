@@ -1,0 +1,85 @@
+---
+title: "Adding a Draft Feature to Gatsby"
+date: 2019-09-08
+lastUpdated: 2021-04-26
+icon: "gatsby"
+tags:
+  - Gatsby
+  - MDX
+---
+
+There are a lot of guides on the internet on how to add default values to your Gatsby schema, e.g. a draft entry in the frontmatter to hide posts that are still work-in-progress. However, all these solutions are kinda hacky, as they for example require you to use environment variables or even define the draft entry in every single frontmatter you have. Since Gatsby implemented its [schema customization API](https://www.gatsbyjs.com/blog/2019-03-18-releasing-new-schema-customization/) there is an easy solution (and not hacky at all!) available. Most importantly: This quick tip is applicable to all data sources you have, not only markdown (and its frontmatter).
+
+You can have a look at the codesandbox [gatsby-draft-default-values](https://codesandbox.io/s/gatsby-draft-default-values-3dd2l) to see the working code in a minimal example.
+
+If you want to follow the example along, you can install the default blog starter by running `gatsby new my-blog https://github.com/gatsbyjs/gatsby-starter-blog` with `gatsby-cli`.
+
+## Setup
+
+The default blog starter uses markdown for its content and you can use the so called frontmatter in markdown files to define additional data, such as e.g. a draft status (true or false). The goal is to define a default value for this draft status so that you don't have to define it in every markdown file but only in the ones you'd like to be a draft.
+
+Add this to the existing `gatsby-node.js` file:
+
+```js title=gatsby-node.js
+exports.createSchemaCustomization = ({ actions }) => {
+  const { createTypes, createFieldExtension } = actions;
+
+  createFieldExtension({
+    name: "defaultFalse",
+    extend() {
+      return {
+        resolve(source, args, context, info) {
+          if (source[info.fieldName] == null) {
+            return false;
+          }
+          return source[info.fieldName];
+        },
+      };
+    },
+  });
+
+  createTypes(`
+    type MarkdownRemark implements Node {
+      frontmatter: Frontmatter
+    }
+    type Frontmatter {
+      draft: Boolean @defaultFalse
+    }
+  `);
+};
+```
+
+In the `createTypes` function you have to define a nested type on the `MarkdownRemark` type (read [Nested types](https://www.gatsbyjs.com/docs/reference/graphql-data-layer/schema-customization/#nested-types) for more info) to be able to type the draft field. On the draft field itself the custom extension is used as a directive. The directive allows you to reuse this action on other fields, too. In case you're using a CMS or other datasource than markdown you'll need to find and define your type (instead of `MarkdownRemark`) to have this working. I'd recommend using GraphiQL (`localhost:8000/___graphql`) if you're unsure about the names!
+
+To be able to use the _@defaultFalse_ directive, you need to define a custom extension with `createFieldExtension`. The `source` contains all fields from the frontmatter (in this case: title, description, date, and draft). `info.fieldName` is the name of the field you're applying the directive to – in this case `draft`. Fields that are not provided are null by default but because draft should be a boolean you need to return `false` in this case. If it's provided simply return the value.
+
+Read the complete guide on [Creating type definitions](https://www.gatsbyjs.com/docs/reference/graphql-data-layer/schema-customization/#creating-type-definitions) to get in-depth knowledge of how and why it works this way.
+
+## Usage
+
+Now that the draft field is set up and defaults to false, you can go ahead and add a `draft: true` to the frontmatter of a blogpost.
+
+```md
+---
+title: My Second Post!
+date: "2015-05-06T23:46:37.121Z"
+draft: true
+---
+```
+
+When opening GraphiQL you also should be able to query the draft field now and filter by it. A query to list all markdown posts that are not a draft looks like:
+
+```graphql
+query {
+  allMarkdownRemark(filter: { frontmatter: { draft: { eq: false } } }) {
+    nodes {
+      frontmatter {
+        title
+        description
+        date
+        draft
+      }
+    }
+  }
+}
+```

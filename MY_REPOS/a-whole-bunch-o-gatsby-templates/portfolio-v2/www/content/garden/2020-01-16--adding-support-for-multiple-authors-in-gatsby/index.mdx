@@ -1,0 +1,102 @@
+---
+title: "Adding Support for Multiple Authors in Gatsby"
+date: 2020-01-16
+lastUpdated: 2021-04-26
+icon: "gatsby"
+tags:
+  - Gatsby
+  - MDX
+---
+
+This quick tip will explain how you can have multiple authors for your blog posts. It's not limited to Markdown but the example Gatsby site will use that. You can apply the general technique also to your site that is powered by a CMS or other data source. [See the example project on Codesandbox](https://codesandbox.io/s/markdown-multiple-authors-b3s64).
+
+Please note that this article won't walk you through an example from start to finish but rather explain the concepts behind it. Feel free to clone [gatsby-starter-blog](https://github.com/gatsbyjs/gatsby-starter-blog) and try it yourself after reading this blog post.
+
+## Setup
+
+So, what's the starting point? For this example you'll start of with a markdown powered Gatsby site and each blog post has a `frontmatter` with things like title, slug, and author. Now you want to add the ability to add multiple authors to one blog post and also provide some additional information about the authors.
+
+So the `frontmatter` of each blog post could look like:
+
+```md
+---
+title: "Second blog post"
+date: 2020-01-02
+slug: "/second-blog-post"
+authors:
+  - "Hermione"
+  - "Ron"
+---
+```
+
+For the detailed information (description, image) of each author you can use something like an `authors.yml` file. YAML files are a great fit for that usecase (e.g. allow comments, easy to parse and lint). Put the file together with some images into the same folder, set up `gatsby-source-filesystem` and `gatsby-transformer-yaml` and paste something in like:
+
+```yaml
+- name: "Harry"
+  description: "The chosen one"
+  image: "./harry.jpg"
+- name: "Ron"
+  description: "Harry's best friend"
+  image: "./ron.jpg"
+- name: "Hermione"
+  description: "Smartest girl"
+  image: "./hermione.jpg"
+```
+
+The important bit here is that the `name` is unique and the `frontmatter` only references available names.
+
+## Creating the link
+
+Now it's time for [Gatsby's schema customization API](https://www.gatsbyjs.com/docs/reference/graphql-data-layer/schema-customization/) to shine. The end goal is that you can query something like this:
+
+```graphql
+{
+  query {
+    markdownRemark {
+      frontmatter {
+        title
+        authors {
+          description
+          name
+        }
+      }
+    }
+  }
+}
+```
+
+For this to work you'll need to create a foreign-key relationship between the blog posts and the authors. Or in other words: Between `MarkdownRemark` and `AuthorsYaml`. Because those are the respective types - you can see them by going to your GraphiQL instance at `localhost:8000/___graphql`.
+
+Add to your `gatsby-node.js` file:
+
+```js title=gatsby-node.js {9}
+exports.createSchemaCustomization = ({ actions }) => {
+  const { createTypes } = actions;
+  const typeDefs = `
+    type MarkdownRemark implements Node {
+      frontmatter: Frontmatter
+    }
+
+    type Frontmatter {
+      authors: [AuthorsYaml] @link(by: "name")
+    }
+  `;
+  createTypes(typeDefs);
+};
+```
+
+In order to explicitly define the nested frontmatter you first need define root type `MarkdownRemark` that then has the custom type `Frontmatter`. The part `implements Node` means that the type will use the `Node` interface that defines set of fields common to node objects created by source plugins/transformers.
+
+The important bit here is:
+
+```graphql
+authors: [AuthorsYaml] @link(by: "name")
+```
+
+`AuthorsYaml` is the type for your yaml file, the bracket notation means that authors is having an array of items with the type of AuthorsYaml. Now you're saying that both should be linked by name. Remember: The name is common in both files and unique.
+
+Learn more about it in-depth here: [Gatsby's docs about schema customization](https://www.gatsbyjs.com/docs/reference/graphql-data-layer/schema-customization/).
+
+## Other data sources
+
+This quick tip explained the concept with markdown files and a yaml file. But what about CMSs or other local files? You'll want to get the type names (e.g. from GraphiQL) and also type until you reached the nested type. Use a unique property for linking.
