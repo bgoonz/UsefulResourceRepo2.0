@@ -1,0 +1,33 @@
+describe('post', () => {
+  it('should be clickable on home', () => {
+    cy.visit('/')
+      .waitForRouteChange()
+      .getByText(/Ein Lannister bezahlt immer seine Schulden./i)
+      .click()
+      .waitForRouteChange()
+      .assertRoute('/a-lannister-always-pays-his-debt')
+  })
+  it('should have its content', () => {
+    cy.visit('/a-lannister-always-pays-his-debt')
+      .waitForRouteChange()
+      .getByText(/Ein Lannister bezahlt immer seine Schulden./i)
+      .getByText(/11.10.2018/i)
+      .getByText(/Hallo, dies ist eine neue Zeile in diesem Blogbeitrag./i)
+  })
+  it('should have working recent posts', () => {
+    cy.visit('/a-lannister-always-pays-his-debt')
+      .waitForRouteChange()
+      .getByText(/Warum Du King's Landing nicht besuchen solltest/i)
+      .click()
+      .waitForRouteChange()
+      .getByText(/Warum Du King's Landing nicht besuchen solltest/i)
+  })
+  it('should link to its category', () => {
+    cy.visit('/a-lannister-always-pays-his-debt')
+      .waitForRouteChange()
+      .getByText(/Information/i)
+      .click()
+      .waitForRouteChange()
+      .getByText(/Kategorie/i)
+  })
+})
