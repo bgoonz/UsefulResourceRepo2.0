@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<style type="text/css" media="screen">
+    #editor {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+</style>
+<body>
+  <div id="editor">if you're seeing this you're probably not using Google Chrome.</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.8/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.$blockScrolling = Infinity
+    var data_localStorage = JSON.parse(localStorage.Book)
+    var backup = data_localStorage.backup || {}
+    var data = data_localStorage.files
+    console.log("type 'help' with no quote marks and enter to get started")
+    var help = `'C' holds the various available commands. Typing C will list them. Typing C.save or the like will show you helpful comments on how to use the command. adding parentheses like this: C.print(data) will carry out the command.`
+    var C = {
+      save : function(obj) {
+        //saves given object to localStorage, overwriting all your previous save files. Make sure to save your complete 'folder' of files rather than just one.
+        data_localStorage.files = obj;
+        localStorage.Book = JSON.stringify(obj)
+      },
+      makeBackup: function(obj) {
+        //saves a backup of given object. Can be accessed by typing 'backup'; ALWAYS save a backup either here or to disk.
+        backup = obj;
+        data_localStorage.backup = obj;
+        localStorage.Book = JSON.stringify(data_localStorage)
+
+      },
+      print: function(obj) {
+        //pretty-prints a given object to json format in editor. Can print sub-objects for you to work on rather than the whole thing.
+        if (typeof(obj) == 'object') {
+          editor.getSession().setMode("ace/mode/json");
+          editor.setValue(JSON.stringify(obj, 0, 2))
+        } else {
+          editor.getSession().setMode("ace/mode/text");
+          editor.setValue(obj)
+        }
+
+
+      },
+      read: function() {
+        // retrieves editor content and converts to javascript object. use by typing this: let j = C.read()
+        let x = editor.getValue()
+        return  JSON.parse(x)
+      }
+    }
+    editor.setValue("This mode is designed primarily for those with some knowledge of javascript. \nOpen chrome console with f12 and type 'help' then enter to get started");
+</script>
+</body>
+</html>
