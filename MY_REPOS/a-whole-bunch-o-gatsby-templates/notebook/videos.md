@@ -1,0 +1,2 @@
+- [The 7 Pillar Developer: A holistic approach to building an exceptional career by Cory House](https://www.youtube.com/watch?v=Y4wnbkatj20)
+- [GraphQL Tutorial](https://www.youtube.com/playlist?list=PL4cUxeGkcC9iK6Qhn-QLcXCXPQUov1U7f)
