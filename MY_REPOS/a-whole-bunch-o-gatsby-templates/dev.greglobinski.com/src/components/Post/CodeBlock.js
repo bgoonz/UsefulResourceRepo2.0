@@ -1,7 +1,7 @@
 const React = require("react");
 const PropTypes = require("prop-types");
 
-const CodeBlock = props => {
+const CodeBlock = (props) => {
   const { value, language } = props;
 
   return (
@@ -14,12 +14,12 @@ const CodeBlock = props => {
 };
 
 CodeBlock.defaultProps = {
-  language: ""
+  language: "",
 };
 
 CodeBlock.propTypes = {
   value: PropTypes.string.isRequired,
-  language: PropTypes.string
+  language: PropTypes.string,
 };
 
 module.exports = CodeBlock;

@@ -7,7 +7,7 @@ import HomeLink from "./HomeLink";
 import NextLink from "./NextLink";
 import SubscribeLink from "./SubscribeLink";
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     background: theme.palette.background.third,
     bottom: 0,
@@ -17,12 +17,12 @@ const styles = theme => ({
     right: 0,
     overflow: "hidden",
     "&.landscape.browse-screen": {
-      left: props => props.windowHeight
-    }
-  }
+      left: (props) => props.windowHeight,
+    },
+  },
 });
 
-const Nav = props => {
+const Nav = (props) => {
   const { classes, location, windowWidth, windowHeight, seenCombos, unseenCombos, history } = props;
   const { pathname } = location;
 
@@ -71,7 +71,7 @@ Nav.propTypes = {
   seenCombos: PropTypes.number.isRequired,
   unseenCombos: PropTypes.number.isRequired,
   history: PropTypes.object.isRequired,
-  onNextClick: PropTypes.func.isRequired
+  onNextClick: PropTypes.func.isRequired,
 };
 
 export default withRouter(injectSheet(styles)(Nav));

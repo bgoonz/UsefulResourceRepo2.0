@@ -1,6 +1,6 @@
 import { ThemeCss } from "../../theme"
 
-const hamburgerIconStylesShared: ThemeCss = theme => {
+const hamburgerIconStylesShared: ThemeCss = (theme) => {
   return {
     width: 24,
     height: `3px`,
@@ -45,7 +45,7 @@ const hamburgerIconStylesShared: ThemeCss = theme => {
   }
 }
 
-const hamburgerIconStylesSharedInverted: ThemeCss = theme => {
+const hamburgerIconStylesSharedInverted: ThemeCss = (theme) => {
   const background = theme.colors.white
 
   return {
@@ -61,7 +61,7 @@ const hamburgerIconStylesSharedInverted: ThemeCss = theme => {
   }
 }
 
-const baseNavigationItemCss: ThemeCss = theme => ({
+const baseNavigationItemCss: ThemeCss = (theme) => ({
   display: `inline-flex`,
   position: `relative`,
   color: theme.colors.black,
@@ -69,11 +69,11 @@ const baseNavigationItemCss: ThemeCss = theme => ({
   "&:hover > ul": baseNavigationDropdownOpenStyles(theme),
 })
 
-const baseNavigationItemInvertedCss: ThemeCss = theme => ({
+const baseNavigationItemInvertedCss: ThemeCss = (theme) => ({
   color: theme.colors.white,
 })
 
-const baseNavigationDropdownOpenStyles: ThemeCss = theme => ({
+const baseNavigationDropdownOpenStyles: ThemeCss = (theme) => ({
   display: `inline-block`,
   position: `absolute`,
   top: `95%`,
@@ -82,24 +82,24 @@ const baseNavigationDropdownOpenStyles: ThemeCss = theme => ({
   padding: `${theme.space[4]} 0`,
 })
 
-const baseNavigationDropdownClosedStyles: ThemeCss = _theme => ({
+const baseNavigationDropdownClosedStyles: ThemeCss = (_theme) => ({
   display: `none`,
   listStyle: `none`,
   margin: 0,
   padding: 0,
 })
 
-const baseNavigationDropdownToggleCss: ThemeCss = theme => ({
+const baseNavigationDropdownToggleCss: ThemeCss = (theme) => ({
   color: theme.colors.black,
   background: `inherit`,
 })
 
-const baseNavigationDropdownToggleInvertedCss: ThemeCss = theme => ({
+const baseNavigationDropdownToggleInvertedCss: ThemeCss = (theme) => ({
   color: theme.colors.white,
   background: 0,
 })
 
-export const baseNavigationButtonCss: ThemeCss = theme => ({
+export const baseNavigationButtonCss: ThemeCss = (theme) => ({
   fontSize: theme.fontSizes[2],
   fontWeight: `bold`,
   background: theme.colors.gatsby,
@@ -112,7 +112,7 @@ export const baseNavigationButtonCss: ThemeCss = theme => ({
   },
 })
 
-export const baseNavigationButtonInvertedCss: ThemeCss = theme => ({
+export const baseNavigationButtonInvertedCss: ThemeCss = (theme) => ({
   background: theme.colors.white,
   border: `1px solid ${theme.colors.purple[20]}`,
   color: theme.colors.purple[50],
@@ -146,14 +146,17 @@ const baseStyles = {
       transition: `all 250ms cubic-bezier(0.4, 0, 0.2, 1)`,
     },
   },
-  hamburgerIcon: (isInverted: boolean): ThemeCss => theme => [
-    hamburgerIconStylesShared(theme),
-    isInverted && hamburgerIconStylesSharedInverted(theme),
-  ],
+  hamburgerIcon:
+    (isInverted: boolean): ThemeCss =>
+    (theme) =>
+      [
+        hamburgerIconStylesShared(theme),
+        isInverted && hamburgerIconStylesSharedInverted(theme),
+      ],
   nav: {
     default: {},
     mobile: (isMobileNavOpen: boolean): ThemeCss => {
-      return _theme => ({
+      return (_theme) => ({
         display: isMobileNavOpen ? `block ` : `none`,
       })
     },
@@ -183,25 +186,25 @@ const baseStyles = {
     },
   },
   item: (isInverted: boolean): ThemeCss => {
-    return theme => [
+    return (theme) => [
       baseNavigationItemCss(theme),
       isInverted && baseNavigationItemInvertedCss(theme),
     ]
   },
   dropdown: (isDropdownOpen: boolean): ThemeCss => {
-    return theme => [
+    return (theme) => [
       baseNavigationDropdownClosedStyles(theme),
       isDropdownOpen && baseNavigationDropdownOpenStyles(theme),
     ]
   },
   dropdownToggle: (isInverted: boolean): ThemeCss => {
-    return theme => [
+    return (theme) => [
       baseNavigationDropdownToggleCss(theme),
       isInverted && baseNavigationDropdownToggleInvertedCss(theme),
     ]
   },
   button: (isInverted: boolean): ThemeCss => {
-    return theme => [
+    return (theme) => [
       baseNavigationButtonCss(theme),
       isInverted && baseNavigationButtonInvertedCss(theme),
     ]

@@ -29,12 +29,12 @@ Performant asynchronous font loading & Flash Of Unstyled Text (FOUT) handling pl
 
 ## Features
 
-* Supports web fonts & self-hosted fonts
-* Preloads the files & preconnects to the URL
-* Loads fonts asynchronously to avoid render blocking
-* Implemented with [fast loading snippets](https://csswizardry.com/2020/05/the-fastest-google-fonts/)
-* Loading status listener for avoiding FOUT
-* Small size & minimal footprint
+- Supports web fonts & self-hosted fonts
+- Preloads the files & preconnects to the URL
+- Loads fonts asynchronously to avoid render blocking
+- Implemented with [fast loading snippets](https://csswizardry.com/2020/05/the-fastest-google-fonts/)
+- Loading status listener for avoiding FOUT
+- Small size & minimal footprint
 
 ## Install
 
@@ -149,7 +149,9 @@ You can use the [Font Style Matcher](https://meowni.ca/font-style-matcher/) to a
 Here is the example of how `body` element will look like after all fonts are being loaded (depending on the config).
 
 ```html
-<body class="wf-lazy-monday--loaded wf-font-awesome-5-brands--loaded wf-font-awesome-5-free--loaded wf-staatliches--loaded wf-henny-penny--loaded">
+<body
+  class="wf-lazy-monday--loaded wf-font-awesome-5-brands--loaded wf-font-awesome-5-free--loaded wf-staatliches--loaded wf-henny-penny--loaded"
+></body>
 ```
 
 <img alt="FOUT example" src="https://res.cloudinary.com/dazdt97d3/image/upload/v1604140006/fouc.gif">

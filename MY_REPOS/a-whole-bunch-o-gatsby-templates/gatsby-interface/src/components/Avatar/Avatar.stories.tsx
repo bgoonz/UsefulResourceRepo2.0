@@ -53,7 +53,7 @@ storiesOf(`Avatar`, module)
     return (
       <StoryUtils.Container>
         <div>
-          {sizes.map(size => (
+          {sizes.map((size) => (
             <Avatar
               key={size}
               src=""

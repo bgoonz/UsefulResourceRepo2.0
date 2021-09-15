@@ -21,7 +21,7 @@ const NotificationContext = React.createContext<NotificationContextValue>({
   onDismiss: () => undefined,
 })
 
-const baseCss: ThemeCss = theme => ({
+const baseCss: ThemeCss = (theme) => ({
   display: `flex`,
   alignItems: `flex-start`,
   justifyContent: `space-between`,
@@ -83,7 +83,7 @@ export default function Notification({
           <NotificationContent as={contentAs}>
             {Icon && (
               <Icon
-                css={theme => ({
+                css={(theme) => ({
                   marginRight: theme.space[4],
                   fontSize: theme.fontSizes[4],
                   color: theme.tones[tone].medium,
@@ -146,7 +146,7 @@ function NotificationDismissButton({ label = `Close` }: { label?: string }) {
 
   return (
     <Button
-      css={theme => ({
+      css={(theme) => ({
         padding: `0`,
         minHeight: `auto`,
         color: theme.colors.grey[40],

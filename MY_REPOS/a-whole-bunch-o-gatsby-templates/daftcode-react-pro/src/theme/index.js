@@ -16,9 +16,9 @@ const colors = {
 };
 
 const components = {
-  header:{ background: colors.gray[4], scrolledBackground:"rgba(238,238,238,0.41)" },
-  footer:{ background: colors.gray[4] }
-}
+  header: { background: colors.gray[4], scrolledBackground: 'rgba(238,238,238,0.41)' },
+  footer: { background: colors.gray[4] },
+};
 
 const buttons = {
   neutral: { background: colors.white, text: colors.white },

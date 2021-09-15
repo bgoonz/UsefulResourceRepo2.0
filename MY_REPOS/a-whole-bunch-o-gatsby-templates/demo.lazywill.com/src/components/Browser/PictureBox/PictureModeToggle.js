@@ -14,12 +14,12 @@ const styles = () => ({
     color: "rgba(255,255,255,0.5)",
     "&:hover": {
       backgroundColor: "rgba(0, 0, 0, 0.2)",
-      color: "rgba(255,255,255,1)"
-    }
-  }
+      color: "rgba(255,255,255,1)",
+    },
+  },
 });
 
-const PictureModeToggle = props => {
+const PictureModeToggle = (props) => {
   const { classes, onClick, pictureMode } = props;
 
   return (
@@ -32,7 +32,7 @@ const PictureModeToggle = props => {
 PictureModeToggle.propTypes = {
   classes: PropTypes.object.isRequired,
   onClick: PropTypes.func.isRequired,
-  pictureMode: PropTypes.bool.isRequired
+  pictureMode: PropTypes.bool.isRequired,
 };
 
 export default withStyles(styles)(PictureModeToggle);

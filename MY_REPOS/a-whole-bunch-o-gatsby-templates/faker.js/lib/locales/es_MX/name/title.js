@@ -1,5 +1,5 @@
- module["exports"] = {
-  "descriptor": [
+module["exports"] = {
+  descriptor: [
     "Jefe",
     "Senior",
     "Directo",
@@ -21,9 +21,9 @@
     "Humano",
     "Gerente",
     "SubGerente",
-    "Director"
+    "Director",
   ],
-  "level": [
+  level: [
     "Soluciones",
     "Programa",
     "Marca",
@@ -59,9 +59,9 @@
     "Interacciones",
     "Factores",
     "Usabilidad",
-    "Métricas"
+    "Métricas",
   ],
-  "job": [
+  job: [
     "Supervisor",
     "Asociado",
     "Ejecutivo",
@@ -90,6 +90,6 @@
     "Scrum Master",
     "Scrum Owner",
     "Product Owner",
-    "Scrum Developer"
-  ]
+    "Scrum Developer",
+  ],
 };

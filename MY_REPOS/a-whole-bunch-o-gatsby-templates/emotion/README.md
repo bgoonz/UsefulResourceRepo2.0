@@ -44,11 +44,11 @@ npm install --save @emotion/core
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
 
-let SomeComponent = props => {
+let SomeComponent = (props) => {
   return (
     <div
       css={{
-        color: 'hotpink'
+        color: 'hotpink',
       }}
       {...props}
     />

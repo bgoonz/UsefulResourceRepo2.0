@@ -2,7 +2,7 @@ import React from 'react';
 
 export function getComponentsLists(compStories) {
   let result = [];
-  Object.keys(compStories).forEach(componentKey => {
+  Object.keys(compStories).forEach((componentKey) => {
     const componentStory = compStories[componentKey];
     const components = Object.values(componentStory);
     result.push(components);
@@ -13,9 +13,11 @@ export function getComponentsLists(compStories) {
 export function prepareStoryFromComponents(componentLists) {
   return (
     <div>
-      {componentLists.map(compList => (
+      {componentLists.map((compList) => (
         <div>
-          {compList.map(comp => <span style={{ margin: 15 }}>{comp}</span>)}
+          {compList.map((comp) => (
+            <span style={{ margin: 15 }}>{comp}</span>
+          ))}
           <hr style={{ margin: 10 }} />
         </div>
       ))}

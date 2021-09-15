@@ -1,11 +1,11 @@
-import * as React from "react"
-import { chakra, useColorModeValue } from "@chakra-ui/react"
+import * as React from "react";
+import { chakra, useColorModeValue } from "@chakra-ui/react";
 
-const defaultId = `skip-to-content`
+const defaultId = `skip-to-content`;
 
 const SkipNavLink = ({ children = `Skip to content`, contentId, ...props }) => {
-  const id = contentId || defaultId
-  const background = useColorModeValue(`white`, `gray.900`)
+  const id = contentId || defaultId;
+  const background = useColorModeValue(`white`, `gray.900`);
 
   return (
     <chakra.a
@@ -32,20 +32,20 @@ const SkipNavLink = ({ children = `Skip to content`, contentId, ...props }) => {
     >
       {children}
     </chakra.a>
-  )
-}
+  );
+};
 
 /**
  * Wrap the main content of a page with this, thus also the <main> tag
  */
 const SkipNavContent = ({ children, id: idProp, ...props }) => {
-  const id = idProp || defaultId
+  const id = idProp || defaultId;
 
   return (
     <main {...props} id={id}>
       {children}
     </main>
-  )
-}
+  );
+};
 
-export { SkipNavLink, SkipNavContent }
+export { SkipNavLink, SkipNavContent };

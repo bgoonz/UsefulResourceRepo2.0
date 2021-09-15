@@ -21,7 +21,7 @@ exports.createPages = async ({ graphql, actions }) => {
     console.error(result.errors)
   }
 
-  result.data.allStarWarsJson.edges.forEach(film => {
+  result.data.allStarWarsJson.edges.forEach((film) => {
     createPage({
       path: kebabCase(film.node.title),
       component: filmTemplate,

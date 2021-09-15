@@ -22,5 +22,5 @@ module["exports"] = [
   "RO",
   "RR",
   "SC",
-  "SP"
+  "SP",
 ];

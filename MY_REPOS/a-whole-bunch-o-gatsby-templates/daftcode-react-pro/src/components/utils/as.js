@@ -15,7 +15,7 @@ const render = ({ as: t, ...props }) => {
   const T = parseTag(t);
 
   if (Array.isArray(T)) {
-    const [First, ...others] = T.filter(x => x !== As);
+    const [First, ...others] = T.filter((x) => x !== As);
     return <First {...props} as={As} nextAs={others} />;
   }
 
@@ -47,18 +47,18 @@ const render = ({ as: t, ...props }) => {
   return <T {...props} className={className} {...(style ? { style } : {})} />;
 };
 
-const as = asComponents => WrappedComponent => {
+const as = (asComponents) => (WrappedComponent) => {
   const target = isStyledComponent(WrappedComponent) ? WrappedComponent.target : WrappedComponent;
 
   const components = [].concat(WrappedComponent, asComponents);
 
-  const getComponentName = component => component.displayName || component.name || component;
+  const getComponentName = (component) => component.displayName || component.name || component;
 
   const displayName = `${getComponentName(WrappedComponent)}.as(${[].concat(asComponents).map(getComponentName)})`;
 
-  const defineProperties = scope => {
+  const defineProperties = (scope) => {
     scope.asComponents = asComponents;
-    scope.as = otherComponents => as(otherComponents)(scope);
+    scope.as = (otherComponents) => as(otherComponents)(scope);
     return scope;
   };
 
@@ -66,9 +66,9 @@ const as = asComponents => WrappedComponent => {
     return defineProperties(WrappedComponent);
   }
 
-  const getAs = props => components.concat(props.as || [], props.nextAs || []);
+  const getAs = (props) => components.concat(props.as || [], props.nextAs || []);
 
-  let Component = props => render({ ...omit(props, 'nextAs'), as: getAs(props) });
+  let Component = (props) => render({ ...omit(props, 'nextAs'), as: getAs(props) });
 
   Component.displayName = displayName;
 

@@ -11,7 +11,7 @@ export default function DepPageQueryAlternativePage({ data }) {
 }
 
 export const query = graphql`
-  query($id: String) {
+  query ($id: String) {
     depPageQuery(id: { eq: $id }) {
       label
     }

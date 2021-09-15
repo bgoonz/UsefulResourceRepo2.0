@@ -59,6 +59,7 @@ it('can mark an item as completed', () => {
   // confirms the other items are still incomplete
 })
 ```
+
 +++
 
 ## Refactor code 1/3
@@ -100,6 +101,7 @@ it('can delete an item', () => {
   // confirm the other item still exists
 })
 ```
+
 +++
 
 ## Todo
@@ -121,6 +123,7 @@ it('adds item with random text', () => {
 - set up IntelliSense in `cypress.json` using [https://on.cypress.io/intelligent-code-completion](https://on.cypress.io/intelligent-code-completion)
 
 +++
+
 ## Adding blank item
 
 The application does not allow adding items with blank titles. What happens when the user does it? Hint: open DevTools console.
@@ -130,6 +133,7 @@ The application does not allow adding items with blank titles. What happens when
 Fill the test `does not allow adding blank todos`.
 
 +++
+
 ## Bonus
 
 Unit tests vs end-to-end tests
@@ -150,15 +154,17 @@ test('add', () => {
 ### End-to-end tests
 
 ```javascript
-const addItem = text => {
+const addItem = (text) => {
   cy.get('.new-todo').type(`${text}{enter}`)
 }
 it('can mark items as completed', () => {
   const ITEM_SELECTOR = 'li.todo'
   addItem('simple')
   addItem('difficult')
-  cy.contains(ITEM_SELECTOR, 'simple').should('exist')
-    .find('input[type="checkbox"]').check()
+  cy.contains(ITEM_SELECTOR, 'simple')
+    .should('exist')
+    .find('input[type="checkbox"]')
+    .check()
   // have to force click because the button does not appear unless we hover
   cy.contains(ITEM_SELECTOR, 'simple').find('.destroy').click({ force: true })
   cy.contains(ITEM_SELECTOR, 'simple').should('not.exist')
@@ -221,6 +227,7 @@ describe('Feature A', () => {
 ```
 
 +++
+
 ## 🏁 Write your tests like a user
 
 - go through UI

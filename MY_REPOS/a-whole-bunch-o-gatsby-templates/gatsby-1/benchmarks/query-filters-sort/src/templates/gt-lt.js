@@ -9,7 +9,7 @@ export default ({ data }) => {
 }
 
 export const query = graphql`
-  query(
+  query (
     $pageNum: Int
     $pageNumPlus1000: Int
     $sort: TestSortInput

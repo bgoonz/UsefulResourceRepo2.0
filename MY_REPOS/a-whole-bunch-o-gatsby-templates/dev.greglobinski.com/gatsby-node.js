@@ -20,17 +20,17 @@ exports.onCreateNode = ({ node, getNode, boundActionCreators }) => {
     createNodeField({
       node,
       name: `slug`,
-      value: slug
+      value: slug,
     });
     createNodeField({
       node,
       name: `identifier`,
-      value: identifier
+      value: identifier,
     });
     createNodeField({
       node,
       name: `prefix`,
-      value: prefix
+      value: prefix,
     });
   }
 };
@@ -68,7 +68,7 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
             }
           }
         `
-      ).then(result => {
+      ).then((result) => {
         if (result.errors) {
           console.log(result.errors);
           reject(result.errors);
@@ -78,11 +78,11 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
 
         // Create category list
         const categorySet = new Set();
-        items.forEach(edge => {
+        items.forEach((edge) => {
           const {
             node: {
-              frontmatter: { category }
-            }
+              frontmatter: { category },
+            },
           } = edge;
 
           if (category && category !== null) {
@@ -92,21 +92,21 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
 
         // Create category pages
         const categoryList = Array.from(categorySet);
-        categoryList.forEach(category => {
+        categoryList.forEach((category) => {
           createPage({
             path: `/category/${_.kebabCase(category)}/`,
             component: categoryTemplate,
             context: {
-              category
-            }
+              category,
+            },
           });
         });
 
         // Create posts
-        const posts = items.filter(item => /posts/.test(item.node.id));
+        const posts = items.filter((item) => /posts/.test(item.node.id));
         posts.forEach(({ node }, index) => {
           const slug = node.fields.slug;
-          const prefix = node.fields.prefix ? node.fields.prefix : ' ';
+          const prefix = node.fields.prefix ? node.fields.prefix : " ";
           const identifier = node.fields.identifier;
           const next = index === 0 ? undefined : posts[index - 1].node;
           const prev = index === posts.length - 1 ? undefined : posts[index + 1].node;
@@ -119,24 +119,24 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
               identifier,
               prefix,
               prev,
-              next
-            }
+              next,
+            },
           });
         });
 
         // and pages.
-        const pages = items.filter(item => /pages/.test(item.node.id));
+        const pages = items.filter((item) => /pages/.test(item.node.id));
         pages.forEach(({ node }) => {
           const slug = node.fields.slug;
-          const prefix = node.fields.prefix ? node.fields.prefix : ' ';
+          const prefix = node.fields.prefix ? node.fields.prefix : " ";
 
           createPage({
             path: slug,
             component: pageTemplate,
             context: {
               slug,
-              prefix
-            }
+              prefix,
+            },
           });
         });
       })
@@ -161,7 +161,7 @@ exports.modifyWebpackConfig = ({ config, stage }) => {
         config.loader("yaml-loader", {
           test: /\.yaml$/,
           include: path.resolve("data"),
-          loader: "yaml"
+          loader: "yaml",
         });
       }
       break;
@@ -199,23 +199,23 @@ exports.modifyBabelrc = ({ babelrc }) => {
                     "shorthand-property-no-redundant-values": true,
                     "no-duplicate-selectors": null,
                     "declaration-block-no-duplicate-properties": null,
-                    "no-descending-specificity": null
-                  }
-                }
-              }
-            ]
-          ]
-        }
+                    "no-descending-specificity": null,
+                  },
+                },
+              },
+            ],
+          ],
+        },
       ],
       [
         "import",
         {
           libraryName: "antd",
-          style: "css"
-        }
+          style: "css",
+        },
       ],
       `syntax-dynamic-import`,
-      `dynamic-import-webpack`
-    ])
+      `dynamic-import-webpack`,
+    ]),
   };
 };

@@ -9,7 +9,7 @@ export {
   ArrayInterpolation,
   ComponentSelector,
   FunctionInterpolation,
-  ObjectInterpolation
+  ObjectInterpolation,
 } from '@emotion/serialize'
 
 export { EmotionCache, Interpolation, Options, StyleSheet }

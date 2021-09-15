@@ -11,7 +11,8 @@ storiesOf('Common|Button', module)
   .add('primary', () => <Button primary>Hello</Button>)
   .add('icon', () => (
     <Button>
-      <img alt="icon" src={Icon} />Beer
+      <img alt="icon" src={Icon} />
+      Beer
     </Button>
   ))
   .add('link', () => (

@@ -1,7 +1,7 @@
 import React from 'react';
 
-export default title =>
-  function(storyFn) {
+export default (title) =>
+  function (storyFn) {
     return (
       <div>
         <div style={{ margin: 10, background: 'gray' }}>

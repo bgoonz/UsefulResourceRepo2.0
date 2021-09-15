@@ -192,7 +192,7 @@ In `node_modules/cypress-dark/halloween.js`
 ```js
 const witchLaughs = () => {
   const filename = join(getSourceFolder(), 'halloween-laugh.mp3')
-  cy.readFile(filename, 'base64', { log: false }).then(mp3 => {
+  cy.readFile(filename, 'base64', { log: false }).then((mp3) => {
     const uri = 'data:audio/mp3;base64,' + mp3
     const audio = new Audio(uri)
     audio.play()
@@ -238,8 +238,7 @@ cy.fixture('images/logo.png', 'binary').then((logo) => {
 
 ```js
 // note: path is relative to the project's root
-cy.readFile('some/nested/path/story.txt')
-  .should('eq', 'Once upon a time...')
+cy.readFile('some/nested/path/story.txt').should('eq', 'Once upon a time...')
 ```
 
 [on/readfile](https://on.cypress.io/readfile) and [on/writefile](https://on.cypress.io/writefile)
@@ -250,7 +249,7 @@ cy.readFile('some/nested/path/story.txt')
 
 ```js
 it('reads items loaded from fixture', () => {
-  cy.fixture('two-items').then(todos => {
+  cy.fixture('two-items').then((todos) => {
     // post items
     // read file 'todomvc/data.json',
     // should be equal to the loaded fixture
@@ -260,6 +259,7 @@ it('reads items loaded from fixture', () => {
 ```
 
 +++
+
 ## Todo `readFile` entered through UI
 
 ```js
@@ -272,15 +272,19 @@ it('saves todo', () => {
 ```
 
 +++
+
 ## 🏁 Fixtures
 
 Fixtures are data object for testing and network stubs
 
 +++
+
 ## 🏁 Fixtures
+
 When loading fixtures remember JavaScript + Mocha lifecycle and `this` context
 
 +++
+
 ## 🏁 Fixtures
 
 - [`cy.fixture`](https://on.cypress.io/fixture)

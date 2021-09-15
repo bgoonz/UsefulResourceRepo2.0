@@ -6,7 +6,7 @@ module.exports = {
   },
   plugins: [
     `gatsby-transformer-remark`,
-    'gatsby-plugin-image',
+    "gatsby-plugin-image",
     {
       resolve: `gatsby-source-filesystem`,
       options: {
@@ -21,7 +21,7 @@ module.exports = {
         path: `${__dirname}/generated_images`,
       },
     },
-    'gatsby-plugin-sharp',
-    'gatsby-transformer-sharp',
+    "gatsby-plugin-sharp",
+    "gatsby-transformer-sharp",
   ],
 }

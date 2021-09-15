@@ -1,4 +1,4 @@
-import { color } from './utils';
+import { color } from "./utils";
 
 const PRECISION = 2;
 const KiB = 1024;
@@ -14,11 +14,11 @@ class Stats {
   }
 
   addSize(css: string) {
-    this.totalCssSize = this.totalCssSize + Buffer.byteLength(css, 'utf8');
+    this.totalCssSize = this.totalCssSize + Buffer.byteLength(css, "utf8");
   }
 
   addRemovedSize(css: string) {
-    this.purgedCssSize = this.purgedCssSize + Buffer.byteLength(css, 'utf8');
+    this.purgedCssSize = this.purgedCssSize + Buffer.byteLength(css, "utf8");
   }
 
   toKB(value: number) {
@@ -39,7 +39,7 @@ class Stats {
 
   get percentChange() {
     if (this.totalCssSize <= 0) {
-      return '0.00';
+      return "0.00";
     }
 
     return (

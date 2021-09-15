@@ -5,17 +5,17 @@ import Link from "gatsby-link";
 import FaArrowRight from "react-icons/lib/fa/arrow-right";
 import FaArrowLeft from "react-icons/lib/fa/arrow-left";
 
-const NextPrev = props => {
+const NextPrev = (props) => {
   const {
     theme,
     next: {
       fields: { prefix: nextPrefix, slug: nextSlug } = {},
-      frontmatter: { title: nextTitle } = {}
+      frontmatter: { title: nextTitle } = {},
     } = {},
     prev: {
       fields: { prefix: prevPrefix, slug: prevSlug } = {},
-      frontmatter: { title: prevTitle } = {}
-    } = {}
+      frontmatter: { title: prevTitle } = {},
+    } = {},
   } = props;
 
   return (
@@ -111,7 +111,7 @@ const NextPrev = props => {
 NextPrev.propTypes = {
   next: PropTypes.object,
   prev: PropTypes.object,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default NextPrev;

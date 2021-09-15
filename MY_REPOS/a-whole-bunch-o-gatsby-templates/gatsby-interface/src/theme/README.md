@@ -11,7 +11,7 @@ each representing a breakpoint in pixels.
 
 ```jsx
 <div
-  css={theme => ({
+  css={(theme) => ({
     [`@media (min-width: ${theme.breakpoints[2]}px)`]: {
       display: "none",
     },
@@ -26,7 +26,7 @@ Alternatively, you can just use [mediaQueries](#mediaQueries) scale to avoid wri
 
 ```jsx
 <div
-  css={theme => ({
+  css={(theme) => ({
     color: theme.colors.green[50],
     backgroundColor: theme.colors.white,
   })}
@@ -37,7 +37,7 @@ Alternatively, you can just use [mediaQueries](#mediaQueries) scale to avoid wri
 
 ```jsx
 <div
-  css={theme => ({
+  css={(theme) => ({
     fontFamily: theme.fonts.system,
   })}
 />
@@ -47,7 +47,7 @@ Alternatively, you can just use [mediaQueries](#mediaQueries) scale to avoid wri
 
 ```jsx
 <div
-  css={theme => ({
+  css={(theme) => ({
     fontSize: theme.fontSizes[3],
   })}
 />
@@ -57,7 +57,7 @@ Alternatively, you can just use [mediaQueries](#mediaQueries) scale to avoid wri
 
 ```jsx
 <div
-  css={theme => ({
+  css={(theme) => ({
     fontWeight: theme.fontWeights.bold,
   })}
 />
@@ -67,7 +67,7 @@ Alternatively, you can just use [mediaQueries](#mediaQueries) scale to avoid wri
 
 ```jsx
 <div
-  css={theme => ({
+  css={(theme) => ({
     letterSpacing: theme.letterSpacings.normal,
   })}
 />
@@ -77,7 +77,7 @@ Alternatively, you can just use [mediaQueries](#mediaQueries) scale to avoid wri
 
 ```jsx
 <div
-  css={theme => ({
+  css={(theme) => ({
     lineHeight: theme.lineHeights.dense,
   })}
 />
@@ -91,7 +91,7 @@ It is an object that maps a certain "media" (e.g. "desktop" or "tablet") to a br
 
 ```jsx
 <div
-  css={theme => ({
+  css={(theme) => ({
     [`@media (min-width: ${theme.mediaBreakpoints.tablet}px)`]: {
       display: "none",
     },
@@ -107,7 +107,7 @@ It is an object that maps a certain "media" (e.g. "desktop" or "tablet") to a me
 
 ```jsx
 <div
-  css={theme => ({
+  css={(theme) => ({
     [theme.mediaQueries.desktop]: {
       display: "none",
     },
@@ -121,7 +121,7 @@ For more granular control refer to [breakpoints](#breakpoints) and [mediaBreakpo
 
 ```jsx
 <div
-  css={theme => ({
+  css={(theme) => ({
     borderRadius: theme.radii[2],
   })}
 />
@@ -131,7 +131,7 @@ For more granular control refer to [breakpoints](#breakpoints) and [mediaBreakpo
 
 ```jsx
 <div
-  css={theme => ({
+  css={(theme) => ({
     boxShadow: theme.shadows.raised,
   })}
 />
@@ -141,7 +141,7 @@ For more granular control refer to [breakpoints](#breakpoints) and [mediaBreakpo
 
 ```jsx
 <div
-  css={theme => ({
+  css={(theme) => ({
     margin: `${theme.space[2]} ${theme.space[1]}`,
   })}
 />
@@ -151,7 +151,7 @@ For more granular control refer to [breakpoints](#breakpoints) and [mediaBreakpo
 
 ```jsx
 <div
-  css={theme => ({
+  css={(theme) => ({
     transition: `all ${theme.transitions.speed.slower} ${theme.transitions.curve.fastOutLinearIn}`,
   })}
 />
@@ -161,7 +161,7 @@ For more granular control refer to [breakpoints](#breakpoints) and [mediaBreakpo
 
 ```jsx
 <div
-  css={theme => ({
+  css={(theme) => ({
     position: "fixed",
     zIndex: theme.zIndices.toasts,
   })}

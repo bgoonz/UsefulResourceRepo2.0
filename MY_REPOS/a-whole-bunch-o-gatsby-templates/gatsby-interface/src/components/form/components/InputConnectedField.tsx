@@ -10,9 +10,9 @@ export type InputConnectedFieldProps = {
   label?: React.ReactNode
 } & Omit<InputFieldBlockProps, "id" | "label">
 
-export const InputConnectedField: React.FC<
-  InputConnectedFieldProps
-> = props => {
+export const InputConnectedField: React.FC<InputConnectedFieldProps> = (
+  props
+) => {
   const [connectedProps] = useConnectedField(props.name)
 
   return <InputFieldBlock {...connectedProps} {...props} />

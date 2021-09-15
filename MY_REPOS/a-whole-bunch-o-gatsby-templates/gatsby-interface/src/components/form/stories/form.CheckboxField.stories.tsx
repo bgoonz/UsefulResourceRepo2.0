@@ -48,7 +48,7 @@ storiesOf(`form`, module)
           >
             <CheckboxFieldWrapper>
               <CheckboxFieldControl
-                onChange={e => action(`Change`)(e.target.value)}
+                onChange={(e) => action(`Change`)(e.target.value)}
                 required={required}
               />
               <CheckboxFieldLabel size={size} isRequired={required}>
@@ -67,7 +67,7 @@ storiesOf(`form`, module)
             id="input-example-1b"
             label="Builds enabled"
             labelSize={size}
-            onChange={e => action(`Change`)(e.target.value)}
+            onChange={(e) => action(`Change`)(e.target.value)}
             error={error}
             hint={hint || `This one is built with 'CheckboxFieldBlock'`}
             required={required}
@@ -88,7 +88,7 @@ storiesOf(`form`, module)
               </span>
             }
             labelSize="S"
-            onChange={e => action(`Change`)(e.target.value)}
+            onChange={(e) => action(`Change`)(e.target.value)}
             error={error}
             required={required}
           />

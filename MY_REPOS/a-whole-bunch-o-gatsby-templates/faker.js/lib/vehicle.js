@@ -12,12 +12,12 @@ var Vehicle = function (faker) {
    * @method faker.vehicle.vehicle
    */
   self.vehicle = function () {
-    return fake('{{vehicle.manufacturer}} {{vehicle.model}}');
+    return fake("{{vehicle.manufacturer}} {{vehicle.model}}");
   };
 
   self.vehicle.schema = {
-    "description": "Generates a random vehicle.",
-    "sampleResults": ["BMW Explorer", "Ford Camry", "Lamborghini Ranchero"]
+    description: "Generates a random vehicle.",
+    sampleResults: ["BMW Explorer", "Ford Camry", "Lamborghini Ranchero"],
   };
 
   /**
@@ -30,10 +30,9 @@ var Vehicle = function (faker) {
   };
 
   self.manufacturer.schema = {
-    "description": "Generates a manufacturer name.",
-    "sampleResults": ["Ford", "Jeep", "Tesla"]
+    description: "Generates a manufacturer name.",
+    sampleResults: ["Ford", "Jeep", "Tesla"],
   };
-
 
   /**
    * model
@@ -45,8 +44,8 @@ var Vehicle = function (faker) {
   };
 
   self.model.schema = {
-    "description": "Generates a vehicle model.",
-    "sampleResults": ["Explorer", "Camry", "Ranchero"]
+    description: "Generates a vehicle model.",
+    sampleResults: ["Explorer", "Camry", "Ranchero"],
   };
 
   /**
@@ -59,8 +58,8 @@ var Vehicle = function (faker) {
   };
 
   self.type.schema = {
-    "description": "Generates a vehicle type.",
-    "sampleResults": ["Coupe", "Convertable", "Sedan", "SUV"]
+    description: "Generates a vehicle type.",
+    sampleResults: ["Coupe", "Convertable", "Sedan", "SUV"],
   };
 
   /**
@@ -73,8 +72,8 @@ var Vehicle = function (faker) {
   };
 
   self.fuel.schema = {
-    "description": "Generates a fuel type.",
-    "sampleResults": ["Electric", "Gasoline", "Diesel"]
+    description: "Generates a fuel type.",
+    sampleResults: ["Electric", "Gasoline", "Diesel"],
   };
 
   /**
@@ -87,13 +86,14 @@ var Vehicle = function (faker) {
       faker.random.alphaNumeric(10) +
       faker.random.alpha({ count: 1, upcase: true }) +
       faker.random.alphaNumeric(1) +
-      faker.random.number({ min: 10000, max: 100000}) // return five digit #
-    ).toUpperCase();
+      faker.random.number({ min: 10000, max: 100000 })
+    ) // return five digit #
+      .toUpperCase();
   };
 
   self.vin.schema = {
-    "description": "Generates a valid VIN number.",
-    "sampleResults": ["YV1MH682762184654", "3C7WRMBJ2EG208836"]
+    description: "Generates a valid VIN number.",
+    sampleResults: ["YV1MH682762184654", "3C7WRMBJ2EG208836"],
   };
 
   /**
@@ -102,12 +102,12 @@ var Vehicle = function (faker) {
    * @method faker.vehicle.color
    */
   self.color = function () {
-    return fake('{{commerce.color}}');
+    return fake("{{commerce.color}}");
   };
 
   self.color.schema = {
-    "description": "Generates a color",
-    "sampleResults": ["red", "white", "black"]
+    description: "Generates a color",
+    sampleResults: ["red", "white", "black"],
   };
 };
 

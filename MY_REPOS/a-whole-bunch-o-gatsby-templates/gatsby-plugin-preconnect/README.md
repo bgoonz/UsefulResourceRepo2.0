@@ -27,12 +27,12 @@ guide](https://developers.google.com/web/fundamentals/performance/resource-prior
 // In your gatsby-config.js
 plugins: [
   {
-    resolve: 'gatsby-plugin-preconnect',
+    resolve: "gatsby-plugin-preconnect",
     options: {
-      domains: ['https://foo.com', 'https://bar.com'],
+      domains: ["https://foo.com", "https://bar.com"],
     },
   },
-]
+];
 ```
 
 `crossOrigin` is set to `true` by default but it can be customized, below all the available options
@@ -40,19 +40,19 @@ plugins: [
 ```js
 plugins: [
   {
-    resolve: 'gatsby-plugin-preconnect',
+    resolve: "gatsby-plugin-preconnect",
     options: {
       domains: [
-        'https://foo.com',
-        'https://bar.com',
-        { domain: 'https://enablecors.com', crossOrigin: true },
-        { domain: 'https://disablecors.com', crossOrigin: false },
-        { domain: 'https://corswithanonymous.com', crossOrigin: 'anonymous' },
-        { domain: 'https://corswithcreds.com', crossOrigin: 'use-credentials' },
+        "https://foo.com",
+        "https://bar.com",
+        { domain: "https://enablecors.com", crossOrigin: true },
+        { domain: "https://disablecors.com", crossOrigin: false },
+        { domain: "https://corswithanonymous.com", crossOrigin: "anonymous" },
+        { domain: "https://corswithcreds.com", crossOrigin: "use-credentials" },
       ],
     },
   },
-]
+];
 ```
 
 All the available values for `crossOrigin` are listed below, every other value makes the plugin throw an error

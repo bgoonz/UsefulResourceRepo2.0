@@ -9,7 +9,7 @@ let iconCmdValue = ``
 program
   .version(`0.0.1`)
   .arguments(`<iconName>`)
-  .action(iconName => (iconCmdValue = iconName))
+  .action((iconName) => (iconCmdValue = iconName))
   .parse(process.argv)
 
 scaffold(iconCmdValue)
@@ -65,7 +65,7 @@ function getIconComponentName(iconName) {
     .replace(/icon/i, ``)
     .split(`-`)
     .concat([`icon`])
-    .map(str => str.substr(0, 1).toUpperCase() + str.substr(1))
+    .map((str) => str.substr(0, 1).toUpperCase() + str.substr(1))
     .join(``)
 }
 

@@ -4,7 +4,7 @@
  */
 var Hacker = function (faker) {
   var self = this;
-  
+
   /**
    * abbreviation
    *
@@ -56,20 +56,19 @@ var Hacker = function (faker) {
    * @method faker.hacker.phrase
    */
   self.phrase = function () {
-
     var data = {
       abbreviation: self.abbreviation,
       adjective: self.adjective,
       ingverb: self.ingverb,
       noun: self.noun,
-      verb: self.verb
+      verb: self.verb,
     };
 
     var phrase = faker.random.arrayElement(faker.definitions.hacker.phrase);
     return faker.helpers.mustache(phrase, data);
   };
-  
+
   return self;
 };
 
-module['exports'] = Hacker;
+module["exports"] = Hacker;

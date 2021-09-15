@@ -3,7 +3,7 @@
  * Adds a todo item
  * @param {string} text
  */
-const addItem = text => {
+const addItem = (text) => {
   cy.get('.new-todo').type(`${text}{enter}`)
 }
 
@@ -74,7 +74,7 @@ describe('set initial data', () => {
   })
 
   it('sets data using fixture', () => {
-    cy.fixture('two-items').then(todos => {
+    cy.fixture('two-items').then((todos) => {
       // "todos" is an array
       cy.task('resetData', { todos })
     })

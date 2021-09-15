@@ -77,21 +77,21 @@ const authors = [
   `Sheala de Tancarville`,
   `Triss Merigold`,
   `Yennefer of Vengerberg`,
-].map(name => {
+].map((name) => {
   return {
     label: name,
     value: name.toLowerCase().replace(/\s/g, `-`),
   }
 })
 
-const categories = [`article`, `essay`, `memories`].map(name => {
+const categories = [`article`, `essay`, `memories`].map((name) => {
   return {
     label: name,
     value: name.toLowerCase().replace(/\s/g, `-`),
   }
 })
 
-const tags = [`one`, `two`, `three`, `four`, `five`].map(name => {
+const tags = [`one`, `two`, `three`, `four`, `five`].map((name) => {
   return {
     label: name,
     value: name.toLowerCase().replace(/\s/g, `-`),
@@ -120,7 +120,7 @@ storiesOf(`form/FormField`, module)
             <InputFieldWrapper>
               <InputFieldLabel size={size}>Title</InputFieldLabel>
               <InputFieldControl
-                onChange={e => action(`Change`)(e.target.value)}
+                onChange={(e) => action(`Change`)(e.target.value)}
               />
               <InputFieldHint>{hint}</InputFieldHint>
               <InputFieldError>{error}</InputFieldError>
@@ -131,7 +131,7 @@ storiesOf(`form/FormField`, module)
             <TextAreaFieldWrapper>
               <TextAreaFieldLabel size={size}>Description</TextAreaFieldLabel>
               <TextAreaFieldControl
-                onChange={e => action(`Change`)(e.target.value)}
+                onChange={(e) => action(`Change`)(e.target.value)}
               />
               <TextAreaFieldHint>{hint}</TextAreaFieldHint>
               <TextAreaFieldError>{error}</TextAreaFieldError>
@@ -143,7 +143,7 @@ storiesOf(`form/FormField`, module)
               <SelectFieldLabel size={size}>Author</SelectFieldLabel>
               <SelectFieldControl
                 options={authors}
-                onChange={e => action(`Change`)(e.target.value)}
+                onChange={(e) => action(`Change`)(e.target.value)}
               />
               <SelectFieldHint>{hint}</SelectFieldHint>
               <SelectFieldError>{error}</SelectFieldError>
@@ -199,7 +199,7 @@ storiesOf(`form/FormField`, module)
           <CheckboxField id="example-1f" hasError={!!error} hasHint={!!hint}>
             <CheckboxFieldWrapper>
               <CheckboxFieldControl
-                onChange={e => action(`Change`)(e.target.value)}
+                onChange={(e) => action(`Change`)(e.target.value)}
               />
               <CheckboxFieldLabel size={`S`}>
                 I have read and agree with the <a href="/">Terms</a> and{" "}

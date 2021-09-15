@@ -13,7 +13,7 @@ describe('Emotion native css', () => {
     expect(css({ color: 'green' })).toEqual({ color: 'green' })
     expect(css([{ color: 'green' }, `background-color:yellow;`])).toEqual({
       color: 'green',
-      backgroundColor: 'yellow'
+      backgroundColor: 'yellow',
     })
     expect(css([{ color: 'green' }])).toEqual({ color: 'green' })
   })
@@ -31,8 +31,8 @@ describe('Emotion native css', () => {
         css([
           [{ color: 'green' }, `background-color:yellow;`],
           {
-            flex: 2
-          }
+            flex: 2,
+          },
         ])
       )
     ).toEqual(['color', 'backgroundColor', 'flex'])
@@ -43,9 +43,9 @@ describe('Emotion native css', () => {
           [
             `background-color:yellow;`,
             {
-              flex: 2
-            }
-          ]
+              flex: 2,
+            },
+          ],
         ])
       )
     ).toEqual(['color', 'backgroundColor', 'flex'])
@@ -56,8 +56,8 @@ describe('Emotion native css', () => {
           [
             { flex: 8 },
             `background-color:yellow;`,
-            [`flex-grow: 1;`, { flexDirection: 'row' }]
-          ]
+            [`flex-grow: 1;`, { flexDirection: 'row' }],
+          ],
         ])
       )
     ).toEqual(['color', 'flex', 'backgroundColor', 'flexGrow', 'flexDirection'])
@@ -65,16 +65,16 @@ describe('Emotion native css', () => {
 
   it('allows function interpolations when this.mergedProps is defined', () => {
     expect(
-      css.call({ thing: true }, props => ({
-        color: props.thing && 'hotpink'
+      css.call({ thing: true }, (props) => ({
+        color: props.thing && 'hotpink',
       }))
     ).toEqual({ color: 'hotpink' })
   })
 
   it('works with nested functions', () => {
     expect(
-      css.call({ thing: true }, props => () => ({
-        color: props.thing && 'hotpink'
+      css.call({ thing: true }, (props) => () => ({
+        color: props.thing && 'hotpink',
       }))
     ).toEqual({ color: 'hotpink' })
   })

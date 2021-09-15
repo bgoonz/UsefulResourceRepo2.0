@@ -4,12 +4,12 @@ import Footer from './Footer'
 import VisibleTodoList from '../containers/VisibleTodoList'
 
 const MainSection = ({ todosCount, completedCount, actions }) => (
-  <section className='main'>
+  <section className="main">
     {!!todosCount && (
       <span>
         <input
-          className='toggle-all'
-          type='checkbox'
+          className="toggle-all"
+          type="checkbox"
           checked={completedCount === todosCount}
           onClick={actions.completeAllTodos}
           onChange={actions.completeAllTodos}

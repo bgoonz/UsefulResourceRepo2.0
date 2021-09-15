@@ -62,7 +62,7 @@ exports.onCreateNode = async (
 
 function getPaths(node, path, ext = null) {
   const value = get(node, path);
-  return value.map(url => (ext ? url + ext : url));
+  return value.map((url) => (ext ? url + ext : url));
 } // Returns value from path, adding extension when supplied
 
 function getPath(node, path, ext = null) {
@@ -102,7 +102,7 @@ async function createImageNodes(urls, node, options) {
         return fileNode;
       })
     )
-  ).filter(fileNode => !!fileNode); // Store the mapping between the current node and the newly created File node
+  ).filter((fileNode) => !!fileNode); // Store the mapping between the current node and the newly created File node
 
   if (fileNodes.length) {
     // This associates the existing node (of user-specified type) with the new
@@ -176,7 +176,7 @@ async function getAllFilesUrls(path, node, options) {
   return Array.isArray(nextValue) && !isPathToLeafProperty // Recursively call function with next path segment for each array element
     ? (
         await Promise.all(
-          nextValue.map(item =>
+          nextValue.map((item) =>
             getAllFilesUrls(imagePathSegments[pathIndex + 1], item, options)
           )
         )
@@ -201,7 +201,7 @@ exports.createResolvers = ({ cache, createResolvers }, options) => {
               return [];
             }
 
-            return fileNodeMap[name].map(id =>
+            return fileNodeMap[name].map((id) =>
               context.nodeModel.getNodeById({
                 id,
               })

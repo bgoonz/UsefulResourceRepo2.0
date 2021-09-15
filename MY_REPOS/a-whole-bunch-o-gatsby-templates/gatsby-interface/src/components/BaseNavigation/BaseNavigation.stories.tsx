@@ -75,7 +75,7 @@ export const Inverted = () => <BaseNavigation items={items} isInverted />
 
 Inverted.story = {
   decorators: [
-    story => (
+    (story) => (
       <React.Fragment>
         <Global
           styles={(theme: Theme) => ({

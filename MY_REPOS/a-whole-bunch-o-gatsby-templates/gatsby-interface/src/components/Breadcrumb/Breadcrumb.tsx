@@ -27,7 +27,7 @@ export default function Breadcrumb({ children, ...rest }: BreadcrumbProps) {
 
 Breadcrumb.Item = BreadcrumbItem
 
-const breadcrumbItemCss: ThemeCss = theme => ({
+const breadcrumbItemCss: ThemeCss = (theme) => ({
   display: `flex`,
   alignItems: `center`,
   color: theme.colors.purple[50],
@@ -50,7 +50,7 @@ function BreadcrumbItem({
 }: BreadcrumbItemProps) {
   return (
     <li
-      css={theme => [
+      css={(theme) => [
         breadcrumbItemCss(theme),
         active && {
           color: theme.colors.grey[90],
@@ -81,7 +81,7 @@ function BreadcrumbItem({
 
 BreadcrumbItem.displayName = `Breadcrumb.Item`
 
-const breadcrumbArrowCss: ThemeCss = theme => ({
+const breadcrumbArrowCss: ThemeCss = (theme) => ({
   color: theme.colors.grey[60],
   marginRight: theme.space[4],
   marginLeft: theme.space[4],

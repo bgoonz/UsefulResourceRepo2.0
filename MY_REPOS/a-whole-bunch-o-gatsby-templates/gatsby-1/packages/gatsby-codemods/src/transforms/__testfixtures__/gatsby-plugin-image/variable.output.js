@@ -1,6 +1,6 @@
-import { GatsbyImage } from "gatsby-plugin-image";
+import { GatsbyImage } from "gatsby-plugin-image"
 const HomePage = ({ data }) => {
-  const pageTitle = 'LAURIE ON TECH Homepage'
+  const pageTitle = "LAURIE ON TECH Homepage"
   const image = data.file.childImageSharp.gatsbyImageData
   return (
     <Layout>
@@ -9,5 +9,5 @@ const HomePage = ({ data }) => {
         <GatsbyImage image={image} className="headshot" alt="headshot" />
       </section>
     </Layout>
-  );
+  )
 }

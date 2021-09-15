@@ -5,7 +5,7 @@ import {
   getDefaultShouldForwardProp,
   type StyledOptions,
   type CreateStyled,
-  type PrivateStyledComponent
+  type PrivateStyledComponent,
 } from './utils'
 import { withEmotionCache, ThemeContext } from '@emotion/core'
 import { getRegisteredStyles, insertStyles } from '@emotion/utils'
@@ -34,7 +34,7 @@ let createStyled: CreateStyled = (tag: any, options?: StyledOptions) => {
     targetClassName = options.target
     shouldForwardProp =
       tag.__emotion_forwardProp && options.shouldForwardProp
-        ? propName =>
+        ? (propName) =>
             tag.__emotion_forwardProp(propName) &&
             // $FlowFixMe
             options.shouldForwardProp(propName)
@@ -50,7 +50,7 @@ let createStyled: CreateStyled = (tag: any, options?: StyledOptions) => {
     shouldForwardProp || getDefaultShouldForwardProp(baseTag)
   const shouldUseAs = !defaultShouldForwardProp('as')
 
-  return function<P>(): PrivateStyledComponent<P> {
+  return function <P>(): PrivateStyledComponent<P> {
     let args = arguments
     let styles =
       isReal && tag.__emotion_styles !== undefined
@@ -82,7 +82,7 @@ let createStyled: CreateStyled = (tag: any, options?: StyledOptions) => {
       (props, context, ref) => {
         return (
           <ThemeContext.Consumer>
-            {theme => {
+            {(theme) => {
               const finalTag = (shouldUseAs && props.as) || baseTag
 
               let className = ''
@@ -165,7 +165,7 @@ let createStyled: CreateStyled = (tag: any, options?: StyledOptions) => {
                       {...{
                         [`data-emotion-${context.key}`]: serializedNames,
                         dangerouslySetInnerHTML: { __html: rules },
-                        nonce: context.sheet.nonce
+                        nonce: context.sheet.nonce,
                       }}
                     />
                     {ele}
@@ -204,7 +204,7 @@ let createStyled: CreateStyled = (tag: any, options?: StyledOptions) => {
         }
         // $FlowFixMe: coerce undefined to string
         return `.${targetClassName}`
-      }
+      },
     })
 
     Styled.withComponent = (

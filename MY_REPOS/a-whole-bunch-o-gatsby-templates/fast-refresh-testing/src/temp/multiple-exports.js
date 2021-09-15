@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 
 const MultipleExports = () => {
   return (
@@ -6,9 +6,9 @@ const MultipleExports = () => {
       <title>Multiple Exports</title>
       Test
     </main>
-  )
-}
+  );
+};
 
-export default MultipleExports
+export default MultipleExports;
 
 export function extraExport() {}

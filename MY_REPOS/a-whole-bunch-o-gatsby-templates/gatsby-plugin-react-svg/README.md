@@ -18,10 +18,10 @@ plugins: [
     resolve: "gatsby-plugin-react-svg",
     options: {
       rule: {
-        include: /assets/ // See below to configure properly
-      }
-    }
-  }
+        include: /assets/, // See below to configure properly
+      },
+    },
+  },
 ];
 ```
 
@@ -109,30 +109,32 @@ Any of the svg-react-loader [query parameters](https://github.com/jhamlet/svg-re
 plugins: [
   {
     resolve: "gatsby-plugin-react-svg",
-      options: {
-        rule: {
-          include: /\.inline\.svg$/,
-          options: {
-            tag: "symbol",
-            name: "MyIcon",
-            props: {
-              className: "my-class",
-              title: "example"
-            },
-            filters: [value => console.log(value)]
-          }
-        }
-      }
-  }
+    options: {
+      rule: {
+        include: /\.inline\.svg$/,
+        options: {
+          tag: "symbol",
+          name: "MyIcon",
+          props: {
+            className: "my-class",
+            title: "example",
+          },
+          filters: [(value) => console.log(value)],
+        },
+      },
+    },
+  },
 ];
 ```
+
 They can also be defined at the import level:
 
 ```js
-  import Fork from "-!svg-react-loader?props[]=className:w-4 h-4!../components/Icons/Fork.inline.svg";
+import Fork from "-!svg-react-loader?props[]=className:w-4 h-4!../components/Icons/Fork.inline.svg";
 ```
 
 ### Removing svg props (filters)
+
 Unwanted SVG props can be removed with filters. Since filters are quite complex this plugin adds a simple key `omitKeys` to allow end users to quickly remove props that are problematic from their svg files.
 
 ```js
@@ -154,6 +156,7 @@ Unwanted SVG props can be removed with filters. Since filters are quite complex 
 ### I get "InvalidCharacterError" overlay in my browser during development
 
 Example of this error:
+
 ```bash
 InvalidCharacterError: Failed to execute 'createElement' on 'Document':
 The tag name provided ('data:image/svg+xml; ...
@@ -168,6 +171,7 @@ It's likely that some of your SVGs used in css/sass files are processed by `svg-
 ### I get error "Module parse failed" in console
 
 Example of this error:
+
 ```bash
 ERROR in ./src/images/some-image.png 1:0
 Module parse failed: Unexpected character '�' (1:0)

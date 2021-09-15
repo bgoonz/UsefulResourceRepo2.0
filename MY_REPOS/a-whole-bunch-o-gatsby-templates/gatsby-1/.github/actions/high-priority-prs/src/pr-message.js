@@ -10,8 +10,7 @@ module.exports = (queues, maintainers, now = new Date()) => {
       type: "section",
       text: {
         type: "mrkdwn",
-        text:
-          "Hi, this is your friendly PR BOT with the latest report on which PRs most need help",
+        text: "Hi, this is your friendly PR BOT with the latest report on which PRs most need help",
       },
     },
   ]

@@ -38,18 +38,17 @@ type WrapReturnInArray<MaybeFunction> = MaybeFunction extends (
   ? (...a: Parameters<MaybeFunction>) => Array<ReturnType<MaybeFunction>>
   : never
 
-export type CreateWorkerPoolType<ExposedFunctions> = WorkerPool &
-  {
-    [FunctionName in keyof ExposedFunctions]: EnsureFunctionReturnsAPromise<
-      ExposedFunctions[FunctionName]
+export type CreateWorkerPoolType<ExposedFunctions> = WorkerPool & {
+  [FunctionName in keyof ExposedFunctions]: EnsureFunctionReturnsAPromise<
+    ExposedFunctions[FunctionName]
+  >
+} & {
+  all: {
+    [FunctionName in keyof ExposedFunctions]: WrapReturnInArray<
+      EnsureFunctionReturnsAPromise<ExposedFunctions[FunctionName]>
     >
-  } & {
-    all: {
-      [FunctionName in keyof ExposedFunctions]: WrapReturnInArray<
-        EnsureFunctionReturnsAPromise<ExposedFunctions[FunctionName]>
-      >
-    }
   }
+}
 
 const childWrapperPath = require.resolve(`./child`)
 
@@ -120,9 +119,8 @@ export class WorkerPool<
   private workers: Array<IWorkerInfo<keyof WorkerModuleExports>> = []
   private taskQueue = new TaskQueue<TaskInfo<keyof WorkerModuleExports>>()
   private idleWorkers: Set<IWorkerInfo<keyof WorkerModuleExports>> = new Set()
-  private listeners: Array<
-    (msg: MessagesFromChild, workerId: number) => void
-  > = []
+  private listeners: Array<(msg: MessagesFromChild, workerId: number) => void> =
+    []
 
   constructor(workerPath: string, options?: IWorkerOptions) {
     const single: Partial<WorkerPool<WorkerModuleExports>["single"]> = {}
@@ -149,12 +147,10 @@ export class WorkerPool<
           exportName
         ) as WorkerPool<WorkerModuleExports>["single"][typeof exportName]
 
-        all[exportName] = (this.scheduleWorkAll.bind(
+        all[exportName] = this.scheduleWorkAll.bind(
           this,
           exportName
-        ) as unknown) as WorkerPool<
-          WorkerModuleExports
-        >["all"][typeof exportName]
+        ) as unknown as WorkerPool<WorkerModuleExports>["all"][typeof exportName]
       }
     }
 

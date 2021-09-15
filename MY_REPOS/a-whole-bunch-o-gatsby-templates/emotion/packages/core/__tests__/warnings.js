@@ -24,7 +24,7 @@ const validValues = [
   'url("http://www.example.com/test.png")',
   'counter(chapter_counter)',
   'counters(section_counter, ".")',
-  'attr(value string)'
+  'attr(value string)',
 ]
 
 beforeEach(() => {
@@ -32,7 +32,7 @@ beforeEach(() => {
 })
 
 it('does not warn when valid values are passed for the content property', () => {
-  const style = css(validValues.map(value => ({ content: value })))
+  const style = css(validValues.map((value) => ({ content: value })))
   expect(console.error).not.toBeCalled()
   expect(renderer.create(<div css={style} />).toJSON()).toMatchSnapshot()
 })
@@ -41,7 +41,7 @@ const invalidValues = ['this is not valid', '']
 
 it('does warn when invalid values are passed for the content property', () => {
   // $FlowFixMe
-  invalidValues.forEach(value => {
+  invalidValues.forEach((value) => {
     expect(
       renderer.create(<div css={{ content: value }} />).toJSON()
     ).toMatchSnapshot()
@@ -61,10 +61,10 @@ describe('unsafe pseudo classes', () => {
       ':not(:first-child)',
       ':nth-child(3)',
       ':not(:nth-child(3))',
-      ':nth-last-child(7)'
+      ':nth-last-child(7)',
     ]
 
-    unsafePseudoClasses.forEach(pseudoClass => {
+    unsafePseudoClasses.forEach((pseudoClass) => {
       it(`"${pseudoClass}"`, () => {
         const style = css`
           ${pseudoClass} {
@@ -75,11 +75,7 @@ describe('unsafe pseudo classes', () => {
         expect(match).not.toBeNull()
         expect(renderer.create(<div css={style} />).toJSON()).toMatchSnapshot()
         expect(console.error).toBeCalledWith(
-          `The pseudo class "${
-            match[0]
-          }" is potentially unsafe when doing server-side rendering. Try changing it to "${
-            match[1]
-          }-of-type".`
+          `The pseudo class "${match[0]}" is potentially unsafe when doing server-side rendering. Try changing it to "${match[1]}-of-type".`
         )
       })
     })
@@ -96,10 +92,10 @@ describe('unsafe pseudo classes', () => {
       `:first-child, span ${ignoreSsrFlag}`,
       `:first-child :nth-child(3) ${ignoreSsrFlag}`,
       `:first-child, :nth-child(3) ${ignoreSsrFlag}`,
-      `:first-child:nth-child(3) ${ignoreSsrFlag}`
+      `:first-child:nth-child(3) ${ignoreSsrFlag}`,
     ]
 
-    ignoredUnsafePseudoClasses.forEach(pseudoClass => {
+    ignoredUnsafePseudoClasses.forEach((pseudoClass) => {
       const styles = {
         string: css`
           ${pseudoClass} {
@@ -108,12 +104,12 @@ describe('unsafe pseudo classes', () => {
         `,
         object: {
           [pseudoClass]: {
-            color: 'rebeccapurple'
-          }
-        }
+            color: 'rebeccapurple',
+          },
+        },
       }
 
-      Object.keys(styles).forEach(type => {
+      Object.keys(styles).forEach((type) => {
         it(`"${pseudoClass.replace(
           /\/\* \S+ \*\//g,
           '/* [flag] */'
@@ -139,11 +135,11 @@ test('global with css prop', () => {
       <Global
         css={{
           html: {
-            backgroundColor: 'hotpink'
+            backgroundColor: 'hotpink',
           },
           '@font-face': {
-            fontFamily: 'some-name'
-          }
+            fontFamily: 'some-name',
+          },
         }}
       />
     )
@@ -175,7 +171,7 @@ test('kebab-case', () => {
 })
 
 test('unterminated comments', () => {
-  const renderWithStyles = styles => renderer.create(<div css={styles} />)
+  const renderWithStyles = (styles) => renderer.create(<div css={styles} />)
 
   expect(() =>
     renderWithStyles(css`
@@ -211,15 +207,15 @@ test('unterminated comments', () => {
 test('keyframes interpolated into plain string', () => {
   const animateColor = keyframes({
     'from,to': { color: 'green' },
-    '50%': { color: 'hotpink' }
+    '50%': { color: 'hotpink' },
   })
   const rotate360 = keyframes({
     from: {
-      transform: 'rotate(0deg)'
+      transform: 'rotate(0deg)',
     },
     to: {
-      transform: 'rotate(360deg)'
-    }
+      transform: 'rotate(360deg)',
+    },
   })
 
   renderer.create(

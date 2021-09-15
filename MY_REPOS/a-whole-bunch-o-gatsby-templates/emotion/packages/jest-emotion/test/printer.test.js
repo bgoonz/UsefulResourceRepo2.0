@@ -33,7 +33,7 @@ describe('jest-emotion with dom elements', () => {
       .toJSON()
 
     const output = prettyFormat(tree, {
-      plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement]
+      plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement],
     })
 
     expect(output).toMatchSnapshot()
@@ -49,7 +49,7 @@ describe('jest-emotion with dom elements', () => {
     )
 
     const output = prettyFormat(divRef.current, {
-      plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement]
+      plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement],
     })
 
     expect(output).toMatchSnapshot()
@@ -77,7 +77,7 @@ describe('jest-emotion with DOM elements disabled', () => {
       .toJSON()
 
     const output = prettyFormat(tree, {
-      plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement]
+      plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement],
     })
 
     expect(output).toMatchSnapshot()
@@ -93,7 +93,7 @@ describe('jest-emotion with DOM elements disabled', () => {
     )
 
     const output = prettyFormat(divRef.current, {
-      plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement]
+      plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement],
     })
 
     expect(output).toMatchSnapshot()
@@ -113,7 +113,7 @@ test('does not replace class names that are not from emotion', () => {
     .toJSON()
 
   const output = prettyFormat(tree, {
-    plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement]
+    plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement],
   })
 
   expect(output).toMatchSnapshot()
@@ -132,7 +132,7 @@ describe('jest-emotion with nested selectors', () => {
     const tree = renderer.create(<div css={divStyle} />).toJSON()
 
     const output = prettyFormat(tree, {
-      plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement]
+      plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement],
     })
 
     expect(output).toBe(`.emotion-0 {
@@ -155,7 +155,7 @@ test('throws nice error for invalid css', () => {
   expect(() => {
     ignoreConsoleErrors(() => {
       prettyFormat(tree, {
-        plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement]
+        plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement],
       })
     })
   }).toThrowErrorMatchingSnapshot()
@@ -163,7 +163,7 @@ test('throws nice error for invalid css', () => {
 
 test('prints speedy styles', () => {
   const speedyCache = createCache({
-    speedy: true
+    speedy: true,
   })
   const tree = renderer
     .create(
@@ -179,7 +179,7 @@ test('prints speedy styles', () => {
 
   expect(
     prettyFormat(tree, {
-      plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement]
+      plugins: [emotionPlugin, ReactElement, ReactTestComponent, DOMElement],
     })
   ).toMatchSnapshot()
 })

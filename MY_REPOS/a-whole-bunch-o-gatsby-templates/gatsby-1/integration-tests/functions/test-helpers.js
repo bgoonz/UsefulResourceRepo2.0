@@ -16,9 +16,9 @@ export function runTests(env, host) {
         expect(result).toMatchSnapshot()
       })
       test(`secondary-level API`, async () => {
-        const result = await fetch(
-          `${host}/api/a-directory/function`
-        ).then(res => res.text())
+        const result = await fetch(`${host}/api/a-directory/function`).then(
+          res => res.text()
+        )
 
         expect(result).toMatchSnapshot()
       })
@@ -136,9 +136,9 @@ export function runTests(env, host) {
 
     describe(`functions can parse different ways of sending data`, () => {
       test(`query string`, async () => {
-        const result = await fetch(
-          `${host}/api/parser?amIReal=true`
-        ).then(res => res.json())
+        const result = await fetch(`${host}/api/parser?amIReal=true`).then(
+          res => res.json()
+        )
 
         expect(result).toMatchSnapshot()
       })

@@ -53,7 +53,7 @@ const components = [
   'WebView',
   'FlatList',
   'SectionList',
-  'VirtualizedList'
+  'VirtualizedList',
 ]
 
 export { css }
@@ -65,7 +65,7 @@ export default components.reduce(
       configurable: false,
       get() {
         return styled(reactNative[comp])
-      }
+      },
     }),
   styled
 )

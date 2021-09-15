@@ -1,4 +1,4 @@
-import { parseConfig } from "../config"
+import { parseConfig } from "../config";
 
 const binaryStr = `
 module.exports = {
@@ -26,7 +26,7 @@ module.exports = {
     teal: [null, '#e6fffa', '#b2f5ea', '#81e6d9', '#4fd1c5', '#38b2ac', '#319795', '#2c7a7b', '#285e61', '#234e52'],
   }
 }
-`
+`;
 
 const binaryStrSemiWhitespace = `
 module.exports = {
@@ -55,7 +55,7 @@ module.exports = {
   }
 };
 
-`
+`;
 
 const binaryStrColors = `
 module.exports = {
@@ -68,7 +68,7 @@ module.exports = {
     teal: [null, '#e6fffa', '#b2f5ea', '#81e6d9', '#4fd1c5', '#38b2ac', '#319795', '#2c7a7b', '#285e61', '#234e52'],
   }
 }
-`
+`;
 
 const binaryStrTypo = `
 module.exports = {
@@ -88,31 +88,33 @@ module.exports = {
     heading: 1.125,
   },
 }
-`
+`;
 
 const invalidStr = `
 module.exports = {
   space: 'test'
 }
-`
+`;
 
 describe(`parseConfig`, () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    jest.clearAllMocks();
     // @ts-ignore
     global.figma = {
       notify: jest.fn(),
       closePlugin: jest.fn(),
-    }
+    };
 
     // @ts-ignore
     global.console = {
       log: jest.fn(),
-    }
-  })
+    };
+  });
 
   test(`should convert binaryStr to object`, () => {
-    expect(parseConfig(binaryStr, { colors: true, typography: true, shadows: false })).toStrictEqual({
+    expect(
+      parseConfig(binaryStr, { colors: true, typography: true, shadows: false })
+    ).toStrictEqual({
       fonts: {
         body: `-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial`,
         heading: `inherit`,
@@ -134,12 +136,29 @@ describe(`parseConfig`, () => {
           one: `#f4f4f4`,
           two: `#f3f3f3`,
         },
-        teal: [null, `#e6fffa`, `#b2f5ea`, `#81e6d9`, `#4fd1c5`, `#38b2ac`, `#319795`, `#2c7a7b`, `#285e61`, `#234e52`],
+        teal: [
+          null,
+          `#e6fffa`,
+          `#b2f5ea`,
+          `#81e6d9`,
+          `#4fd1c5`,
+          `#38b2ac`,
+          `#319795`,
+          `#2c7a7b`,
+          `#285e61`,
+          `#234e52`,
+        ],
       },
-    })
-  })
+    });
+  });
   test(`should handle whitespace and semicolons`, () => {
-    expect(parseConfig(binaryStrSemiWhitespace, { colors: true, typography: true, shadows: false })).toStrictEqual({
+    expect(
+      parseConfig(binaryStrSemiWhitespace, {
+        colors: true,
+        typography: true,
+        shadows: false,
+      })
+    ).toStrictEqual({
       fonts: {
         body: `-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial`,
         heading: `inherit`,
@@ -161,10 +180,21 @@ describe(`parseConfig`, () => {
           one: `#f4f4f4`,
           two: `#f3f3f3`,
         },
-        teal: [null, `#e6fffa`, `#b2f5ea`, `#81e6d9`, `#4fd1c5`, `#38b2ac`, `#319795`, `#2c7a7b`, `#285e61`, `#234e52`],
+        teal: [
+          null,
+          `#e6fffa`,
+          `#b2f5ea`,
+          `#81e6d9`,
+          `#4fd1c5`,
+          `#38b2ac`,
+          `#319795`,
+          `#2c7a7b`,
+          `#285e61`,
+          `#234e52`,
+        ],
       },
-    })
-  })
+    });
+  });
   test(`should convert binaryStrColors to object with only colors`, () => {
     expect(
       parseConfig(binaryStrColors, {
@@ -179,10 +209,21 @@ describe(`parseConfig`, () => {
           one: `#f4f4f4`,
           two: `#f3f3f3`,
         },
-        teal: [null, `#e6fffa`, `#b2f5ea`, `#81e6d9`, `#4fd1c5`, `#38b2ac`, `#319795`, `#2c7a7b`, `#285e61`, `#234e52`],
+        teal: [
+          null,
+          `#e6fffa`,
+          `#b2f5ea`,
+          `#81e6d9`,
+          `#4fd1c5`,
+          `#38b2ac`,
+          `#319795`,
+          `#2c7a7b`,
+          `#285e61`,
+          `#234e52`,
+        ],
       },
-    })
-  })
+    });
+  });
   test(`should convert binaryStrTypo to object with only typography`, () => {
     expect(
       parseConfig(binaryStrTypo, {
@@ -206,57 +247,65 @@ describe(`parseConfig`, () => {
         body: 1.5,
         heading: 1.125,
       },
-    })
-  })
+    });
+  });
   test(`should throw error on completely invalid schema`, () => {
-    parseConfig(invalidStr, { colors: true, typography: true, shadows: true })
-    expect(global.console.log).toHaveBeenCalledTimes(2)
+    parseConfig(invalidStr, { colors: true, typography: true, shadows: true });
+    expect(global.console.log).toHaveBeenCalledTimes(2);
     // @ts-ignore
-    expect(global.figma.notify).toHaveBeenCalledTimes(1)
+    expect(global.figma.notify).toHaveBeenCalledTimes(1);
     expect(
       // @ts-ignore
       global.figma.notify
     ).toHaveBeenCalledWith(
       `Error parsing your config. Have a look at the Console (Developer Tools) or open an issue on GitHub.`,
       { timeout: 10000 }
-    )
+    );
     expect(
       // @ts-ignore
       global.figma.closePlugin
-    ).toHaveBeenCalledTimes(1)
-  })
+    ).toHaveBeenCalledTimes(1);
+  });
   test(`should throw error on wrong colors schema`, () => {
-    parseConfig(binaryStrTypo, { colors: true, typography: false, shadows: false })
-    expect(global.console.log).toHaveBeenCalledTimes(2)
+    parseConfig(binaryStrTypo, {
+      colors: true,
+      typography: false,
+      shadows: false,
+    });
+    expect(global.console.log).toHaveBeenCalledTimes(2);
     // @ts-ignore
-    expect(global.figma.notify).toHaveBeenCalledTimes(1)
+    expect(global.figma.notify).toHaveBeenCalledTimes(1);
     expect(
       // @ts-ignore
       global.figma.notify
     ).toHaveBeenCalledWith(
       `Error parsing your config. Have a look at the Console (Developer Tools) or open an issue on GitHub.`,
       { timeout: 10000 }
-    )
+    );
     expect(
       // @ts-ignore
       global.figma.closePlugin
-    ).toHaveBeenCalledTimes(1)
-  })
+    ).toHaveBeenCalledTimes(1);
+  });
   test(`should throw error on wrong typography schema`, () => {
-    parseConfig(binaryStrColors, { colors: false, typography: true, shadows: false })
-    expect(global.console.log).toHaveBeenCalledTimes(2)
+    parseConfig(binaryStrColors, {
+      colors: false,
+      typography: true,
+      shadows: false,
+    });
+    expect(global.console.log).toHaveBeenCalledTimes(2);
     // @ts-ignore
-    expect(global.figma.notify).toHaveBeenCalledTimes(1)
+    expect(global.figma.notify).toHaveBeenCalledTimes(1);
     expect(
       // @ts-ignore
       global.figma.notify
     ).toHaveBeenCalledWith(
       `Error parsing your config. Have a look at the Console (Developer Tools) or open an issue on GitHub.`,
       { timeout: 10000 }
-    )
+    );
     expect(
       // @ts-ignore
       global.figma.closePlugin
-    ).toHaveBeenCalledTimes(1)
-  })
-})
+    ).toHaveBeenCalledTimes(1);
+  });
+});

@@ -11,5 +11,5 @@ export let rules = {
   'no-vanilla': noVanilla,
   'syntax-preference': syntaxPreference,
   'styled-import': styledImport,
-  'jsx-import': jsxImport
+  'jsx-import': jsxImport,
 }

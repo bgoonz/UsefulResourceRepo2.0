@@ -3,8 +3,8 @@ module.exports = {
     {
       resolve: `gatsby-plugin-test`,
       options: {
-        fn: () => `foo`
-      }
-    }
+        fn: () => `foo`,
+      },
+    },
   ],
 }

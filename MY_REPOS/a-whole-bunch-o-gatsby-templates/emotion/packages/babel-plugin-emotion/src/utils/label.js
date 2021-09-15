@@ -45,7 +45,7 @@ let pascalCaseRegex = /^[A-Z][A-Za-z]+/
 function getDeclaratorName(path, t) {
   // $FlowFixMe
   const parent = path.findParent(
-    p =>
+    (p) =>
       p.isVariableDeclarator() ||
       p.isFunctionDeclaration() ||
       p.isFunctionExpression() ||
@@ -79,7 +79,7 @@ function getDeclaratorName(path, t) {
     return parent.node.key.name
   }
 
-  let variableDeclarator = path.findParent(p => p.isVariableDeclarator())
+  let variableDeclarator = path.findParent((p) => p.isVariableDeclarator())
   if (!variableDeclarator) {
     return ''
   }
@@ -105,7 +105,7 @@ function getIdentifierName(path: *, t: *) {
   if (path) {
     // $FlowFixMe
     classOrClassPropertyParent = path.findParent(
-      p => t.isClassProperty(p) || t.isClass(p)
+      (p) => t.isClassProperty(p) || t.isClass(p)
     )
   }
   if (classOrClassPropertyParent) {

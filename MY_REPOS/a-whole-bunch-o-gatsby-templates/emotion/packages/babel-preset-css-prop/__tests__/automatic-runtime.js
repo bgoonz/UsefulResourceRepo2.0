@@ -7,8 +7,8 @@ babelTester('automatic runtime', __dirname, {
       preset,
       {
         sourceMap: false,
-        runtime: 'automatic'
-      }
-    ]
-  ]
+        runtime: 'automatic',
+      },
+    ],
+  ],
 })

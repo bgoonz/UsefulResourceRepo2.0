@@ -20,11 +20,11 @@ module.exports = {
     {
       resolve: `gatsby-plugin-env-variables`,
       options: {
-        allowList: ["MY_VAR", "MY_OTHER_VAR"]
+        allowList: ["MY_VAR", "MY_OTHER_VAR"],
       },
     },
   ],
-}
+};
 ```
 
 This will make `MY_VAR` & `MY_OTHER_VAR` available at runtime in your app by accessing `process.env.MY_VAR` or `process.env.MY_OTHER_VAR`.

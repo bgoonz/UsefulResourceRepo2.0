@@ -78,7 +78,7 @@ Finish test "shows UL - TDD"
 
 ```js
 it('shows UL - TDD', function () {
-  cy.contains('ul', 'todo A').then($ul => {
+  cy.contains('ul', 'todo A').then(($ul) => {
     // use TDD assertions
     // $ul is visible
     // $ul has class "todo-list"
@@ -98,11 +98,13 @@ Which style do you prefer?
 +++
 
 ## BDD
+
 ![BDD log](/slides/11-retry-ability/img/bdd.png)
 
 +++
 
 ## TDD
+
 ![TDD log](/slides/11-retry-ability/img/tdd.png)
 
 +++
@@ -112,7 +114,8 @@ Which style do you prefer?
 Write you own [should(cb)](http://on.cypress.io/should#Function) assertion
 
 ```js
-cy.get('.docs-header').find('div')
+cy.get('.docs-header')
+  .find('div')
   .should(($div) => {
     expect($div).to.have.length(1)
     const className = $div[0].className
@@ -127,7 +130,7 @@ cy.get('.docs-header').find('div')
 ```js
 it('every item starts with todo', function () {
   // ...
-  cy.get('.todo label').should($labels => {
+  cy.get('.todo label').should(($labels) => {
     // confirm that there are 4 labels
     // and that each one starts with "todo-"
   })
@@ -158,14 +161,14 @@ Add link to retry-ability page when finished https://github.com/cypress-io/cypre
 
 ```javascript
 it('creates 2 items', function () {
-  cy.visit('/')                       // command
-  cy.focused()                        // command
+  cy.visit('/') // command
+  cy.focused() // command
     .should('have.class', 'new-todo') // assertion
-  cy.get('.new-todo')                 // command
-    .type('todo A{enter}')            // command
-    .type('todo B{enter}')            // command
-  cy.get('.todo-list li')             // command
-    .should('have.length', 2)         // assertion
+  cy.get('.new-todo') // command
+    .type('todo A{enter}') // command
+    .type('todo B{enter}') // command
+  cy.get('.todo-list li') // command
+    .should('have.length', 2) // assertion
 })
 ```
 
@@ -174,7 +177,7 @@ it('creates 2 items', function () {
 ### Look at the last command + assertion
 
 ```javascript
-cy.get('.todo-list li')     // command
+cy.get('.todo-list li') // command
   .should('have.length', 2) // assertion
 ```
 
@@ -188,9 +191,9 @@ If not shown, this is a good moment to slow down the app and show how the assert
 Command `cy.contains` will be retried _until 3 assertions_ that follow it all pass.
 
 ```js
-cy.contains('ul', 'todo A')                   // command
-  .should('be.visible')                       // assertion
-  .and('have.class', 'todo-list')             // assertion
+cy.contains('ul', 'todo A') // command
+  .should('be.visible') // assertion
+  .and('have.class', 'todo-list') // assertion
   .and('have.css', 'list-style-type', 'none') // assertion
 ```
 
@@ -199,11 +202,12 @@ cy.contains('ul', 'todo A')                   // command
 Command `cy.get` will be retried _until 5 assertions_ that follow it all pass.
 
 ```js
-cy.get('.todo label')                 // command
-  .should($labels => {
+cy.get('.todo label') // command
+  .should(($labels) => {
     expect($labels).to.have.length(4) // assertion
 
-    $labels.each((k, el) => {         // 4 assertions
+    $labels.each((k, el) => {
+      // 4 assertions
       expect(el.textContent).to.match(/^todo /)
     })
   })
@@ -293,9 +297,9 @@ See [Timeouts](https://on.cypress.io/introduction-to-cypress#Timeouts)
 ```js
 it('has the right label', () => {
   cy.get('.new-todo').type('todo A{enter}')
-  cy.get('.todo-list li')         // command
-    .find('label')                // command
-    .should('contain', 'todo A')  // assertion
+  cy.get('.todo-list li') // command
+    .find('label') // command
+    .should('contain', 'todo A') // assertion
 })
 ```
 
@@ -403,9 +407,9 @@ The test should pass now, even with longer delay, because `cy.get` is retried.
 // dangerous ⚠️
 // only the last "its" will be retried
 cy.window()
-  .its('app')             // runs once
-  .its('model')           // runs once
-  .its('todos')           // retried
+  .its('app') // runs once
+  .its('model') // runs once
+  .its('todos') // retried
   .should('have.length', 2)
 
 // ✅ recommended
@@ -422,31 +426,32 @@ From [Set flag to start tests](https://glebbahmutov.com/blog/set-flag-to-start-t
 
 ```js
 cy.get('.new-todo').type('todo A{enter}')
-cy.get('.todo-list li')         // command
-  .should('have.length', 1)     // assertion
-  .find('label')                // command
-  .should('contain', 'todo A')  // assertion
+cy.get('.todo-list li') // command
+  .should('have.length', 1) // assertion
+  .find('label') // command
+  .should('contain', 'todo A') // assertion
 
 cy.get('.new-todo').type('todo B{enter}')
-cy.get('.todo-list li')         // command
-  .should('have.length', 2)     // assertion
-  .find('label')                // command
-  .should('contain', 'todo B')  // assertion
+cy.get('.todo-list li') // command
+  .should('have.length', 2) // assertion
+  .find('label') // command
+  .should('contain', 'todo B') // assertion
 ```
 
 ⌨️ try this in test "solution 2: alternate commands and assertions"
 
 +++
+
 ## Cypress Retries: Triple Header
 
 ### 1. DOM queries
 
 ```js
-cy.get('li')
-  .should('have.length', 2)
+cy.get('li').should('have.length', 2)
 ```
 
 +++
+
 ## Cypress Retries: Triple Header
 
 ### 2. Network
@@ -460,6 +465,7 @@ cy.wait('@new-item')
 ```
 
 +++
+
 ## Cypress Retries: Triple Header
 
 ### 3. Application
@@ -472,6 +478,7 @@ cy.get('@some-method')
 ```
 
 +++
+
 ## 📝 Take away
 
 Most commands have built-in sensible waits:
@@ -485,8 +492,7 @@ Most commands have built-in sensible waits:
 Many commands also retry themselves until the assertions that follow pass
 
 ```js
-cy.get('li')
-  .should('have.length', 2)
+cy.get('li').should('have.length', 2)
 ```
 
 DOM 🎉 Network 🎉 Application methods 🎉

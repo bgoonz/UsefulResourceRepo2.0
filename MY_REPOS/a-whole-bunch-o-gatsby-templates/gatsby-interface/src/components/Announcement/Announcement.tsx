@@ -3,7 +3,7 @@ import { jsx } from "@emotion/core"
 import background from "./assets/background.svg"
 import { ThemeCss } from "../../theme"
 
-const baseCss: ThemeCss = theme => ({
+const baseCss: ThemeCss = (theme) => ({
   alignItems: `center`,
   background: theme.colors.teal[5],
   color: theme.colors.teal[90],

@@ -23,7 +23,8 @@ export function CheckboxGroupFieldSkeleton(
   return <FormGroupFieldSkeleton {...props} />
 }
 
-export type CheckboxGroupFieldSkeletonLabelProps = FormGroupFieldSkeletonLabelProps
+export type CheckboxGroupFieldSkeletonLabelProps =
+  FormGroupFieldSkeletonLabelProps
 export function CheckboxGroupFieldSkeletonLabel(
   props: CheckboxGroupFieldSkeletonLabelProps
 ) {
@@ -56,7 +57,8 @@ export const CheckboxGroupFieldSkeletonOption = React.forwardRef<
   return <FormGroupFieldSkeletonOption ref={ref} type="checkbox" {...props} />
 })
 
-export type CheckboxGroupFieldSkeletonOptionLabelProps = FormGroupFieldSkeletonOptionLabelProps
+export type CheckboxGroupFieldSkeletonOptionLabelProps =
+  FormGroupFieldSkeletonOptionLabelProps
 export function CheckboxGroupFieldSkeletonOptionLabel(
   props: CheckboxGroupFieldSkeletonOptionLabelProps
 ) {

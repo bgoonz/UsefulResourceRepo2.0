@@ -31,7 +31,7 @@ describe('extractCritical', () => {
   test('does not warn when using extract critical', () => {
     let Provider = require('@emotion/core').CacheProvider
     const WithNthSelector = reactEmotion.default('div')({
-      ':nth-child(1)': {}
+      ':nth-child(1)': {},
     })
 
     ignoreConsoleErrors(() => {

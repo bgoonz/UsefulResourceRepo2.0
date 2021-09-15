@@ -51,20 +51,18 @@ exports.createPages = async ({ actions, reporter }) => {
   }
 }
 
-const getCreateTestNode = ({
-  actions,
-  createNodeId,
-  createContentDigest,
-}) => data => {
-  actions.createNode({
-    ...data,
-    id: createNodeId(`test-id`),
-    internal: {
-      type: `Test`,
-      contentDigest: createContentDigest(data),
-    },
-  })
-}
+const getCreateTestNode =
+  ({ actions, createNodeId, createContentDigest }) =>
+  data => {
+    actions.createNode({
+      ...data,
+      id: createNodeId(`test-id`),
+      internal: {
+        type: `Test`,
+        contentDigest: createContentDigest(data),
+      },
+    })
+  }
 
 exports.sourceNodes = ({
   actions,

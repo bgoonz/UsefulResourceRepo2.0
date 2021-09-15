@@ -1,10 +1,10 @@
-import React from 'react';
-import { graphql } from 'gatsby';
+import React from "react";
+import { graphql } from "gatsby";
 
-import Layout from '../components/layout';
-import SEO from '../components/seo';
-import Article from '../components/article';
-import styles from './index.module.css';
+import Layout from "../components/layout";
+import SEO from "../components/seo";
+import Article from "../components/article";
+import styles from "./index.module.css";
 
 const IndexPage = ({ data }) => (
   <Layout>
@@ -18,7 +18,7 @@ const IndexPage = ({ data }) => (
           users can get.
         </p>
       </div>
-      {data.allMarkdownRemark.edges.map(post => (
+      {data.allMarkdownRemark.edges.map((post) => (
         <Article
           title={post.node.frontmatter.title}
           date={post.node.frontmatter.date}

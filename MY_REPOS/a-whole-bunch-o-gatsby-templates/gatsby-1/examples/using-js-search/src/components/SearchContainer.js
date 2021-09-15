@@ -77,13 +77,8 @@ class Search extends Component {
   }
 
   render() {
-    const {
-      isError,
-      isLoading,
-      bookList,
-      searchResults,
-      searchQuery,
-    } = this.state
+    const { isError, isLoading, bookList, searchResults, searchQuery } =
+      this.state
     const queryResults = searchQuery === `` ? bookList : searchResults
 
     if (isLoading) {

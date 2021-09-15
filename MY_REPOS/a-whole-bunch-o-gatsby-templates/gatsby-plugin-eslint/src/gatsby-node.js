@@ -9,7 +9,7 @@ exports.onCreateWebpackConfig = ({ stage, actions }, pluginOptions) => {
 
   if (stages.includes(stage)) {
     actions.setWebpackConfig({
-      plugins: [new ESLintPlugin(Object.assign(options))]
+      plugins: [new ESLintPlugin(Object.assign(options))],
     });
   }
 };

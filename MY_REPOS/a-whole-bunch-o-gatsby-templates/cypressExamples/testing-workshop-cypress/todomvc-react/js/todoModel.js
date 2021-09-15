@@ -27,7 +27,7 @@ var app = app || {}
   }
 
   app.TodoModel.prototype.addTodo = function (...titles) {
-    titles.forEach(title => {
+    titles.forEach((title) => {
       this.todos = this.todos.concat({
         id: Utils.uuid(),
         title,

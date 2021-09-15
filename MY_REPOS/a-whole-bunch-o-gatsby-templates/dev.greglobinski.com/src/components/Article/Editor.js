@@ -4,7 +4,7 @@ import React from "react";
 
 import { localToGithubUrl } from "../../utils/helpers";
 
-const Editor = props => {
+const Editor = (props) => {
   const { path, theme } = props;
 
   return (
@@ -42,7 +42,7 @@ const Editor = props => {
 
 Editor.propTypes = {
   path: PropTypes.string.isRequired,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default Editor;

@@ -7,7 +7,7 @@ export {
   ComponentSelector,
   CSSObject,
   FunctionInterpolation,
-  ObjectInterpolation
+  ObjectInterpolation,
 } from '@emotion/serialize'
 
 export { Interpolation, SerializedStyles }

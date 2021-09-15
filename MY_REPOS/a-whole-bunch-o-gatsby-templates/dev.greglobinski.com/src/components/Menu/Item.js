@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Link from "gatsby-link";
 
-const Item = props => {
+const Item = (props) => {
   const { theme, item: { label, to, icon: Icon } = {}, onClick } = props;
 
   return (
@@ -101,7 +101,7 @@ Item.propTypes = {
   hidden: PropTypes.bool,
   onClick: PropTypes.func,
   icon: PropTypes.func,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default Item;

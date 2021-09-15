@@ -7,7 +7,7 @@ const Index = ({ data }) => {
     <Layout>
       {data.site.siteMetadata.siteTitle}
       <ul>
-        {data.articles.edges.map(article => (
+        {data.articles.edges.map((article) => (
           <li>
             <Link to={article.node.slug}>{article.node.title}</Link>
           </li>

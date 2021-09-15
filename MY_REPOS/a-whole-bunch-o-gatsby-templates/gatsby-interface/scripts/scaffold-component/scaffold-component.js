@@ -30,7 +30,7 @@ let componentCmdValue = ``
 program
   .version(`0.0.1`)
   .arguments(`<name>`)
-  .action(name => (componentCmdValue = name))
+  .action((name) => (componentCmdValue = name))
   .parse(process.argv)
 
 scaffold(componentCmdValue)
@@ -61,7 +61,7 @@ function scaffoldComponent(componentName, basePath, context) {
     console.error(e)
   }
 
-  templates.forEach(template => {
+  templates.forEach((template) => {
     const fileName = template.fileName.replace(`COMPONENT_NAME`, componentName)
     console.log(
       chalk.green(
@@ -88,7 +88,7 @@ function scaffoldComponent(componentName, basePath, context) {
     }
   })
 
-  libIndexFiles.forEach(indexFilePath => {
+  libIndexFiles.forEach((indexFilePath) => {
     console.log(
       chalk.blue(
         `  appending export statement to`,

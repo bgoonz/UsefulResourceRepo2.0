@@ -13,12 +13,12 @@ const superstyles = () => ({
   root: {
     ".subs-screen &": {
       left: "61px",
-      right: props => `${props.windowWidth - 120}px`
-    }
-  }
+      right: (props) => `${props.windowWidth - 120}px`,
+    },
+  },
 });
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     background: theme.palette.background.green,
     left: "100%",
@@ -27,32 +27,30 @@ const styles = theme => ({
     width: "auto",
     transition: "all .8s",
     "&:hover": {
-      background: Color(theme.palette.background.green)
-        .darken(0.2)
-        .string()
+      background: Color(theme.palette.background.green).darken(0.2).string(),
     },
     ".browse-screen &": {
-      left: "61px"
+      left: "61px",
     },
     ".browse-screen.subs-button &": {
-      right: "61px"
-    }
+      right: "61px",
+    },
   },
   progress: {
     color: "#ffffff",
-    margin: "-15px 0 0 5px"
+    margin: "-15px 0 0 5px",
   },
   label: {
     ".browse-screen &": {
       marginTop: "-3px",
       "& svg": {
-        margin: "6px 0 0 5px"
-      }
-    }
-  }
+        margin: "6px 0 0 5px",
+      },
+    },
+  },
 });
 
-const NextLink = props => {
+const NextLink = (props) => {
   const { classes, onClick, currentRoute } = props;
 
   function getTarget(route) {
@@ -73,7 +71,7 @@ const NextLink = props => {
       <span
         style={{
           display: currentRoute === "browse" ? "inline" : "none",
-          transitionDelay: "2s"
+          transitionDelay: "2s",
         }}
       >
         next
@@ -86,7 +84,7 @@ const NextLink = props => {
 NextLink.propTypes = {
   classes: PropTypes.object.isRequired,
   onClick: PropTypes.func.isRequired,
-  currentRoute: PropTypes.string
+  currentRoute: PropTypes.string,
 };
 
 export default injectSheet(superstyles)(withStyles(styles)(NextLink));

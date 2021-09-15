@@ -3,7 +3,7 @@
 
 import {
   CreateStyled as BaseCreateStyled,
-  CreateStyledComponentIntrinsic
+  CreateStyledComponentIntrinsic,
 } from '@emotion/styled-base'
 
 export {
@@ -18,7 +18,7 @@ export {
   ObjectInterpolation,
   StyledComponent,
   StyledOptions,
-  WithTheme
+  WithTheme,
 } from '@emotion/styled-base'
 
 export interface StyledTags<Theme extends object> {

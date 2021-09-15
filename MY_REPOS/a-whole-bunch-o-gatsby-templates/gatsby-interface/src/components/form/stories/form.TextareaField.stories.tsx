@@ -54,7 +54,7 @@ storiesOf(`form`, module)
                 Comment
               </TextAreaFieldLabel>
               <TextAreaFieldControl
-                onChange={e => action(`Change`)(e.target.value)}
+                onChange={(e) => action(`Change`)(e.target.value)}
                 placeholder={placeholder}
                 disabled={disabled}
                 required={required}
@@ -72,7 +72,7 @@ storiesOf(`form`, module)
             id="example-1b"
             label="Comment"
             labelSize={size}
-            onChange={e => action(`Change`)(e.target.value)}
+            onChange={(e) => action(`Change`)(e.target.value)}
             error={error}
             hint={hint || `And this one is built with 'TextAreaFieldBlock'`}
             placeholder={placeholder}
@@ -89,7 +89,7 @@ storiesOf(`form`, module)
               </span>
             }
             labelSize={size}
-            onChange={e => action(`Change`)(e.target.value)}
+            onChange={(e) => action(`Change`)(e.target.value)}
             error={error}
             hint={hint || `This one is also built with 'TextAreaFieldBlock'`}
             placeholder={placeholder}

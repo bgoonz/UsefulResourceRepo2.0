@@ -71,5 +71,5 @@ module["exports"] = [
   "Thắm",
   "Thu",
   "Thủy",
-  "Nhàn"
+  "Nhàn",
 ];

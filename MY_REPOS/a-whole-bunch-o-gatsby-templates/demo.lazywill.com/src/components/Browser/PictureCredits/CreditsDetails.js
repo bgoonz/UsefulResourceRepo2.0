@@ -2,44 +2,44 @@ import React from "react";
 import injectSheet from "react-jss";
 import PropTypes from "prop-types";
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     background: "rgba(0,0,0,0.7)",
     display: "none",
     overflow: "hidden",
     padding: "1.5em",
     ".opened &": {
-      display: "block"
-    }
+      display: "block",
+    },
   },
   picture: {
     float: "left",
-    margin: "0 1em 0 0"
+    margin: "0 1em 0 0",
   },
   links: {
     "& p": {
       color: "#ddd",
       fontSize: ".95em",
-      margin: "0 0 .6em 0"
+      margin: "0 0 .6em 0",
     },
     "& p:last-child": {
-      margin: 0
+      margin: 0,
     },
     "& i": {
       color: "#999",
-      fontSize: "0.9em"
+      fontSize: "0.9em",
     },
     "& a": {
       color: "#fff",
-      textDecoration: "none"
+      textDecoration: "none",
     },
     "& a:hover": {
-      color: theme.palette.background.accent
-    }
-  }
+      color: theme.palette.background.accent,
+    },
+  },
 });
 
-const CreditsDetails = props => {
+const CreditsDetails = (props) => {
   function getPictureSrc(picture) {
     return `https://d3nstmfkiycslv.cloudfront.net/${picture.arangoKey}_${picture.hash}_prv.jpeg`;
   }
@@ -77,7 +77,7 @@ const CreditsDetails = props => {
 
 CreditsDetails.propTypes = {
   classes: PropTypes.object.isRequired,
-  picture: PropTypes.object.isRequired
+  picture: PropTypes.object.isRequired,
 };
 
 export default injectSheet(styles)(CreditsDetails);

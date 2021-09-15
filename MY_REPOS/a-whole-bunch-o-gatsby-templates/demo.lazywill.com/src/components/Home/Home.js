@@ -6,7 +6,7 @@ import Loading from "../shared/Loading/";
 import SvgEl from "../shared/SvgEl";
 import LOGOS from "../../constants/logos";
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     bottom: "60px",
     color: "#fff",
@@ -14,7 +14,7 @@ const styles = theme => ({
     overflow: "auto",
     position: "absolute",
     right: 0,
-    top: 0
+    top: 0,
   },
   logo: {},
   textBox: {
@@ -24,35 +24,35 @@ const styles = theme => ({
     marginRight: "auto",
     "& p": {
       lineHeight: "1.4em",
-      fontSize: "1.1em"
+      fontSize: "1.1em",
     },
     "& b": {
-      fontWeight: 600
+      fontWeight: 600,
     },
     "& a": {
       color: theme.palette.primary["500"],
       textDecoration: "none",
-      fontWeight: 600
-    }
+      fontWeight: 600,
+    },
   },
   head: {
-    fontWeight: 300
+    fontWeight: 300,
   },
   avatar: {
     display: "inline-block",
     height: "30px",
     margin: "-.2em 0 0 .5em",
     verticalAlign: "middle",
-    width: "30px"
-  }
+    width: "30px",
+  },
 });
 
-const Home = props => {
+const Home = (props) => {
   const { classes } = props;
 
   const AsyncBrowser = Loadable({
     loader: () => import("../Browser/"),
-    loading: Loading
+    loading: Loading,
   });
 
   AsyncBrowser.preload();
@@ -95,7 +95,7 @@ const Home = props => {
 };
 
 Home.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
 };
 
 export default injectSheet(styles)(Home);

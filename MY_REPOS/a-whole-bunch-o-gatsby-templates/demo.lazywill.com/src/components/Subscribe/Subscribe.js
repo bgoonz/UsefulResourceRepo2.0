@@ -9,7 +9,7 @@ import SvgEl from "../shared/SvgEl";
 import BlockButton from "../shared/BlockButton";
 import Loading from "../shared/Loading/";
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     bottom: "60px",
     color: "#fff",
@@ -17,13 +17,13 @@ const styles = theme => ({
     overflow: "auto",
     position: "absolute",
     right: 0,
-    top: 0
+    top: 0,
   },
   logo: {
     display: "inline-block",
     width: "80px",
     verticalAlign: "middle",
-    margin: "6px 5px 0 0"
+    margin: "6px 5px 0 0",
   },
   invitation: {
     padding: "3em",
@@ -35,52 +35,50 @@ const styles = theme => ({
     "& h1": {
       fontWeight: 300,
       margin: 0,
-      lineHeight: 1.1
+      lineHeight: 1.1,
     },
     "& h2": {
       fontWeight: 300,
       fontSize: "1.2em",
-      margin: 0
+      margin: 0,
     },
     "& p": {
       lineHeight: "1.4em",
-      fontSize: "1.1em"
+      fontSize: "1.1em",
     },
     "& b": {
-      fontWeight: 600
+      fontWeight: 600,
     },
     "& a": {
       color: theme.palette.primary["500"],
       textDecoration: "none",
-      fontWeight: 600
-    }
+      fontWeight: 600,
+    },
   },
   instruction: {
-    extend: "invitation"
+    extend: "invitation",
   },
   avatar: {
     display: "inline-block",
     height: "30px",
     margin: "-.2em 0 0 .5em",
     verticalAlign: "middle",
-    width: "30px"
+    width: "30px",
   },
   submitButton: {
     background: theme.palette.background.first,
     margin: "1em 0",
     "&:hover": {
-      background: Color(theme.palette.background.first)
-        .darken(0.2)
-        .string()
-    }
+      background: Color(theme.palette.background.first).darken(0.2).string(),
+    },
   },
   inputInkbar: {
     "&:after": {
-      backgroundColor: theme.palette.primary[500]
-    }
+      backgroundColor: theme.palette.primary[500],
+    },
   },
   labelShrink: {
-    color: theme.palette.primary[500]
+    color: theme.palette.primary[500],
   },
   link: {
     margin: "40px 0 0 0",
@@ -88,8 +86,8 @@ const styles = theme => ({
     textAlign: "center",
     padding: "10px 20px",
     width: "100%",
-    border: "1px solid white"
-  }
+    border: "1px solid white",
+  },
 });
 
 class Subscribe extends React.Component {
@@ -99,7 +97,7 @@ class Subscribe extends React.Component {
     this.state = {
       email: "",
       fetching: false,
-      error: false
+      error: false,
     };
   }
 
@@ -109,23 +107,23 @@ class Subscribe extends React.Component {
     }
   }
 
-  handleChange = name => event => {
+  handleChange = (name) => (event) => {
     this.setState({
-      [name]: event.target.value
+      [name]: event.target.value,
     });
   };
 
-  handleSubmit = event => {
+  handleSubmit = (event) => {
     event.preventDefault();
 
     this.setState({
-      fetching: true
+      fetching: true,
     });
 
     var params = {
       email: this.state.email,
       formid: "1",
-      _nonce: "d1b3e2f10d"
+      _nonce: "d1b3e2f10d",
     };
 
     var formData = new FormData();
@@ -135,14 +133,14 @@ class Subscribe extends React.Component {
 
     var request = {
       method: "post",
-      body: formData
+      body: formData,
     };
 
     fetch("https://subscription.lazywill.com/mailster/subscribe", request)
-      .then(resp => resp.json())
-      .then(data => {
+      .then((resp) => resp.json())
+      .then((data) => {
         this.setState({
-          fetching: false
+          fetching: false,
         });
 
         let subscriptionConfirmed = false;
@@ -160,21 +158,21 @@ class Subscribe extends React.Component {
         if (typeof window.gtag === `function`) {
           window.gtag("event", "newsletter_sign_up", {
             event_category: "engagement",
-            event_label: "success"
+            event_label: "success",
           });
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         this.setState({
           error: true,
-          fetching: false
+          fetching: false,
         });
 
         if (typeof window.gtag === `function`) {
           window.gtag("event", "newsletter_sign_up", {
             event_category: "engagement",
-            event_label: "error"
+            event_label: "error",
           });
         }
       });
@@ -220,7 +218,7 @@ Subscribe.propTypes = {
   updateSubscription: PropTypes.func.isRequired,
   subscription: PropTypes.bool.isRequired,
   subscriptionConfirmed: PropTypes.bool.isRequired,
-  history: PropTypes.object
+  history: PropTypes.object,
 };
 
 export default injectSheet(styles)(Subscribe);

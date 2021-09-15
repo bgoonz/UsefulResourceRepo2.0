@@ -7,19 +7,19 @@ export const transformCssCallExpression = ({
   babel,
   state,
   path,
-  sourceMap
+  sourceMap,
 }: {
   babel: *,
   state: *,
   path: *,
-  sourceMap?: string
+  sourceMap?: string,
 }) => {
   let node = transformExpressionWithStyles({
     babel,
     state,
     path,
     shouldLabel: true,
-    sourceMap
+    sourceMap,
   })
   if (node) {
     path.replaceWith(node)
@@ -35,10 +35,10 @@ export default createMacro(({ references, state, babel, isEmotionCall }) => {
   }
   const t = babel.types
   if (references.default && references.default.length) {
-    references.default.reverse().forEach(reference => {
+    references.default.reverse().forEach((reference) => {
       if (!state.cssIdentifier) {
         state.cssIdentifier = addDefault(reference, '@emotion/css', {
-          nameHint: 'css'
+          nameHint: 'css',
         })
       }
       reference.replaceWith(t.cloneDeep(state.cssIdentifier))
@@ -46,8 +46,8 @@ export default createMacro(({ references, state, babel, isEmotionCall }) => {
     })
   }
   Object.keys(references)
-    .filter(x => x !== 'default')
-    .forEach(referenceKey => {
+    .filter((x) => x !== 'default')
+    .forEach((referenceKey) => {
       let runtimeNode = addNamed(
         state.file.path,
         referenceKey,
@@ -55,7 +55,7 @@ export default createMacro(({ references, state, babel, isEmotionCall }) => {
         { nameHint: referenceKey }
       )
 
-      references[referenceKey].reverse().forEach(reference => {
+      references[referenceKey].reverse().forEach((reference) => {
         reference.replaceWith(t.cloneDeep(runtimeNode))
       })
     })

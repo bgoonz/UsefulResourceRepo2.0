@@ -11,7 +11,7 @@ export const myCache = createCache({
   key: 'my-prefix-key',
   stylisPlugins: [
     /* your plugins here */
-  ]
+  ],
 })
 ```
 

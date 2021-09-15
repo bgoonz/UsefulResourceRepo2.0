@@ -18,14 +18,14 @@ type EmotionTestCase = {|
   skip?: boolean,
   code: string,
   opts?: Object,
-  filename?: string
+  filename?: string,
 |}
 
 type EmotionTestCases = { [name: string]: EmotionTestCase }
 
-const isBabel7 = babel => parseInt(babel.version.split('.')[0], 10) === 7
+const isBabel7 = (babel) => parseInt(babel.version.split('.')[0], 10) === 7
 
-const createInlineTester = babel => opts => {
+const createInlineTester = (babel) => (opts) => {
   if (!opts.opts) opts.opts = {}
   const { code, ast } = babel.transform(opts.code, {
     plugins: [
@@ -34,18 +34,18 @@ const createInlineTester = babel => opts => {
       [
         plugin,
         {
-          ...opts.opts
-        }
-      ]
+          ...opts.opts,
+        },
+      ],
     ],
     filename: 'filename' in opts ? opts.filename : 'emotion.js',
     babelrc: false,
     ast: true,
     ...(isBabel7(babel)
       ? {
-          configFile: false
+          configFile: false,
         }
-      : {})
+      : {}),
   })
   if (isBabel7(babel)) {
     expect(() => checkDuplicatedNodes(babel, ast)).not.toThrow()

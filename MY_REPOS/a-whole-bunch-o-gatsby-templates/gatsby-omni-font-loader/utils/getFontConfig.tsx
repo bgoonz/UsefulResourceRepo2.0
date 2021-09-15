@@ -1,17 +1,17 @@
-import React from "react"
+import React from "react";
 
 export const getFontConfig = (
   preconnectConfig: string[],
   preloadConfig: string[]
 ) => {
-  const headComponents = []
+  const headComponents = [];
 
   if (
     preconnectConfig &&
     Array.isArray(preconnectConfig) &&
     Boolean(preconnectConfig.length)
   ) {
-    preconnectConfig.forEach(href => {
+    preconnectConfig.forEach((href) => {
       headComponents.push(
         <link
           key={`preconnect-${href}`}
@@ -19,8 +19,8 @@ export const getFontConfig = (
           href={href}
           crossOrigin="true"
         />
-      )
-    })
+      );
+    });
   }
 
   if (
@@ -28,12 +28,12 @@ export const getFontConfig = (
     Array.isArray(preloadConfig) &&
     Boolean(preloadConfig.length)
   ) {
-    preloadConfig.forEach(href => {
+    preloadConfig.forEach((href) => {
       headComponents.push(
         <link key={`preload-${href}`} rel="preload" as="style" href={href} />
-      )
-    })
+      );
+    });
   }
 
-  return headComponents
-}
+  return headComponents;
+};

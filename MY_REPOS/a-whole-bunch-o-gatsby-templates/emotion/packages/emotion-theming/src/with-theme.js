@@ -14,7 +14,7 @@ export default function withTheme<Config: {}>(
   let render = (props, ref) => {
     return (
       <ThemeContext.Consumer>
-        {theme => {
+        {(theme) => {
           return <Component theme={theme} ref={ref} {...props} />
         }}
       </ThemeContext.Consumer>

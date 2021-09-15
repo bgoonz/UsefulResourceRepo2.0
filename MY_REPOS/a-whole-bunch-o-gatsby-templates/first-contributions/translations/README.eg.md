@@ -2,7 +2,6 @@
 [<img align="right" src="https://firstcontributions.herokuapp.com/badge.svg">](https://firstcontributions.herokuapp.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-
 # <div dir="rtl">مساهمتك الأولى</div>
 
 <div dir="rtl">
@@ -17,15 +16,14 @@
 ممكن تقرأ وتتفرج على فيديوهات على الإنترنت عشان تعرف تبدأ فى المساهمة للمشاريع مفتوحة المصدر، لكن هتستفيد أكتر لو عرفت تساهم في مشروع دلوقتي من غير خوف لحسن تعمل حاجة غلط. المشروع اللى انت فاتحه حاليا بيركز انه يوفرلك التوجيهات الأولية اللي هتحتجها عشان تبدأ أول مساهمة ليك. مش مشكلة تغلط المهم انك تتعلم من الغلط ودة الهدف هنا. تابع الخطوات واحدة واحدة ونوعدك انك هتستمتع.
 </div>
 
-
-#### *Read this in [other languages](Translations.md)* 
-
+#### _Read this in [other languages](Translations.md)_
 
 <div dir="rtl">
 لو ماكنش عندك git على جهازك <a href="https://help.github.com/articles/set-up-git/">حمله من هنا.</a>
 </div>
 
 ## <div dir="rtl"> أفصل المشروع دة - Fork this Repository </div>
+
 <img style="float: left;" width="300" src="../assets/fork.png" alt="fork this repository" />
 <div dir="rtl">
 خد نسخة من المشروع دة (أو افصله) عن طريق انك تدوس على Fork في أعلى الصفحة.
@@ -62,8 +60,7 @@ git clone https://github.com/this-is-you/first-contributions.git
 </div>
 <br>
 
-## <div dir="rtl">  فصل فرع - Create a branch </div>
-
+## <div dir="rtl"> فصل فرع - Create a branch </div>
 
 <div dir="rtl"> بما اننا عايزين نعمل تغيير فى الفايل اللى عملناله نسخة على الجهاز.. الأول ننتقل للفولدر اللي لسة نسخينه: </div>
 
@@ -118,10 +115,8 @@ git push origin "add-your-name"
 
 <div dir="rtl">إستبدل <code>&#60;add-your-name&#62;</code> بإسم الفرع اللي انت لسة عامله .</div>
 
-
 <br>
 <h2 id="سلم-تغيراتك-للمراجعة"><a name="سلم-تغيراتك-للمراجعة" href="#سلم-تغيراتك-للمراجعة"></a><div dir="rtl">سلم تغيراتك للمراجعة</div></h2>
-
 
 <div dir="rtl">في صفحة المشروع بتاعك على صفحتك الشخصية على github دوس على زرار <code>Compare &amp; pull request</code>. هو ماكنش  ظاهر قبل كدة.</div>
 
@@ -134,7 +129,6 @@ git push origin "add-your-name"
 <div dir="rtl">بعد المراجعة هدمج تغيرراتك للفرع الرئيسي في المشروع. وهيتم تنبيهك عن طريق البريد الإلكتروني بدة.</div>
 
 <div dir="rtl">لما يحصل وأقبل طلبك هتلاقي ان المشروع المنسوخ على حسابك مفيهوش التغيررات. فلازم تزامن المشروع الرئيسي باللي على حسابك بالخطوات دي:</div>
-
 
 ## <div dir="rtl">طب اعمل ايه بعد كدة؟</div>
 
@@ -153,13 +147,12 @@ git push origin "add-your-name"
 
 ## <div dir="rtl">لو هتستخدم ادوات تانية ممكن تتعلم من هنا</div>
 
-|<a href="github-desktop-tutorial.md"><img alt="GitHub Desktop" src="https://desktop.github.com/images/desktop-icon.svg" width="100"></a>|<a href="github-windows-vs2017-tutorial.md"><img alt="Visual Studio 2017" src="https://www.microsoft.com/net/images/vslogo.png" width="100"></a>|<a href="gitkraken-tutorial.md"><img alt="GitKraken" src="../assets/gk-icon.png" width="100"></a>|
-|---|---|---|
-|[GitHub Desktop](../github-desktop-tutorial.md)|[Visual Studio 2017](../github-windows-vs2017-tutorial.md)|[GitKraken](../gitkraken-tutorial.md)|
+| <a href="github-desktop-tutorial.md"><img alt="GitHub Desktop" src="https://desktop.github.com/images/desktop-icon.svg" width="100"></a> | <a href="github-windows-vs2017-tutorial.md"><img alt="Visual Studio 2017" src="https://www.microsoft.com/net/images/vslogo.png" width="100"></a> | <a href="gitkraken-tutorial.md"><img alt="GitKraken" src="../assets/gk-icon.png" width="100"></a> |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| [GitHub Desktop](../github-desktop-tutorial.md)                                                                                          | [Visual Studio 2017](../github-windows-vs2017-tutorial.md)                                                                                       | [GitKraken](../gitkraken-tutorial.md)                                                             |
 
 ## <div dir="rtl">دعاية</div>
-<div dir="rtl"> لو المشروع دة عجبك ممكن تديله نجمة على <a href="https://github.com/Roshanjossey/first-contributions">Github </a> </div><div dir="rtl"> لو حابب الموضوع أوي ممكن تتابع <a href="https://roshanjossey.github.io/">Roshan </a></div> <div dir="rtl">على <a href="https://twitter.com/sudo__bangbang">تويتر </a></div> <div dir="rtl">و <a href="https://github.com/roshanjossey">GitHub </a></div> 
 
+<div dir="rtl"> لو المشروع دة عجبك ممكن تديله نجمة على <a href="https://github.com/Roshanjossey/first-contributions">Github </a> </div><div dir="rtl"> لو حابب الموضوع أوي ممكن تتابع <a href="https://roshanjossey.github.io/">Roshan </a></div> <div dir="rtl">على <a href="https://twitter.com/sudo__bangbang">تويتر </a></div> <div dir="rtl">و <a href="https://github.com/roshanjossey">GitHub </a></div>
 
 <a href="http://saasgrids.com"> <img alt="http://saasgrids.com" src="../assets/saasgrids-banner.png" width="500"></a>
-

@@ -66,7 +66,7 @@ export const CheckboxFieldControl = React.forwardRef<
 const CHECKBOX_WIDTH = `20px`
 const CHECKBOX_VERTICAL_OFFSET_CALC = `(1em - 16px) * 0.5`
 
-const sharedStyles: ThemeCss = theme => ({
+const sharedStyles: ThemeCss = (theme) => ({
   display: `block`,
   marginLeft: 0,
   paddingLeft: `calc(${CHECKBOX_WIDTH} + ${theme.space[4]})`,
@@ -80,7 +80,7 @@ export function CheckboxFieldWrapper(props: CheckboxFieldWrapperProps) {
   return <div {...props} />
 }
 
-const labelCss: ThemeCss = theme => ({
+const labelCss: ThemeCss = (theme) => ({
   cursor: `pointer`,
   alignItems: `flex-start`,
   marginBottom: 0,
@@ -104,19 +104,18 @@ const labelCss: ThemeCss = theme => ({
   },
 })
 
-const labelWithErrorOrHintCss: ThemeCss = theme => ({
+const labelWithErrorOrHintCss: ThemeCss = (theme) => ({
   marginBottom: theme.space[1],
 })
 
-const labelWithErrorCss: ThemeCss = theme => ({
+const labelWithErrorCss: ThemeCss = (theme) => ({
   ":before": {
     border: `1px solid ${theme.colors.red[60]}`,
   },
 })
 
-export type CheckboxFieldLabelProps = WithStyledFieldLabel<
-  CheckboxFieldSkeletonLabelProps
->
+export type CheckboxFieldLabelProps =
+  WithStyledFieldLabel<CheckboxFieldSkeletonLabelProps>
 export function CheckboxFieldLabel({
   children,
   size,

@@ -64,7 +64,7 @@ const runTests = () => {
     cy.location(`hash`).should(`equal`, ``)
     cy.location(`search`).should(`equal`, `?query_param=hello`)
   })
-  
+
   it(`should support search & hash parameter with Link component`, () => {
     cy.visit(`/`, {
       failOnStatusCode: false,

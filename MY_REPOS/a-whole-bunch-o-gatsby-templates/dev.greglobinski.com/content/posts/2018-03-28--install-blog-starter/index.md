@@ -1,6 +1,6 @@
 ---
 title: How to install, setup and add new content to a Blog starter
-relatesTo: ['gatsby-starter-personal-blog', 'gatsby-starter-hero-blog']
+relatesTo: ["gatsby-starter-personal-blog", "gatsby-starter-hero-blog"]
 category: instruction
 cover: cover.png
 ---
@@ -118,8 +118,8 @@ module.exports = {
   authorSocialLinks: [
     { name: "github", url: "https://github.com/greglobinski" },
     { name: "twitter", url: "https://twitter.com/greglobinski" },
-    { name: "facebook", url: "http://facebook.com/greglobinski" }
-  ]
+    { name: "facebook", url: "http://facebook.com/greglobinski" },
+  ],
 };
 ```
 
@@ -146,9 +146,9 @@ When you change or add new post, remeber to keep up with the post folder name pa
 
 There are three obligatory parts:
 
-* a post date prefix `YYYY-MM-DD`,
-* a separator `--` (two dashes)
-* a slug
+- a post date prefix `YYYY-MM-DD`,
+- a separator `--` (two dashes)
+- a slug
 
 Only posts inside properly named folders are displayed on the blog post list.
 
@@ -173,9 +173,9 @@ When you change or add new page, remember to properly use the page folder name p
 
 There are three parts.
 
-* a page order number prefix `No` (one or more digit)
-* a separator `--` (two dashes)
-* a slug
+- a page order number prefix `No` (one or more digit)
+- a separator `--` (two dashes)
+- a slug
 
 Only pages inside folders with order prefix are displayed in the Info menu.
 
@@ -196,9 +196,9 @@ root
 
 The starter uses some external services:
 
-* Analytics by [Google Analytics](https://www.google.com/analytics/)
-* Comments by [Facebook Comments](https://developers.facebook.com/docs/plugins/comments/)
-* Search by [Algolia](https://www.algolia.com/)
+- Analytics by [Google Analytics](https://www.google.com/analytics/)
+- Comments by [Facebook Comments](https://developers.facebook.com/docs/plugins/comments/)
+- Search by [Algolia](https://www.algolia.com/)
 
 To make them work you have to secure some access data. All services are free or have generous free tiers big enough for a personal blog.
 

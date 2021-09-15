@@ -70,9 +70,8 @@ export const TextAreaFieldControl = React.forwardRef<
 export type TextAreaFieldWrapperProps = FormFieldStackProps
 export const TextAreaFieldWrapper = FormFieldStack
 
-export type TextAreaFieldLabelProps = WithStyledFieldLabel<
-  TextAreaFieldSkeletonLabelProps
->
+export type TextAreaFieldLabelProps =
+  WithStyledFieldLabel<TextAreaFieldSkeletonLabelProps>
 export function TextAreaFieldLabel({
   children,
   size,

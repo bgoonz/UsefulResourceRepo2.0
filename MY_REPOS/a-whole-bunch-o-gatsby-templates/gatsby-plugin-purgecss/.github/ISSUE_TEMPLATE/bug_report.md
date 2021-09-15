@@ -1,7 +1,6 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-
 ---
 
 **Verify if it is a postcss bug**
@@ -14,12 +13,13 @@ If the plugin is working, but the css is not getting purged as you would have ho
 A clear and concise description of what the bug is.
 
 **To Reproduce**
-Link to reproducible repo or properly describe how to reproduce the issue. 
+Link to reproducible repo or properly describe how to reproduce the issue.
 
 **Configs**
 Upload/Paste the config files which you may think would be important.
 Generally `gatsby-config.js`, `gatsby-node.js`, `package.json`.
 Please remove any personal information present in the files.
+
 - [ ] **I have removed all personal information.**
 
 **Expected behavior**

@@ -13,13 +13,13 @@ module.exports = {
     "@storybook/addon-viewport/register",
     "storybook-addon-designs/register",
   ],
-  managerWebpack: async baseConfig => {
+  managerWebpack: async (baseConfig) => {
     baseConfig.module.rules[0].exclude = [/node_modules\/(?!(gatsby)\/)/]
     baseConfig.resolve.extensions.push(".ts", ".tsx")
     baseConfig.module.rules.push({ test: /\.tsx?$/, use: "babel-loader" })
     return baseConfig
   },
-  webpackFinal: async config => {
+  webpackFinal: async (config) => {
     config.module.rules[0].exclude = [/node_modules\/(?!(gatsby)\/)/]
 
     config.module.rules.push({

@@ -3,7 +3,7 @@ import React from "react"
 
 const Baz = () => <div />
 
-const Buz = function() {
+const Buz = function () {
   return <div />
 }
 

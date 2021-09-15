@@ -19,4 +19,4 @@ const elements = [
   'tspan',
 ];
 
-export default name => elements.indexOf(name) !== -1;
+export default (name) => elements.indexOf(name) !== -1;

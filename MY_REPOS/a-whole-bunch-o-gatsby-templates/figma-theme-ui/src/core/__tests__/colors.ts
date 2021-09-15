@@ -1,7 +1,7 @@
-import { convertColor, addColors, parseColors } from "../colors"
-import { createSolidColor } from "../figma"
+import { convertColor, addColors, parseColors } from "../colors";
+import { createSolidColor } from "../figma";
 
-jest.mock(`../figma`)
+jest.mock(`../figma`);
 
 const exampleColors = [
   {
@@ -22,7 +22,7 @@ const exampleColors = [
       r: 0,
     },
   },
-]
+];
 
 const toBeParsedColors = {
   background: `#fff`,
@@ -31,7 +31,7 @@ const toBeParsedColors = {
     primary: `#663399`,
     secondary: `#000`,
   },
-}
+};
 
 describe(`convertColor`, () => {
   test(`should return RGBA`, () => {
@@ -40,36 +40,36 @@ describe(`convertColor`, () => {
       b: 0.6,
       g: 0.2,
       r: 0.4,
-    })
-  })
+    });
+  });
   test(`should work for "transparent"`, () => {
     expect(convertColor(`transparent`)).toEqual({
       a: 0,
       b: 0,
       g: 0,
       r: 0,
-    })
-  })
-})
+    });
+  });
+});
 
 describe(`addColors`, () => {
   test(`calls createSolidColor correctly`, () => {
-    addColors(exampleColors)
+    addColors(exampleColors);
     expect(createSolidColor).toHaveBeenCalledWith(`white`, {
       a: 1,
       b: 1,
       g: 1,
       r: 1,
-    })
+    });
     expect(createSolidColor).toHaveBeenCalledWith(`black`, {
       a: 1,
       b: 0,
       g: 0,
       r: 0,
-    })
-    expect(createSolidColor).toHaveBeenCalledTimes(2)
-  })
-})
+    });
+    expect(createSolidColor).toHaveBeenCalledTimes(2);
+  });
+});
 
 describe(`parseColors`, () => {
   test(`should create an array of objects (in correct IThemeUIColor format)`, () => {
@@ -110,6 +110,6 @@ describe(`parseColors`, () => {
           r: 0,
         },
       },
-    ])
-  })
-})
+    ]);
+  });
+});

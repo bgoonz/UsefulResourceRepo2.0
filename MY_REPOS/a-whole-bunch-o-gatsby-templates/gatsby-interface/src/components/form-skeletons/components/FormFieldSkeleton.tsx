@@ -12,18 +12,17 @@ export type FormFieldSkeletonContextValue = {
   }
 }
 
-const FormFieldSkeletonContext = React.createContext<
-  FormFieldSkeletonContextValue
->({
-  id: ``,
-  hasHint: undefined,
-  hasError: undefined,
-  meta: {
-    hintId: undefined,
-    errorId: undefined,
-    controlDescribedBy: undefined,
-  },
-})
+const FormFieldSkeletonContext =
+  React.createContext<FormFieldSkeletonContextValue>({
+    id: ``,
+    hasHint: undefined,
+    hasError: undefined,
+    meta: {
+      hintId: undefined,
+      errorId: undefined,
+      controlDescribedBy: undefined,
+    },
+  })
 
 export type FormFieldSkeletonProps = {
   id: string
@@ -43,7 +42,7 @@ function FormFieldSkeletonProvider({
     const errorId = getErrorId(id)
     const controlDescribedBy =
       [hasError && errorId, hasHint && hintId]
-        .filter(describedBy => describedBy)
+        .filter((describedBy) => describedBy)
         .join(` `) || undefined
 
     return {
@@ -70,9 +69,9 @@ export type FormFieldSkeletonLabelProps = Omit<
   "ref" | "htmlFor"
 >
 
-export const FormFieldSkeletonLabel: React.FC<
-  FormFieldSkeletonLabelProps
-> = props => {
+export const FormFieldSkeletonLabel: React.FC<FormFieldSkeletonLabelProps> = (
+  props
+) => {
   const { id } = useFormFieldSkeleton()
 
   return <label htmlFor={id} {...props} />

@@ -45,7 +45,7 @@ test('Nested useTheme works', () => {
       <div
         css={{
           color: theme.lightGreen,
-          '&:hover': { color: theme.darkGreen }
+          '&:hover': { color: theme.darkGreen },
         }}
         {...props}
       />

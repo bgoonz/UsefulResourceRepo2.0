@@ -74,7 +74,7 @@ const sheet = new StyleSheet({
   nonce: 'some-nonce',
   key: 'some-key',
   container,
-  maxLength: 20
+  maxLength: 20,
 })
 
 sheet.insert('html { color: hotpink; }')

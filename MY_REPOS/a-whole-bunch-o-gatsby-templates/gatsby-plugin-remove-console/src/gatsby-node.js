@@ -1,15 +1,15 @@
 exports.onCreateBabelConfig = ({ actions }, pluginOptions) => {
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== "production") {
     return null;
   }
   // plugin settings
   const pluginSettings = {
-    name: 'babel-plugin-transform-remove-console',
+    name: "babel-plugin-transform-remove-console",
   };
 
   // whether specified the plugin options
   const hasOptions = Object.keys(pluginOptions).filter(
-    item => item !== 'plugins'
+    (item) => item !== "plugins"
   ).length;
 
   if (hasOptions && pluginOptions.exclude) {
@@ -17,7 +17,7 @@ exports.onCreateBabelConfig = ({ actions }, pluginOptions) => {
       pluginSettings.options = {
         exclude: pluginOptions.exclude,
       };
-      console.log('pluginSettings-2', pluginSettings);
+      console.log("pluginSettings-2", pluginSettings);
     }
   }
 

@@ -10,6 +10,7 @@
 - open `cypress/integration/18-backend/spec.js`
 
 +++
+
 ## Cypress architecture: browser
 
 There are two iframes: one for the app, one for the specs.
@@ -66,12 +67,13 @@ Note:
 And Cypress can observe and stub network calls coming from the application because it still acts as a proxy.
 
 +++
+
 ## Cypress architecture: Node
 
 - tests run in the browser
 - what if you need OS actions during test?
-  * access file system
-  * access database
+  - access file system
+  - access database
 
 +++
 ![cy.task](/slides/18-backend/img/cy-task.png)
@@ -79,6 +81,7 @@ And Cypress can observe and stub network calls coming from the application becau
 Run code in Node using [`cy.task`](https://on.cypress.io/task)
 
 +++
+
 ## Explore tasks
 
 - keep running TodoMVC application using `npm start`
@@ -86,6 +89,7 @@ Run code in Node using [`cy.task`](https://on.cypress.io/task)
 - open `cypress/plugins/index.js` with task code
 
 +++
+
 ## Todo: write a "hello world" task
 
 - caller will pass the name from the test
@@ -95,33 +99,39 @@ Run code in Node using [`cy.task`](https://on.cypress.io/task)
 **Tip:** you can call "on('task')" multiple times, the task names will be merged.
 
 +++
+
 ```js
 it('runs hello world', () => {
   cy.task('hello', 'world').should('equal', 'hello, world')
 })
 ```
+
 ```js
 // in plugins file
 on('task', {
-  hello: name => `hello, ${name}`
+  hello: (name) => `hello, ${name}`
 })
 ```
+
 **note:** Cypress does not watch plugins file.
 
 +++
+
 ## Bonus
 
 Print `process.version` from the task
 
 +++
+
 ## Todo: write asynchronous task
 
 Change task "runs hello world" to return a Promise.
 
 +++
+
 ```js
 on('task', {
-  hello: name => {
+  hello: (name) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve(`hello, ${name}`)
@@ -130,18 +140,22 @@ on('task', {
   }
 })
 ```
+
 **note:** there is no handy `Cypress.Promise` Bluebird in Node
 
 +++
+
 ## Retries in tasks
 
 @ul
+
 - Look at existing task `hasSavedRecord` and trace what it does
 - Write a test that calls task `hasSavedRecord`
 - Delay application to demonstrate that task retries
-@ulend
+  @ulend
 
 +++
+
 ## Retries libraries
 
 You can do retries yourself, or bring a library like
@@ -151,13 +165,14 @@ You can do retries yourself, or bring a library like
 - [wait-for-expect](https://github.com/TheBrainFamily/wait-for-expect)
 
 +++
+
 ## Dynamic tasks
 
 Make a task that makes new tasks
 
 ```js
 it('makes task and runs it', () => {
-  function hello (name) {
+  function hello(name) {
     return 'hello, ' + name
   }
   cy.task('eval', hello.toString())
@@ -166,9 +181,10 @@ it('makes task and runs it', () => {
 ```
 
 +++
+
 ```js
 on('task', {
-  eval (newTaskFn) {
+  eval(newTaskFn) {
     const name = newTaskFn.match(/^function (\w+)/)[1]
     const newTask = /* js */ `
       on('task', {
@@ -180,17 +196,20 @@ on('task', {
   }
 })
 ```
+
 **tip:** use "Comment tagged templates" to syntax highlight using `/* js */`
 
 Note:
 While this is possible, you still are sending just a string to the backend, so you linter cannot tell you if the code you are sending makes sense or not.
 
 +++
+
 ## 🏁 Architecture
 
 There are 2 iframes in the browser controlled by Cypress. Specs have full access to the application.
 
 +++
+
 ## 🏁 Architecture
 
 Node context is _strongly_ separated from the browser context. Use `cy.task` to cross the border.

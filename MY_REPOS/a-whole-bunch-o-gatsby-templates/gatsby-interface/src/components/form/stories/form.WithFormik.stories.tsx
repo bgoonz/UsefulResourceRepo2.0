@@ -88,21 +88,21 @@ const authors = [
   `Sheala de Tancarville`,
   `Triss Merigold`,
   `Yennefer of Vengerberg`,
-].map(name => {
+].map((name) => {
   return {
     label: name,
     value: name.toLowerCase().replace(/\s/g, `-`),
   }
 })
 
-const categories = [`article`, `essay`, `memories`].map(name => {
+const categories = [`article`, `essay`, `memories`].map((name) => {
   return {
     label: name,
     value: name.toLowerCase().replace(/\s/g, `-`),
   }
 })
 
-const tags = [`one`, `two`, `three`, `four`, `five`].map(name => {
+const tags = [`one`, `two`, `three`, `four`, `five`].map((name) => {
   return {
     label: name,
     value: name.toLowerCase().replace(/\s/g, `-`),
@@ -142,7 +142,7 @@ const Actions: React.FC<{ isSubmitting: boolean }> = ({
         tone="NEUTRAL"
         size="S"
         variant="GHOST"
-        onClick={() => setShowDebug(prevState => !prevState)}
+        onClick={() => setShowDebug((prevState) => !prevState)}
       >
         {showDebug ? `Hide` : `Show`} debuger
       </Button>
@@ -353,7 +353,7 @@ storiesOf(`form/Formik usage examples`, module)
                         <CheckboxGroupFieldOption
                           value={value}
                           name="tags"
-                          onChange={e => {
+                          onChange={(e) => {
                             const target = e.currentTarget
                             const valueArray = [...values.tags] || []
 
@@ -517,7 +517,7 @@ storiesOf(`form/Formik usage examples`, module)
                   name="tags"
                   value={values.tags}
                   options={tags}
-                  onChange={e => {
+                  onChange={(e) => {
                     const target = e.currentTarget
                     const valueArray = [...values.tags] || []
 

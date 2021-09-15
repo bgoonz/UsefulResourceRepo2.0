@@ -5,7 +5,7 @@ import {
   LOGIN_BUTTON,
   PASSWORD_PLACEHOLDER,
   SUCCESS_FEEDBACK,
-  USERNAME_PLACEHOLDER
+  USERNAME_PLACEHOLDER,
 } from "../../../src/strings";
 
 context("Authentication", () => {
@@ -18,13 +18,13 @@ context("Authentication", () => {
     // because to avoid the possibility of test failure because of not-ready data
     cy.request("POST", `${SERVER_URL}/e2e-tests/wipe-data`, {
       username,
-      password
+      password,
     });
 
     //  E2E tests need to have credible data.
     cy.request("POST", `${SERVER_URL}/e2e-tests/seed-data`, {
       username,
-      password
+      password,
     });
   });
 
@@ -48,7 +48,7 @@ context("Authentication", () => {
     // intercepts every auth AJAX request
     cy.route({
       method: "POST",
-      url: `**${AUTHENTICATE_API_URL}`
+      url: `**${AUTHENTICATE_API_URL}`,
     }).as("auth-xhr");
 
     cy.getByPlaceholderText(USERNAME_PLACEHOLDER)
@@ -57,11 +57,9 @@ context("Authentication", () => {
     cy.getByPlaceholderText(PASSWORD_PLACEHOLDER)
       .should("be.visible")
       .type(password);
-    cy.getByText(LOGIN_BUTTON)
-      .should("be.visible")
-      .click();
+    cy.getByText(LOGIN_BUTTON).should("be.visible").click();
 
-    cy.wait("@auth-xhr").then(xhr => {
+    cy.wait("@auth-xhr").then((xhr) => {
       expect(xhr.request.body).to.have.property("username", username);
       expect(xhr.request.body).to.have.property("password", password);
       // since the integration tests already tested the front-end app, we use E2E tests to check the

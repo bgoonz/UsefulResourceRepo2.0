@@ -1,27 +1,27 @@
-import { onCreateWebpackConfig } from '../src/gatsby-node';
-import configData from '../testData';
-import type { CreateWebpackConfigArgs } from 'gatsby';
+import { onCreateWebpackConfig } from "../src/gatsby-node";
+import configData from "../testData";
+import type { CreateWebpackConfigArgs } from "gatsby";
 
-jest.mock('fs-extra');
+jest.mock("fs-extra");
 
 jest.mock(`../src/paths`, () => ({
-  src: 'src/**/!(*.d).{ts,js,jsx,tsx}',
-  loader: 'path/loader.js',
+  src: "src/**/!(*.d).{ts,js,jsx,tsx}",
+  loader: "path/loader.js",
 }));
 
 describe(`gatsby-plugin-purgecss`, () => {
-  const actions = ({
+  const actions = {
     setWebpackConfig: jest.fn(),
     replaceWebpackConfig: jest.fn(),
-  } as unknown) as CreateWebpackConfigArgs;
+  } as unknown as CreateWebpackConfigArgs;
 
   const getConfig = jest.fn().mockReturnValue(configData);
 
-  const stage: CreateWebpackConfigArgs['stage'][] = [
-    'build-javascript',
-    'build-html',
-    'develop-html',
-    'develop',
+  const stage: CreateWebpackConfigArgs["stage"][] = [
+    "build-javascript",
+    "build-html",
+    "develop-html",
+    "develop",
   ];
   const options = [
     {
@@ -35,15 +35,15 @@ describe(`gatsby-plugin-purgecss`, () => {
       develop: true,
       tailwind: true,
       purgeCSSOptions: {
-        safelist: ['whitelist'],
+        safelist: ["whitelist"],
       },
     },
     {
       plugins: [],
       purgeCSSOptions: {
         safelist: {
-          standard: ['whitelist'],
-          greedy: ['greedy'],
+          standard: ["whitelist"],
+          greedy: ["greedy"],
         },
       },
     },

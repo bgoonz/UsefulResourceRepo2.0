@@ -2,14 +2,10 @@ import React from "react"
 import { graphql } from "gatsby"
 import Img from "gatsby-image"
 
-<div>
-  <Img 
-  fixed={data.file.childImageSharp.fixed}
-  alt="headshot"/>
+;<div>
+  <Img fixed={data.file.childImageSharp.fixed} alt="headshot" />
 
-  <Img 
-  fixed={data.banner.childImageSharp.fixed}
-  alt="headshot"/>
+  <Img fixed={data.banner.childImageSharp.fixed} alt="headshot" />
 </div>
 
 export const query = graphql`

@@ -63,7 +63,7 @@ export const Basic = () => {
       <Combobox>
         <ComboboxInput
           aria-labelledby="demo"
-          ref={element => element && element.focus()}
+          ref={(element) => element && element.focus()}
         />
         <ComboboxPopover>
           <ComboboxList aria-labelledby="demo">
@@ -116,7 +116,7 @@ export const WithSelect = () => {
   return (
     <div css={{ maxWidth: `400px` }}>
       <h4 id="demo">Fixed list Combobox with value selection</h4>
-      <Combobox onSelect={value => setTerm(value)}>
+      <Combobox onSelect={(value) => setTerm(value)}>
         <ComboboxInput selectedOptionLabel={term} aria-labelledby="demo" />
         <ComboboxPopover>
           <ComboboxList aria-labelledby="demo">
@@ -146,7 +146,7 @@ export const WithSelect = () => {
 export const WithDynamicItems = () => {
   const [term, setTerm] = React.useState("")
   const [needle, setNeedle] = React.useState("")
-  const dynamicOptions = options.filter(option =>
+  const dynamicOptions = options.filter((option) =>
     option.value.toLowerCase().includes(needle.toLowerCase())
   )
 
@@ -154,14 +154,14 @@ export const WithDynamicItems = () => {
     <div css={{ maxWidth: `400px` }}>
       <h4 id="demo">Dynamic list Combobox</h4>
       <Combobox
-        onSelect={value => {
+        onSelect={(value) => {
           setTerm(value)
           setNeedle(value)
         }}
       >
         <ComboboxInput
           aria-labelledby="demo"
-          onChange={e => setNeedle(e.target.value)}
+          onChange={(e) => setNeedle(e.target.value)}
         />
         <ComboboxPopover>
           <ComboboxList aria-labelledby="demo">
@@ -196,14 +196,14 @@ export const WithControlledInput = () => {
     <div css={{ maxWidth: `400px` }}>
       <h4 id="demo">Fixed list Combobox with value selection</h4>
       <Combobox
-        onSelect={value => {
+        onSelect={(value) => {
           setTerm(value)
           setInputValue(value)
         }}
       >
         <ComboboxInput
           value={inputValue}
-          onChange={e => setInputValue(e.target.value)}
+          onChange={(e) => setInputValue(e.target.value)}
           selectedOptionLabel={term}
           aria-labelledby="demo"
         />

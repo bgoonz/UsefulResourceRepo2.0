@@ -13,7 +13,7 @@ export default function Home() {
       varying dimensions. The chameleon images make it easier to see where
       images are getting cropped.
       <div style={{ display: `flex`, flexDirection: `row` }}>
-        <Img fixed={data.file.childImageSharp.fixed} alt="headshot"/>
+        <Img fixed={data.file.childImageSharp.fixed} alt="headshot" />
         <img alt="Chameleon" height={200} src={ChameleonLandscape} />
         <img alt="Chameleon" height={200} src={ChameleonPortrait} />
       </div>

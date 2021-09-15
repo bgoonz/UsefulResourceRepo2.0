@@ -3,30 +3,30 @@ import serializer, {
   CreateSerializerOptions,
   createSerializer,
   print,
-  test
+  test,
 } from 'jest-emotion'
 
 createSerializer()
 createSerializer({})
 createSerializer({
-  DOMElements: true
+  DOMElements: true,
 })
 createSerializer({
   classNameReplacer() {
     return 'abc'
-  }
+  },
 })
 createSerializer({
   classNameReplacer(className) {
     return className
-  }
+  },
 })
 createSerializer({
   classNameReplacer(className, index) {
     return `${className}-${index}`
-  }
+  },
 })
-createSerializer((213 as any) as CreateSerializerOptions)
+createSerializer(213 as any as CreateSerializerOptions)
 // $ExpectError
 createSerializer(1)
 // $ExpectError

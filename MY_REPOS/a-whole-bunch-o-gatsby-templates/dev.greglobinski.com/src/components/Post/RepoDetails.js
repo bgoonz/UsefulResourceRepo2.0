@@ -13,16 +13,16 @@ import buttonStyle from "antd/lib/button/style/index.css";
 import Bodytext from "../Article/Bodytext";
 import CodeBlock from "./CodeBlock";
 
-const RepoDetails = props => {
+const RepoDetails = (props) => {
   const {
     repo: {
       homepageUrl,
       name,
       url,
       stargazers: { totalCount: stars },
-      object: { text: repoReadme }
+      object: { text: repoReadme },
     },
-    theme
+    theme,
   } = props;
 
   const separatorIndex = repoReadme.indexOf("## Description");
@@ -36,7 +36,8 @@ const RepoDetails = props => {
       <Bodytext theme={theme}>
         <div className="repo">
           <h2 className="header">
-            <FaGithub />Github
+            <FaGithub />
+            Github
           </h2>
           <h2>{name}</h2>
           <div className="links">
@@ -104,7 +105,7 @@ const RepoDetails = props => {
 
 RepoDetails.propTypes = {
   repo: PropTypes.object,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default RepoDetails;

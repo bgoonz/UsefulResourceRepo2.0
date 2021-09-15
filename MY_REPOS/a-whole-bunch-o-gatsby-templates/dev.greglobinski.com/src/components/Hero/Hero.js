@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import FaArrowDown from "react-icons/lib/fa/arrow-down";
 
-const Hero = props => {
+const Hero = (props) => {
   const { scrollToContent, backgrounds, theme } = props;
 
   return (
@@ -16,8 +16,8 @@ const Hero = props => {
           with Greg
         </h1>
         <p>
-          JavaScript, GatsbyJS, ReactJS, CSS&nbsp;in&nbsp;JS... <br />Let{`'`}s learn some stuff
-          together.
+          JavaScript, GatsbyJS, ReactJS, CSS&nbsp;in&nbsp;JS... <br />
+          Let{`'`}s learn some stuff together.
         </p>
         <button onClick={scrollToContent} aria-label="scroll">
           <FaArrowDown />
@@ -181,7 +181,7 @@ const Hero = props => {
 Hero.propTypes = {
   scrollToContent: PropTypes.func.isRequired,
   backgrounds: PropTypes.object.isRequired,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default Hero;

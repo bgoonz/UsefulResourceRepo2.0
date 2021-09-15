@@ -1,5 +1,5 @@
 const result = graphql(`
-query {
+  query {
     file(relativePath: { eq: "headers/headshot.jpg" }) {
       childImageSharp {
         fluid {
@@ -8,4 +8,4 @@ query {
       }
     }
   }
-  `)
+`)

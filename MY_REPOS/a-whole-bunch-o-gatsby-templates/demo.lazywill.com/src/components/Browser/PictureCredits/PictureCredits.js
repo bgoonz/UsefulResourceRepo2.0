@@ -12,9 +12,9 @@ const styles = () => ({
     position: "absolute",
     width: "100%",
     ".picture-mode &": {
-      display: "none"
-    }
-  }
+      display: "none",
+    },
+  },
 });
 
 //const PictureCredits = ({ picture, classes, onClick, detailsOpened, ...props }) => {
@@ -31,7 +31,7 @@ PictureCredits.propTypes = {
   classes: PropTypes.object.isRequired,
   picture: PropTypes.object.isRequired,
   onClick: PropTypes.func.isRequired,
-  detailsOpened: PropTypes.bool.isRequired
+  detailsOpened: PropTypes.bool.isRequired,
 };
 
 export default injectSheet(styles)(PictureCredits);

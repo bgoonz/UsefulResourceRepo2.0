@@ -5,9 +5,9 @@ module.exports = (api, options = {}) => {
       options.runtime === 'automatic'
         ? [
             require.resolve('@emotion/babel-preset-css-prop'),
-            { runtime: 'automatic', development: options.development }
+            { runtime: 'automatic', development: options.development },
           ]
-        : require.resolve('@babel/preset-react')
+        : require.resolve('@babel/preset-react'),
     ],
     plugins: [
       require.resolve(
@@ -20,12 +20,12 @@ module.exports = (api, options = {}) => {
       require.resolve('@babel/plugin-transform-runtime'),
       [
         require.resolve('@babel/plugin-proposal-class-properties'),
-        { loose: true }
+        { loose: true },
       ],
       options.useEmotionPlugin && [
         require.resolve('babel-plugin-emotion'),
-        'sourceMap' in options ? { sourceMap: options.sourceMap } : {}
-      ]
-    ].filter(Boolean)
+        'sourceMap' in options ? { sourceMap: options.sourceMap } : {},
+      ],
+    ].filter(Boolean),
   }
 }

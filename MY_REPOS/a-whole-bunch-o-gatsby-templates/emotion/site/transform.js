@@ -10,9 +10,9 @@ export default function transformer(file, api) {
 
   return j(file.source)
     .find(j.ImportDeclaration, {
-      source: { value: reactEmotionImportSource }
+      source: { value: reactEmotionImportSource },
     })
-    .forEach(path => {
+    .forEach((path) => {
       if (path.value.source.raw.charAt(0) === '"') {
         quote = 'double'
       }
@@ -23,7 +23,7 @@ export default function transformer(file, api) {
         path.value.source.value = newStyledImportSource
       } else {
         let defaultImportSpecifierIndex = path.value.specifiers.findIndex(
-          val => val.type === 'ImportDefaultSpecifier'
+          (val) => val.type === 'ImportDefaultSpecifier'
         )
         path.value.source.value = emotionImportSource
 

@@ -101,7 +101,7 @@ storiesOf(`Radio`, module)
       React.createElement(() => {
         const [fieldValue, setFieldValue] = useState(1)
 
-        return options.map(option => (
+        return options.map((option) => (
           <RadioSkeleton
             key={`field${option.value}`}
             fieldName="field"
@@ -127,7 +127,7 @@ storiesOf(`Radio`, module)
 
       return (
         <Form>
-          {options.map(option => (
+          {options.map((option) => (
             <Radio
               key={`field${option.value}`}
               fieldName="field"
@@ -155,7 +155,7 @@ storiesOf(`Radio/in use`, module)
 
       return (
         <Form>
-          {options.map(option => (
+          {options.map((option) => (
             <CustomRadio1
               key={`field${option.value}`}
               fieldName="field"
@@ -177,7 +177,7 @@ storiesOf(`Radio/in use`, module)
 
       return (
         <Form>
-          {options.map(option => (
+          {options.map((option) => (
             <CustomRadio2
               key={`field${option.value}`}
               fieldName="field"

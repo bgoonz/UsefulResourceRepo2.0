@@ -21,7 +21,7 @@ export const storybookThemeLight = create({
   inputBorder: theme.colors.blackFade[10],
 })
 
-export const withTheme: DecoratorFn = story => {
+export const withTheme: DecoratorFn = (story) => {
   return <ThemeProvider>{story()}</ThemeProvider>
 }
 
@@ -53,7 +53,7 @@ function MDXText(props) {
 }
 
 function createHeadingComponent(level) {
-  const HeadingComponent = function(props) {
+  const HeadingComponent = function (props) {
     return (
       <ThemeProvider>
         <Heading as={level} {...props} />

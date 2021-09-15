@@ -99,7 +99,7 @@ class Story extends React.Component {
 export default Story
 
 export const pageQuery = graphql`
-  query($id: String!) {
+  query ($id: String!) {
     hnStory(id: { eq: $id }) {
       id
       title

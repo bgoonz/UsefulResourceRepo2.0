@@ -1,2 +1,2 @@
 import Img from "gatsby-image"
-<Img fluid={pictures[activeItem]} alt="" />
+;<Img fluid={pictures[activeItem]} alt="" />

@@ -38,7 +38,7 @@ storiesOf(`form/RadioButtonField`, module)
   .add(`standard`, () => {
     const hint = text(`Hint`, ``)
     const error = text(`Error`, ``)
-    const categories = [`article`, `essay`, `memories`].map(name => {
+    const categories = [`article`, `essay`, `memories`].map((name) => {
       return {
         label: name,
         value: name.toLowerCase().replace(/\s/g, `-`),
@@ -67,7 +67,7 @@ storiesOf(`form/RadioButtonField`, module)
             name="category"
             value={fieldValue}
             options={categories}
-            onChange={e => setFieldValue(e.currentTarget.value)}
+            onChange={(e) => setFieldValue(e.currentTarget.value)}
             error={error}
             hint={hint}
           />
@@ -105,7 +105,7 @@ storiesOf(`form/RadioButtonField`, module)
   .add(`framed`, () => {
     const hint = text(`Hint`, ``)
     const error = text(`Error`, ``)
-    const categories = [`article`, `essay`, `memories`].map(name => {
+    const categories = [`article`, `essay`, `memories`].map((name) => {
       return {
         label: name,
         value: name.toLowerCase().replace(/\s/g, `-`),
@@ -159,7 +159,7 @@ storiesOf(`form/RadioButtonField`, module)
     const hint = text(`Hint`, `This is a hint`)
     const error = text(`Error`, `And this is an error message`)
     const options = [`A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`, `I`, `J`, `K`].map(
-      name => {
+      (name) => {
         return {
           label: `option ${name}`,
           value: name.toLowerCase().replace(/\s/g, `-`),

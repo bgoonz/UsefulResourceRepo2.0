@@ -1,6 +1,6 @@
 import React from "react"
 import { Link } from "gatsby"
-import { GatsbyImage } from "gatsby-plugin-image";
+import { GatsbyImage } from "gatsby-plugin-image"
 
 import ChameleonLandscape from "../img/landscape.jpg"
 import ChameleonPortrait from "../img/portrait.jpg"
@@ -13,7 +13,10 @@ export default function Home() {
       varying dimensions. The chameleon images make it easier to see where
       images are getting cropped.
       <div style={{ display: `flex`, flexDirection: `row` }}>
-        <GatsbyImage image={data.file.childImageSharp.gatsbyImageData} alt="headshot" />
+        <GatsbyImage
+          image={data.file.childImageSharp.gatsbyImageData}
+          alt="headshot"
+        />
         <img alt="Chameleon" height={200} src={ChameleonLandscape} />
         <img alt="Chameleon" height={200} src={ChameleonPortrait} />
       </div>
@@ -25,5 +28,5 @@ export default function Home() {
         <Link to="/static-images">Static Images</Link>
       </div>
     </div>
-  );
+  )
 }

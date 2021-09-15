@@ -10,7 +10,7 @@ function Product(props) {
 export default Product
 
 export const query = graphql`
-  query($id: String!) {
+  query ($id: String!) {
     product(id: { eq: $id }) {
       name
       description

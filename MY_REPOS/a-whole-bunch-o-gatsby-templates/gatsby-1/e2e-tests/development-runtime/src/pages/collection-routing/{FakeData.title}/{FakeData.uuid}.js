@@ -3,7 +3,10 @@ import { Link, graphql } from "gatsby"
 
 import Layout from "../../../components/layout"
 
-export default function FakeDataNested({ data: { fake }, pageContext: { uuid } }) {
+export default function FakeDataNested({
+  data: { fake },
+  pageContext: { uuid },
+}) {
   return (
     <Layout>
       <h1>{fake.title}</h1>
@@ -15,7 +18,7 @@ export default function FakeDataNested({ data: { fake }, pageContext: { uuid } }
 }
 
 export const blogPostQuery = graphql`
-  query($id: String!) {
+  query ($id: String!) {
     fake: fakeData(id: { eq: $id }) {
       fields {
         slug

@@ -2,7 +2,7 @@ import resolve from "@rollup/plugin-node-resolve"
 import babel from "@rollup/plugin-babel"
 import commonjs from "@rollup/plugin-commonjs"
 import json from "@rollup/plugin-json"
-import replace from "@rollup/plugin-replace";
+import replace from "@rollup/plugin-replace"
 import autoExternal from "rollup-plugin-auto-external"
 import internal from "rollup-plugin-internal"
 
@@ -37,8 +37,8 @@ export default {
   plugins: [
     replace({
       values: {
-        "process.env.NODE_ENV": JSON.stringify(`production`)
-      }
+        "process.env.NODE_ENV": JSON.stringify(`production`),
+      },
     }),
     excludeDevTools(),
     json(),
@@ -52,32 +52,28 @@ export default {
         [
           "@babel/env",
           {
-            "modules": false,
-            "shippedProposals": true,
-            "targets": { "node": "10.13.0" }
-          }
+            modules: false,
+            shippedProposals: true,
+            targets: { node: "10.13.0" },
+          },
         ],
-        "@babel/preset-react"
+        "@babel/preset-react",
       ],
       plugins: ["@babel/plugin-transform-runtime"],
       overrides: [
         {
-          "test": ["**/*.ts", "**/*.tsx"],
-          "plugins": [["@babel/plugin-transform-typescript", { "isTSX": true }]]
-        }
-      ]
+          test: ["**/*.ts", "**/*.tsx"],
+          plugins: [["@babel/plugin-transform-typescript", { isTSX: true }]],
+        },
+      ],
     }),
     resolve({
       extensions,
-      dedupe: [ `react`, `ink` ]
+      dedupe: [`react`, `ink`],
     }),
     commonjs(),
     autoExternal(),
-    internal([
-      `react`,
-      `ink`,
-      `ink-spinner`
-    ]),
+    internal([`react`, `ink`, `ink-spinner`]),
   ],
   external: [
     `yoga-layout-prebuilt`,
@@ -85,6 +81,6 @@ export default {
     // getStore, onLogAction from higher up (../../redux). But we don't want
     // two copies of it - one bundled and one not, because it would result
     // in multiple store copies
-    `../../redux`
-  ]
+    `../../redux`,
+  ],
 }

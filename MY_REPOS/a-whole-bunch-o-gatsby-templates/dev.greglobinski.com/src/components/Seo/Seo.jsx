@@ -3,17 +3,17 @@ import PropTypes from "prop-types";
 import Helmet from "react-helmet";
 import config from "../../../content/meta/config";
 
-const Seo = props => {
+const Seo = (props) => {
   const {
     data: {
       frontmatter: {
         title,
         description,
-        cover: { childImageSharp: { resize: { src: cover } = {} } = {} } = {}
+        cover: { childImageSharp: { resize: { src: cover } = {} } = {} } = {},
       } = {},
-      fields: { slug = "" } = {}
+      fields: { slug = "" } = {},
     } = {},
-    facebook
+    facebook,
   } = props;
 
   const seoTitle = title ? `${title} - ${config.shortSiteTitle}` : config.siteTitle;
@@ -27,7 +27,7 @@ const Seo = props => {
     <Helmet
       htmlAttributes={{
         lang: config.siteLanguage,
-        prefix: "og: http://ogp.me/ns#"
+        prefix: "og: http://ogp.me/ns#",
       }}
     >
       {/* General tags */}
@@ -55,7 +55,7 @@ const Seo = props => {
 
 Seo.propTypes = {
   data: PropTypes.object,
-  facebook: PropTypes.object.isRequired
+  facebook: PropTypes.object.isRequired,
 };
 
 export default Seo;

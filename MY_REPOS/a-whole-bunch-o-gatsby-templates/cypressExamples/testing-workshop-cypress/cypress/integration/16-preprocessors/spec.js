@@ -3,7 +3,7 @@
 describe('included transforms', () => {
   it('transpiles method', () => {
     class Foo {
-      name () {
+      name() {
         return 'Foo'
       }
     }
@@ -19,7 +19,7 @@ describe('included transforms', () => {
 
   it('transpiles static method', () => {
     class Foo {
-      static name () {
+      static name() {
         return 'Foo'
       }
     }
@@ -40,7 +40,10 @@ describe('included transforms', () => {
 
 it.skip('transpiles Object.fromEntries', () => {
   // https://github.com/tc39/proposal-object-from-entries
-  const obj = Object.fromEntries([['a', 0], ['b', 1]])
+  const obj = Object.fromEntries([
+    ['a', 0],
+    ['b', 1]
+  ])
 })
 
 it.skip('transpiles do expression', () => {

@@ -8,7 +8,7 @@ import { CacheProvider } from '@emotion/core'
 export const replaceRenderer = ({
   replaceBodyHTMLString,
   bodyComponent,
-  setHeadComponents
+  setHeadComponents,
 }: *) => {
   let { html, ids, css } = extractCritical(
     renderToString(<CacheProvider value={cache}>{bodyComponent}</CacheProvider>)
@@ -17,9 +17,9 @@ export const replaceRenderer = ({
     <style
       data-emotion-css={ids.join(' ')}
       dangerouslySetInnerHTML={{
-        __html: css
+        __html: css,
       }}
-    />
+    />,
   ])
   replaceBodyHTMLString(html)
 }

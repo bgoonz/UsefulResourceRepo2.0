@@ -17,12 +17,12 @@ export function StyledPanel({ children }: StyledPanelProps) {
   return <React.Fragment>{children}</React.Fragment>
 }
 
-const headerContainerCss: ThemeCss = theme => ({
+const headerContainerCss: ThemeCss = (theme) => ({
   backgroundColor: theme.colors.white,
   borderBottom: `1px solid ${theme.colors.grey[20]}`,
 })
 
-const headerCss: ThemeCss = theme => ({
+const headerCss: ThemeCss = (theme) => ({
   display: `flex`,
   alignItems: `center`,
   justifyContent: `space-between`,
@@ -62,7 +62,7 @@ export function StyledPanelCloseButton(props: StyledPanelCloseButtonProps) {
   return <StyledModalCloseButton {...props} />
 }
 
-const bodySectionCss: ThemeCss = theme => ({
+const bodySectionCss: ThemeCss = (theme) => ({
   backgroundColor: theme.colors.white,
   paddingTop: theme.space[5],
   paddingRight: theme.space[7],
@@ -80,13 +80,13 @@ export function StyledPanelBodySection({
   return <div css={bodySectionCss}>{children}</div>
 }
 
-const actionsContainerCss: ThemeCss = theme => ({
+const actionsContainerCss: ThemeCss = (theme) => ({
   width: `100%`,
   backgroundColor: theme.colors.white,
   borderTop: `1px solid ${theme.colors.grey[20]}`,
 })
 
-const actionsCss: ThemeCss = theme => ({
+const actionsCss: ThemeCss = (theme) => ({
   display: `flex`,
   alignItems: `center`,
   justifyContent: `space-between`,

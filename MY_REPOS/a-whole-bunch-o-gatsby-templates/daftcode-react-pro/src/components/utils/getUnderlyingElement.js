@@ -1,4 +1,4 @@
-const getUnderlyingElement = props => {
+const getUnderlyingElement = (props) => {
   const { as, nextAs = [] } = props;
   const [lastElement] = nextAs.slice(-1);
   if (typeof as === 'string') {

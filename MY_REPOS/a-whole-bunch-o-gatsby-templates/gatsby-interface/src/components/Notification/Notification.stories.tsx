@@ -41,8 +41,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url:
-        "https://www.figma.com/file/h4ixUmOo781r3sDeBAbmDc/Notifications?node-id=1%3A152",
+      url: "https://www.figma.com/file/h4ixUmOo781r3sDeBAbmDc/Notifications?node-id=1%3A152",
     },
   },
 }
@@ -53,7 +52,7 @@ export const Basic = () => (
 
 export const Sandbox = () =>
   sandboxWithPropVariations(
-    propVariations => (
+    (propVariations) => (
       <Notification
         content={text(
           "content",
@@ -83,7 +82,7 @@ Sandbox.story = {
 }
 
 export const Variants = () =>
-  VARIANTS.map(variant => (
+  VARIANTS.map((variant) => (
     <Notification
       key={variant}
       variant={variant}
@@ -96,7 +95,7 @@ Variants.story = {
 }
 
 export const Tones = () =>
-  TONES.map(tone => (
+  TONES.map((tone) => (
     <Notification
       key={tone}
       tone={tone}
@@ -143,7 +142,7 @@ export const Dismissable = () => (
     }}
   >
     <ControlledNotification
-      css={theme => ({ marginTop: theme.space[3] })}
+      css={(theme) => ({ marginTop: theme.space[3] })}
       content={`Notification with dismiss button`}
     />
   </div>

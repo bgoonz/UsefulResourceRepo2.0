@@ -1,7 +1,7 @@
-const camelCase = require("lodash.camelcase")
+const camelCase = require("lodash.camelcase");
 
 function capitalize(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1)
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 module.exports = {
@@ -29,7 +29,8 @@ module.exports = {
     {
       resolve: `gatsby-transformer-json`,
       options: {
-        typeName: ({ node }) => capitalize(camelCase(`LocalContent ${node.name}`))
+        typeName: ({ node }) =>
+          capitalize(camelCase(`LocalContent ${node.name}`)),
       },
     },
   ],

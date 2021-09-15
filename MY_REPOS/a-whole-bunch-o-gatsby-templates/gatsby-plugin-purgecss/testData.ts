@@ -9,64 +9,62 @@ const config = {
             options: {
               cacheDirectory: true,
               babelrc: false,
-              sourceType: 'unambiguous',
+              sourceType: "unambiguous",
               presets: [[], [], []],
               plugins: [
-                'gatsby-plugin-purgecss/node_modules/babel-plugin-remove-graphql-queries/index.js',
+                "gatsby-plugin-purgecss/node_modules/babel-plugin-remove-graphql-queries/index.js",
                 [],
                 [],
-                []
-              ]
+                [],
+              ],
             },
             loader:
-              'gatsby-plugin-purgecss/node_modules/babel-loader/lib/index.js'
-          }
-        ]
+              "gatsby-plugin-purgecss/node_modules/babel-loader/lib/index.js",
+          },
+        ],
       },
       {
         test: /\.ya?ml/,
         use: [
           {
             options: {},
-            loader:
-              'gatsby-plugin-purgecss/node_modules/json-loader/index.js'
+            loader: "gatsby-plugin-purgecss/node_modules/json-loader/index.js",
           },
           {
             options: {},
-            loader:
-              'gatsby-plugin-purgecss/node_modules/yaml-loader/index.js'
-          }
-        ]
+            loader: "gatsby-plugin-purgecss/node_modules/yaml-loader/index.js",
+          },
+        ],
       },
       {
         use: [
           {
             loader:
-              'gatsby-plugin-purgecss/node_modules/url-loader/dist/cjs.js',
-            options: { limit: 10000, name: 'static/[name]-[hash].[ext]' }
-          }
+              "gatsby-plugin-purgecss/node_modules/url-loader/dist/cjs.js",
+            options: { limit: 10000, name: "static/[name]-[hash].[ext]" },
+          },
         ],
-        test: /\.(eot|otf|ttf|woff(2)?)(\?.*)?$/
+        test: /\.(eot|otf|ttf|woff(2)?)(\?.*)?$/,
       },
       {
         use: [
           {
             loader:
-              'gatsby-plugin-purgecss/node_modules/url-loader/dist/cjs.js',
-            options: { limit: 10000, name: 'static/[name]-[hash].[ext]' }
-          }
+              "gatsby-plugin-purgecss/node_modules/url-loader/dist/cjs.js",
+            options: { limit: 10000, name: "static/[name]-[hash].[ext]" },
+          },
         ],
-        test: /\.(ico|svg|jpg|jpeg|png|gif|webp)(\?.*)?$/
+        test: /\.(ico|svg|jpg|jpeg|png|gif|webp)(\?.*)?$/,
       },
       {
         use: [
           {
             loader:
-              'gatsby-plugin-purgecss/node_modules/url-loader/dist/cjs.js',
-            options: { name: 'static/[name]-[hash].[ext]' }
-          }
+              "gatsby-plugin-purgecss/node_modules/url-loader/dist/cjs.js",
+            options: { name: "static/[name]-[hash].[ext]" },
+          },
         ],
-        test: /\.(mp4|webm|wav|mp3|m4a|aac|oga|flac)$/
+        test: /\.(mp4|webm|wav|mp3|m4a|aac|oga|flac)$/,
       },
       {
         oneOf: [
@@ -75,48 +73,48 @@ const config = {
               {
                 options: {},
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js'
+                  "gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js",
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/css-loader/index.js',
-                options: [Object]
+                  "gatsby-plugin-purgecss/node_modules/css-loader/index.js",
+                options: [Object],
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js',
-                options: [Object]
-              }
+                  "gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js",
+                options: [Object],
+              },
             ],
-            test: /\.module\.css$/
+            test: /\.module\.css$/,
           },
           {
             use: [
               {
                 options: {},
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js'
+                  "gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js",
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/css-loader/index.js',
-                options: [Object]
+                  "gatsby-plugin-purgecss/node_modules/css-loader/index.js",
+                options: [Object],
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js',
-                options: [Object]
-              }
+                  "gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js",
+                options: [Object],
+              },
             ],
-            test: /\.css$/
-          }
-        ]
+            test: /\.css$/,
+          },
+        ],
       },
-      { test: /HashHistory/, use: 'null-loader' },
-      { test: /MemoryHistory/, use: 'null-loader' },
-      { test: /StaticRouter/, use: 'null-loader' },
-      { test: /MemoryRouter/, use: 'null-loader' },
-      { test: /HashRouter/, use: 'null-loader' },
+      { test: /HashHistory/, use: "null-loader" },
+      { test: /MemoryHistory/, use: "null-loader" },
+      { test: /StaticRouter/, use: "null-loader" },
+      { test: /MemoryRouter/, use: "null-loader" },
+      { test: /HashRouter/, use: "null-loader" },
       {
         oneOf: [
           {
@@ -125,24 +123,24 @@ const config = {
               {
                 options: {},
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js'
+                  "gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js",
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/css-loader/index.js',
-                options: [Object]
+                  "gatsby-plugin-purgecss/node_modules/css-loader/index.js",
+                options: [Object],
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js',
-                options: [Object]
+                  "gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js",
+                options: [Object],
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/stylus-loader/index.js',
-                options: [Object]
-              }
-            ]
+                  "gatsby-plugin-purgecss/node_modules/stylus-loader/index.js",
+                options: [Object],
+              },
+            ],
           },
           {
             test: /\.styl$/,
@@ -151,26 +149,26 @@ const config = {
               {
                 options: {},
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js'
+                  "gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js",
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/css-loader/index.js',
-                options: [Object]
+                  "gatsby-plugin-purgecss/node_modules/css-loader/index.js",
+                options: [Object],
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js',
-                options: [Object]
+                  "gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js",
+                options: [Object],
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/stylus-loader/index.js',
-                options: [Object]
-              }
-            ]
-          }
-        ]
+                  "gatsby-plugin-purgecss/node_modules/stylus-loader/index.js",
+                options: [Object],
+              },
+            ],
+          },
+        ],
       },
       {
         oneOf: [
@@ -180,24 +178,24 @@ const config = {
               {
                 options: {},
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js'
+                  "gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js",
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/css-loader/index.js',
-                options: [Object]
+                  "gatsby-plugin-purgecss/node_modules/css-loader/index.js",
+                options: [Object],
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js',
-                options: [Object]
+                  "gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js",
+                options: [Object],
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/sass-loader/lib/loader.js',
-                options: [Object]
-              }
-            ]
+                  "gatsby-plugin-purgecss/node_modules/sass-loader/lib/loader.js",
+                options: [Object],
+              },
+            ],
           },
           {
             test: /\.s(a|c)ss$/,
@@ -205,26 +203,26 @@ const config = {
               {
                 options: {},
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js'
+                  "gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js",
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/css-loader/index.js',
-                options: [Object]
+                  "gatsby-plugin-purgecss/node_modules/css-loader/index.js",
+                options: [Object],
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js',
-                options: [Object]
+                  "gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js",
+                options: [Object],
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/sass-loader/lib/loader.js',
-                options: [Object]
-              }
-            ]
-          }
-        ]
+                  "gatsby-plugin-purgecss/node_modules/sass-loader/lib/loader.js",
+                options: [Object],
+              },
+            ],
+          },
+        ],
       },
       {
         oneOf: [
@@ -234,24 +232,24 @@ const config = {
               {
                 options: {},
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js'
+                  "gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js",
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/css-loader/index.js',
-                options: [Object]
+                  "gatsby-plugin-purgecss/node_modules/css-loader/index.js",
+                options: [Object],
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js',
-                options: [Object]
+                  "gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js",
+                options: [Object],
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/less-loader/dist/cjs.js',
-                options: [Object]
-              }
-            ]
+                  "gatsby-plugin-purgecss/node_modules/less-loader/dist/cjs.js",
+                options: [Object],
+              },
+            ],
           },
           {
             test: /\.less$/,
@@ -259,41 +257,41 @@ const config = {
               {
                 options: {},
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js'
+                  "gatsby-plugin-purgecss/node_modules/mini-css-extract-plugin/dist/loader.js",
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/css-loader/index.js',
-                options: [Object]
+                  "gatsby-plugin-purgecss/node_modules/css-loader/index.js",
+                options: [Object],
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js',
-                options: [Object]
+                  "gatsby-plugin-purgecss/node_modules/postcss-loader/lib/index.js",
+                options: [Object],
               },
               {
                 loader:
-                  'gatsby-plugin-purgecss/node_modules/less-loader/dist/cjs.js',
-                options: [Object]
-              }
-            ]
-          }
-        ]
+                  "gatsby-plugin-purgecss/node_modules/less-loader/dist/cjs.js",
+                options: [Object],
+              },
+            ],
+          },
+        ],
       },
       {
         oneOf: [
           {
             test: /\.module\.test$/,
-            use: 'null-loader'
+            use: "null-loader",
           },
           {
             test: /\.test$/,
-            use: 'null-loader'
-          }
-        ]
-      }
-    ]
-  }
+            use: "null-loader",
+          },
+        ],
+      },
+    ],
+  },
 };
 
 export default config;

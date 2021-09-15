@@ -67,5 +67,5 @@ module["exports"] = [
   "Winarsih",
   "Wulandari",
   "Wastuti",
-  "Zulaika"
+  "Zulaika",
 ];

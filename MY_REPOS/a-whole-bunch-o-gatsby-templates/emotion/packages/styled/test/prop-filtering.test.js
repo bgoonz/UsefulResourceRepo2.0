@@ -6,11 +6,11 @@ import styled from '@emotion/styled'
 
 test('composes shouldForwardProp on composed styled components', () => {
   const StyledDiv = styled('div', {
-    shouldForwardProp: prop => prop === 'forwardMe'
+    shouldForwardProp: (prop) => prop === 'forwardMe',
   })()
 
   const ComposedDiv = styled(StyledDiv, {
-    shouldForwardProp: () => true
+    shouldForwardProp: () => true,
   })()
 
   const tree = renderer.create(<ComposedDiv filterMe forwardMe />).toJSON()
@@ -20,7 +20,7 @@ test('composes shouldForwardProp on composed styled components', () => {
 })
 
 test('custom shouldForwardProp works', () => {
-  const Svg = props => (
+  const Svg = (props) => (
     <svg {...props}>
       <rect
         x="10"
@@ -33,8 +33,8 @@ test('custom shouldForwardProp works', () => {
   )
 
   const StyledSvg = styled(Svg, {
-    shouldForwardProp: prop =>
-      ['className', 'width', 'height'].indexOf(prop) !== -1
+    shouldForwardProp: (prop) =>
+      ['className', 'width', 'height'].indexOf(prop) !== -1,
   })`
     &,
     & * {
@@ -50,7 +50,7 @@ test('custom shouldForwardProp works', () => {
 
 test('shouldForwardProp should get inherited for wrapped styled components', () => {
   const Div1 = styled('div', {
-    shouldForwardProp: prop => prop !== 'color'
+    shouldForwardProp: (prop) => prop !== 'color',
   })`
     background-color: ${({ color }) => color};
   `
@@ -97,7 +97,7 @@ test('prop filtering', () => {
   expect(tree).toMatchSnapshot()
 })
 test('no prop filtering on non string tags', () => {
-  const Link = styled(props => <a {...props} />)`
+  const Link = styled((props) => <a {...props} />)`
     color: green;
   `
 
@@ -413,7 +413,7 @@ test('all SVG attributes survive prop filtering', () => {
     y2: 'abcd',
     yChannelSelector: 'abcd',
     z: 'abcd',
-    zoomAndPan: 'abcd'
+    zoomAndPan: 'abcd',
   }
 
   const RedPath = styled('path')`

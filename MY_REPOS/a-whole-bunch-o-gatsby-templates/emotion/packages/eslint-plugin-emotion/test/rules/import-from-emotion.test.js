@@ -10,9 +10,9 @@ RuleTester.setDefaultConfig({
     ecmaVersion: 2018,
     sourceType: 'module',
     ecmaFeatures: {
-      jsx: true
-    }
-  }
+      jsx: true,
+    },
+  },
 })
 
 const ruleTester = new RuleTester()
@@ -22,8 +22,8 @@ ruleTester.run('emotion jsx', rule, {
     {
       code: `
       import {css} from 'emotion'
-      `
-    }
+      `,
+    },
   ],
 
   invalid: [
@@ -32,30 +32,30 @@ ruleTester.run('emotion jsx', rule, {
       errors: [
         {
           message:
-            "emotion's exports should be imported directly from emotion rather than from react-emotion"
-        }
+            "emotion's exports should be imported directly from emotion rather than from react-emotion",
+        },
       ],
-      output: `import { css } from 'emotion'`
+      output: `import { css } from 'emotion'`,
     },
     {
       code: `import styled, { css } from 'react-emotion'`,
       errors: [
         {
           message:
-            "emotion's exports should be imported directly from emotion rather than from react-emotion"
-        }
+            "emotion's exports should be imported directly from emotion rather than from react-emotion",
+        },
       ],
-      output: `import styled from '@emotion/styled';\nimport { css } from 'emotion';`
+      output: `import styled from '@emotion/styled';\nimport { css } from 'emotion';`,
     },
     {
       code: `import styled, { css as somethingElse } from 'react-emotion'`,
       errors: [
         {
           message:
-            "emotion's exports should be imported directly from emotion rather than from react-emotion"
-        }
+            "emotion's exports should be imported directly from emotion rather than from react-emotion",
+        },
       ],
-      output: `import styled from '@emotion/styled';\nimport { css as somethingElse } from 'emotion';`
-    }
-  ]
+      output: `import styled from '@emotion/styled';\nimport { css as somethingElse } from 'emotion';`,
+    },
+  ],
 })

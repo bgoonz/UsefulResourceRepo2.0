@@ -77,7 +77,7 @@ class Article extends React.Component {
 export default Article
 
 export const pageQuery = graphql`
-  query($id: String!) {
+  query ($id: String!) {
     asciidoc(id: { eq: $id }) {
       html
       document {

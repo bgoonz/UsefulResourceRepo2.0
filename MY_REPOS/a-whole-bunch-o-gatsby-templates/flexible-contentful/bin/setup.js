@@ -36,7 +36,7 @@ const questions = [
     name: 'spaceId',
     message: 'Your Space ID',
     when: !argv.spaceId && !process.env.CONTENTFUL_SPACE_ID,
-    validate: input =>
+    validate: (input) =>
       /^[a-z0-9]{12}$/.test(input) ||
       'Space ID must be 12 lowercase characters',
   },
@@ -61,22 +61,23 @@ inquirer
     // followed by input given to prompts displayed by the setup script
     spaceId = CONTENTFUL_SPACE_ID || argv.spaceId || spaceId
     managementToken = argv.managementToken || managementToken
-    accessToken =
-      CONTENTFUL_ACCESS_TOKEN || argv.accessToken || accessToken
+    accessToken = CONTENTFUL_ACCESS_TOKEN || argv.accessToken || accessToken
 
     console.log('Writing config file...')
-    const configFiles = [`.env.development`, `.env.production`]
-      .map(file => path.join(__dirname, '..', file))
+    const configFiles = [`.env.development`, `.env.production`].map((file) =>
+      path.join(__dirname, '..', file)
+    )
 
-    const fileContents = [
-      `# All environment variables will be sourced`,
-      `# and made available to gatsby-config.js, gatsby-node.js, etc.`,
-      `# Do NOT commit this file to source control`,
-      `CONTENTFUL_SPACE_ID='${spaceId}'`,
-      `CONTENTFUL_ACCESS_TOKEN='${accessToken}'`
-    ].join('\n') + '\n'
+    const fileContents =
+      [
+        `# All environment variables will be sourced`,
+        `# and made available to gatsby-config.js, gatsby-node.js, etc.`,
+        `# Do NOT commit this file to source control`,
+        `CONTENTFUL_SPACE_ID='${spaceId}'`,
+        `CONTENTFUL_ACCESS_TOKEN='${accessToken}'`,
+      ].join('\n') + '\n'
 
-    configFiles.forEach(file => {
+    configFiles.forEach((file) => {
       writeFileSync(file, fileContents, 'utf8')
       console.log(`Config file ${chalk.yellow(file)} written`)
     })
@@ -92,4 +93,4 @@ inquirer
       )} to see it in action.`
     )
   })
-  .catch(error => console.error(error))
+  .catch((error) => console.error(error))

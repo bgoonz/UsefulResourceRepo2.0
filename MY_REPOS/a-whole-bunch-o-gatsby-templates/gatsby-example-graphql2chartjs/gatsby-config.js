@@ -5,8 +5,8 @@ module.exports = {
       options: {
         typeName: 'SWAPI',
         fieldName: 'swapi',
-        url: 'https://gatsby-example-graphql2chartjs.herokuapp.com/'
-      }
-    }
-  ]
+        url: 'https://gatsby-example-graphql2chartjs.herokuapp.com/',
+      },
+    },
+  ],
 }

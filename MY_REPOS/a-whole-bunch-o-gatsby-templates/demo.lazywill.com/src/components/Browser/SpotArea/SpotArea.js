@@ -11,25 +11,25 @@ const styles = () => ({
     top: 0,
     overflow: "hidden",
     ".picture-mode &": {
-      display: "none"
-    }
+      display: "none",
+    },
   },
   spot: {
     position: "absolute",
     borderRadius: "4px",
     border: "2px dotted #fff",
     boxShadow: "0 0 0 1000px rgba(0,0,0,.4)",
-    transition: "all .3s"
-  }
+    transition: "all .3s",
+  },
 });
 
-const SpotArea = props => {
+const SpotArea = (props) => {
   const { classes, spot } = props;
   const spotStyle = {
     left: spot.x + "%",
     top: spot.y + "%",
     right: 100 - (spot.x + spot.width) + "%",
-    bottom: 100 - (spot.y + spot.height) + "%"
+    bottom: 100 - (spot.y + spot.height) + "%",
   };
 
   return (
@@ -41,7 +41,7 @@ const SpotArea = props => {
 
 SpotArea.propTypes = {
   classes: PropTypes.object.isRequired,
-  spot: PropTypes.object.isRequired
+  spot: PropTypes.object.isRequired,
 };
 
 export default injectSheet(styles)(SpotArea);

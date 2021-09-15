@@ -27,7 +27,7 @@ const emotion = createEmotion({
   },
   nonce: 'some-nonce',
   key: 'some-key',
-  container
+  container,
 })
 
 export const {
@@ -40,13 +40,13 @@ export const {
   keyframes,
   css,
   sheet,
-  cache
+  cache,
 } = emotion
 
 export const {
   extractCritical,
   renderStylesToString,
-  renderStylesToNodeStream
+  renderStylesToNodeStream,
 } = createEmotionServer(cache)
 
 export { default } from '@emotion/styled'

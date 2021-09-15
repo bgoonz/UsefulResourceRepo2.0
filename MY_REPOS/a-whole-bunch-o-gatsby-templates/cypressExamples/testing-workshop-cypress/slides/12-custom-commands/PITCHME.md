@@ -17,12 +17,12 @@
 ### 💯 Code reuse and clarity
 
 ```js
-beforeEach(function resetData () {
+beforeEach(function resetData() {
   cy.request('POST', '/reset', {
     todos: []
   })
 })
-beforeEach(function visitSite () {
+beforeEach(function visitSite() {
   cy.visit('/')
 })
 ```
@@ -77,7 +77,11 @@ export function visitSite () { ... }
 
 ```js
 import {
-  enterTodo, getTodoApp, getTodoItems, resetDatabase, visit
+  enterTodo,
+  getTodoApp,
+  getTodoItems,
+  resetDatabase,
+  visit
 } from '../../support/utils'
 it('loads the app', () => {
   resetDatabase()
@@ -104,7 +108,6 @@ And then IntelliSense works immediately
 
 ![IntelliSense](/slides/12-custom-commands/img/intellisense.jpeg)
 
-
 +++
 
 And MS IntelliSense can understand types from JSDoc and check those!
@@ -119,8 +122,8 @@ More details in: [https://slides.com/bahmutov/ts-without-ts](https://slides.com/
 
 - share code in entire project without individual imports
 - complex logic with custom logging into Command Log
-  * login sequence
-  * many application actions
+  - login sequence
+  - many application actions
 
 📝 [on.cypress.io/custom-commands](https://on.cypress.io/custom-commands)
 
@@ -130,8 +133,7 @@ Let's write a custom command to create a todo
 
 ```js
 // instead of this
-cy.get('.new-todo')
-  .type('todo 0{enter}')
+cy.get('.new-todo').type('todo 0{enter}')
 // use this
 cy.createTodo('todo 0')
 ```
@@ -141,7 +143,7 @@ cy.createTodo('todo 0')
 ## Todo: write and use "createTodo"
 
 ```js
-Cypress.Commands.add('createTodo', todo => {
+Cypress.Commands.add('createTodo', (todo) => {
   cy.get('.new-todo').type(`${todo}{enter}`)
 })
 it('creates a todo', () => {
@@ -209,9 +211,8 @@ Otherwise Cypress will try load ".d.ts" file as spec and without TypeScript load
 ## Better Command Log
 
 ```js
-Cypress.Commands.add('createTodo', todo => {
-  cy.get('.new-todo', { log: false })
-    .type(`${todo}{enter}`, { log: false })
+Cypress.Commands.add('createTodo', (todo) => {
+  cy.get('.new-todo', { log: false }).type(`${todo}{enter}`, { log: false })
   cy.log('createTodo', todo)
 })
 ```
@@ -221,18 +222,17 @@ Cypress.Commands.add('createTodo', todo => {
 ## Even better Command Log
 
 ```js
-Cypress.Commands.add('createTodo', todo => {
+Cypress.Commands.add('createTodo', (todo) => {
   const cmd = Cypress.log({
     name: 'create todo',
     message: todo,
-    consoleProps () {
+    consoleProps() {
       return {
         'Create Todo': todo
       }
     }
   })
-  cy.get('.new-todo', { log: false })
-    .type(`${todo}{enter}`, { log: false })
+  cy.get('.new-todo', { log: false }).type(`${todo}{enter}`, { log: false })
 })
 ```
 
@@ -247,11 +247,8 @@ Cypress.Commands.add('createTodo', todo => {
 ```js
 cy.get('.new-todo', { log: false })
   .type(`${todo}{enter}`, { log: false })
-  .then($el => {
-    cmd
-      .set({ $el })
-      .snapshot()
-      .end()
+  .then(($el) => {
+    cmd.set({ $el }).snapshot().end()
   })
 ```
 
@@ -265,15 +262,15 @@ cy.get('.new-todo', { log: false })
 // result will get value when command ends
 let result
 const cmd = Cypress.log({
-  consoleProps () {
+  consoleProps() {
     return { result }
   }
 })
-// custom logic then:
-.then(value => {
-  result = value
-  cmd.end()
-})
+  // custom logic then:
+  .then((value) => {
+    result = value
+    cmd.end()
+  })
 ```
 
 +++
@@ -307,8 +304,7 @@ With `cypress-xpath`
 
 ```js
 it('finds list items', () => {
-  cy.xpath('//ul[@class="todo-list"]//li')
-    .should('have.length', 3)
+  cy.xpath('//ul[@class="todo-list"]//li').should('have.length', 3)
 })
 ```
 
@@ -328,9 +324,9 @@ cy.xpath('...') // command
 ```js
 // use cy.verifyUpcomingAssertions
 const resolveValue = () => {
-  return Cypress.Promise.try(getValue).then(value => {
+  return Cypress.Promise.try(getValue).then((value) => {
     return cy.verifyUpcomingAssertions(value, options, {
-      onRetry: resolveValue,
+      onRetry: resolveValue
     })
   })
 }
@@ -373,9 +369,7 @@ setTimeout(() => {
 ```js
 it('creates todos', () => {
   // add a few todos
-  cy.window()
-    .its('app.todos')
-    .toMatchSnapshot()
+  cy.window().its('app.todos').toMatchSnapshot()
 })
 ```
 
@@ -400,12 +394,11 @@ it('creates todos', () => {
 [on.cypress.io/custom-commands](https://on.cypress.io/custom-commands), [https://www.cypress.io/blog/2018/12/20/element-coverage/](https://www.cypress.io/blog/2018/12/20/element-coverage/)
 
 +++
+
 ## Example: overwrite `cy.type`
 
 ```js
-Cypress.Commands.overwrite('type',
-  (type, $el, text, options) => {
-
+Cypress.Commands.overwrite('type', (type, $el, text, options) => {
   // just adds element selector to the
   // list of seen elements
   rememberSelector($el)
@@ -427,6 +420,7 @@ Video of element coverage, [https://slides.com/bahmutov/test-coverage-update](ht
 ## Best practices
 
 @ul
+
 - Making reusable function is often faster than writing a custom command
 - Know Cypress API to avoid writing what's already available
-@ulend
+  @ulend

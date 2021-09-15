@@ -31,7 +31,7 @@ const Container = styled.View`
 `
 
 const Description = styled.Text({
-  color: 'hotpink'
+  color: 'hotpink',
 })
 
 const Image = styled.Image`
@@ -56,7 +56,7 @@ class App extends React.Component {
           source={{
             uri: emotionLogo,
             height: 150,
-            width: 150
+            width: 150,
           }}
         />
       </Container>
@@ -79,7 +79,7 @@ import { ThemeProvider } from 'emotion-theming'
 
 const theme = {
   color: 'hotpink',
-  backgroundColor: 'purple'
+  backgroundColor: 'purple',
 }
 
 const Container = styled.View`
@@ -88,11 +88,11 @@ const Container = styled.View`
   align-items: center;
   margin: 50px;
   border: 5px solid red;
-  background-color: ${props => props.theme.backgroundColor};
+  background-color: ${(props) => props.theme.backgroundColor};
 `
 
 const Description = styled.Text({
-  color: 'hotpink'
+  color: 'hotpink',
 })
 
 const Image = styled.Image`
@@ -118,7 +118,7 @@ class App extends React.Component {
             source={{
               uri: emotionLogo,
               height: 150,
-              width: 150
+              width: 150,
             }}
           />
         </Container>
@@ -167,17 +167,17 @@ const styles = StyleSheet.create({
     height: 600,
     backgroundColor: 'rgba(255, 255, 255, 0.4)',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   greetingBox: {
     padding: 20,
     backgroundColor: '#000000',
     borderColor: '#639dda',
-    borderWidth: 2
+    borderWidth: 2,
   },
   greeting: {
-    fontSize: 30
-  }
+    fontSize: 30,
+  },
 })
 
 AppRegistry.registerComponent('App', () => App)

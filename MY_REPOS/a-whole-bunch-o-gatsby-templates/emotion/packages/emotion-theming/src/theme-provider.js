@@ -3,7 +3,7 @@ import * as React from 'react'
 import { ThemeContext } from '@emotion/core'
 import weakMemoize from '@emotion/weak-memoize'
 
-let getTheme = (outerTheme: Object, theme: Object | (Object => Object)) => {
+let getTheme = (outerTheme: Object, theme: Object | ((Object) => Object)) => {
   if (typeof theme === 'function') {
     const mergedTheme = theme(outerTheme)
     if (
@@ -30,21 +30,21 @@ let getTheme = (outerTheme: Object, theme: Object | (Object => Object)) => {
   return { ...outerTheme, ...theme }
 }
 
-let createCacheWithTheme = weakMemoize(outerTheme => {
-  return weakMemoize(theme => {
+let createCacheWithTheme = weakMemoize((outerTheme) => {
+  return weakMemoize((theme) => {
     return getTheme(outerTheme, theme)
   })
 })
 
 type Props = {
-  theme: Object | (Object => Object),
-  children: React.Node
+  theme: Object | ((Object) => Object),
+  children: React.Node,
 }
 
 let ThemeProvider = (props: Props) => {
   return (
     <ThemeContext.Consumer>
-      {theme => {
+      {(theme) => {
         if (props.theme !== theme) {
           theme = createCacheWithTheme(theme)(props.theme)
         }

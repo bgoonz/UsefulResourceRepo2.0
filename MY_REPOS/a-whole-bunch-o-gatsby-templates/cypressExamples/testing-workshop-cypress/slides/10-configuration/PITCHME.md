@@ -18,6 +18,7 @@
 +++
 
 Cypress options can be set via:
+
 - `cypress.json`
 - command line arguments
 - environment variables
@@ -199,7 +200,7 @@ You can change current setting _per spec_ using [Cypress.config](https://on.cypr
 
 ```js
 Cypress.config('baseUrl', 'http://todomvc.com/examples/dojo/')
-beforeEach(function visitSite () {
+beforeEach(function visitSite() {
   cy.log('Visiting', Cypress.config('baseUrl'))
   cy.visit('/')
 })
@@ -225,6 +226,7 @@ Use at your own risk, because the order of mutations and the final config in eac
 ## Todo
 
 Run a single spec in headless mode against:
+
 - `localhost`
 - `http://todomvc.com/examples/dojo/`
 
@@ -232,7 +234,7 @@ Run a single spec in headless mode against:
 
 ## Environment variables
 
-*That are not Cypress configuration* - username, passwords, etc.
+_That are not Cypress configuration_ - username, passwords, etc.
 
 Guide [https://on.cypress.io/environment-variables](https://on.cypress.io/environment-variables)
 
@@ -250,10 +252,10 @@ Guide [https://on.cypress.io/environment-variables](https://on.cypress.io/enviro
   }
 }
 ```
+
 ```js
 it('has env item', function () {
-  expect(Cypress.env('todoTitle'))
-    .to.equal('env todo')
+  expect(Cypress.env('todoTitle')).to.equal('env todo')
 })
 ```
 
@@ -415,13 +417,13 @@ Answer at https://on.cypress.io/configuration-api
 
 ## Summary
 
-+ `--config-file <json filepath>`
+- `--config-file <json filepath>`
 
-| `config` | `env` |
-| -------- | ----- |
-| `cypress.json` | `cypress.json` |
-| command line | command line |
-| environment | environment |
-| plugin | plugin |
-| run-time | run-time |
-| | `cypress.env.json` |
+| `config`       | `env`              |
+| -------------- | ------------------ |
+| `cypress.json` | `cypress.json`     |
+| command line   | command line       |
+| environment    | environment        |
+| plugin         | plugin             |
+| run-time       | run-time           |
+|                | `cypress.env.json` |

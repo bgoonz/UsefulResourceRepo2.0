@@ -5,7 +5,6 @@ import { interpret } from "xstate/lib/interpreter";
 import { ticTacToeMachine } from "./machine";
 import "./styles.css";
 
-
 function range(start, end) {
   return Array(end - start)
     .fill(null)
@@ -71,9 +70,9 @@ const StyledGame = styled.section`
 class TicTacToeGrid extends React.Component {
   machine = ticTacToeMachine;
   state = {
-    currentState: this.machine.initialState
+    currentState: this.machine.initialState,
   };
-  interpreter = interpret(this.machine).onTransition(currentState => {
+  interpreter = interpret(this.machine).onTransition((currentState) => {
     this.setState({ currentState });
     console.log(JSON.stringify(currentState, null, 2));
   });
@@ -104,11 +103,11 @@ class TicTacToeGrid extends React.Component {
       <StyledGame>
         {this.renderTitle()}
         <StyledTicTacToeGrid>
-          {range(0, 9).map(i => {
+          {range(0, 9).map((i) => {
             return (
               <StyledTile
                 key={i}
-                onClick={_ => send({ type: "PLAY", player, value: i })}
+                onClick={(_) => send({ type: "PLAY", player, value: i })}
                 data-player={currentState.context.board[i]}
                 data-testid={`square-${i}`}
               />

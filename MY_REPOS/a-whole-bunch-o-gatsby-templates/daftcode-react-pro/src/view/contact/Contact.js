@@ -55,7 +55,7 @@ class Contact extends React.Component<ContactProps> {
             email: '',
             password: '',
           }}
-          validate={values => {
+          validate={(values) => {
             let errors = {};
             if (!values.email) {
               errors.email = 'Required';

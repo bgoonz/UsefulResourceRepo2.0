@@ -1,4 +1,3 @@
-
 const fs = require("fs")
 const path = require("path")
 const faker = require(`faker`)
@@ -8,7 +7,7 @@ const N = parseInt(process.env.N, 10) || 100
 let n = 0
 
 function createArticle(n, sentence, slug) {
-  const desc = faker.lorem.sentence();
+  const desc = faker.lorem.sentence()
 
   return `
 <h1>${sentence.replace(/"/g, '\\"')}</h1>
@@ -34,7 +33,7 @@ for (let i = 0; i < N; ++i) {
   const date = faker.date.recent(1000).toISOString().slice(0, 10)
 
   fs.writeFileSync(
-    path.join("./generated_articles", date + '_' + slug + ".txt"),
+    path.join("./generated_articles", date + "_" + slug + ".txt"),
     createArticle(i, sentence, slug)
   )
 }

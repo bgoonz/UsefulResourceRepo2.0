@@ -1,7 +1,7 @@
 import {
   extractCritical,
   renderStylesToNodeStream,
-  renderStylesToString
+  renderStylesToString,
 } from 'emotion-server'
 
 declare const renderedString: string

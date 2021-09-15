@@ -1,20 +1,20 @@
-import svelte from "rollup-plugin-svelte"
-import resolve from "@rollup/plugin-node-resolve"
-import commonjs from "@rollup/plugin-commonjs"
-import replace from "@rollup/plugin-replace"
-import livereload from "rollup-plugin-livereload"
-import { terser } from "rollup-plugin-terser"
-import svg from "rollup-plugin-svg"
-import typescript from "rollup-plugin-typescript"
+import svelte from "rollup-plugin-svelte";
+import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+import replace from "@rollup/plugin-replace";
+import livereload from "rollup-plugin-livereload";
+import { terser } from "rollup-plugin-terser";
+import svg from "rollup-plugin-svg";
+import typescript from "rollup-plugin-typescript";
 
 /* Post CSS */
-import postcss from "rollup-plugin-postcss"
-import cssnano from "cssnano"
+import postcss from "rollup-plugin-postcss";
+import cssnano from "cssnano";
 
 /* Inline to single html */
-import htmlBundle from "rollup-plugin-html-bundle"
+import htmlBundle from "rollup-plugin-html-bundle";
 
-const production = !process.env.ROLLUP_WATCH
+const production = !process.env.ROLLUP_WATCH;
 
 export default [
   {
@@ -37,7 +37,8 @@ export default [
       // https://github.com/rollup/plugins/tree/master/packages/commonjs
       resolve({
         browser: true,
-        dedupe: (importee) => importee === `svelte` || importee.startsWith(`svelte/`),
+        dedupe: (importee) =>
+          importee === `svelte` || importee.startsWith(`svelte/`),
       }),
       commonjs(),
       svg(),
@@ -77,7 +78,9 @@ export default [
     plugins: [
       typescript(),
       replace({
-        "process.env.NODE_ENV": production ? JSON.stringify(`production`) : JSON.stringify(`development`),
+        "process.env.NODE_ENV": production
+          ? JSON.stringify(`production`)
+          : JSON.stringify(`development`),
       }),
       commonjs(),
       resolve({
@@ -86,21 +89,21 @@ export default [
       production && terser(),
     ],
   },
-]
+];
 
 function serve() {
-  let started = false
+  let started = false;
 
   return {
     writeBundle() {
       if (!started) {
-        started = true
+        started = true;
 
         require(`child_process`).spawn(`npm`, [`run`, `start`, `--`, `--dev`], {
           stdio: [`ignore`, `inherit`, `inherit`],
           shell: true,
-        })
+        });
       }
     },
-  }
+  };
 }

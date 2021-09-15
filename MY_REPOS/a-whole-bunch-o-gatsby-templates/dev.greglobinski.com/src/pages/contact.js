@@ -7,19 +7,19 @@ import Contact from "../components/Contact";
 import Headline from "../components/Article/Headline";
 import Seo from "../components/Seo";
 
-const ContactPage = props => {
+const ContactPage = (props) => {
   const {
     data: {
       site: {
-        siteMetadata: { facebook }
-      }
-    }
+        siteMetadata: { facebook },
+      },
+    },
   } = props;
 
   return (
     <React.Fragment>
       <ThemeContext.Consumer>
-        {theme => (
+        {(theme) => (
           <Article theme={theme}>
             <header>
               <Headline title="Contact" theme={theme} />
@@ -35,7 +35,7 @@ const ContactPage = props => {
 };
 
 ContactPage.propTypes = {
-  data: PropTypes.object.isRequired
+  data: PropTypes.object.isRequired,
 };
 
 export default ContactPage;

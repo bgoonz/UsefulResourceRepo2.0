@@ -1,30 +1,32 @@
 export const parseOptions = (domainOptions) => {
   return domainOptions.map((domainOption) => {
-    const domain = typeof domainOption === 'string' ? domainOption : domainOption.domain
+    const domain =
+      typeof domainOption === "string" ? domainOption : domainOption.domain;
     if (!domain) {
       throw new Error(
         `gatsby-plugin-preconnect: cannot parse \`domain\` from ${domainOption}. Expected a string or \`{domain: string}\``
-      )
+      );
     }
 
-    let crossOrigin = domainOption.crossOrigin === undefined ? true : domainOption.crossOrigin
+    let crossOrigin =
+      domainOption.crossOrigin === undefined ? true : domainOption.crossOrigin;
     if (
       crossOrigin !== false &&
       crossOrigin !== true &&
-      crossOrigin !== '' &&
-      crossOrigin !== 'anonymous' &&
-      crossOrigin !== 'use-credentials'
+      crossOrigin !== "" &&
+      crossOrigin !== "anonymous" &&
+      crossOrigin !== "use-credentials"
     ) {
       throw new Error(
         `gatsby-plugin-preconnect: cannot parse \`crossOrigin\` from ${domainOption.crossOrigin}. Expected \`undefined\`, \`\`, \`false\`, \`true\`, \`anonymous\`, or \`use-credentials\`.`
-      )
+      );
     }
 
-    crossOrigin = crossOrigin === true ? '' : crossOrigin
+    crossOrigin = crossOrigin === true ? "" : crossOrigin;
 
-    return { domain, crossOrigin }
-  })
-}
+    return { domain, crossOrigin };
+  });
+};
 
 export const removeDuplicates = (domainOptions) => {
   return domainOptions.filter((currentDomainOption, i) => {
@@ -33,9 +35,9 @@ export const removeDuplicates = (domainOptions) => {
         currentDomainOption.crossOrigin === domainOptions[j].crossOrigin &&
         currentDomainOption.domain === domainOptions[j].domain
       ) {
-        return false
+        return false;
       }
     }
-    return true
-  })
-}
+    return true;
+  });
+};

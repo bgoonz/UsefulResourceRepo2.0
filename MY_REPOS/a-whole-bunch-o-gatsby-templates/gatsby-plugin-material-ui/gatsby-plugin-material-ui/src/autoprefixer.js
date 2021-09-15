@@ -2,7 +2,7 @@ import postcss from "postcss";
 import autoprefixer from "autoprefixer";
 import { browserslist } from "/package.json";
 
-export default function(css, pathname) {
+export default function (css, pathname) {
   const prefixer = postcss([
     autoprefixer({
       overrideBrowserslist: browserslist

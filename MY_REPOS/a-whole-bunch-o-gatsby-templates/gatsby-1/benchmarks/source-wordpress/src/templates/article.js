@@ -10,7 +10,9 @@ const Article = ({ data: { article } }) => {
       <div>
         <h2>{article.title}</h2>
         {!!article.featuredImage?.node?.localFile?.childImageSharp && (
-          <Img fluid={article.featuredImage.node.localFile.childImageSharp.fluid} />
+          <Img
+            fluid={article.featuredImage.node.localFile.childImageSharp.fluid}
+          />
         )}
         <div dangerouslySetInnerHTML={{ __html: article.content }} />
       </div>
@@ -21,7 +23,7 @@ const Article = ({ data: { article } }) => {
 export default Article
 
 export const query = graphql`
-  query($id: String!) {
+  query ($id: String!) {
     article: wpPost(id: { eq: $id }) {
       title
       content

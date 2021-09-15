@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 Tavajjoh : IN Noskheye Finglish Az Tarjomeye Farsie Hamin Matne Va Kheyli Az Vazhe Ha Be Shekle Englishe Khodeshoon Neveshte Shodan Chon Tarjomashoon Chize Jalebi Az Aab Dar Nemiad
+
 # Avvalin Contribution (Hamkari, Mosharekat)
 
 Sakhte. Hamishe Anjam Dadane Kari Baraye Avvalin Bar Sakhte. Makhsoosan Vaghti Dari Mosharekat Mikoni, Eshtebah Kardan Kare Rahati Nist. Amma Open-Source Tamaman Darbareye Mosharekat Va Ham Karie. Ma Mikhastim Rah Ro Sade Konim Ta Contributer Haye Jadide Open-Source Betoonan Baraye Avvalin Bar Yad Begiran Va Mosharekat Konan
@@ -10,12 +11,12 @@ Sakhte. Hamishe Anjam Dadane Kari Baraye Avvalin Bar Sakhte. Makhsoosan Vaghti D
 Khoondane Maghale Va Didane Tutorial Ha Mitoone Komak Kone, Amma Chi Az Vaghan Anjam Dadane Kar Ha Bedoone Kharab Kari Behtare ?
 Hadafe IN Proje Mohayya Kardane Yek Rahnama Va Sade Kardane Rahe Taze Kar Ha Baraye Avvalin Mosharekat.eshoone . Yadetoon Bashe: Harchi Relax Tar Bashi, Behtar Yad Migiri. Age Donbale IN Hasti Ke Avvalin Contribute Ro Anjam Bedi, Faghat Ghadam Be Ghadam Rahnamaye Zir Ro Donbal Kon. Ma Behet Ghol Midim, Gharare Khosh Begzare :D
 
-#### *IN Ro Dar [Zaban Haye Dige](Translations.md) Bekhoonin.*
+#### _IN Ro Dar [Zaban Haye Dige](Translations.md) Bekhoonin._
 
 <img align="right" width="300" src="../assets/fork.png" alt="fork this repository" />
 
 Age Rooye Computeret GIT Nadari,Nasbesh Kon
-[Install It]( https://help.github.com/articles/set-up-git/).
+[Install It](https://help.github.com/articles/set-up-git/).
 
 ## IN Repository Ro Fork Kon
 
@@ -32,31 +33,39 @@ Terminal Ro Baz Kon Va Dastoorate Zir Ro Vared Kon:
 ```
 git clone "url you just copied"
 ```
+
 Jayi Ke "URL You Just Copied" ( Bedoone Alamate " Vojood Dare ) URL IN Repository Ke Too Marhaleye Ghabli Didi Vojood Dare
 
 <img align="right" width="300" src="../assets/copy-to-clipboard.png" alt="copy URL to clipboard" />
 
 Baraye Mesal:
+
 ```
 git clone https://github.com/this-is-you/first-contributions.git
 ```
+
 Jayi Ke `this-is-you` Hast Bayad Username Githube Ro Benevisi. Too IN Marhale Dari Mohtaviate Repositorye `first-contributions` Ro Copy Mikoni Too Computeret
 
 ## Sakhtane Branch ( Shakhe )
+
 Too Cpmputeret Boro Directorye Repository ( Albate Age Hanooz Dakhelesh Nisti )
 
 ```
 cd first-contributions
 ```
+
 Hala Ba Estefade Az Dastoore `git checkout` Ye Branch Besaz:
+
 ```
 git checkout -b <add-your-name>
 ```
 
 Baraye Mesal:
+
 ```
 git checkout -b add-alonzo-church
 ```
+
 ( Lazem Nist Avvale Esme Branch Vazheye "add" Ro Benevisi. Amma Az OON Ja Ke Dari Esmet Ro Be List Ezafe Mikoni Kare Manteghi-e Hast)
 
 ## Taghirate Zaroori Ro Anjam Bede Va Bad Commit Kon
@@ -68,17 +77,21 @@ git add Contributors.md
 ```
 
 Hala Taghirat Ro Ba Dastoore `git commit` Commit Kon :
+
 ```
 git commit -m "Add <your-name> to Contributors list"
 ```
+
 Be Jaye `<your-name>` Esme Khodet Ro Benevis.
 
 ## Taghirat Ro Be GitHub Push Kon .
 
 Ba Dastoore `git push` Taghiratet Ro Push Kon:
+
 ```
 git push origin <add-your-name>
 ```
+
 Be Jaye `<add-your-name>` Esme Branchi Ke Sakhte Boodi Ro Benevis.
 
 ## Taghiratet Ro Baraye Barresi Submit Kon
@@ -96,7 +109,7 @@ Be Zoodi Man Tamame Taghiratet Ro Be Branche "Master" Ezafe Mikonam. Be Mahze IN
 ## Az IN Ja Koja Beram ?
 
 Mosharekatet Ro Jashn Begir Va Ba Follower Ha o Doostat Be Eshterak Bezar
- [web app](https://roshanjossey.github.io/first-contributions/#social-share).
+[web app](https://roshanjossey.github.io/first-contributions/#social-share).
 
 Dar Soorati Ke Soal Dashti Ya Komak Khasti Mitooni Be Teame Slacke Ma Bepeyvandi
 [Join slack team](https://firstcontributions.herokuapp.com).
@@ -106,12 +119,11 @@ Hala Bia Too Proje Haye Dige Mosharekat Konim. We Ye Listi Az Proje Hayi Ba Mosh
 
 ### [Additional material](additional-material/additional-material.md)
 
-
 ## Tutorials Using Other Tools
 
-|<a href="github-desktop-tutorial.md"><img alt="GitHub Desktop" src="https://desktop.github.com/images/desktop-icon.svg" width="100"></a>|<a href="github-windows-vs2017-tutorial.md"><img alt="Visual Studio 2017" src="https://www.microsoft.com/net/images/vslogo.png" width="100"></a>|<a href="gitkraken-tutorial.md"><img alt="GitKraken" src="/assets/gk-icon.png" width="100"></a>|
-|---|---|---|
-|[GitHub Desktop](github-desktop-tutorial.md)|[Visual Studio 2017](github-windows-vs2017-tutorial.md)|[GitKraken](gitkraken-tutorial.md)|
+| <a href="github-desktop-tutorial.md"><img alt="GitHub Desktop" src="https://desktop.github.com/images/desktop-icon.svg" width="100"></a> | <a href="github-windows-vs2017-tutorial.md"><img alt="Visual Studio 2017" src="https://www.microsoft.com/net/images/vslogo.png" width="100"></a> | <a href="gitkraken-tutorial.md"><img alt="GitKraken" src="/assets/gk-icon.png" width="100"></a> |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| [GitHub Desktop](github-desktop-tutorial.md)                                                                                             | [Visual Studio 2017](github-windows-vs2017-tutorial.md)                                                                                          | [GitKraken](gitkraken-tutorial.md)                                                              |
 
 ## Self-Promotion
 

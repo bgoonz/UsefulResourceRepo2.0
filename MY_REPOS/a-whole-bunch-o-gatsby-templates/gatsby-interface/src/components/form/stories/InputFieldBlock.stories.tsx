@@ -28,7 +28,7 @@ export const Basic = () => (
   <InputFieldBlock
     id="inputFieldBlock"
     label="Field label"
-    onChange={e => action(`Change`)(e.target.value)}
+    onChange={(e) => action(`Change`)(e.target.value)}
   />
 )
 
@@ -100,7 +100,7 @@ export const WithRichText = () => (
 )
 
 export const LabelSizes = () =>
-  LABEL_SIZES.map(labelSize => (
+  LABEL_SIZES.map((labelSize) => (
     <InputFieldBlock
       key={labelSize}
       id={`inputFieldBlock__size--${labelSize}`}

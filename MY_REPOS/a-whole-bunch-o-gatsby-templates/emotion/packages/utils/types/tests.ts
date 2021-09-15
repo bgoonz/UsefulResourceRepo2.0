@@ -5,7 +5,7 @@ import {
   StyleSheet,
   getRegisteredStyles,
   insertStyles,
-  isBrowser
+  isBrowser,
 } from '@emotion/utils'
 
 declare const testCache: EmotionCache
@@ -24,7 +24,7 @@ insertStyles(
   testCache,
   {
     name: 'abc',
-    styles: 'color: green;background: red;'
+    styles: 'color: green;background: red;',
   },
   false
 )
@@ -37,7 +37,7 @@ insertStyles(testCache, {})
 // $ExpectError
 insertStyles(testCache, {
   name: 'abc',
-  styles: 'font-size: 18px;'
+  styles: 'font-size: 18px;',
 })
 
 const test0: boolean = isBrowser

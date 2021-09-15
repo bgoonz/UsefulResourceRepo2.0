@@ -16,7 +16,7 @@ let cache = createCache()
 export const {
   extractCritical,
   renderStylesToString,
-  renderStylesToNodeStream
+  renderStylesToNodeStream,
 } = createEmotionServer(cache)
 ```
 

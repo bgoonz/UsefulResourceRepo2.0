@@ -21,11 +21,11 @@ try {
   } = require("worker_threads"))
 } catch (e) {
   if (C > 0) {
-    console.log('')
+    console.log("")
     console.warn(
       "!! Worker threads are supported by nodejs from node 10.15 onwards. Proceeding in single thread mode. Consider upgrading nodejs. !!"
     )
-    console.log('')
+    console.log("")
   }
 }
 
@@ -111,7 +111,9 @@ function generateImagePool() {
   } else {
     if (C > 0) {
       console.log("")
-      console.log("RUNNING SINGLE CORE !! Ignoring `C` option because it requires a newer nodejs !! RUNNING SINGLE CORE")
+      console.log(
+        "RUNNING SINGLE CORE !! Ignoring `C` option because it requires a newer nodejs !! RUNNING SINGLE CORE"
+      )
       console.log("")
     }
     // Assume existing images cover entire range 0 to count-1. Only generate count to N-1, single threaded

@@ -4,8 +4,7 @@
  *
  * @namespace faker.system
  */
-function System (faker) {
-
+function System(faker) {
   /**
    * generates a file name with extension or optional type
    *
@@ -15,11 +14,11 @@ function System (faker) {
    */
   this.fileName = function (ext, type) {
     var str = faker.fake("{{random.words}}.{{system.fileExt}}");
-    str = str.replace(/ /g, '_');
-    str = str.replace(/\,/g, '_');
-    str = str.replace(/\-/g, '_');
-    str = str.replace(/\\/g, '_');
-    str = str.replace(/\//g, '_');
+    str = str.replace(/ /g, "_");
+    str = str.replace(/\,/g, "_");
+    str = str.replace(/\-/g, "_");
+    str = str.replace(/\\/g, "_");
+    str = str.replace(/\//g, "_");
     str = str.toLowerCase();
     return str;
   };
@@ -32,12 +31,13 @@ function System (faker) {
    * @param {string} type
    */
   this.commonFileName = function (ext, type) {
-    var str = faker.random.words() + "." + (ext || faker.system.commonFileExt());
-    str = str.replace(/ /g, '_');
-    str = str.replace(/\,/g, '_');
-    str = str.replace(/\-/g, '_');
-    str = str.replace(/\\/g, '_');
-    str = str.replace(/\//g, '_');
+    var str =
+      faker.random.words() + "." + (ext || faker.system.commonFileExt());
+    str = str.replace(/ /g, "_");
+    str = str.replace(/\,/g, "_");
+    str = str.replace(/\-/g, "_");
+    str = str.replace(/\\/g, "_");
+    str = str.replace(/\//g, "_");
     str = str.toLowerCase();
     return str;
   };
@@ -48,7 +48,9 @@ function System (faker) {
    * @method faker.system.mimeType
    */
   this.mimeType = function () {
-    return faker.random.arrayElement(Object.keys(faker.definitions.system.mimeTypes));
+    return faker.random.arrayElement(
+      Object.keys(faker.definitions.system.mimeTypes)
+    );
   };
 
   /**
@@ -57,8 +59,8 @@ function System (faker) {
    * @method faker.system.commonFileType
    */
   this.commonFileType = function () {
-    var types = ['video', 'audio', 'image', 'text', 'application'];
-    return faker.random.arrayElement(types)
+    var types = ["video", "audio", "image", "text", "application"];
+    return faker.random.arrayElement(types);
   };
 
   /**
@@ -69,19 +71,18 @@ function System (faker) {
    */
   this.commonFileExt = function (type) {
     var types = [
-      'application/pdf',
-      'audio/mpeg',
-      'audio/wav',
-      'image/png',
-      'image/jpeg',
-      'image/gif',
-      'video/mp4',
-      'video/mpeg',
-      'text/html'
+      "application/pdf",
+      "audio/mpeg",
+      "audio/wav",
+      "image/png",
+      "image/jpeg",
+      "image/gif",
+      "video/mp4",
+      "video/mpeg",
+      "text/html",
     ];
     return faker.system.fileExt(faker.random.arrayElement(types));
   };
-
 
   /**
    * returns any file type available as mime-type
@@ -91,8 +92,8 @@ function System (faker) {
   this.fileType = function () {
     var types = [];
     var mimes = faker.definitions.system.mimeTypes;
-    Object.keys(mimes).forEach(function(m){
-      var parts = m.split('/');
+    Object.keys(mimes).forEach(function (m) {
+      var parts = m.split("/");
       if (types.indexOf(parts[0]) === -1) {
         types.push(parts[0]);
       }
@@ -116,10 +117,10 @@ function System (faker) {
     }
 
     // reduce mime-types to those with file-extensions
-    Object.keys(mimes).forEach(function(m){
+    Object.keys(mimes).forEach(function (m) {
       if (mimes[m].extensions instanceof Array) {
-        mimes[m].extensions.forEach(function(ext){
-          exts.push(ext)
+        mimes[m].extensions.forEach(function (ext) {
+          exts.push(ext);
         });
       }
     });
@@ -132,8 +133,8 @@ function System (faker) {
    * @method faker.system.directoryPath
    */
   this.directoryPath = function () {
-      var paths = faker.definitions.system.directoryPaths
-      return faker.random.arrayElement(paths);
+    var paths = faker.definitions.system.directoryPaths;
+    return faker.random.arrayElement(paths);
   };
 
   /**
@@ -142,7 +143,7 @@ function System (faker) {
    * @method faker.system.filePath
    */
   this.filePath = function () {
-      return faker.fake("{{system.directoryPath}}/{{system.fileName}}");
+    return faker.fake("{{system.directoryPath}}/{{system.fileName}}");
   };
 
   /**
@@ -151,11 +152,12 @@ function System (faker) {
    * @method faker.system.semver
    */
   this.semver = function () {
-      return [faker.random.number(9),
-              faker.random.number(9),
-              faker.random.number(9)].join('.');
-  }
-
+    return [
+      faker.random.number(9),
+      faker.random.number(9),
+      faker.random.number(9),
+    ].join(".");
+  };
 }
 
-module['exports'] = System;
+module["exports"] = System;

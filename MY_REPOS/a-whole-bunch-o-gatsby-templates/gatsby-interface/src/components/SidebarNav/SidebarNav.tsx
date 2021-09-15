@@ -31,14 +31,14 @@ export default function SidebarNav({
   return (
     <nav
       aria-label="sidebar navigation"
-      css={theme => ({
+      css={(theme) => ({
         paddingLeft: theme.space[8],
       })}
       {...rest}
     >
       {options && (
         <SidebarNavList variant={variant}>
-          {options.map(option => {
+          {options.map((option) => {
             return <SidebarNavListItem key={option.to} {...option} />
           })}
         </SidebarNavList>
@@ -67,7 +67,7 @@ function SidebarNavList({ variant = `DEFAULT`, ...rest }: SidebarNavListProps) {
   )
 }
 
-const baseNavItemCss: ThemeCss = theme => ({
+const baseNavItemCss: ThemeCss = (theme) => ({
   fontFamily: theme.fonts.body,
   fontSize: theme.fontSizes[1],
   fontWeight: theme.fontWeights.body,
@@ -81,12 +81,12 @@ const baseNavItemCss: ThemeCss = theme => ({
   },
 })
 
-const baseNavItemActiveCss: ThemeCss = theme => ({
+const baseNavItemActiveCss: ThemeCss = (theme) => ({
   color: theme.colors.purple[50],
   fontWeight: theme.fontWeights.semiBold,
 })
 
-const navItemIconCss: ThemeCss = theme => ({
+const navItemIconCss: ThemeCss = (theme) => ({
   color: theme.colors.grey[40],
   fontSize: theme.fontSizes[4],
   verticalAlign: `middle`,
@@ -94,7 +94,7 @@ const navItemIconCss: ThemeCss = theme => ({
   left: `-${theme.space[8]}`,
 })
 
-const navItemActiveIconCss: ThemeCss = theme => ({
+const navItemActiveIconCss: ThemeCss = (theme) => ({
   color: theme.colors.purple[40],
 })
 
@@ -115,7 +115,7 @@ function SidebarNavListItem({
 }: SidebarNavItemProps) {
   return (
     <SidebarBaseItem
-      css={theme => [
+      css={(theme) => [
         {
           position: `relative`,
           padding: `${theme.space[3]} 0`,
@@ -148,7 +148,7 @@ function SidebarNavListItem({
             paddingBottom: theme.space[3],
           })}
         >
-          {subItems.map(subItem => (
+          {subItems.map((subItem) => (
             <SidebarBaseItem
               key={subItem.to}
               css={(theme: Theme) => [
@@ -171,7 +171,7 @@ function SidebarNavListItem({
   )
 }
 
-const itemLinkCss: ThemeCss = theme => ({
+const itemLinkCss: ThemeCss = (theme) => ({
   color: `inherit`,
   lineHeight: theme.lineHeights.dense,
   textDecoration: `none`,
@@ -193,7 +193,7 @@ function SidebarBaseItem({
 }: SidebarBaseItemProps) {
   return (
     <li
-      css={theme => [
+      css={(theme) => [
         baseNavItemCss(theme),
         active && baseNavItemActiveCss(theme),
       ]}

@@ -21,7 +21,7 @@ export {
   ArrayInterpolation,
   CSSObject,
   FunctionInterpolation,
-  ObjectInterpolation
+  ObjectInterpolation,
 } from '@emotion/serialize'
 
 export { ComponentSelector, Interpolation }

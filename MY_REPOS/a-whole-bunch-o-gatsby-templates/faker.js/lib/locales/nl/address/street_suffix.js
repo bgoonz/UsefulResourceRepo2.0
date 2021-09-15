@@ -1,7 +1,1 @@
-module["exports"] = [
-  "straat",
-  "laan",
-  "weg",
-  "plantsoen",
-  "park"
-];
+module["exports"] = ["straat", "laan", "weg", "plantsoen", "park"];

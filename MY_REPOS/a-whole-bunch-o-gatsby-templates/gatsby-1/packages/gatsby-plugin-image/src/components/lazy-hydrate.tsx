@@ -94,7 +94,7 @@ export function lazyHydrate(
 
   return (): void => {
     if (root.current) {
-      render((null as unknown) as ReactElement, root.current)
+      render(null as unknown as ReactElement, root.current)
     }
   }
 }

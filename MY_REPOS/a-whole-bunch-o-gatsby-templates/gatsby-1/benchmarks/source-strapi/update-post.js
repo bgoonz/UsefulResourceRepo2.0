@@ -5,7 +5,7 @@ const fetch = require("node-fetch")
 const getRandomArticle = async () => {
   // Get random article ID
   const randomIndex = Math.floor(
-    Math.random() * (Number(process.env.BENCHMARK_STRAPI_DATASET))
+    Math.random() * Number(process.env.BENCHMARK_STRAPI_DATASET)
   )
   // Fetch article data
   const articlesResponse = await fetch(
@@ -15,21 +15,21 @@ const getRandomArticle = async () => {
   return articles[0]
 }
 
-const updateArticle = async (article) => {
+const updateArticle = async article => {
   // Add ! at the end of the title
   const response = await fetch(
     `${process.env.BENCHMARK_STRAPI_API_URL}/articles/${article.id}?token=${process.env.BENCHMARK_STRAPI_UPDATE_TOKEN}`,
     {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify({
-        title: article.title + '!',
+        title: article.title + "!",
       }),
-    },
+    }
   )
   if (response.ok) {
-    console.log('update success')
+    console.log("update success")
   } else {
-    console.log('update error')
+    console.log("update error")
   }
 }
 

@@ -11,13 +11,13 @@ const LoadableBlog = Loadable({
   loader: () => import("../components/Blog"),
   loading() {
     return <Loading />;
-  }
+  },
 });
 
 class IndexPage extends React.Component {
   separator = React.createRef();
 
-  scrollToContent = e => {
+  scrollToContent = (e) => {
     this.separator.current.scrollIntoView({ block: "start", behavior: "smooth" });
   };
 
@@ -27,27 +27,27 @@ class IndexPage extends React.Component {
         posts: { edges: posts },
         repos: { edges: repos },
         bgDesktop: {
-          resize: { src: desktop }
+          resize: { src: desktop },
         },
         bgTablet: {
-          resize: { src: tablet }
+          resize: { src: tablet },
         },
         bgMobile: {
-          resize: { src: mobile }
+          resize: { src: mobile },
         },
         bgDesktopWebp: {
-          resize: { src: desktopWebp }
+          resize: { src: desktopWebp },
         },
         bgTabletWebp: {
-          resize: { src: tabletWebp }
+          resize: { src: tabletWebp },
         },
         bgMobileWebp: {
-          resize: { src: mobileWebp }
+          resize: { src: mobileWebp },
         },
         site: {
-          siteMetadata: { facebook }
-        }
-      }
+          siteMetadata: { facebook },
+        },
+      },
     } = this.props;
 
     const backgrounds = {
@@ -56,15 +56,15 @@ class IndexPage extends React.Component {
       mobile,
       desktopWebp,
       tabletWebp,
-      mobileWebp
+      mobileWebp,
     };
 
     return (
       <React.Fragment>
         <ScreenWidthContext.Consumer>
-          {screenWidth => (
+          {(screenWidth) => (
             <ThemeContext.Consumer>
-              {theme => (
+              {(theme) => (
                 <Hero
                   scrollToContent={this.scrollToContent}
                   backgrounds={backgrounds}
@@ -79,7 +79,7 @@ class IndexPage extends React.Component {
         <hr ref={this.separator} />
 
         <ThemeContext.Consumer>
-          {theme => <LoadableBlog posts={posts} repos={repos} theme={theme} />}
+          {(theme) => <LoadableBlog posts={posts} repos={repos} theme={theme} />}
         </ThemeContext.Consumer>
 
         <Seo facebook={facebook} />
@@ -97,7 +97,7 @@ class IndexPage extends React.Component {
 }
 
 IndexPage.propTypes = {
-  data: PropTypes.object.isRequired
+  data: PropTypes.object.isRequired,
 };
 
 export default IndexPage;

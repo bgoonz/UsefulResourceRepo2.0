@@ -3,7 +3,7 @@ import as from './../utils/as';
 import Box from '../box';
 import { prop, ifProp } from 'styled-tools';
 
-const handleKeyPress = evt => {
+const handleKeyPress = (evt) => {
   if (evt.charCode === 32 || evt.charCode === 13) {
     evt.preventDefault();
     evt.target.click();

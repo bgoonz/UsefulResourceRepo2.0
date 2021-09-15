@@ -7,7 +7,7 @@ import {
   getStyleElements,
   hasClassNames,
   getMediaRules,
-  RULE_TYPES
+  RULE_TYPES,
 } from './utils'
 
 /*
@@ -55,18 +55,18 @@ function toHaveStyleRule(
   }
   const declaration = preparedRules
     .filter(
-      rule =>
+      (rule) =>
         rule.type === RULE_TYPES.rule &&
         hasClassNames(classNames, rule.selectors, target)
     )
     .reduce((decs, rule) => decs.concat(rule.declarations), [])
-    .filter(dec => dec.type === 'declaration' && dec.property === property)
+    .filter((dec) => dec.type === 'declaration' && dec.property === property)
     .pop()
 
   if (!declaration) {
     return {
       pass: false,
-      message: () => `Property not found: ${property}`
+      message: () => `Property not found: ${property}`,
     }
   }
 
@@ -80,7 +80,7 @@ function toHaveStyleRule(
 
   return {
     pass,
-    message
+    message,
   }
 }
 

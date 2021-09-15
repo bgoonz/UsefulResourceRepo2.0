@@ -33,7 +33,7 @@ export const Basic = () => (
     <SelectFieldWrapper>
       <SelectFieldLabel>Field label</SelectFieldLabel>
       <SelectFieldControl
-        onChange={e => action(`Change`)(e.target.value)}
+        onChange={(e) => action(`Change`)(e.target.value)}
         options={options}
       />
     </SelectFieldWrapper>
@@ -41,14 +41,8 @@ export const Basic = () => (
 )
 
 export const Sandbox = () => {
-  const {
-    label,
-    labelSize,
-    error,
-    hint,
-    disabled,
-    required,
-  } = getFieldBlockSandboxProps()
+  const { label, labelSize, error, hint, disabled, required } =
+    getFieldBlockSandboxProps()
 
   return (
     <SelectField id="SelectField" hasError={!!error} hasHint={!!hint}>
@@ -58,7 +52,7 @@ export const Sandbox = () => {
         </SelectFieldLabel>
         <SelectFieldControl
           options={options}
-          onChange={e => action(`Change`)(e.target.value)}
+          onChange={(e) => action(`Change`)(e.target.value)}
           disabled={disabled}
           required={required}
         />

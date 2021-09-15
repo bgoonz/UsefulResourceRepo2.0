@@ -75,7 +75,7 @@ import { Container } from "unstated";
 
 class CounterContainer extends Container {
   state = {
-    count: 0
+    count: 0,
   };
 
   increment() {
@@ -148,7 +148,7 @@ And a little interface to manage and observe the current value of the state.
 
 ```javascript
 <Subscribe to={[CounterContainer]}>
-  {counter => (
+  {(counter) => (
     <div>
       <button onClick={() => counter.decrement()}>-</button>
       <span> Count: {counter.state.count}</span>

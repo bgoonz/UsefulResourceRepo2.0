@@ -62,7 +62,7 @@ Sandbox.story = {
 }
 
 export const Densities = () =>
-  DENSITIES.map(density => (
+  DENSITIES.map((density) => (
     <DensityProvider key={density} density={density}>
       <ExampleComponent />
     </DensityProvider>

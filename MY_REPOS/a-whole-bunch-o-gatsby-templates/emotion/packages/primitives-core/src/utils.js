@@ -6,7 +6,7 @@ export const pickAssign: (
   testFn: (key: string) => boolean,
   target: {},
   ...sources: Array<{}>
-) => Object = function(testFn, target) {
+) => Object = function (testFn, target) {
   let i = 2
   let length = arguments.length
   for (; i < length; i++) {

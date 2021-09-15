@@ -88,6 +88,7 @@ Repo [@bahmutov/cly](https://github.com/bahmutov/cly)
 **Todo:** look at any particular group of commands, like [Querying](https://example.cypress.io/commands/querying) or [Assertions](https://example.cypress.io/commands/assertions)
 
 +++
+
 ## First spec
 
 Create a new file
@@ -180,11 +181,12 @@ Your best friend is [https://docs.cypress.io/](https://docs.cypress.io/)
 ## Find at docs.cypress.io
 
 @ul
+
 - Cypress main features and how it works docs
 - core concepts
 - command API
   - how many commands are there?
-@ulend
+    @ulend
 
 +++
 
@@ -201,6 +203,7 @@ goes right to the documentation for that command.
 ## Find at docs.cypress.io
 
 @ul
+
 - examples
   - recipes
   - tutorial videos
@@ -208,7 +211,7 @@ goes right to the documentation for that command.
   - blogs
   - FAQ
 - Cypress changelog and roadmap
-@ulend
+  @ulend
 
 Note:
 Students should know where to find information later on. Main resources is the api page [https://on.cypress.io/api](https://on.cypress.io/api)

@@ -10,7 +10,7 @@ import {
   Global,
   keyframes,
   CacheProvider,
-  ClassNames
+  ClassNames,
 } from '@emotion/core'
 import styled from '@emotion/styled'
 import css from '@emotion/css'
@@ -25,18 +25,18 @@ let fakeStylisPlugins = []
 
 let cases = {
   basic: {
-    render: () => <div css={{ color: 'hotpink' }}>some hotpink text</div>
+    render: () => <div css={{ color: 'hotpink' }}>some hotpink text</div>,
   },
   global: {
     render: () => (
       <Global
         styles={{
           html: {
-            backgroundColor: 'hotpink'
-          }
+            backgroundColor: 'hotpink',
+          },
         }}
       />
-    )
+    ),
   },
   keyframes: {
     render: () => {
@@ -55,7 +55,7 @@ let cases = {
           <div css={{ animation: `1s ${animation}` }} />
         </React.Fragment>
       )
-    }
+    },
   },
   'only render a style once with the css prop': {
     render: () => {
@@ -65,7 +65,7 @@ let cases = {
           <div css={{ color: 'hotpink' }} />
         </div>
       )
-    }
+    },
   },
   'only render a style once with styled': {
     render: () => {
@@ -78,7 +78,7 @@ let cases = {
           <SomeComponent />
         </div>
       )
-    }
+    },
   },
   'works with nonces': {
     cache: () => createCache({ nonce: 'some-nonce' }),
@@ -95,46 +95,46 @@ let cases = {
               html: {
                 margin: 0,
                 padding: 0,
-                fontFamily: 'sans-serif'
-              }
+                fontFamily: 'sans-serif',
+              },
             }}
           />
         </React.Fragment>
       )
-    }
+    },
   },
   'prefix option false': {
     cache: () => createCache({ prefix: false }),
     render: () => {
       return <div css={{ display: 'flex' }} />
-    }
+    },
   },
   'prefix option false with stylis plugins': {
     cache: () =>
       createCache({ prefix: false, stylisPlugins: fakeStylisPlugins }),
     render: () => {
       return <div css={{ display: 'flex' }} />
-    }
+    },
   },
   'prefix option true with stylis plugins': {
     cache: () =>
       createCache({ prefix: true, stylisPlugins: fakeStylisPlugins }),
     render: () => {
       return <div css={{ display: 'flex' }} />
-    }
+    },
   },
   'prefix option func false with stylis plugins': {
     cache: () =>
       createCache({ prefix: () => false, stylisPlugins: fakeStylisPlugins }),
     render: () => {
       return <div css={{ display: 'flex' }} />
-    }
+    },
   },
   'prefix option func false': {
     cache: () => createCache({ prefix: () => false }),
     render: () => {
       return <div css={{ display: 'flex' }} />
-    }
+    },
   },
 
   'global with keyframes': {
@@ -145,32 +145,32 @@ let cases = {
             h1: {
               animation: `${keyframes({
                 'from,to': {
-                  color: 'green'
+                  color: 'green',
                 },
                 '50%': {
-                  color: 'hotpink'
-                }
-              })} 1s`
-            }
+                  color: 'hotpink',
+                },
+              })} 1s`,
+            },
           }}
         />
       )
-    }
+    },
   },
   'styled with keyframes': {
     render: () => {
       const SomeComponent = styled.div({
         animation: `${keyframes({
           'from,to': {
-            color: 'green'
+            color: 'green',
           },
           '50%': {
-            color: 'hotpink'
-          }
-        })} 1s`
+            color: 'hotpink',
+          },
+        })} 1s`,
       })
       return <SomeComponent />
-    }
+    },
   },
   '@import': {
     render: () => {
@@ -189,7 +189,7 @@ let cases = {
           />
         </React.Fragment>
       )
-    }
+    },
   },
   ClassNames: {
     render: () => {
@@ -209,12 +209,12 @@ let cases = {
                         color: green;
                       `]: true,
                       something: false,
-                      'other-class': true
+                      'other-class': true,
                     },
                     [
                       css`
                         color: yellowgreen;
-                      `
+                      `,
                     ],
                     false && 'some-class',
                     undefined,
@@ -229,13 +229,13 @@ let cases = {
           }}
         </ClassNames>
       )
-    }
-  }
+    },
+  },
 }
 
 testCases(
   'ssr',
-  opts => {
+  (opts) => {
     if (opts.cache) {
       expect(
         renderToString(
@@ -251,7 +251,7 @@ testCases(
 
 testCases(
   'ssr with old api',
-  opts => {
+  (opts) => {
     let cache = createCache()
     if (opts.cache) {
       cache = opts.cache()

@@ -22,7 +22,7 @@ const IndexPage = () => (
           <div>
             <h1>All articles</h1>
             <ul>
-              {data.allStrapiArticle.edges.map((article) => {
+              {data.allStrapiArticle.edges.map(article => {
                 return (
                   <li key={article.node.id}>
                     <Link to={`/article/${article.node.id}`}>

@@ -1,1 +1,1 @@
-<GatsbyImage image={getImage(data.fitInside)} alt="chameleon" />
+;<GatsbyImage image={getImage(data.fitInside)} alt="chameleon" />

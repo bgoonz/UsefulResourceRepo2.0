@@ -29,9 +29,11 @@ const Navigation = ({
   />
 )
 
-Navigation.Hamburger = delegated => <BaseNavigation.Hamburger {...delegated} />
+Navigation.Hamburger = (delegated) => (
+  <BaseNavigation.Hamburger {...delegated} />
+)
 
-Navigation.HamburgerIcon = delegated => {
+Navigation.HamburgerIcon = (delegated) => {
   const { isMobileNavOpen } = BaseNavigation.useNavigationContext()
 
   return (
@@ -43,11 +45,9 @@ Navigation.HamburgerIcon = delegated => {
   )
 }
 
-Navigation.Nav = delegated => {
-  const {
-    mobileNavMediaQuery,
-    isMobileNavOpen,
-  } = BaseNavigation.useNavigationContext()
+Navigation.Nav = (delegated) => {
+  const { mobileNavMediaQuery, isMobileNavOpen } =
+    BaseNavigation.useNavigationContext()
 
   return (
     <BaseNavigation.Nav
@@ -60,11 +60,11 @@ Navigation.Nav = delegated => {
   )
 }
 
-Navigation.Spacer = delegated => {
+Navigation.Spacer = (delegated) => {
   return <li css={{ flex: 1 }} {...delegated} role="separator" />
 }
 
-Navigation.List = delegated => {
+Navigation.List = (delegated) => {
   const { mobileNavMediaQuery } = BaseNavigation.useNavigationContext()
 
   return (
@@ -78,7 +78,7 @@ Navigation.List = delegated => {
   )
 }
 
-Navigation.Item = delegated => {
+Navigation.Item = (delegated) => {
   const { mobileNavMediaQuery } = BaseNavigation.useNavigationContext()
 
   return (
@@ -92,10 +92,8 @@ Navigation.Item = delegated => {
   )
 }
 Navigation.ItemLink = ({ item, ...delegated }) => {
-  const {
-    isInverted,
-    mobileNavMediaQuery,
-  } = BaseNavigation.useNavigationContext()
+  const { isInverted, mobileNavMediaQuery } =
+    BaseNavigation.useNavigationContext()
 
   const isExternal = getIsExternalLink(item.linkTo)
 
@@ -115,7 +113,7 @@ Navigation.ItemLink = ({ item, ...delegated }) => {
   )
 }
 
-Navigation.Dropdown = delegated => {
+Navigation.Dropdown = (delegated) => {
   const { mobileNavMediaQuery } = BaseNavigation.useNavigationContext()
 
   return (
@@ -129,7 +127,7 @@ Navigation.Dropdown = delegated => {
   )
 }
 
-Navigation.DropdownToggle = delegated => {
+Navigation.DropdownToggle = (delegated) => {
   const { mobileNavMediaQuery } = BaseNavigation.useNavigationContext()
 
   return (
@@ -143,7 +141,7 @@ Navigation.DropdownToggle = delegated => {
   )
 }
 
-Navigation.DropdownItem = delegated => {
+Navigation.DropdownItem = (delegated) => {
   const { mobileNavMediaQuery } = BaseNavigation.useNavigationContext()
 
   return (
@@ -182,7 +180,7 @@ Navigation.Button = ({ linkTo, ...delegated }) => {
   )
 }
 
-const getIsExternalLink = linkTo => {
+const getIsExternalLink = (linkTo) => {
   return linkTo.match(/(^http|^mailto)/i)
 }
 

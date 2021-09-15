@@ -11,7 +11,7 @@ export default props => (
 )
 
 export const query = graphql`
-  query($id: String!) {
+  query ($id: String!) {
     remoteImage(id: { eq: $id }) {
       id
       file {

@@ -1,1 +1,1 @@
-module.exports = "file-a from 'site'";
+module.exports = "file-a from 'site'"

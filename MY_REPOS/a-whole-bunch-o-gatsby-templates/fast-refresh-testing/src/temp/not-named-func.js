@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 
 export default function () {
   return (
@@ -6,5 +6,5 @@ export default function () {
       <title>Not named function declaration</title>
       Test
     </main>
-  )
+  );
 }

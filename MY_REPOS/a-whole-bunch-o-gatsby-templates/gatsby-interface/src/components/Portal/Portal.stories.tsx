@@ -16,7 +16,7 @@ const Toast = styled.div`
 `
 
 storiesOf(`Portal`, module)
-  .addDecorator(storyFn => (
+  .addDecorator((storyFn) => (
     <div>
       <Global
         styles={css`

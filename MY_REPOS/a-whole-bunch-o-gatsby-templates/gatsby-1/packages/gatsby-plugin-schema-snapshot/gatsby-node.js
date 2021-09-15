@@ -29,7 +29,8 @@ exports.createSchemaCustomization = ({ actions, reporter }, options = {}) => {
     }
   } catch (error) {
     reporter.error(
-      `The plugin \`gatsby-plugin-schema-snapshot\` encountered an error`, error
+      `The plugin \`gatsby-plugin-schema-snapshot\` encountered an error`,
+      error
     )
   }
 }

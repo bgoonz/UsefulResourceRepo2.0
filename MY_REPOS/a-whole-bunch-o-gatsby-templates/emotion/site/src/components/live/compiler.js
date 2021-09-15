@@ -30,6 +30,6 @@ const call = (method, ...params) =>
     worker.postMessage({ id, method, params })
   })
 
-const compile = code => call('transform', code)
+const compile = (code) => call('transform', code)
 
 export default compile

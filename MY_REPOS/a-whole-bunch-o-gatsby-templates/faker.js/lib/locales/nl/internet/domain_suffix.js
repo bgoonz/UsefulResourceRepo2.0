@@ -1,6 +1,1 @@
-module["exports"] = [
-  "nl",
-  "com",
-  "net",
-  "org"
-];
+module["exports"] = ["nl", "com", "net", "org"];

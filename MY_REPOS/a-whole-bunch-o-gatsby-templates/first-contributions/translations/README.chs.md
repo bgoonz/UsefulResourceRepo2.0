@@ -2,14 +2,13 @@
 [<img align="right" src="https://firstcontributions.herokuapp.com/badge.svg">](https://firstcontributions.herokuapp.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-
 # 第一次参与开源
 
 万事起头难。特别是和其他人合作时，犯错格外令人不舒服。不过，开源的本质就是和其他人合作。我们希望为初学者带来一个简单的方法去学习及参与开源项目。
 
 阅读文章和观看教程会有所帮助。不过，有什麽方法能比，在不会弄乱任何东西的情况下，实际动手做更好？本项目旨在指导初学者及简化初学者参与开源的方式。记住：过程越轻松，学习效益越高。如果你想要做出第一次贡献，只需按照以下简单步骤操作即可。我们答应你，这将很好玩 :)
 
-#### *此文档的 [其他语种](../Translations.md).*
+#### _此文档的 [其他语种](../Translations.md)._
 
 <img align="right" width="300" src="../assets/fork.png" alt="fork this repository" />
 
@@ -31,11 +30,13 @@
 ```
 git clone "刚才复制的 url 链接"
 ```
+
 "刚才复制的 url 链接"（去掉双引号）就是复制到你账户名下的代码仓库地址。获取这链接地址的方法请见上一步。
 
 <img align="right" width="300" src="../assets/copy-to-clipboard.png" alt="copy URL to clipboard" />
 
 譬如：
+
 ```
 git clone https://github.com/你的Github用户名/first-contributions.git
 ```
@@ -44,17 +45,20 @@ git clone https://github.com/你的Github用户名/first-contributions.git
 
 ## 新建一个分支
 
-下面的命令能在命令行窗口中，把目録切换到 first-contributions 
+下面的命令能在命令行窗口中，把目録切换到 first-contributions
 
 ```
 cd first-contributions
 ```
+
 接下来使用 `git checkout` 命令新建一个代码分支
+
 ```
 git checkout -b <新分支的名称>
 ```
 
 譬如：
+
 ```
 git checkout -b add-myname
 ```
@@ -64,22 +68,27 @@ git checkout -b add-myname
 ## 对代码进行修改，而後 Commit (提交) 修改
 
 打开 `Contributors.md` 这个文件，更新文件内容，将你的名字加上去，保存修改。`git status` 这命令会列出被改动的文件。接着 `git add` 这命令则可以添加你的改动，就像如下这条命令。
+
 ```
 git add Contributors.md
 ```
 
 现在就可以使用 `git commit` 命令 commit 你的修改了。
+
 ```
 git commit -m "Add <你的名字> to Contributors list"
 ```
+
 将 `<你的名字>` 替换为你的名字
 
 ## 将改动 Push（发布）到 GitHub
 
 使用 `git push` 命令发布代码
+
 ```
 git push origin <分支的名称>
 ```
+
 将 `<分支的名称>` 替换为之前新建的分支名称。
 
 ## 提出 Pull Request 将你的修改供他人审阅
@@ -96,7 +105,7 @@ git push origin <分支的名称>
 
 ### [ 更多资料 ](additional-material/additional-material.md)
 
-## 接下来做什麽呢？ 
+## 接下来做什麽呢？
 
 为你第一次的贡献庆祝吧，不要忘记和你的朋友以及迷弟迷妹们分享我们的[网站](https://roshanjossey.github.io/first-contributions/#social-share)哟！
 
@@ -106,9 +115,9 @@ git push origin <分支的名称>
 
 ## 使用其他工具的教程
 
-|<a href="github-desktop-tutorial.md"><img alt="GitHub Desktop" src="https://desktop.github.com/images/desktop-icon.svg" width="100"></a>|<a href="github-windows-vs2017-tutorial.md"><img alt="Visual Studio 2017" src="https://www.microsoft.com/net/images/vslogo.png" width="100"></a>|<a href="gitkraken-tutorial.md"><img alt="GitKraken" src="/assets/gk-icon.png" width="100"></a>|
-|---|---|---|
-|[GitHub Desktop](github-desktop-tutorial.md)|[Visual Studio 2017](github-windows-vs2017-tutorial.md)|[GitKraken](gitkraken-tutorial.md)|
+| <a href="github-desktop-tutorial.md"><img alt="GitHub Desktop" src="https://desktop.github.com/images/desktop-icon.svg" width="100"></a> | <a href="github-windows-vs2017-tutorial.md"><img alt="Visual Studio 2017" src="https://www.microsoft.com/net/images/vslogo.png" width="100"></a> | <a href="gitkraken-tutorial.md"><img alt="GitKraken" src="/assets/gk-icon.png" width="100"></a> |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| [GitHub Desktop](github-desktop-tutorial.md)                                                                                             | [Visual Studio 2017](github-windows-vs2017-tutorial.md)                                                                                          | [GitKraken](gitkraken-tutorial.md)                                                              |
 
 ## 原作者自身推广
 
@@ -118,4 +127,3 @@ git push origin <分支的名称>
 [GitHub](https://github.com/roshanjossey).
 
 <a href="http://saasgrids.com"> <img alt="http://saasgrids.com" src="../assets/saasgrids-banner.png" width="500"></a>
-

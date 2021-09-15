@@ -4,14 +4,14 @@ import cx from 'classnames'
 import { filters } from './filters'
 
 class Footer extends React.Component {
-  render () {
+  render() {
     var activeTodoWord = pluralize('item', this.props.count, false)
     var clearButton = null
 
     if (this.props.completedCount > 0) {
       clearButton = (
         <button
-          className='clear-completed'
+          className="clear-completed"
           onClick={this.props.onClearCompleted}
         >
           Clear completed
@@ -23,15 +23,15 @@ class Footer extends React.Component {
     // var cx = React.addons.classSet
     var nowShowing = this.props.nowShowing
     return (
-      <footer className='footer'>
-        <span className='todo-count'>
+      <footer className="footer">
+        <span className="todo-count">
           <strong>{this.props.count}</strong> {activeTodoWord} left
         </span>
-        <ul className='filters'>
+        <ul className="filters">
           <li>
             <a
-              href='#/'
-              data-cy='show-all'
+              href="#/"
+              data-cy="show-all"
               className={cx({ selected: nowShowing === filters.ALL_TODOS })}
             >
               All
@@ -39,8 +39,8 @@ class Footer extends React.Component {
           </li>{' '}
           <li>
             <a
-              href='#/active'
-              data-cy='show-active'
+              href="#/active"
+              data-cy="show-active"
               className={cx({ selected: nowShowing === filters.ACTIVE_TODOS })}
             >
               Active
@@ -48,8 +48,8 @@ class Footer extends React.Component {
           </li>{' '}
           <li>
             <a
-              href='#/completed'
-              data-cy='show-completed'
+              href="#/completed"
+              data-cy="show-completed"
               className={cx({
                 selected: nowShowing === filters.COMPLETED_TODOS
               })}

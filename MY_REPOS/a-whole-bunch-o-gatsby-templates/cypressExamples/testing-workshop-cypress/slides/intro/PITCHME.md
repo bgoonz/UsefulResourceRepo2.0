@@ -11,7 +11,7 @@
 As long as ⏳ permits
 
 - example TodoMVC
-  * web app, data store, REST calls
+  - web app, data store, REST calls
 - basic page load test
 - selector playground
 - resetting state
@@ -31,6 +31,7 @@ As long as ⏳ permits
 - visual testing
 
 +++
+
 ## What we are going to cover 3/3
 
 As long as ⏳ permits
@@ -140,11 +141,12 @@ Look at `todomvc/app.js`
 ## Questions
 
 @ul
+
 - what happens when you add a new Todo item?
 - how does it get to the server?
 - where does the server save it?
 - what happens on start up?
-@ulend
+  @ulend
 
 Note:
 The students should open DevTools and look at XHR requests that go between the web application and the server. Also the students should find `todomvc/data.json` file with saved items.

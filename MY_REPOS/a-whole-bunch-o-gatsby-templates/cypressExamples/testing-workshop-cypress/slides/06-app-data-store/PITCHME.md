@@ -136,14 +136,13 @@ it('adds todos via app', () => {
 ```
 
 +++
+
 ## Todo: test edge data case
 
 ```js
 it('handles todos with blank title', () => {
   // add todo that the user cannot add via UI
-  cy.window()
-    .its('app.$store')
-    .invoke('dispatch', 'setNewTodo', '  ')
+  cy.window().its('app.$store').invoke('dispatch', 'setNewTodo', '  ')
   // app.$store.dispatch('addTodo')
   // confirm the UI
 })
@@ -156,7 +155,7 @@ it('handles todos with blank title', () => {
 Note that the web application might NOT have updated the data right away. For example:
 
 ```js
-getStore().then(store => {
+getStore().then((store) => {
   store.dispatch('setNewTodo', 'a new todo')
   store.dispatch('addTodo')
   store.dispatch('clearNewTodo')
@@ -177,13 +176,12 @@ In a flaky test https://github.com/cypress-io/cypress-example-recipes/issues/246
 ```js
 // add new todo using dispatch
 // retry until new item is in the list
-getStore()
-  .its('state.todos')
-  .should('have.length', 1)
+getStore().its('state.todos').should('have.length', 1)
 // do other checks
 ```
 
 +++
+
 ## 🏁 App Access
 
 - when needed, you can access the application directly from the test

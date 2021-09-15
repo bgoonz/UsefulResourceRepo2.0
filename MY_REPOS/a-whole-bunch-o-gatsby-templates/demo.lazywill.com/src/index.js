@@ -20,7 +20,7 @@ function revealEntryBtnOnSplashScreen() {
   setNewLeftForElement(entryButton, "50%");
   addAnimationClassToElement(entryButton, "animateSvg");
 
-  entryButton.addEventListener("click", function() {
+  entryButton.addEventListener("click", function () {
     appContainer.style.display = "block";
 
     setNewLeftForElement(splashScreen, "-100%");
@@ -37,7 +37,7 @@ function setNewLeftForElement(el, left) {
 }
 
 function removeElementAfterTime(el, time) {
-  setTimeout(function() {
+  setTimeout(function () {
     el.remove();
   }, time);
 }

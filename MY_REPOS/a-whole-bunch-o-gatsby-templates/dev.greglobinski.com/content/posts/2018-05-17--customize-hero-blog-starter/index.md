@@ -1,6 +1,6 @@
 ---
 title: How to customize the HeroBlog starter's appearance
-relatesTo: ['gatsby-starter-hero-blog']
+relatesTo: ["gatsby-starter-hero-blog"]
 category: instruction
 cover: customize-hero-blog-starter.png
 ---
@@ -41,9 +41,9 @@ In the `OPTIONS` section we declare all possible values for every value type: `s
 # OPTIONS ------------------------
 
 # SPACE
-space :
+space:
   # space options
-  default : 20px
+  default: 20px
   xxs: 2px
   xs: 5px
   s: 10px
@@ -51,20 +51,20 @@ space :
   l: 40px
   xl: 80px
   inset:
-    default : 20px
+    default: 20px
     xs: 5px
     s: 10px
     m: 20px
     l: 40px
   stack:
-    default : 0 0 20px 0
+    default: 0 0 20px 0
     xxs: 0 0 2px 0
     xs: 0 0 5px 0
     s: 0 0 10px 0
     m: 0 0 20px 0
     l: 0 0 40px 0
   inline:
-    default : 0 20px 0 0
+    default: 0 20px 0 0
     xxs: 0 2px 0 0
     xs: 0 5px 0 0
     s: 0 10px 0 0
@@ -79,35 +79,35 @@ size:
 color:
   # color options
   neutral:
-    white: &color-white '#ffffff'
+    white: &color-white "#ffffff"
     gray:
-      a: &color-gray-1 '#fafaf9'
-      b: &color-gray-2 '#f3f2f2'
-      c: &color-gray-3 '#ecebea'
-      d: '#dddbda'
-      e: '#c9c7c5'
-      f: '#b0adab'
-      g: '#969492'
-      h: '#706e6b'
-      i: '#514f4d'
-      j: &color-gray-10 '#3e3e3c'
-      k: '#2b2826'
-    black: '#000000'
+      a: &color-gray-1 "#fafaf9"
+      b: &color-gray-2 "#f3f2f2"
+      c: &color-gray-3 "#ecebea"
+      d: "#dddbda"
+      e: "#c9c7c5"
+      f: "#b0adab"
+      g: "#969492"
+      h: "#706e6b"
+      i: "#514f4d"
+      j: &color-gray-10 "#3e3e3c"
+      k: "#2b2826"
+    black: "#000000"
   brand:
-    primary: &color-brand-primary '#709425'
-    primaryActive: '#709425'
-    light: '#709425'
-    lightActive: '#709425'
-    dark: '#709425'
-    darkActive: '#709425'
+    primary: &color-brand-primary "#709425"
+    primaryActive: "#709425"
+    light: "#709425"
+    lightActive: "#709425"
+    dark: "#709425"
+    darkActive: "#709425"
   special:
     attention: &color-special-attention orange
 # FONT
 font:
   # font options
   family:
-    initial: 'Arial, sans-serif'
-    target: &font-family-target 'Open Sans'
+    initial: "Arial, sans-serif"
+    target: &font-family-target "Open Sans"
   weight:
     standard: &font-weight-standard 400
     bold: &font-weight-bold 600

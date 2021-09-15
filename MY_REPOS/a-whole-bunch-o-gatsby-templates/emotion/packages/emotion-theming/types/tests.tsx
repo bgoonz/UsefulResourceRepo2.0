@@ -51,10 +51,8 @@ const ThemedCompWithDefault = withTheme(CompCWithDefault)
 ;<ThemedCompWithDefault />
 ;<ThemedCompWithDefault theme={theme} />
 
-const {
-  ThemeProvider: TypedThemeProvider,
-  withTheme: typedWithTheme
-} = emotionTheming as emotionTheming.EmotionTheming<Theme>
+const { ThemeProvider: TypedThemeProvider, withTheme: typedWithTheme } =
+  emotionTheming as emotionTheming.EmotionTheming<Theme>
 ;<TypedThemeProvider theme={theme} />
 // $ExpectError
 ;<TypedThemeProvider theme={{ primary: 5 }} />
@@ -79,7 +77,7 @@ typedWithTheme((props: { value: number }) => null)
 
   type SomethingToRead = (Book | Magazine) & { theme?: any }
 
-  const Readable: React.SFC<SomethingToRead> = props => {
+  const Readable: React.SFC<SomethingToRead> = (props) => {
     if (props.kind === 'magazine') {
       return <div>magazine #{props.issue}</div>
     }

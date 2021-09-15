@@ -10,11 +10,11 @@ const clipboard = () => {
 
   return {
     writeText: async (text: string) =>
-      new Promise(resolve => {
+      new Promise((resolve) => {
         buffer = text
         resolve()
       }),
-    readText: async () => new Promise<string>(resolve => resolve(buffer)),
+    readText: async () => new Promise<string>((resolve) => resolve(buffer)),
   }
 }
 
@@ -43,7 +43,7 @@ describe(`<CopyButton>`, () => {
     const { container } = render(
       <CopyButton
         content="lorem ipsum"
-        getButtonLabel={copied => (copied ? `BarCopied` : `FooCopy`)}
+        getButtonLabel={(copied) => (copied ? `BarCopied` : `FooCopy`)}
       />
     )
 
@@ -61,7 +61,7 @@ describe(`<CopyButton>`, () => {
     const { container } = render(
       <CopyButton
         content="lorem ipsum"
-        getButtonTitle={copied => (copied ? `BarCopied` : `FooCopy`)}
+        getButtonTitle={(copied) => (copied ? `BarCopied` : `FooCopy`)}
       />
     )
 

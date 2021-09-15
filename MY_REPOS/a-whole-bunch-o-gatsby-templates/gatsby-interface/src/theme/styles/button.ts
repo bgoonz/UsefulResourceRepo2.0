@@ -33,7 +33,7 @@ export function getButtonCss({
 }
 
 function getButtonBaseCss(): ThemeCss {
-  return theme => ({
+  return (theme) => ({
     alignItems: `center`,
     border: theme.colors.grey[60],
     borderRadius: theme.radii[2],
@@ -79,7 +79,7 @@ function getButtonIconsCss({
   hasLeftIcon?: boolean
   hasRightIcon?: boolean
 }): ThemeCss {
-  return theme => ({
+  return (theme) => ({
     svg: {
       flexShrink: 0,
       margin: `0 ${theme.space[2]}`,
@@ -96,7 +96,7 @@ function getButtonIconsCss({
 }
 
 function getButtonLoadingCss({ loading }: { loading?: boolean }): ThemeCss {
-  return _theme =>
+  return (_theme) =>
     loading
       ? {
           "&[disabled], &[disabled]:hover": {
@@ -115,7 +115,7 @@ function getButtonLoadingCss({ loading }: { loading?: boolean }): ThemeCss {
 }
 
 function getButtonSizeCss(size: ButtonSize): ThemeCss {
-  return theme => {
+  return (theme) => {
     if (size === `S`) {
       return {
         fontSize: theme.fontSizes[1],
@@ -151,7 +151,7 @@ function getButtonVariantCss(
   variant: ButtonVariant,
   tone: ButtonTone
 ): ThemeCss {
-  return theme => {
+  return (theme) => {
     if (variant === `PRIMARY`) {
       return {
         background: theme.tones[tone].dark,

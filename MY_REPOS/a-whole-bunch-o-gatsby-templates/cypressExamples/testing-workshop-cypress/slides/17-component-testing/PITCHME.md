@@ -5,19 +5,21 @@
 - how to test React components in isolation
 
 +++
+
 ## Component testing
 
-* [cypress-react-unit-test](https://github.com/bahmutov/cypress-react-unit-test)
-* [cypress-vue-unit-test](https://github.com/bahmutov/cypress-vue-unit-test)
-* [cypress-cycle-unit-test](https://github.com/bahmutov/cypress-cycle-unit-test)
-* [cypress-svelte-unit-test](https://github.com/bahmutov/cypress-svelte-unit-test)
-* [cypress-angular-unit-test](https://github.com/bahmutov/cypress-angular-unit-test)
-* [cypress-hyperapp-unit-test](https://github.com/bahmutov/cypress-hyperapp-unit-test)
-* [cypress-angularjs-unit-test](https://github.com/bahmutov/cypress-angularjs-unit-test)
+- [cypress-react-unit-test](https://github.com/bahmutov/cypress-react-unit-test)
+- [cypress-vue-unit-test](https://github.com/bahmutov/cypress-vue-unit-test)
+- [cypress-cycle-unit-test](https://github.com/bahmutov/cypress-cycle-unit-test)
+- [cypress-svelte-unit-test](https://github.com/bahmutov/cypress-svelte-unit-test)
+- [cypress-angular-unit-test](https://github.com/bahmutov/cypress-angular-unit-test)
+- [cypress-hyperapp-unit-test](https://github.com/bahmutov/cypress-hyperapp-unit-test)
+- [cypress-angularjs-unit-test](https://github.com/bahmutov/cypress-angularjs-unit-test)
 
 [on.cypress.io/plugins#component-testing](http://on.cypress.io/plugins#component-testing)
 
 +++
+
 ## 💡 Idea
 
 Instead of loading an HTML page, create an empty page and mount a component X
@@ -41,6 +43,7 @@ describe('HelloWorld component', () => {
 ![Hello World component test](/slides/17-component-testing/img/hello-world.png)
 
 +++
+
 ## First component test
 
 - **stop** TodoMVC application
@@ -56,6 +59,7 @@ import Footer from './Footer'
 import 'cypress-react-unit-test'
 import { filters } from './filters'
 ```
+
 Note how we are loading React components and application code directly from the spec file
 
 +++
@@ -85,11 +89,13 @@ Note how we are loading React components and application code directly from the 
 ![on click test](/slides/17-component-testing/img/on-click.png)
 
 +++
+
 ## Component testing vs E2E
 
 - components are like micro web applications
 
 +++
+
 ## Unit tests vs E2E
 
 ### Unit tests
@@ -99,6 +105,7 @@ Note how we are loading React components and application code directly from the 
 - black box
 
 +++
+
 ## Unit tests vs E2E
 
 ### end-to-end tests
@@ -108,6 +115,7 @@ Note how we are loading React components and application code directly from the 
 - external effects
 
 +++
+
 ## Unit tests AND E2E
 
 - focus on one thing
@@ -115,6 +123,7 @@ Note how we are loading React components and application code directly from the 
 - runs locally and on CI
 
 +++
+
 ## 🏁 Component testing
 
 @ul
@@ -123,6 +132,7 @@ Then you test it the same way as a full E2E test.
 @ulend
 
 +++
+
 ## 🏁 Component testing: more info
 
 - [cypress-react-unit-test](https://github.com/bahmutov/cypress-react-unit-test)

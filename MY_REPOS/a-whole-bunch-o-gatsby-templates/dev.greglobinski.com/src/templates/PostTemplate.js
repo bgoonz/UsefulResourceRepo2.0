@@ -8,23 +8,23 @@ import Article from "../components/Article";
 import Post from "../components/Post";
 import { ThemeContext } from "../layouts";
 
-const PostTemplate = props => {
+const PostTemplate = (props) => {
   const {
     data: {
       post,
       authornote: { html: authorNote },
       site: {
-        siteMetadata: { facebook }
+        siteMetadata: { facebook },
       },
-      repo
+      repo,
     },
-    pathContext: { next, prev }
+    pathContext: { next, prev },
   } = props;
 
   return (
     <React.Fragment>
       <ThemeContext.Consumer>
-        {theme => (
+        {(theme) => (
           <Article theme={theme}>
             <Post
               post={post}
@@ -46,7 +46,7 @@ const PostTemplate = props => {
 
 PostTemplate.propTypes = {
   data: PropTypes.object.isRequired,
-  pathContext: PropTypes.object.isRequired
+  pathContext: PropTypes.object.isRequired,
 };
 
 export default PostTemplate;

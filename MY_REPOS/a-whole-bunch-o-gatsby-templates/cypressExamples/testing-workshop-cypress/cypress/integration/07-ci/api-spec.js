@@ -17,7 +17,7 @@ describe('via API', () => {
     counter = 1
   })
 
-  const addTodo = title =>
+  const addTodo = (title) =>
     // the way to print newly created id in the command log
     cy
       .request('POST', '/todos', {
@@ -35,12 +35,12 @@ describe('via API', () => {
     cy
       .request('/todos')
       .its('body')
-      .then(list => {
+      .then((list) => {
         cy.log(JSON.stringify(list, null, 2))
         cy.wrap(list, { log: false })
       })
 
-  const deleteTodo = id => cy.request('DELETE', `/todos/${id}`)
+  const deleteTodo = (id) => cy.request('DELETE', `/todos/${id}`)
 
   it('adds 2 todos', () => {
     addTodo('first todo')
@@ -110,9 +110,7 @@ describe('API', () => {
   beforeEach(stubMathRandom)
 
   it('receives empty list of items', () => {
-    cy.request('todos')
-      .its('body')
-      .should('deep.equal', [])
+    cy.request('todos').its('body').should('deep.equal', [])
   })
 
   it('adds two items', () => {
@@ -161,13 +159,11 @@ describe('API', () => {
 
     // thanks to stubbed random id generator
     // we can "predict" what the TODO object is going to look like
-    cy.wait('@postTodo')
-      .its('request.body')
-      .should('deep.equal', {
-        title: 'first item',
-        completed: false,
-        id: '1'
-      })
+    cy.wait('@postTodo').its('request.body').should('deep.equal', {
+      title: 'first item',
+      completed: false,
+      id: '1'
+    })
   })
 
   it('is deleting a todo item', () => {
@@ -179,10 +175,7 @@ describe('API', () => {
 
     // go through the UI
     enterTodo('first item') // id "1"
-    getTodoItems()
-      .first()
-      .find('.destroy')
-      .click({ force: true })
+    getTodoItems().first().find('.destroy').click({ force: true })
 
     cy.wait('@deleteTodo')
   })

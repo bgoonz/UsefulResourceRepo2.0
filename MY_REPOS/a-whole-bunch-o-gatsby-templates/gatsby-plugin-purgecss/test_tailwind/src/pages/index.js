@@ -1,5 +1,5 @@
-import React from 'react';
-import './tailwind.css';
+import React from "react";
+import "./tailwind.css";
 
 export default () => (
   <div>

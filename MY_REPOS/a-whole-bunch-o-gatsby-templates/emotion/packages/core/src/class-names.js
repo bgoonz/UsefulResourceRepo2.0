@@ -73,14 +73,14 @@ type Props = {
   children: ({
     css: (...args: Array<any>) => string,
     cx: (...args: Array<ClassNameArg>) => string,
-    theme: Object
-  }) => React.Node
+    theme: Object,
+  }) => React.Node,
 }
 
 export const ClassNames = withEmotionCache<Props>((props, context) => {
   return (
     <ThemeContext.Consumer>
-      {theme => {
+      {(theme) => {
         let rules = ''
         let serializedHashes = ''
         let hasRendered = false
@@ -117,11 +117,10 @@ export const ClassNames = withEmotionCache<Props>((props, context) => {
             <React.Fragment>
               <style
                 {...{
-                  [`data-emotion-${context.key}`]: serializedHashes.substring(
-                    1
-                  ),
+                  [`data-emotion-${context.key}`]:
+                    serializedHashes.substring(1),
                   dangerouslySetInnerHTML: { __html: rules },
-                  nonce: context.sheet.nonce
+                  nonce: context.sheet.nonce,
                 }}
               />
               {ele}

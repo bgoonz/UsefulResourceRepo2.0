@@ -1,7 +1,7 @@
-import { Switch, Route } from 'react-router-dom'
-import React, {Fragment} from 'react'
-import Header from './Header'
-import Pets from '../pages/Pets'
+import { Switch, Route } from "react-router-dom";
+import React, { Fragment } from "react";
+import Header from "./Header";
+import Pets from "../pages/Pets";
 
 const App = () => (
   <Fragment>
@@ -12,6 +12,6 @@ const App = () => (
       </Switch>
     </div>
   </Fragment>
-)
+);
 
-export default App
+export default App;

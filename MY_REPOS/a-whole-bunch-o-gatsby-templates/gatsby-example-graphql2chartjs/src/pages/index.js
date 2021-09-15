@@ -4,7 +4,7 @@ import graphql2chartjs from 'graphql2chartjs'
 import { graphql } from 'gatsby'
 
 const convertConnectionQuery = (arr, type) =>
-  arr.map(a => ({
+  arr.map((a) => ({
     label: a.label,
     data: a[type].totalCount,
   }))

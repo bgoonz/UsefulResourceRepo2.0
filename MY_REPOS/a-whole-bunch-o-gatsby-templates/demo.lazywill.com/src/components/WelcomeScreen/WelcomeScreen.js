@@ -7,7 +7,7 @@ import PropTypes from "prop-types";
 import SvgEl from "../shared/SvgEl/";
 import { LOGOS } from "../../constants/logos";
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     background: theme.palette.background.fourth,
     color: "#fff",
@@ -27,34 +27,34 @@ const styles = theme => ({
       margin: "0 0 .4em -.05em",
       "@media (min-width: 1024px)": {
         fontSize: "1.8em",
-        marginBottom: ".5em"
-      }
+        marginBottom: ".5em",
+      },
     },
     "& p": {
       lineHeight: 1.4,
       margin: "0 0 1em",
       "& b": {
-        fontWeight: 700
-      }
-    }
+        fontWeight: 700,
+      },
+    },
   },
   logo: {
     margin: "0 0 1em 0",
     maxWidth: "200px",
     width: "80%",
     "@media (min-width: 1024px)": {
-      maxWidth: "300px"
-    }
+      maxWidth: "300px",
+    },
   },
   sign: {
-    paddingRight: "2em"
+    paddingRight: "2em",
   },
   avatar: {
     display: "inline-block",
     height: "26px",
     margin: ".2em .5em 0 0",
     verticalAlign: "middle",
-    width: "26px"
+    width: "26px",
   },
   button: {
     background: theme.palette.background.third,
@@ -63,7 +63,7 @@ const styles = theme => ({
     margin: "0 auto",
     marginTop: "20px",
     overflow: "hidden",
-    width: "100px"
+    width: "100px",
   },
   icon: {
     animationName: "example",
@@ -71,29 +71,29 @@ const styles = theme => ({
     animationDelay: "1s",
     animationFillMode: "forwards",
     marginLeft: "-150px",
-    transform: "rotate(0deg)"
+    transform: "rotate(0deg)",
   },
   "@keyframes example": {
     "0%": {
       marginLeft: "-150px",
-      transform: "rotate(0deg) scale(1)"
+      transform: "rotate(0deg) scale(1)",
     },
     "50%": {
       marginLeft: 0,
-      transform: "rotate(360deg) scale(1)"
+      transform: "rotate(360deg) scale(1)",
     },
     "75%": {
       marginLeft: 0,
-      transform: "rotate(360deg) scale(1.5)"
+      transform: "rotate(360deg) scale(1.5)",
     },
     "100%": {
       marginLeft: 0,
-      transform: "rotate(360deg) scale(1)"
-    }
-  }
+      transform: "rotate(360deg) scale(1)",
+    },
+  },
 });
 
-const WelcomeScreen = props => {
+const WelcomeScreen = (props) => {
   return (
     <div className={props.classes.root}>
       <h1>Welcome to </h1>
@@ -119,7 +119,7 @@ const WelcomeScreen = props => {
 };
 
 WelcomeScreen.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(WelcomeScreen);

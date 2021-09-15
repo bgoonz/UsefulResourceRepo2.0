@@ -12,7 +12,7 @@ styled.svg
 {
   // $ExpectType CreateStyledComponentIntrinsic<"svg", { bar: string }, { themed: "black" }>
   styled.div<{ bar: string }, { themed: 'black' }>`
-    color: ${props => {
+    color: ${(props) => {
       // $ExpectType { themed: "black" }
       const { theme } = props
       return theme.themed
@@ -26,7 +26,7 @@ styled.svg
   myStyled.div<{ bar: string }, { themed: 'orange' }>``
 
   myStyled.div<{ bar: string }>`
-    color: ${props => {
+    color: ${(props) => {
       // $ExpectType { themed: "black" }
       const { theme } = props
       return theme.themed

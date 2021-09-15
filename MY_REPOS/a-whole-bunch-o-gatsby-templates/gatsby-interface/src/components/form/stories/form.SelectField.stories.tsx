@@ -36,7 +36,7 @@ const options = [
   `Sheala de Tancarville`,
   `Triss Merigold`,
   `Yennefer of Vengerberg`,
-].map(name => {
+].map((name) => {
   return {
     label: name,
     value: name.toLowerCase().replace(/\s/g, `-`),
@@ -74,7 +74,7 @@ storiesOf(`form`, module)
               </SelectFieldLabel>
               <SelectFieldControl
                 options={options}
-                onChange={e => action(`Change`)(e.target.value)}
+                onChange={(e) => action(`Change`)(e.target.value)}
                 disabled={disabled}
                 required={required}
               />
@@ -92,7 +92,7 @@ storiesOf(`form`, module)
             label="Comment"
             labelSize={size}
             options={options}
-            onChange={e => action(`Change`)(e.target.value)}
+            onChange={(e) => action(`Change`)(e.target.value)}
             error={error}
             hint={hint || `And this one is built with 'SelectFieldBlock'`}
             disabled={disabled}

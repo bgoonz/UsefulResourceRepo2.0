@@ -1,17 +1,20 @@
-import { Component, Output, Input, EventEmitter, OnInit } from '@angular/core';
-import { LoadingContainerComponent, LoadingPage } from '../../../common/loading-container';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { Component, Output, Input, EventEmitter, OnInit } from "@angular/core";
+import {
+  LoadingContainerComponent,
+  LoadingPage,
+} from "../../../common/loading-container";
+import { FormGroup, FormBuilder } from "@angular/forms";
 
-import { Observable } from 'rxjs';
-import { SelectItem } from 'primeng/primeng';
+import { Observable } from "rxjs";
+import { SelectItem } from "primeng/primeng";
 
-import { IArticleFilter } from '../../../article-filter/models/article-filter';
-import { ITag } from '../../models/tags';
+import { IArticleFilter } from "../../../article-filter/models/article-filter";
+import { ITag } from "../../models/tags";
 
 @Component({
-  selector: 'app-home-search',
-  templateUrl: 'home-search.component.html',
-  styleUrls: ['home-search.component.scss']
+  selector: "app-home-search",
+  templateUrl: "home-search.component.html",
+  styleUrls: ["home-search.component.scss"],
 })
 export class HomeSearchComponent extends LoadingPage implements OnInit {
   @Input() filterData: IArticleFilter;
@@ -33,7 +36,7 @@ export class HomeSearchComponent extends LoadingPage implements OnInit {
 
   ngOnInit() {
     this.searchTagsForm = this.fb.group({
-      tagsearch: ''
+      tagsearch: "",
     });
   }
 
@@ -42,7 +45,7 @@ export class HomeSearchComponent extends LoadingPage implements OnInit {
   }
 
   isInTagList(tag) {
-    return this.filterData.tags.some(item => {
+    return this.filterData.tags.some((item) => {
       return item === tag;
     });
   }
@@ -53,7 +56,7 @@ export class HomeSearchComponent extends LoadingPage implements OnInit {
   }
 
   clearTagFilter() {
-    this.tagSearch.emit('');
+    this.tagSearch.emit("");
     this.searchTagsForm.reset();
   }
 }

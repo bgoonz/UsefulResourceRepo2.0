@@ -16,11 +16,11 @@ function createArticle(n, sentence, slug) {
   }
 }
 
-(async function() {
+;(async function () {
   console.log("Start of gen")
 
   console.log("Now generating " + N + " articles")
-  let comma = '';
+  let comma = ""
   await fs.writeFile("gendata.json", "[\n") // Replace contents, regardless
   for (let i = 0; i < N; ++i) {
     const sentence = faker.lorem.sentence()
@@ -30,11 +30,10 @@ function createArticle(n, sentence, slug) {
       comma + JSON.stringify(createArticle(i, sentence, slug)) + "\n"
     )
 
-    comma = ',' // No comma before the first entry, no comma after the last
+    comma = "," // No comma before the first entry, no comma after the last
   }
   await fs.appendFile("gendata.json", "]\n")
   console.log("Finished generating " + N + " articles")
 
   console.log("End of gen")
-})();
-
+})()

@@ -6,11 +6,11 @@ import { transformExpressionWithStyles, getStyledOptions } from './utils'
 export let createStyledMacro = ({
   importPath,
   originalImportPath = importPath,
-  isWeb
+  isWeb,
 }: {
   importPath: string,
   originalImportPath?: string,
-  isWeb: boolean
+  isWeb: boolean,
 }) =>
   createMacro(({ references, state, babel, isEmotionCall }) => {
     if (!isEmotionCall) {
@@ -22,7 +22,7 @@ export let createStyledMacro = ({
       let getStyledIdentifier = () => {
         if (_styledIdentifier === undefined) {
           _styledIdentifier = addDefault(state.file.path, importPath, {
-            nameHint: 'styled'
+            nameHint: 'styled',
           })
         }
         return t.cloneDeep(_styledIdentifier)
@@ -34,7 +34,7 @@ export let createStyledMacro = ({
             state.file.path,
             originalImportPath,
             {
-              nameHint: 'styled'
+              nameHint: 'styled',
             }
           )
         }
@@ -43,7 +43,7 @@ export let createStyledMacro = ({
       if (importPath === originalImportPath) {
         getOriginalImportPathStyledIdentifier = getStyledIdentifier
       }
-      references.default.forEach(reference => {
+      references.default.forEach((reference) => {
         let isCall = false
         if (
           t.isMemberExpression(reference.parent) &&
@@ -58,7 +58,7 @@ export let createStyledMacro = ({
           ) {
             reference.parentPath.replaceWith(
               t.callExpression(getStyledIdentifier(), [
-                t.stringLiteral(reference.parent.property.name)
+                t.stringLiteral(reference.parent.property.name),
               ])
             )
           } else {
@@ -81,7 +81,7 @@ export let createStyledMacro = ({
             path: styledCallPath,
             state,
             babel,
-            shouldLabel: false
+            shouldLabel: false,
           })
           if (node && isWeb) {
             // we know the argument length will be 1 since that's the only time we will have a node since it will be static
@@ -102,11 +102,11 @@ export let createStyledMacro = ({
       })
     }
     Object.keys(references)
-      .filter(x => x !== 'default')
-      .forEach(referenceKey => {
+      .filter((x) => x !== 'default')
+      .forEach((referenceKey) => {
         let runtimeNode = addNamed(state.file.path, referenceKey, importPath)
 
-        references[referenceKey].reverse().forEach(reference => {
+        references[referenceKey].reverse().forEach((reference) => {
           reference.replaceWith(t.cloneDeep(runtimeNode))
         })
       })

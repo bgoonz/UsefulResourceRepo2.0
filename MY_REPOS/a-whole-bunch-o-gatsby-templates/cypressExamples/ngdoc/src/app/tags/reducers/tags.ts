@@ -1,9 +1,9 @@
-import { createSelector, createFeatureSelector } from '@ngrx/store';
-import { EntityState, EntityAdapter, createEntityAdapter } from '@ngrx/entity';
+import { createSelector, createFeatureSelector } from "@ngrx/store";
+import { EntityState, EntityAdapter, createEntityAdapter } from "@ngrx/entity";
 
-import { ITag } from '../models/tags';
-import { TagActions, TagActionTypes } from '../actions/tags';
-import { IArticleFilter } from '../../../app/article-filter/models/article-filter';
+import { ITag } from "../models/tags";
+import { TagActions, TagActionTypes } from "../actions/tags";
+import { IArticleFilter } from "../../../app/article-filter/models/article-filter";
 
 export interface AppState {
   tags: ITag[];
@@ -17,7 +17,7 @@ export interface TagsState extends EntityState<ITag> {
 }
 
 export const tagAdapter: EntityAdapter<ITag> = createEntityAdapter<ITag>({
-  selectId: (tag => tag._id),
+  selectId: (tag) => tag._id,
   sortComparer: (a, b) => {
     const tagA = a.tag.toUpperCase(),
       tagB = b.tag.toUpperCase();
@@ -30,13 +30,13 @@ export const tagAdapter: EntityAdapter<ITag> = createEntityAdapter<ITag>({
     }
 
     return 0;
-  }
+  },
 });
 
 export const initialState: TagsState = tagAdapter.getInitialState({
   selectedTagId: null,
-  tagSearch: '',
-  loading: false
+  tagSearch: "",
+  loading: false,
 });
 
 export function tagReducer(
@@ -47,22 +47,21 @@ export function tagReducer(
     case TagActionTypes.Load:
       return {
         ...state,
-        loading: true
+        loading: true,
       };
 
     case TagActionTypes.LoadSuccess:
       return {
         ...tagAdapter.addMany(action.payload, initialState),
-        loading: false
+        loading: false,
       };
 
     case TagActionTypes.LoadFail:
       return {
         ...state,
         ...action.payload,
-        loading: false
+        loading: false,
       };
-
 
     case TagActionTypes.Select: {
       return {
@@ -75,7 +74,7 @@ export function tagReducer(
       return {
         ...state,
         loading: state.loading,
-        tagSearch: action.payload
+        tagSearch: action.payload,
       };
     }
 

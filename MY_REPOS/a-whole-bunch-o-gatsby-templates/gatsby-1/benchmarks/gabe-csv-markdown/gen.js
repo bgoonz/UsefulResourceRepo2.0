@@ -46,11 +46,7 @@ ${faker.lorem.paragraphs()}
   fs.appendFileSync(
     FILE,
 
-    '"' + pageContent
-      .trim()
-      .replace(/"/g, '""')
-      + '"' +
-      "\n" // markdown does care about newlines
+    '"' + pageContent.trim().replace(/"/g, '""') + '"' + "\n" // markdown does care about newlines
   )
 }
 

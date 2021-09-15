@@ -1,6 +1,6 @@
 ---
 title: What is YAML and how to use it
-relatesTo: ['gatsby-starter-hero-blog']
+relatesTo: ["gatsby-starter-hero-blog"]
 category: textbook
 cover: what-is-yaml.png
 ---
@@ -51,7 +51,7 @@ longStringValue: That is a long string value
 But they can.
 
 ```yaml
-anotherLongStringValue: 'That is a long string value'
+anotherLongStringValue: "That is a long string value"
 andAnotherOne: "That is another one long string value"
 ```
 
@@ -59,7 +59,7 @@ Keys also could have spaces and do not need to be quoted but they can. That's al
 
 ```yaml
 a valid key: value
-'another valid key': value
+"another valid key": value
 ```
 
 ## Assigning values
@@ -73,8 +73,7 @@ key: value
 or using nesting, note the indentation (2 spaces before `value`)
 
 ```yaml
-key:
-  value
+key: value
 ```
 
 Both syntaxes converted to `JSON` give the same result.
@@ -133,8 +132,7 @@ It will be converted to JSON like this
 
 ```json
 {
-  "literal_block":
-    "This is the first line of the literal_block\nThis is the second line of the same literal_block\n\n  And that's the third line of the literal_block.\n",
+  "literal_block": "This is the first line of the literal_block\nThis is the second line of the same literal_block\n\n  And that's the third line of the literal_block.\n",
   "another_key": "value"
 }
 ```
@@ -148,7 +146,7 @@ folded_style: >
 
     That's the third line
     And that's the fourth line
-another_key: value  
+another_key: value
 ```
 
 As with `literal_block`, all three lines will be the value of `folded_style`. However, all newlines will be replaced with a single space and all blank lines will be converted to a newline character. But that concerns only lines without additional indentation. More indented lines will preserve its newline characters.
@@ -157,8 +155,7 @@ Take a look at how the `folded_style` converts to `JSON`.
 
 ```json
 {
-  "folded_style":
-    "This is the first line of the literal_block This is the second line of the same literal_block\n  That's the third line\n  And that's the fourth line\n",
+  "folded_style": "This is the first line of the literal_block This is the second line of the same literal_block\n  That's the third line\n  And that's the fourth line\n",
   "another_key": "value"
 }
 ```
@@ -200,10 +197,8 @@ We can nest one sequence into another one.
 a_sequence:
   - a
   - b
-  -
-    - c
-    -
-      - d
+  - - c
+    - - d
       - e
 ```
 
@@ -236,9 +231,9 @@ I strongly encourage you to play with the converters: JSON to YAML and JAML to J
 
 ## Links
 
-* [yaml.org](http://yaml.org/)
-* [wikipedia.org/wiki/YAML](https://en.wikipedia.org/wiki/YAML)
-* [js-yaml](https://github.com/nodeca/js-yaml)
-* [YAML validator](http://www.yamllint.com/)
-* [YAML to JSON converter](http://convertjson.com/yaml-to-json.htm)
-* [JSON to YAML converter](http://convertjson.com/json-to-yaml.htm)
+- [yaml.org](http://yaml.org/)
+- [wikipedia.org/wiki/YAML](https://en.wikipedia.org/wiki/YAML)
+- [js-yaml](https://github.com/nodeca/js-yaml)
+- [YAML validator](http://www.yamllint.com/)
+- [YAML to JSON converter](http://convertjson.com/yaml-to-json.htm)
+- [JSON to YAML converter](http://convertjson.com/json-to-yaml.htm)

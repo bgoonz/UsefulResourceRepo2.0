@@ -66,7 +66,7 @@ module.exports = {
         name: 'theNewImageField',
         auth: { htaccess_user: `USER`, htaccess_pass: `PASSWORD` },
         ext: '.jpg',
-        prepareUrl: url => (url.startsWith('//') ? `https:${url}` : url),
+        prepareUrl: (url) => (url.startsWith('//') ? `https:${url}` : url),
       },
     },
   ],

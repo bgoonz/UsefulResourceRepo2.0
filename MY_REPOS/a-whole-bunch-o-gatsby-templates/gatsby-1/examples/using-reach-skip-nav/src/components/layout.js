@@ -35,7 +35,7 @@ const Layout = ({ children }) => {
           padding: `0 1.0875rem 1.45rem`,
         }}
       >
-        <SkipNavContent/>
+        <SkipNavContent />
         <main>{children}</main>
         <footer>
           © {new Date().getFullYear()}, Built with

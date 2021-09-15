@@ -17,24 +17,24 @@ const LoadableShare = Loadable({
   loader: () => import("./Share"),
   loading() {
     return <Loading />;
-  }
+  },
 });
 
-const Post = props => {
+const Post = (props) => {
   const {
     post,
     post: {
       html,
       fileAbsolutePath,
       fields: { prefix, slug },
-      frontmatter: { title, category }
+      frontmatter: { title, category },
     },
     authornote,
     facebook,
     next: nextPost,
     prev: prevPost,
     theme,
-    repo
+    repo,
   } = props;
 
   return (
@@ -64,7 +64,7 @@ Post.propTypes = {
   next: PropTypes.object,
   prev: PropTypes.object,
   theme: PropTypes.object.isRequired,
-  repo: PropTypes.object
+  repo: PropTypes.object,
 };
 
 export default Post;

@@ -29,7 +29,7 @@ class Item extends React.Component {
 export default Item
 
 export const pageQuery = graphql`
-  query($id: String!) {
+  query ($id: String!) {
     mongodbCloudDocuments(id: { eq: $id }) {
       id
       name

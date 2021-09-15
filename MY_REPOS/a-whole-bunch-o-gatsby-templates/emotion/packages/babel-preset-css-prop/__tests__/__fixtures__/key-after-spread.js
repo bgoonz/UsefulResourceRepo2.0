@@ -6,7 +6,7 @@ export let Buttons = ({ buttons }) => {
           {...rest}
           key={id}
           css={{
-            color: 'hotpink'
+            color: 'hotpink',
           }}
         >
           {label}

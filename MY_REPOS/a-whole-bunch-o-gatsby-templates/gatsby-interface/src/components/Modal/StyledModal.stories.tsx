@@ -29,7 +29,7 @@ export default {
     },
   },
   decorators: [
-    story => (
+    (story) => (
       <React.Fragment>
         <Global
           styles={(theme: Theme) => [
@@ -48,7 +48,7 @@ export default {
         {story()}
       </React.Fragment>
     ),
-    story => <div style={{ maxWidth: `620px` }}>{story()}</div>,
+    (story) => <div style={{ maxWidth: `620px` }}>{story()}</div>,
   ] as DecoratorFn[],
 }
 
@@ -106,7 +106,7 @@ Sandbox.story = {
 }
 
 export const Variants = () =>
-  VARIANTS.map(variant => (
+  VARIANTS.map((variant) => (
     <div key={variant}>
       <StyledModal key={variant} variant={variant}>
         <StyledModalHeader>Variant: {variant}</StyledModalHeader>

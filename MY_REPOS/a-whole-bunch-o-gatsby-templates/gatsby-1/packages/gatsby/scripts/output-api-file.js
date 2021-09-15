@@ -9,13 +9,13 @@ async function outputFile() {
     [
       path.join("cache-dir", "api-ssr-docs.js"),
       path.join("src", "utils", "api-browser-docs.ts"),
-      path.join("src", "utils", "api-node-docs.ts")
+      path.join("src", "utils", "api-node-docs.ts"),
     ].map(filePath => {
       const resolved = path.resolve(filePath)
       const [, api] = path.basename(filePath).split("-")
       return documentation
         .build(resolved, {
-          shallow: true
+          shallow: true,
         })
         .then(contents => {
           return [contents, api]
@@ -33,7 +33,7 @@ async function outputFile() {
       }, {})
       mergedOutput[doc.name] = {
         deprecated: !!tags.deprecated || undefined,
-        version: tags.gatsbyVersion
+        version: tags.gatsbyVersion,
       }
       return mergedOutput
     }, {})

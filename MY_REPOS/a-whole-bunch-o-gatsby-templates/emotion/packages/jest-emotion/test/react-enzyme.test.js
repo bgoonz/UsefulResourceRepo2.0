@@ -7,11 +7,11 @@ import { createSerializer } from 'jest-emotion'
 import { toMatchSnapshot } from 'jest-snapshot'
 import React from 'react'
 
-const createEnzymeSnapshotMatcher = serializerOptions => {
+const createEnzymeSnapshotMatcher = (serializerOptions) => {
   const serializer = createEnzymeSerializer(serializerOptions)
-  const identityPrinter = v => v
+  const identityPrinter = (v) => v
 
-  return function(val) {
+  return function (val) {
     return toMatchSnapshot.call(this, serializer.print(val, identityPrinter))
   }
 }
@@ -20,7 +20,7 @@ expect.addSnapshotSerializer(createSerializer())
 
 expect.extend({
   toMatchShallowSnapshot: createEnzymeSnapshotMatcher(),
-  toMatchDeepSnapshot: createEnzymeSnapshotMatcher({ mode: 'deep' })
+  toMatchDeepSnapshot: createEnzymeSnapshotMatcher({ mode: 'deep' }),
 })
 
 test('enzyme mount test', () => {

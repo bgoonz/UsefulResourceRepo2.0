@@ -4,10 +4,10 @@ import React from "react";
 
 import Bodytext from "../Article/Bodytext";
 
-const RepoDescription = props => {
+const RepoDescription = (props) => {
   const {
     repo: { description },
-    theme
+    theme,
   } = props;
 
   return (
@@ -19,7 +19,7 @@ const RepoDescription = props => {
 
 RepoDescription.propTypes = {
   repo: PropTypes.object,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default RepoDescription;

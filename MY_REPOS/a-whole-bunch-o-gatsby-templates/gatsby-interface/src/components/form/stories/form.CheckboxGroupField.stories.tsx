@@ -44,7 +44,7 @@ storiesOf(`form`, module)
       `Sheala de Tancarville`,
       `Triss Merigold`,
       `Yennefer of Vengerberg`,
-    ].map(name => {
+    ].map((name) => {
       return {
         label: name,
         value: name.toLowerCase().replace(/\s/g, `-`),
@@ -61,7 +61,7 @@ storiesOf(`form`, module)
             label="Fieldset Legend"
             options={options}
             error={error}
-            onChange={e => {
+            onChange={(e) => {
               const target = e.currentTarget
               const valueArray: string[] = [...fieldValue]
 

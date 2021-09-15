@@ -11,7 +11,7 @@ const cardIncoming = keyframes`
   }
 `
 
-const baseCss: ThemeCss = theme => ({
+const baseCss: ThemeCss = (theme) => ({
   background: theme.colors.white,
   borderRadius: theme.radii[3],
   boxShadow: "0px 5px 30px rgba(0, 0, 0, 0.2)",
@@ -29,6 +29,6 @@ const baseCss: ThemeCss = theme => ({
 
 export type ModalCardProps = Omit<ModalContentProps, "ref">
 
-export const ModalCard: React.FC<ModalCardProps> = props => (
+export const ModalCard: React.FC<ModalCardProps> = (props) => (
   <ModalContent css={baseCss} {...props} />
 )

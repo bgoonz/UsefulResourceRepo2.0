@@ -9,7 +9,7 @@ import {
   isDOMElement,
   getStylesFromClassNames,
   getStyleElements,
-  getKeys
+  getKeys,
 } from './utils'
 
 export { matchers } from './matchers'
@@ -53,7 +53,7 @@ function getPrettyStylesFromClassNames(
 
 type Options = {
   classNameReplacer?: (className: string, index: number) => string,
-  DOMElements?: boolean
+  DOMElements?: boolean,
 }
 
 function filterEmotionProps(props = {}) {
@@ -71,7 +71,7 @@ function filterEmotionProps(props = {}) {
 
 export function createSerializer({
   classNameReplacer,
-  DOMElements = true
+  DOMElements = true,
 }: Options = {}) {
   let cache = new WeakSet()
   function print(val: *, printer: Function) {
@@ -82,7 +82,7 @@ export function createSerializer({
       return printer({
         ...val,
         props: filterEmotionProps(val.props),
-        type: val.props.__EMOTION_TYPE_PLEASE_DO_NOT_USE__
+        type: val.props.__EMOTION_TYPE_PLEASE_DO_NOT_USE__,
       })
     }
     const nodes = getNodes(val)

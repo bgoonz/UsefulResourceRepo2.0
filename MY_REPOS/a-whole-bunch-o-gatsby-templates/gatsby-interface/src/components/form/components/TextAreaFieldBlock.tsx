@@ -13,9 +13,8 @@ import {
 } from "./TextAreaField"
 import { WithFormFieldBlock } from "./FormField"
 
-export type TextAreaFieldBlockProps = WithFormFieldBlock<
-  TextAreaFieldControlProps
->
+export type TextAreaFieldBlockProps =
+  WithFormFieldBlock<TextAreaFieldControlProps>
 
 export const TextAreaFieldBlock = React.forwardRef<
   HTMLTextAreaElement,

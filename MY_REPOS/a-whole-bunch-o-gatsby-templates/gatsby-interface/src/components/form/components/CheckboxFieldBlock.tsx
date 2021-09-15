@@ -13,9 +13,8 @@ import {
 } from "./CheckboxField"
 import { WithFormFieldBlock } from "./FormField"
 
-export type CheckboxFieldBlockProps = WithFormFieldBlock<
-  CheckboxFieldControlProps
->
+export type CheckboxFieldBlockProps =
+  WithFormFieldBlock<CheckboxFieldControlProps>
 
 export const CheckboxFieldBlock = React.forwardRef<
   HTMLInputElement,

@@ -13,7 +13,7 @@ import {
   ReactElement,
   ReactNode,
   Ref,
-  createElement
+  createElement,
 } from 'react'
 
 export {
@@ -21,7 +21,7 @@ export {
   ComponentSelector,
   CSSObject,
   FunctionInterpolation,
-  ObjectInterpolation
+  ObjectInterpolation,
 } from '@emotion/css'
 
 export { EmotionCache, Interpolation, SerializedStyles, css }

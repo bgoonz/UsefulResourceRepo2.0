@@ -182,7 +182,12 @@ async function runIndexQueries(
             );
           }
 
-          if (matchFields.some(field => !deepEqual(existingObj[field], newObj[field], { strict: true }))) {
+          if (
+            matchFields.some(
+              field =>
+                !deepEqual(existingObj[field], newObj[field], { strict: true })
+            )
+          ) {
             // one or more fields differ, so index new object
             toIndex[id] = newObj;
           } else {

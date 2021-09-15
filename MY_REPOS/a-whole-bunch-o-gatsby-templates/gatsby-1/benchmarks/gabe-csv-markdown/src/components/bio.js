@@ -12,16 +12,14 @@ const Bio = () => {
     <div
       style={{
         display: `flex`,
-        marginBottom: '5px',
+        marginBottom: "5px",
       }}
     >
       <p>
-        Written by <strong>Bob</strong> who lives and works in Fan
-        Srancisco building useful things.
+        Written by <strong>Bob</strong> who lives and works in Fan Srancisco
+        building useful things.
         {` `}
-        <a href={`https://twitter.com/bob`}>
-          You should follow him on Twitter
-        </a>
+        <a href={`https://twitter.com/bob`}>You should follow him on Twitter</a>
       </p>
     </div>
   )

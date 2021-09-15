@@ -66,18 +66,17 @@ export default function ToggleSwitch({
       id={id}
       className={className}
       style={style}
-      css={theme => [
+      css={(theme) => [
         {
           display: `flex`,
           alignItems: `center`,
           // We can rely on "> ToggleGutterTagName" here since we have full control over direct children
-          [`&:focus-within > ${ToggleGutterTagName}`]: toggleGutterFocusCss(
-            theme
-          ),
+          [`&:focus-within > ${ToggleGutterTagName}`]:
+            toggleGutterFocusCss(theme),
         },
         toggleLabelCss(theme),
       ]}
-      onClick={e => {
+      onClick={(e) => {
         if (!inputOnRef.current || !inputOffRef.current) {
           return
         }
@@ -102,7 +101,7 @@ export default function ToggleSwitch({
           toggle()
         }
       }}
-      onKeyPress={e => {
+      onKeyPress={(e) => {
         if (e.key !== " ") {
           return
         }

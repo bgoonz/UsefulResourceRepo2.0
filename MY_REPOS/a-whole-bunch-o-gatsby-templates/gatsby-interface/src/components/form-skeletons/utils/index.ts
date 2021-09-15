@@ -4,7 +4,7 @@ export function getFinalAriaDescribedBy(
 ) {
   return (
     [controlDescribedBy, ariaDescribedBy]
-      .filter(describedBy => describedBy)
+      .filter((describedBy) => describedBy)
       .join(` `) || undefined
   )
 }

@@ -18,17 +18,17 @@ export default ({ form }) => {
     password: '',
   })
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     setDetails({ ...details, [e.target.name]: e.target.value })
   }
 
-  const handleBlur = e => {
+  const handleBlur = (e) => {
     if (!e.target.value) {
       setErrors({ ...errors, [e.target.name]: 'Required field' })
     }
   }
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
 

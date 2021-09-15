@@ -22,7 +22,7 @@ export default {
     },
   },
   decorators: [
-    story => {
+    (story) => {
       React.useEffect(() => {
         const tooltipToggle = document.querySelector<
           HTMLButtonElement | HTMLInputElement | HTMLAnchorElement
@@ -88,7 +88,7 @@ Sandbox.story = {
 }
 
 export const Positions = () =>
-  POSITIONS.map(position => (
+  POSITIONS.map((position) => (
     <Tooltip key={position} label="Tooltip text" position={position}>
       <button>Position: {position}</button>
     </Tooltip>

@@ -9,7 +9,7 @@ export default ({ data }) => {
 }
 
 export const query = graphql`
-  query($fooBar: String!, $sort: TestSortInput, $count: Boolean!) {
+  query ($fooBar: String!, $sort: TestSortInput, $count: Boolean!) {
     allTest(filter: { fooBar: { ne: $fooBar } }, sort: $sort, limit: 100) {
       nodes {
         nodeNum

@@ -15,7 +15,7 @@ var primary = {
   A200: "#d8ffad",
   A400: "#c0ff7a",
   A700: "#b4ff60",
-  contrastDefaultColor: "light"
+  contrastDefaultColor: "light",
 };
 
 const theme = createMuiTheme({
@@ -28,12 +28,12 @@ const theme = createMuiTheme({
       first: "#383a30",
       second: "#3e4035",
       third: "#4d4f44",
-      fourth: "#545649"
-    }
+      fourth: "#545649",
+    },
   },
   typography: {
-    fontFamily: `"Helvetica", "Arial", sans-serif`
-  }
+    fontFamily: `"Helvetica", "Arial", sans-serif`,
+  },
 });
 
 export default theme;

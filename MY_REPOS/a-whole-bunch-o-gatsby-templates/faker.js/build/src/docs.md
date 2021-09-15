@@ -18,22 +18,22 @@
 ### Browser
 
 ```html
-    <script src = "faker.js" type = "text/javascript"></script>
-    <script>
-      var randomName = faker.name.findName(); // Caitlyn Kerluke
-      var randomEmail = faker.internet.email(); // Rusty@arne.info
-      var randomCard = faker.helpers.createCard(); // random contact card containing many properties
-    </script>
+<script src="faker.js" type="text/javascript"></script>
+<script>
+  var randomName = faker.name.findName(); // Caitlyn Kerluke
+  var randomEmail = faker.internet.email(); // Rusty@arne.info
+  var randomCard = faker.helpers.createCard(); // random contact card containing many properties
+</script>
 ```
 
 ### Node.js
 
 ```js
-    var faker = require('faker');
+var faker = require("faker");
 
-    var randomName = faker.name.findName(); // Rowan Nikolaus
-    var randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
-    var randomCard = faker.helpers.createCard(); // random contact card containing many properties
+var randomName = faker.name.findName(); // Rowan Nikolaus
+var randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
+var randomCard = faker.helpers.createCard(); // random contact card containing many properties
 ```
 
 ## API
@@ -54,8 +54,10 @@ faker.js contains a super useful generator method `Faker.fake` for combining fak
 
 {{=<% %>=}}
 
-``` js
-console.log(faker.fake("{{name.lastName}}, {{name.firstName}} {{name.suffix}}"));
+```js
+console.log(
+  faker.fake("{{name.lastName}}, {{name.firstName}} {{name.suffix}}")
+);
 // outputs: "Marks, Dean Sr."
 ```
 
@@ -82,13 +84,13 @@ faker.locale = "de";
 
 faker.js supports incremental loading of locales.
 
-By default, requiring `faker` will include *all* locale data.
+By default, requiring `faker` will include _all_ locale data.
 
 In a production environment, you may only want to include the locale data for a specific set of locales.
 
 ```js
 // loads only de locale
-var faker = require('faker/locale/de');
+var faker = require("faker/locale/de");
 ```
 
 ## Setting a randomness seed
@@ -160,8 +162,8 @@ http://github.com/marak/faker.js/
 
 faker.js was inspired by and has used data definitions from:
 
- * <https://github.com/stympy/faker/> - Copyright (c) 2007-2010 Benjamin Curtis
- * <http://search.cpan.org/~jasonk/Data-Faker-0.07/> - Copyright 2004-2005 by Jason Kohles
+- <https://github.com/stympy/faker/> - Copyright (c) 2007-2010 Benjamin Curtis
+- <http://search.cpan.org/~jasonk/Data-Faker-0.07/> - Copyright 2004-2005 by Jason Kohles
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

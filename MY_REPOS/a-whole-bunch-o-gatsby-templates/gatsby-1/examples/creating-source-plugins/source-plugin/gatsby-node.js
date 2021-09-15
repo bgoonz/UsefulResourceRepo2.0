@@ -145,9 +145,7 @@ exports.sourceNodes = async function sourceNodes(
 
   // touch nodes to ensure they aren't garbage collected
   getNodesByType(POST_NODE_TYPE).forEach(node => touchNode(node))
-  getNodesByType(AUTHOR_NODE_TYPE).forEach(node =>
-    touchNode(node)
-  )
+  getNodesByType(AUTHOR_NODE_TYPE).forEach(node => touchNode(node))
 
   // listen for updates using subscriptions from the API
   if (pluginOptions.preview) {

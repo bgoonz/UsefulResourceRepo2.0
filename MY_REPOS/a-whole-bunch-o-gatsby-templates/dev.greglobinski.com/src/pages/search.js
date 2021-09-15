@@ -10,19 +10,19 @@ import Seo from "../components/Seo";
 
 import { ReactComponent as AlgoliaIcon } from "../images/svg-icons/search-by-algolia.svg";
 
-const SearchPage = props => {
+const SearchPage = (props) => {
   const {
     data: {
       site: {
-        siteMetadata: { algolia, facebook }
-      }
-    }
+        siteMetadata: { algolia, facebook },
+      },
+    },
   } = props;
 
   return (
     <React.Fragment>
       <ThemeContext.Consumer>
-        {theme => (
+        {(theme) => (
           <Article theme={theme}>
             <div className="icon">
               <AlgoliaIcon />
@@ -50,7 +50,7 @@ const SearchPage = props => {
 };
 
 SearchPage.propTypes = {
-  data: PropTypes.object.isRequired
+  data: PropTypes.object.isRequired,
 };
 
 export default SearchPage;

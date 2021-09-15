@@ -23,7 +23,6 @@ describe(`Pages`, () => {
       cy.visit(`/page-from-local-overwrite`).waitForRouteChange()
       cy.getTestElement(`title`).contains(`Overwritten page from local theme`)
     })
-
   })
   it(`page queries can be shadowed`, () => {
     cy.visit(`/about`).waitForRouteChange()

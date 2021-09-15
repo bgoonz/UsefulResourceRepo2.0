@@ -1,13 +1,11 @@
 /* global Vue, Vuex, axios */
 /* eslint-disable no-console */
 /* eslint-disable-next-line */
-; (function () {
+;(function () {
   Vue.use(Vuex)
 
   function randomId() {
-    return Math.random()
-      .toString()
-      .substr(2, 10)
+    return Math.random().toString().substr(2, 10)
   }
 
   const store = new Vuex.Store({
@@ -17,9 +15,9 @@
       newTodo: ''
     },
     getters: {
-      newTodo: state => state.newTodo,
-      todos: state => state.todos,
-      loading: state => state.loading
+      newTodo: (state) => state.newTodo,
+      todos: (state) => state.todos,
+      loading: (state) => state.loading
     },
     mutations: {
       SET_LOADING(state, flag) {
@@ -50,13 +48,13 @@
 
         axios
           .get('/todos')
-          .then(r => r.data)
-          .then(todos => {
+          .then((r) => r.data)
+          .then((todos) => {
             console.log('got %d todos', todos.length)
             commit('SET_TODOS', todos)
             commit('SET_LOADING', false)
           })
-          .catch(e => {
+          .catch((e) => {
             console.error('could not load todos')
             console.error(e.message)
             console.error(e.response.data)
@@ -113,7 +111,7 @@
       },
       // example promise-returning action
       addTodoAfterDelay({ commit }, { milliseconds, title }) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
           setTimeout(() => {
             const todo = {
               title,

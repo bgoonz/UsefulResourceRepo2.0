@@ -2,7 +2,7 @@
 import { jsx } from "@emotion/core"
 import { ThemeCss, Theme } from "../../theme"
 
-const baseCss: ThemeCss = theme => ({
+const baseCss: ThemeCss = (theme) => ({
   borderRadius: theme.radii[2],
   fontFamily: theme.fonts.heading,
   fontWeight: `bold`,
@@ -10,7 +10,7 @@ const baseCss: ThemeCss = theme => ({
 })
 
 const variantCss: Record<BadgeVariant, ThemeCss> = {
-  PILL: theme => ({
+  PILL: (theme) => ({
     background: theme.colors.green[50],
     color: theme.colors.white,
     fontSize: theme.fontSizes[1],
@@ -19,7 +19,7 @@ const variantCss: Record<BadgeVariant, ThemeCss> = {
     textTransform: `uppercase`,
   }),
 
-  STATUS: theme => ({
+  STATUS: (theme) => ({
     alignItems: `center`,
     background: theme.colors.green[5],
     color: theme.colors.green[50],

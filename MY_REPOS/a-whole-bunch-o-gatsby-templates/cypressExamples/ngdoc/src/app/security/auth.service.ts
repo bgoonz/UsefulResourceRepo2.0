@@ -1,9 +1,9 @@
-import { Injectable, EventEmitter } from '@angular/core';
-import { CanActivate } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { IUser } from './user.model';
-import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { Injectable, EventEmitter } from "@angular/core";
+import { CanActivate } from "@angular/router";
+import { HttpClient } from "@angular/common/http";
+import { IUser } from "./user.model";
+import { Observable } from "rxjs";
+import { environment } from "../../environments/environment";
 
 @Injectable()
 export class Auth {
@@ -12,22 +12,26 @@ export class Auth {
 
   currentIdentity: IUser;
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient) {}
 
   hasRole(role) {
     return this.currentIdentity && this.currentIdentity.role === role;
   }
 
   getAuthType() {
-    return this.httpClient.get('/api/auth/type');
+    return this.httpClient.get("/api/auth/type");
   }
 
   localLogin() {
-    this.httpClient.post('/api/auth/login', { username: 'joeeames@gmail.com', password: 'joe' })
+    this.httpClient
+      .post("/api/auth/login", {
+        username: "joeeames@gmail.com",
+        password: "joe",
+      })
       .subscribe((d) => {
         this.identityRetrieved = false;
         this.getIdentity();
-        console.log('logged in with local user');
+        console.log("logged in with local user");
       });
   }
 
@@ -44,7 +48,7 @@ export class Auth {
   isAdmin(): Promise<boolean> {
     const p = new Promise<boolean>((resolve) => {
       this.getIdentity().then(() => {
-        resolve(this.currentIdentity.role === 'admin');
+        resolve(this.currentIdentity.role === "admin");
       });
     });
 
@@ -56,24 +60,23 @@ export class Auth {
       if (this.identityRetrieved) {
         resolve(this.currentIdentity);
       }
-      this.httpClient.get('/api/currentIdentity')
-        .subscribe((user: any) => {
-          this.identityRetrieved = true;
+      this.httpClient.get("/api/currentIdentity").subscribe((user: any) => {
+        this.identityRetrieved = true;
 
-          if (user._id !== undefined) {
-            this.currentIdentity = user;
-            this.authenticated = true;
-            resolve(this.currentIdentity);
-          } else {
-            resolve(undefined);
-          }
-        });
+        if (user._id !== undefined) {
+          this.currentIdentity = user;
+          this.authenticated = true;
+          resolve(this.currentIdentity);
+        } else {
+          resolve(undefined);
+        }
+      });
     });
     return p;
   }
 
   logout() {
-    const o = this.httpClient.post('/api/logout', {});
+    const o = this.httpClient.post("/api/logout", {});
     o.subscribe(() => {
       this.currentIdentity = undefined;
       this.authenticated = false;
@@ -83,7 +86,7 @@ export class Auth {
 
   verifyCaptcha(response) {
     const secret = environment.captcha_secret,
-      url = '/api/captcha/verify';
+      url = "/api/captcha/verify";
 
     return this.httpClient.post(url, { secret: secret, response: response });
   }

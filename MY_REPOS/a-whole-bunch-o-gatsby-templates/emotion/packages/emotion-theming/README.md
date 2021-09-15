@@ -40,11 +40,11 @@ import styled from '@emotion/styled'
 
 const Container = styled.div({
   background: 'whitesmoke',
-  height: '100vh'
+  height: '100vh',
 })
 
 const Headline = styled.h1`
-  color: ${props => props.theme.color};
+  color: ${(props) => props.theme.color};
   font-family: sans-serif;
 `
 
@@ -53,7 +53,7 @@ export default class Page extends React.Component {
     return (
       <Container>
         <Headline>I'm red!</Headline>
-        <p css={theme => ({ color: theme.color })}>I'm also red!</p>
+        <p css={(theme) => ({ color: theme.color })}>I'm also red!</p>
       </Container>
     )
   }
@@ -67,7 +67,7 @@ import { ThemeProvider } from 'emotion-theming'
 import Page from './Page.js'
 
 const theme = {
-  color: 'red'
+  color: 'red',
 }
 
 class App extends React.Component {
@@ -101,13 +101,13 @@ import { ThemeProvider, withTheme } from 'emotion-theming'
 
 const theme = {
   backgroundColor: 'green',
-  color: 'red'
+  color: 'red',
 }
 
 // function-style theme; note that if multiple <ThemeProvider> are used,
 // the parent theme will be passed as a function argument
 
-const adjustedTheme = ancestorTheme => ({ ...ancestorTheme, color: 'blue' })
+const adjustedTheme = (ancestorTheme) => ({ ...ancestorTheme, color: 'blue' })
 
 class Container extends React.Component {
   render() {
@@ -143,8 +143,8 @@ class TellMeTheColor extends React.Component {
 
 TellMeTheColor.propTypes = {
   theme: PropTypes.shape({
-    color: PropTypes.string
-  })
+    color: PropTypes.string,
+  }),
 }
 
 const TellMeTheColorWithTheme = withTheme(TellMeTheColor)
@@ -163,18 +163,13 @@ import { ThemeProvider, useTheme } from 'emotion-theming'
 
 const theme = {
   colors: {
-    primary: 'hotpink'
-  }
+    primary: 'hotpink',
+  },
 }
 
-function SomeText (props) {
+function SomeText(props) {
   const theme = useTheme()
-  return (
-    <div
-      css={{ color: theme.colors.primary }}
-      {...props}
-    />
-  )
+  return <div css={{ color: theme.colors.primary }} {...props} />
 }
 
 render(

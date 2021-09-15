@@ -31,8 +31,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url:
-        "https://www.figma.com/file/OfhYd2rjUTCeu65VGlzH1wtv/Menus?node-id=295%3A335",
+      url: "https://www.figma.com/file/OfhYd2rjUTCeu65VGlzH1wtv/Menus?node-id=295%3A335",
     },
   },
 }
@@ -57,7 +56,7 @@ Sandbox.story = {
 }
 
 export const Variants = () =>
-  SIDEBAR_NAV_VARIANTS.map(variant => (
+  SIDEBAR_NAV_VARIANTS.map((variant) => (
     <React.Fragment key={variant}>
       <h3>{variant}:</h3>
       <SidebarNavExample key={variant} variant={variant} />

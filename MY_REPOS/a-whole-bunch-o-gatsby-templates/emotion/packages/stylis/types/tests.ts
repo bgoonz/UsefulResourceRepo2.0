@@ -2,7 +2,7 @@ import Stylis, {
   Context,
   PrefixContext,
   StylisUse,
-  StylisSet
+  StylisSet,
 } from '@emotion/stylis'
 
 new Stylis()
@@ -15,43 +15,43 @@ new Stylis([])
 new Stylis({})
 new Stylis({
   // $ExpectError
-  a: 5
+  a: 5,
 })
 new Stylis({
-  prefix: undefined
+  prefix: undefined,
 })
 new Stylis({
-  prefix: true
+  prefix: true,
 })
 new Stylis({
-  prefix: false
+  prefix: false,
 })
 new Stylis({
   prefix() {
     return true
-  }
+  },
 })
 new Stylis({
   prefix(key: string) {
     return key === 'abc'
-  }
+  },
 })
 new Stylis({
   prefix(key: string, value: string, context: PrefixContext) {
     return value === 'world'
-  }
+  },
 })
 // $ExpectError
 new Stylis({
   prefix(key: string, value: string, context: PrefixContext) {
     return 'hi'
-  }
+  },
 })
 // $ExpectError
 new Stylis({
   prefix(key: string, value: string, context: PrefixContext, a: any) {
     return true
-  }
+  },
 })
 
 const stylis0 = new Stylis()
@@ -66,17 +66,17 @@ const stylis = new Stylis()
 stylis.set()
 stylis.set({})
 stylis.set({
-  prefix: true
+  prefix: true,
 })
 stylis.set({
   prefix(key: string) {
     return false
-  }
+  },
 })
 stylis.set({
   prefix(key: string, value: string, context: PrefixContext) {
     return false
-  }
+  },
 })
 // $ExpectError
 stylis.set({ prefix: () => 'hi' })
@@ -93,15 +93,15 @@ stylis.use(undefined)
 // $ExpectError
 stylis.use({})
 stylis.use([])
-stylis.use(function() {})
-stylis.use(function(context) {})
-stylis.use(function(context: Context) {
+stylis.use(function () {})
+stylis.use(function (context) {})
+stylis.use(function (context: Context) {
   return 'abc'
 })
-stylis.use(function(context: Context, content, selector, parent) {
+stylis.use(function (context: Context, content, selector, parent) {
   const x: StylisUse = this.use
 })
-stylis.use(function(
+stylis.use(function (
   context: Context,
   content,
   selector,
@@ -113,7 +113,7 @@ stylis.use(function(
   const x: StylisSet = this.set
 })
 stylis.use([
-  function(
+  function (
     context: Context,
     content,
     selector,
@@ -125,10 +125,10 @@ stylis.use([
     depth
   ) {
     const x: StylisSet = this.set
-  }
+  },
 ])
 // $ExpectError
-stylis.use(function(
+stylis.use(function (
   context: Context,
   // $ExpectError
   content,

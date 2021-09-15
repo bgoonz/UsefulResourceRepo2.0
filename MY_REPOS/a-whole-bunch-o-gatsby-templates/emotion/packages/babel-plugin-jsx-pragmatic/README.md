@@ -32,10 +32,10 @@ babel.transform(code, {
     [
       'babel-plugin-transform-react-jsx',
       {
-        pragma: 'whatever'
-      }
-    ]
-  ]
+        pragma: 'whatever',
+      },
+    ],
+  ],
 })
 ```
 
@@ -61,18 +61,18 @@ babel.transform(code, {
     [
       'babel-plugin-transform-react-jsx',
       {
-        pragma: 'whatever'
-      }
+        pragma: 'whatever',
+      },
     ],
 
     [
       '@emotion/babel-plugin-jsx-pragmatic',
       {
         module: '/something/whatever',
-        import: 'whatever'
-      }
-    ]
-  ]
+        import: 'whatever',
+      },
+    ],
+  ],
 })
 ```
 
@@ -98,17 +98,17 @@ String. The identifier that you want to import the `module` with. This should co
     [
       'babel-plugin-transform-react-jsx',
       {
-        pragma: 'x'
-      }
+        pragma: 'x',
+      },
     ],
 
     [
       '@emotion/babel-plugin-jsx-pragmatic',
       {
         module: '/something/whatever',
-        import: 'x'
-      }
-    ]
+        import: 'x',
+      },
+    ],
   ]
 }
 
@@ -117,17 +117,17 @@ String. The identifier that you want to import the `module` with. This should co
     [
       'babel-plugin-transform-react-jsx',
       {
-        pragma: 'x.y'
-      }
+        pragma: 'x.y',
+      },
     ],
 
     [
       '@emotion/babel-plugin-jsx-pragmatic',
       {
         module: '/something/whatever',
-        import: 'x'
-      }
-    ]
+        import: 'x',
+      },
+    ],
   ]
 }
 ```

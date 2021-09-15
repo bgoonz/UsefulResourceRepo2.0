@@ -7,6 +7,4 @@ type GatsbyImageWithIEPolyfillProps = GatsbyImageProps & {
   objectPosition?: string
 }
 
-export default class GatsbyImageWithIEPolyfill extends React.Component<
-  GatsbyImageWithIEPolyfillProps
-> {}
+export default class GatsbyImageWithIEPolyfill extends React.Component<GatsbyImageWithIEPolyfillProps> {}

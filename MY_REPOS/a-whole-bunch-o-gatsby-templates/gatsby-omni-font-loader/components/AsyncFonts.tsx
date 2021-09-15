@@ -1,15 +1,15 @@
-import React from "react"
-import { Helmet } from "react-helmet"
+import React from "react";
+import { Helmet } from "react-helmet";
 
 export const AsyncFonts: React.FC<{ hrefs: string[] }> = ({ hrefs }) => {
-  const links = []
+  const links = [];
 
-  hrefs.forEach(href => {
+  hrefs.forEach((href) => {
     const noScript = (
       <noscript
         key={`noscript-${href}`}
       >{`<link rel="stylesheet" href="${href}" />`}</noscript>
-    )
+    );
     const link = (
       <link
         key={`stylesheet-${href}`}
@@ -17,10 +17,10 @@ export const AsyncFonts: React.FC<{ hrefs: string[] }> = ({ hrefs }) => {
         media="all"
         href={href}
       />
-    )
+    );
 
-    links.push([noScript, link])
-  })
+    links.push([noScript, link]);
+  });
 
-  return <Helmet>{links}</Helmet>
-}
+  return <Helmet>{links}</Helmet>;
+};

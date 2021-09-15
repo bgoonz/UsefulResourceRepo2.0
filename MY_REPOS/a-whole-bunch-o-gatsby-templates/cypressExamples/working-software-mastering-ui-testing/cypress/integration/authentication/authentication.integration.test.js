@@ -13,7 +13,7 @@ import {
   PASSWORD_PLACEHOLDER,
   SUCCESS_FEEDBACK,
   UNAUTHORIZED_ERROR,
-  USERNAME_PLACEHOLDER
+  USERNAME_PLACEHOLDER,
 } from "../../../src/strings";
 
 context("Authentication", () => {
@@ -39,7 +39,7 @@ context("Authentication", () => {
     cy.route({
       method: "POST",
       response: "fixture:authentication/authentication-success.json",
-      url: `**${AUTHENTICATE_API_URL}`
+      url: `**${AUTHENTICATE_API_URL}`,
     }).as("auth-xhr");
 
     // retrieves the elements to interact with by contents, the same way the user would do so
@@ -59,7 +59,7 @@ context("Authentication", () => {
     // the AJAX request is a deterministic event, it MUST happen for the front-end app to work!
     // Asserting on deterministic events make your test more robust
     // @see https://slides.com/noriste/working-software-2019-mastering-ui-testing#deterministic-events
-    cy.wait("@auth-xhr").then(xhr => {
+    cy.wait("@auth-xhr").then((xhr) => {
       // a lot of times the front-end app does not work because of wrong communication with the
       // back-end app, always assert on the request payload
       // @see https://slides.com/noriste/working-software-2019-mastering-ui-testing#backend-contract
@@ -67,7 +67,10 @@ context("Authentication", () => {
       expect(xhr.request.body).to.have.property("username", username);
       expect(xhr.request.body).to.have.property("password", password);
       // assert the request headers
-      expect(xhr.request.headers).to.have.property('Content-Type', 'application/json;charset=utf-8');
+      expect(xhr.request.headers).to.have.property(
+        "Content-Type",
+        "application/json;charset=utf-8"
+      );
     });
 
     // finally, the user must see the feedback
@@ -100,7 +103,7 @@ context("Authentication", () => {
       response: {},
       url: `**${AUTHENTICATE_API_URL}`,
       // adds a super-long delay to the AJAX response
-      delay: 5000
+      delay: 5000,
     }).as("auth-xhr");
 
     fillFormAndClick({ username, password });
@@ -118,12 +121,12 @@ context("Authentication", () => {
       method: "POST",
       response: {},
       url: `**${AUTHENTICATE_API_URL}`,
-      status: 401
+      status: 401,
     }).as("auth-xhr");
 
     fillFormAndClick({ username, password });
 
-    cy.wait("@auth-xhr").then(xhr => {
+    cy.wait("@auth-xhr").then((xhr) => {
       expect(xhr.request.body).to.have.property("username", username);
       expect(xhr.request.body).to.have.property("password", password);
     });
@@ -137,7 +140,7 @@ context("Authentication", () => {
       method: "POST",
       response: {},
       url: `**${AUTHENTICATE_API_URL}`,
-      status: 500
+      status: 500,
     }).as("auth-xhr");
 
     fillFormAndClick({ username, password });
@@ -153,12 +156,12 @@ context("Authentication", () => {
     cy.route({
       method: "POST",
       response: "fixture:authentication/authentication-success.json",
-      url: `**${AUTHENTICATE_API_URL}`
+      url: `**${AUTHENTICATE_API_URL}`,
     }).as("auth-xhr");
 
     cy.window().invoke("cypressShortcuts.authenticate", username, password);
 
-    cy.wait("@auth-xhr").then(xhr => {
+    cy.wait("@auth-xhr").then((xhr) => {
       expect(xhr.request.body).to.have.property("username", username);
       expect(xhr.request.body).to.have.property("password", password);
     });

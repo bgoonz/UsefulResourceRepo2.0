@@ -23,7 +23,7 @@ function getDynamicMatches(str: string) {
       matches.push({
         value: match[0],
         p1: parseInt(match[1], 10),
-        index: match.index
+        index: match.index,
       })
     }
   }
@@ -70,9 +70,9 @@ function replacePlaceholdersWithExpressions(
 }
 
 function createRawStringFromTemplateLiteral(quasi: {
-  quasis: Array<{ value: { cooked: string } }>
+  quasis: Array<{ value: { cooked: string } }>,
 }) {
-  let strs = quasi.quasis.map(x => x.value.cooked)
+  let strs = quasi.quasis.map((x) => x.value.cooked)
 
   const src = strs
     .reduce((arr, str, i) => {

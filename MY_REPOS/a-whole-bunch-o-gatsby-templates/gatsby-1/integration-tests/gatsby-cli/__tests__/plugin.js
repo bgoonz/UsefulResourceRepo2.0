@@ -1,6 +1,5 @@
 import { GatsbyCLI } from "../test-helpers"
 
-
 const MAX_TIMEOUT = 2147483647
 jest.setTimeout(MAX_TIMEOUT)
 
@@ -17,7 +16,5 @@ describe(`gatsby plugin`, () => {
     logs.should.contain(`gatsby-plugin-offline`)
     expect(logs).toEqual(expect.not.stringContaining(`ignore comments`))
     expect(code).toBe(0)
-
   })
 })
-                      

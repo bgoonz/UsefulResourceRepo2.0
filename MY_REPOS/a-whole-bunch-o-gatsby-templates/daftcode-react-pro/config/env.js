@@ -7,8 +7,8 @@ const path = require('path');
 const appDirectory = fs.realpathSync(process.cwd());
 process.env.NODE_PATH = (process.env.NODE_PATH || '')
   .split(path.delimiter)
-  .filter(folder => folder && !path.isAbsolute(folder))
-  .map(folder => path.resolve(appDirectory, folder))
+  .filter((folder) => folder && !path.isAbsolute(folder))
+  .map((folder) => path.resolve(appDirectory, folder))
   .join(path.delimiter);
 
 function getClientEnvironment(env, publicUrl) {
@@ -21,7 +21,7 @@ function getClientEnvironment(env, publicUrl) {
     ].filter(Boolean);
 
   // Load environment variables from .env* files. Suppress warnings using silent
-  dotenvFiles.forEach(dotenvFile => {
+  dotenvFiles.forEach((dotenvFile) => {
     if (fs.existsSync(dotenvFile)) {
       require('dotenv-expand')(
         require('dotenv').config({

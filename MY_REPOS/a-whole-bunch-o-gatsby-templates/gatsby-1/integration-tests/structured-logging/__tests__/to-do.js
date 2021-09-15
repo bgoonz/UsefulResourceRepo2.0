@@ -14,7 +14,8 @@ const joi = require(`joi`)
 // const { inspect } = require(`util`)
 
 // https://stackoverflow.com/questions/12756159/regex-and-iso8601-formatted-datetime
-const ISO8601 = /^\d{4}(-\d\d(-\d\d(T\d\d:\d\d(:\d\d)?(\.\d+)?(([+-]\d\d:\d\d)|Z)?)?)?)?$/i
+const ISO8601 =
+  /^\d{4}(-\d\d(-\d\d(T\d\d:\d\d(:\d\d)?(\.\d+)?(([+-]\d\d:\d\d)|Z)?)?)?)?$/i
 
 jest.setTimeout(100000)
 
@@ -292,9 +293,8 @@ describe(`develop`, () => {
       let events = []
 
       beforeAll(done => {
-        const { finishedPromise, gatsbyProcess } = collectEventsForDevelop(
-          events
-        )
+        const { finishedPromise, gatsbyProcess } =
+          collectEventsForDevelop(events)
 
         setTimeout(() => {
           gatsbyProcess.kill(`SIGTERM`)

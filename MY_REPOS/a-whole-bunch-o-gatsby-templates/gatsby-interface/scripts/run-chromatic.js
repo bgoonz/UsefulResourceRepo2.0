@@ -6,7 +6,7 @@
 import sh from "shelljs"
 import chalk from "chalk"
 
-const runCommand = command => {
+const runCommand = (command) => {
   sh.echo(chalk.cyan(`Running ${chalk.yellow(command)}`))
 
   if (sh.exec(command).code !== 0) {

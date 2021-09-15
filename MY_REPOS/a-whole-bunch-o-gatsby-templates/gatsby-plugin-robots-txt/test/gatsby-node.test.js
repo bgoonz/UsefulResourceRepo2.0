@@ -1,7 +1,10 @@
 import { fs as memoryFs } from 'memfs';
 import path from 'path';
 
-jest.doMock('fs', jest.fn(() => memoryFs));
+jest.doMock(
+  'fs',
+  jest.fn(() => memoryFs)
+);
 
 const fs = require('fs');
 const { onPostBuild } = require('../src/gatsby-node');
@@ -10,9 +13,9 @@ const publicPath = './public';
 const graphqlOptions = {
   site: {
     siteMetadata: {
-      siteUrl: 'https://www.test.com'
-    }
-  }
+      siteUrl: 'https://www.test.com',
+    },
+  },
 };
 
 function contentPath(filename) {
@@ -33,12 +36,12 @@ describe('onPostBuild', () => {
       {
         graphql() {
           return Promise.resolve({ data: {} });
-        }
+        },
       },
       {
         host: 'https://www.test.com',
         sitemap: 'https://www.test.com/sitemap.xml',
-        output
+        output,
       }
     );
 
@@ -52,10 +55,10 @@ describe('onPostBuild', () => {
       {
         graphql() {
           return Promise.resolve({ data: graphqlOptions });
-        }
+        },
       },
       {
-        output
+        output,
       }
     );
 
@@ -70,7 +73,7 @@ describe('onPostBuild', () => {
         {
           graphql() {
             return Promise.resolve({ errors: ['error1', 'error2'] });
-          }
+          },
         },
         { output }
       )
@@ -93,7 +96,7 @@ describe('onPostBuild', () => {
         {
           graphql() {
             return Promise.resolve({ data: graphqlOptions });
-          }
+          },
         },
         { output }
       )
@@ -111,7 +114,7 @@ describe('onPostBuild', () => {
       {
         graphql() {
           return Promise.resolve({ data: {} });
-        }
+        },
       },
       {
         host: 'https://www.test.com',
@@ -119,9 +122,9 @@ describe('onPostBuild', () => {
         output,
         env: {
           test: {
-            policy: [{ userAgent: '*', disallow: ['/'] }]
-          }
-        }
+            policy: [{ userAgent: '*', disallow: ['/'] }],
+          },
+        },
       }
     );
 
@@ -135,14 +138,14 @@ describe('onPostBuild', () => {
       {
         graphql() {
           return Promise.resolve({ data: {} });
-        }
+        },
       },
       {
         host: 'https://www.test.com',
         sitemap: 'https://www.test.com/sitemap.xml',
         output,
         resolveEnv: () => 'custom',
-        env: { custom: { policy: [{ userAgent: '*', disallow: ['/'] }] } }
+        env: { custom: { policy: [{ userAgent: '*', disallow: ['/'] }] } },
       }
     );
 

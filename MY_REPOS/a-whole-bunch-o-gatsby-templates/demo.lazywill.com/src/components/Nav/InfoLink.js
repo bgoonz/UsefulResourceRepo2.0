@@ -7,20 +7,18 @@ import Color from "color";
 import InfoOutline from "material-ui-icons/InfoOutline";
 import SquareButton from "../shared/SquareButton";
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     background: theme.palette.background.blue,
     position: "absolute",
     left: 0,
     "&:hover": {
-      background: Color(theme.palette.background.blue)
-        .darken(0.1)
-        .string()
-    }
-  }
+      background: Color(theme.palette.background.blue).darken(0.1).string(),
+    },
+  },
 });
 
-const InfoLink = props => {
+const InfoLink = (props) => {
   const { classes, onClick } = props;
 
   return (
@@ -32,7 +30,7 @@ const InfoLink = props => {
 
 InfoLink.propTypes = {
   classes: PropTypes.object.isRequired,
-  onClick: PropTypes.func.isRequired
+  onClick: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(InfoLink);

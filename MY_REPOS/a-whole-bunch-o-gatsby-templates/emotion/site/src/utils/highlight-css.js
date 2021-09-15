@@ -5,7 +5,8 @@ require('prismjs/components/prism-tsx')
 
 global.Prism.languages.insertBefore('jsx', 'template-string', {
   'styled-template-string': {
-    pattern: /(styled(\.\w+|\([^)]*\))(\.\w+(\([^)]*\))*)*|css|injectGlobal|keyframes|css={)`(?:\$\{[^}]+\}|\\\\|\\?[^\\])*?`/,
+    pattern:
+      /(styled(\.\w+|\([^)]*\))(\.\w+(\([^)]*\))*)*|css|injectGlobal|keyframes|css={)`(?:\$\{[^}]+\}|\\\\|\\?[^\\])*?`/,
     lookbehind: true,
     greedy: true,
     inside: {
@@ -14,16 +15,16 @@ global.Prism.languages.insertBefore('jsx', 'template-string', {
         inside: {
           'interpolation-punctuation': {
             pattern: /^\$\{|\}$/,
-            alias: 'punctuation'
+            alias: 'punctuation',
           },
-          rest: global.Prism.languages.jsx
-        }
+          rest: global.Prism.languages.jsx,
+        },
       },
       string: {
         pattern: /[^$;]+/,
         inside: global.Prism.languages.css,
-        alias: 'language-css'
-      }
-    }
-  }
+        alias: 'language-css',
+      },
+    },
+  },
 })

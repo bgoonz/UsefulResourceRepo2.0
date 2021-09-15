@@ -4,7 +4,7 @@ import CounterContainer from '../state/CounterContainer'
 
 const Counter = () => (
   <Subscribe to={[CounterContainer]}>
-    {counter => (
+    {(counter) => (
       <div
         style={{
           margin: '20px 0 0 0',

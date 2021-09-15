@@ -138,7 +138,7 @@ export type MyLogButtonProps = Omit<JSX.IntrinsicElements["button"], "ref">
 export default function MyLogButton({ onClick, ...rest }: MyLogButtonProps) {
   return (
     <button
-      onClick={e => {
+      onClick={(e) => {
         console.log(e)
         onClick && onClick(e)
       }}
@@ -172,7 +172,7 @@ function MyDateSelector({
       <input
         type="date"
         value={value}
-        onChange={e => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value)}
       />
     )
   }
@@ -259,13 +259,13 @@ const onRemove = React.useCallback((itemId: string) => {
 // or, if there is a type alias for this type of functions:
 type RemoveHandler = (itemId: string) => void
 
-const onRemove = React.useCallback<RemoveHandler>(itemId => {
+const onRemove = React.useCallback<RemoveHandler>((itemId) => {
   /* ... */
 }, [])
 
 // event handlers
 const onFocus = React.useCallback<React.FocusEventHandler<HTMLInputElement>>(
-  e => {
+  (e) => {
     /* ... */
   },
   []
@@ -335,7 +335,7 @@ const MyToggle = React.forwardRef<HTMLInputElement, MyToggleProps>(
           id={id}
           ref={ref}
           type="checkbox"
-          onChange={e => onToggle(!e.target.checked)}
+          onChange={(e) => onToggle(!e.target.checked)}
         />
         <label htmlFor={id}>{label}</label>
       </React.Fragment>
@@ -402,7 +402,7 @@ It is possible to provide prop types for your `styled` components:
 
 ```typescript
 export const MorpheusPill = styled("div")<{ isMatrixPill: boolean }>`
-  color: ${props => (props.isMatrixPill ? "red" : "blue")};
+  color: ${(props) => (props.isMatrixPill ? "red" : "blue")};
 `
 ```
 
@@ -414,7 +414,7 @@ export type MorpheusPillProps = {
 }
 
 export const MorpheusPill = styled("div")<MorpheusPillProps>`
-  color: ${props => (props.isMatrixPill ? "red" : "blue")};
+  color: ${(props) => (props.isMatrixPill ? "red" : "blue")};
 `
 ```
 
@@ -425,7 +425,7 @@ If we would leave the type declaration in the generic, our code might be prettif
 export const MorpheusPill = styled("div")<{
   isMatrixPill: boolean // this would break vscode-styled-components
 }>`
-  color: ${props => (props.isMatrixPill ? "red" : "blue")};
+  color: ${(props) => (props.isMatrixPill ? "red" : "blue")};
 `
 ```
 

@@ -29,7 +29,7 @@ exports.complex = {
       foo: `bar`,
       callback: message => {
         return message.split(`,`)
-      }
-    }
-  }
+      },
+    },
+  },
 }

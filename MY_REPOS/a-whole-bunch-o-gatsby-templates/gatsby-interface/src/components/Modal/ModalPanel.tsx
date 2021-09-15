@@ -18,7 +18,7 @@ const buildTranslation = (position: ModalPanelPosition) => keyframes`
 const translateLeft = buildTranslation(`left`)
 const translateRight = buildTranslation(`right`)
 
-const baseCss: ThemeCss = theme => ({
+const baseCss: ThemeCss = (theme) => ({
   background: theme.colors.white,
   height: `100vh`,
   position: "absolute",
@@ -41,7 +41,7 @@ export const ModalPanel: React.FC<ModalPanelProps> = ({
   ...props
 }) => (
   <ModalContent
-    css={theme => [
+    css={(theme) => [
       baseCss(theme),
       { maxWidth },
       position === `right`

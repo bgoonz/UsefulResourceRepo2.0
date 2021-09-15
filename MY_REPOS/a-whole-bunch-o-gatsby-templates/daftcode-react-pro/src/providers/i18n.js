@@ -24,7 +24,7 @@ class I18nProvider extends React.Component<I18nProviderProps, I18nProviderState>
   render() {
     const value = {
       language: this.state.language,
-      changeLanguage: language => this.setState({ language }),
+      changeLanguage: (language) => this.setState({ language }),
     };
     return <I18nContext.Provider value={value}>{this.props.children}</I18nContext.Provider>;
   }

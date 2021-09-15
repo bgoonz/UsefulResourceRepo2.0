@@ -8,7 +8,8 @@ type GatsbyLinkNoRefProps = Omit<GatsbyLinkProps<any>, "ref">
 
 export type LinkProps = (
   | GatsbyLinkNoRefProps
-  | Omit<BaseAnchorProps, "ref">) & {
+  | Omit<BaseAnchorProps, "ref">
+) & {
   variant?: LinkVariant
 }
 

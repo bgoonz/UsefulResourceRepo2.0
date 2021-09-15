@@ -1,6 +1,1 @@
-module["exports"] = [
-  "BV",
-  "V.O.F.",
-  "Group",
-  "en Zonen"
-];
+module["exports"] = ["BV", "V.O.F.", "Group", "en Zonen"];

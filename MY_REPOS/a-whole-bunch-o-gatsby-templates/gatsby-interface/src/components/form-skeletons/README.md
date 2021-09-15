@@ -59,7 +59,7 @@ function MyInput() {
   const [value, setValue] = React.useState("")
   const [error, setError] = React.useState("")
 
-  const onChange = e => {
+  const onChange = (e) => {
     const nextValue = e.target.value
 
     setError(
@@ -100,7 +100,7 @@ const options = [
   `Sheala de Tancarville`,
   `Triss Merigold`,
   `Yennefer of Vengerberg`,
-].map(name => {
+].map((name) => {
   return {
     label: name,
     value: name.toLowerCase().replace(/\s/g, `-`),
@@ -111,11 +111,11 @@ function MyCheckboxGroup() {
   const [value, setValue] = React.useState([])
   const [error, setError] = React.useState("")
 
-  const onChange = e => {
+  const onChange = (e) => {
     const optionValue = e.target.value
 
     const nextValue = value.includes(optionValue)
-      ? value.filter(v => v !== optionValue)
+      ? value.filter((v) => v !== optionValue)
       : [...value, optionValue]
 
     setError(

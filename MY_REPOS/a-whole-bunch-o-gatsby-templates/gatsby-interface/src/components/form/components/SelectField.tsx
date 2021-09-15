@@ -64,9 +64,8 @@ export const SelectFieldControl = React.forwardRef<
 export type SelectFieldWrapperProps = FormFieldStackProps
 export const SelectFieldWrapper = FormFieldStack
 
-export type SelectFieldLabelProps = WithStyledFieldLabel<
-  SelectFieldSkeletonLabelProps
->
+export type SelectFieldLabelProps =
+  WithStyledFieldLabel<SelectFieldSkeletonLabelProps>
 export function SelectFieldLabel({
   children,
   size,

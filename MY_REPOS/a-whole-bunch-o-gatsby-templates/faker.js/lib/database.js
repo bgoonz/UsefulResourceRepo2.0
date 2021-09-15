@@ -10,12 +10,12 @@ var Database = function (faker) {
    * @method faker.database.column
    */
   self.column = function () {
-      return faker.random.arrayElement(faker.definitions.database.column);
+    return faker.random.arrayElement(faker.definitions.database.column);
   };
 
   self.column.schema = {
-    "description": "Generates a column name.",
-    "sampleResults": ["id", "title", "createdAt"]
+    description: "Generates a column name.",
+    sampleResults: ["id", "title", "createdAt"],
   };
 
   /**
@@ -24,12 +24,12 @@ var Database = function (faker) {
    * @method faker.database.type
    */
   self.type = function () {
-      return faker.random.arrayElement(faker.definitions.database.type);
+    return faker.random.arrayElement(faker.definitions.database.type);
   };
 
   self.type.schema = {
-    "description": "Generates a column type.",
-    "sampleResults": ["byte", "int", "varchar", "timestamp"]
+    description: "Generates a column type.",
+    sampleResults: ["byte", "int", "varchar", "timestamp"],
   };
 
   /**
@@ -38,12 +38,12 @@ var Database = function (faker) {
    * @method faker.database.collation
    */
   self.collation = function () {
-      return faker.random.arrayElement(faker.definitions.database.collation);
+    return faker.random.arrayElement(faker.definitions.database.collation);
   };
 
   self.collation.schema = {
-    "description": "Generates a collation.",
-    "sampleResults": ["utf8_unicode_ci", "utf8_bin"]
+    description: "Generates a collation.",
+    sampleResults: ["utf8_unicode_ci", "utf8_bin"],
   };
 
   /**
@@ -52,12 +52,12 @@ var Database = function (faker) {
    * @method faker.database.engine
    */
   self.engine = function () {
-      return faker.random.arrayElement(faker.definitions.database.engine);
+    return faker.random.arrayElement(faker.definitions.database.engine);
   };
 
   self.engine.schema = {
-    "description": "Generates a storage engine.",
-    "sampleResults": ["MyISAM", "InnoDB"]
+    description: "Generates a storage engine.",
+    sampleResults: ["MyISAM", "InnoDB"],
   };
 };
 

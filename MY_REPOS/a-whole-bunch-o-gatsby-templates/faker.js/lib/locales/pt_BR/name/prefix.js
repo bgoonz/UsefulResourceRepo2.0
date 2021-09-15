@@ -1,6 +1,1 @@
-module["exports"] = [
-  "Sr.",
-  "Sra.",
-  "Srta.",
-  "Dr."
-];
+module["exports"] = ["Sr.", "Sra.", "Srta.", "Dr."];

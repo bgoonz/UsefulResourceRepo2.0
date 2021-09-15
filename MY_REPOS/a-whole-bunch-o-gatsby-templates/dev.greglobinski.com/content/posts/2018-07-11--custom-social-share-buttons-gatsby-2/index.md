@@ -18,7 +18,7 @@ Write an 'empty' functional React component...
 import PropTypes from "prop-types";
 import React from "react";
 
-const CustomReactShare = props => {
+const CustomReactShare = (props) => {
   return <div>buttons</div>;
 };
 
@@ -42,7 +42,7 @@ import FaGooglePlus from "react-icons/lib/fa/google-plus";
 
 import { ShareButtonRectangle, ShareBlockStandard } from "react-custom-share";
 
-const CustomReactShare = props => {
+const CustomReactShare = (props) => {
   const customStyles = css`
     border-radius: 50% 0 50% 0;
     margin: 0 10px;
@@ -57,11 +57,11 @@ const CustomReactShare = props => {
     buttons: [
       { network: "Twitter", icon: FaTwitter },
       { network: "Facebook", icon: FaFacebook },
-      { network: "GooglePlus", icon: FaGooglePlus }
+      { network: "GooglePlus", icon: FaGooglePlus },
     ],
     text: `Give it a try - mywebsite.com `,
     longtext: `Take a look at this super website I have just found.`,
-    buttonClassName: customStyles
+    buttonClassName: customStyles,
   };
 
   return <ShareBlockStandard {...shareBlockProps} />;
@@ -80,13 +80,13 @@ Set rules for the component's props.
 CustomReactShare.propTypes = {
   url: PropTypes.string,
   title: PropTypes.string,
-  excerpt: PropTypes.string
+  excerpt: PropTypes.string,
 };
 
 CustomReactShare.defaultProps = {
   url: "https://mywebsite.com/page-to-share/",
   title: "Default value of title",
-  excerpt: "Default value of excerpt"
+  excerpt: "Default value of excerpt",
 };
 ```
 
@@ -102,7 +102,7 @@ And update the `shareBlockProps` object.
 const shareBlockProps = {
   url: url, // « dynamic value
   text: title, // « dynamic value
-  longtext: excerpt // « dynamic values
+  longtext: excerpt, // « dynamic values
   /* other properties stay unchanged */
 };
 ```
@@ -120,7 +120,7 @@ import FaGooglePlus from "react-icons/lib/fa/google-plus";
 
 import { ShareButtonRectangle, ShareBlockStandard } from "react-custom-share";
 
-const CustomReactShare = props => {
+const CustomReactShare = (props) => {
   const { url, title, excerpt } = props;
 
   const customStyles = css`
@@ -137,11 +137,11 @@ const CustomReactShare = props => {
     buttons: [
       { network: "Twitter", icon: FaTwitter },
       { network: "Facebook", icon: FaFacebook },
-      { network: "GooglePlus", icon: FaGooglePlus }
+      { network: "GooglePlus", icon: FaGooglePlus },
     ],
     text: title,
     longtext: excerpt,
-    buttonCustomClassName: customStyles
+    buttonCustomClassName: customStyles,
   };
 
   return <ShareBlockStandard {...shareBlockProps} />;
@@ -150,13 +150,13 @@ const CustomReactShare = props => {
 CustomReactShare.PropTypes = {
   url: PropTypes.string,
   title: PropTypes.string,
-  excerpt: PropTypes.string
+  excerpt: PropTypes.string,
 };
 
 CustomReactShare.defaultProps = {
   url: "https://mywebsite.com/page-to-share/",
   title: "Default value of title",
-  excerpt: "Default value of excerpt"
+  excerpt: "Default value of excerpt",
 };
 
 export default CustomReactShare;
@@ -225,6 +225,6 @@ We are at halfway point of the series. In the next episode you will learn how to
 
 ### This post is a part of a series
 
-* [Add custom social sharing buttons to a GatsbyJS blog's home page](../custom-social-share-buttons-gatsby-1)
-* Add custom social sharing buttons to GatsbyJS blog's posts
-* Coming soon...
+- [Add custom social sharing buttons to a GatsbyJS blog's home page](../custom-social-share-buttons-gatsby-1)
+- Add custom social sharing buttons to GatsbyJS blog's posts
+- Coming soon...

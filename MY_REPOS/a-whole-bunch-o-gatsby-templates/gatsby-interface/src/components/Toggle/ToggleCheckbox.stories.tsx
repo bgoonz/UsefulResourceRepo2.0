@@ -52,7 +52,7 @@ Sandbox.story = {
 }
 
 export const Tones = () =>
-  TOGGLE_TONES.map(tone => (
+  TOGGLE_TONES.map((tone) => (
     <ToggleCheckbox
       id={`tone--${tone}`}
       label={`${tone} tone`}
@@ -66,7 +66,7 @@ Tones.story = {
 }
 
 export const LabelPositions = () =>
-  TOGGLE_LABEL_POSITIONS.map(labelPosition => (
+  TOGGLE_LABEL_POSITIONS.map((labelPosition) => (
     <ToggleCheckbox
       id={`labelPosition--${labelPosition}`}
       label={`Label position: ${labelPosition}`}

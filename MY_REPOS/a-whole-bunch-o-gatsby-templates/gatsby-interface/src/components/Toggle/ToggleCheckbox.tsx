@@ -26,9 +26,8 @@ const BaseToggle = React.forwardRef<HTMLInputElement, BaseToggleProps>(
           css={(theme: Theme) => [
             visuallyHiddenCss,
             {
-              [`&:checked + ${ToggleGutterTagName}`]: toggleGutterCheckedCss(
-                tone
-              )(theme),
+              [`&:checked + ${ToggleGutterTagName}`]:
+                toggleGutterCheckedCss(tone)(theme),
               [`&:focus + ${ToggleGutterTagName}`]: toggleGutterFocusCss(theme),
             },
           ]}
@@ -59,7 +58,7 @@ export default React.forwardRef<HTMLInputElement, ToggleCheckboxProps>(
         className={className}
         style={style}
         htmlFor={id}
-        css={theme => [
+        css={(theme) => [
           {
             display: `flex`,
             alignItems: `center`,
@@ -71,7 +70,7 @@ export default React.forwardRef<HTMLInputElement, ToggleCheckboxProps>(
           ref={ref}
           id={id}
           {...rest}
-          css={theme =>
+          css={(theme) =>
             labelPosition === `end`
               ? {
                   marginRight: theme.space[3],

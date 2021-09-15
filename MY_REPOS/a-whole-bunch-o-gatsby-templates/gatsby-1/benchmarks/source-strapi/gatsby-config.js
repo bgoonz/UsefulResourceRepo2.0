@@ -10,9 +10,7 @@ module.exports = {
       resolve: "gatsby-source-strapi",
       options: {
         apiURL: process.env.BENCHMARK_STRAPI_API_URL || "http://localhost:1337",
-        contentTypes: [
-          "article",
-        ],
+        contentTypes: ["article"],
         queryLimit: parseInt(process.env.BENCHMARK_STRAPI_DATASET),
       },
     },

@@ -52,9 +52,8 @@ export function createSchemaCustomization(
   { actions, schema }: CreateSchemaCustomizationArgs,
   pluginOptions: ShopifyPluginOptions
 ): void {
-  const includeCollections = pluginOptions.shopifyConnections?.includes(
-    `collections`
-  )
+  const includeCollections =
+    pluginOptions.shopifyConnections?.includes(`collections`)
 
   const includeOrders = pluginOptions.shopifyConnections?.includes(`orders`)
 

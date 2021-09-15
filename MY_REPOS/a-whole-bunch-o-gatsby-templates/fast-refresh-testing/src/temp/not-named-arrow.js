@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 
 export default () => {
   return (
@@ -6,5 +6,5 @@ export default () => {
       <title>Not Named Arrow Function</title>
       Test
     </main>
-  )
-}
+  );
+};

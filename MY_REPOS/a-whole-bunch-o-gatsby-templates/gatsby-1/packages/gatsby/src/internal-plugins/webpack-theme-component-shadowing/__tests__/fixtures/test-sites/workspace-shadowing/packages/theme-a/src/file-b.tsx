@@ -1,1 +1,1 @@
-module.exports = "file-b from theme-a";
+module.exports = "file-b from theme-a"

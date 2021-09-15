@@ -1,9 +1,9 @@
-module.exports = function(chunksTotal, { node }) {
+module.exports = function (chunksTotal, { node }) {
   const {
     objectID,
     fields: { slug },
     frontmatter: { title },
-    internal: { content }
+    internal: { content },
   } = node;
 
   const noEmojiContent = content.replace(/<img class="emoji-icon".+\/>/g, "");
@@ -13,7 +13,7 @@ module.exports = function(chunksTotal, { node }) {
   const recordChunks = contentChunks.reduce((recordChunksTotal, contentChunksItem, idx) => {
     return [
       ...recordChunksTotal,
-      { ...record, ...{ content: contentChunksItem }, objectID: `${slug}${idx}` }
+      { ...record, ...{ content: contentChunksItem }, objectID: `${slug}${idx}` },
     ];
   }, []);
 

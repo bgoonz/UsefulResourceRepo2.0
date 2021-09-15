@@ -1261,5 +1261,5 @@ module["exports"] = [
   "https://s3.amazonaws.com/uifaces/faces/twitter/ifarafonow/128.jpg",
   "https://s3.amazonaws.com/uifaces/faces/twitter/vikasvinfotech/128.jpg",
   "https://s3.amazonaws.com/uifaces/faces/twitter/urrutimeoli/128.jpg",
-  "https://s3.amazonaws.com/uifaces/faces/twitter/areandacom/128.jpg"
+  "https://s3.amazonaws.com/uifaces/faces/twitter/areandacom/128.jpg",
 ];

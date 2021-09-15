@@ -28,7 +28,7 @@ function ControlledRadio({
           fieldName={name}
           optionValue={optionValue}
           value={value}
-          onChange={e => setValue(e.target.value)}
+          onChange={(e) => setValue(e.target.value)}
           {...delegated}
         />
       ))}

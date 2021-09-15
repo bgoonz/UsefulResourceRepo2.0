@@ -18,9 +18,10 @@
 ## How do we organize our tests?
 
 @ul
+
 - 👍 Cypress allows you to write a lot of E2E tests
 - 👎 Cypress allows you to write a LOT of E2E tests
-@ulend
+  @ulend
 
 +++
 
@@ -126,10 +127,11 @@ You can implement Page Objects using classes, custom commands or simple function
 ## My problems with the Page Object
 
 @ul
+
 - goes through the page DOM (slow)
 - adds extra layer of code on top of unstable DOM
 - duplicates code already in the app
-@ulend
+  @ulend
 
 +++
 
@@ -154,9 +156,10 @@ Application code
 ## Code overhead
 
 @ul
+
 - What methods do you have in the Page Object?
 - What methods do you see in `todomvc-react/js/todoModel.js`?
-@ulend
+  @ulend
 
 +++
 
@@ -238,9 +241,10 @@ Most of the Page Object method calls in this spec are to create initial data or 
 ## App actions rules
 
 @ul
+
 - when testing feature X - the test goes through UI for feature X
 - when testing feature Y - the test uses app action to do X
-@ulend
+  @ulend
 
 Note:
 You still cover all page features, you just don't cover them multiple times.
@@ -267,10 +271,11 @@ Only the tests for marking items as completed should fail, because the rest goes
 ## 🏁 App actions vs Page Objects
 
 @ul
+
 - Page Objects write an extra layer of code
 - App actions are a client of the application's model
 - App actions take shortcuts for faster tests
-@ulend
+  @ulend
 
 Note:
 The extra layer of code in Page Objects is built on top of the DOM and events, which are not machine-linted. This layer also does not benefit the user, and just slows down the tests.

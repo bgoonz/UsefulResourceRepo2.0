@@ -10,7 +10,7 @@ export default (tasks, action) => {
       return action.payload
     case 'TOGGLE_TASK':
       navigate('/app/')
-      return tasks.map(item =>
+      return tasks.map((item) =>
         item.id === action.id
           ? {
               ...item,

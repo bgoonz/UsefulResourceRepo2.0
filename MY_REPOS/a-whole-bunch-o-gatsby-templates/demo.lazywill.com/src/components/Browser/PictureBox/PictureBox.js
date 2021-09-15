@@ -13,29 +13,29 @@ const styles = () => ({
     ".portrait &": {
       position: "relative",
       width: "100%",
-      height: props => props.windowWidth
+      height: (props) => props.windowWidth,
     },
     ".landscape &": {
       position: "absolute",
       left: 0,
       top: 0,
-      width: props => props.windowHeight,
+      width: (props) => props.windowHeight,
       bottom: 0,
-      overflow: "hidden"
-    }
+      overflow: "hidden",
+    },
   },
   picture: {
     maxWidth: "100%",
     maxHeight: "100%",
     ".portrait &": {
-      width: "100%"
+      width: "100%",
     },
     ".landscape &": {
-      height: "100%"
-    }
+      height: "100%",
+    },
   },
   nextPicture: {
-    display: "none"
+    display: "none",
   },
   logo: {
     width: "50px",
@@ -43,9 +43,9 @@ const styles = () => ({
     top: "15px",
     left: "15px",
     ".picture-mode &": {
-      display: "none"
-    }
-  }
+      display: "none",
+    },
+  },
 });
 
 class PictureBox extends React.Component {
@@ -56,7 +56,7 @@ class PictureBox extends React.Component {
       detailsOpened: false,
       pictureMode: false,
       pictureSrc: null,
-      nextPictureSrc: ""
+      nextPictureSrc: "",
     };
 
     this.toggleCreditsDetails = this.toggleCreditsDetails.bind(this);
@@ -65,7 +65,7 @@ class PictureBox extends React.Component {
 
   componentDidMount() {
     this.setState({
-      pictureSrc: this.getPictureSrc(null)
+      pictureSrc: this.getPictureSrc(null),
     });
 
     this.nextPicture = new Image();
@@ -82,7 +82,7 @@ class PictureBox extends React.Component {
         // sets 'loading picture' as combo picture to indicate that
         // the comobo picture is loading
         this.setState((prevState, props) => ({
-          pictureSrc: this.getPictureSrc(nextPictureLoaded ? props.combo : null)
+          pictureSrc: this.getPictureSrc(nextPictureLoaded ? props.combo : null),
         }));
 
         // preloads image file for the next combo
@@ -99,7 +99,7 @@ class PictureBox extends React.Component {
     if (this.state.pictureSrc.substr(0, 5) === "data:") {
       setTimeout(() => {
         this.setState(() => ({
-          pictureSrc: this.getPictureSrc(this.props.combo)
+          pictureSrc: this.getPictureSrc(this.props.combo),
         }));
       }, 50);
     }
@@ -112,9 +112,7 @@ class PictureBox extends React.Component {
       return pictureLoading;
     }
     if (size) {
-      return `https://d3nstmfkiycslv.cloudfront.net/${combo.picture.arangoKey}_${
-        combo.picture.hash
-      }_${size}.jpeg`;
+      return `https://d3nstmfkiycslv.cloudfront.net/${combo.picture.arangoKey}_${combo.picture.hash}_${size}.jpeg`;
     } else {
       return `https://d3nstmfkiycslv.cloudfront.net/${combo.picture.arangoKey}_${
         combo.picture.hash
@@ -142,14 +140,14 @@ class PictureBox extends React.Component {
   }
 
   toggleCreditsDetails() {
-    this.setState(prevState => ({
-      detailsOpened: !prevState.detailsOpened
+    this.setState((prevState) => ({
+      detailsOpened: !prevState.detailsOpened,
     }));
   }
 
   togglePictureMode() {
-    this.setState(prevState => ({
-      pictureMode: !prevState.pictureMode
+    this.setState((prevState) => ({
+      pictureMode: !prevState.pictureMode,
     }));
   }
 
@@ -184,7 +182,7 @@ PictureBox.propTypes = {
   combo: PropTypes.object.isRequired,
   nextCombo: PropTypes.object.isRequired,
   windowWidth: PropTypes.number,
-  windowHeight: PropTypes.number
+  windowHeight: PropTypes.number,
 };
 
 export default injectSheet(styles)(PictureBox);

@@ -19,7 +19,7 @@ export type Options = {
   prefix?: PrefixOption,
   key?: string,
   container?: HTMLElement,
-  speedy?: boolean
+  speedy?: boolean,
 }
 
 let rootServerStylisCache = {}
@@ -30,7 +30,7 @@ let getServerStylisCache = isBrowser
       let getCache = weakMemoize(() => ({}))
       let prefixTrueCache = {}
       let prefixFalseCache = {}
-      return prefix => {
+      return (prefix) => {
         if (prefix === undefined || prefix === true) {
           return prefixTrueCache
         }
@@ -48,7 +48,7 @@ let createCache = (options?: Options): EmotionCache => {
 
   if (options.prefix !== undefined) {
     stylisOptions = {
-      prefix: options.prefix
+      prefix: options.prefix,
     }
   }
 
@@ -73,7 +73,7 @@ let createCache = (options?: Options): EmotionCache => {
     Array.prototype.forEach.call(nodes, (node: HTMLStyleElement) => {
       const attrib = node.getAttribute(`data-emotion-${key}`)
       // $FlowFixMe
-      attrib.split(' ').forEach(id => {
+      attrib.split(' ').forEach((id) => {
         inserted[id] = true
       })
       if (node.parentNode !== container) {
@@ -108,7 +108,7 @@ let createCache = (options?: Options): EmotionCache => {
         Sheet.current = {
           insert: (rule: string) => {
             sheet.insert(rule + map)
-          }
+          },
         }
       }
       stylis(selector, serialized.styles)
@@ -212,7 +212,7 @@ let createCache = (options?: Options): EmotionCache => {
           )
 
           if (unsafePseudoClasses && cache.compat !== true) {
-            unsafePseudoClasses.forEach(unsafePseudoClass => {
+            unsafePseudoClasses.forEach((unsafePseudoClass) => {
               const ignoreRegExp = new RegExp(
                 `${unsafePseudoClass}.*\\/\\* ${flag} \\*\\/`
               )
@@ -240,12 +240,12 @@ let createCache = (options?: Options): EmotionCache => {
       key,
       container,
       nonce: options.nonce,
-      speedy: options.speedy
+      speedy: options.speedy,
     }),
     nonce: options.nonce,
     inserted,
     registered: {},
-    insert
+    insert,
   }
   return cache
 }

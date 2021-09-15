@@ -8,7 +8,7 @@ In general it uses the "webhook" feature of Discord to send messages.
 ## Setting up a new reminder
 
 1. Create a new webhook inside the Discord server. Copy the webhook ID which will have this shape:
-https://discord.com/api/webhooks/ID/TOKEN
+   https://discord.com/api/webhooks/ID/TOKEN
 
 2. Create environment variables for the ID and TOKEN inside this repository so that the action can access it
 

@@ -254,5 +254,5 @@ module["exports"] = [
   "Zuid-Afrika",
   "Zuid-Korea",
   "Zweden",
-  "Zwitserland"
+  "Zwitserland",
 ];

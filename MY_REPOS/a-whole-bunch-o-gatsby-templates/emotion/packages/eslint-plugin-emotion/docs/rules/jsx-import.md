@@ -10,7 +10,7 @@ Examples of **incorrect** code for this rule.
 let element = (
   <div
     css={{
-      color: 'green'
+      color: 'green',
     }}
   />
 )
@@ -25,7 +25,7 @@ import { jsx } from '@emotion/core'
 let element = (
   <div
     css={{
-      color: 'green'
+      color: 'green',
     }}
   />
 )

@@ -9,7 +9,7 @@ export default ({ data }) => {
 }
 
 export const query = graphql`
-  query($pageNum: Int, $sort: TestSortInput, $count: Boolean!) {
+  query ($pageNum: Int, $sort: TestSortInput, $count: Boolean!) {
     allTest(filter: { randomPage: { gt: $pageNum } }, sort: $sort, limit: 100) {
       nodes {
         nodeNum

@@ -1,4 +1,4 @@
-import Typography from "typography"
+import Typography from "typography";
 
 const typography = new Typography({
   title: "Minimal",
@@ -11,13 +11,13 @@ const typography = new Typography({
   googleFonts: [
     {
       name: "Bitter",
-      styles: ["700"]
+      styles: ["700"],
     },
     {
       name: "Open Sans",
-      styles: ["400"]
-    }
-  ]
-})
+      styles: ["400"],
+    },
+  ],
+});
 
-export default typography
+export default typography;

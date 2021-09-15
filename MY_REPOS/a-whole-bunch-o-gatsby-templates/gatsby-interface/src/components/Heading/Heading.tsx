@@ -5,31 +5,30 @@ import { showCustomCssDeprecationMessage } from "../../utils/maintenance/depreca
 import { ThemeCss, Theme } from "../../theme"
 import { HeadingTone, HeadingVariant } from "./types"
 
-const baseCss: ThemeCss = theme => ({
+const baseCss: ThemeCss = (theme) => ({
   fontFamily: theme.fonts.heading,
   margin: 0,
   lineHeight: theme.lineHeights.heading, // Ask Flo about this
 })
 
-const modifiedCss: (variant: HeadingVariant, tone: HeadingTone) => ThemeCss = (
-  variant,
-  tone
-) => theme => [
-  {
-    color: theme.tones[tone].superDark,
-  },
-  variant === `PRIMARY` && {
-    fontWeight: theme.fontWeights.bold,
-  },
-  variant === `EMPHASIZED` && {
-    fontWeight: theme.fontWeights.extraBold,
-  },
-  variant === `LIGHT` && {
-    fontWeight: 100,
-    textTransform: `uppercase`,
-    color: theme.tones[tone].dark,
-  },
-]
+const modifiedCss: (variant: HeadingVariant, tone: HeadingTone) => ThemeCss =
+  (variant, tone) => (theme) =>
+    [
+      {
+        color: theme.tones[tone].superDark,
+      },
+      variant === `PRIMARY` && {
+        fontWeight: theme.fontWeights.bold,
+      },
+      variant === `EMPHASIZED` && {
+        fontWeight: theme.fontWeights.extraBold,
+      },
+      variant === `LIGHT` && {
+        fontWeight: 100,
+        textTransform: `uppercase`,
+        color: theme.tones[tone].dark,
+      },
+    ]
 
 export type HeadingProps = BaseHeadingProps & {
   tone?: HeadingTone

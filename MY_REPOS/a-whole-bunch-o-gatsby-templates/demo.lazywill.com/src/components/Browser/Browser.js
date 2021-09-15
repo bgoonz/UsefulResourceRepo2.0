@@ -11,8 +11,8 @@ const styles = () => ({
     bottom: 0,
     left: 0,
     right: 0,
-    overflow: "auto"
-  }
+    overflow: "auto",
+  },
 });
 
 class Browser extends React.Component {
@@ -20,7 +20,7 @@ class Browser extends React.Component {
     if (typeof window.gtag === `function`) {
       window.gtag("config", "UA-82862651-1", { page_path: "/browse" });
       window.gtag("event", "vocab_view", {
-        event_category: "engagement"
+        event_category: "engagement",
       });
     }
   }
@@ -28,7 +28,7 @@ class Browser extends React.Component {
   componentDidUpdate(prevProps) {
     if (typeof window.gtag === `function` && prevProps.combo !== this.props.combo) {
       window.gtag("event", "vocab_view", {
-        event_category: "engagement"
+        event_category: "engagement",
       });
     }
   }
@@ -57,7 +57,7 @@ Browser.propTypes = {
   combo: PropTypes.object.isRequired,
   nextCombo: PropTypes.object.isRequired,
   windowWidth: PropTypes.number,
-  windowHeight: PropTypes.number
+  windowHeight: PropTypes.number,
 };
 
 export default injectSheet(styles)(Browser);

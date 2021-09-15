@@ -16,12 +16,12 @@ const styles = () => ({
     height: "100%",
     minWidth: 0,
     textTransform: "none",
-    width: "100%"
+    width: "100%",
   },
-  label: {}
+  label: {},
 });
 
-const BlockButton = props => {
+const BlockButton = (props) => {
   const { classes, children, onClick } = props;
   return (
     <Button {...props} classes={{ root: classes.root, label: classes.label }} onClick={onClick}>
@@ -34,7 +34,7 @@ BlockButton.propTypes = {
   classes: PropTypes.object.isRequired,
   children: PropTypes.node,
   look: PropTypes.string,
-  onClick: PropTypes.func
+  onClick: PropTypes.func,
 };
 
 export default withStyles(styles)(BlockButton);

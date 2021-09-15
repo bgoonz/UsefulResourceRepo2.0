@@ -4,7 +4,7 @@ import FacebookProvider, { Comments as FBComments } from "react-facebook";
 
 import config from "../../../content/meta/config";
 
-const Comments = props => {
+const Comments = (props) => {
   const { facebook, slug, theme } = props;
 
   return (
@@ -28,7 +28,7 @@ const Comments = props => {
 Comments.propTypes = {
   slug: PropTypes.string.isRequired,
   facebook: PropTypes.object.isRequired,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default Comments;

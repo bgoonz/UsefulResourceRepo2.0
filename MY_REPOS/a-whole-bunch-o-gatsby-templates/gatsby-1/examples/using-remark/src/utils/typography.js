@@ -84,10 +84,11 @@ const options = {
       // padding of their container.
       // Note that we only do this for code blocks that are direct children of
       // .post so that code blocks are correctly indented e. g. in lists.
-      ".post > .gatsby-highlight, .gatsby-resp-iframe-wrapper, .gatsby-resp-image-link": {
-        marginLeft: rhythm(-3 / 4), // 3/4 rhythm is amount of padding on mobile.
-        marginRight: rhythm(-3 / 4),
-      },
+      ".post > .gatsby-highlight, .gatsby-resp-iframe-wrapper, .gatsby-resp-image-link":
+        {
+          marginLeft: rhythm(-3 / 4), // 3/4 rhythm is amount of padding on mobile.
+          marginRight: rhythm(-3 / 4),
+        },
       // Fake image captions.
       ".post .gatsby-resp-image-link + em": {
         ...scale(0 / 5),
@@ -166,10 +167,11 @@ const options = {
         backgroundRepeat: `repeat-x`,
         backgroundSize: `1px 1px`,
       },
-      ".post a:not(.gatsby-resp-image-link):not(.anchor):hover, .link-underline:hover": {
-        color: `${colors.linkHover}`,
-        backgroundImage: `linear-gradient(${colors.linkHover},${colors.linkHover})`,
-      },
+      ".post a:not(.gatsby-resp-image-link):not(.anchor):hover, .link-underline:hover":
+        {
+          color: `${colors.linkHover}`,
+          backgroundImage: `linear-gradient(${colors.linkHover},${colors.linkHover})`,
+        },
       ".post a.anchor": {
         textShadow: `0 !important`,
         backgroundImage: `0 !important`,

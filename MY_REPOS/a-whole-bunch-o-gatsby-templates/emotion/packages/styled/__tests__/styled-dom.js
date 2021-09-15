@@ -14,7 +14,7 @@ test('ref', () => {
 
   render(
     <H1
-      ref={val => {
+      ref={(val) => {
         node = val
       }}
       id="thing"
@@ -34,7 +34,7 @@ test('innerRef', () => {
 
     render(
       <H1
-        innerRef={val => {
+        innerRef={(val) => {
           node = val
         }}
         id="thing"
@@ -87,7 +87,7 @@ test('innerRef warning with label', () => {
 
     render(
       <H1
-        innerRef={val => {
+        innerRef={(val) => {
           node = val
         }}
         id="thing"

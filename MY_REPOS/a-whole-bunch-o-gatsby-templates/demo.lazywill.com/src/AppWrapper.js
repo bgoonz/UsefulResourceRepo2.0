@@ -10,17 +10,17 @@ import { InMemoryCache } from "apollo-cache-inmemory";
 import Loading from "./components/shared/Loading/";
 
 const httpLink = new HttpLink({
-  uri: "https://api.graph.cool/simple/v1/cjbgvexpt0hsm0176hz0flrix"
+  uri: "https://api.graph.cool/simple/v1/cjbgvexpt0hsm0176hz0flrix",
 });
 
 const client = new ApolloClient({
   link: httpLink,
-  cache: new InMemoryCache()
+  cache: new InMemoryCache(),
 });
 
 const AsyncAppContainer = Loadable({
   loader: () => import("./AppContainer"),
-  loading: Loading
+  loading: Loading,
 });
 
 class AppWrapper extends Component {

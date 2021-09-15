@@ -11,8 +11,7 @@ Choose a `.js` file that only contains an export and your theme. Example:
 ```js
 module.exports = {
   fonts: {
-    body:
-      '-apple-system, BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"',
+    body: '-apple-system, BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"',
     heading: "inherit",
   },
   fontSizes: [12, 14, 16, 20, 24, 32],

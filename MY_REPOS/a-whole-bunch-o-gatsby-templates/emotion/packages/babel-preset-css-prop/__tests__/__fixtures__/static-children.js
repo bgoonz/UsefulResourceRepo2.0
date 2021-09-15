@@ -2,7 +2,7 @@ export let Button = () => {
   return (
     <button
       css={{
-        color: 'hotpink'
+        color: 'hotpink',
       }}
     >
       {'Test'}

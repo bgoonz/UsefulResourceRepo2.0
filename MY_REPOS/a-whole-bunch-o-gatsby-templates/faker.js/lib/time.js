@@ -2,7 +2,7 @@
  *
  * @namespace faker.time
  */
-var _Time = function(faker) {
+var _Time = function (faker) {
   var self = this;
 
   /**
@@ -11,9 +11,9 @@ var _Time = function(faker) {
    * @method faker.time.recent
    * @param {string} outputType - 'abbr' || 'wide' || 'unix' (default choice)
    */
-  self.recent = function(outputType) {
+  self.recent = function (outputType) {
     if (typeof outputType === "undefined") {
-        outputType = 'unix';
+      outputType = "unix";
     }
 
     var date = new Date();

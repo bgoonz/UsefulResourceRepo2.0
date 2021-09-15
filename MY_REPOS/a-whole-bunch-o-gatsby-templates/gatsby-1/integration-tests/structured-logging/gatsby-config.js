@@ -13,13 +13,10 @@ if (process.env.VALIDATE_PLUGIN_OPTIONS) {
       options: {
         optionalString: 1234,
       },
-    },
+    }
   )
 }
 
 module.exports = {
-  plugins: [
-    "structured-plugin-errors",
-    ...dynamicPlugins
-  ],
+  plugins: ["structured-plugin-errors", ...dynamicPlugins],
 }

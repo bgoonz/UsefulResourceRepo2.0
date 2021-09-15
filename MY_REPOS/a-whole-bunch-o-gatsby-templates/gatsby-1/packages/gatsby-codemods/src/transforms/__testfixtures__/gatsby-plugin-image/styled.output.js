@@ -1,5 +1,5 @@
 import React from "react"
-import { GatsbyImage } from "gatsby-plugin-image";
+import { GatsbyImage } from "gatsby-plugin-image"
 import styled from "@emotion/styled"
 
 import { rhythm, options } from "../utils/typography"

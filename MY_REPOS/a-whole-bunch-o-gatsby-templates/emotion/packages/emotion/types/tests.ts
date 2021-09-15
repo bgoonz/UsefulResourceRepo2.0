@@ -8,7 +8,7 @@ import {
   injectGlobal,
   keyframes,
   sheet,
-  cache
+  cache,
 } from 'emotion'
 
 flush()
@@ -21,8 +21,8 @@ const cssObject = {
   display: 'block',
   position: undefined,
   ':hover': {
-    display: 'block'
-  }
+    display: 'block',
+  },
 }
 
 const className: string = css`
@@ -50,20 +50,20 @@ injectGlobal`
 injectGlobal({
   html: {
     width: '100vw',
-    height: '100vh'
+    height: '100vh',
   },
   '#root': {
-    fontWeight: 'bold'
-  }
+    fontWeight: 'bold',
+  },
 })
 
 keyframes({
   '0%': {
-    transform: 'scaleY(0.5)'
+    transform: 'scaleY(0.5)',
   },
   to: {
-    transform: 'scaleY(1)'
-  }
+    transform: 'scaleY(1)',
+  },
 })
 
 keyframes`
@@ -83,7 +83,7 @@ keyframes`
 
 const cxResult: string = cx([
   [className, false && className2, 'modal'],
-  [[className, { [className2]: true }, 'profile']]
+  [[className, { [className2]: true }, 'profile']],
 ])
 
 merge(`class1 class2 ${className}`)

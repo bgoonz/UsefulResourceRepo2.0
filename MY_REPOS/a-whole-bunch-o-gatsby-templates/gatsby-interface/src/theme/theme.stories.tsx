@@ -130,7 +130,7 @@ export const LineHeights = () => (
   <div>
     {Object.keys(theme.lineHeights)
       .sort()
-      .map(height => {
+      .map((height) => {
         const lineHeight = theme.lineHeights[height as ThemeLineHeight]
 
         return (
@@ -369,7 +369,7 @@ export const MediaQueries = () => {
 
       const listener = () => {
         let matchedMedia = false
-        Object.keys(theme.mediaQueries).forEach(token => {
+        Object.keys(theme.mediaQueries).forEach((token) => {
           const query = getQuery(token as ThemeMediaQuery)
 
           if (window.matchMedia && window.matchMedia(query).matches) {

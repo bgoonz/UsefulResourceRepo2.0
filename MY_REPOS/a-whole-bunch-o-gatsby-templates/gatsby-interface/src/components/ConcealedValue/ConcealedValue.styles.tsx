@@ -1,6 +1,6 @@
 import { ThemeCss } from "../../theme"
 
-export const concealedValueContainerCss: ThemeCss = theme => ({
+export const concealedValueContainerCss: ThemeCss = (theme) => ({
   display: `flex`,
   alignItems: `center`,
   justifyContent: `space-between`,
@@ -8,7 +8,7 @@ export const concealedValueContainerCss: ThemeCss = theme => ({
   width: `100%`,
 })
 
-export const concealedValueContentCss: ThemeCss = theme => ({
+export const concealedValueContentCss: ThemeCss = (theme) => ({
   overflow: `hidden`,
   flexGrow: 1,
   marginRight: theme.space[4],
@@ -16,7 +16,7 @@ export const concealedValueContentCss: ThemeCss = theme => ({
 
 export const concealedValueActionsCss = {}
 
-export const concealedValueInputCss: ThemeCss = theme => ({
+export const concealedValueInputCss: ThemeCss = (theme) => ({
   border: `none`,
   overflow: `hidden`,
   fontFamily: theme.fonts.heading,
@@ -25,6 +25,6 @@ export const concealedValueInputCss: ThemeCss = theme => ({
   width: `100%`,
 })
 
-export const concealedValueButtonCss: ThemeCss = theme => ({
+export const concealedValueButtonCss: ThemeCss = (theme) => ({
   marginLeft: theme.space[2],
 })

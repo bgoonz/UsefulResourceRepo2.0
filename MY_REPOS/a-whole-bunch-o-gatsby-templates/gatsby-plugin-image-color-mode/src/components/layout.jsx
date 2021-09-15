@@ -1,14 +1,14 @@
-import * as React from 'react'
-import { SkipNavLink } from './skip-nav'
+import * as React from "react";
+import { SkipNavLink } from "./skip-nav";
 
 const Layout = ({ children }) => {
   return (
     <>
-     <SkipNavLink />
+      <SkipNavLink />
       <p>some navigation goes here</p>
-      {children} 
+      {children}
     </>
-  )
-}
+  );
+};
 
-export default Layout
+export default Layout;

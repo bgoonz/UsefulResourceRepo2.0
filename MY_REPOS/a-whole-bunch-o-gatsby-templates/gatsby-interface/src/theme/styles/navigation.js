@@ -48,7 +48,7 @@ styles.Nav = {
     padding: `0 ${space[5]}`,
     width: "100%",
   },
-  mobile: isMobileNavOpen => {
+  mobile: (isMobileNavOpen) => {
     return {
       display: isMobileNavOpen ? `block` : `none`,
       position: `fixed`,
@@ -146,7 +146,7 @@ styles.Item = {
 }
 
 styles.ItemLink = {
-  default: isInverted => {
+  default: (isInverted) => {
     return {
       display: `block`,
       textDecoration: `none`,

@@ -16,10 +16,10 @@ test('basic', () => {
   render(
     <ThemeProvider theme={{ color: 'green' }}>
       <Global
-        styles={theme => ({
+        styles={(theme) => ({
           html: {
-            backgroundColor: theme.color
-          }
+            backgroundColor: theme.color,
+          },
         })}
       />
     </ThemeProvider>,

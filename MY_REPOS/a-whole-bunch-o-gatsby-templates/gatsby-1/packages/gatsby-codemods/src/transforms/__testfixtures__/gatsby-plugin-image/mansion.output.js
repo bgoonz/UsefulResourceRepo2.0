@@ -6,44 +6,44 @@ import Img from "../components/core/img"
 const Profiles = ({ profiles }) => (
   <>
     {profiles.map((profile, i) => (
-        <div>
-          {profile.hoverPhoto && (
-            <Img
-              css={{
-                display: `none !important`,
-                position: `absolute !important`,
-                borderRadius: radii[6],
-                marginBottom: space[5],
-                transform: `translateZ(0)`,
-                [breakpoint]: {
-                  marginBottom: 0,
-                  display: `block !important`,
-                },
-              }}
-              fixed={profile.hoverPhoto.fixed}
-            />
-          )}
-          {profile.photo && (
-            <Img
-              css={{
-                borderRadius: radii[6],
-                marginBottom: space[5],
-                transform: `translateZ(0)`,
-                [breakpoint]: {
-                  marginBottom: 0,
-                  ...(profile.hoverPhoto
-                    ? {
-                        ":hover": {
-                          opacity: `0 !important`,
-                        },
-                      }
-                    : {}),
-                },
-              }}
-              fixed={profile.photo.fixed}
-            />
-          )}
-        </div>
+      <div>
+        {profile.hoverPhoto && (
+          <Img
+            css={{
+              display: `none !important`,
+              position: `absolute !important`,
+              borderRadius: radii[6],
+              marginBottom: space[5],
+              transform: `translateZ(0)`,
+              [breakpoint]: {
+                marginBottom: 0,
+                display: `block !important`,
+              },
+            }}
+            fixed={profile.hoverPhoto.fixed}
+          />
+        )}
+        {profile.photo && (
+          <Img
+            css={{
+              borderRadius: radii[6],
+              marginBottom: space[5],
+              transform: `translateZ(0)`,
+              [breakpoint]: {
+                marginBottom: 0,
+                ...(profile.hoverPhoto
+                  ? {
+                      ":hover": {
+                        opacity: `0 !important`,
+                      },
+                    }
+                  : {}),
+              },
+            }}
+            fixed={profile.photo.fixed}
+          />
+        )}
+      </div>
     ))}
   </>
 )

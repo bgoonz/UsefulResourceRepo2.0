@@ -17,8 +17,8 @@ export const iconByTone: Record<
 type GetVariantStylesFn = (tone: NotificationTone) => ThemeCss
 
 const variants: Record<NotificationVariant, GetVariantStylesFn> = {
-  PRIMARY: tone => {
-    return theme => [
+  PRIMARY: (tone) => {
+    return (theme) => [
       {
         background: theme.colors.white,
         borderLeft: `${theme.space[2]} solid ${theme.tones[tone].medium}`,
@@ -29,8 +29,8 @@ const variants: Record<NotificationVariant, GetVariantStylesFn> = {
       },
     ]
   },
-  SECONDARY: tone => {
-    return theme => ({
+  SECONDARY: (tone) => {
+    return (theme) => ({
       background: theme.tones[tone].superLight,
       padding: `${theme.space[5]} ${theme.space[7]}`,
       [theme.mediaQueries.desktop]: {

@@ -50,7 +50,8 @@ export function CheckboxGroupField({
   )
 }
 
-export type CheckboxGroupFieldOptionProps = CheckboxGroupFieldSkeletonOptionProps
+export type CheckboxGroupFieldOptionProps =
+  CheckboxGroupFieldSkeletonOptionProps
 export const CheckboxGroupFieldOption = React.forwardRef<
   HTMLInputElement,
   CheckboxGroupFieldOptionProps
@@ -79,47 +80,45 @@ export const CheckboxGroupFieldOption = React.forwardRef<
   )
 })
 
-export type CheckboxGroupFieldOptionLabelProps = CheckboxGroupFieldSkeletonOptionLabelProps &
-  FormGroupFieldOptionLabelProps
-export const CheckboxGroupFieldOptionLabel: React.FC<
-  CheckboxGroupFieldOptionLabelProps
-> = ({ size, ...rest }) => {
-  const { hasError } = useFormFieldSkeleton()
-  const { css, ...styledProps } = useStyledGroupFieldOptionLabel({ size })
+export type CheckboxGroupFieldOptionLabelProps =
+  CheckboxGroupFieldSkeletonOptionLabelProps & FormGroupFieldOptionLabelProps
+export const CheckboxGroupFieldOptionLabel: React.FC<CheckboxGroupFieldOptionLabelProps> =
+  ({ size, ...rest }) => {
+    const { hasError } = useFormFieldSkeleton()
+    const { css, ...styledProps } = useStyledGroupFieldOptionLabel({ size })
 
-  return (
-    <CheckboxGroupFieldSkeletonOptionLabel
-      css={(theme: Theme) => [
-        css(theme),
-        {
-          "&:before": {
-            backgroundColor: theme.colors.white,
-            border: hasError
-              ? `1px solid ${theme.colors.red[60]}`
-              : `2px solid ${theme.colors.grey[30]}`,
-            borderRadius: `3px`,
-            content: `""`,
-            display: `block`,
-            height: INPUT_WIDTH,
-            marginRight: theme.space[3],
-            position: `absolute`,
-            top: 0,
-            left: 0,
-            transition: `border-color 0.15s ease-in-out, background 0.15s ease-in-out`,
-            transform: `translate(0, calc(${INPUT_VERTICAL_OFFSET_CALC}))`,
-            width: INPUT_WIDTH,
+    return (
+      <CheckboxGroupFieldSkeletonOptionLabel
+        css={(theme: Theme) => [
+          css(theme),
+          {
+            "&:before": {
+              backgroundColor: theme.colors.white,
+              border: hasError
+                ? `1px solid ${theme.colors.red[60]}`
+                : `2px solid ${theme.colors.grey[30]}`,
+              borderRadius: `3px`,
+              content: `""`,
+              display: `block`,
+              height: INPUT_WIDTH,
+              marginRight: theme.space[3],
+              position: `absolute`,
+              top: 0,
+              left: 0,
+              transition: `border-color 0.15s ease-in-out, background 0.15s ease-in-out`,
+              transform: `translate(0, calc(${INPUT_VERTICAL_OFFSET_CALC}))`,
+              width: INPUT_WIDTH,
+            },
           },
-        },
-      ]}
-      {...rest}
-      {...styledProps}
-    />
-  )
-}
+        ]}
+        {...rest}
+        {...styledProps}
+      />
+    )
+  }
 
-export type CheckboxGroupFieldLabelProps = WithStyledFieldLabel<
-  CheckboxGroupFieldSkeletonLabelProps
->
+export type CheckboxGroupFieldLabelProps =
+  WithStyledFieldLabel<CheckboxGroupFieldSkeletonLabelProps>
 export function CheckboxGroupFieldLabel({
   children,
   size,
@@ -152,7 +151,8 @@ export function CheckboxGroupFieldOptions(
   return <FormGroupFieldOptions {...props} />
 }
 
-export type CheckboxGroupFieldOptionWrapperProps = FormGroupFieldOptionWrapperProps
+export type CheckboxGroupFieldOptionWrapperProps =
+  FormGroupFieldOptionWrapperProps
 export function CheckboxGroupFieldOptionWrapper(
   props: CheckboxGroupFieldOptionWrapperProps
 ) {

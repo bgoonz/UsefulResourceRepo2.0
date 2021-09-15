@@ -14,16 +14,19 @@ gulp.task('optimize_images', () =>
     .pipe(plumber({ errorHandler: notify.onError('Error: <%= error.message %>') }))
     // .pipe(changed(path.join(paths.landingPath, "assets/images")))
     .pipe(
-      imagemin([
-        imagemin.gifsicle({ interlaced: true }),
-        imagemin.jpegtran({ progressive: true }),
-        imagemin.optipng({ optimizationLevel: 5 }),
-        imagemin.svgo({
-          plugins: [{ removeViewBox: true }, { cleanupIDs: false }],
-        }),
-      ],{
-        verbose: true
-      })
+      imagemin(
+        [
+          imagemin.gifsicle({ interlaced: true }),
+          imagemin.jpegtran({ progressive: true }),
+          imagemin.optipng({ optimizationLevel: 5 }),
+          imagemin.svgo({
+            plugins: [{ removeViewBox: true }, { cleanupIDs: false }],
+          }),
+        ],
+        {
+          verbose: true,
+        }
+      )
     )
     .pipe(gulp.dest('./'))
 );

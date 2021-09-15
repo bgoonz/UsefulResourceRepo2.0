@@ -14,8 +14,8 @@ function toSheet(block) {
   }
 }
 
-export let Sheet: { current: { +insert: string => void } } = {
-  current: (null: any)
+export let Sheet: { current: { +insert: (string) => void } } = {
+  current: (null: any),
 }
 
 export let ruleSheet: StylisPlugin = (

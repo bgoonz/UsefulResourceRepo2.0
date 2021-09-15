@@ -11,7 +11,7 @@ export function getGroupFieldStoryOptions() {
     `Sheala de Tancarville`,
     `Triss Merigold`,
     `Yennefer of Vengerberg`,
-  ].map(name => {
+  ].map((name) => {
     return {
       label: name,
       value: name.toLowerCase().replace(/\s/g, `-`),

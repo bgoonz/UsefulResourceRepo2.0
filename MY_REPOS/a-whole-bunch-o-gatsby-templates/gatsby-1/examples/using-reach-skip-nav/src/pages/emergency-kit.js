@@ -7,11 +7,14 @@ import SEO from "../components/seo"
 const EmergencyKit = () => (
   <Layout>
     <SEO title="Emergency Kit" />
-    <h1>If you click the skip link, the next tab will take you to the "Go back to homepage" link.</h1>
+    <h1>
+      If you click the skip link, the next tab will take you to the "Go back to
+      homepage" link.
+    </h1>
 
     <p>
-      Make sure you're prepared for the worst. Put together a kit for the most stressful
-      situations. You'll want something for each of your senses:
+      Make sure you're prepared for the worst. Put together a kit for the most
+      stressful situations. You'll want something for each of your senses:
     </p>
     <ol>
       <li>

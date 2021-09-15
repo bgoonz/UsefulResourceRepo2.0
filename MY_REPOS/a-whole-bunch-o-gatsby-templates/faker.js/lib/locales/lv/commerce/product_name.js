@@ -1,5 +1,5 @@
 module["exports"] = {
-  "adjective": [
+  adjective: [
     "Mazs",
     "Ergonomisks",
     "Raupjš",
@@ -10,19 +10,19 @@ module["exports"] = {
     "Praktisks",
     "Spalvains",
     "Ciets",
-	"Mīksts",
-	"Rūgts"
+    "Mīksts",
+    "Rūgts",
   ],
-  "material": [
+  material: [
     "dzelzs",
     "koka",
     "betona",
     "plastmasas",
     "kokvilnas",
     "granīta",
-    "gumijas"
+    "gumijas",
   ],
-  "product": [
+  product: [
     "krēsls",
     "auto",
     "dators",
@@ -32,17 +32,17 @@ module["exports"] = {
     "džemperis",
     "zābaks",
     "kažoks",
-	"radio",
-	"skaļrunis",
-	"monitors",
-	"televizors",
-	"skapis",
-	"ritenis",
-	"plakāts",
-	"ceļarullis",
-	"nazis",
-	"plāksteris",
-	"telefons",
-	"pončiks"
-  ]
+    "radio",
+    "skaļrunis",
+    "monitors",
+    "televizors",
+    "skapis",
+    "ritenis",
+    "plakāts",
+    "ceļarullis",
+    "nazis",
+    "plāksteris",
+    "telefons",
+    "pončiks",
+  ],
 };

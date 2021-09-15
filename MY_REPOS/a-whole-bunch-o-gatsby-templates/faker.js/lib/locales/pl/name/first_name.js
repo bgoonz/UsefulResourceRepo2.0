@@ -406,5 +406,5 @@ module["exports"] = [
   "Wilhelmina",
   "Ksawera",
   "Ksenia",
-  "Zoe"
+  "Zoe",
 ];

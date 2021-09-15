@@ -30,7 +30,8 @@ module["exports"] = [
   "Carla",
   "Calista",
   "Devi",
-  "Dewi","Dian",
+  "Dewi",
+  "Dian",
   "Diah",
   "Diana",
   "Dina",
@@ -219,5 +220,5 @@ module["exports"] = [
   "Zulaikha",
   "Zamira",
   "Zelda",
-  "Zelaya"
+  "Zelaya",
 ];

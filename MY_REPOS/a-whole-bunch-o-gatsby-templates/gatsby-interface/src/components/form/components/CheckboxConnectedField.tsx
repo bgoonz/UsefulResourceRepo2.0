@@ -10,9 +10,9 @@ export type CheckboxConnectedFieldProps = {
   label?: React.ReactNode
 } & Omit<CheckboxFieldBlockProps, "id" | "label">
 
-export const CheckboxConnectedField: React.FC<
-  CheckboxConnectedFieldProps
-> = props => {
+export const CheckboxConnectedField: React.FC<CheckboxConnectedFieldProps> = (
+  props
+) => {
   const [connectedProps] = useConnectedField(props.name)
 
   return <CheckboxFieldBlock {...connectedProps} {...props} />

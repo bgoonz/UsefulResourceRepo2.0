@@ -16,9 +16,8 @@ interface IArticleAttributes {
   const articleFileContents = await fs.readFile(articleFilePath, `utf8`)
 
   // parse the frontmatter
-  const { attributes }: { attributes: IArticleAttributes } = frontMatter(
-    articleFileContents
-  )
+  const { attributes }: { attributes: IArticleAttributes } =
+    frontMatter(articleFileContents)
 
   // generate a new title
   const title = faker.random.words(Math.floor(Math.random() * 5) + 3)

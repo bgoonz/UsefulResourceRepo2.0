@@ -17,7 +17,7 @@ export const {
   keyframes,
   css,
   sheet,
-  cache
+  cache,
 } = createEmotion()
 ```
 
@@ -60,10 +60,10 @@ export const {
   keyframes,
   css,
   sheet,
-  cache
+  cache,
 } = createEmotion({
   // The key option is required when there will be multiple instances in a single app
-  key: 'some-key'
+  key: 'some-key',
 })
 ```
 

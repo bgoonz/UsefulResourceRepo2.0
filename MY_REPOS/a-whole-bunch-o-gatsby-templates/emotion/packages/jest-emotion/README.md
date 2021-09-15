@@ -16,7 +16,7 @@ The easiest way to test React components with emotion is with the snapshot seria
 // jest.config.js
 module.exports = {
   // ... other config
-  snapshotSerializers: ['jest-emotion']
+  snapshotSerializers: ['jest-emotion'],
 }
 ```
 
@@ -62,7 +62,7 @@ expect.addSnapshotSerializer(
   createSerializer({
     classNameReplacer(className, index) {
       return `my-new-class-name-${index}`
-    }
+    },
   })
 )
 ```
@@ -150,7 +150,7 @@ should look for the style property.
 
 ```js
 expect(tree).toHaveStyleRule('font-size', '14px', {
-  media: 'screen and (max-width: 1200px)'
+  media: 'screen and (max-width: 1200px)',
 })
 ```
 
@@ -187,7 +187,7 @@ test('renders with correct link styles', () => {
   expect(tree).toHaveStyleRule('color', 'yellow', { target: /a$/ })
   expect(tree).toHaveStyleRule('color', 'black', { target: 'a:hover' })
   expect(tree).toHaveStyleRule('font-size', '16px', {
-    media: '(min-width: 768px)'
+    media: '(min-width: 768px)',
   })
 })
 ```
@@ -195,6 +195,5 @@ test('renders with correct link styles', () => {
 ## Thanks
 
 Thanks to [Kent C. Dodds](https://twitter.com/kentcdodds) who wrote [jest-glamor-react](https://github.com/kentcdodds/jest-glamor-react) which this library is largely based on. ❤️
-
 
 [emotion-testing]: https://emotion.sh/docs/testing

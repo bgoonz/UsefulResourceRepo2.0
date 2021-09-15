@@ -162,7 +162,7 @@ module.exports = {
         analyzerMode: 'static',
         openAnalyzer: true,
       }),
-  ].filter(plugin => plugin !== false),
+  ].filter((plugin) => plugin !== false),
   node: {
     dgram: 'empty',
     fs: 'empty',

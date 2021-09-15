@@ -30,7 +30,7 @@ const Article = ({ data }) => {
 export default Article
 
 export const query = graphql`
-  query($slug: String!) {
+  query ($slug: String!) {
     article: nodeArticle(fields: { slug: { eq: $slug } }) {
       title
       body {

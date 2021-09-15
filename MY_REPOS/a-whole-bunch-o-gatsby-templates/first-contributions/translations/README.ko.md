@@ -2,14 +2,13 @@
 [<img align="right" src="https://firstcontributions.herokuapp.com/badge.svg">](https://firstcontributions.herokuapp.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-
 # 첫 기여
-
 
 힘이 듭니다. 처음으로 뭔가를하는 것은 언제나 어렵습니다. 특히 공동 작업 할 때 실수를 저지르는 것은 쉬운 일이 아닙니다. 그러나 오픈 소스는 협업과 협력에 관한 모든 것입니다. 우리는 새로운 오픈 소스 제공자가 처음 배우고 기여하는 방식을 단순화하고자했습니다.
 
 기사를 읽고 자습서를 보는 것이 도움이 될 수 있습니다. 그냥 덤벼들었다가 망쳐 놓는 것 보다는 낫겠죠. 이 프로젝트는 초보자가 첫 번째로 기여하는 방법을 안내하고 단순화하는 것을 목표로합니다. 기억하십시오 : 당신이 편안함을 느낄수록 배우는 것이 좋습니다. 첫 번째 기여를 하려면 아래의 간단한 단계를 따르십시오. 재미있을 것이라 약속드립니다.
-#### *이 분서를 [다른 언어로 보기](../Translations.md)* 
+
+#### _이 분서를 [다른 언어로 보기](../Translations.md)_
 
 <img align="right" width="300" src="../assets/fork.png" alt="이 저장소 포크하기" />
 
@@ -109,7 +108,7 @@ git push origin <add-your-name>
 <img style="float: right;" src="../assets/submit-pull.png" alt="풀 요청 제출하기"
 />
 
-이제 여러분의 변경사항을 제가 확인 후에  마스터 브랜치에 머지하게되면 알림메일을 받으실 수 있습니다.
+이제 여러분의 변경사항을 제가 확인 후에 마스터 브랜치에 머지하게되면 알림메일을 받으실 수 있습니다.
 
 ## 이제 어디로 가나요?
 
@@ -119,15 +118,13 @@ git push origin <add-your-name>
 
 이제 다른 프로젝트에 기여해보십시오. 시작하기 쉬운 문제가있는 프로젝트 목록을 작성했습니다. [웹 앱에 있는 프로젝트 목록](https://roshanjossey.github.io/first-contributions/#project-list)을 확인하세요.
 
-
-
 ### [ 추가 정보 ](../additional-material/translations/additional-material.ko.md)
 
 ## 자습서 다른 도구 사용
 
-|<a href="github-desktop-tutorial.md"><img alt="GitHub Desktop" src="https://desktop.github.com/images/desktop-icon.svg" width="100"></a>|<a href="github-windows-vs2017-tutorial.md"><img alt="Visual Studio 2017" src="https://www.microsoft.com/net/images/vslogo.png" width="100"></a>|<a href="gitkraken-tutorial.md"><img alt="GitKraken" src="/assets/gk-icon.png" width="100"></a>|
-|---|---|---|
-|[GitHub Desktop](../github-desktop-tutorial.md)|[Visual Studio 2017](../github-windows-vs2017-tutorial.md)|[GitKraken](../gitkraken-tutorial.md)|
+| <a href="github-desktop-tutorial.md"><img alt="GitHub Desktop" src="https://desktop.github.com/images/desktop-icon.svg" width="100"></a> | <a href="github-windows-vs2017-tutorial.md"><img alt="Visual Studio 2017" src="https://www.microsoft.com/net/images/vslogo.png" width="100"></a> | <a href="gitkraken-tutorial.md"><img alt="GitKraken" src="/assets/gk-icon.png" width="100"></a> |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| [GitHub Desktop](../github-desktop-tutorial.md)                                                                                          | [Visual Studio 2017](../github-windows-vs2017-tutorial.md)                                                                                       | [GitKraken](../gitkraken-tutorial.md)                                                           |
 
 ## Self-Promotion
 

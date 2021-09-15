@@ -30,7 +30,7 @@ import { ThemeProvider } from 'emotion-theming'
 
 const theme = {
   color: 'hotpink',
-  backgroundColor: 'purple'
+  backgroundColor: 'purple',
 }
 
 const Container = styled.View`
@@ -39,11 +39,11 @@ const Container = styled.View`
   align-items: center;
   margin: 50px;
   border: 5px solid red;
-  background-color: ${props => props.theme.backgroundColor};
+  background-color: ${(props) => props.theme.backgroundColor};
 `
 
 const Description = styled.Text({
-  color: 'hotpink'
+  color: 'hotpink',
 })
 
 const Image = styled.Image`
@@ -69,7 +69,7 @@ class App extends React.Component {
             source={{
               uri: emotionLogo,
               height: 150,
-              width: 150
+              width: 150,
             }}
           />
         </Container>
@@ -83,23 +83,23 @@ class App extends React.Component {
 
 ## Supported primitives
 
-* **Text**
+- **Text**
 
-* **View**
+- **View**
 
-* **Image**
+- **Image**
 
 ## Usage with `react-sketchapp`
 
 ### Installing dependencies
 
-* [`react-sketchapp`](https://github.com/airbnb/react-sketchapp)
+- [`react-sketchapp`](https://github.com/airbnb/react-sketchapp)
 
 ```
 yarn add react-sketchapp
 ```
 
-* `skpm` for building and publishing sketch plugins. This is required to render the components and build them to Sketch environment.
+- `skpm` for building and publishing sketch plugins. This is required to render the components and build them to Sketch environment.
 
 ```
 yarn add @skpm/builder --dev
@@ -109,7 +109,7 @@ yarn add @skpm/builder --dev
 
 Once you've installed `skpm`,
 
-* create a new field `skpm` in `package.json`
+- create a new field `skpm` in `package.json`
 
 ```json
  "skpm": {
@@ -118,7 +118,7 @@ Once you've installed `skpm`,
 },
 ```
 
-* Create `manifest.json` file with following content -
+- Create `manifest.json` file with following content -
 
 ```json
 {
@@ -138,7 +138,7 @@ Once you've installed `skpm`,
 }
 ```
 
-* add this to your `scripts` section of your `package.json`
+- add this to your `scripts` section of your `package.json`
 
 ```json
 scripts: {

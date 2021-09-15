@@ -1,5 +1,5 @@
-import * as React from 'react'
-import { graphql } from 'gatsby'
+import * as React from "react";
+import { graphql } from "gatsby";
 import {
   Heading,
   Box,
@@ -7,14 +7,14 @@ import {
   Button,
   useColorMode,
   Container,
-} from '@chakra-ui/react'
-import { StaticImage } from 'gatsby-plugin-image'
-import Link from '../components/link'
-import Layout from '../components/layout'
-import { SkipNavContent } from '../components/skip-nav'
+} from "@chakra-ui/react";
+import { StaticImage } from "gatsby-plugin-image";
+import Link from "../components/link";
+import Layout from "../components/layout";
+import { SkipNavContent } from "../components/skip-nav";
 
 const IndexPage = ({ data }) => {
-  const { colorMode, toggleColorMode } = useColorMode()
+  const { colorMode, toggleColorMode } = useColorMode();
 
   return (
     <Layout>
@@ -25,7 +25,7 @@ const IndexPage = ({ data }) => {
           </div>
           <Heading as="h1">Title of my page</Heading>
           <Button onClick={toggleColorMode}>
-            Toggle {colorMode === 'light' ? 'Dark' : 'Light'}
+            Toggle {colorMode === "light" ? "Dark" : "Light"}
           </Button>
           <Link to="/page-2/">To page 2</Link>
           <Text mt="6" fontSize="21px">
@@ -44,10 +44,10 @@ const IndexPage = ({ data }) => {
         </Container>
       </SkipNavContent>
     </Layout>
-  )
-}
+  );
+};
 
-export default IndexPage
+export default IndexPage;
 
 export const query = graphql`
   {
@@ -57,4 +57,4 @@ export const query = graphql`
       }
     }
   }
-`
+`;

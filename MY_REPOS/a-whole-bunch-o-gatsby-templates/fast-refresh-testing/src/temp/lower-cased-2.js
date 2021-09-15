@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 
 function lowerCased() {
   return (
@@ -6,7 +6,7 @@ function lowerCased() {
       <title>Lower Cased 2</title>
       Test
     </main>
-  )
+  );
 }
 
-export default lowerCased
+export default lowerCased;

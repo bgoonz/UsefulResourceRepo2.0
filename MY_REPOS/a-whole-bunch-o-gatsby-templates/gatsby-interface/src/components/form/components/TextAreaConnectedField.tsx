@@ -10,9 +10,9 @@ export type TextAreaConnectedFieldProps = {
   label?: React.ReactNode
 } & Omit<TextAreaFieldBlockProps, "id" | "label">
 
-export const TextAreaConnectedField: React.FC<
-  TextAreaConnectedFieldProps
-> = props => {
+export const TextAreaConnectedField: React.FC<TextAreaConnectedFieldProps> = (
+  props
+) => {
   const [connectedProps] = useConnectedField(props.name)
 
   return <TextAreaFieldBlock {...connectedProps} {...props} />

@@ -57,7 +57,7 @@ export const useToastActions = () => {
   const timeoutsRef = useRef<Map<symbol, number>>(new Map())
 
   const removeToast = useCallback((toastId: symbol) => {
-    setToasts(prevToasts => prevToasts.filter(({ id }) => id !== toastId))
+    setToasts((prevToasts) => prevToasts.filter(({ id }) => id !== toastId))
 
     window.clearTimeout(timeoutsRef.current.get(toastId))
 
@@ -68,7 +68,7 @@ export const useToastActions = () => {
     (message, { tone = DEFAULT_TONE, timeout = DEFAULT_TIMEOUT } = {}) => {
       const toastId = Symbol(`toast`)
 
-      setToasts(prevToasts => [...prevToasts, { id: toastId, message, tone }])
+      setToasts((prevToasts) => [...prevToasts, { id: toastId, message, tone }])
 
       if (timeout > 0) {
         const timeOutId = window.setTimeout(() => {

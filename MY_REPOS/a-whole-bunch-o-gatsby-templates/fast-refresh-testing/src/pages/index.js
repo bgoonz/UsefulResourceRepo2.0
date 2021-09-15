@@ -1,7 +1,7 @@
 /** @jsx jsx */
-import React from "react"
-import { jsx, Styled } from 'theme-ui'
-import { graphql } from 'gatsby'
+import React from "react";
+import { jsx, Styled } from "theme-ui";
+import { graphql } from "gatsby";
 
 // Compile error: Remove the } from ({ data })
 const IndexPage = ({ data }) => {
@@ -23,9 +23,9 @@ const IndexPage = ({ data }) => {
       <title>Home Page</title>
       <div
         sx={{
-          fontWeight: 'bold',
+          fontWeight: "bold",
           fontSize: 4,
-          color: 'yellow',
+          color: "yellow",
         }}
       >
         Hello
@@ -34,10 +34,10 @@ const IndexPage = ({ data }) => {
       <Styled.p>Test 123</Styled.p>
       <pre>{JSON.stringify(data, null, 2)}</pre>
     </main>
-  )
-}
+  );
+};
 
-export default IndexPage
+export default IndexPage;
 
 export const query = graphql`
   {
@@ -48,4 +48,4 @@ export const query = graphql`
       }
     }
   }
-`
+`;

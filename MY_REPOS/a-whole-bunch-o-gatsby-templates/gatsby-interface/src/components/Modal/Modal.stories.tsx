@@ -53,7 +53,7 @@ export const Dismissable = () => {
         isOpen={isOpen}
         onDismiss={() => setIsOpen(false)}
       >
-        <ModalCard css={theme => ({ padding: theme.space[4] })}>
+        <ModalCard css={(theme) => ({ padding: theme.space[4] })}>
           You can close this modal by one of the following:
           <ul>
             <li>Click on the overlay</li>
@@ -78,7 +78,7 @@ export const InitialFocus = () => {
         aria-label="Some impressive content"
         initialFocusRef={primaryButtonRef}
       >
-        <ModalCard css={theme => ({ padding: theme.space[4] })}>
+        <ModalCard css={(theme) => ({ padding: theme.space[4] })}>
           The "Primary action" button should be focused when modal opens
           <br />
           <br />

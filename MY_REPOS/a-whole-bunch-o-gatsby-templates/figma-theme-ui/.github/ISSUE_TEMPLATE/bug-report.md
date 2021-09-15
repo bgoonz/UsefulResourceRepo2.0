@@ -1,10 +1,9 @@
 ---
 name: "Bug report \U0001F41E"
 about: Something isn't working as expected? Here is the right place to report.
-title: ''
-labels: 'type: bug'
-assignees: ''
-
+title: ""
+labels: "type: bug"
+assignees: ""
 ---
 
 <!--

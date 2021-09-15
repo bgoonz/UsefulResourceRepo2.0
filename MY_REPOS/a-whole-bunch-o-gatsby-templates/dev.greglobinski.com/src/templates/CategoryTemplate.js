@@ -8,21 +8,21 @@ import Article from "../components/Article";
 import Headline from "../components/Article/Headline";
 import List from "../components/List";
 
-const CategoryTemplate = props => {
+const CategoryTemplate = (props) => {
   const {
     pathContext: { category },
     data: {
       allMarkdownRemark: { totalCount, edges },
       site: {
-        siteMetadata: { facebook }
-      }
-    }
+        siteMetadata: { facebook },
+      },
+    },
   } = props;
 
   return (
     <React.Fragment>
       <ThemeContext.Consumer>
-        {theme => (
+        {(theme) => (
           <Article theme={theme}>
             <header>
               <Headline theme={theme}>
@@ -30,11 +30,8 @@ const CategoryTemplate = props => {
                 {category}
               </Headline>
               <p className="meta">
-                There {totalCount > 1 ? "are" : "is"} <strong>{totalCount}</strong> post{totalCount >
-                1
-                  ? "s"
-                  : ""}{" "}
-                in the category.
+                There {totalCount > 1 ? "are" : "is"} <strong>{totalCount}</strong> post
+                {totalCount > 1 ? "s" : ""} in the category.
               </p>
               <List edges={edges} theme={theme} />
             </header>
@@ -49,7 +46,7 @@ const CategoryTemplate = props => {
 
 CategoryTemplate.propTypes = {
   data: PropTypes.object.isRequired,
-  pathContext: PropTypes.object.isRequired
+  pathContext: PropTypes.object.isRequired,
 };
 
 export default CategoryTemplate;

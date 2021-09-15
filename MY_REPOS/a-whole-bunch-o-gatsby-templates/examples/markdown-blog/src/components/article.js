@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types'
-import { Link } from 'gatsby';
+import React from "react";
+import PropTypes from "prop-types";
+import { Link } from "gatsby";
 
-import styles from './article.module.css';
+import styles from "./article.module.css";
 
 const Article = ({ title, date, excerpt, slug }) => {
   const firstChar = title.charAt(0);
@@ -26,4 +26,4 @@ Article.propTypes = {
   date: PropTypes.string.isRequired,
   excerpt: PropTypes.string.isRequired,
   slug: PropTypes.string.isRequired,
-}
+};

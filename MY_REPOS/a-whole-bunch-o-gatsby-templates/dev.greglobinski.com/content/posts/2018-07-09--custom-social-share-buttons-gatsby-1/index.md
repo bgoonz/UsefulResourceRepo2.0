@@ -97,10 +97,10 @@ There are five built-in styled button components in the `react-custom-search`, w
 
 The other four are:
 
-* ShareButtonRoundSquare
-* ShareButtonCircle
-* ShareButtonIconOnly
-* ShareButtonOutline
+- ShareButtonRoundSquare
+- ShareButtonCircle
+- ShareButtonIconOnly
+- ShareButtonOutline
 
 ![react-custom-share built-in styled buttons](./react-custom-share-built-in-themes.png)
 
@@ -118,10 +118,10 @@ const shareBlockProps = {
     { network: "GooglePlus", icon: FaGooglePlus },
     { network: "Email", icon: FaEnvelope },
     { network: "Pinterest", icon: FaPinterest, media: "https://localhost:8000/image-to-share.jpg" },
-    { network: "Linkedin", icon: FaLinkedin }
+    { network: "Linkedin", icon: FaLinkedin },
   ],
   text: `Give it a try - mywebsite.com `,
-  longtext: `Take a look at this super website I have just found.`
+  longtext: `Take a look at this super website I have just found.`,
 };
 ```
 
@@ -173,13 +173,13 @@ class BlogIndex extends React.Component {
         {
           network: "Pinterest",
           icon: FaPinterest,
-          media: "https://mywebsite.com/image-to-share.jpg"
+          media: "https://mywebsite.com/image-to-share.jpg",
         },
-        { network: "Linkedin", icon: FaLinkedin }
+        { network: "Linkedin", icon: FaLinkedin },
       ],
       text: `Give it a try - mywebsite.com `,
       longtext: `Take a look at this super website I have just found.`,
-      buttonClassName: customStyles
+      buttonClassName: customStyles,
     };
 
     return (
@@ -271,7 +271,7 @@ const shareBlockProps = {
   /* ... */
 
   /* other properties stay the same */
-  buttonCustomClassName: customStyles
+  buttonCustomClassName: customStyles,
 };
 ```
 
@@ -283,13 +283,13 @@ Sassy, don't you think? :smile:
 
 Congratulations! You have just met the first target of the series. In the following parts of it you will learn:
 
-* How to add the sharing block to every post page of your blog, not only to the Home.
-* How to create a custom share button from scratch.
-* How to do it without the `emotion` library. Maybe you are using `styled-components` in your projects or just prefer to use plain CSS.
-* How the `react-custom-share` works, what exactly the script does and how.
+- How to add the sharing block to every post page of your blog, not only to the Home.
+- How to create a custom share button from scratch.
+- How to do it without the `emotion` library. Maybe you are using `styled-components` in your projects or just prefer to use plain CSS.
+- How the `react-custom-share` works, what exactly the script does and how.
 
 ### This post is a part of a series
 
-* Add custom social sharing buttons to a GatsbyJS blog's home page
-* [Add custom social sharing buttons to GatsbyJS blog's posts](../custom-social-share-buttons-gatsby-2)
-* Coming soon...
+- Add custom social sharing buttons to a GatsbyJS blog's home page
+- [Add custom social sharing buttons to GatsbyJS blog's posts](../custom-social-share-buttons-gatsby-2)
+- Coming soon...

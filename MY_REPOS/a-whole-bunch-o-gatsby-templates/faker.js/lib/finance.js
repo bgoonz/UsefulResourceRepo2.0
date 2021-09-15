@@ -4,7 +4,7 @@
 var Finance = function (faker) {
   var ibanLib = require("./iban");
   var Helpers = faker.helpers,
-      self = this;
+    self = this;
 
   /**
    * account
@@ -13,16 +13,15 @@ var Finance = function (faker) {
    * @param {number} length
    */
   self.account = function (length) {
+    length = length || 8;
 
-      length = length || 8;
+    var template = "";
 
-      var template = '';
-
-      for (var i = 0; i < length; i++) {
-          template = template + '#';
-      }
-      length = null;
-      return Helpers.replaceSymbolWithNumber(template);
+    for (var i = 0; i < length; i++) {
+      template = template + "#";
+    }
+    length = null;
+    return Helpers.replaceSymbolWithNumber(template);
   };
 
   /**
@@ -31,8 +30,10 @@ var Finance = function (faker) {
    * @method faker.finance.accountName
    */
   self.accountName = function () {
-
-      return [Helpers.randomize(faker.definitions.finance.account_type), 'Account'].join(' ');
+    return [
+      Helpers.randomize(faker.definitions.finance.account_type),
+      "Account",
+    ].join(" ");
   };
 
   /**
@@ -41,20 +42,19 @@ var Finance = function (faker) {
    * @method faker.finance.routingNumber
    */
   self.routingNumber = function () {
+    var routingNumber = Helpers.replaceSymbolWithNumber("########");
 
-      var routingNumber = Helpers.replaceSymbolWithNumber('########');
+    // Modules 10 straight summation.
+    var sum = 0;
 
-      // Modules 10 straight summation.
-      var sum = 0;
+    for (var i = 0; i < routingNumber.length; i += 3) {
+      sum += Number(routingNumber[i]) * 3;
+      sum += Number(routingNumber[i + 1]) * 7;
+      sum += Number(routingNumber[i + 2]) || 0;
+    }
 
-      for (var i = 0; i < routingNumber.length; i += 3) {
-        sum += Number(routingNumber[i]) * 3;
-        sum += Number(routingNumber[i + 1]) * 7;
-        sum += Number(routingNumber[i + 2]) || 0;
-      }
-
-      return routingNumber + (Math.ceil(sum / 10) * 10 - sum);
-  }
+    return routingNumber + (Math.ceil(sum / 10) * 10 - sum);
+  };
 
   /**
    * mask
@@ -65,28 +65,28 @@ var Finance = function (faker) {
    * @param {boolean} ellipsis
    */
   self.mask = function (length, parens, ellipsis) {
+    //set defaults
+    length =
+      length == 0 || !length || typeof length == "undefined" ? 4 : length;
+    parens = parens === null ? true : parens;
+    ellipsis = ellipsis === null ? true : ellipsis;
 
-      //set defaults
-      length = (length == 0 || !length || typeof length == 'undefined') ? 4 : length;
-      parens = (parens === null) ? true : parens;
-      ellipsis = (ellipsis === null) ? true : ellipsis;
+    //create a template for length
+    var template = "";
 
-      //create a template for length
-      var template = '';
+    for (var i = 0; i < length; i++) {
+      template = template + "#";
+    }
 
-      for (var i = 0; i < length; i++) {
-          template = template + '#';
-      }
+    //prefix with ellipsis
+    template = ellipsis ? ["...", template].join("") : template;
 
-      //prefix with ellipsis
-      template = (ellipsis) ? ['...', template].join('') : template;
+    template = parens ? ["(", template, ")"].join("") : template;
 
-      template = (parens) ? ['(', template, ')'].join('') : template;
+    //generate random numbers
+    template = Helpers.replaceSymbolWithNumber(template);
 
-      //generate random numbers
-      template = Helpers.replaceSymbolWithNumber(template);
-
-      return template;
+    return template;
   };
 
   //min and max take in minimum and maximum amounts, dec is the decimal place you want rounded to, symbol is $, €, £, etc
@@ -104,15 +104,18 @@ var Finance = function (faker) {
    * @return {string}
    */
   self.amount = function (min, max, dec, symbol) {
+    min = min || 0;
+    max = max || 1000;
+    dec = dec === undefined ? 2 : dec;
+    symbol = symbol || "";
+    var randValue = faker.random.number({
+      max: max,
+      min: min,
+      precision: Math.pow(10, -dec),
+    });
+    var stringNumber = symbol + randValue.toFixed(dec);
 
-      min = min || 0;
-      max = max || 1000;
-      dec = dec === undefined ? 2 : dec;
-      symbol = symbol || '';
-      var randValue = faker.random.number({ max: max, min: min, precision: Math.pow(10, -dec) });
-      var stringNumber = symbol + randValue.toFixed(dec);
-
-      return symbol + randValue.toFixed(dec);
+    return symbol + randValue.toFixed(dec);
   };
 
   /**
@@ -121,7 +124,7 @@ var Finance = function (faker) {
    * @method faker.finance.transactionType
    */
   self.transactionType = function () {
-      return Helpers.randomize(faker.definitions.finance.transaction_type);
+    return Helpers.randomize(faker.definitions.finance.transaction_type);
   };
 
   /**
@@ -130,7 +133,9 @@ var Finance = function (faker) {
    * @method faker.finance.currencyCode
    */
   self.currencyCode = function () {
-      return faker.random.objectElement(faker.definitions.finance.currency)['code'];
+    return faker.random.objectElement(faker.definitions.finance.currency)[
+      "code"
+    ];
   };
 
   /**
@@ -139,7 +144,10 @@ var Finance = function (faker) {
    * @method faker.finance.currencyName
    */
   self.currencyName = function () {
-      return faker.random.objectElement(faker.definitions.finance.currency, 'key');
+    return faker.random.objectElement(
+      faker.definitions.finance.currency,
+      "key"
+    );
   };
 
   /**
@@ -148,12 +156,14 @@ var Finance = function (faker) {
    * @method faker.finance.currencySymbol
    */
   self.currencySymbol = function () {
-      var symbol;
+    var symbol;
 
-      while (!symbol) {
-          symbol = faker.random.objectElement(faker.definitions.finance.currency)['symbol'];
-      }
-      return symbol;
+    while (!symbol) {
+      symbol = faker.random.objectElement(faker.definitions.finance.currency)[
+        "symbol"
+      ];
+    }
+    return symbol;
   };
 
   /**
@@ -164,36 +174,40 @@ var Finance = function (faker) {
   self.bitcoinAddress = function () {
     var addressLength = faker.random.number({ min: 25, max: 34 });
 
-    var address = faker.random.arrayElement(['1', '3']);
+    var address = faker.random.arrayElement(["1", "3"]);
 
     for (var i = 0; i < addressLength - 1; i++)
-      address += faker.random.arrayElement('123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'.split(''));
+      address += faker.random.arrayElement(
+        "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ".split("")
+      );
 
     return address;
-  }
+  };
 
-/**
- * litecoinAddress
- *
- * @method  faker.finance.litecoinAddress
- */
-self.litecoinAddress = function () {
-  var addressLength = faker.random.number({ min: 26, max: 33 });
+  /**
+   * litecoinAddress
+   *
+   * @method  faker.finance.litecoinAddress
+   */
+  self.litecoinAddress = function () {
+    var addressLength = faker.random.number({ min: 26, max: 33 });
 
-  var address = faker.random.arrayElement(['L', 'M', '3']);
+    var address = faker.random.arrayElement(["L", "M", "3"]);
 
-  for (var i = 0; i < addressLength - 1; i++)
-    address += faker.random.arrayElement('123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'.split(''));
+    for (var i = 0; i < addressLength - 1; i++)
+      address += faker.random.arrayElement(
+        "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ".split("")
+      );
 
-  return address;
-}
+    return address;
+  };
 
   /**
    * Credit card number
    * @method faker.finance.creditCardNumber
    * @param {string} provider | scheme
-  */
-  self.creditCardNumber = function(provider){
+   */
+  self.creditCardNumber = function (provider) {
     provider = provider || "";
     var format, formats;
     var localeFormat = faker.definitions.finance.credit_card;
@@ -204,12 +218,14 @@ self.litecoinAddress = function () {
       } else {
         format = faker.random.arrayElement(formats);
       }
-    } else if (provider.match(/#/)) { // The user chose an optional scheme
+    } else if (provider.match(/#/)) {
+      // The user chose an optional scheme
       format = provider;
-    } else { // Choose a random provider
-      if (typeof localeFormat === 'string') {
+    } else {
+      // Choose a random provider
+      if (typeof localeFormat === "string") {
         format = localeFormat;
-      } else if( typeof localeFormat === "object") {
+      } else if (typeof localeFormat === "object") {
         // Credit cards are in a object structure
         formats = faker.random.objectElement(localeFormat, "value"); // There chould be multiple formats
         if (typeof formats === "string") {
@@ -219,17 +235,17 @@ self.litecoinAddress = function () {
         }
       }
     }
-    format = format.replace(/\//g,"")
+    format = format.replace(/\//g, "");
     return Helpers.replaceCreditCardSymbols(format);
   };
   /**
    * Credit card CVV
    * @method faker.finance.creditCardCVV
-  */
-  self.creditCardCVV = function() {
+   */
+  self.creditCardCVV = function () {
     var cvv = "";
     for (var i = 0; i < 3; i++) {
-      cvv += faker.random.number({max:9}).toString();
+      cvv += faker.random.number({ max: 9 }).toString();
     }
     return cvv;
   };
@@ -251,45 +267,46 @@ self.litecoinAddress = function () {
    * @method  faker.finance.iban
    */
   self.iban = function (formatted) {
-      var ibanFormat = faker.random.arrayElement(ibanLib.formats);
-      var s = "";
-      var count = 0;
-      for (var b = 0; b < ibanFormat.bban.length; b++) {
-          var bban = ibanFormat.bban[b];
-          var c = bban.count;
-          count += bban.count;
-          while (c > 0) {
-              if (bban.type == "a") {
-                  s += faker.random.arrayElement(ibanLib.alpha);
-              } else if (bban.type == "c") {
-                  if (faker.random.number(100) < 80) {
-                      s += faker.random.number(9);
-                  } else {
-                      s += faker.random.arrayElement(ibanLib.alpha);
-                  }
-              } else {
-                  if (c >= 3 && faker.random.number(100) < 30) {
-                      if (faker.random.boolean()) {
-                          s += faker.random.arrayElement(ibanLib.pattern100);
-                          c -= 2;
-                      } else {
-                          s += faker.random.arrayElement(ibanLib.pattern10);
-                          c--;
-                      }
-                  } else {
-                      s += faker.random.number(9);
-                  }
-              }
-              c--;
+    var ibanFormat = faker.random.arrayElement(ibanLib.formats);
+    var s = "";
+    var count = 0;
+    for (var b = 0; b < ibanFormat.bban.length; b++) {
+      var bban = ibanFormat.bban[b];
+      var c = bban.count;
+      count += bban.count;
+      while (c > 0) {
+        if (bban.type == "a") {
+          s += faker.random.arrayElement(ibanLib.alpha);
+        } else if (bban.type == "c") {
+          if (faker.random.number(100) < 80) {
+            s += faker.random.number(9);
+          } else {
+            s += faker.random.arrayElement(ibanLib.alpha);
           }
-          s = s.substring(0, count);
+        } else {
+          if (c >= 3 && faker.random.number(100) < 30) {
+            if (faker.random.boolean()) {
+              s += faker.random.arrayElement(ibanLib.pattern100);
+              c -= 2;
+            } else {
+              s += faker.random.arrayElement(ibanLib.pattern10);
+              c--;
+            }
+          } else {
+            s += faker.random.number(9);
+          }
+        }
+        c--;
       }
-      var checksum = 98 - ibanLib.mod97(ibanLib.toDigitString(s + ibanFormat.country + "00"));
-      if (checksum < 10) {
-          checksum = "0" + checksum;
-      }
-      var iban = ibanFormat.country + checksum + s;
-      return formatted ? iban.match(/.{1,4}/g).join(" ") : iban;
+      s = s.substring(0, count);
+    }
+    var checksum =
+      98 - ibanLib.mod97(ibanLib.toDigitString(s + ibanFormat.country + "00"));
+    if (checksum < 10) {
+      checksum = "0" + checksum;
+    }
+    var iban = ibanFormat.country + checksum + s;
+    return formatted ? iban.match(/.{1,4}/g).join(" ") : iban;
   };
 
   /**
@@ -298,16 +315,20 @@ self.litecoinAddress = function () {
    * @method  faker.finance.bic
    */
   self.bic = function () {
-      var vowels = ["A", "E", "I", "O", "U"];
-      var prob = faker.random.number(100);
-      return Helpers.replaceSymbols("???") +
-          faker.random.arrayElement(vowels) +
-          faker.random.arrayElement(ibanLib.iso3166) +
-          Helpers.replaceSymbols("?") + "1" +
-          (prob < 10 ?
-              Helpers.replaceSymbols("?" + faker.random.arrayElement(vowels) + "?") :
-          prob < 40 ?
-              Helpers.replaceSymbols("###") : "");
+    var vowels = ["A", "E", "I", "O", "U"];
+    var prob = faker.random.number(100);
+    return (
+      Helpers.replaceSymbols("???") +
+      faker.random.arrayElement(vowels) +
+      faker.random.arrayElement(ibanLib.iso3166) +
+      Helpers.replaceSymbols("?") +
+      "1" +
+      (prob < 10
+        ? Helpers.replaceSymbols("?" + faker.random.arrayElement(vowels) + "?")
+        : prob < 40
+        ? Helpers.replaceSymbols("###")
+        : "")
+    );
   };
 
   /**
@@ -315,16 +336,27 @@ self.litecoinAddress = function () {
    *
    * @method  faker.finance.transactionDescription
    */
-  self.transactionDescription = function() {
-    var account = Helpers.createTransaction().account
+  self.transactionDescription = function () {
+    var account = Helpers.createTransaction().account;
     var card = faker.finance.mask();
     var currency = faker.finance.currencyCode();
-    var amount = Helpers.createTransaction().amount
-    var transactionType = Helpers.createTransaction().type
-    var company = Helpers.createTransaction().business
-    return transactionType + " transaction at " + company + " using card ending with ***" + card + " for " + currency + " " + amount + " in account ***" + account
-  }
-
+    var amount = Helpers.createTransaction().amount;
+    var transactionType = Helpers.createTransaction().type;
+    var company = Helpers.createTransaction().business;
+    return (
+      transactionType +
+      " transaction at " +
+      company +
+      " using card ending with ***" +
+      card +
+      " for " +
+      currency +
+      " " +
+      amount +
+      " in account ***" +
+      account
+    );
+  };
 };
 
-module['exports'] = Finance;
+module["exports"] = Finance;

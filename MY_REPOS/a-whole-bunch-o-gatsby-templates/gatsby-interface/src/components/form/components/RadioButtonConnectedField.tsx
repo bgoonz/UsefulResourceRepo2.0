@@ -12,10 +12,9 @@ export type RadioButtonConnectedFieldProps = {
   label?: React.ReactNode
 } & Omit<RadioButtonFieldBlockProps, "id" | "label" | "value">
 
-export const RadioButtonConnectedField: React.FC<
-  RadioButtonConnectedFieldProps
-> = props => {
-  const [connectedProps] = useConnectedField(props.name)
+export const RadioButtonConnectedField: React.FC<RadioButtonConnectedFieldProps> =
+  (props) => {
+    const [connectedProps] = useConnectedField(props.name)
 
-  return <RadioButtonFieldBlock {...connectedProps} {...props} />
-}
+    return <RadioButtonFieldBlock {...connectedProps} {...props} />
+  }

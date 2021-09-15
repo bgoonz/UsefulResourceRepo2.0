@@ -27,8 +27,8 @@ storiesOf(`CopyButton`, module)
         <CopyButton
           content={text(`content`, `Hello world!`)}
           onClick={action(`Copy`)}
-          getButtonLabel={copied => (copied ? labelCopied : labelCopy)}
-          getButtonTitle={copied => (copied ? titleCopied : titleCopy)}
+          getButtonLabel={(copied) => (copied ? labelCopied : labelCopy)}
+          getButtonTitle={(copied) => (copied ? titleCopied : titleCopy)}
         />
       </StoryUtils.Container>
     )

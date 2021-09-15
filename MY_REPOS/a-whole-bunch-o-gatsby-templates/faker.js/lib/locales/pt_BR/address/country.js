@@ -235,5 +235,5 @@ module["exports"] = [
   "Sahara",
   "Yemen",
   "Zâmbia",
-  "Zimbábue"
+  "Zimbábue",
 ];

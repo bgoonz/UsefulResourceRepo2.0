@@ -150,7 +150,7 @@ export function showcaseCustomStyles<P>(
           <Component
             {...defaultProps}
             onClick={action(`Button was clicked`)}
-            css={theme => ({
+            css={(theme) => ({
               color: theme.colors.purple[60],
               background: theme.colors.yellow[60],
               borderColor: theme.colors.yellow[60],

@@ -7,9 +7,11 @@ const Index = ({ data }) => {
     <Layout>
       {data.site.siteMetadata.siteTitle}
       <ul>
-        {data.articles.nodes.map(article => (
+        {data.articles.nodes.map((article) => (
           <li>
-            <Link to={article.elements.slug.value}>{article.elements.title.value}</Link>
+            <Link to={article.elements.slug.value}>
+              {article.elements.title.value}
+            </Link>
           </li>
         ))}
       </ul>

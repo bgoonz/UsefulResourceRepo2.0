@@ -5,5 +5,5 @@ import { cache } from 'emotion'
 export const {
   extractCritical,
   renderStylesToString,
-  renderStylesToNodeStream
+  renderStylesToNodeStream,
 } = createEmotionServer(cache)

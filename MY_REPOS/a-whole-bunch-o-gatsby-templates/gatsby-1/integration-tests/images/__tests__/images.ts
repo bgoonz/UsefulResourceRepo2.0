@@ -122,19 +122,17 @@ async function compareSrcSets(
   other: Source
 ): Promise<Array<string>> {
   const results = await Promise.all(
-    main.srcset.map(
-      async ({ src, size }, index): Promise<string | null> => {
-        const title = `${path.basename(src)} does not match ${path.basename(
-          other.srcset[index].src
-        )} at size ${size}`
-        const source = await toImageBuffer(src)
-        const result = await imageDiff(source, other.srcset[index].src)
-        if (!result) {
-          return title
-        }
-        return null
+    main.srcset.map(async ({ src, size }, index): Promise<string | null> => {
+      const title = `${path.basename(src)} does not match ${path.basename(
+        other.srcset[index].src
+      )} at size ${size}`
+      const source = await toImageBuffer(src)
+      const result = await imageDiff(source, other.srcset[index].src)
+      if (!result) {
+        return title
       }
-    )
+      return null
+    })
   )
   return results.filter(Boolean) as Array<string>
 }

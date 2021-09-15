@@ -12,7 +12,7 @@ type Options = {
   semicolon: true,
   cascade: true,
   compress: false,
-  prefix: boolean | ((key: string, value: string, context: number) => boolean)
+  prefix: boolean | ((key: string, value: string, context: number) => boolean),
 }
 ```
 

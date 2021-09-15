@@ -1,10 +1,10 @@
-import React from 'react';
-import { Link, graphql } from 'gatsby';
-import Layout from '../components/layout'
-import styles from './post.module.css';
-import SEO from '../components/seo';
+import React from "react";
+import { Link, graphql } from "gatsby";
+import Layout from "../components/layout";
+import styles from "./post.module.css";
+import SEO from "../components/seo";
 
-const Post = props => {
+const Post = (props) => {
   const postNode = props.data.markdownRemark;
   const post = postNode.frontmatter;
 

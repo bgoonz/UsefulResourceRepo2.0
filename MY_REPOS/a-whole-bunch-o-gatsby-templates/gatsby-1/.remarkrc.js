@@ -8,7 +8,7 @@ module.exports = {
     silentlyIgnore: true,
     quiet: true,
     frail: true,
-    extensions: ["md"]
+    extensions: ["md"],
   },
   plugins: [
     ["remark-frontmatter", "yaml"],

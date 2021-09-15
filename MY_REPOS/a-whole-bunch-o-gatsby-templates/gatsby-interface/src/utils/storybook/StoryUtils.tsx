@@ -78,7 +78,7 @@ const StoryUtilsContent = ({
 const StoryUtilsDefault = () => (
   <Chip
     icon={<MdInfoOutline />}
-    css={theme => ({ marginLeft: theme.space[8], verticalAlign: `middle` })}
+    css={(theme) => ({ marginLeft: theme.space[8], verticalAlign: `middle` })}
   >
     Default
   </Chip>

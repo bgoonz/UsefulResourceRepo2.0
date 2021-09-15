@@ -10,7 +10,7 @@ function ParkLocationPlace(props) {
 export default ParkLocationPlace
 
 export const query = graphql`
-  query($id: String!) {
+  query ($id: String!) {
     park(id: { eq: $id }) {
       name
       description

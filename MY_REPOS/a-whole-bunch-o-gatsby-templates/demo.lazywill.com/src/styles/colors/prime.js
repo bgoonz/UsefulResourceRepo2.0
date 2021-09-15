@@ -13,7 +13,7 @@ var amber = {
   A200: "#ffd740",
   A400: "#ffc400",
   A700: "#ffab00",
-  contrastDefaultColor: "dark"
+  contrastDefaultColor: "dark",
 };
 
 exports.default = amber;

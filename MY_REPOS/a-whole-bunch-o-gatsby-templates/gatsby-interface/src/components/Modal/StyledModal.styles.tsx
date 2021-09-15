@@ -9,7 +9,7 @@ const entry = keyframes`
   }
 `
 
-export const headerCss: ThemeCss = theme => ({
+export const headerCss: ThemeCss = (theme) => ({
   display: `flex`,
   alignItems: `center`,
   justifyContent: `space-between`,
@@ -28,7 +28,7 @@ export const headerCss: ThemeCss = theme => ({
   },
 })
 
-export const titleCss: ThemeCss = theme => ({
+export const titleCss: ThemeCss = (theme) => ({
   animation: `${entry} 0.75s 0.7s ease forwards`,
   fontSize: theme.fontSizes[4],
   opacity: 0,
@@ -37,7 +37,7 @@ export const titleCss: ThemeCss = theme => ({
 const CLOSE_BUTTON_SIZE = 40
 const CLOSE_ICON_SIZE = 20
 
-export const closeButtonCss: ThemeCss = _theme => ({
+export const closeButtonCss: ThemeCss = (_theme) => ({
   display: `inline-flex`,
   alignItems: `center`,
   justifyContent: `center`,
@@ -51,12 +51,12 @@ export const closeButtonCss: ThemeCss = _theme => ({
   transform: `translateX(${CLOSE_BUTTON_SIZE - CLOSE_ICON_SIZE / 2})`,
 })
 
-export const closeIconCss: ThemeCss = _theme => ({
+export const closeIconCss: ThemeCss = (_theme) => ({
   width: CLOSE_ICON_SIZE,
   height: CLOSE_ICON_SIZE,
 })
 
-export const bodyCss: ThemeCss = theme => ({
+export const bodyCss: ThemeCss = (theme) => ({
   display: `flex`,
   flexDirection: `column`,
   background: theme.colors.white,
@@ -80,7 +80,7 @@ export const bodyCss: ThemeCss = theme => ({
   },
 })
 
-const bodyGradientBaseCss: ThemeCss = theme => ({
+const bodyGradientBaseCss: ThemeCss = (theme) => ({
   position: `relative`,
 
   ":before": {
@@ -105,12 +105,12 @@ const bodyGradientBaseCss: ThemeCss = theme => ({
 })
 
 export const bodyVariantCss: Record<StyledModalVariant, ThemeCss> = {
-  DEFAULT: _theme => ({}),
-  SUCCESS: theme => ({
+  DEFAULT: (_theme) => ({}),
+  SUCCESS: (theme) => ({
     backgroundColor: theme.colors.green[5],
     borderTop: `1px solid ${theme.colors.green[10]}`,
   }),
-  WARNING: theme => [
+  WARNING: (theme) => [
     bodyGradientBaseCss(theme),
     {
       backgroundColor: theme.colors.red[5],
@@ -119,15 +119,15 @@ export const bodyVariantCss: Record<StyledModalVariant, ThemeCss> = {
       },
     },
   ],
-  ERROR: theme => ({
+  ERROR: (theme) => ({
     backgroundColor: theme.colors.red[5],
     borderTop: `1px solid ${theme.colors.red[10]}`,
   }),
-  ACTION: theme => ({
+  ACTION: (theme) => ({
     backgroundColor: theme.colors.purple[5],
     borderTop: `1px solid ${theme.colors.purple[10]}`,
   }),
-  RETAKE: theme => [
+  RETAKE: (theme) => [
     bodyGradientBaseCss(theme),
     {
       backgroundColor: theme.colors.purple[5],
@@ -138,7 +138,7 @@ export const bodyVariantCss: Record<StyledModalVariant, ThemeCss> = {
   ],
 }
 
-export const actionsCss: ThemeCss = theme => ({
+export const actionsCss: ThemeCss = (theme) => ({
   display: `flex`,
   alignItems: `center`,
   justifyContent: `space-between`,

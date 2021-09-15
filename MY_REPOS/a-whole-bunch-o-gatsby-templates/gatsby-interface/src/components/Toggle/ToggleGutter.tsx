@@ -52,16 +52,16 @@ export const toggleGutterFocusCss: ThemeCss = (theme: Theme) => ({
   outline: `0`,
 })
 
-export const toggleGutterCheckedCss = (
-  tone: AtomTone = `BRAND`
-): ThemeCss => theme => ({
-  background: theme.tones[tone].medium,
-  ":after": {
-    left: `calc(100% - 18px)`,
-  },
-  ":active": {
+export const toggleGutterCheckedCss =
+  (tone: AtomTone = `BRAND`): ThemeCss =>
+  (theme) => ({
+    background: theme.tones[tone].medium,
     ":after": {
-      left: `calc(100% - 24px)`,
+      left: `calc(100% - 18px)`,
     },
-  },
-})
+    ":active": {
+      ":after": {
+        left: `calc(100% - 24px)`,
+      },
+    },
+  })

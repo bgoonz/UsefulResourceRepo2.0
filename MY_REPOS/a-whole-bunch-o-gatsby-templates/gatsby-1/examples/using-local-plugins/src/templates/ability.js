@@ -17,7 +17,7 @@ export default ({ data: { pokemon, ability } }) => (
 )
 
 export const pageQuery = graphql`
-  query($pokemonId: String!, $abilityId: String!) {
+  query ($pokemonId: String!, $abilityId: String!) {
     pokemon: pokeapiPokemon(id: { eq: $pokemonId }) {
       name
       sprites {

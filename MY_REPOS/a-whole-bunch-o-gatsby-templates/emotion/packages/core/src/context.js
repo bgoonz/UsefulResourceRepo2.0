@@ -4,15 +4,16 @@ import * as React from 'react'
 import createCache from '@emotion/cache'
 import { isBrowser } from './utils'
 
-let EmotionCacheContext: React.Context<EmotionCache | null> = React.createContext(
-  // we're doing this to avoid preconstruct's dead code elimination in this one case
-  // because this module is primarily intended for the browser and node
-  // but it's also required in react native and similar environments sometimes
-  // and we could have a special build just for that
-  // but this is much easier and the native packages
-  // might use a different theme context in the future anyway
-  typeof HTMLElement !== 'undefined' ? createCache() : null
-)
+let EmotionCacheContext: React.Context<EmotionCache | null> =
+  React.createContext(
+    // we're doing this to avoid preconstruct's dead code elimination in this one case
+    // because this module is primarily intended for the browser and node
+    // but it's also required in react native and similar environments sometimes
+    // and we could have a special build just for that
+    // but this is much easier and the native packages
+    // might use a different theme context in the future anyway
+    typeof HTMLElement !== 'undefined' ? createCache() : null
+  )
 
 export let ThemeContext = React.createContext<Object>({})
 export let CacheProvider = EmotionCacheContext.Provider
@@ -38,7 +39,7 @@ let withEmotionCache = function withEmotionCache<Props>(
 
 if (!isBrowser) {
   class BasicProvider extends React.Component<
-    { children: EmotionCache => React.Node },
+    { children: (EmotionCache) => React.Node },
     { value: EmotionCache }
   > {
     state = { value: createCache() }
@@ -56,11 +57,11 @@ if (!isBrowser) {
   ): React.StatelessFunctionalComponent<Props> {
     return (props: Props) => (
       <EmotionCacheContext.Consumer>
-        {context => {
+        {(context) => {
           if (context === null) {
             return (
               <BasicProvider>
-                {newContext => {
+                {(newContext) => {
                   return func(props, newContext)
                 }}
               </BasicProvider>

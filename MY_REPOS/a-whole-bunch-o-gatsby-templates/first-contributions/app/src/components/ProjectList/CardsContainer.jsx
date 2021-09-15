@@ -1,29 +1,31 @@
-import React from 'react';
-import Select from 'react-select';
-import Card from './ProjectsCards';
-import projectList from './listOfProjects';
-import './CardsContainer.css';
-import 'react-select/dist/react-select.css';
+import React from "react";
+import Select from "react-select";
+import Card from "./ProjectsCards";
+import projectList from "./listOfProjects";
+import "./CardsContainer.css";
+import "react-select/dist/react-select.css";
 
 export default class CardsContainer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       value: [],
-      filterList: projectList
-    }
+      filterList: projectList,
+    };
     this.setTags = new Set();
     this.filterOptions = [];
     for (let i = 0; i < projectList.length; i++) {
       if (projectList[i].tags) {
-        projectList[i].tags.forEach(tag => {
-          projectList[i].tags.sort()
-          this.setTags.add(tag)
-          this.setTags.add(tag.toLowerCase())
-        })
+        projectList[i].tags.forEach((tag) => {
+          projectList[i].tags.sort();
+          this.setTags.add(tag);
+          this.setTags.add(tag.toLowerCase());
+        });
       }
     }
-    this.setTags.forEach(v => this.filterOptions.push({ value: v, label: v }));
+    this.setTags.forEach((v) =>
+      this.filterOptions.push({ value: v, label: v })
+    );
     this.handleSelectChange = this.handleSelectChange.bind(this);
   }
   handleSelectChange(value) {
@@ -35,15 +37,17 @@ export default class CardsContainer extends React.Component {
     let valueList = [];
     let updatedList = [];
 
-    value.map(v => { valueList.push(v.value) });
-    projectList.map(project => {
+    value.map((v) => {
+      valueList.push(v.value);
+    });
+    projectList.map((project) => {
       if (!project.tags) return;
-      let lowerCaseTags = project.tags.map(v => v.toLowerCase())
-      if (valueList.every(v => lowerCaseTags.includes(v))) {
+      let lowerCaseTags = project.tags.map((v) => v.toLowerCase());
+      if (valueList.every((v) => lowerCaseTags.includes(v))) {
         updatedList.push(project);
       }
-    })
-    this.setState({ filterList: updatedList});
+    });
+    this.setState({ filterList: updatedList });
   }
   render() {
     return (
@@ -55,8 +59,8 @@ export default class CardsContainer extends React.Component {
           options={this.filterOptions}
           multi={true}
         />
-        <section id='project-list' className='Container-layout'>
-          { this.state.filterList.map((item, key) => {
+        <section id="project-list" className="Container-layout">
+          {this.state.filterList.map((item, key) => {
             return (
               <Card
                 key={key}

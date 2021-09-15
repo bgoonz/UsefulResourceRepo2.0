@@ -28,7 +28,7 @@ export const Basic = () => (
   <TextAreaFieldBlock
     id="TextAreaFieldBlock"
     label="Field label"
-    onChange={e => action(`Change`)(e.target.value)}
+    onChange={(e) => action(`Change`)(e.target.value)}
   />
 )
 
@@ -104,7 +104,7 @@ export const WithRichText = () => (
 )
 
 export const LabelSizes = () =>
-  LABEL_SIZES.map(labelSize => (
+  LABEL_SIZES.map((labelSize) => (
     <TextAreaFieldBlock
       key={labelSize}
       id={`TextAreaFieldBlock__size--${labelSize}`}

@@ -1,4 +1,4 @@
-import {PluginMap} from "."
+import { PluginMap } from "."
 
 declare const cmses: PluginMap
 

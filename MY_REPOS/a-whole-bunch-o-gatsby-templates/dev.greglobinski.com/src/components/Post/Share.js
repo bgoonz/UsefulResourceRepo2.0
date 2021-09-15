@@ -8,14 +8,14 @@ import FaLinkedin from "react-icons/lib/fa/linkedin";
 
 import config from "../../../content/meta/config";
 
-const PostShare = props => {
+const PostShare = (props) => {
   const {
     post: {
       fields: { slug },
       frontmatter: { title },
-      excerpt
+      excerpt,
     },
-    theme
+    theme,
   } = props;
 
   const url = config.siteUrl + slug;
@@ -27,10 +27,10 @@ const PostShare = props => {
       { network: "Twitter", icon: FaTwitter },
       { network: "Facebook", icon: FaFacebook },
       { network: "GooglePlus", icon: FaGooglePlus },
-      { network: "Linkedin", icon: FaLinkedin }
+      { network: "Linkedin", icon: FaLinkedin },
     ],
     text: title,
-    longtext: excerpt
+    longtext: excerpt,
   };
 
   return (
@@ -85,7 +85,7 @@ const PostShare = props => {
 
 PostShare.propTypes = {
   post: PropTypes.object.isRequired,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default PostShare;

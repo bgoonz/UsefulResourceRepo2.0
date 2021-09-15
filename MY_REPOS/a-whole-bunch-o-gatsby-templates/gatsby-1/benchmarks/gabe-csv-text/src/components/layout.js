@@ -11,7 +11,7 @@ class Layout extends React.Component {
       header = (
         <h1
           style={{
-            marginBottom: '5px',
+            marginBottom: "5px",
             marginTop: 0,
           }}
         >
@@ -53,7 +53,7 @@ class Layout extends React.Component {
         style={{
           marginLeft: `auto`,
           marginRight: `auto`,
-          maxWidth: '75%',
+          maxWidth: "75%",
           padding: `5px`,
         }}
       >

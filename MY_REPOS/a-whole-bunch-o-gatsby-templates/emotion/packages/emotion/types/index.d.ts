@@ -12,7 +12,7 @@ export {
   FunctionInterpolation,
   Interpolation,
   ObjectInterpolation,
-  StyleSheet
+  StyleSheet,
 } from 'create-emotion'
 
 export const flush: Emotion['flush']

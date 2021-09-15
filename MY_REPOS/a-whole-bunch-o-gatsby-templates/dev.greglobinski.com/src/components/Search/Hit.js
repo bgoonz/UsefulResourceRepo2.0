@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Link from "gatsby-link";
 
-const Hit = props => {
+const Hit = (props) => {
   const { hit } = props;
 
   return (
@@ -32,7 +32,7 @@ const Hit = props => {
 };
 
 Hit.propTypes = {
-  hit: PropTypes.object.isRequired
+  hit: PropTypes.object.isRequired,
 };
 
 export default Hit;

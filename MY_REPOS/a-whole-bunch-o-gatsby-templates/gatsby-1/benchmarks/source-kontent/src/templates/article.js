@@ -14,7 +14,11 @@ const Article = ({ data }) => {
         ) : (
           <div>Image can't be displayed</div>
         )}
-        <div dangerouslySetInnerHTML={{ __html: data.article.elements.content.value }} />
+        <div
+          dangerouslySetInnerHTML={{
+            __html: data.article.elements.content.value,
+          }}
+        />
       </div>
     </Layout>
   )
@@ -23,16 +27,16 @@ const Article = ({ data }) => {
 export default Article
 
 export const query = graphql`
-  query($slug: String!){
-    article: kontentItemArticle(elements: {slug: {value: {eq: $slug }}}) {
+  query ($slug: String!) {
+    article: kontentItemArticle(elements: { slug: { value: { eq: $slug } } }) {
       elements {
-        title{
+        title {
           value
         }
         content {
           value
         }
-        image{
+        image {
           value {
             fluid(maxWidth: 960) {
               ...KontentAssetFluid

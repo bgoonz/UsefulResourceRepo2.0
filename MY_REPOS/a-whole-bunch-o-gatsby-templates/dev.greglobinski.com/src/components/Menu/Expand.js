@@ -2,7 +2,7 @@ import FaAngleDown from "react-icons/lib/fa/angle-down";
 import PropTypes from "prop-types";
 import React from "react";
 
-const Expand = props => {
+const Expand = (props) => {
   const { onClick, theme } = props;
 
   return (
@@ -114,7 +114,7 @@ const Expand = props => {
 
 Expand.propTypes = {
   onClick: PropTypes.func,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default Expand;

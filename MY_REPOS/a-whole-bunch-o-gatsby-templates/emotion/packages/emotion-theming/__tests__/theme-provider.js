@@ -16,7 +16,7 @@ test('nested provider', () => {
             css={({ color, padding, backgroundColor }) => ({
               color,
               padding,
-              backgroundColor
+              backgroundColor,
             })}
           />
         </ThemeProvider>
@@ -31,17 +31,17 @@ test('nested provider with function', () => {
     .create(
       <ThemeProvider theme={{ color: 'hotpink', padding: 4 }}>
         <ThemeProvider
-          theme={theme => ({
+          theme={(theme) => ({
             backgroundColor: 'darkgreen',
             ...theme,
-            padding: 8
+            padding: 8,
           })}
         >
           <div
             css={({ color, padding, backgroundColor }) => ({
               color,
               padding,
-              backgroundColor
+              backgroundColor,
             })}
           />
         </ThemeProvider>
@@ -64,7 +64,7 @@ cases(
                 css={({ color, padding, backgroundColor }) => ({
                   color,
                   padding,
-                  backgroundColor
+                  backgroundColor,
                 })}
               />
             </ThemeProvider>
@@ -75,19 +75,19 @@ cases(
   },
   {
     boolean: {
-      value: true
+      value: true,
     },
     array: {
-      value: ['something']
+      value: ['something'],
     },
     'func to undefined': {
-      value: () => undefined
+      value: () => undefined,
     },
     undefined: {
-      value: undefined
+      value: undefined,
     },
     null: {
-      value: null
-    }
+      value: null,
+    },
   }
 )

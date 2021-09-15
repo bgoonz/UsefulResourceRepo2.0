@@ -106,10 +106,10 @@ Cypress.Commands.add(`waitForHmr`, (message = `App is up to date`) => {
   cy.wait(1000)
 })
 
-Cypress.Commands.add(`getFastRefreshOverlay`, () => (
-  cy.get('gatsby-fast-refresh').shadow()
-))
+Cypress.Commands.add(`getFastRefreshOverlay`, () =>
+  cy.get("gatsby-fast-refresh").shadow()
+)
 
-Cypress.Commands.add(`assertNoFastRefreshOverlay`, () => (
-  cy.get('gatsby-fast-refresh').should('not.exist')
-))
+Cypress.Commands.add(`assertNoFastRefreshOverlay`, () =>
+  cy.get("gatsby-fast-refresh").should("not.exist")
+)

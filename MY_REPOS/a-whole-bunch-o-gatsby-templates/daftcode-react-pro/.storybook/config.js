@@ -13,11 +13,11 @@ setOptions({
   hierarchyRootSeparator: /\|/,
 });
 
-addDecorator(getTheme())
+addDecorator(getTheme());
 
 const req = require.context('../src', true, /.stories.js$/);
 // const req = require.context("../src/products/linguotica/landings/ldc/register/sections/msisdn", true, /.stories.js$/);
 
 configure(() => {
-  req.keys().forEach(filename => req(filename));
+  req.keys().forEach((filename) => req(filename));
 }, module);

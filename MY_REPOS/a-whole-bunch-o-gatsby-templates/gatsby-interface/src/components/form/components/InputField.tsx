@@ -61,9 +61,8 @@ export const InputFieldControl = React.forwardRef<
 export type InputFieldWrapperProps = FormFieldStackProps
 export const InputFieldWrapper = FormFieldStack
 
-export type InputFieldLabelProps = WithStyledFieldLabel<
-  InputFieldSkeletonLabelProps
->
+export type InputFieldLabelProps =
+  WithStyledFieldLabel<InputFieldSkeletonLabelProps>
 export function InputFieldLabel({
   children,
   size,

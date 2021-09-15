@@ -26,7 +26,8 @@ const restrictedNodeFields = [
 
 const restrictedContentTypes = [`entity`, `reference`]
 
-exports.setFieldsOnGraphQLNodeType = require(`./extend-node-type`).extendNodeType
+exports.setFieldsOnGraphQLNodeType =
+  require(`./extend-node-type`).extendNodeType
 
 const validateContentfulAccess = async pluginOptions => {
   if (process.env.NODE_ENV === `test`) return undefined
@@ -238,15 +239,10 @@ exports.sourceNodes = async (
     reporter.info(
       `GATSBY_CONTENTFUL_EXPERIMENTAL_FORCE_CACHE was set. Skipping remote fetch, using data stored in \`${process.env.GATSBY_CONTENTFUL_EXPERIMENTAL_FORCE_CACHE}\``
     )
-    ;({
-      currentSyncData,
-      contentTypeItems,
-      defaultLocale,
-      locales,
-      space,
-    } = v8.deserialize(
-      fs.readFileSync(process.env.GATSBY_CONTENTFUL_EXPERIMENTAL_FORCE_CACHE)
-    ))
+    ;({ currentSyncData, contentTypeItems, defaultLocale, locales, space } =
+      v8.deserialize(
+        fs.readFileSync(process.env.GATSBY_CONTENTFUL_EXPERIMENTAL_FORCE_CACHE)
+      ))
   } else {
     const online = await isOnline()
 
@@ -282,18 +278,13 @@ exports.sourceNodes = async (
     }
 
     fetchActivity.start()
-    ;({
-      currentSyncData,
-      contentTypeItems,
-      defaultLocale,
-      locales,
-      space,
-    } = await fetchData({
-      syncToken,
-      reporter,
-      pluginConfig,
-      parentSpan,
-    }))
+    ;({ currentSyncData, contentTypeItems, defaultLocale, locales, space } =
+      await fetchData({
+        syncToken,
+        reporter,
+        pluginConfig,
+        parentSpan,
+      }))
 
     if (process.env.GATSBY_CONTENTFUL_EXPERIMENTAL_FORCE_CACHE) {
       reporter.info(

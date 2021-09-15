@@ -44,7 +44,7 @@ Sandbox.story = {
 }
 
 export const Tones = () =>
-  TONES.map(tone => (
+  TONES.map((tone) => (
     <Heading key={tone} tone={tone}>
       Tone: {tone}
     </Heading>
@@ -55,7 +55,7 @@ Tones.story = {
 }
 
 export const Variants = () =>
-  VARIANTS.map(variant => (
+  VARIANTS.map((variant) => (
     <Heading key={variant} variant={variant}>
       Variant: {variant}
     </Heading>

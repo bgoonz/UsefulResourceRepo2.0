@@ -1,5 +1,5 @@
-import execa = require('execa');
-const stdio = 'inherit';
+import execa = require("execa");
+const stdio = "inherit";
 
 /**  Outputs to stdio */
 export = function sh(command: string, title?: string) {
@@ -7,4 +7,4 @@ export = function sh(command: string, title?: string) {
   return execa.command(command, {
     stdio,
   });
-}
+};

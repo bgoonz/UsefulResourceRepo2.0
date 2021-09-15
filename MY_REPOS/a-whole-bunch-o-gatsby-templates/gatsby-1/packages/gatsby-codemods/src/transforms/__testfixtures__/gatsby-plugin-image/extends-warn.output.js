@@ -1,6 +1,6 @@
 import React from "react"
 import PropTypes from "prop-types"
-import { GatsbyImage } from "gatsby-plugin-image";
+import { GatsbyImage } from "gatsby-plugin-image"
 
 const svgAssetsContext = require.context(
   `!file-loader!svgo-loader?{"plugins":[{"removeViewBox":false}]}!../assets`,

@@ -22,7 +22,7 @@ class PageTemplate extends Component {
 export default PageTemplate
 
 export const pageQuery = graphql`
-  query($id: String!) {
+  query ($id: String!) {
     wordpressPage(id: { eq: $id }) {
       title
       content

@@ -1,7 +1,7 @@
-import React from "react"
+import React from "react";
 
 export const getTestFonts = (fontNames: string[]) => {
-  const fontConfig = []
+  const fontConfig = [];
 
   const hiddenStyles: React.CSSProperties = {
     position: "absolute",
@@ -12,9 +12,9 @@ export const getTestFonts = (fontNames: string[]) => {
     margin: "-1px",
     padding: "0",
     border: "0",
-  }
+  };
 
-  fontNames.forEach(fontName => {
+  fontNames.forEach((fontName) => {
     fontConfig.push(
       <span
         key={`wf-test-${fontName}`}
@@ -23,12 +23,12 @@ export const getTestFonts = (fontNames: string[]) => {
       >
         &nbsp;
       </span>
-    )
-  })
+    );
+  });
 
   return (
     <span key="wf-test-wrapper" style={hiddenStyles}>
       {fontConfig}
     </span>
-  )
-}
+  );
+};

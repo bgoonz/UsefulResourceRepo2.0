@@ -2,26 +2,25 @@
 
 [Styled](https://emotion.sh/docs/styled) accepts string styles or object styles.
 
-
 ## Rule Details
 
 This rule aims to choose between syntaxes.
 
-Examples of **incorrect** code for this rule, when ```emotion/syntax-preference: [2, "string"]```:
+Examples of **incorrect** code for this rule, when `emotion/syntax-preference: [2, "string"]`:
 
 ```js
 const H1 = styled.h1({
-  color: red
+  color: red,
 })
 // --> Styles should be written using strings.
 
 const H1 = styled('h1')({
-  color: red
+  color: red,
 })
 // --> Styles should be written using strings.
 ```
 
-Examples of **incorrect** code for this rule, when ```emotion/syntax-preference: [2, "object"]```:
+Examples of **incorrect** code for this rule, when `emotion/syntax-preference: [2, "object"]`:
 
 ```js
 const H1 = styled.h1`

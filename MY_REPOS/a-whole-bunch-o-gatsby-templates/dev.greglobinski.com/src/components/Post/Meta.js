@@ -6,7 +6,7 @@ import FaCalendar from "react-icons/lib/fa/calendar";
 import FaUser from "react-icons/lib/fa/user";
 import FaTag from "react-icons/lib/fa/tag";
 
-const Meta = props => {
+const Meta = (props) => {
   const { prefix, category, theme } = props;
 
   return (
@@ -57,7 +57,7 @@ const Meta = props => {
 Meta.propTypes = {
   prefix: PropTypes.string.isRequired,
   category: PropTypes.string,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default Meta;

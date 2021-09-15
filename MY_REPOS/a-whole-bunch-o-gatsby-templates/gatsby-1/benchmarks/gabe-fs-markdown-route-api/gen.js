@@ -7,7 +7,7 @@ const N = parseInt(process.env.N, 10) || 100
 let n = 0
 
 function createArticle(n, sentence, slug) {
-  const desc = faker.lorem.sentence();
+  const desc = faker.lorem.sentence()
 
   return `---
 articleNumber: ${n}

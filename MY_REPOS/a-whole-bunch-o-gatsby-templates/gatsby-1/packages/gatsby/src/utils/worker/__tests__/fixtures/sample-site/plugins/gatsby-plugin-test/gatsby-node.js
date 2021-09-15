@@ -4,8 +4,8 @@ global.jobs = {
   dotThenWasCalledWith: null,
   dotCatchWasCalledWith: null,
   awaitReturnedWith: null,
-  awaitThrewWith: null
-};
+  awaitThrewWith: null,
+}
 
 exports.createSchemaCustomization = async ({ actions }, pluginOptions) => {
   global.test = pluginOptions.fn()
@@ -25,13 +25,13 @@ exports.createSchemaCustomization = async ({ actions }, pluginOptions) => {
   `)
 
   const sameJobInAllWorkersArgs = {
-    description: `Same job created in all workers`
+    description: `Same job created in all workers`,
   }
 
   const commonJobDef = {
     name: `TEST_JOB_HANDLER`,
     inputPaths: [],
-    outputDir: process.cwd()
+    outputDir: process.cwd(),
   }
 
   global.jobs.createdInThisProcess.push(sameJobInAllWorkersArgs)
@@ -41,7 +41,7 @@ exports.createSchemaCustomization = async ({ actions }, pluginOptions) => {
   })
 
   const differentJobInAllWorkersArgs = {
-    description: `Different job created in all workers (worker #${process.env.GATSBY_WORKER_ID})`
+    description: `Different job created in all workers (worker #${process.env.GATSBY_WORKER_ID})`,
   }
 
   global.jobs.createdInThisProcess.push(differentJobInAllWorkersArgs)
@@ -51,47 +51,51 @@ exports.createSchemaCustomization = async ({ actions }, pluginOptions) => {
   })
 
   const thenedJobArgs = {
-    description: `.then() job`
+    description: `.then() job`,
   }
   global.jobs.createdInThisProcess.push(thenedJobArgs)
-  actions.createJobV2({
-    ...commonJobDef,
-    args: thenedJobArgs
-  }).then(results => {
-    global.jobs.dotThenWasCalledWith = results
-  })
+  actions
+    .createJobV2({
+      ...commonJobDef,
+      args: thenedJobArgs,
+    })
+    .then(results => {
+      global.jobs.dotThenWasCalledWith = results
+    })
 
   const awaitedJobArgs = {
-    description: `Awaited job`
+    description: `Awaited job`,
   }
   global.jobs.createdInThisProcess.push(awaitedJobArgs)
   const results = await actions.createJobV2({
     ...commonJobDef,
-    args: awaitedJobArgs
+    args: awaitedJobArgs,
   })
   global.jobs.awaitReturnedWith = results
 
   const caughtJobArgs = {
     description: `.catch() job`,
-    throw: true
+    throw: true,
   }
   global.jobs.createdInThisProcess.push(caughtJobArgs)
-  actions.createJobV2({
-    ...commonJobDef,
-    args: caughtJobArgs
-  }).catch(error => {
-    global.jobs.dotCatchWasCalledWith = error.message
-  })
+  actions
+    .createJobV2({
+      ...commonJobDef,
+      args: caughtJobArgs,
+    })
+    .catch(error => {
+      global.jobs.dotCatchWasCalledWith = error.message
+    })
 
   try {
     const tryCatchedAwaitedJobArgs = {
       description: `try/catched awaited job`,
-      throw: true
+      throw: true,
     }
     global.jobs.createdInThisProcess.push(tryCatchedAwaitedJobArgs)
     await actions.createJobV2({
       ...commonJobDef,
-      args: tryCatchedAwaitedJobArgs
+      args: tryCatchedAwaitedJobArgs,
     })
   } catch (error) {
     global.jobs.awaitThrewWith = error.message
@@ -105,12 +109,12 @@ exports.createResolvers = ({ createResolvers }) => {
         type: "String",
         resolve() {
           return `Custom String`
-        }
+        },
       },
       fieldWithArg: {
         type: "String",
         args: {
-          isCool: "Boolean"
+          isCool: "Boolean",
         },
         resolve(source, args) {
           if (args.isCool) {
@@ -118,9 +122,9 @@ exports.createResolvers = ({ createResolvers }) => {
           } else {
             return `You are not cool`
           }
-        }
-      }
-    }
+        },
+      },
+    },
   }
 
   createResolvers(resolvers)
@@ -133,8 +137,8 @@ exports.setFieldsOnGraphQLNodeType = ({ type }) => {
         type: `String`,
         resolve: () => {
           return `Another Custom String`
-        }
-      }
+        },
+      },
     }
   }
 
@@ -146,13 +150,13 @@ exports.sourceNodes = ({ actions, createNodeId, createContentDigest }) => {
 
   const testData = {
     number: 123,
-    string: 'Hello World',
-    overriddenString: '1',
+    string: "Hello World",
+    overriddenString: "1",
     arrayOfStrings: [`Foo`, `Bar`],
     object: {
-      foo: 'bar',
-      bar: 'baz'
-    }
+      foo: "bar",
+      bar: "baz",
+    },
   }
 
   const nodeMeta = {
@@ -162,8 +166,8 @@ exports.sourceNodes = ({ actions, createNodeId, createContentDigest }) => {
     internal: {
       type: `NodeTypeOne`,
       content: JSON.stringify(testData),
-      contentDigest: createContentDigest(testData)
-    }
+      contentDigest: createContentDigest(testData),
+    },
   }
 
   const node = Object.assign({}, testData, nodeMeta)

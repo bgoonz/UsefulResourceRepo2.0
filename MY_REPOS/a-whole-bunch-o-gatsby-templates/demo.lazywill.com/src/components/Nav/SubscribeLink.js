@@ -7,7 +7,7 @@ import MailOutline from "material-ui-icons/MailOutline";
 
 import SquareButton from "../shared/SquareButton";
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     background: theme.palette.background.green,
     position: "absolute",
@@ -15,20 +15,18 @@ const styles = theme => ({
     width: "60px",
     transition: "all .8s",
     "&:hover": {
-      background: Color(theme.palette.background.green)
-        .darken(0.1)
-        .string()
+      background: Color(theme.palette.background.green).darken(0.1).string(),
     },
     ".subs-button &": {
-      right: 0
+      right: 0,
     },
     ".subs-screen &, .home-screen &": {
-      right: "-60px"
-    }
-  }
+      right: "-60px",
+    },
+  },
 });
 
-const SubscribeLink = props => {
+const SubscribeLink = (props) => {
   const { classes } = props;
 
   return (
@@ -39,7 +37,7 @@ const SubscribeLink = props => {
 };
 
 SubscribeLink.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(SubscribeLink);

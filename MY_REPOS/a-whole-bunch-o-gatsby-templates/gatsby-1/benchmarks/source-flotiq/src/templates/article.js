@@ -26,7 +26,7 @@ const Article = ({ data }) => {
 export default Article
 
 export const query = graphql`
-  query($slug: String!) {
+  query ($slug: String!) {
     article: allArticle(filter: { id: { eq: $slug } }) {
       nodes {
         title

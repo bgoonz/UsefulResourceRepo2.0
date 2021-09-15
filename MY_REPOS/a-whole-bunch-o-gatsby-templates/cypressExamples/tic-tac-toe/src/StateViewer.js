@@ -16,26 +16,26 @@ const StyledMiniState = styled.div`
     align-items: flex-start;
   }
 
-  &[data-open='true'] > .children {
+  &[data-open="true"] > .children {
     display: flex;
   }
 
-  &[data-active='true'] {
+  &[data-active="true"] {
     border-color: #0071c4;
   }
 
-  [data-type='parallel'] > .children > & {
+  [data-type="parallel"] > .children > & {
     border-style: dashed;
   }
 
-  &[data-type='history'] {
+  &[data-type="history"] {
     opacity: 0.5;
   }
 `;
 
 export class StateViewer extends React.Component {
   state = {
-    toggleStates: {}
+    toggleStates: {},
   };
   renderStates(stateNode) {
     const { state } = this.props;
@@ -50,7 +50,7 @@ export class StateViewer extends React.Component {
         }
         data-type={stateNode.type}
         data-active={state.matches(stateNode.path.join("."))}
-        onClick={e => {
+        onClick={(e) => {
           e.stopPropagation();
           this.setState({
             toggleStates: {
@@ -58,14 +58,14 @@ export class StateViewer extends React.Component {
               [stateNode.id]:
                 this.state.toggleStates[stateNode.id] === undefined
                   ? false
-                  : !this.state.toggleStates[stateNode.id]
-            }
+                  : !this.state.toggleStates[stateNode.id],
+            },
           });
         }}
       >
         <strong>{stateNode.key}</strong>
         <div className="children">
-          {Object.keys(stateNode.states || []).map(key => {
+          {Object.keys(stateNode.states || []).map((key) => {
             const childStateNode = stateNode.states[key];
 
             return this.renderStates(childStateNode);
@@ -80,13 +80,13 @@ export class StateViewer extends React.Component {
     const stateNodes = machine.getStateNodes(state);
     const events = new Set();
 
-    stateNodes.forEach(stateNode => {
+    stateNodes.forEach((stateNode) => {
       const potentialEvents = Object.keys(stateNode.on);
 
-      potentialEvents.forEach(event => {
+      potentialEvents.forEach((event) => {
         const transitions = stateNode.on[event];
 
-        transitions.forEach(transition => {
+        transitions.forEach((transition) => {
           if (transition.target !== undefined) {
             events.add(event);
           }
@@ -100,13 +100,13 @@ export class StateViewer extends React.Component {
           position: "fixed",
           bottom: 0,
           right: 0,
-          background: "white"
+          background: "white",
         }}
       >
         <pre
           style={{
             maxHeight: "10vh",
-            overflowY: "auto"
+            overflowY: "auto",
           }}
         >
           {JSON.stringify(state.context, null, 2)}
@@ -116,7 +116,7 @@ export class StateViewer extends React.Component {
             display: "flex",
             flexDirection: "row",
             flexWrap: "wrap",
-            width: "100%"
+            width: "100%",
           }}
         >
           {this.renderStates(this.props.machine)}

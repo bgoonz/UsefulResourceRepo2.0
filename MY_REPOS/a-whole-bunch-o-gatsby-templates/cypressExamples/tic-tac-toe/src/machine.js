@@ -15,11 +15,11 @@ function checkWin(ctx) {
     [1, 4, 7],
     [2, 5, 8],
     [0, 4, 8],
-    [2, 4, 6]
+    [2, 4, 6],
   ];
 
   for (let line of winningLines) {
-    const xWon = line.every(index => {
+    const xWon = line.every((index) => {
       return board[index] === "x";
     });
 
@@ -27,7 +27,7 @@ function checkWin(ctx) {
       return true;
     }
 
-    const oWon = line.every(index => {
+    const oWon = line.every((index) => {
       return board[index] === "o";
     });
 
@@ -49,24 +49,24 @@ const ticTacToeMachine = Machine(
         on: {
           "": [
             { target: "winner", cond: "checkWin" },
-            { target: "draw", cond: "checkDraw" }
+            { target: "draw", cond: "checkDraw" },
           ],
           PLAY: [
             {
               target: "playing",
               cond: "isValidMove",
-              actions: "updateBoard"
-            }
-          ]
-        }
+              actions: "updateBoard",
+            },
+          ],
+        },
       },
       winner: {
-        onEntry: "setWinner"
+        onEntry: "setWinner",
       },
       draw: {
-        type: "final"
-      }
-    }
+        type: "final",
+      },
+    },
   },
   {
     actions: {
@@ -76,27 +76,26 @@ const ticTacToeMachine = Machine(
           newBoard[e.value] = ctx.player;
           return newBoard;
         },
-        moves: ctx => ctx.moves + 1,
-        player: ctx => (ctx.player === "x" ? "o" : "x")
+        moves: (ctx) => ctx.moves + 1,
+        player: (ctx) => (ctx.player === "x" ? "o" : "x"),
       }),
       setWinner: assign({
-        winner: ctx => (ctx.player === "x" ? "o" : "x")
-      })
+        winner: (ctx) => (ctx.player === "x" ? "o" : "x"),
+      }),
     },
     guards: {
       checkWin,
       checkDraw,
-      isValidMove
-    }
+      isValidMove,
+    },
   },
   {
     board: Array(9).fill(null),
     moves: 0,
     player: "x",
-    winner: undefined
+    winner: undefined,
   }
 );
 
 // module.exports = { ticTacToeMachine };
 export { ticTacToeMachine };
-

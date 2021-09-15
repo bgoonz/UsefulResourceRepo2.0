@@ -1,4 +1,5 @@
 # Gatsby Plugin Purgecss [![npm version](https://badge.fury.io/js/gatsby-plugin-purgecss.svg)](https://www.npmjs.com/package/gatsby-plugin-purgecss) [![npm downloads](https://img.shields.io/npm/dt/gatsby-plugin-purgecss.svg)](https://www.npmjs.com/package/gatsby-plugin-purgecss)
+
 Works with Gatsby v2/v3
 
 [![CircleCI](https://circleci.com/gh/anantoghosh/gatsby-plugin-purgecss/tree/master.svg?style=svg)](https://circleci.com/gh/anantoghosh/gatsby-plugin-purgecss/tree/master)
@@ -120,7 +121,7 @@ For eg:
 
 ```css
 .my-selector {
-  color: 'white';
+  color: "white";
 }
 ```
 
@@ -167,8 +168,11 @@ To get around this, you could:
 
 ```js
 content: [
-  path.join(process.cwd(), 'src/**/!(*.d).{ts,js,jsx,tsx}'),
-  path.join(process.cwd(), 'node_modules/my-npm-package/folder-to-match/!(*.d).{ts,js,jsx,tsx}')
+  path.join(process.cwd(), "src/**/!(*.d).{ts,js,jsx,tsx}"),
+  path.join(
+    process.cwd(),
+    "node_modules/my-npm-package/folder-to-match/!(*.d).{ts,js,jsx,tsx}"
+  ),
 ];
 ```
 
@@ -182,7 +186,7 @@ Markdown files are not scanned for selectors by default.
 Use the [`content` option.](#content---from-purgecss) to add them.
 
 ```js
-content: [path.join(process.cwd(), 'src/**/!(*.d).{ts,js,jsx,tsx,md,mdx}')]
+content: [path.join(process.cwd(), "src/**/!(*.d).{ts,js,jsx,tsx,md,mdx}")];
 ```
 
 Note: This may decrease the amount of styles removed because purgecss will consider every word in the markdown file to be a selector.  
@@ -199,6 +203,7 @@ purgeCSSOptions: {
   safelist: ['my-selector'], // Don't remove this selector
 }
 ```
+
 [PurgeCSS docs.](https://purgecss.com/safelisting.html#specific-selectors)  
 [Read about safelist option.](#safelist---from-purgecss)
 
@@ -226,7 +231,7 @@ purgeCSSOptions: {
 ```css
 /* purgecss ignore */
 .my-selector {
-  color: 'white';
+  color: "white";
 }
 ```
 
@@ -237,10 +242,10 @@ This comment will ignore the selector on the next line.
 ```css
 /* purgecss start ignore */
 button {
-  color: 'white';
+  color: "white";
 }
 .yo {
-  color: 'blue';
+  color: "blue";
 }
 /* purgecss end ignore */
 ```
@@ -251,10 +256,10 @@ This comment pair will ignore all css selectors between them.
 
 ```js
 ignore: [
-  'ignoredFile.css',
-  'ignoredFolder/',
-  'sub/folder/ignore/',
-  'inFolder/file.css',
+  "ignoredFile.css",
+  "ignoredFolder/",
+  "sub/folder/ignore/",
+  "inFolder/file.css",
 ];
 ```
 
@@ -264,7 +269,7 @@ ignore: [
 #### 7. Purge only specified files and skip everything else
 
 ```js
-purgeOnly: ['/mainstyles.css', 'node_modules/bootstrap'];
+purgeOnly: ["/mainstyles.css", "node_modules/bootstrap"];
 ```
 
 **Note:** always use forward slash `/` for folders, even on Windows.  
@@ -302,7 +307,7 @@ This plugin loads css files (or transformed output from css plugins) and searche
 
 ### Safelist ['html', 'body']
 
-Since html and body tags do not appear in `src/` files, it is safelisted by default to not be removed.  
+Since html and body tags do not appear in `src/` files, it is safelisted by default to not be removed.
 
 ### Webpack loader order
 
@@ -317,7 +322,7 @@ Options can be specified in your `gatsby-config.js` file like so:
 module.exports = {
   plugins: [
     {
-      resolve: 'gatsby-plugin-purgecss',
+      resolve: "gatsby-plugin-purgecss",
       options: {
         printRejected: true,
         purgeCSSOptions: {
@@ -365,7 +370,7 @@ Only purge these files/folders.
 **`ignore: Array<string>`**
 
 ```js
-purgeOnly: ['/main.css', 'bootstrap/', 'node_modules/font-awesome/'];
+purgeOnly: ["/main.css", "bootstrap/", "node_modules/font-awesome/"];
 ```
 
 **Note:** always use forward slash `/` for folders, even on Windows.  
@@ -379,10 +384,10 @@ Stop these files or folders from getting purged.
 
 ```js
 ignore: [
-  '/ignoredFile.css',
-  'ignoredFolder/',
-  'sub/folder/ignore/',
-  'inFolder/file.css',
+  "/ignoredFile.css",
+  "ignoredFolder/",
+  "sub/folder/ignore/",
+  "inFolder/file.css",
 ];
 ```
 
@@ -391,7 +396,8 @@ default: `[]`
 
 ### tailwind
 
-Enable Tailwind support.  
+Enable Tailwind support.
+
 > Tailwind now can use purgecss directly too so you may want to use that. This plugin has the benefit of being able to define more options (ignore, purgeOnly, printRejected etc.) and can purge CSS modules.
 
 **`tailwind: boolean`**
@@ -439,6 +445,7 @@ Print the total removed css stats.
 ```js
 printSummary: true;
 ```
+
 default: `true`
 
 ### safelist - from purgecss
@@ -448,10 +455,11 @@ Stops from removing these selectors.
 
 ```js
 purgeCSSOptions: {
-  safelist: ['my-selector', 'footer'];
+  safelist: ["my-selector", "footer"];
 }
 ```
-[More options for safelist](https://purgecss.com/safelisting.html#specific-selectors)  
+
+[More options for safelist](https://purgecss.com/safelisting.html#specific-selectors)
 
 **Note:** do NOT add `.` or `#` for classes and ids.  
 `'html'`, `'body'` are always safelisted.  
@@ -466,8 +474,8 @@ Files to search for selectors.
 ```js
 purgeCSSOptions: {
   content: [
-    path.join(process.cwd(), 'src/**/!(*.d).{ts,js,jsx,tsx}'),
-    path.join(process.cwd(), 'anotherFolder/!(*.d).{ts,js,jsx,tsx}'),
+    path.join(process.cwd(), "src/**/!(*.d).{ts,js,jsx,tsx}"),
+    path.join(process.cwd(), "anotherFolder/!(*.d).{ts,js,jsx,tsx}"),
   ];
 }
 ```
@@ -476,7 +484,7 @@ default: `[path.join(process.cwd(), 'src/**/!(*.d).{ts,js,jsx,tsx}')]`
 
 ### Other options from purgecss
 
-[Read about other purgecss options.](https://www.purgecss.com/configuration)  
+[Read about other purgecss options.](https://www.purgecss.com/configuration)
 
 ## Versioning
 

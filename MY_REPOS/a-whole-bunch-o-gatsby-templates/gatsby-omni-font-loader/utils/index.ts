@@ -1,3 +1,3 @@
-export * from "./getFontConfig"
-export * from "./getTestFonts"
-export * from "./utils"
+export * from "./getFontConfig";
+export * from "./getTestFonts";
+export * from "./utils";

@@ -93,7 +93,7 @@ export function StyledModalBody({ children }: StyledModalBodyProps) {
   const { variant } = useStyledModalContext()
 
   return (
-    <div css={theme => [bodyCss(theme), bodyVariantCss[variant](theme)]}>
+    <div css={(theme) => [bodyCss(theme), bodyVariantCss[variant](theme)]}>
       {children}
     </div>
   )

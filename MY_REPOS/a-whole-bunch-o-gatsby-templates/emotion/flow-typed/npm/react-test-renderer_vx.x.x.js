@@ -14,7 +14,7 @@
  */
 
 type TestRendererOptions = {
-  createNodeMock: (element: React$Element<any>) => any
+  createNodeMock: (element: React$Element<any>) => any,
 }
 
 type ReactTestRendererNode = ReactTestRendererJSON | string
@@ -23,7 +23,7 @@ type ReactTestRendererJSON = {|
   type: string,
   props: { [propName: string]: any },
   children: null | Array<ReactTestRendererNode>,
-  $$typeof?: Symbol // Optional because we add it with defineProperty().
+  $$typeof?: Symbol, // Optional because we add it with defineProperty().
 |}
 
 declare module 'react-test-renderer' {
@@ -37,7 +37,7 @@ declare module 'react-test-renderer' {
       unmount: () => void,
       toTree: () => any,
       getInstance: () => any,
-      root: any
-    }
+      root: any,
+    },
   }
 }

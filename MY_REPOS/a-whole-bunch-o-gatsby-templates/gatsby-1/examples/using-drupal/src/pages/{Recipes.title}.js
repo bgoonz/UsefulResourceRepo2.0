@@ -83,7 +83,7 @@ const RecipeTemplate = ({ data }) => (
 export default RecipeTemplate
 
 export const query = graphql`
-  query($id: String!) {
+  query ($id: String!) {
     recipe: recipes(id: { eq: $id }) {
       title
       preparationTime

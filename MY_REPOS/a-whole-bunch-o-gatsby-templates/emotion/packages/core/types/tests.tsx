@@ -9,7 +9,7 @@ import {
   css,
   jsx,
   keyframes,
-  withEmotionCache
+  withEmotionCache,
 } from '@emotion/core'
 ;<Global styles={[]} />
 
@@ -42,8 +42,8 @@ const ComponentWithCache = withEmotionCache((_props: {}, context) => {
   <Global
     styles={{
       body: {
-        backgroundColor: 'hotpink'
-      }
+        backgroundColor: 'hotpink',
+      },
     }}
   />
 </div>
@@ -58,23 +58,23 @@ const ComponentWithCache = withEmotionCache((_props: {}, context) => {
 declare const MyComponent: ComponentClass<{ className?: string; world: string }>
 ;<MyComponent
   css={{
-    backgroundColor: 'black'
+    backgroundColor: 'black',
   }}
   world="is-gone"
 />
 
 const anim0 = keyframes({
   from: {
-    top: 0
+    top: 0,
   },
 
   to: {
-    top: '20px'
-  }
+    top: '20px',
+  },
 })
 ;<MyComponent
   css={{
-    animationName: anim0
+    animationName: anim0,
   }}
   world="of-world"
 />
@@ -90,7 +90,7 @@ const anim1 = keyframes`
 `
 ;<MyComponent
   css={{
-    animationName: anim1
+    animationName: anim1,
   }}
   world="of-world"
 />
@@ -107,7 +107,7 @@ interface TestTheme1 {
         <span className={cx('a', undefined, 'b', null, [['abc']])} />
         <span
           className={css({
-            color: theme.primaryColor
+            color: theme.primaryColor,
           })}
         >
           Fst Text

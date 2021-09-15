@@ -4,10 +4,10 @@ import { testAlwaysTrue, pickAssign, interleave } from './utils'
 import { ThemeContext } from '@emotion/core'
 import { createCss } from './css'
 
-let defaultPickTest = prop => prop !== 'theme' && prop !== 'innerRef'
+let defaultPickTest = (prop) => prop !== 'theme' && prop !== 'innerRef'
 
 type options = {
-  getShouldForwardProp: (cmp: React.ElementType) => (prop: string) => boolean
+  getShouldForwardProp: (cmp: React.ElementType) => (prop: string) => boolean,
 }
 
 export function createStyled(
@@ -33,9 +33,9 @@ export function createStyled(
       let Styled = React.forwardRef((props, ref) => {
         return (
           <ThemeContext.Consumer>
-            {theme => {
+            {(theme) => {
               let mergedProps = pickAssign(testAlwaysTrue, {}, props, {
-                theme: props.theme || theme
+                theme: props.theme || theme,
               })
               let stylesWithStyleProp = styles
               if (props.style) {
@@ -53,7 +53,7 @@ export function createStyled(
                 component,
                 pickAssign(pickTest, {}, props, {
                   ref: ref,
-                  style: emotionStyles
+                  style: emotionStyles,
                 })
               )
             }}
@@ -71,7 +71,7 @@ export function createStyled(
   }
 }
 
-const getDisplayName = primitive =>
+const getDisplayName = (primitive) =>
   typeof primitive === 'string'
     ? primitive
     : primitive.displayName || primitive.name || 'Styled'

@@ -18,9 +18,12 @@ console.log(`Getting article number ${randomDoc}`)
 client
   .fetch(`*[$randomDoc]`, { randomDoc })
   .then(({ _id, title }) => {
-    return client.patch(_id).set({ title: title + "!" }).commit({visibility: 'async'})
+    return client
+      .patch(_id)
+      .set({ title: title + "!" })
+      .commit({ visibility: "async" })
   })
-  .then(result => {
+  .then((result) => {
     console.log(`The "${result.title}" was updated!`)
   })
-  .catch(error => console.error(error))
+  .catch((error) => console.error(error))

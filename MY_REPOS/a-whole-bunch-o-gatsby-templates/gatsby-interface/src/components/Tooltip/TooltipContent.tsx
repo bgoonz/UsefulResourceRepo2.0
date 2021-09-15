@@ -15,7 +15,7 @@ type TooltipContentProps = Omit<
   position?: TooltipPosition
 } & Pick<TooltipPointerProps, "style">
 
-const baseCss: ThemeCss = theme => ({
+const baseCss: ThemeCss = (theme) => ({
   // defaults from @reach/tooltip
   zIndex: 1,
   pointerEvents: `none`,

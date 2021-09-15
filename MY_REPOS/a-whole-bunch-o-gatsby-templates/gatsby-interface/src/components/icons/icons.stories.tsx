@@ -28,7 +28,7 @@ const baseCss = css`
   margin-bottom: 1rem;
 `
 
-const storyCaseInfoCss: ThemeCss = theme => css`
+const storyCaseInfoCss: ThemeCss = (theme) => css`
   line-height: 1.5;
   padding: 0.5rem 0.75rem;
   font-family: monospace;
@@ -78,7 +78,7 @@ function ThemeColorCase({
   return (
     <StoryCase info={<span style={{ color }}>{colorLabel}</span>}>
       <Component
-        css={theme => ({ color: getColor(theme.colors) })}
+        css={(theme) => ({ color: getColor(theme.colors) })}
         height="3em"
       />
     </StoryCase>
@@ -107,7 +107,7 @@ const iconBlockCss = css`
 
 const sortedIconComponentNames = Object.keys(icons)
   // filter out __esModule
-  .filter(componentName => typeof (icons as any)[componentName] !== `boolean`)
+  .filter((componentName) => typeof (icons as any)[componentName] !== `boolean`)
   .sort()
 
 storiesOf(`Icons`, module)
@@ -122,7 +122,7 @@ storiesOf(`Icons`, module)
     <div css={rootCss}>
       <h2>{sortedIconComponentNames.length} icon(s):</h2>
       <div css={iconBlockCss}>
-        {sortedIconComponentNames.map(componentName => {
+        {sortedIconComponentNames.map((componentName) => {
           const Component: React.ComponentType<IconProps> = (icons as any)[
             componentName
           ]
@@ -140,7 +140,7 @@ storiesOf(`Icons`, module)
     </div>
   ))
 
-sortedIconComponentNames.forEach(componentName => {
+sortedIconComponentNames.forEach((componentName) => {
   storiesOf(`Icons/Single icons`, module)
     .addParameters({
       layout: `padded`,
@@ -155,13 +155,13 @@ sortedIconComponentNames.forEach(componentName => {
         <div key={componentName} css={rootCss}>
           <h1>{`<${componentName} />`}</h1>
           <h2>Size:</h2>
-          {sizes.map(size => (
+          {sizes.map((size) => (
             <StoryCase info={size} key={size}>
               <Component size={size} />
             </StoryCase>
           ))}
           <h2>Custom size:</h2>
-          {customSizes.map(size => (
+          {customSizes.map((size) => (
             <StoryCase info={<CustomSizeInfo size={size} />} key={size}>
               <Component height={size} width={size} />
             </StoryCase>
@@ -170,15 +170,15 @@ sortedIconComponentNames.forEach(componentName => {
           <ThemeColorCase
             Component={Component}
             colorLabel="gatsby"
-            getColor={colors => colors.gatsby}
+            getColor={(colors) => colors.gatsby}
           />
           <ThemeColorCase
             Component={Component}
             colorLabel="green.90"
-            getColor={colors => colors.green[90]}
+            getColor={(colors) => colors.green[90]}
           />
           <h2>Custom colors:</h2>
-          {customIconColors.map(colorCase => (
+          {customIconColors.map((colorCase) => (
             <StoryCase
               info={<span style={{ color: colorCase }}>{colorCase}</span>}
               key={colorCase}

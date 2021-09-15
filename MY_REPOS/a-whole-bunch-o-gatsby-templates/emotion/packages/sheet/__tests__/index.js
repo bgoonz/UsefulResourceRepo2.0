@@ -6,7 +6,7 @@ const rule = 'html { color: hotpink; }'
 
 let defaultOptions = {
   key: '',
-  container: safeQuerySelector('head')
+  container: safeQuerySelector('head'),
 }
 
 describe('StyleSheet', () => {

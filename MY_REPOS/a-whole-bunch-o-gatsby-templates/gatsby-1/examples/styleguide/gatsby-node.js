@@ -62,13 +62,13 @@ exports.createPages = ({ graphql, actions }) => {
             return
           }
 
-          const allComponents = docgenResult.data.allComponentMetadata.edges.map(
-            (edge, i) =>
+          const allComponents =
+            docgenResult.data.allComponentMetadata.edges.map((edge, i) =>
               Object.assign({}, edge.node, {
                 filePath: `/components/${edge.node.displayName}/`,
                 html: markdownResult.data.allMarkdownRemark.edges[i].node.html,
               })
-          )
+            )
 
           const exportFileContents =
             allComponents

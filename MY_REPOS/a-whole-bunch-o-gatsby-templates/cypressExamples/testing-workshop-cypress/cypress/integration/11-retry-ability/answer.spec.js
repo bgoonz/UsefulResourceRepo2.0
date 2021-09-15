@@ -9,7 +9,7 @@ beforeEach(function visitSite() {
   cy.visit('/')
 })
 
-it('shows UL', function() {
+it('shows UL', function () {
   cy.get('.new-todo')
     .type('todo A{enter}')
     .type('todo B{enter}')
@@ -25,13 +25,13 @@ it('shows UL', function() {
     .and('have.css', 'list-style-type', 'none')
 })
 
-it('shows UL - TDD', function() {
+it('shows UL - TDD', function () {
   cy.get('.new-todo')
     .type('todo A{enter}')
     .type('todo B{enter}')
     .type('todo C{enter}')
     .type('todo D{enter}')
-  cy.contains('ul', 'todo A').should($ul => {
+  cy.contains('ul', 'todo A').should(($ul) => {
     // use TDD assertions
     // $ul is visible
     // $ul has class "todo-list"
@@ -43,13 +43,13 @@ it('shows UL - TDD', function() {
   })
 })
 
-it('every item starts with todo', function() {
+it('every item starts with todo', function () {
   cy.get('.new-todo')
     .type('todo A{enter}')
     .type('todo B{enter}')
     .type('todo C{enter}')
     .type('todo D{enter}')
-  cy.get('.todo label').should($labels => {
+  cy.get('.todo label').should(($labels) => {
     // confirm that there are 4 labels
     // and that each one starts with "todo-"
     expect($labels).to.have.length(4)

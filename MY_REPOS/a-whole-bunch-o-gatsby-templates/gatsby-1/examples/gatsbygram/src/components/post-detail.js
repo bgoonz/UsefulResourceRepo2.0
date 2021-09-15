@@ -6,15 +6,8 @@ import { graphql } from "gatsby"
 
 class PostDetail extends React.Component {
   render() {
-    const {
-      bigImage,
-      likes,
-      id,
-      username,
-      weeksAgo,
-      text,
-      avatar,
-    } = this.props.post
+    const { bigImage, likes, id, username, weeksAgo, text, avatar } =
+      this.props.post
 
     const { big } = bigImage.childImageSharp
 

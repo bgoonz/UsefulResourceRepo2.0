@@ -3,12 +3,12 @@ import React from "react";
 
 import Item from "./Item";
 
-const Blog = props => {
+const Blog = (props) => {
   const { posts, theme } = props;
 
   function getRepo(identifier) {
     const { repos } = props;
-    const repo = repos.find(item => item.node.name === identifier);
+    const repo = repos.find((item) => item.node.name === identifier);
 
     return repo ? repo.node : undefined;
   }
@@ -17,12 +17,12 @@ const Blog = props => {
     <React.Fragment>
       <main className="main">
         <ul>
-          {posts.map(post => {
+          {posts.map((post) => {
             const {
               node,
               node: {
-                fields: { slug, identifier }
-              }
+                fields: { slug, identifier },
+              },
             } = post;
             return <Item key={slug} post={node} theme={theme} repo={getRepo(identifier)} />;
           })}
@@ -62,7 +62,7 @@ const Blog = props => {
 Blog.propTypes = {
   posts: PropTypes.array.isRequired,
   repos: PropTypes.array.isRequired,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default Blog;

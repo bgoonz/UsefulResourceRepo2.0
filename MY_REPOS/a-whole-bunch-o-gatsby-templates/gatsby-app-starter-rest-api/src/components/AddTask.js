@@ -10,17 +10,17 @@ export default () => {
   const [isSubmitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     setTask(e.target.value)
   }
 
-  const handleBlur = e => {
+  const handleBlur = (e) => {
     if (!e.target.value) {
       setError('Insert a task!')
     }
   }
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
 

@@ -1,8 +1,7 @@
-
 export interface IUser {
   google: {
-    id: String,
-    token: String,
+    id: String;
+    token: String;
   };
   email: String;
   name: String;

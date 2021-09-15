@@ -7,8 +7,8 @@ export type Interpolations = Array<any>
 
 export type StyledOptions = {
   label?: string,
-  shouldForwardProp?: string => boolean,
-  target?: string
+  shouldForwardProp?: (string) => boolean,
+  target?: string,
 }
 
 export type StyledComponent<P> = React.StatelessFunctionalComponent<P> & {
@@ -17,14 +17,14 @@ export type StyledComponent<P> = React.StatelessFunctionalComponent<P> & {
   withComponent: (
     nextTag: ElementType,
     nextOptions?: StyledOptions
-  ) => StyledComponent<P>
+  ) => StyledComponent<P>,
 }
 
 export type PrivateStyledComponent<P> = StyledComponent<P> & {
   __emotion_real: StyledComponent<P>,
   __emotion_base: any,
   __emotion_styles: any,
-  __emotion_forwardProp: any
+  __emotion_forwardProp: any,
 }
 
 const testOmitPropsOnStringTag = isPropValid
@@ -47,5 +47,5 @@ export type CreateStyledComponent = <P>(
 export type CreateStyled = {
   (tag: React.ElementType, options?: StyledOptions): CreateStyledComponent,
   [key: string]: CreateStyledComponent,
-  bind: () => CreateStyled
+  bind: () => CreateStyled,
 }

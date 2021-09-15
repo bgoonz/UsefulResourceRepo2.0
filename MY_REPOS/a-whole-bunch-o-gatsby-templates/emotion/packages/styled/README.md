@@ -14,11 +14,11 @@ yarn add @emotion/core @emotion/styled
 import styled from '@emotion/styled'
 
 let SomeComp = styled.div({
-  color: 'hotpink'
+  color: 'hotpink',
 })
 
 let AnotherComp = styled.div`
-  color: ${props => props.color};
+  color: ${(props) => props.color};
 `
 
 render(

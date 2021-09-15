@@ -6,6 +6,6 @@ exports.TEST_JOB_HANDLER = async ({ args }) => {
   }
   // apparently we need to return objects :)
   return {
-    processed: `PROCESSED: ${args.description}`
+    processed: `PROCESSED: ${args.description}`,
   }
 }

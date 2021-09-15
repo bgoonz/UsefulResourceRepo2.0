@@ -26,7 +26,7 @@ const fadeMap: Record<ModalType, ReturnType<typeof keyframes>> = {
   error: buildFadeIn(hexToRGBA(colors.red[50], 0.75)),
 }
 
-const overlayCss: ThemeCss = theme => ({
+const overlayCss: ThemeCss = (theme) => ({
   background: `hsla(0, 0%, 0%, 0.33)`,
   position: `fixed`,
   top: 0,
@@ -58,7 +58,7 @@ export const Modal: React.FC<ModalProps> = ({
         initialFocusRef={initialFocusRef}
         isOpen={isOpen}
         onDismiss={onDismiss}
-        css={theme => [
+        css={(theme) => [
           overlayCss(theme),
           {
             animation: `${fadeMap[type]} 0.5s ease forwards`,

@@ -1,14 +1,14 @@
-import { Action } from '@ngrx/store';
+import { Action } from "@ngrx/store";
 
-import { ITag } from '../models/tags';
+import { ITag } from "../models/tags";
 
 export enum TagActionTypes {
-  Load = '[Tag] Load',
-  Search = '[Tag] Search',
-  LoadSuccess = '[Tag] Load Success',
-  LoadFail = '[Tag] Load Fail',
-  Select = '[Tag] Select',
-  TagSearch = '[Tag] Search'
+  Load = "[Tag] Load",
+  Search = "[Tag] Search",
+  LoadSuccess = "[Tag] Load Success",
+  LoadFail = "[Tag] Load Fail",
+  Select = "[Tag] Select",
+  TagSearch = "[Tag] Search",
 }
 
 export class LoadAll implements Action {
@@ -18,29 +18,29 @@ export class LoadAll implements Action {
 export class LoadTagsSuccess implements Action {
   readonly type = TagActionTypes.LoadSuccess;
 
-  constructor(public payload: ITag[]) { }
+  constructor(public payload: ITag[]) {}
 }
 
 export class LoadTagsFail implements Action {
   readonly type = TagActionTypes.LoadFail;
 
-  constructor(public payload?: any) { }
+  constructor(public payload?: any) {}
 }
 
 export class Select implements Action {
   readonly type = TagActionTypes.Select;
 
-  constructor(public payload: number) { }
+  constructor(public payload: number) {}
 }
 
 export class TagSearch implements Action {
   readonly type = TagActionTypes.TagSearch;
 
-  constructor(public payload: string) { }
+  constructor(public payload: string) {}
 }
 
-export type TagActions
-  = LoadAll
+export type TagActions =
+  | LoadAll
   | LoadTagsSuccess
   | LoadTagsFail
   | Select

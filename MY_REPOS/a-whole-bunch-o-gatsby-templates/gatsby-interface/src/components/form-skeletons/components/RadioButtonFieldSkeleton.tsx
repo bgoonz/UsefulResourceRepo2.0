@@ -21,7 +21,8 @@ export function RadioButtonFieldSkeleton(props: RadioButtonFieldSkeletonProps) {
   return <FormGroupFieldSkeleton {...props} />
 }
 
-export type RadioButtonFieldSkeletonLabelProps = FormGroupFieldSkeletonLabelProps
+export type RadioButtonFieldSkeletonLabelProps =
+  FormGroupFieldSkeletonLabelProps
 export function RadioButtonFieldSkeletonLabel(
   props: RadioButtonFieldSkeletonLabelProps
 ) {
@@ -54,7 +55,8 @@ export const RadioButtonFieldSkeletonOption = React.forwardRef<
   return <FormGroupFieldSkeletonOption ref={ref} type="radio" {...props} />
 })
 
-export type RadioButtonFieldSkeletonOptionLabelProps = FormGroupFieldSkeletonOptionLabelProps
+export type RadioButtonFieldSkeletonOptionLabelProps =
+  FormGroupFieldSkeletonOptionLabelProps
 export function RadioButtonFieldSkeletonOptionLabel(
   props: RadioButtonFieldSkeletonOptionLabelProps
 ) {

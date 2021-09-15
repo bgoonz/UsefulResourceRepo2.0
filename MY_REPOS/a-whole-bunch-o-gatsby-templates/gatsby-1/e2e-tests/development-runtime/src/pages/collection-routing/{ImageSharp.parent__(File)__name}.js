@@ -5,7 +5,10 @@ import Image from "gatsby-image"
 import Layout from "../../components/layout"
 import SEO from "../../components/seo"
 
-export default function BlogPost({ data: { image }, pageContext: { parent__name } }) {
+export default function BlogPost({
+  data: { image },
+  pageContext: { parent__name },
+}) {
   return (
     <Layout>
       <SEO title={image.parent.name} />

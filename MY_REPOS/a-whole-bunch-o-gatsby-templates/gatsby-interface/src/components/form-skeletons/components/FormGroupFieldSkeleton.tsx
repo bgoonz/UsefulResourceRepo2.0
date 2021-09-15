@@ -33,9 +33,8 @@ export type FormGroupFieldSkeletonLabelProps = Omit<
   "ref"
 >
 
-export const FormGroupFieldSkeletonLabel: React.FC<
-  FormGroupFieldSkeletonLabelProps
-> = props => <legend {...props} />
+export const FormGroupFieldSkeletonLabel: React.FC<FormGroupFieldSkeletonLabelProps> =
+  (props) => <legend {...props} />
 
 export type FormGroupFieldSkeletonOptionProps = Omit<
   OmitControlProps<JSX.IntrinsicElements["input"]>,
@@ -66,17 +65,17 @@ export const FormGroupFieldSkeletonOption = React.forwardRef<
   )
 })
 
-export type FormGroupFieldSkeletonOptionLabelProps = FormFieldSkeletonLabelProps & {
-  optionValue: string
-}
+export type FormGroupFieldSkeletonOptionLabelProps =
+  FormFieldSkeletonLabelProps & {
+    optionValue: string
+  }
 
-export const FormGroupFieldSkeletonOptionLabel: React.FC<
-  FormGroupFieldSkeletonOptionLabelProps
-> = ({ optionValue, ...rest }) => {
-  const { id } = useFormFieldSkeleton()
+export const FormGroupFieldSkeletonOptionLabel: React.FC<FormGroupFieldSkeletonOptionLabelProps> =
+  ({ optionValue, ...rest }) => {
+    const { id } = useFormFieldSkeleton()
 
-  return <label htmlFor={getGroupOptionId(id, optionValue)} {...rest} />
-}
+    return <label htmlFor={getGroupOptionId(id, optionValue)} {...rest} />
+  }
 
 function getGroupOptionId(fieldId: string, optionValue: string) {
   return `${fieldId}__option--${optionValue}`

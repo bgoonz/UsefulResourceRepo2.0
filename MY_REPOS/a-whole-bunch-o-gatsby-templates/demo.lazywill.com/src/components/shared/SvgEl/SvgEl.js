@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const SvgEl = props => {
+const SvgEl = (props) => {
   return (
     <svg
       version="1.1"
@@ -18,7 +18,7 @@ const SvgEl = props => {
 };
 
 SvgEl.propTypes = {
-  svg: PropTypes.object.isRequired
+  svg: PropTypes.object.isRequired,
 };
 
 export default SvgEl;

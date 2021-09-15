@@ -1,24 +1,45 @@
 module["exports"] = {
   alpha: [
-    'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z",
   ],
-  pattern10: [
-    "01", "02", "03", "04", "05", "06", "07", "08", "09"
-  ],
-  pattern100: [
-    "001", "002", "003", "004", "005", "006", "007", "008", "009"
-  ],
+  pattern10: ["01", "02", "03", "04", "05", "06", "07", "08", "09"],
+  pattern100: ["001", "002", "003", "004", "005", "006", "007", "008", "009"],
   toDigitString: function (str) {
-      return str.replace(/[A-Z]/gi, function(match) {
-          return match.toUpperCase().charCodeAt(0) - 55;
-      });
+    return str.replace(/[A-Z]/gi, function (match) {
+      return match.toUpperCase().charCodeAt(0) - 55;
+    });
   },
   mod97: function (digitStr) {
-      var m = 0;
-      for (var i = 0; i < digitStr.length; i++) {
-          m = ((m * 10) + (digitStr[i] |0)) % 97;
-      }
-      return m;
+    var m = 0;
+    for (var i = 0; i < digitStr.length; i++) {
+      m = (m * 10 + (digitStr[i] | 0)) % 97;
+    }
+    return m;
   },
   formats: [
     {
@@ -27,14 +48,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 8
+          count: 8,
         },
         {
           type: "c",
-          count: 16
-        }
+          count: 16,
+        },
       ],
-      format: "ALkk bbbs sssx cccc cccc cccc cccc"
+      format: "ALkk bbbs sssx cccc cccc cccc cccc",
     },
     {
       country: "AD",
@@ -42,14 +63,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 8
+          count: 8,
         },
         {
           type: "c",
-          count: 12
-        }
+          count: 12,
+        },
       ],
-      format: "ADkk bbbb ssss cccc cccc cccc"
+      format: "ADkk bbbb ssss cccc cccc cccc",
     },
     {
       country: "AT",
@@ -57,14 +78,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 5
+          count: 5,
         },
         {
           type: "n",
-          count: 11
-        }
+          count: 11,
+        },
       ],
-      format: "ATkk bbbb bccc cccc cccc"
+      format: "ATkk bbbb bccc cccc cccc",
     },
     {
       country: "AZ",
@@ -72,14 +93,14 @@ module["exports"] = {
       bban: [
         {
           type: "c",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 20
-        }
+          count: 20,
+        },
       ],
-      format: "AZkk bbbb cccc cccc cccc cccc cccc"
+      format: "AZkk bbbb cccc cccc cccc cccc cccc",
     },
     {
       country: "BH",
@@ -87,14 +108,14 @@ module["exports"] = {
       bban: [
         {
           type: "a",
-          count: 4
+          count: 4,
         },
         {
           type: "c",
-          count: 14
-        }
+          count: 14,
+        },
       ],
-      format: "BHkk bbbb cccc cccc cccc cc"
+      format: "BHkk bbbb cccc cccc cccc cc",
     },
     {
       country: "BE",
@@ -102,14 +123,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 3
+          count: 3,
         },
         {
           type: "n",
-          count: 9
-        }
+          count: 9,
+        },
       ],
-      format: "BEkk bbbc cccc ccxx"
+      format: "BEkk bbbc cccc ccxx",
     },
     {
       country: "BA",
@@ -117,14 +138,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 6
+          count: 6,
         },
         {
           type: "n",
-          count: 10
-        }
+          count: 10,
+        },
       ],
-      format: "BAkk bbbs sscc cccc ccxx"
+      format: "BAkk bbbs sscc cccc ccxx",
     },
     {
       country: "BR",
@@ -132,22 +153,22 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 13
+          count: 13,
         },
         {
           type: "n",
-          count: 10
+          count: 10,
         },
         {
           type: "a",
-          count: 1
+          count: 1,
         },
         {
           type: "c",
-          count: 1
-        }
+          count: 1,
+        },
       ],
-      format: "BRkk bbbb bbbb ssss sccc cccc ccct n"
+      format: "BRkk bbbb bbbb ssss sccc cccc ccct n",
     },
     {
       country: "BG",
@@ -155,18 +176,18 @@ module["exports"] = {
       bban: [
         {
           type: "a",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 6
+          count: 6,
         },
         {
           type: "c",
-          count: 8
-        }
+          count: 8,
+        },
       ],
-      format: "BGkk bbbb ssss ddcc cccc cc"
+      format: "BGkk bbbb ssss ddcc cccc cc",
     },
     {
       country: "CR",
@@ -174,14 +195,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 3
+          count: 3,
         },
         {
           type: "n",
-          count: 14
-        }
+          count: 14,
+        },
       ],
-      format: "CRkk bbbc cccc cccc cccc c"
+      format: "CRkk bbbc cccc cccc cccc c",
     },
     {
       country: "HR",
@@ -189,14 +210,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 7
+          count: 7,
         },
         {
           type: "n",
-          count: 10
-        }
+          count: 10,
+        },
       ],
-      format: "HRkk bbbb bbbc cccc cccc c"
+      format: "HRkk bbbb bbbc cccc cccc c",
     },
     {
       country: "CY",
@@ -204,14 +225,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 8
+          count: 8,
         },
         {
           type: "c",
-          count: 16
-        }
+          count: 16,
+        },
       ],
-      format: "CYkk bbbs ssss cccc cccc cccc cccc"
+      format: "CYkk bbbs ssss cccc cccc cccc cccc",
     },
     {
       country: "CZ",
@@ -219,14 +240,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 10
+          count: 10,
         },
         {
           type: "n",
-          count: 10
-        }
+          count: 10,
+        },
       ],
-      format: "CZkk bbbb ssss sscc cccc cccc"
+      format: "CZkk bbbb ssss sscc cccc cccc",
     },
     {
       country: "DK",
@@ -234,14 +255,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 10
-        }
+          count: 10,
+        },
       ],
-      format: "DKkk bbbb cccc cccc cc"
+      format: "DKkk bbbb cccc cccc cc",
     },
     {
       country: "DO",
@@ -249,14 +270,14 @@ module["exports"] = {
       bban: [
         {
           type: "a",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 20
-        }
+          count: 20,
+        },
       ],
-      format: "DOkk bbbb cccc cccc cccc cccc cccc"
+      format: "DOkk bbbb cccc cccc cccc cccc cccc",
     },
     {
       country: "TL",
@@ -264,14 +285,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 3
+          count: 3,
         },
         {
           type: "n",
-          count: 16
-        }
+          count: 16,
+        },
       ],
-      format: "TLkk bbbc cccc cccc cccc cxx"
+      format: "TLkk bbbc cccc cccc cccc cxx",
     },
     {
       country: "EE",
@@ -279,14 +300,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 12
-        }
+          count: 12,
+        },
       ],
-      format: "EEkk bbss cccc cccc cccx"
+      format: "EEkk bbss cccc cccc cccx",
     },
     {
       country: "FO",
@@ -294,14 +315,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 10
-        }
+          count: 10,
+        },
       ],
-      format: "FOkk bbbb cccc cccc cx"
+      format: "FOkk bbbb cccc cccc cx",
     },
     {
       country: "FI",
@@ -309,14 +330,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 6
+          count: 6,
         },
         {
           type: "n",
-          count: 8
-        }
+          count: 8,
+        },
       ],
-      format: "FIkk bbbb bbcc cccc cx"
+      format: "FIkk bbbb bbcc cccc cx",
     },
     {
       country: "FR",
@@ -324,18 +345,18 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 10
+          count: 10,
         },
         {
           type: "c",
-          count: 11
+          count: 11,
         },
         {
           type: "n",
-          count: 2
-        }
+          count: 2,
+        },
       ],
-      format: "FRkk bbbb bggg ggcc cccc cccc cxx"
+      format: "FRkk bbbb bggg ggcc cccc cccc cxx",
     },
     {
       country: "GE",
@@ -343,14 +364,14 @@ module["exports"] = {
       bban: [
         {
           type: "c",
-          count: 2
+          count: 2,
         },
         {
           type: "n",
-          count: 16
-        }
+          count: 16,
+        },
       ],
-      format: "GEkk bbcc cccc cccc cccc cc"
+      format: "GEkk bbcc cccc cccc cccc cc",
     },
     {
       country: "DE",
@@ -358,14 +379,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 8
+          count: 8,
         },
         {
           type: "n",
-          count: 10
-        }
+          count: 10,
+        },
       ],
-      format: "DEkk bbbb bbbb cccc cccc cc"
+      format: "DEkk bbbb bbbb cccc cccc cc",
     },
     {
       country: "GI",
@@ -373,14 +394,14 @@ module["exports"] = {
       bban: [
         {
           type: "a",
-          count: 4
+          count: 4,
         },
         {
           type: "c",
-          count: 15
-        }
+          count: 15,
+        },
       ],
-      format: "GIkk bbbb cccc cccc cccc ccc"
+      format: "GIkk bbbb cccc cccc cccc ccc",
     },
     {
       country: "GR",
@@ -388,14 +409,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 7
+          count: 7,
         },
         {
           type: "c",
-          count: 16
-        }
+          count: 16,
+        },
       ],
-      format: "GRkk bbbs sssc cccc cccc cccc ccc"
+      format: "GRkk bbbs sssc cccc cccc cccc ccc",
     },
     {
       country: "GL",
@@ -403,14 +424,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 10
-        }
+          count: 10,
+        },
       ],
-      format: "GLkk bbbb cccc cccc cc"
+      format: "GLkk bbbb cccc cccc cc",
     },
     {
       country: "GT",
@@ -418,18 +439,18 @@ module["exports"] = {
       bban: [
         {
           type: "c",
-          count: 4
+          count: 4,
         },
         {
           type: "c",
-          count: 4
+          count: 4,
         },
         {
           type: "c",
-          count: 16
-        }
+          count: 16,
+        },
       ],
-      format: "GTkk bbbb mmtt cccc cccc cccc cccc"
+      format: "GTkk bbbb mmtt cccc cccc cccc cccc",
     },
     {
       country: "HU",
@@ -437,14 +458,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 8
+          count: 8,
         },
         {
           type: "n",
-          count: 16
-        }
+          count: 16,
+        },
       ],
-      format: "HUkk bbbs sssk cccc cccc cccc cccx"
+      format: "HUkk bbbs sssk cccc cccc cccc cccx",
     },
     {
       country: "IS",
@@ -452,14 +473,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 6
+          count: 6,
         },
         {
           type: "n",
-          count: 16
-        }
+          count: 16,
+        },
       ],
-      format: "ISkk bbbb sscc cccc iiii iiii ii"
+      format: "ISkk bbbb sscc cccc iiii iiii ii",
     },
     {
       country: "IE",
@@ -467,18 +488,18 @@ module["exports"] = {
       bban: [
         {
           type: "c",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 6
+          count: 6,
         },
         {
           type: "n",
-          count: 8
-        }
+          count: 8,
+        },
       ],
-      format: "IEkk aaaa bbbb bbcc cccc cc"
+      format: "IEkk aaaa bbbb bbcc cccc cc",
     },
     {
       country: "IL",
@@ -486,14 +507,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 6
+          count: 6,
         },
         {
           type: "n",
-          count: 13
-        }
+          count: 13,
+        },
       ],
-      format: "ILkk bbbn nncc cccc cccc ccc"
+      format: "ILkk bbbn nncc cccc cccc ccc",
     },
     {
       country: "IT",
@@ -501,18 +522,18 @@ module["exports"] = {
       bban: [
         {
           type: "a",
-          count: 1
+          count: 1,
         },
         {
           type: "n",
-          count: 10
+          count: 10,
         },
         {
           type: "c",
-          count: 12
-        }
+          count: 12,
+        },
       ],
-      format: "ITkk xaaa aabb bbbc cccc cccc ccc"
+      format: "ITkk xaaa aabb bbbc cccc cccc ccc",
     },
     {
       country: "JO",
@@ -520,18 +541,18 @@ module["exports"] = {
       bban: [
         {
           type: "a",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 18
-        }
+          count: 18,
+        },
       ],
-      format: "JOkk bbbb nnnn cccc cccc cccc cccc cc"
+      format: "JOkk bbbb nnnn cccc cccc cccc cccc cc",
     },
     {
       country: "KZ",
@@ -539,14 +560,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 3
+          count: 3,
         },
         {
           type: "c",
-          count: 13
-        }
+          count: 13,
+        },
       ],
-      format: "KZkk bbbc cccc cccc cccc"
+      format: "KZkk bbbc cccc cccc cccc",
     },
     {
       country: "XK",
@@ -554,14 +575,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 12
-        }
+          count: 12,
+        },
       ],
-      format: "XKkk bbbb cccc cccc cccc"
+      format: "XKkk bbbb cccc cccc cccc",
     },
     {
       country: "KW",
@@ -569,14 +590,14 @@ module["exports"] = {
       bban: [
         {
           type: "a",
-          count: 4
+          count: 4,
         },
         {
           type: "c",
-          count: 22
-        }
+          count: 22,
+        },
       ],
-      format: "KWkk bbbb cccc cccc cccc cccc cccc cc"
+      format: "KWkk bbbb cccc cccc cccc cccc cccc cc",
     },
     {
       country: "LV",
@@ -584,14 +605,14 @@ module["exports"] = {
       bban: [
         {
           type: "a",
-          count: 4
+          count: 4,
         },
         {
           type: "c",
-          count: 13
-        }
+          count: 13,
+        },
       ],
-      format: "LVkk bbbb cccc cccc cccc c"
+      format: "LVkk bbbb cccc cccc cccc c",
     },
     {
       country: "LB",
@@ -599,14 +620,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 4
+          count: 4,
         },
         {
           type: "c",
-          count: 20
-        }
+          count: 20,
+        },
       ],
-      format: "LBkk bbbb cccc cccc cccc cccc cccc"
+      format: "LBkk bbbb cccc cccc cccc cccc cccc",
     },
     {
       country: "LI",
@@ -614,14 +635,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 5
+          count: 5,
         },
         {
           type: "c",
-          count: 12
-        }
+          count: 12,
+        },
       ],
-      format: "LIkk bbbb bccc cccc cccc c"
+      format: "LIkk bbbb bccc cccc cccc c",
     },
     {
       country: "LT",
@@ -629,14 +650,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 5
+          count: 5,
         },
         {
           type: "n",
-          count: 11
-        }
+          count: 11,
+        },
       ],
-      format: "LTkk bbbb bccc cccc cccc"
+      format: "LTkk bbbb bccc cccc cccc",
     },
     {
       country: "LU",
@@ -644,14 +665,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 3
+          count: 3,
         },
         {
           type: "c",
-          count: 13
-        }
+          count: 13,
+        },
       ],
-      format: "LUkk bbbc cccc cccc cccc"
+      format: "LUkk bbbc cccc cccc cccc",
     },
     {
       country: "MK",
@@ -659,18 +680,18 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 3
+          count: 3,
         },
         {
           type: "c",
-          count: 10
+          count: 10,
         },
         {
           type: "n",
-          count: 2
-        }
+          count: 2,
+        },
       ],
-      format: "MKkk bbbc cccc cccc cxx"
+      format: "MKkk bbbc cccc cccc cxx",
     },
     {
       country: "MT",
@@ -678,18 +699,18 @@ module["exports"] = {
       bban: [
         {
           type: "a",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 5
+          count: 5,
         },
         {
           type: "c",
-          count: 18
-        }
+          count: 18,
+        },
       ],
-      format: "MTkk bbbb ssss sccc cccc cccc cccc ccc"
+      format: "MTkk bbbb ssss sccc cccc cccc cccc ccc",
     },
     {
       country: "MR",
@@ -697,14 +718,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 10
+          count: 10,
         },
         {
           type: "n",
-          count: 13
-        }
+          count: 13,
+        },
       ],
-      format: "MRkk bbbb bsss sscc cccc cccc cxx"
+      format: "MRkk bbbb bsss sscc cccc cccc cxx",
     },
     {
       country: "MU",
@@ -712,22 +733,22 @@ module["exports"] = {
       bban: [
         {
           type: "a",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 15
+          count: 15,
         },
         {
           type: "a",
-          count: 3
-        }
+          count: 3,
+        },
       ],
-      format: "MUkk bbbb bbss cccc cccc cccc 000d dd"
+      format: "MUkk bbbb bbss cccc cccc cccc 000d dd",
     },
     {
       country: "MC",
@@ -735,18 +756,18 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 10
+          count: 10,
         },
         {
           type: "c",
-          count: 11
+          count: 11,
         },
         {
           type: "n",
-          count: 2
-        }
+          count: 2,
+        },
       ],
-      format: "MCkk bbbb bsss sscc cccc cccc cxx"
+      format: "MCkk bbbb bsss sscc cccc cccc cxx",
     },
     {
       country: "MD",
@@ -754,14 +775,14 @@ module["exports"] = {
       bban: [
         {
           type: "c",
-          count: 2
+          count: 2,
         },
         {
           type: "c",
-          count: 18
-        }
+          count: 18,
+        },
       ],
-      format: "MDkk bbcc cccc cccc cccc cccc"
+      format: "MDkk bbcc cccc cccc cccc cccc",
     },
     {
       country: "ME",
@@ -769,14 +790,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 3
+          count: 3,
         },
         {
           type: "n",
-          count: 15
-        }
+          count: 15,
+        },
       ],
-      format: "MEkk bbbc cccc cccc cccc xx"
+      format: "MEkk bbbc cccc cccc cccc xx",
     },
     {
       country: "NL",
@@ -784,14 +805,14 @@ module["exports"] = {
       bban: [
         {
           type: "a",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 10
-        }
+          count: 10,
+        },
       ],
-      format: "NLkk bbbb cccc cccc cc"
+      format: "NLkk bbbb cccc cccc cc",
     },
     {
       country: "NO",
@@ -799,14 +820,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 7
-        }
+          count: 7,
+        },
       ],
-      format: "NOkk bbbb cccc ccx"
+      format: "NOkk bbbb cccc ccx",
     },
     {
       country: "PK",
@@ -814,14 +835,14 @@ module["exports"] = {
       bban: [
         {
           type: "c",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 16
-        }
+          count: 16,
+        },
       ],
-      format: "PKkk bbbb cccc cccc cccc cccc"
+      format: "PKkk bbbb cccc cccc cccc cccc",
     },
     {
       country: "PS",
@@ -829,18 +850,18 @@ module["exports"] = {
       bban: [
         {
           type: "c",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 9
+          count: 9,
         },
         {
           type: "n",
-          count: 12
-        }
+          count: 12,
+        },
       ],
-      format: "PSkk bbbb xxxx xxxx xccc cccc cccc c"
+      format: "PSkk bbbb xxxx xxxx xccc cccc cccc c",
     },
     {
       country: "PL",
@@ -848,14 +869,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 8
+          count: 8,
         },
         {
           type: "n",
-          count: 16
-        }
+          count: 16,
+        },
       ],
-      format: "PLkk bbbs sssx cccc cccc cccc cccc"
+      format: "PLkk bbbs sssx cccc cccc cccc cccc",
     },
     {
       country: "PT",
@@ -863,14 +884,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 8
+          count: 8,
         },
         {
           type: "n",
-          count: 13
-        }
+          count: 13,
+        },
       ],
-      format: "PTkk bbbb ssss cccc cccc cccx x"
+      format: "PTkk bbbb ssss cccc cccc cccx x",
     },
     {
       country: "QA",
@@ -878,14 +899,14 @@ module["exports"] = {
       bban: [
         {
           type: "a",
-          count: 4
+          count: 4,
         },
         {
           type: "c",
-          count: 21
-        }
+          count: 21,
+        },
       ],
-      format: "QAkk bbbb cccc cccc cccc cccc cccc c"
+      format: "QAkk bbbb cccc cccc cccc cccc cccc c",
     },
     {
       country: "RO",
@@ -893,14 +914,14 @@ module["exports"] = {
       bban: [
         {
           type: "a",
-          count: 4
+          count: 4,
         },
         {
           type: "c",
-          count: 16
-        }
+          count: 16,
+        },
       ],
-      format: "ROkk bbbb cccc cccc cccc cccc"
+      format: "ROkk bbbb cccc cccc cccc cccc",
     },
     {
       country: "SM",
@@ -908,18 +929,18 @@ module["exports"] = {
       bban: [
         {
           type: "a",
-          count: 1
+          count: 1,
         },
         {
           type: "n",
-          count: 10
+          count: 10,
         },
         {
           type: "c",
-          count: 12
-        }
+          count: 12,
+        },
       ],
-      format: "SMkk xaaa aabb bbbc cccc cccc ccc"
+      format: "SMkk xaaa aabb bbbc cccc cccc ccc",
     },
     {
       country: "SA",
@@ -927,14 +948,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 2
+          count: 2,
         },
         {
           type: "c",
-          count: 18
-        }
+          count: 18,
+        },
       ],
-      format: "SAkk bbcc cccc cccc cccc cccc"
+      format: "SAkk bbcc cccc cccc cccc cccc",
     },
     {
       country: "RS",
@@ -942,14 +963,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 3
+          count: 3,
         },
         {
           type: "n",
-          count: 15
-        }
+          count: 15,
+        },
       ],
-      format: "RSkk bbbc cccc cccc cccc xx"
+      format: "RSkk bbbc cccc cccc cccc xx",
     },
     {
       country: "SK",
@@ -957,14 +978,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 10
+          count: 10,
         },
         {
           type: "n",
-          count: 10
-        }
+          count: 10,
+        },
       ],
-      format: "SKkk bbbb ssss sscc cccc cccc"
+      format: "SKkk bbbb ssss sscc cccc cccc",
     },
     {
       country: "SI",
@@ -972,14 +993,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 5
+          count: 5,
         },
         {
           type: "n",
-          count: 10
-        }
+          count: 10,
+        },
       ],
-      format: "SIkk bbss sccc cccc cxx"
+      format: "SIkk bbss sccc cccc cxx",
     },
     {
       country: "ES",
@@ -987,14 +1008,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 10
+          count: 10,
         },
         {
           type: "n",
-          count: 10
-        }
+          count: 10,
+        },
       ],
-      format: "ESkk bbbb gggg xxcc cccc cccc"
+      format: "ESkk bbbb gggg xxcc cccc cccc",
     },
     {
       country: "SE",
@@ -1002,14 +1023,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 3
+          count: 3,
         },
         {
           type: "n",
-          count: 17
-        }
+          count: 17,
+        },
       ],
-      format: "SEkk bbbc cccc cccc cccc cccc"
+      format: "SEkk bbbc cccc cccc cccc cccc",
     },
     {
       country: "CH",
@@ -1017,14 +1038,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 5
+          count: 5,
         },
         {
           type: "c",
-          count: 12
-        }
+          count: 12,
+        },
       ],
-      format: "CHkk bbbb bccc cccc cccc c"
+      format: "CHkk bbbb bccc cccc cccc c",
     },
     {
       country: "TN",
@@ -1032,14 +1053,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 5
+          count: 5,
         },
         {
           type: "n",
-          count: 15
-        }
+          count: 15,
+        },
       ],
-      format: "TNkk bbss sccc cccc cccc cccc"
+      format: "TNkk bbss sccc cccc cccc cccc",
     },
     {
       country: "TR",
@@ -1047,18 +1068,18 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 5
+          count: 5,
         },
         {
           type: "c",
-          count: 1
+          count: 1,
         },
         {
           type: "c",
-          count: 16
-        }
+          count: 16,
+        },
       ],
-      format: "TRkk bbbb bxcc cccc cccc cccc cc"
+      format: "TRkk bbbb bxcc cccc cccc cccc cc",
     },
     {
       country: "AE",
@@ -1066,14 +1087,14 @@ module["exports"] = {
       bban: [
         {
           type: "n",
-          count: 3
+          count: 3,
         },
         {
           type: "n",
-          count: 16
-        }
+          count: 16,
+        },
       ],
-      format: "AEkk bbbc cccc cccc cccc ccc"
+      format: "AEkk bbbc cccc cccc cccc ccc",
     },
     {
       country: "GB",
@@ -1081,18 +1102,18 @@ module["exports"] = {
       bban: [
         {
           type: "a",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 6
+          count: 6,
         },
         {
           type: "n",
-          count: 8
-        }
+          count: 8,
+        },
       ],
-      format: "GBkk bbbb ssss sscc cccc cc"
+      format: "GBkk bbbb ssss sscc cccc cc",
     },
     {
       country: "VG",
@@ -1100,37 +1121,283 @@ module["exports"] = {
       bban: [
         {
           type: "c",
-          count: 4
+          count: 4,
         },
         {
           type: "n",
-          count: 16
-        }
+          count: 16,
+        },
       ],
-      format: "VGkk bbbb cccc cccc cccc cccc"
-    }
+      format: "VGkk bbbb cccc cccc cccc cccc",
+    },
   ],
   iso3166: [
-    "AC", "AD", "AE", "AF", "AG", "AI", "AL", "AM", "AN", "AO", "AQ", "AR", "AS",
-    "AT", "AU", "AW", "AX", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI",
-    "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BU", "BV", "BW", "BY",
-    "BZ", "CA", "CC", "CD", "CE", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN",
-    "CO", "CP", "CR", "CS", "CS", "CU", "CV", "CW", "CX", "CY", "CZ", "DD", "DE",
-    "DG", "DJ", "DK", "DM", "DO", "DZ", "EA", "EC", "EE", "EG", "EH", "ER", "ES",
-    "ET", "EU", "FI", "FJ", "FK", "FM", "FO", "FR", "FX", "GA", "GB", "GD", "GE",
-    "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GS", "GT", "GU",
-    "GW", "GY", "HK", "HM", "HN", "HR", "HT", "HU", "IC", "ID", "IE", "IL", "IM",
-    "IN", "IO", "IQ", "IR", "IS", "IT", "JE", "JM", "JO", "JP", "KE", "KG", "KH",
-    "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ", "LA", "LB", "LC", "LI", "LK",
-    "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MF", "MG", "MH",
-    "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW",
-    "MX", "MY", "MZ", "NA", "NC", "NE", "NF", "NG", "NI", "NL", "NO", "NP", "NR",
-    "NT", "NU", "NZ", "OM", "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PN",
-    "PR", "PS", "PT", "PW", "PY", "QA", "RE", "RO", "RS", "RU", "RW", "SA", "SB",
-    "SC", "SD", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR",
-    "SS", "ST", "SU", "SV", "SX", "SY", "SZ", "TA", "TC", "TD", "TF", "TG", "TH",
-    "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG",
-    "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI", "VN", "VU", "WF", "WS",
-    "YE", "YT", "YU", "ZA", "ZM", "ZR", "ZW"
-  ]
-}
+    "AC",
+    "AD",
+    "AE",
+    "AF",
+    "AG",
+    "AI",
+    "AL",
+    "AM",
+    "AN",
+    "AO",
+    "AQ",
+    "AR",
+    "AS",
+    "AT",
+    "AU",
+    "AW",
+    "AX",
+    "AZ",
+    "BA",
+    "BB",
+    "BD",
+    "BE",
+    "BF",
+    "BG",
+    "BH",
+    "BI",
+    "BJ",
+    "BL",
+    "BM",
+    "BN",
+    "BO",
+    "BQ",
+    "BR",
+    "BS",
+    "BT",
+    "BU",
+    "BV",
+    "BW",
+    "BY",
+    "BZ",
+    "CA",
+    "CC",
+    "CD",
+    "CE",
+    "CF",
+    "CG",
+    "CH",
+    "CI",
+    "CK",
+    "CL",
+    "CM",
+    "CN",
+    "CO",
+    "CP",
+    "CR",
+    "CS",
+    "CS",
+    "CU",
+    "CV",
+    "CW",
+    "CX",
+    "CY",
+    "CZ",
+    "DD",
+    "DE",
+    "DG",
+    "DJ",
+    "DK",
+    "DM",
+    "DO",
+    "DZ",
+    "EA",
+    "EC",
+    "EE",
+    "EG",
+    "EH",
+    "ER",
+    "ES",
+    "ET",
+    "EU",
+    "FI",
+    "FJ",
+    "FK",
+    "FM",
+    "FO",
+    "FR",
+    "FX",
+    "GA",
+    "GB",
+    "GD",
+    "GE",
+    "GF",
+    "GG",
+    "GH",
+    "GI",
+    "GL",
+    "GM",
+    "GN",
+    "GP",
+    "GQ",
+    "GR",
+    "GS",
+    "GT",
+    "GU",
+    "GW",
+    "GY",
+    "HK",
+    "HM",
+    "HN",
+    "HR",
+    "HT",
+    "HU",
+    "IC",
+    "ID",
+    "IE",
+    "IL",
+    "IM",
+    "IN",
+    "IO",
+    "IQ",
+    "IR",
+    "IS",
+    "IT",
+    "JE",
+    "JM",
+    "JO",
+    "JP",
+    "KE",
+    "KG",
+    "KH",
+    "KI",
+    "KM",
+    "KN",
+    "KP",
+    "KR",
+    "KW",
+    "KY",
+    "KZ",
+    "LA",
+    "LB",
+    "LC",
+    "LI",
+    "LK",
+    "LR",
+    "LS",
+    "LT",
+    "LU",
+    "LV",
+    "LY",
+    "MA",
+    "MC",
+    "MD",
+    "ME",
+    "MF",
+    "MG",
+    "MH",
+    "MK",
+    "ML",
+    "MM",
+    "MN",
+    "MO",
+    "MP",
+    "MQ",
+    "MR",
+    "MS",
+    "MT",
+    "MU",
+    "MV",
+    "MW",
+    "MX",
+    "MY",
+    "MZ",
+    "NA",
+    "NC",
+    "NE",
+    "NF",
+    "NG",
+    "NI",
+    "NL",
+    "NO",
+    "NP",
+    "NR",
+    "NT",
+    "NU",
+    "NZ",
+    "OM",
+    "PA",
+    "PE",
+    "PF",
+    "PG",
+    "PH",
+    "PK",
+    "PL",
+    "PM",
+    "PN",
+    "PR",
+    "PS",
+    "PT",
+    "PW",
+    "PY",
+    "QA",
+    "RE",
+    "RO",
+    "RS",
+    "RU",
+    "RW",
+    "SA",
+    "SB",
+    "SC",
+    "SD",
+    "SE",
+    "SG",
+    "SH",
+    "SI",
+    "SJ",
+    "SK",
+    "SL",
+    "SM",
+    "SN",
+    "SO",
+    "SR",
+    "SS",
+    "ST",
+    "SU",
+    "SV",
+    "SX",
+    "SY",
+    "SZ",
+    "TA",
+    "TC",
+    "TD",
+    "TF",
+    "TG",
+    "TH",
+    "TJ",
+    "TK",
+    "TL",
+    "TM",
+    "TN",
+    "TO",
+    "TR",
+    "TT",
+    "TV",
+    "TW",
+    "TZ",
+    "UA",
+    "UG",
+    "UM",
+    "US",
+    "UY",
+    "UZ",
+    "VA",
+    "VC",
+    "VE",
+    "VG",
+    "VI",
+    "VN",
+    "VU",
+    "WF",
+    "WS",
+    "YE",
+    "YT",
+    "YU",
+    "ZA",
+    "ZM",
+    "ZR",
+    "ZW",
+  ],
+};

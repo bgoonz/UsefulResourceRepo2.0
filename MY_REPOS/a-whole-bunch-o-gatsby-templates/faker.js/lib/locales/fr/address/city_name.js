@@ -98,5 +98,5 @@ module["exports"] = [
   "Villejuif",
   "Hyères",
   "Beauvais",
-  "Cholet"
+  "Cholet",
 ];

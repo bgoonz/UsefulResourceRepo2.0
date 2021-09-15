@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const Bodytext = props => {
+const Bodytext = (props) => {
   const { html, theme, children, className } = props;
 
   return (
@@ -132,7 +132,7 @@ Bodytext.propTypes = {
   children: PropTypes.node,
   html: PropTypes.string,
   theme: PropTypes.object.isRequired,
-  className: PropTypes.string
+  className: PropTypes.string,
 };
 
 export default Bodytext;

@@ -55,7 +55,7 @@ storiesOf(`form`, module)
                 First name
               </InputFieldLabel>
               <InputFieldControl
-                onChange={e => action(`Change`)(e.target.value)}
+                onChange={(e) => action(`Change`)(e.target.value)}
                 placeholder={placeholder}
                 disabled={disabled}
                 required={required}
@@ -73,7 +73,7 @@ storiesOf(`form`, module)
             id="example-1b"
             label="First name"
             labelSize={size}
-            onChange={e => action(`Change`)(e.target.value)}
+            onChange={(e) => action(`Change`)(e.target.value)}
             hint={hint || `And this one is built with 'InputFieldBlock'`}
             error={error}
             placeholder={placeholder}
@@ -90,7 +90,7 @@ storiesOf(`form`, module)
               </React.Fragment>
             }
             labelSize={size}
-            onChange={e => action(`Change`)(e.target.value)}
+            onChange={(e) => action(`Change`)(e.target.value)}
             hint={hint || `This one is also built with 'InputFieldBlock'`}
             error={error}
             placeholder={placeholder}

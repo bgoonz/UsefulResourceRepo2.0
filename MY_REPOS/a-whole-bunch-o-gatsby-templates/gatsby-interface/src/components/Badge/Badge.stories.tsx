@@ -37,7 +37,7 @@ Sandbox.story = {
 }
 
 export const Variants = () =>
-  VARIANTS.map(variant => (
+  VARIANTS.map((variant) => (
     <Badge key={variant} variant={variant}>
       Variant: {variant}
     </Badge>

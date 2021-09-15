@@ -36,14 +36,8 @@ export const Basic = () => (
 )
 
 export const Sandbox = () => {
-  const {
-    label,
-    labelSize,
-    error,
-    hint,
-    required,
-    disabled,
-  } = getFieldBlockSandboxProps()
+  const { label, labelSize, error, hint, required, disabled } =
+    getFieldBlockSandboxProps()
   const placeholder = text(`Placeholder`, `This is a placeholder`)
 
   return (
@@ -53,7 +47,7 @@ export const Sandbox = () => {
           {label}
         </TextAreaFieldLabel>
         <TextAreaFieldControl
-          onChange={e => action(`Change`)(e.target.value)}
+          onChange={(e) => action(`Change`)(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
           required={required}

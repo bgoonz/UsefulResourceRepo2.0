@@ -1,4 +1,3 @@
-
 # FCC Starter Project for the Drum Machine
 
 This is a starter project for the Drum Machine Front End Project of Freecodecamp. It is already functional in itself, but doesn't include any styling. The test suite can be activated in the `index.html` by uncommenting the respective line. The tests for the drum machine(8/8) are already running green. Feel free to fork it and give it your own style.
@@ -33,4 +32,3 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.<br>
 You will also see any lint errors in the console.
-

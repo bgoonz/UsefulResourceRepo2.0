@@ -10,5 +10,5 @@ module.exports = {
       resolve: `@lekoarts/gatsby-theme-emilia`,
       options: {},
     },
-  ]
+  ],
 }

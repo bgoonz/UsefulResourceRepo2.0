@@ -19,7 +19,7 @@ class Layout extends React.Component {
     this.state = {
       screenWidth: 0,
       headerMinimized: false,
-      theme: themeObjectFromYaml
+      theme: themeObjectFromYaml,
     };
   }
 
@@ -27,7 +27,7 @@ class Layout extends React.Component {
 
   componentDidMount() {
     this.setState({
-      screenWidth: getScreenWidth()
+      screenWidth: getScreenWidth(),
     });
     if (typeof window !== "undefined") {
       window.addEventListener("resize", this.resizeThrottler, false);
@@ -54,7 +54,7 @@ class Layout extends React.Component {
     const { children, data } = this.props;
     const {
       footnote: { html: footnoteHTML },
-      pages: { edges: pages }
+      pages: { edges: pages },
     } = data;
 
     return (
@@ -121,7 +121,7 @@ class Layout extends React.Component {
 Layout.propTypes = {
   children: PropTypes.func,
   data: PropTypes.object.isRequired,
-  location: PropTypes.object.isRequired
+  location: PropTypes.object.isRequired,
 };
 
 export default Layout;

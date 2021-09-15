@@ -7,7 +7,7 @@
 
 閱讀文章和觀看教學會有所幫助。不過，有什麼方法能比，在不會弄亂任何東西的情況下，實際動手做更好？本項目旨在指導初學者及簡化初學者參與開源的方式。記住：過程越輕鬆，學習效益越高。如果妳/你想要做出第一次貢獻，只需按照以下簡單步驟操作即可。跟你保證，這會很好玩 :)
 
-#### *此文檔的 [其他語種](../Translations.md).*
+#### _此文檔的 [其他語種](../Translations.md)._
 
 <img align="right" width="300" src="../assets/fork.png" alt="fork this repository" />
 
@@ -29,11 +29,13 @@
 ```
 git clone "url you just copied"
 ```
+
 "url you just copied"（去掉雙引號）就是複製到妳/你帳戶名下的代碼庫地址。獲取這鏈接地址的方法請見上一步。
 
 <img align="right" width="300" src="../assets/copy-to-clipboard.png" alt="copy URL to clipboard" />
 
 譬如：
+
 ```
 git clone https://github.com/this-is-you/first-contributions.git
 ```
@@ -42,17 +44,20 @@ git clone https://github.com/this-is-you/first-contributions.git
 
 ## 新建一個分支
 
-下面的命令能在命令行窗口中，把目錄切換到 first-contributions 
+下面的命令能在命令行窗口中，把目錄切換到 first-contributions
 
 ```
 cd first-contributions
 ```
+
 接下來使用 `git checkout` 命令新建一個程式碼分支
+
 ```
 git checkout -b <add-your-name>
 ```
 
 譬如：
+
 ```
 git checkout -b add-david
 ```
@@ -62,22 +67,27 @@ git checkout -b add-david
 ## 對程式碼進行修改，然後 Commit (提交) 修改
 
 使用妳/你喜歡的文字編輯器打開 `Contributors.md` 這個文件，更新文件內容，將自己的名字加上去，然後存檔。在命令窗口執行 `git status` ，這會列出被更動的文件。接著 `git add` 這命令則可以添加更動項目到分支裡，就像以下這條命令。
+
 ```
 git add Contributors.md
 ```
 
 現在就可以使用 `git commit` 命令 commit (提交)你/妳的修改了。
+
 ```
 git commit -m "Add <your-name> to Contributors list"
 ```
+
 將 `<your-name>` 替換為自己的名字
 
 ## 將更動 Push（發佈）到 GitHub
 
 使用 `git push` 命令發佈代碼
+
 ```
 git push origin <add-your-name>
 ```
+
 將 `<add-your-name>` 替換為之前新建的分支名稱。
 
 ## 提出 Pull Request 將你/妳的修改供他人審閱
@@ -105,13 +115,13 @@ git push origin <add-your-name>
 
 ## 使用其他工具的教學
 
-|<a href="github-desktop-tutorial.md"><img alt="GitHub Desktop" src="https://desktop.github.com/images/desktop-icon.svg" width="100"></a>|<a href="github-windows-vs2017-tutorial.md"><img alt="Visual Studio 2017" src="https://www.microsoft.com/net/images/vslogo.png" width="100"></a>|<a href="gitkraken-tutorial.md"><img alt="GitKraken" src="/assets/gk-icon.png" width="100"></a>|
-|---|---|---|
-|[GitHub Desktop](github-desktop-tutorial.md)|[Visual Studio 2017](github-windows-vs2017-tutorial.md)|[GitKraken](gitkraken-tutorial.md)|
+| <a href="github-desktop-tutorial.md"><img alt="GitHub Desktop" src="https://desktop.github.com/images/desktop-icon.svg" width="100"></a> | <a href="github-windows-vs2017-tutorial.md"><img alt="Visual Studio 2017" src="https://www.microsoft.com/net/images/vslogo.png" width="100"></a> | <a href="gitkraken-tutorial.md"><img alt="GitKraken" src="/assets/gk-icon.png" width="100"></a> |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| [GitHub Desktop](github-desktop-tutorial.md)                                                                                             | [Visual Studio 2017](github-windows-vs2017-tutorial.md)                                                                                          | [GitKraken](gitkraken-tutorial.md)                                                              |
 
 ## 原作者的自我行銷
 
-如果你/妳喜歡這個專案, 請給這個 [GitHub](https://github.com/Roshanjossey/first-contributions) 專案一顆星星 :star: 。
+如果你/妳喜歡這個專案, 請給這個  [GitHub](https://github.com/Roshanjossey/first-contributions) 專案一顆星星 :star: 。
 如果妳/你覺得這超佛心, 可以 follow [Roshan](https://roshanjossey.github.io/) 的
 [Twitter](https://twitter.com/sudo__bangbang) 和
 [GitHub](https://github.com/roshanjossey)。

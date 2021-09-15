@@ -63,7 +63,7 @@ The updated test should look something like the next image
 ## Cypress is just JavaScript
 
 ```js
-import {selectors, tid} from './common-selectors'
+import { selectors, tid } from './common-selectors'
 it('finds element', () => {
   cy.get(selectors.todoInput).type('something{enter}')
 
@@ -74,6 +74,7 @@ it('finds element', () => {
 ```
 
 +++
+
 ## 🏁 Selecting Elements
 
 - Use Selector Playground

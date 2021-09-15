@@ -12,8 +12,8 @@ import '../utils/highlight-css'
 export const scope = {
   process: {
     env: {
-      NODE_ENV: process.env.NODE_ENV
-    }
+      NODE_ENV: process.env.NODE_ENV,
+    },
   },
   require(moduleName: string) {
     switch (moduleName) {
@@ -39,7 +39,7 @@ export const scope = {
         // eslint-disable-next-line no-throw-literal
         throw `Module "${moduleName}" not found`
     }
-  }
+  },
 }
 
 // $FlowFixMe(flow@0.100.0): tagged templates don't support generics
@@ -57,7 +57,7 @@ type Props = {
   code: string,
   className?: string,
   editorClassName?: string,
-  initialCompiledCode: string
+  initialCompiledCode: string,
 }
 
 export default class Playground extends Component<Props> {
@@ -75,7 +75,7 @@ export default class Playground extends Component<Props> {
             }
           }
         `}
-        render={data => {
+        render={(data) => {
           let logoUrl = data.avatar.childImageSharp.resolutions.src
           return (
             <Live
@@ -92,14 +92,14 @@ export default class Playground extends Component<Props> {
                     css={{
                       overflow: 'hidden',
                       boxShadow:
-                        '0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12)'
+                        '0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12)',
                     }}
                   >
                     <Box
                       flex={1}
                       css={{
                         overflow: 'hidden',
-                        minHeight: '100%'
+                        minHeight: '100%',
                       }}
                       fontSize={1}
                     >
@@ -109,7 +109,7 @@ export default class Playground extends Component<Props> {
                         css={{
                           overflow: 'auto',
                           height: '100%',
-                          borderRadius: 0
+                          borderRadius: 0,
                         }}
                         className={this.props.editorClassName}
                       />
@@ -121,7 +121,7 @@ export default class Playground extends Component<Props> {
                       align="center"
                       css={{
                         overflow: 'hidden',
-                        minHeight: '100%'
+                        minHeight: '100%',
                       }}
                     >
                       <ErrorBoundary onError={onError}>
@@ -137,7 +137,7 @@ export default class Playground extends Component<Props> {
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              fontFamily: fonts.primary
+                              fontFamily: fonts.primary,
                             }}
                           >
                             {element}

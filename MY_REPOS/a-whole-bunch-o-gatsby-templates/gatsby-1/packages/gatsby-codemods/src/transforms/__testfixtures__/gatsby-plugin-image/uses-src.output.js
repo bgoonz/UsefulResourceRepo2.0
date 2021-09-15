@@ -1,11 +1,10 @@
-import { GatsbyImage } from "gatsby-plugin-image";
+import { GatsbyImage } from "gatsby-plugin-image"
 
-<GatsbyImage
+;<GatsbyImage
   image={{
     srcSet: ``,
-    src:
-      nextSite.showcaseSiteFields.screenshot.localFile
-        .childImageSharp.resize.src,
+    src: nextSite.showcaseSiteFields.screenshot.localFile.childImageSharp.resize
+      .src,
     width: 100,
     height: 100,
   }}
@@ -15,4 +14,5 @@ import { GatsbyImage } from "gatsby-plugin-image";
   imgStyle={{
     margin: 0,
   }}
-  alt="" />
+  alt=""
+/>

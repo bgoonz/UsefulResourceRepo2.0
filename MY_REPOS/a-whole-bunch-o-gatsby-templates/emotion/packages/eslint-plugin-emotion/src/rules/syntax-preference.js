@@ -67,14 +67,14 @@ export default {
     docs: {
       description: 'Choose between string or object styles',
       category: 'Stylistic Issues',
-      recommended: false
+      recommended: false,
     },
     fixable: null, // or "code" or "whitespace"
     schema: [
       {
-        enum: ['string', 'object']
-      }
-    ]
+        enum: ['string', 'object'],
+      },
+    ],
   },
 
   create(context) {
@@ -85,7 +85,7 @@ export default {
         if (isStringStyle(node) && preferedSyntax === 'object') {
           context.report({
             node,
-            message: MSG_PREFER_OBJECT_STYLE
+            message: MSG_PREFER_OBJECT_STYLE,
           })
         }
       },
@@ -96,10 +96,10 @@ export default {
         if (isObjectStyle(node) && preferedSyntax === 'string') {
           context.report({
             node,
-            message: MSG_PREFER_STRING_STYLE
+            message: MSG_PREFER_STRING_STYLE,
           })
         }
-      }
+      },
     }
-  }
+  },
 }

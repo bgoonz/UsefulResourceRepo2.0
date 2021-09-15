@@ -82,12 +82,12 @@ export const BaseNavigation = ({
   AnchorButton = BaseNavigationAnchorButton,
   ...rest
 }: BaseNavigationProps) => {
-  const [internalIsMobileNavOpen, internalSetIsMobileNavOpen] = React.useState(
-    false
-  )
+  const [internalIsMobileNavOpen, internalSetIsMobileNavOpen] =
+    React.useState(false)
 
   let isMobileNavOpen = internalIsMobileNavOpen
-  let setIsMobileNavOpen: BaseNavigationContextValue["setIsMobileNavOpen"] = internalSetIsMobileNavOpen
+  let setIsMobileNavOpen: BaseNavigationContextValue["setIsMobileNavOpen"] =
+    internalSetIsMobileNavOpen
 
   if (
     customIsMobileNavOpen !== undefined &&
@@ -200,7 +200,7 @@ export function BaseNavigationNav(props: BaseNavigationNavProps) {
 
   return (
     <nav
-      css={theme => ({
+      css={(theme) => ({
         [mobileNavMediaQuery]: baseStyles.nav.mobile(isMobileNavOpen)(theme),
       })}
       {...props}
@@ -226,10 +226,10 @@ export function BaseNavigationList(props: BaseNavigationListProps) {
     <div css={baseStyles.list.wrapper}>
       <ul css={[baseStyles.list.side, baseStyles.list.leftSide]} {...props}>
         {items.length > 0 &&
-          items.map(item => <Item key={item.name} item={item} />)}
+          items.map((item) => <Item key={item.name} item={item} />)}
         <li role="separator" css={baseStyles.list.spacer} />
         {secondaryItems.length > 0 &&
-          secondaryItems.map(item => <Item key={item.name} item={item} />)}
+          secondaryItems.map((item) => <Item key={item.name} item={item} />)}
         {rootChildren && rootChildren}
       </ul>
     </div>
@@ -334,11 +334,12 @@ export function BaseNavigationItemLink({
 
 BaseNavigation.ItemLink = BaseNavigationItemLink
 
-export type BaseNavigationDropdownToggleProps = JSX.IntrinsicElements["button"] & {
-  item: BaseNavigationItem
-  isDropdownOpen: boolean
-  toggleDropdown: (value: boolean) => void
-}
+export type BaseNavigationDropdownToggleProps =
+  JSX.IntrinsicElements["button"] & {
+    item: BaseNavigationItem
+    isDropdownOpen: boolean
+    toggleDropdown: (value: boolean) => void
+  }
 
 export const BaseNavigationDropdownToggle = React.forwardRef<
   HTMLButtonElement,
@@ -396,7 +397,7 @@ export function BaseNavigationDropdown({
       css={baseStyles.dropdown(isDropdownOpen)}
       // id to associate with aria-controls on BaseNavigation.Item
       id={getDropdownId(item.name)}
-      onKeyDown={e => {
+      onKeyDown={(e) => {
         // handle closing dropdown on `esc`
         if (e.keyCode === 27) {
           toggleDropdown(false)

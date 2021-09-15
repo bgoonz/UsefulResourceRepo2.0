@@ -11,14 +11,14 @@ import * as cssParser from 'css'
 let Comp = styled.div({ color: 'hotpink' })
 
 expect.addSnapshotSerializer({
-  test: x => x instanceof StyleSheet,
+  test: (x) => x instanceof StyleSheet,
   print: ({ cssRules }) => {
     let styles = ''
     for (let rule of cssRules) {
       styles += rule.cssText
     }
     return cssParser.stringify(cssParser.parse(styles))
-  }
+  },
 })
 
 test('it works', () => {
@@ -29,8 +29,8 @@ test('it works', () => {
       <Global
         styles={{
           html: {
-            backgroundColor: 'yellow'
-          }
+            backgroundColor: 'yellow',
+          },
         }}
       />
       <Global
@@ -50,14 +50,14 @@ test('it works', () => {
   // 3. styled comp
 
   // querying for style instead of [data-emotion] to appease flow
-  let elements = Array.from(document.querySelectorAll('style')).filter(x =>
+  let elements = Array.from(document.querySelectorAll('style')).filter((x) =>
     x.getAttribute('data-emotion')
   )
 
-  expect(elements.map(x => x.getAttribute('data-emotion'))).toEqual([
+  expect(elements.map((x) => x.getAttribute('data-emotion'))).toEqual([
     'css-global',
     'css-global',
-    'css'
+    'css',
   ])
 
   expect(elements[0].sheet).toMatchInlineSnapshot(`

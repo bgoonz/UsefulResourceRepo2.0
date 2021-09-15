@@ -28,7 +28,7 @@ const GET_POSTS = gql`
 `
 
 const GET_POST = gql`
-  query($id: ID) {
+  query ($id: ID) {
     blogPost(where: { id: $id }) {
       title
       post

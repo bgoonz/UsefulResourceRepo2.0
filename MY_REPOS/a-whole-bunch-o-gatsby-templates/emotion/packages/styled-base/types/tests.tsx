@@ -37,7 +37,7 @@ const Button0 = styled('button')`
   color: blue;
 `
 const Button1 = styled('button')({
-  color: 'blue'
+  color: 'blue',
 })
 ;<div>
   <Button0 />
@@ -49,14 +49,14 @@ const Button1 = styled('button')({
 </div>
 
 const Input0 = styled('input', {
-  label: 'mystyle'
+  label: 'mystyle',
 })`
   padding: 4px;
 `
 const Input1 = styled('input', {
-  label: 'mystyle'
+  label: 'mystyle',
 })({
-  padding: '4px'
+  padding: '4px',
 })
 ;<Input0 />
 ;<Input1 />
@@ -65,16 +65,16 @@ const Input2 = Button0.withComponent('input')
 const Canvas0 = styled('canvas', {
   shouldForwardProp(propName) {
     return propName === 'width' || propName === 'height'
-  }
+  },
 })`
   width: 200px;
 `
 const Canvas1 = styled('canvas', {
   shouldForwardProp(propName) {
     return propName === 'width' || propName === 'height'
-  }
+  },
 })({
-  width: '200px'
+  width: '200px',
 })
 ;<Canvas0 />
 ;<Canvas1 />
@@ -94,10 +94,10 @@ interface PrimaryProps {
  */
 const Button2 = styled<'button', PrimaryProps>('button')`
   fontsize: ${5}px;
-  color: ${props => props.primary};
+  color: ${(props) => props.primary};
 `
-const Button3 = styled<'button', PrimaryProps>('button')(props => ({
-  color: props.primary
+const Button3 = styled<'button', PrimaryProps>('button')((props) => ({
+  color: props.primary,
 }))
 ;<div>
   <Button2 primary="blue" />
@@ -119,13 +119,13 @@ const Button3 = styled<'button', PrimaryProps>('button')(props => ({
 const Button4 = styled<typeof ReactClassComponent0, PrimaryProps>(
   ReactClassComponent0
 )`
-  backgroundColor: ${props => props.theme.backColor}
+  backgroundColor: ${(props) => props.theme.backColor}
 
   fontSize: ${5}px;
-  color: ${props => props.primary}
+  color: ${(props) => props.primary}
 `
-const Button5 = styled<typeof ReactSFC0, PrimaryProps>(ReactSFC0)(props => ({
-  color: props.primary
+const Button5 = styled<typeof ReactSFC0, PrimaryProps>(ReactSFC0)((props) => ({
+  color: props.primary,
 }))
 ;<div>
   <Button4 column={true} primary="blue" />
@@ -146,7 +146,7 @@ const Button5 = styled<typeof ReactSFC0, PrimaryProps>(ReactSFC0)(props => ({
 
 const Container0 = styled(ReactClassComponent0)`
   display: flex;
-  flexdirection: ${props => props.column && 'column'};
+  flexdirection: ${(props) => props.column && 'column'};
 `
 ;<Container0 column={false} />
 // $ExpectError
@@ -173,10 +173,10 @@ const Container3 = Container0.withComponent(ReactClassComponent1)
 interface ContainerProps {
   extraWidth: string
 }
-const Container4 = styled(ReactSFC2)<ContainerProps>(props => ({
+const Container4 = styled(ReactSFC2)<ContainerProps>((props) => ({
   borderColor: 'black',
   borderWidth: props.extraWidth,
-  borderStyle: 'solid'
+  borderStyle: 'solid',
 }))
 ;<Container4 extraWidth="20px" value={123} />
 // $ExpectError
@@ -256,7 +256,7 @@ declare const ref3_2: (element: HTMLDivElement | null) => void
 
   type SomethingToRead = Book | Magazine
 
-  const Readable: React.SFC<SomethingToRead> = props => {
+  const Readable: React.SFC<SomethingToRead> = (props) => {
     if (props.kind === 'magazine') {
       return <div>magazine #{props.issue}</div>
     }
@@ -265,7 +265,7 @@ declare const ref3_2: (element: HTMLDivElement | null) => void
   }
 
   const StyledReadable = styled(Readable)`
-    font-size: ${props => (props.kind === 'book' ? 16 : 14)};
+    font-size: ${(props) => (props.kind === 'book' ? 16 : 14)};
   `
   ;<Readable kind="book" author="Hejlsberg" />
   ;<StyledReadable kind="book" author="Hejlsberg" />
@@ -290,7 +290,7 @@ const classInstance = <StyledClassWithDefaultProps />
 const FCWithDefaultProps = ({ prop }: Props) =>
   prop ? <Button0 /> : <Button1 />
 FCWithDefaultProps.defaultProps = {
-  prop: false
+  prop: false,
 }
 const StyledFCWithDefaultProps = styled(FCWithDefaultProps)`
   background-color: red;

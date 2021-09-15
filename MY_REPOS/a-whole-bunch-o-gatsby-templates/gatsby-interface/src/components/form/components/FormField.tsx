@@ -30,8 +30,8 @@ export function getFieldStackStyles(type: `stack` | `item`, theme: Theme) {
 
 export type FormFieldStackProps = Omit<JSX.IntrinsicElements["div"], "ref">
 
-export const FormFieldStack: React.FC<FormFieldStackProps> = props => {
-  return <div css={theme => getFieldStackStyles(`stack`, theme)} {...props} />
+export const FormFieldStack: React.FC<FormFieldStackProps> = (props) => {
+  return <div css={(theme) => getFieldStackStyles(`stack`, theme)} {...props} />
 }
 
 export type StyledFieldLabelProps = {

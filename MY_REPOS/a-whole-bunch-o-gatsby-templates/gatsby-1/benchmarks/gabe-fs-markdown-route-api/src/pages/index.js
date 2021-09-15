@@ -13,31 +13,33 @@ class BlogIndex extends React.Component {
     return (
       <Layout location={this.props.location} title={siteTitle}>
         <Bio />
-        {posts.map(({ frontmatter: { title, slug, date, description }, gatsbyPath }) => {
-          return (
-            <article key={slug}>
-              <header>
-                <h3
-                  style={{
-                    marginBottom: "5px",
-                  }}
-                >
-                  <Link style={{ boxShadow: `none` }} to={gatsbyPath}>
-                    {title}
-                  </Link>
-                </h3>
-                <small>{date}</small>
-              </header>
-              <section>
-                <p
-                  dangerouslySetInnerHTML={{
-                    __html: description,
-                  }}
-                />
-              </section>
-            </article>
-          )
-        })}
+        {posts.map(
+          ({ frontmatter: { title, slug, date, description }, gatsbyPath }) => {
+            return (
+              <article key={slug}>
+                <header>
+                  <h3
+                    style={{
+                      marginBottom: "5px",
+                    }}
+                  >
+                    <Link style={{ boxShadow: `none` }} to={gatsbyPath}>
+                      {title}
+                    </Link>
+                  </h3>
+                  <small>{date}</small>
+                </header>
+                <section>
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: description,
+                    }}
+                  />
+                </section>
+              </article>
+            )
+          }
+        )}
       </Layout>
     )
   }

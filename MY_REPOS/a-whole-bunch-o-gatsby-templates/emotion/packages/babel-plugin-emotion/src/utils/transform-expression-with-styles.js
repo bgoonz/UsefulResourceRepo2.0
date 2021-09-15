@@ -8,7 +8,7 @@ import { simplifyObject } from './object-to-string'
 import { appendStringToArguments, joinStringLiterals } from './strings'
 import {
   getTypeScriptMakeTemplateObjectPath,
-  isTaggedTemplateTranspiledByBabel
+  isTaggedTemplateTranspiledByBabel,
 } from './transpiled-output-utils'
 
 const CSS_OBJECT_STRINGIFIED_ERROR =
@@ -38,13 +38,13 @@ export let transformExpressionWithStyles = ({
   state,
   path,
   shouldLabel,
-  sourceMap = ''
+  sourceMap = '',
 }: {
   babel: *,
   state: *,
   path: *,
   shouldLabel: boolean,
-  sourceMap?: string
+  sourceMap?: string,
 }): * => {
   let t = babel.types
   if (t.isTaggedTemplateExpression(path)) {
@@ -57,7 +57,7 @@ export let transformExpressionWithStyles = ({
 
   if (t.isCallExpression(path)) {
     const canAppendStrings = path.node.arguments.every(
-      arg => arg.type !== 'SpreadElement'
+      (arg) => arg.type !== 'SpreadElement'
     )
 
     if (canAppendStrings && shouldLabel) {
@@ -67,7 +67,7 @@ export let transformExpressionWithStyles = ({
       }
     }
 
-    path.get('arguments').forEach(node => {
+    path.get('arguments').forEach((node) => {
       if (t.isObjectExpression(node)) {
         node.replaceWith(simplifyObject(node.node, t))
       }
@@ -92,7 +92,7 @@ export let transformExpressionWithStyles = ({
       let res = serializeStyles([cssString])
       let prodNode = t.objectExpression([
         t.objectProperty(t.identifier('name'), t.stringLiteral(res.name)),
-        t.objectProperty(t.identifier('styles'), t.stringLiteral(res.styles))
+        t.objectProperty(t.identifier('styles'), t.stringLiteral(res.styles)),
       ])
       let node = prodNode
       if (sourceMap) {
@@ -105,7 +105,7 @@ export let transformExpressionWithStyles = ({
             uid,
             [],
             t.blockStatement([
-              t.returnStatement(t.stringLiteral(CSS_OBJECT_STRINGIFIED_ERROR))
+              t.returnStatement(t.stringLiteral(CSS_OBJECT_STRINGIFIED_ERROR)),
             ])
           )
           cssObjectToString._compact = true
@@ -118,7 +118,7 @@ export let transformExpressionWithStyles = ({
           t.objectProperty(
             t.identifier('toString'),
             cloneNode(t, state.emotionStringifiedCssId)
-          )
+          ),
         ])
         node = createSourceMapConditional(t, prodNode, devNode)
       }
@@ -140,21 +140,19 @@ export let transformExpressionWithStyles = ({
           sourceMapConditional
         )
       } else {
-        const makeTemplateObjectCallPath = getTypeScriptMakeTemplateObjectPath(
-          path
-        )
+        const makeTemplateObjectCallPath =
+          getTypeScriptMakeTemplateObjectPath(path)
 
         if (makeTemplateObjectCallPath) {
-          const sourceMapId = state.file.scope.generateUidIdentifier(
-            'emotionSourceMap'
-          )
+          const sourceMapId =
+            state.file.scope.generateUidIdentifier('emotionSourceMap')
           const sourceMapDeclaration = t.variableDeclaration('var', [
-            t.variableDeclarator(sourceMapId, sourceMapConditional)
+            t.variableDeclarator(sourceMapId, sourceMapConditional),
           ])
           sourceMapDeclaration._compact = true
           state.file.path.unshiftContainer('body', [sourceMapDeclaration])
 
-          makeTemplateObjectCallPath.get('arguments').forEach(argPath => {
+          makeTemplateObjectCallPath.get('arguments').forEach((argPath) => {
             const elements = argPath.get('elements')
             const lastElement = elements[elements.length - 1]
             lastElement.replaceWith(

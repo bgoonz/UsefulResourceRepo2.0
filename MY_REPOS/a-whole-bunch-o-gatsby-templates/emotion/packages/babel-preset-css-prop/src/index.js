@@ -26,7 +26,7 @@ export default (
     plugins: [
       options.runtime !== 'automatic' && [
         pragmatic,
-        { export: 'jsx', module: '@emotion/core', import: pragmaName }
+        { export: 'jsx', module: '@emotion/core', import: pragmaName },
       ],
       [
         // this is handled by @babel/preset-react, consider switching to it
@@ -36,8 +36,8 @@ export default (
           ...(options.runtime === 'automatic'
             ? { importSource: '@emotion/core' }
             : { pragma: pragmaName, pragmaFrag: 'React.Fragment' }),
-          ...options
-        }
+          ...options,
+        },
       ],
       [
         emotion,
@@ -46,9 +46,9 @@ export default (
           autoLabel,
           labelFormat,
           instances,
-          cssPropOptimization: true
-        }
-      ]
-    ].filter(Boolean)
+          cssPropOptimization: true,
+        },
+      ],
+    ].filter(Boolean),
   }
 }

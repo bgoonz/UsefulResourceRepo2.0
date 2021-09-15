@@ -1,6 +1,6 @@
-import * as React from "react"
-import { Link as GatsbyLink } from "gatsby"
-import { chakra } from "@chakra-ui/react"
+import * as React from "react";
+import { Link as GatsbyLink } from "gatsby";
+import { chakra } from "@chakra-ui/react";
 
 const ChakraLink = chakra(GatsbyLink, {
   baseStyle: {
@@ -15,11 +15,11 @@ const ChakraLink = chakra(GatsbyLink, {
       boxShadow: `outline`,
     },
   },
-})
+});
 
 /**
  * ChakraLink with gatsby-link (no external links)
  */
-const Link = (props) => <ChakraLink {...props} />
+const Link = (props) => <ChakraLink {...props} />;
 
-export default Link
+export default Link;

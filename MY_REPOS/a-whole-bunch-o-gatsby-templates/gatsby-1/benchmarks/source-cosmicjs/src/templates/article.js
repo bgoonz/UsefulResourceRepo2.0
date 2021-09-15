@@ -10,7 +10,9 @@ const Article = ({ data }) => {
       <div>
         <h2>{data.article.title}</h2>
         {data.article.metadata.image.local.childImageSharp ? (
-          <Img fluid={data.article.metadata.image.local.childImageSharp.fluid} />
+          <Img
+            fluid={data.article.metadata.image.local.childImageSharp.fluid}
+          />
         ) : (
           <div>Image can't be displayed</div>
         )}
@@ -23,11 +25,11 @@ const Article = ({ data }) => {
 export default Article
 
 export const query = graphql`
-  query($slug: String!){
-    article: cosmicjsPosts(slug: {eq: $slug }) {
+  query ($slug: String!) {
+    article: cosmicjsPosts(slug: { eq: $slug }) {
       title
       content
-      metadata{
+      metadata {
         image {
           local {
             childImageSharp {

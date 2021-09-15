@@ -126,7 +126,7 @@ export function StickyObserverSentinel(_props: StickyObserverSentinelProps) {
     }
 
     observerRef.current = new IntersectionObserver(
-      entries => {
+      (entries) => {
         if (entries[0].intersectionRatio === 0) {
           setIsIntersecting(true)
         } else if (entries[0].intersectionRatio === 1) {

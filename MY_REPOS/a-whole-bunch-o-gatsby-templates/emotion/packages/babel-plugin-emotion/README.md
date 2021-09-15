@@ -161,7 +161,7 @@ babel --plugins babel-plugin-emotion script.js
 
 ```javascript
 require('@babel/core').transform('code', {
-  plugins: ['babel-plugin-emotion']
+  plugins: ['babel-plugin-emotion'],
 })
 ```
 
@@ -262,8 +262,8 @@ const H1 = styled.h1({
   boxSizing: 'border-box',
   display: 'flex',
   ':hover': {
-    transform: 'scale(1.2)'
-  }
+    transform: 'scale(1.2)',
+  },
 })
 ```
 
@@ -271,15 +271,15 @@ const H1 = styled.h1({
 
 ```javascript
 const H1 = /*#__PURE__*/ styled('h1', {
-  label: 'H1'
+  label: 'H1',
 })({
   borderRadius: '50%',
   transition: 'transform 400ms ease-in-out',
   boxSizing: 'border-box',
   display: 'flex',
   ':hover': {
-    transform: 'scale(1.2)'
-  }
+    transform: 'scale(1.2)',
+  },
 })
 ```
 

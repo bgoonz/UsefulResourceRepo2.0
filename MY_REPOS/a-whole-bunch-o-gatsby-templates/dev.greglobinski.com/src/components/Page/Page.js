@@ -5,14 +5,14 @@ import Bodytext from "../Article/Bodytext";
 import Headline from "../Article/Headline";
 import Editor from "../Article/Editor";
 
-const Page = props => {
+const Page = (props) => {
   const {
     page: {
       html,
       fileAbsolutePath,
-      frontmatter: { title }
+      frontmatter: { title },
     },
-    theme
+    theme,
   } = props;
 
   return (
@@ -30,7 +30,7 @@ const Page = props => {
 
 Page.propTypes = {
   page: PropTypes.object.isRequired,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default Page;

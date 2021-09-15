@@ -136,4 +136,3 @@ Note:
 +++
 
 ![Mochawesome report](/slides/09-reporters/img/report.png)
-

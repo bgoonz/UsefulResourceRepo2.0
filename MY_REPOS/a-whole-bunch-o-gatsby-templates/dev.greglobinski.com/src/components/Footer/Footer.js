@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const Footer = props => {
+const Footer = (props) => {
   const { html, theme } = props;
 
   return (
@@ -53,7 +53,7 @@ const Footer = props => {
 
 Footer.propTypes = {
   html: PropTypes.string,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default Footer;

@@ -5,7 +5,7 @@ const emotion0 = createEmotion()
 // $ExpectType Emotion
 const emotion1 = createEmotion({
   container: document.head !== null ? document.head : undefined,
-  nonce: 'fasefw'
+  nonce: 'fasefw',
 })
 
 // $ExpectError
@@ -23,7 +23,7 @@ const {
   injectGlobal,
   keyframes,
   sheet,
-  cache
+  cache,
 } = emotion0
 
 flush()
@@ -49,14 +49,14 @@ cx({
   abc: false,
   fp: true,
   opt1: null,
-  opt2: undefined
+  opt2: undefined,
 })
 cx([])
 cx([
   'cl',
   {
-    fp: true
-  }
+    fp: true,
+  },
 ])
 cx([['abc']])
 
@@ -87,11 +87,11 @@ css({
   ':active': {
     borderRadius: '2px',
     overflowAnchor: 'none',
-    clear: ['both', 'left']
+    clear: ['both', 'left'],
   },
   '::before': {
-    borderRadius: '2px'
-  }
+    borderRadius: '2px',
+  },
 })
 css(true, true)
 css('fa', 1123)
@@ -99,11 +99,11 @@ css(['123'], 'asdf')
 
 // $ExpectError
 css({
-  width: {}
+  width: {},
 })
 // $ExpectError
 css({
-  color: 5
+  color: 5,
 })
 
 injectGlobal`
@@ -115,12 +115,12 @@ injectGlobal('this-is-class')
 injectGlobal({})
 injectGlobal([
   {
-    animationDelay: '200ms'
-  }
+    animationDelay: '200ms',
+  },
 ])
 // $ExpectError
 injectGlobal({
-  backgroundColor: 4
+  backgroundColor: 4,
 })
 
 keyframes`
@@ -135,36 +135,36 @@ keyframes`
 keyframes()
 keyframes({
   from: {
-    marginLeft: '100%'
+    marginLeft: '100%',
   },
   to: {
-    marginLeft: '50%'
-  }
+    marginLeft: '50%',
+  },
 })
 keyframes([
   {
     from: {
-      marginLeft: '100%'
+      marginLeft: '100%',
     },
     to: {
-      marginLeft: '50%'
-    }
+      marginLeft: '50%',
+    },
   },
   {
     '0%': {
-      width: '100px'
+      width: '100px',
     },
     '50%': {
-      width: '50px'
+      width: '50px',
     },
     '100%': {
-      width: '120px'
-    }
-  }
+      width: '120px',
+    },
+  },
 ])
 // $ExpectError
 keyframes({
   '0%': {
-    backgroundOrigin: 0
-  }
+    backgroundOrigin: 0,
+  },
 })

@@ -7,8 +7,8 @@ const groupBy = (items, key) =>
     {}
   )
 
-const getLength = obj => {
-  const arr = Object.keys(obj).map(o => ({
+const getLength = (obj) => {
+  const arr = Object.keys(obj).map((o) => ({
     [o]: obj[o].length,
   }))
   return Object.assign({}, ...arr)

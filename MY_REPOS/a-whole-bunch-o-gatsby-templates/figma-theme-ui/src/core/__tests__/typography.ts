@@ -1,9 +1,15 @@
-import { convertLineHeight, convertFontWeight, convertFonts, findFigmaFont, parseTypography } from "../typography"
+import {
+  convertLineHeight,
+  convertFontWeight,
+  convertFonts,
+  findFigmaFont,
+  parseTypography,
+} from "../typography";
 
 const fonts = {
   body: `-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial`,
   heading: `inherit`,
-}
+};
 
 const figmaFontsSuccess = [
   {
@@ -24,7 +30,7 @@ const figmaFontsSuccess = [
       style: `Regular`,
     },
   },
-]
+];
 
 const figmaFontsFail = [
   {
@@ -39,7 +45,7 @@ const figmaFontsFail = [
       style: `Bold`,
     },
   },
-]
+];
 
 const theme = {
   fonts: {
@@ -55,7 +61,7 @@ const theme = {
     body: 1.5,
     heading: 1.125,
   },
-}
+};
 
 const parsedTheme = {
   fonts: {
@@ -71,51 +77,51 @@ const parsedTheme = {
     body: 1.5,
     heading: 1.125,
   },
-}
+};
 
 describe(`convertLineHeight`, () => {
   test(`should process number values`, () => {
     expect(convertLineHeight(1.5)).toStrictEqual({
       value: 150,
       unit: `PERCENT`,
-    })
-  })
-})
+    });
+  });
+});
 
 describe(`convertFontWeight`, () => {
   test(`should use dictionary to return correct Figma value`, () => {
-    expect(convertFontWeight(200)).toEqual(`Thin`)
-  })
-})
+    expect(convertFontWeight(200)).toEqual(`Thin`);
+  });
+});
 
 describe(`convertFonts`, () => {
   test(`should handle "inherit" on heading`, () => {
     expect(convertFonts(fonts, (v) => v)).toHaveProperty(
       `heading`,
       `-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial`
-    )
-  })
+    );
+  });
   test(`should use second arg (function) to change the values`, () => {
     expect(convertFonts(fonts, (v) => v.toUpperCase())).toStrictEqual({
       body: `-APPLE-SYSTEM,"SEGOE UI",ROBOTO,"HELVETICA NEUE",ARIAL`,
       heading: `-APPLE-SYSTEM,"SEGOE UI",ROBOTO,"HELVETICA NEUE",ARIAL`,
-    })
-  })
-})
+    });
+  });
+});
 
 describe(`findFigmaFont`, () => {
   test(`should return undefined when no match`, () => {
-    expect(findFigmaFont(figmaFontsFail, fonts.body)).toBe(undefined)
-  })
+    expect(findFigmaFont(figmaFontsFail, fonts.body)).toBe(undefined);
+  });
   test(`should return one result that is also first in the input font string`, () => {
-    expect(findFigmaFont(figmaFontsSuccess, fonts.body)).toBe(`Segoe UI`)
-    expect(findFigmaFont(figmaFontsSuccess, fonts.body)).not.toBe(`Roboto`)
-  })
-})
+    expect(findFigmaFont(figmaFontsSuccess, fonts.body)).toBe(`Segoe UI`);
+    expect(findFigmaFont(figmaFontsSuccess, fonts.body)).not.toBe(`Roboto`);
+  });
+});
 
 describe(`parseTypography`, () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    jest.clearAllMocks();
     // @ts-ignore
     global.figma = {
       listAvailableFontsAsync: jest.fn(() => [
@@ -126,13 +132,13 @@ describe(`parseTypography`, () => {
           },
         },
       ]),
-    }
-  })
+    };
+  });
 
   test(`should create parsed theme`, async () => {
-    const THEME = await parseTypography(theme)
+    const THEME = await parseTypography(theme);
     // @ts-ignore
-    expect(global.figma.listAvailableFontsAsync).toHaveBeenCalledTimes(1)
-    expect(THEME).toStrictEqual(parsedTheme)
-  })
-})
+    expect(global.figma.listAvailableFontsAsync).toHaveBeenCalledTimes(1);
+    expect(THEME).toStrictEqual(parsedTheme);
+  });
+});

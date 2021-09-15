@@ -41,7 +41,7 @@ addDecorator(withKnobs)
 
 addDecorator(withTheme)
 
-const withGlobal = storyFn => (
+const withGlobal = (storyFn) => (
   <Fragment>
     <Global
       styles={css`
@@ -83,7 +83,7 @@ addDecorator(withA11y)
 // Storybook now has first-class support for hooks, but Storyshots for some reason still fails
 // so we only transform stories to React elements in test environment
 if (process.env.NODE_ENV === `test`) {
-  addDecorator(Story => <Story />)
+  addDecorator((Story) => <Story />)
 }
 
 const viewports = {
@@ -107,9 +107,9 @@ export const parameters = {
 }
 
 if (process.env.NODE_ENV === `test`) {
-  addDecorator(Story => <Story />)
+  addDecorator((Story) => <Story />)
 }
 
-window.___navigate = pathname => {
+window.___navigate = (pathname) => {
   action("NavigateTo:")(pathname)
 }

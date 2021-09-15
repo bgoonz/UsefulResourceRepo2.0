@@ -6,7 +6,7 @@ export default ({ data }) => (
   <div>
     <h1>Film Overview</h1>
     <ul>
-      {data.allStarWarsJson.edges.map(film => (
+      {data.allStarWarsJson.edges.map((film) => (
         <li key={film.node.title}>
           <Link to={kebabCase(film.node.title)}>{film.node.title}</Link>
         </li>

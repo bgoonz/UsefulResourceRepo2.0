@@ -6,7 +6,7 @@ function flatMap(arr, iteratee) {
 
 export const RULE_TYPES = {
   media: 'media',
-  rule: 'rule'
+  rule: 'rule',
 }
 
 function getClassNames(selectors: any, classes?: string) {
@@ -107,7 +107,7 @@ const getElementRules = (element: HTMLStyleElement): string[] => {
     return []
   }
   // $FlowFixMe - flow doesn't know about `cssRules` property
-  return [].slice.call(element.sheet.cssRules).map(cssRule => cssRule.cssText)
+  return [].slice.call(element.sheet.cssRules).map((cssRule) => cssRule.cssText)
 }
 
 export function getStylesFromClassNames(
@@ -123,7 +123,7 @@ export function getStylesFromClassNames(
   }
 
   let keyPatten = new RegExp(`^(${keys.join('|')})-`)
-  let filteredClassNames = classNames.filter(className =>
+  let filteredClassNames = classNames.filter((className) =>
     keyPatten.test(className)
   )
   if (!filteredClassNames.length) {
@@ -133,7 +133,7 @@ export function getStylesFromClassNames(
   let keyframes = {}
   let styles = ''
 
-  flatMap(elements, getElementRules).forEach(rule => {
+  flatMap(elements, getElementRules).forEach((rule) => {
     if (selectorPattern.test(rule)) {
       styles += rule
     }
@@ -154,7 +154,7 @@ export function getStylesFromClassNames(
     let keyframesNameCache = {}
     let index = 0
 
-    styles = styles.replace(keyframesNamePattern, name => {
+    styles = styles.replace(keyframesNamePattern, (name) => {
       if (keyframesNameCache[name] === undefined) {
         keyframesNameCache[name] = `animation-${index++}`
         keyframesStyles += keyframes[name]
@@ -162,7 +162,7 @@ export function getStylesFromClassNames(
       return keyframesNameCache[name]
     })
 
-    keyframesStyles = keyframesStyles.replace(keyframesNamePattern, value => {
+    keyframesStyles = keyframesStyles.replace(keyframesNamePattern, (value) => {
       return keyframesNameCache[value]
     })
   }
@@ -176,12 +176,12 @@ export function getStyleElements(): Array<HTMLStyleElement> {
   return elements
 }
 
-let unique = arr => Array.from(new Set(arr))
+let unique = (arr) => Array.from(new Set(arr))
 
 export function getKeys(elements: Array<HTMLStyleElement>) {
   let keys = unique(
     elements.map(
-      element =>
+      (element) =>
         // $FlowFixMe we know it exists since we query for elements with this attribute
         (element.getAttribute('data-emotion'): string)
     )
@@ -195,7 +195,7 @@ export function hasClassNames(
   target?: string | RegExp
 ): boolean {
   // selectors is the classNames of specific css rule
-  return selectors.some(selector => {
+  return selectors.some((selector) => {
     // if no target, use className of the specific css rule and try to find it
     // in the list of received node classNames to make sure this css rule
     // applied for root element
@@ -211,7 +211,7 @@ export function hasClassNames(
 
 export function getMediaRules(rules: Array<Object>, media: string): Array<any> {
   return rules
-    .filter(rule => {
+    .filter((rule) => {
       const isMediaMatch = rule.media
         ? rule.media.replace(/\s/g, '').includes(media.replace(/\s/g, ''))
         : false

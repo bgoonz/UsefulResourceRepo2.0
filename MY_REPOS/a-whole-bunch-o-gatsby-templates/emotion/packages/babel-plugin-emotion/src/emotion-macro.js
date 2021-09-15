@@ -10,7 +10,7 @@ export let createEmotionMacro = (instancePath: string) =>
     }
 
     let t = babel.types
-    Object.keys(references).forEach(referenceKey => {
+    Object.keys(references).forEach((referenceKey) => {
       let isPure = true
       let runtimeNode = addNamed(state.file.path, referenceKey, instancePath)
 
@@ -21,7 +21,7 @@ export let createEmotionMacro = (instancePath: string) =>
         // eslint-disable-next-line no-fallthrough
         case 'css':
         case 'keyframes': {
-          references[referenceKey].reverse().forEach(reference => {
+          references[referenceKey].reverse().forEach((reference) => {
             const path = reference.parentPath
 
             reference.replaceWith(t.cloneDeep(runtimeNode))
@@ -32,7 +32,7 @@ export let createEmotionMacro = (instancePath: string) =>
               babel,
               state,
               path,
-              shouldLabel: true
+              shouldLabel: true,
             })
             if (node) {
               path.node.arguments[0] = node
@@ -41,7 +41,7 @@ export let createEmotionMacro = (instancePath: string) =>
           break
         }
         default: {
-          references[referenceKey].reverse().forEach(reference => {
+          references[referenceKey].reverse().forEach((reference) => {
             reference.replaceWith(t.cloneDeep(runtimeNode))
           })
         }

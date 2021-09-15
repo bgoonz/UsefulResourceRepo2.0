@@ -19,7 +19,7 @@ export default ({ data }) => {
 }
 
 export const query = graphql`
-  query($blogId: ID!) {
+  query ($blogId: ID!) {
     cms {
       blogPost(where: { id: $blogId }) {
         title

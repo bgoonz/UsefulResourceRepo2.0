@@ -11,7 +11,7 @@ const rotationIncoming = keyframes`
   }
 `
 
-const baseCss: ThemeCss = theme => ({
+const baseCss: ThemeCss = (theme) => ({
   background: theme.colors.white,
   height: `100vh`,
   width: `100%`,
@@ -25,6 +25,6 @@ const baseCss: ThemeCss = theme => ({
 
 export type ModalFullScreenProps = Omit<ModalContentProps, "ref">
 
-export const ModalFullScreen: React.FC<ModalFullScreenProps> = props => (
+export const ModalFullScreen: React.FC<ModalFullScreenProps> = (props) => (
   <ModalContent css={baseCss} {...props} />
 )

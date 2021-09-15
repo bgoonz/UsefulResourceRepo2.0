@@ -74,9 +74,9 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-          - dependencies-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - dependencies-
+            - dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - dependencies-
       - run:
           name: Install dependencies
           # https://docs.npmjs.com/cli/ci
@@ -134,7 +134,7 @@ Alternative: use [start-server-and-test](https://github.com/bahmutov/start-serve
 
 ## CircleCI Cypress Orb
 
-A *much simpler* CI configuration.
+A _much simpler_ CI configuration.
 
 ```yaml
 version: 2.1

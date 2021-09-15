@@ -11,7 +11,7 @@ test('basic', () => {
   expect(css({ color: 'green' })).toEqual({ color: 'green' })
   expect(css([{ color: 'green' }, `background-color:yellow;`])).toEqual({
     color: 'green',
-    backgroundColor: 'yellow'
+    backgroundColor: 'yellow',
   })
   expect(css([{ color: 'green' }])).toEqual({ color: 'green' })
 })
@@ -29,8 +29,8 @@ test('order with string and object', () => {
       css([
         [{ color: 'green' }, `background-color:yellow;`],
         {
-          flex: 2
-        }
+          flex: 2,
+        },
       ])
     )
   ).toEqual(['color', 'backgroundColor', 'flex'])
@@ -41,9 +41,9 @@ test('order with string and object', () => {
         [
           `background-color:yellow;`,
           {
-            flex: 2
-          }
-        ]
+            flex: 2,
+          },
+        ],
       ])
     )
   ).toEqual(['color', 'backgroundColor', 'flex'])
@@ -54,8 +54,8 @@ test('order with string and object', () => {
         [
           { flex: 8 },
           `background-color:yellow;`,
-          [`flex-grow: 1;`, { flexDirection: 'row' }]
-        ]
+          [`flex-grow: 1;`, { flexDirection: 'row' }],
+        ],
       ])
     )
   ).toEqual(['color', 'flex', 'backgroundColor', 'flexGrow', 'flexDirection'])
@@ -63,16 +63,16 @@ test('order with string and object', () => {
 
 it('allows function interpolations when this is defined', () => {
   expect(
-    css.call({ thing: true }, props => ({
-      color: props.thing && 'hotpink'
+    css.call({ thing: true }, (props) => ({
+      color: props.thing && 'hotpink',
     }))
   ).toEqual({ color: 'hotpink' })
 })
 
 it('works with nested functions', () => {
   expect(
-    css.call({ thing: true }, props => () => ({
-      color: props.thing && 'hotpink'
+    css.call({ thing: true }, (props) => () => ({
+      color: props.thing && 'hotpink',
     }))
   ).toEqual({ color: 'hotpink' })
 })

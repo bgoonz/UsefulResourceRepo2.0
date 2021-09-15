@@ -9,7 +9,7 @@ export default ({ data }) => {
 }
 
 export const query = graphql`
-  query($fooBar: String, $sort: TestSortInput, $count: Boolean!) {
+  query ($fooBar: String, $sort: TestSortInput, $count: Boolean!) {
     allTest(
       filter: { fooBarArray: { elemMatch: { fooBar: { eq: $fooBar } } } }
       sort: $sort

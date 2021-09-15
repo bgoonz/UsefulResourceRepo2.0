@@ -75,7 +75,7 @@ storiesOf(`form-skeletons`, module)
       `Sheala de Tancarville`,
       `Triss Merigold`,
       `Yennefer of Vengerberg`,
-    ].map(name => {
+    ].map((name) => {
       return {
         label: name,
         value: name.toLowerCase().replace(/\s/g, `-`),
@@ -93,7 +93,7 @@ storiesOf(`form-skeletons`, module)
             <div>
               <InputFieldSkeletonLabel>Input</InputFieldSkeletonLabel>
               <InputFieldSkeletonControl
-                onChange={e => action(`Change`)(e.target.value)}
+                onChange={(e) => action(`Change`)(e.target.value)}
               />
               <InputFieldSkeletonError>{error}</InputFieldSkeletonError>
               <InputFieldSkeletonHint>{hint}</InputFieldSkeletonHint>
@@ -108,7 +108,7 @@ storiesOf(`form-skeletons`, module)
             <div>
               <TextAreaFieldSkeletonLabel>Text Area</TextAreaFieldSkeletonLabel>
               <TextAreaFieldSkeletonControl
-                onChange={e => action(`Change`)(e.target.value)}
+                onChange={(e) => action(`Change`)(e.target.value)}
               />
               <TextAreaFieldSkeletonError>{error}</TextAreaFieldSkeletonError>
               <TextAreaFieldSkeletonHint>{hint}</TextAreaFieldSkeletonHint>
@@ -124,7 +124,7 @@ storiesOf(`form-skeletons`, module)
               <SelectFieldSkeletonLabel>Select</SelectFieldSkeletonLabel>
               <SelectFieldSkeletonControl
                 options={options}
-                onChange={e => action(`Change`)(e.target.value)}
+                onChange={(e) => action(`Change`)(e.target.value)}
               />
               <SelectFieldSkeletonError>{error}</SelectFieldSkeletonError>
               <SelectFieldSkeletonHint>{hint}</SelectFieldSkeletonHint>
@@ -134,7 +134,7 @@ storiesOf(`form-skeletons`, module)
           <CheckboxFieldSkeleton id="checkbox-example">
             <div>
               <CheckboxFieldSkeletonControl
-                onChange={e => action(`Change`)(e.target.value)}
+                onChange={(e) => action(`Change`)(e.target.value)}
               />
               <CheckboxFieldSkeletonLabel>
                 Single checkbox

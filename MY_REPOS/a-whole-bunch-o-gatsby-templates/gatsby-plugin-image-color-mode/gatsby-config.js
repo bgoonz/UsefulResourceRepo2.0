@@ -12,10 +12,10 @@ module.exports = {
       options: {
         path: `${__dirname}/src/images`,
         name: `images`,
-      }
+      },
     },
     `gatsby-plugin-image`,
     `gatsby-plugin-sharp`,
-    `gatsby-transformer-sharp`
+    `gatsby-transformer-sharp`,
   ],
 };

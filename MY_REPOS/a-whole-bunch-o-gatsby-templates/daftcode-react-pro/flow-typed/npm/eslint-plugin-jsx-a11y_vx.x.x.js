@@ -640,9 +640,7 @@ declare module 'eslint-plugin-jsx-a11y/__tests__/src/rules/anchor-is-valid-test.
   declare module.exports: $Exports<'eslint-plugin-jsx-a11y/__tests__/src/rules/anchor-is-valid-test'>;
 }
 declare module 'eslint-plugin-jsx-a11y/__tests__/src/rules/aria-activedescendant-has-tabindex-test.js' {
-  declare module.exports: $Exports<
-    'eslint-plugin-jsx-a11y/__tests__/src/rules/aria-activedescendant-has-tabindex-test'
-  >;
+  declare module.exports: $Exports<'eslint-plugin-jsx-a11y/__tests__/src/rules/aria-activedescendant-has-tabindex-test'>;
 }
 declare module 'eslint-plugin-jsx-a11y/__tests__/src/rules/aria-props-test.js' {
   declare module.exports: $Exports<'eslint-plugin-jsx-a11y/__tests__/src/rules/aria-props-test'>;
@@ -696,19 +694,13 @@ declare module 'eslint-plugin-jsx-a11y/__tests__/src/rules/no-distracting-elemen
   declare module.exports: $Exports<'eslint-plugin-jsx-a11y/__tests__/src/rules/no-distracting-elements-test'>;
 }
 declare module 'eslint-plugin-jsx-a11y/__tests__/src/rules/no-interactive-element-to-noninteractive-role-test.js' {
-  declare module.exports: $Exports<
-    'eslint-plugin-jsx-a11y/__tests__/src/rules/no-interactive-element-to-noninteractive-role-test'
-  >;
+  declare module.exports: $Exports<'eslint-plugin-jsx-a11y/__tests__/src/rules/no-interactive-element-to-noninteractive-role-test'>;
 }
 declare module 'eslint-plugin-jsx-a11y/__tests__/src/rules/no-noninteractive-element-interactions-test.js' {
-  declare module.exports: $Exports<
-    'eslint-plugin-jsx-a11y/__tests__/src/rules/no-noninteractive-element-interactions-test'
-  >;
+  declare module.exports: $Exports<'eslint-plugin-jsx-a11y/__tests__/src/rules/no-noninteractive-element-interactions-test'>;
 }
 declare module 'eslint-plugin-jsx-a11y/__tests__/src/rules/no-noninteractive-element-to-interactive-role-test.js' {
-  declare module.exports: $Exports<
-    'eslint-plugin-jsx-a11y/__tests__/src/rules/no-noninteractive-element-to-interactive-role-test'
-  >;
+  declare module.exports: $Exports<'eslint-plugin-jsx-a11y/__tests__/src/rules/no-noninteractive-element-to-interactive-role-test'>;
 }
 declare module 'eslint-plugin-jsx-a11y/__tests__/src/rules/no-noninteractive-tabindex-test.js' {
   declare module.exports: $Exports<'eslint-plugin-jsx-a11y/__tests__/src/rules/no-noninteractive-tabindex-test'>;

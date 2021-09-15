@@ -132,13 +132,8 @@ describe('gatsby-plugin-remote-images', () => {
       ...baseOptions,
       ext: '.jpg',
     };
-    const {
-      actions,
-      createNodeId,
-      store,
-      cache,
-      reporter,
-    } = getGatsbyNodeHelperMocks();
+    const { actions, createNodeId, store, cache, reporter } =
+      getGatsbyNodeHelperMocks();
 
     await onCreateNode(
       { node, actions, createNodeId, store, cache, reporter },
@@ -176,13 +171,8 @@ describe('gatsby-plugin-remote-images', () => {
       ...baseOptions,
       imagePath: 'nodes[].imageUrl',
     };
-    const {
-      actions,
-      createNodeId,
-      store,
-      cache,
-      reporter,
-    } = getGatsbyNodeHelperMocks();
+    const { actions, createNodeId, store, cache, reporter } =
+      getGatsbyNodeHelperMocks();
 
     await onCreateNode(
       { node, actions, createNodeId, store, cache, reporter },
@@ -219,13 +209,8 @@ describe('gatsby-plugin-remote-images', () => {
       imagePath: 'imageUrls',
       type: 'array',
     };
-    const {
-      actions,
-      createNodeId,
-      store,
-      cache,
-      reporter,
-    } = getGatsbyNodeHelperMocks();
+    const { actions, createNodeId, store, cache, reporter } =
+      getGatsbyNodeHelperMocks();
 
     await onCreateNode(
       { node, actions, createNodeId, store, cache, reporter },
@@ -267,13 +252,8 @@ describe('gatsby-plugin-remote-images', () => {
       imagePath: 'nodes[].imageUrls',
       type: 'array',
     };
-    const {
-      actions,
-      createNodeId,
-      store,
-      cache,
-      reporter,
-    } = getGatsbyNodeHelperMocks();
+    const { actions, createNodeId, store, cache, reporter } =
+      getGatsbyNodeHelperMocks();
 
     await onCreateNode(
       { node, actions, createNodeId, store, cache, reporter },
@@ -315,13 +295,8 @@ describe('gatsby-plugin-remote-images', () => {
       ...baseOptions,
       imagePath: 'nodes[].imageUrl',
     };
-    const {
-      actions,
-      createNodeId,
-      store,
-      cache,
-      reporter,
-    } = getGatsbyNodeHelperMocks();
+    const { actions, createNodeId, store, cache, reporter } =
+      getGatsbyNodeHelperMocks();
 
     await onCreateNode(
       { node, actions, createNodeId, store, cache, reporter },
@@ -366,13 +341,8 @@ describe('gatsby-plugin-remote-images', () => {
       ...baseOptions,
       imagePath: 'ancestor.nodes[].imageUrl',
     };
-    const {
-      actions,
-      createNodeId,
-      store,
-      cache,
-      reporter,
-    } = getGatsbyNodeHelperMocks();
+    const { actions, createNodeId, store, cache, reporter } =
+      getGatsbyNodeHelperMocks();
 
     await onCreateNode(
       { node, actions, createNodeId, store, cache, reporter },

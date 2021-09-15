@@ -1,27 +1,30 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 
-import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import { Message } from 'primeng/primeng';
+import { Store } from "@ngrx/store";
+import { Observable } from "rxjs";
+import { Message } from "primeng/primeng";
 
-import { LoadingContainerComponent, LoadingPage } from '../common/loading-container';
+import {
+  LoadingContainerComponent,
+  LoadingPage,
+} from "../common/loading-container";
 
-import { IArticle } from '../articles/models';
-import * as fromArticles from '../articles/reducers/articles';
-import * as articleSelectors from '../articles/reducers';
+import { IArticle } from "../articles/models";
+import * as fromArticles from "../articles/reducers/articles";
+import * as articleSelectors from "../articles/reducers";
 
-import { IArticleFilter } from '../../app/article-filter/models/article-filter';
-import * as ArticleFilterActions from '../article-filter/actions/article-filter';
-import * as articleFilterSelectors from '../article-filter/reducers';
+import { IArticleFilter } from "../../app/article-filter/models/article-filter";
+import * as ArticleFilterActions from "../article-filter/actions/article-filter";
+import * as articleFilterSelectors from "../article-filter/reducers";
 
-import * as TagActions from '../tags/actions/tags';
-import * as tagSelectors from '../tags/reducers';
+import * as TagActions from "../tags/actions/tags";
+import * as tagSelectors from "../tags/reducers";
 
 @Component({
-  selector: 'app-home',
-  templateUrl: 'home.component.html',
-  styleUrls: ['home.component.scss']
+  selector: "app-home",
+  templateUrl: "home.component.html",
+  styleUrls: ["home.component.scss"],
 })
 export class HomeComponent extends LoadingPage implements OnInit {
   articles$: Observable<IArticle[]>;
@@ -31,9 +34,11 @@ export class HomeComponent extends LoadingPage implements OnInit {
   error$: Observable<any>;
   msgs: Message[] = [];
 
-  constructor(private store: Store<fromArticles.AppState>,
+  constructor(
+    private store: Store<fromArticles.AppState>,
     private router: Router,
-    private activatedRoute: ActivatedRoute) {
+    private activatedRoute: ActivatedRoute
+  ) {
     super(true);
 
     // load all tags
@@ -43,7 +48,9 @@ export class HomeComponent extends LoadingPage implements OnInit {
   ngOnInit() {
     this.articles$ = this.store.select(articleSelectors.selectAllArticles);
     this.tags$ = this.store.select(tagSelectors.selectFilteredSortedTags);
-    this.filterData$ = this.store.select(articleFilterSelectors.getArticleFilter);
+    this.filterData$ = this.store.select(
+      articleFilterSelectors.getArticleFilter
+    );
 
     this.loading$ = this.store.select(articleSelectors.getArticleLoadingFlag);
     this.error$ = this.store.select(articleSelectors.selectError);
@@ -57,14 +64,18 @@ export class HomeComponent extends LoadingPage implements OnInit {
     this.error$.subscribe((payload) => {
       if (payload && payload.error) {
         this.msgs = [];
-        this.msgs.push({ severity: 'error', summary: 'Error', detail: payload.error });
+        this.msgs.push({
+          severity: "error",
+          summary: "Error",
+          detail: payload.error,
+        });
       }
     });
 
     // watch when query params change
-    this.activatedRoute.queryParams.subscribe(params => {
-      const parms = params['tags'],
-        tags = parms ? parms.split(',') : [];
+    this.activatedRoute.queryParams.subscribe((params) => {
+      const parms = params["tags"],
+        tags = parms ? parms.split(",") : [];
 
       if (parms !== undefined) {
         this.store.dispatch(new ArticleFilterActions.SetTags(tags));
@@ -72,9 +83,9 @@ export class HomeComponent extends LoadingPage implements OnInit {
     });
 
     // navigate when the filter data changes
-    this.filterData$.subscribe(data => {
-      this.router.navigate([''], {
-        queryParams: { tags: data.tags.join(',') }
+    this.filterData$.subscribe((data) => {
+      this.router.navigate([""], {
+        queryParams: { tags: data.tags.join(",") },
       });
     });
   }

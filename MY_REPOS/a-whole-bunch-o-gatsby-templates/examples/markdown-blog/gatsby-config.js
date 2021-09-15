@@ -30,12 +30,12 @@ module.exports = {
             resolve: `gatsby-remark-external-links`,
             options: {
               target: `_blank`,
-              rel: `nofollow noopener noreferrer`
-            }
+              rel: `nofollow noopener noreferrer`,
+            },
           },
-          `gatsby-remark-autolink-headers`
-        ]
-      }
+          `gatsby-remark-autolink-headers`,
+        ],
+      },
     },
     {
       resolve: `gatsby-plugin-typography`,
@@ -61,4 +61,4 @@ module.exports = {
     // To learn more, visit: https://gatsby.app/offline
     // 'gatsby-plugin-offline',
   ],
-}
+};

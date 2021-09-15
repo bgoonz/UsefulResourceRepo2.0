@@ -1,9 +1,9 @@
-import * as React from 'react'
-import { graphql } from 'gatsby'
-import { Heading, Container } from '@chakra-ui/react'
-import Link from '../components/link'
-import Layout from '../components/layout'
-import { SkipNavContent } from '../components/skip-nav'
+import * as React from "react";
+import { graphql } from "gatsby";
+import { Heading, Container } from "@chakra-ui/react";
+import Link from "../components/link";
+import Layout from "../components/layout";
+import { SkipNavContent } from "../components/skip-nav";
 
 const PageTwo = ({ data }) => {
   return (
@@ -18,10 +18,10 @@ const PageTwo = ({ data }) => {
         </Container>
       </SkipNavContent>
     </Layout>
-  )
-}
+  );
+};
 
-export default PageTwo
+export default PageTwo;
 
 export const query = graphql`
   {
@@ -31,4 +31,4 @@ export const query = graphql`
       }
     }
   }
-`
+`;

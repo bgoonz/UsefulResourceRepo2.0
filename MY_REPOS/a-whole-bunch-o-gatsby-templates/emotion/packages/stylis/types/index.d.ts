@@ -7,7 +7,7 @@ export enum Context {
   UNKWN = 0,
   PROPS = 1,
   BLCKS = 2,
-  ATRUL = 3
+  ATRUL = 3,
 }
 
 export type PrefixContext = Context.PROPS | Context.BLCKS | Context.ATRUL

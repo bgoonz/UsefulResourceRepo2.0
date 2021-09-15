@@ -74,7 +74,7 @@ export const ComboboxInput = React.forwardRef<
    * This solution has been suggested in one of the replies:
    * https://github.com/reach/reach-ui/issues/357#issuecomment-575849548
    */
-  const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = event => {
+  const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (event) => {
     if (event.isDefaultPrevented()) {
       return
     }
@@ -117,7 +117,7 @@ export const ComboboxInput = React.forwardRef<
         ref={ref}
         selectOnClick
         onKeyDown={onKeyDown}
-        css={theme => [
+        css={(theme) => [
           inputCss(hasError)(theme),
           showSelectedOptionLabel && inputWithSelectedValueCss(theme),
         ]}

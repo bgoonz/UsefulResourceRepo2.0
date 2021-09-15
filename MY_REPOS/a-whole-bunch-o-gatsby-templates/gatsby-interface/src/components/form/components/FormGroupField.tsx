@@ -131,10 +131,10 @@ export function useStyledGroupFieldError(
   }
 }
 
-const horizontalOptionsCss: ThemeCss = theme =>
+const horizontalOptionsCss: ThemeCss = (theme) =>
   getGroupFieldStackStyles(`item`, theme)
 
-const verticalOptionsCss: ThemeCss = theme => [
+const verticalOptionsCss: ThemeCss = (theme) => [
   getGroupFieldStackStyles(`item`, theme),
   getGroupFieldStackStyles(`stack`, theme),
 ]
@@ -143,9 +143,9 @@ export type FormGroupFieldOptionsProps = Omit<
   JSX.IntrinsicElements["div"],
   "ref"
 >
-export const FormGroupFieldOptions: React.FC<
-  FormGroupFieldOptionsProps
-> = props => {
+export const FormGroupFieldOptions: React.FC<FormGroupFieldOptionsProps> = (
+  props
+) => {
   const { layout } = useFormGroupField()
   const isHorizontal = layout === `horizontal`
 
@@ -194,23 +194,22 @@ export type FormGroupFieldOptionWrapperProps = Omit<
   JSX.IntrinsicElements["div"],
   "ref"
 >
-export const FormGroupFieldOptionWrapper: React.FC<
-  FormGroupFieldOptionWrapperProps
-> = props => {
-  const { layout } = useFormGroupField()
-  const isHorizontal = layout === `horizontal`
+export const FormGroupFieldOptionWrapper: React.FC<FormGroupFieldOptionWrapperProps> =
+  (props) => {
+    const { layout } = useFormGroupField()
+    const isHorizontal = layout === `horizontal`
 
-  return (
-    <div
-      css={(theme: Theme) => [
-        isHorizontal
-          ? getGroupFieldClusterStyles(`item`, theme)
-          : getGroupFieldStackStyles(`item`, theme),
-      ]}
-      {...props}
-    />
-  )
-}
+    return (
+      <div
+        css={(theme: Theme) => [
+          isHorizontal
+            ? getGroupFieldClusterStyles(`item`, theme)
+            : getGroupFieldStackStyles(`item`, theme),
+        ]}
+        {...props}
+      />
+    )
+  }
 
 export function useFormGroupField() {
   return React.useContext(FormGroupFieldContext)

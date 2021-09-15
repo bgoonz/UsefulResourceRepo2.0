@@ -9,11 +9,11 @@ const darkBlue = `#007acc`
 const blueGray = `#282c35`
 
 const theme = {
-    colors: {
-        text: blueGray,
-        primary: darkBlue,
-        heading: blueGray,
-    },
+  colors: {
+    text: blueGray,
+    primary: darkBlue,
+    heading: blueGray,
+  },
 }
 
 export default theme

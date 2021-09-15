@@ -6,18 +6,21 @@ This is the plugin for Material-UI v4.
 The plugin for v3 can be found [here](https://github.com/hupe1980/gatsby-plugin-material-ui/tree/v1.2.5).
 
 ## Install
+
 If you're already using `@material-ui/core`:
+
 ```sh
 npm install gatsby-plugin-material-ui
 ```
 
 If you'd only like to use [Material-UI's Styling Solution](https://material-ui.com/styles/basics/#material-ui-styles) (without `@material-ui/core`):
- 
+
 ```sh
 npm install gatsby-plugin-material-ui @material-ui/styles
 ```
 
 ## Theme vs. Plugin
+
 - `gatsby-plugin-material-ui` solves FOUC, auto prefixing and minification.
 - `gatsby-theme-material-ui` uses the plugin under the hood, adds web fonts, meta-viewport, CSS baseline and mui theme support and has material ui styled gatsby link components
 

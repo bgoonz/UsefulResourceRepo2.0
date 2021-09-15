@@ -24,7 +24,7 @@ const breakpointsInPixels = Object.values(breakpoints)
 breakpointsInPixels.sort((a, b) => a - b)
 
 export const breakpointsList = breakpointsInPixels.map(
-  breakpoint => `${breakpoint}px`
+  (breakpoint) => `${breakpoint}px`
 ) as BreakpointsList
 
 export default breakpoints

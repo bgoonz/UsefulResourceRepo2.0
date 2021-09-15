@@ -9,8 +9,8 @@ babelTester('automatic runtime', __dirname, {
       {
         sourceMap: false,
         runtime: 'automatic',
-        development: true
-      }
-    ]
-  ]
+        development: true,
+      },
+    ],
+  ],
 })

@@ -2,8 +2,7 @@
  *
  * @namespace faker.name
  */
-function Name (faker) {
-
+function Name(faker) {
   /**
    * firstName
    *
@@ -12,32 +11,37 @@ function Name (faker) {
    * @memberof faker.name
    */
   this.firstName = function (gender) {
-    if (typeof faker.definitions.name.male_first_name !== "undefined" && typeof faker.definitions.name.female_first_name !== "undefined") {
+    if (
+      typeof faker.definitions.name.male_first_name !== "undefined" &&
+      typeof faker.definitions.name.female_first_name !== "undefined"
+    ) {
       // some locale datasets ( like ru ) have first_name split by gender. since the name.first_name field does not exist in these datasets,
       // we must randomly pick a name from either gender array so faker.name.firstName will return the correct locale data ( and not fallback )
 
-      if(typeof gender === 'string') {
-        if(gender.toLowerCase() === 'male') {
+      if (typeof gender === "string") {
+        if (gender.toLowerCase() === "male") {
           gender = 0;
-        }
-        else if(gender.toLowerCase() === 'female') {
+        } else if (gender.toLowerCase() === "female") {
           gender = 1;
         }
       }
 
-      if (typeof gender !== 'number') {
-        if(typeof faker.definitions.name.first_name === "undefined") {
+      if (typeof gender !== "number") {
+        if (typeof faker.definitions.name.first_name === "undefined") {
           gender = faker.random.number(1);
-        }
-        else {
+        } else {
           //Fall back to non-gendered names if they exist and gender wasn't specified
           return faker.random.arrayElement(faker.definitions.name.first_name);
         }
       }
       if (gender === 0) {
-        return faker.random.arrayElement(faker.definitions.name.male_first_name)
+        return faker.random.arrayElement(
+          faker.definitions.name.male_first_name
+        );
       } else {
-        return faker.random.arrayElement(faker.definitions.name.female_first_name);
+        return faker.random.arrayElement(
+          faker.definitions.name.female_first_name
+        );
       }
     }
     return faker.random.arrayElement(faker.definitions.name.first_name);
@@ -51,22 +55,29 @@ function Name (faker) {
    * @memberof faker.name
    */
   this.lastName = function (gender) {
-    if (typeof faker.definitions.name.male_last_name !== "undefined" && typeof faker.definitions.name.female_last_name !== "undefined") {
+    if (
+      typeof faker.definitions.name.male_last_name !== "undefined" &&
+      typeof faker.definitions.name.female_last_name !== "undefined"
+    ) {
       // some locale datasets ( like ru ) have last_name split by gender. i have no idea how last names can have genders, but also i do not speak russian
       // see above comment of firstName method
-      if (typeof gender !== 'number') {
+      if (typeof gender !== "number") {
         gender = faker.random.number(1);
       }
       if (gender === 0) {
-        return faker.random.arrayElement(faker.locales[faker.locale].name.male_last_name);
+        return faker.random.arrayElement(
+          faker.locales[faker.locale].name.male_last_name
+        );
       } else {
-        return faker.random.arrayElement(faker.locales[faker.locale].name.female_last_name);
+        return faker.random.arrayElement(
+          faker.locales[faker.locale].name.female_last_name
+        );
       }
     }
     return faker.random.arrayElement(faker.definitions.name.last_name);
   };
 
-   /**
+  /**
    * middleName
    *
    * @method middleName
@@ -74,14 +85,21 @@ function Name (faker) {
    * @memberof faker.name
    */
   this.middleName = function (gender) {
-    if (typeof faker.definitions.name.male_middle_name !== "undefined" && typeof faker.definitions.name.female_middle_name !== "undefined") {
-      if (typeof gender !== 'number') {
+    if (
+      typeof faker.definitions.name.male_middle_name !== "undefined" &&
+      typeof faker.definitions.name.female_middle_name !== "undefined"
+    ) {
+      if (typeof gender !== "number") {
         gender = faker.random.number(1);
       }
       if (gender === 0) {
-        return faker.random.arrayElement(faker.locales[faker.locale].name.male_middle_name);
+        return faker.random.arrayElement(
+          faker.locales[faker.locale].name.male_middle_name
+        );
       } else {
-        return faker.random.arrayElement(faker.locales[faker.locale].name.female_middle_name);
+        return faker.random.arrayElement(
+          faker.locales[faker.locale].name.female_middle_name
+        );
       }
     }
     return faker.random.arrayElement(faker.definitions.name.middle_name);
@@ -97,29 +115,29 @@ function Name (faker) {
    * @memberof faker.name
    */
   this.findName = function (firstName, lastName, gender) {
-      var r = faker.random.number(8);
-      var prefix, suffix;
-      // in particular locales first and last names split by gender,
-      // thus we keep consistency by passing 0 as male and 1 as female
-      if (typeof gender !== 'number') {
-        gender = faker.random.number(1);
-      }
-      firstName = firstName || faker.name.firstName(gender);
-      lastName = lastName || faker.name.lastName(gender);
-      switch (r) {
+    var r = faker.random.number(8);
+    var prefix, suffix;
+    // in particular locales first and last names split by gender,
+    // thus we keep consistency by passing 0 as male and 1 as female
+    if (typeof gender !== "number") {
+      gender = faker.random.number(1);
+    }
+    firstName = firstName || faker.name.firstName(gender);
+    lastName = lastName || faker.name.lastName(gender);
+    switch (r) {
       case 0:
-          prefix = faker.name.prefix(gender);
-          if (prefix) {
-              return prefix + " " + firstName + " " + lastName;
-          }
+        prefix = faker.name.prefix(gender);
+        if (prefix) {
+          return prefix + " " + firstName + " " + lastName;
+        }
       case 1:
-          suffix = faker.name.suffix(gender);
-          if (suffix) {
-              return firstName + " " + lastName + " " + suffix;
-          }
-      }
+        suffix = faker.name.suffix(gender);
+        if (suffix) {
+          return firstName + " " + lastName + " " + suffix;
+        }
+    }
 
-      return firstName + " " + lastName;
+    return firstName + " " + lastName;
   };
 
   /**
@@ -129,9 +147,13 @@ function Name (faker) {
    * @memberof faker.name
    */
   this.jobTitle = function () {
-    return  faker.name.jobDescriptor() + " " +
-      faker.name.jobArea() + " " +
-      faker.name.jobType();
+    return (
+      faker.name.jobDescriptor() +
+      " " +
+      faker.name.jobArea() +
+      " " +
+      faker.name.jobType()
+    );
   };
 
   /**
@@ -142,8 +164,8 @@ function Name (faker) {
    */
   this.gender = function () {
     return faker.random.arrayElement(faker.definitions.name.gender);
-  }
-  
+  };
+
   /**
    * prefix
    *
@@ -152,14 +174,21 @@ function Name (faker) {
    * @memberof faker.name
    */
   this.prefix = function (gender) {
-    if (typeof faker.definitions.name.male_prefix !== "undefined" && typeof faker.definitions.name.female_prefix !== "undefined") {
-      if (typeof gender !== 'number') {
+    if (
+      typeof faker.definitions.name.male_prefix !== "undefined" &&
+      typeof faker.definitions.name.female_prefix !== "undefined"
+    ) {
+      if (typeof gender !== "number") {
         gender = faker.random.number(1);
       }
       if (gender === 0) {
-        return faker.random.arrayElement(faker.locales[faker.locale].name.male_prefix);
+        return faker.random.arrayElement(
+          faker.locales[faker.locale].name.male_prefix
+        );
       } else {
-        return faker.random.arrayElement(faker.locales[faker.locale].name.female_prefix);
+        return faker.random.arrayElement(
+          faker.locales[faker.locale].name.female_prefix
+        );
       }
     }
     return faker.random.arrayElement(faker.definitions.name.prefix);
@@ -172,7 +201,7 @@ function Name (faker) {
    * @memberof faker.name
    */
   this.suffix = function () {
-      return faker.random.arrayElement(faker.definitions.name.suffix);
+    return faker.random.arrayElement(faker.definitions.name.suffix);
   };
 
   /**
@@ -181,12 +210,14 @@ function Name (faker) {
    * @method title
    * @memberof faker.name
    */
-  this.title = function() {
-      var descriptor  = faker.random.arrayElement(faker.definitions.name.title.descriptor),
-          level       = faker.random.arrayElement(faker.definitions.name.title.level),
-          job         = faker.random.arrayElement(faker.definitions.name.title.job);
+  this.title = function () {
+    var descriptor = faker.random.arrayElement(
+        faker.definitions.name.title.descriptor
+      ),
+      level = faker.random.arrayElement(faker.definitions.name.title.level),
+      job = faker.random.arrayElement(faker.definitions.name.title.job);
 
-      return descriptor + " " + level + " " + job;
+    return descriptor + " " + level + " " + job;
   };
 
   /**
@@ -218,7 +249,6 @@ function Name (faker) {
   this.jobType = function () {
     return faker.random.arrayElement(faker.definitions.name.title.job);
   };
-
 }
 
-module['exports'] = Name;
+module["exports"] = Name;

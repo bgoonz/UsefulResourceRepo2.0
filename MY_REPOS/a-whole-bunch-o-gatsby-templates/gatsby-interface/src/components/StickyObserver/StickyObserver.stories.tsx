@@ -43,7 +43,7 @@ function ScrollableContent({ blocksCount = 5 }: { blocksCount?: number }) {
           return (
             <div
               key={idx}
-              css={theme => ({
+              css={(theme) => ({
                 borderWidth: 1,
                 borderStyle: `solid`,
                 borderColor: theme.colors[color][50],

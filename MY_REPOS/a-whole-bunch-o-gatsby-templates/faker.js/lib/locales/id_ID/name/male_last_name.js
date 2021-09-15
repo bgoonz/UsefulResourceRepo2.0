@@ -104,5 +104,5 @@ module["exports"] = [
   "Wacana",
   "Waskita",
   "Wasita",
-  "Zulkarnain"
+  "Zulkarnain",
 ];

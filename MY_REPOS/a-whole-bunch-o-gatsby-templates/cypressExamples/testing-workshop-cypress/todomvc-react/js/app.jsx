@@ -129,28 +129,28 @@ var app = app || {}
 
       if (todos.length) {
         main = (
-          <section className='main'>
+          <section className="main">
             <input
-              id='toggle-all'
-              className='toggle-all'
-              type='checkbox'
+              id="toggle-all"
+              className="toggle-all"
+              type="checkbox"
               onChange={this.toggleAll}
               checked={activeTodoCount === 0}
             />
-            <label htmlFor='toggle-all' />
-            <ul className='todo-list'>{todoItems}</ul>
+            <label htmlFor="toggle-all" />
+            <ul className="todo-list">{todoItems}</ul>
           </section>
         )
       }
 
       return (
         <div>
-          <header className='header'>
+          <header className="header">
             <h1>todos</h1>
             <input
-              ref='newField'
-              className='new-todo'
-              placeholder='What needs to be done?'
+              ref="newField"
+              className="new-todo"
+              placeholder="What needs to be done?"
               onKeyDown={this.handleNewTodoKeyDown}
               autoFocus
             />
@@ -168,7 +168,7 @@ var app = app || {}
     window.model = model
   }
 
-  function render () {
+  function render() {
     React.render(
       <TodoApp model={model} />,
       document.getElementsByClassName('todoapp')[0]

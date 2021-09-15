@@ -7,7 +7,9 @@ describe(`client-side-routing`, () => {
   })
 
   it(`supports nested dynamic url segments`, () => {
-    cy.visit(`/client-dynamic-route/products/incite/holo-lens`).waitForRouteChange()
+    cy.visit(
+      `/client-dynamic-route/products/incite/holo-lens`
+    ).waitForRouteChange()
 
     cy.findByTestId(`params-brand`)
     cy.should(`have.text`, `incite`)

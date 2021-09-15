@@ -13,12 +13,12 @@ const defaultOptions = {
         siteUrl
       }
     }
-  }`
+  }`,
 };
 
 function writeFile(file, data) {
   return new Promise((resolve, reject) => {
-    fs.writeFile(file, data, err => {
+    fs.writeFile(file, data, (err) => {
       if (err) {
         reject(err);
       } else {
@@ -29,7 +29,7 @@ function writeFile(file, data) {
 }
 
 function runQuery(handler, query) {
-  return handler(query).then(res => {
+  return handler(query).then((res) => {
     if (res.errors) {
       throw new Error(res.errors.join(', '));
     }
@@ -38,12 +38,15 @@ function runQuery(handler, query) {
   });
 }
 
-const getOptions = pluginOptions => {
+const getOptions = (pluginOptions) => {
   const options = { ...pluginOptions };
 
   delete options.plugins;
 
-  const { env = {}, resolveEnv = () => process.env.GATSBY_ACTIVE_ENV || process.env.NODE_ENV } = options;
+  const {
+    env = {},
+    resolveEnv = () => process.env.GATSBY_ACTIVE_ENV || process.env.NODE_ENV,
+  } = options;
 
   const envOptions = env[resolveEnv()] || env[defaultEnv] || {};
 
@@ -59,12 +62,12 @@ export async function onPostBuild({ graphql }, pluginOptions) {
 
   if (
     !Object.prototype.hasOwnProperty.call(mergedOptions, 'host') ||
-    !Object.prototype.hasOwnProperty.call(mergedOptions,'sitemap')
+    !Object.prototype.hasOwnProperty.call(mergedOptions, 'sitemap')
   ) {
     const {
       site: {
-        siteMetadata: { siteUrl }
-      }
+        siteMetadata: { siteUrl },
+      },
     } = await runQuery(graphql, mergedOptions.query);
 
     mergedOptions.host = siteUrl;
@@ -77,7 +80,7 @@ export async function onPostBuild({ graphql }, pluginOptions) {
     policy,
     sitemap,
     host,
-    configFile
+    configFile,
   });
   const filename = path.join(publicPath, output);
 

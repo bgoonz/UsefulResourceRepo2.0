@@ -24,9 +24,9 @@ or
 ```js
 module.exports = {
   siteMetadata: {
-    siteUrl: 'https://www.example.com'
+    siteUrl: 'https://www.example.com',
   },
-  plugins: ['gatsby-plugin-robots-txt']
+  plugins: ['gatsby-plugin-robots-txt'],
 };
 ```
 
@@ -34,13 +34,13 @@ module.exports = {
 
 This plugin uses [`generate-robotstxt`](https://github.com/itgalaxy/generate-robotstxt#usage) to generate content of `robots.txt` and it has the following options:
 
-|     Name     |    Type    |                Default                |                                  Description                                   |
-| :----------: | :--------: | :-----------------------------------: | :----------------------------------------------------------------------------: |
-|    `host`    |  `String`  |       `${siteMetadata.siteUrl}`       |                               Host of your site                                |
-|  `sitemap`   |  `String` / `String[]`  | `${siteMetadata.siteUrl}/sitemap.xml` |                             Path(s) to `sitemap.xml`                              |
-|   `policy`   | `Policy[]` |                 `[]`                  | List of [`Policy`](https://github.com/itgalaxy/generate-robotstxt#usage) rules |
-| `configFile` |  `String`  |              `undefined`              |                          Path to external config file                          |
-|   `output`   |  `String`  |             `/robots.txt`             |                     Path where to create the `robots.txt`                      |
+|     Name     |         Type          |                Default                |                                  Description                                   |
+| :----------: | :-------------------: | :-----------------------------------: | :----------------------------------------------------------------------------: |
+|    `host`    |       `String`        |       `${siteMetadata.siteUrl}`       |                               Host of your site                                |
+|  `sitemap`   | `String` / `String[]` | `${siteMetadata.siteUrl}/sitemap.xml` |                            Path(s) to `sitemap.xml`                            |
+|   `policy`   |      `Policy[]`       |                 `[]`                  | List of [`Policy`](https://github.com/itgalaxy/generate-robotstxt#usage) rules |
+| `configFile` |       `String`        |              `undefined`              |                          Path to external config file                          |
+|   `output`   |       `String`        |             `/robots.txt`             |                     Path where to create the `robots.txt`                      |
 
 `gatsby-config.js`
 
@@ -52,15 +52,14 @@ module.exports = {
       options: {
         host: 'https://www.example.com',
         sitemap: 'https://www.example.com/sitemap.xml',
-        policy: [{ userAgent: '*', allow: '/' }]
-      }
-    }
-  ]
+        policy: [{ userAgent: '*', allow: '/' }],
+      },
+    },
+  ],
 };
 ```
 
 ### `env`-option
-
 
 `gatsby-config.js`
 
@@ -74,15 +73,15 @@ module.exports = {
         sitemap: 'https://www.example.com/sitemap.xml',
         env: {
           development: {
-            policy: [{ userAgent: '*', disallow: ['/'] }]
+            policy: [{ userAgent: '*', disallow: ['/'] }],
           },
           production: {
-            policy: [{ userAgent: '*', allow: '/' }]
-          }
-        }
-      }
-    }
-  ]
+            policy: [{ userAgent: '*', allow: '/' }],
+          },
+        },
+      },
+    },
+  ],
 };
 ```
 
@@ -103,15 +102,15 @@ module.exports = {
         resolveEnv: () => process.env.GATSBY_ENV,
         env: {
           development: {
-            policy: [{ userAgent: '*', disallow: ['/'] }]
+            policy: [{ userAgent: '*', disallow: ['/'] }],
           },
           production: {
-            policy: [{ userAgent: '*', allow: '/' }]
-          }
-        }
-      }
-    }
-  ]
+            policy: [{ userAgent: '*', allow: '/' }],
+          },
+        },
+      },
+    },
+  ],
 };
 ```
 
@@ -127,10 +126,10 @@ module.exports = {
     {
       resolve: 'gatsby-plugin-robots-txt',
       options: {
-        configFile: 'robots-txt.config.js'
-      }
-    }
-  ]
+        configFile: 'robots-txt.config.js',
+      },
+    },
+  ],
 };
 ```
 
@@ -140,7 +139,7 @@ module.exports = {
 module.exports = {
   host: 'https://www.example.com',
   sitemap: 'https://www.example.com/sitemap.xml',
-  policy: [{ userAgent: '*' }]
+  policy: [{ userAgent: '*' }],
 };
 ```
 
@@ -155,14 +154,14 @@ const {
   NODE_ENV,
   URL: NETLIFY_SITE_URL = 'https://www.example.com',
   DEPLOY_PRIME_URL: NETLIFY_DEPLOY_URL = NETLIFY_SITE_URL,
-  CONTEXT: NETLIFY_ENV = NODE_ENV
+  CONTEXT: NETLIFY_ENV = NODE_ENV,
 } = process.env;
 const isNetlifyProduction = NETLIFY_ENV === 'production';
 const siteUrl = isNetlifyProduction ? NETLIFY_SITE_URL : NETLIFY_DEPLOY_URL;
 
 module.exports = {
   siteMetadata: {
-    siteUrl
+    siteUrl,
   },
   plugins: [
     {
@@ -171,22 +170,22 @@ module.exports = {
         resolveEnv: () => NETLIFY_ENV,
         env: {
           production: {
-            policy: [{ userAgent: '*' }]
+            policy: [{ userAgent: '*' }],
           },
           'branch-deploy': {
             policy: [{ userAgent: '*', disallow: ['/'] }],
             sitemap: null,
-            host: null
+            host: null,
           },
           'deploy-preview': {
             policy: [{ userAgent: '*', disallow: ['/'] }],
             sitemap: null,
-            host: null
-          }
-        }
-      }
-    }
-  ]
+            host: null,
+          },
+        },
+      },
+    },
+  ],
 };
 ```
 
@@ -208,10 +207,10 @@ module.exports = {
               siteUrl
             }
           }
-        }`
-      }
-    }
-  ]
+        }`,
+      },
+    },
+  ],
 };
 ```
 

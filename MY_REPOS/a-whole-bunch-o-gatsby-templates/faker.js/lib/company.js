@@ -3,10 +3,9 @@
  * @namespace faker.company
  */
 var Company = function (faker) {
-  
   var self = this;
   var f = faker.fake;
-  
+
   /**
    * suffixes
    *
@@ -15,7 +14,7 @@ var Company = function (faker) {
   this.suffixes = function () {
     // Don't want the source array exposed to modification, so return a copy
     return faker.definitions.company.suffix.slice(0);
-  }
+  };
 
   /**
    * companyName
@@ -24,11 +23,10 @@ var Company = function (faker) {
    * @param {string} format
    */
   this.companyName = function (format) {
-
     var formats = [
-      '{{name.lastName}} {{company.companySuffix}}',
-      '{{name.lastName}} - {{name.lastName}}',
-      '{{name.lastName}}, {{name.lastName}} and {{name.lastName}}'
+      "{{name.lastName}} {{company.companySuffix}}",
+      "{{name.lastName}} - {{name.lastName}}",
+      "{{name.lastName}}, {{name.lastName}} and {{name.lastName}}",
     ];
 
     if (typeof format !== "number") {
@@ -36,7 +34,7 @@ var Company = function (faker) {
     }
 
     return f(formats[format]);
-  }
+  };
 
   /**
    * companySuffix
@@ -44,8 +42,8 @@ var Company = function (faker) {
    * @method faker.company.companySuffix
    */
   this.companySuffix = function () {
-      return faker.random.arrayElement(faker.company.suffixes());
-  }
+    return faker.random.arrayElement(faker.company.suffixes());
+  };
 
   /**
    * catchPhrase
@@ -53,8 +51,10 @@ var Company = function (faker) {
    * @method faker.company.catchPhrase
    */
   this.catchPhrase = function () {
-    return f('{{company.catchPhraseAdjective}} {{company.catchPhraseDescriptor}} {{company.catchPhraseNoun}}')
-  }
+    return f(
+      "{{company.catchPhraseAdjective}} {{company.catchPhraseDescriptor}} {{company.catchPhraseNoun}}"
+    );
+  };
 
   /**
    * bs
@@ -62,8 +62,8 @@ var Company = function (faker) {
    * @method faker.company.bs
    */
   this.bs = function () {
-    return f('{{company.bsBuzz}} {{company.bsAdjective}} {{company.bsNoun}}');
-  }
+    return f("{{company.bsBuzz}} {{company.bsAdjective}} {{company.bsNoun}}");
+  };
 
   /**
    * catchPhraseAdjective
@@ -71,8 +71,8 @@ var Company = function (faker) {
    * @method faker.company.catchPhraseAdjective
    */
   this.catchPhraseAdjective = function () {
-      return faker.random.arrayElement(faker.definitions.company.adjective);
-  }
+    return faker.random.arrayElement(faker.definitions.company.adjective);
+  };
 
   /**
    * catchPhraseDescriptor
@@ -80,8 +80,8 @@ var Company = function (faker) {
    * @method faker.company.catchPhraseDescriptor
    */
   this.catchPhraseDescriptor = function () {
-      return faker.random.arrayElement(faker.definitions.company.descriptor);
-  }
+    return faker.random.arrayElement(faker.definitions.company.descriptor);
+  };
 
   /**
    * catchPhraseNoun
@@ -89,8 +89,8 @@ var Company = function (faker) {
    * @method faker.company.catchPhraseNoun
    */
   this.catchPhraseNoun = function () {
-      return faker.random.arrayElement(faker.definitions.company.noun);
-  }
+    return faker.random.arrayElement(faker.definitions.company.noun);
+  };
 
   /**
    * bsAdjective
@@ -98,8 +98,8 @@ var Company = function (faker) {
    * @method faker.company.bsAdjective
    */
   this.bsAdjective = function () {
-      return faker.random.arrayElement(faker.definitions.company.bs_adjective);
-  }
+    return faker.random.arrayElement(faker.definitions.company.bs_adjective);
+  };
 
   /**
    * bsBuzz
@@ -107,8 +107,8 @@ var Company = function (faker) {
    * @method faker.company.bsBuzz
    */
   this.bsBuzz = function () {
-      return faker.random.arrayElement(faker.definitions.company.bs_verb);
-  }
+    return faker.random.arrayElement(faker.definitions.company.bs_verb);
+  };
 
   /**
    * bsNoun
@@ -116,9 +116,8 @@ var Company = function (faker) {
    * @method faker.company.bsNoun
    */
   this.bsNoun = function () {
-      return faker.random.arrayElement(faker.definitions.company.bs_noun);
-  }
-  
-}
+    return faker.random.arrayElement(faker.definitions.company.bs_noun);
+  };
+};
 
-module['exports'] = Company;
+module["exports"] = Company;

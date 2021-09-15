@@ -4,7 +4,6 @@
  * @memberof faker.image
  */
 var Lorempixel = function (faker) {
-
   var self = this;
 
   /**
@@ -16,8 +15,26 @@ var Lorempixel = function (faker) {
    * @method faker.image.lorempixel.image
    */
   self.image = function (width, height, randomize) {
-    var categories = ["abstract", "animals", "business", "cats", "city", "food", "nightlife", "fashion", "people", "nature", "sports", "technics", "transport"];
-    return self[faker.random.arrayElement(categories)](width, height, randomize);
+    var categories = [
+      "abstract",
+      "animals",
+      "business",
+      "cats",
+      "city",
+      "food",
+      "nightlife",
+      "fashion",
+      "people",
+      "nature",
+      "sports",
+      "technics",
+      "transport",
+    ];
+    return self[faker.random.arrayElement(categories)](
+      width,
+      height,
+      randomize
+    );
   };
   /**
    * avatar
@@ -37,19 +54,19 @@ var Lorempixel = function (faker) {
    * @method faker.image.lorempixel.imageUrl
    */
   self.imageUrl = function (width, height, category, randomize) {
-      var width = width || 640;
-      var height = height || 480;
+    var width = width || 640;
+    var height = height || 480;
 
-      var url ='https://lorempixel.com/' + width + '/' + height;
-      if (typeof category !== 'undefined') {
-        url += '/' + category;
-      }
+    var url = "https://lorempixel.com/" + width + "/" + height;
+    if (typeof category !== "undefined") {
+      url += "/" + category;
+    }
 
-      if (randomize) {
-        url += '?' + faker.random.number()
-      }
+    if (randomize) {
+      url += "?" + faker.random.number();
+    }
 
-      return url;
+    return url;
   };
   /**
    * abstract
@@ -60,7 +77,12 @@ var Lorempixel = function (faker) {
    * @method faker.image.lorempixel.abstract
    */
   self.abstract = function (width, height, randomize) {
-    return faker.image.lorempixel.imageUrl(width, height, 'abstract', randomize);
+    return faker.image.lorempixel.imageUrl(
+      width,
+      height,
+      "abstract",
+      randomize
+    );
   };
   /**
    * animals
@@ -71,7 +93,7 @@ var Lorempixel = function (faker) {
    * @method faker.image.lorempixel.animals
    */
   self.animals = function (width, height, randomize) {
-    return faker.image.lorempixel.imageUrl(width, height, 'animals', randomize);
+    return faker.image.lorempixel.imageUrl(width, height, "animals", randomize);
   };
   /**
    * business
@@ -82,7 +104,12 @@ var Lorempixel = function (faker) {
    * @method faker.image.lorempixel.business
    */
   self.business = function (width, height, randomize) {
-    return faker.image.lorempixel.imageUrl(width, height, 'business', randomize);
+    return faker.image.lorempixel.imageUrl(
+      width,
+      height,
+      "business",
+      randomize
+    );
   };
   /**
    * cats
@@ -93,7 +120,7 @@ var Lorempixel = function (faker) {
    * @method faker.image.lorempixel.cats
    */
   self.cats = function (width, height, randomize) {
-    return faker.image.lorempixel.imageUrl(width, height, 'cats', randomize);
+    return faker.image.lorempixel.imageUrl(width, height, "cats", randomize);
   };
   /**
    * city
@@ -104,7 +131,7 @@ var Lorempixel = function (faker) {
    * @method faker.image.lorempixel.city
    */
   self.city = function (width, height, randomize) {
-    return faker.image.lorempixel.imageUrl(width, height, 'city', randomize);
+    return faker.image.lorempixel.imageUrl(width, height, "city", randomize);
   };
   /**
    * food
@@ -115,7 +142,7 @@ var Lorempixel = function (faker) {
    * @method faker.image.lorempixel.food
    */
   self.food = function (width, height, randomize) {
-    return faker.image.lorempixel.imageUrl(width, height, 'food', randomize);
+    return faker.image.lorempixel.imageUrl(width, height, "food", randomize);
   };
   /**
    * nightlife
@@ -126,7 +153,12 @@ var Lorempixel = function (faker) {
    * @method faker.image.lorempixel.nightlife
    */
   self.nightlife = function (width, height, randomize) {
-    return faker.image.lorempixel.imageUrl(width, height, 'nightlife', randomize);
+    return faker.image.lorempixel.imageUrl(
+      width,
+      height,
+      "nightlife",
+      randomize
+    );
   };
   /**
    * fashion
@@ -137,7 +169,7 @@ var Lorempixel = function (faker) {
    * @method faker.image.lorempixel.fashion
    */
   self.fashion = function (width, height, randomize) {
-    return faker.image.lorempixel.imageUrl(width, height, 'fashion', randomize);
+    return faker.image.lorempixel.imageUrl(width, height, "fashion", randomize);
   };
   /**
    * people
@@ -148,7 +180,7 @@ var Lorempixel = function (faker) {
    * @method faker.image.lorempixel.people
    */
   self.people = function (width, height, randomize) {
-    return faker.image.lorempixel.imageUrl(width, height, 'people', randomize);
+    return faker.image.lorempixel.imageUrl(width, height, "people", randomize);
   };
   /**
    * nature
@@ -159,7 +191,7 @@ var Lorempixel = function (faker) {
    * @method faker.image.lorempixel.nature
    */
   self.nature = function (width, height, randomize) {
-    return faker.image.lorempixel.imageUrl(width, height, 'nature', randomize);
+    return faker.image.lorempixel.imageUrl(width, height, "nature", randomize);
   };
   /**
    * sports
@@ -170,7 +202,7 @@ var Lorempixel = function (faker) {
    * @method faker.image.lorempixel.sports
    */
   self.sports = function (width, height, randomize) {
-    return faker.image.lorempixel.imageUrl(width, height, 'sports', randomize);
+    return faker.image.lorempixel.imageUrl(width, height, "sports", randomize);
   };
   /**
    * technics
@@ -181,7 +213,12 @@ var Lorempixel = function (faker) {
    * @method faker.image.lorempixel.technics
    */
   self.technics = function (width, height, randomize) {
-    return faker.image.lorempixel.imageUrl(width, height, 'technics', randomize);
+    return faker.image.lorempixel.imageUrl(
+      width,
+      height,
+      "technics",
+      randomize
+    );
   };
   /**
    * transport
@@ -192,8 +229,13 @@ var Lorempixel = function (faker) {
    * @method faker.image.lorempixel.transport
    */
   self.transport = function (width, height, randomize) {
-    return faker.image.lorempixel.imageUrl(width, height, 'transport', randomize);
-  }
-}
+    return faker.image.lorempixel.imageUrl(
+      width,
+      height,
+      "transport",
+      randomize
+    );
+  };
+};
 
 module["exports"] = Lorempixel;

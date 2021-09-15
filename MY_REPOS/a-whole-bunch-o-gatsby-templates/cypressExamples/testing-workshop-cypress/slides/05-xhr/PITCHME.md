@@ -135,6 +135,7 @@ it('starts with zero items (fixture)', () => {
   cy.get('li.todo').should('have.length', 0)
 })
 ```
+
 **tip:** use [`cy.fixture`](https://on.cypress.io/fixture) command
 
 +++
@@ -210,6 +211,7 @@ In the application we are showing (very quickly) "Loading" state
 ⌨️ test "shows loading element"
 
 +++
+
 ## Let's test edge data cases
 
 User cannot enter blank titles. What if our database has old data records with blank titles?
@@ -217,6 +219,7 @@ User cannot enter blank titles. What if our database has old data records with b
 **Todo** write the test `handles todos with blank title`
 
 +++
+
 ## 🏁 Spy and stub the network from your tests
 
 - confirm the REST calls

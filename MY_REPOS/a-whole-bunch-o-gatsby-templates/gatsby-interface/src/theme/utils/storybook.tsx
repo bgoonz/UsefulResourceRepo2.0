@@ -34,7 +34,7 @@ export function ThemeDocs({
   )
 }
 
-const ScaleGrid = styled.div(props => ({
+const ScaleGrid = styled.div((props) => ({
   display: `grid`,
   gridTemplateColumns: `1fr 2fr`,
   rowGap: (props.theme as Theme).space[4],
@@ -96,7 +96,7 @@ function Code({ children }: { children: React.ReactNode }) {
 function ColorDisplay({ color }: { color: string }) {
   return (
     <span
-      css={theme => ({
+      css={(theme) => ({
         display: `inline-block`,
         verticalAlign: `middle`,
         width: theme.fontSizes[1],

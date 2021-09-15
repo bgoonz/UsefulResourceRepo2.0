@@ -27,10 +27,7 @@ it('clears completed on click', () => {
     />
   )
 
-  cy.get('footer')
-    .find('.clear-completed')
-    .should('be.visible')
-    .click()
+  cy.get('footer').find('.clear-completed').should('be.visible').click()
 
   cy.get('@onClearCompleted').should('have.been.calledOnce')
 })

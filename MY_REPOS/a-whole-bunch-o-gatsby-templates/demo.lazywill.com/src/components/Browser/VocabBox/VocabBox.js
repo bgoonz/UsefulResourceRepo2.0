@@ -14,9 +14,9 @@ const styles = () => ({
     overflowY: "auto",
     overflowX: "hidden",
     "&.portrait": {
-      bottom: "60px"
-    }
-  }
+      bottom: "60px",
+    },
+  },
 });
 
 class VocabBox extends React.Component {
@@ -57,7 +57,7 @@ VocabBox.propTypes = {
   nextCombo: PropTypes.object.isRequired,
   windowWidth: PropTypes.number,
   windowHeight: PropTypes.number,
-  onSwipe: PropTypes.func
+  onSwipe: PropTypes.func,
 };
 
 export default injectSheet(styles)(VocabBox);

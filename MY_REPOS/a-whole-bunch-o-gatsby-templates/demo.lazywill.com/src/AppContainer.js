@@ -15,19 +15,19 @@ import Loading from "./components/shared/Loading/";
 
 const AsyncHome = Loadable({
   loader: () => import("./components/Home/"),
-  loading: Loading
+  loading: Loading,
 });
 const AsyncBrowser = Loadable({
   loader: () => import("./components/Browser/"), // /* webpackChunkName: "browser" */
-  loading: Loading
+  loading: Loading,
 });
 const AsyncSubscribe = Loadable({
   loader: () => import("./components/Subscribe/"),
-  loading: Loading
+  loading: Loading,
 });
 const AsyncNav = Loadable({
   loader: () => import("./components/Nav/"),
-  loading: Loading
+  loading: Loading,
 });
 
 class AppContainer extends React.Component {
@@ -41,7 +41,7 @@ class AppContainer extends React.Component {
       windowWidth: document.documentElement.clientWidth,
       windowHeight: document.documentElement.clientHeight,
       subscription: false,
-      subscriptionConfirmed: false
+      subscriptionConfirmed: false,
     };
 
     this.windowResizeHandler = this.windowResizeHandler.bind(this);
@@ -60,7 +60,7 @@ class AppContainer extends React.Component {
   windowResizeHandler() {
     this.setState(() => ({
       windowWidth: document.documentElement.clientWidth, // || window.innerWidth,
-      windowHeight: document.documentElement.clientHeight //|| window.innerHeight
+      windowHeight: document.documentElement.clientHeight, //|| window.innerHeight
     }));
   }
 
@@ -75,7 +75,7 @@ class AppContainer extends React.Component {
         unseenCombos: newStateValues.unseenCombos,
         seenCombos: newStateValues.seenCombos,
         activeCombo: newStateValues.activeCombo,
-        nextActiveCombo: newStateValues.nextActiveCombo
+        nextActiveCombo: newStateValues.nextActiveCombo,
       }));
     }
   }
@@ -87,7 +87,7 @@ class AppContainer extends React.Component {
       unseenCombos: newStateValues.unseenCombos,
       seenCombos: newStateValues.seenCombos,
       activeCombo: newStateValues.activeCombo,
-      nextActiveCombo: newStateValues.nextActiveCombo
+      nextActiveCombo: newStateValues.nextActiveCombo,
     }));
   }
 
@@ -107,7 +107,7 @@ class AppContainer extends React.Component {
       newActiveCombo = this.getRandomElementOfArray(unseenCombos);
     }
 
-    const newActiveComboIndex = unseenCombos.findIndex(combo => combo.id === newActiveCombo.id);
+    const newActiveComboIndex = unseenCombos.findIndex((combo) => combo.id === newActiveCombo.id);
 
     const newUnseenCombos = [...unseenCombos];
     newUnseenCombos.splice(newActiveComboIndex, 1);
@@ -120,14 +120,14 @@ class AppContainer extends React.Component {
       unseenCombos: newUnseenCombos,
       seenCombos: newSeenCombos,
       activeCombo: newActiveCombo,
-      nextActiveCombo: newNextActiveCombo
+      nextActiveCombo: newNextActiveCombo,
     };
   }
 
   updateSubscription = (subscription, subscriptionConfirmed) => {
     this.setState({
       subscription: subscription,
-      subscriptionConfirmed: subscriptionConfirmed
+      subscriptionConfirmed: subscriptionConfirmed,
     });
   };
 
@@ -224,7 +224,7 @@ const COMBOS_QUERY = gql`
 
 AppContainer.propTypes = {
   classes: PropTypes.object.isRequired,
-  combosQuery: PropTypes.object.isRequired
+  combosQuery: PropTypes.object.isRequired,
 };
 
 export default graphql(COMBOS_QUERY, { name: "combosQuery" })(injectSheet(globals)(AppContainer));

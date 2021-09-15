@@ -28,7 +28,7 @@ export default {
     },
   },
   decorators: [
-    story => (
+    (story) => (
       <React.Fragment>
         <Global
           styles={(theme: Theme) => [
@@ -47,7 +47,7 @@ export default {
         {story()}
       </React.Fragment>
     ),
-    story => <div style={{ maxWidth: `620px` }}>{story()}</div>,
+    (story) => <div style={{ maxWidth: `620px` }}>{story()}</div>,
   ] as DecoratorFn[],
 }
 

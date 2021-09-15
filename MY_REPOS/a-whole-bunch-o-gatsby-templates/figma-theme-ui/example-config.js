@@ -21,4 +21,4 @@ module.exports = {
     },
     teal: [null, `#e6fffa`, `#b2f5ea`, `#81e6d9`],
   },
-}
+};

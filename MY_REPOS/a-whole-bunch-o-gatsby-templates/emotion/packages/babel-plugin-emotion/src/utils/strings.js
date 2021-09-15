@@ -1,7 +1,7 @@
 // @flow
 import {
   getTypeScriptMakeTemplateObjectPath,
-  isTaggedTemplateTranspiledByBabel
+  isTaggedTemplateTranspiledByBabel,
 } from './transpiled-output-utils'
 
 export const appendStringToArguments = (path: *, string: string, t: *) => {
@@ -15,7 +15,7 @@ export const appendStringToArguments = (path: *, string: string, t: *) => {
     const makeTemplateObjectCallPath = getTypeScriptMakeTemplateObjectPath(path)
 
     if (makeTemplateObjectCallPath) {
-      makeTemplateObjectCallPath.get('arguments').forEach(argPath => {
+      makeTemplateObjectCallPath.get('arguments').forEach((argPath) => {
         const elements = argPath.get('elements')
         const lastElement = elements[elements.length - 1]
         lastElement.replaceWith(

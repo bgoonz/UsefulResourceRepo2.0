@@ -5,6 +5,6 @@
 
 export const environment = {
   production: false,
-  captcha_key: '6LfDuD0UAAAAAMn64Q9EJCSDF546oURHZY8JJFPg',
-  captcha_secret: '6LfDuD0UAAAAAH_5oJonyd_ZoMB2-xmYl1euITgr'
+  captcha_key: "6LfDuD0UAAAAAMn64Q9EJCSDF546oURHZY8JJFPg",
+  captcha_secret: "6LfDuD0UAAAAAH_5oJonyd_ZoMB2-xmYl1euITgr",
 };

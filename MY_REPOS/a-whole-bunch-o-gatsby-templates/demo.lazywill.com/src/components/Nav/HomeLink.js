@@ -8,7 +8,7 @@ import ArrowForward from "material-ui-icons/ArrowForward";
 import InfoOutline from "material-ui-icons/InfoOutline";
 import SquareButton from "../shared/SquareButton";
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     background: theme.palette.background.blue,
     position: "absolute",
@@ -16,18 +16,16 @@ const styles = theme => ({
     marginLeft: "-60px",
     transition: "all .8s",
     "&:hover": {
-      background: Color(theme.palette.background.blue)
-        .darken(0.1)
-        .string()
+      background: Color(theme.palette.background.blue).darken(0.1).string(),
     },
     ".browse-screen &, .subs-screen &": {
       left: 0,
-      marginLeft: 0
-    }
-  }
+      marginLeft: 0,
+    },
+  },
 });
 
-const HomeLink = props => {
+const HomeLink = (props) => {
   const { classes, onClick, currentRoute } = props;
 
   function getTarget(route) {
@@ -53,7 +51,7 @@ const HomeLink = props => {
 HomeLink.propTypes = {
   classes: PropTypes.object.isRequired,
   currentRoute: PropTypes.string,
-  onClick: PropTypes.func
+  onClick: PropTypes.func,
 };
 
 export default withStyles(styles)(HomeLink);

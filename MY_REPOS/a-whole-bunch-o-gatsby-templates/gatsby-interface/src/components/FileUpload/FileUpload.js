@@ -26,7 +26,7 @@ const FileUpload = ({
 }) => {
   const [files, setFiles] = useState([])
 
-  const removeFile = index => {
+  const removeFile = (index) => {
     if (index === undefined) {
       throw new Error(
         `you must provide an index (from props) to the removeFile method in a CustomPreviewComponent, ie removeFile(index)`
@@ -41,10 +41,13 @@ const FileUpload = ({
     setFiles([...files])
   }
 
-  const addFiles = uploadedFiles => {
+  const addFiles = (uploadedFiles) => {
     const filesToSet = multi ? [...files, ...uploadedFiles] : [uploadedFiles[0]]
     setFiles([...filesToSet])
-    setFieldValue(name, filesToSet.map(file => file && file.url))
+    setFieldValue(
+      name,
+      filesToSet.map((file) => file && file.url)
+    )
   }
 
   useEffect(() => {
@@ -110,7 +113,7 @@ const FileUpload = ({
           ...actionOptions,
           accept: fileTypes && [...fileTypes],
         }}
-        onSuccess={result => {
+        onSuccess={(result) => {
           addFiles(result.filesUploaded)
         }}
         customRender={renderButton}

@@ -3,7 +3,7 @@ import { jsx } from "@emotion/core"
 import React from "react"
 import { ThemeCss, Theme } from "../../theme"
 
-const baseCss: ThemeCss = theme => ({
+const baseCss: ThemeCss = (theme) => ({
   listStyle: `none`,
   margin: 0,
   padding: 0,

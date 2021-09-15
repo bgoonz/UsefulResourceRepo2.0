@@ -3,7 +3,7 @@ import { CircularProgress } from "material-ui/Progress";
 import SvgEl from "../SvgEl";
 import LOGOS from "../../../constants/logos";
 
-const Loading = props => {
+const Loading = (props) => {
   const { error } = props;
 
   if (error) {
@@ -16,7 +16,7 @@ const Loading = props => {
           position: "absolute",
           top: "50%",
           left: "50%",
-          transform: "translate(-50%, -50%)"
+          transform: "translate(-50%, -50%)",
         }}
       >
         <p>Seems that there is a problem.</p>
@@ -31,7 +31,7 @@ const Loading = props => {
               verticalAlign: "middle",
               width: "30px",
               height: "30px",
-              margin: "0 0 0 10px"
+              margin: "0 0 0 10px",
             }}
           >
             <SvgEl svg={LOGOS.AVATAR} />
@@ -49,7 +49,7 @@ const Loading = props => {
           position: "absolute",
           top: "50%",
           left: "50%",
-          margin: "-30px 0 0 -30px"
+          margin: "-30px 0 0 -30px",
         }}
       />
     );

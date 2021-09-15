@@ -93,11 +93,13 @@ open coverage/lcov-report/index.html
 Can you cover every line via end-to-end tests? How about edge cases?
 
 +++
+
 ## 🏁 Code coverage
 
 [@cypress/code-coverage][plugin] plugin manages coverage information from e2e and unit tests and generates HTML report
 
 +++
+
 ## 🏁 Code coverage
 
 Read Cypress code coverage guide at [https://on.cypress.io/code-coverage](https://on.cypress.io/code-coverage)

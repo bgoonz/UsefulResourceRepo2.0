@@ -11,7 +11,7 @@ export type LanguageChooserProps = LanguageChooserOwnProps & I18nContextProps;
 
 const LanguageChooser = (props: LanguageChooserProps) => (
   <div>
-    {props.languages.map(lang => (
+    {props.languages.map((lang) => (
       <button name={lang.value} key={lang.value} onClick={props.changeLanguage}>
         {lang.text}
       </button>

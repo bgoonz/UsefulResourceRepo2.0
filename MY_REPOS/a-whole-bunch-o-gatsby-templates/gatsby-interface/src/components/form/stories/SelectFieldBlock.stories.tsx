@@ -31,7 +31,7 @@ export const Basic = () => (
   <SelectFieldBlock
     id="SelectFieldBlock"
     label="Field label"
-    onChange={e => action(`Change`)(e.target.value)}
+    onChange={(e) => action(`Change`)(e.target.value)}
     options={options}
   />
 )
@@ -123,7 +123,7 @@ export const WithRichText = () => (
 )
 
 export const LabelSizes = () =>
-  LABEL_SIZES.map(labelSize => (
+  LABEL_SIZES.map((labelSize) => (
     <SelectFieldBlock
       key={labelSize}
       id={`SelectFieldBlock__size--${labelSize}`}

@@ -10,13 +10,14 @@ A plugin that adds support to remove all `console.*` calls from Gatsby's product
 **In**
 
 ```javascript
-console.log('foo');
-console.error('bar');
+console.log("foo");
+console.error("bar");
 ```
 
 **Out**
 
 ```javascript
+
 ```
 
 ## Getting started
@@ -34,14 +35,13 @@ yarn add gatsby-plugin-remove-console && yarn add babel-plugin-transform-remove-
 ```
 
 ### Usage
+
 Specify the plugin in your `gatsby-config.js`. Here's an example:
 
 ```javascript
 // without options
 module.exports = {
-  plugins: [
-    'gatsby-plugin-remove-console'
-  ],
+  plugins: ["gatsby-plugin-remove-console"],
 };
 ```
 
@@ -50,12 +50,12 @@ module.exports = {
 module.exports = {
   plugins: [
     {
-      resolve: 'gatsby-plugin-remove-console',
+      resolve: "gatsby-plugin-remove-console",
       options: {
-        exclude: ['error', 'warn'], // <- will be removed all console calls except these
-      }
-    }
-  ]
+        exclude: ["error", "warn"], // <- will be removed all console calls except these
+      },
+    },
+  ],
 };
 ```
 
@@ -70,4 +70,3 @@ MIT, see [LICENSE.md](https://github.com/abdullahceylan/gatsby-plugin-remove-con
 # Changelog
 
 See [CHANGELOG.md](https://github.com/abdullahceylan/gatsby-plugin-remove-console/blob/master/CHANGELOG.md) for details.
-

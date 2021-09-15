@@ -4,7 +4,7 @@ import Loading from "./components/shared/Loading/";
 
 const AsyncAppWrapper = Loadable({
   loader: () => import("./AppWrapper"),
-  loading: Loading
+  loading: Loading,
 });
 
 class AppLoader extends Component {

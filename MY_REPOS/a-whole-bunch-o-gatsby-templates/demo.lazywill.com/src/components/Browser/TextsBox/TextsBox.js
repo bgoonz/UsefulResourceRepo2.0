@@ -9,15 +9,15 @@ const styles = () => ({
     padding: "1em 1.5em 2em",
     ".portrait &": {
       position: "relative",
-      width: "100%"
+      width: "100%",
     },
     ".landscape &": {
       position: "absolute",
       top: 0,
       bottom: "60px",
-      left: props => props.windowHeight,
-      overflow: "hidden"
-    }
+      left: (props) => props.windowHeight,
+      overflow: "hidden",
+    },
   },
   entry: {
     "& h1": {
@@ -25,31 +25,31 @@ const styles = () => ({
       fontWeight: 300,
       letterSpacing: "-.02em",
       lineHeight: ".9em",
-      margin: 0
-    }
+      margin: 0,
+    },
   },
   meta: {
     margin: ".5em 0",
     fontSize: "1.1em",
-    color: "#999"
+    color: "#999",
   },
   metaDefinition: {
-    color: "#ddd"
+    color: "#ddd",
   },
   metaType: {
     fontStyle: "italic",
     color: "#aaa",
-    textTransform: "lowercase"
+    textTransform: "lowercase",
   },
   sentences: {
     fontSize: "1.4em",
     listStyle: "none",
     margin: "1.2em 0 0 0",
-    padding: 0
-  }
+    padding: 0,
+  },
 });
 
-const TextsBox = props => {
+const TextsBox = (props) => {
   const { combo, classes } = props;
 
   return (
@@ -64,7 +64,9 @@ const TextsBox = props => {
             <span className={classes.metaDefinition}>{combo.meaning.definition}</span>
           </div>
           <ul className={classes.sentences}>
-            {combo.sentences.map(sentence => <li key={sentence.id}>{sentence.text}</li>)}
+            {combo.sentences.map((sentence) => (
+              <li key={sentence.id}>{sentence.text}</li>
+            ))}
           </ul>
         </React.Fragment>
       )}
@@ -74,7 +76,7 @@ const TextsBox = props => {
 
 TextsBox.propTypes = {
   classes: PropTypes.object.isRequired,
-  combo: PropTypes.object.isRequired
+  combo: PropTypes.object.isRequired,
 };
 
 export default injectSheet(styles)(TextsBox);

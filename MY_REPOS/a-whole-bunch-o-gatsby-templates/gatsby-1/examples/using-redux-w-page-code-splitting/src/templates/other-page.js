@@ -12,7 +12,7 @@ const OtherPage = ({ data }) => {
 }
 
 export const query = graphql`
-  query($slug: String!) {
+  query ($slug: String!) {
     pagesJson(slug: { eq: $slug }) {
       title
       slug

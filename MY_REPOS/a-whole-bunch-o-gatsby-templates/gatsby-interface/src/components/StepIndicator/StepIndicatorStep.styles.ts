@@ -1,6 +1,6 @@
 import { ThemeCss } from "../../theme"
 
-export const baseCss: ThemeCss = theme => ({
+export const baseCss: ThemeCss = (theme) => ({
   display: `inline-flex`,
   alignItems: `center`,
   borderRadius: `${theme.radii[2]} ${theme.radii[2]} 0 0`,
@@ -20,7 +20,7 @@ export const baseCss: ThemeCss = theme => ({
   },
 })
 
-export const activeCss: ThemeCss = theme => ({
+export const activeCss: ThemeCss = (theme) => ({
   background: theme.colors.primaryBackground,
   borderBottomColor: theme.colors.secondaryBackground,
   color: theme.colors.grey[90],
@@ -47,7 +47,7 @@ export const activeCss: ThemeCss = theme => ({
   },
 })
 
-export const linkCss: ThemeCss = theme => ({
+export const linkCss: ThemeCss = (theme) => ({
   display: `flex`,
   alignItems: `center`,
   textDecoration: `none`,
@@ -57,18 +57,18 @@ export const linkCss: ThemeCss = theme => ({
   },
 })
 
-export const labelCss: ThemeCss = theme => ({
+export const labelCss: ThemeCss = (theme) => ({
   display: `none`,
   [theme.mediaQueries.tablet]: {
     display: `inline`,
   },
 })
 
-export const labelActiveCss: ThemeCss = _theme => ({
+export const labelActiveCss: ThemeCss = (_theme) => ({
   display: `inline`,
 })
 
-export const stepNumberCss: ThemeCss = theme => ({
+export const stepNumberCss: ThemeCss = (theme) => ({
   display: `flex`,
   alignItems: `center`,
   justifyContent: `center`,
@@ -91,11 +91,11 @@ export const stepNumberCss: ThemeCss = theme => ({
   },
 })
 
-export const stepNumberActiveCss: ThemeCss = theme => ({
+export const stepNumberActiveCss: ThemeCss = (theme) => ({
   background: theme.colors.purple[40],
   marginRight: theme.space[4],
 })
 
-export const stepNumberDoneCss: ThemeCss = theme => ({
+export const stepNumberDoneCss: ThemeCss = (theme) => ({
   background: theme.colors.purple[30],
 })

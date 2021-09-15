@@ -35,7 +35,7 @@ export const stripLineComment = (line: string) =>
   reduceSubstr(
     line.split(lineCommentStart),
     '//',
-    str =>
+    (str) =>
       !str.endsWith(':') && // NOTE: This is another guard against urls, if they're not inside strings or parantheses.
       countOccurences(str, "'") % 2 === 0 &&
       countOccurences(str, '"') % 2 === 0 &&
@@ -61,7 +61,7 @@ export const compressSymbols = (code: string) =>
   }, '')
 
 // Detects lines that are exclusively line comments
-const isLineComment = line => line.trim().startsWith('//')
+const isLineComment = (line) => line.trim().startsWith('//')
 const linebreakRegex = /[\r\n]\s*/g
 const spacesAndLinebreakRegex = /\s+|\n+/g
 
@@ -88,7 +88,7 @@ export const minify = (code: string) => {
   const newCode = code
     .replace(multilineCommentRegex, multilineReplacer) // If allowed, remove line breaks and extra space from multi-line comments so they appear on one line
     .split(linebreakRegex) // Split at newlines
-    .filter(line => line.length > 0 && !isLineComment(line)) // Removes lines containing only line comments
+    .filter((line) => line.length > 0 && !isLineComment(line)) // Removes lines containing only line comments
     .map(stripLineComment) // Remove line comments inside text
     .join(' ') // Rejoin all lines
 

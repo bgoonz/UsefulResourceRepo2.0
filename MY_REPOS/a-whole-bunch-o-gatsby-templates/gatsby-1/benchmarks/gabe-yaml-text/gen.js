@@ -63,12 +63,14 @@ function createArticle(n, sentence, slug) {
             const v = page[key]
             if (Array.isArray(v)) {
               // Repeated key names under same parent should end up as array
-              return '  ' + key + ':\n' +
-                v.map(
-                  v =>
-                    '    - "' + v.replace(/(["\\])/g, "\\$1") + '"'
-                )
-                .join("\n")
+              return (
+                "  " +
+                key +
+                ":\n" +
+                v
+                  .map(v => '    - "' + v.replace(/(["\\])/g, "\\$1") + '"')
+                  .join("\n")
+              )
             }
             return "  " + key + ': "' + v.replace(/(["\\])/g, "\\$1") + '"'
           })

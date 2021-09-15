@@ -31,8 +31,8 @@ export type CopyButtonProps = ButtonProps & {
 function CopyButton({
   onClick,
   content,
-  getButtonLabel = copied => (copied ? `Copied` : `Copy`),
-  getButtonTitle = copied =>
+  getButtonLabel = (copied) => (copied ? `Copied` : `Copy`),
+  getButtonTitle = (copied) =>
     copied ? `Copied to clipboard` : `Copy to clipboard`,
   delay = 5000,
   children,
@@ -41,7 +41,7 @@ function CopyButton({
   const timeoutRef = React.useRef<number | undefined>(undefined)
   const [copied, setCopied] = React.useState<boolean>(false)
 
-  const copyOnClick: React.MouseEventHandler<HTMLButtonElement> = e => {
+  const copyOnClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
     if (onClick) {
       onClick(e)
     }

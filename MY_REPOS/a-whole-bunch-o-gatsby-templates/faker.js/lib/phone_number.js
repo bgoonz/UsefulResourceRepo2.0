@@ -13,8 +13,8 @@ var Phone = function (faker) {
    * @memberOf faker.phone
    */
   self.phoneNumber = function (format) {
-      format = format || faker.phone.phoneFormats();
-      return faker.helpers.replaceSymbolWithNumber(format);
+    format = format || faker.phone.phoneFormats();
+    return faker.helpers.replaceSymbolWithNumber(format);
   };
 
   // FIXME: this is strange passing in an array index.
@@ -26,8 +26,10 @@ var Phone = function (faker) {
    * @memberOf faker.phone
    */
   self.phoneNumberFormat = function (phoneFormatsArrayIndex) {
-      phoneFormatsArrayIndex = phoneFormatsArrayIndex || 0;
-      return faker.helpers.replaceSymbolWithNumber(faker.definitions.phone_number.formats[phoneFormatsArrayIndex]);
+    phoneFormatsArrayIndex = phoneFormatsArrayIndex || 0;
+    return faker.helpers.replaceSymbolWithNumber(
+      faker.definitions.phone_number.formats[phoneFormatsArrayIndex]
+    );
   };
 
   /**
@@ -38,9 +40,8 @@ var Phone = function (faker) {
   self.phoneFormats = function () {
     return faker.random.arrayElement(faker.definitions.phone_number.formats);
   };
-  
-  return self;
 
+  return self;
 };
 
-module['exports'] = Phone;
+module["exports"] = Phone;

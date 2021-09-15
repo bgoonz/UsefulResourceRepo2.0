@@ -12,7 +12,7 @@ export type SerializedStyles = {|
   name: string,
   styles: string,
   map?: string,
-  next?: SerializedStyles
+  next?: SerializedStyles,
 |}
 
 export type EmotionCache = {
@@ -27,5 +27,5 @@ export type EmotionCache = {
     serialized: SerializedStyles,
     sheet: StyleSheet,
     shouldCache: boolean
-  ) => string | void
+  ) => string | void,
 }

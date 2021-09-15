@@ -42,7 +42,7 @@ const ToggleSwitchStory = ({
         valueOff="off"
         labelOn="Monthly"
         labelOff="Yearly"
-        onChange={e => setValue(e.target.value)}
+        onChange={(e) => setValue(e.target.value)}
         {...props}
         value={value}
       />
@@ -86,7 +86,7 @@ Sandbox.story = {
 }
 
 export const Tones = () =>
-  TOGGLE_TONES.map(tone => (
+  TOGGLE_TONES.map((tone) => (
     <div key={tone}>
       <p
         id={`toggleSwitchLabel--${tone}`}

@@ -7,7 +7,7 @@ import Link from "gatsby-link";
 import PropTypes from "prop-types";
 import React from "react";
 
-const Item = props => {
+const Item = (props) => {
   const {
     theme,
     post: {
@@ -17,11 +17,11 @@ const Item = props => {
         title,
         category,
         cover: {
-          children: [{ sizes }]
-        }
-      }
+          children: [{ sizes }],
+        },
+      },
     },
-    repo: { description } = {}
+    repo: { description } = {},
   } = props;
 
   return (
@@ -234,7 +234,7 @@ const Item = props => {
 Item.propTypes = {
   post: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
-  repo: PropTypes.object
+  repo: PropTypes.object,
 };
 
 export default Item;

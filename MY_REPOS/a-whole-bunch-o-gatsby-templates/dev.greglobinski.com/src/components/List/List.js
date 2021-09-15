@@ -2,18 +2,18 @@ import React from "react";
 import PropTypes from "prop-types";
 import Link from "gatsby-link";
 
-const List = props => {
+const List = (props) => {
   const { edges, theme } = props;
 
   return (
     <React.Fragment>
       <ul>
-        {edges.map(edge => {
+        {edges.map((edge) => {
           const {
             node: {
               frontmatter: { title },
-              fields: { slug }
-            }
+              fields: { slug },
+            },
           } = edge;
 
           return (
@@ -43,7 +43,7 @@ const List = props => {
 
 List.propTypes = {
   edges: PropTypes.array.isRequired,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default List;

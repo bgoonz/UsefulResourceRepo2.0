@@ -4,7 +4,7 @@ import styled from '../src'
 
 type Props = { color: string }
 const Foo = styled.div<Props>({
-  color: 'red'
+  color: 'red',
 })
 
 export const valid = <Foo color="red" />

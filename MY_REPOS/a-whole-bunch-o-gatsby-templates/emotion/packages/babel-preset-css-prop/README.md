@@ -60,7 +60,7 @@ babel --presets @emotion/babel-preset-css-prop script.js
 
 ```javascript
 require('@babel/core').transform(code, {
-  presets: ['@emotion/babel-preset-css-prop']
+  presets: ['@emotion/babel-preset-css-prop'],
 })
 ```
 
@@ -80,13 +80,13 @@ Import to `@emotion/core`'s appropriate JSX factory is automatically added to th
 **In**
 
 ```javascript
-const Link = props => (
+const Link = (props) => (
   <a
     css={{
       color: 'hotpink',
       '&:hover': {
-        color: 'darkorchid'
-      }
+        color: 'darkorchid',
+      },
     }}
     {...props}
   />
@@ -106,21 +106,20 @@ var _ref =
   process.env.NODE_ENV === 'production'
     ? {
         name: '1fpk7dx-Link',
-        styles: 'color:hotpink;&:hover{color:darkorchid;}label:Link;'
+        styles: 'color:hotpink;&:hover{color:darkorchid;}label:Link;',
       }
     : {
         name: '1fpk7dx-Link',
         styles: 'color:hotpink;&:hover{color:darkorchid;}label:Link;',
-        map:
-          '/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImF1dG9tYXRpYy1pbXBvcnQuanMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBRUkiLCJmaWxlIjoiYXV0b21hdGljLWltcG9ydC5qcyIsInNvdXJjZXNDb250ZW50IjpbImNvbnN0IExpbmsgPSBwcm9wcyA9PiAoXG4gIDxhXG4gICAgY3NzPXt7XG4gICAgICBjb2xvcjogJ2hvdHBpbmsnLFxuICAgICAgJyY6aG92ZXInOiB7XG4gICAgICAgIGNvbG9yOiAnZGFya29yY2hpZCdcbiAgICAgIH1cbiAgICB9fVxuICAgIHsuLi5wcm9wc31cbiAgLz5cbilcbiJdfQ== */'
+        map: '/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImF1dG9tYXRpYy1pbXBvcnQuanMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBRUkiLCJmaWxlIjoiYXV0b21hdGljLWltcG9ydC5qcyIsInNvdXJjZXNDb250ZW50IjpbImNvbnN0IExpbmsgPSBwcm9wcyA9PiAoXG4gIDxhXG4gICAgY3NzPXt7XG4gICAgICBjb2xvcjogJ2hvdHBpbmsnLFxuICAgICAgJyY6aG92ZXInOiB7XG4gICAgICAgIGNvbG9yOiAnZGFya29yY2hpZCdcbiAgICAgIH1cbiAgICB9fVxuICAgIHsuLi5wcm9wc31cbiAgLz5cbilcbiJdfQ== */',
       }
 
-const Link = props =>
+const Link = (props) =>
   ___EmotionJSX(
     'a',
     _extends(
       {
-        css: _ref
+        css: _ref,
       },
       props
     )

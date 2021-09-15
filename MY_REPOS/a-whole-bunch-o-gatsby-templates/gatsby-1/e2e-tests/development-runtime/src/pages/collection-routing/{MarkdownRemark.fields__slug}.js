@@ -4,7 +4,10 @@ import { Link, graphql } from "gatsby"
 import Layout from "../../components/layout"
 import SEO from "../../components/seo"
 
-export default function BlogPost({ data: { post }, pageContext: { fields__slug } }) {
+export default function BlogPost({
+  data: { post },
+  pageContext: { fields__slug },
+}) {
   return (
     <Layout>
       <SEO title={post.frontmatter.title} description={post.excerpt} />

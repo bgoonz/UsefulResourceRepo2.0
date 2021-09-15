@@ -9,7 +9,7 @@ export const resetDatabase = () => {
   })
 }
 
-export const visit = skipWaiting => {
+export const visit = (skipWaiting) => {
   console.log('visit this =', this)
 
   if (typeof skipWaiting !== 'boolean') {
@@ -32,15 +32,9 @@ export const visit = skipWaiting => {
 
 export const getTodoApp = () => cy.get('.todoapp')
 
-export const getTodoItems = () =>
-  getTodoApp()
-    .find('.todo-list')
-    .find('li')
+export const getTodoItems = () => getTodoApp().find('.todo-list').find('li')
 
-export const newId = () =>
-  Math.random()
-    .toString()
-    .substr(2, 10)
+export const newId = () => Math.random().toString().substr(2, 10)
 
 // if we expose "newId" factory method from the application
 // we can easily stub it. But this is a realistic example of
@@ -52,7 +46,7 @@ export const stubMathRandom = () => {
   // should be '1', '2', '3', ...
   let counter = 101
   cy.stub(Math, 'random').callsFake(() => counter++)
-  cy.window().then(win => {
+  cy.window().then((win) => {
     // inside test iframe
     cy.stub(win.Math, 'random').callsFake(() => counter++)
   })

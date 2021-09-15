@@ -651,9 +651,7 @@ declare module 'webpack-cli/lib/migrate/bannerPlugin/bannerPlugin.test.js' {
   declare module.exports: $Exports<'webpack-cli/lib/migrate/bannerPlugin/bannerPlugin.test'>;
 }
 declare module 'webpack-cli/lib/migrate/extractTextPlugin/__testfixtures__/extractTextPlugin.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/extractTextPlugin/__testfixtures__/extractTextPlugin.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/extractTextPlugin/__testfixtures__/extractTextPlugin.input'>;
 }
 declare module 'webpack-cli/lib/migrate/extractTextPlugin/extractTextPlugin.js' {
   declare module.exports: $Exports<'webpack-cli/lib/migrate/extractTextPlugin/extractTextPlugin'>;
@@ -668,24 +666,16 @@ declare module 'webpack-cli/lib/migrate/index.test.js' {
   declare module.exports: $Exports<'webpack-cli/lib/migrate/index.test'>;
 }
 declare module 'webpack-cli/lib/migrate/loaderOptionsPlugin/__testfixtures__/loaderOptionsPlugin-0.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/loaderOptionsPlugin/__testfixtures__/loaderOptionsPlugin-0.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/loaderOptionsPlugin/__testfixtures__/loaderOptionsPlugin-0.input'>;
 }
 declare module 'webpack-cli/lib/migrate/loaderOptionsPlugin/__testfixtures__/loaderOptionsPlugin-1.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/loaderOptionsPlugin/__testfixtures__/loaderOptionsPlugin-1.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/loaderOptionsPlugin/__testfixtures__/loaderOptionsPlugin-1.input'>;
 }
 declare module 'webpack-cli/lib/migrate/loaderOptionsPlugin/__testfixtures__/loaderOptionsPlugin-2.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/loaderOptionsPlugin/__testfixtures__/loaderOptionsPlugin-2.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/loaderOptionsPlugin/__testfixtures__/loaderOptionsPlugin-2.input'>;
 }
 declare module 'webpack-cli/lib/migrate/loaderOptionsPlugin/__testfixtures__/loaderOptionsPlugin-3.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/loaderOptionsPlugin/__testfixtures__/loaderOptionsPlugin-3.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/loaderOptionsPlugin/__testfixtures__/loaderOptionsPlugin-3.input'>;
 }
 declare module 'webpack-cli/lib/migrate/loaderOptionsPlugin/loaderOptionsPlugin.js' {
   declare module.exports: $Exports<'webpack-cli/lib/migrate/loaderOptionsPlugin/loaderOptionsPlugin'>;
@@ -730,19 +720,13 @@ declare module 'webpack-cli/lib/migrate/loaders/loaders.test.js' {
   declare module.exports: $Exports<'webpack-cli/lib/migrate/loaders/loaders.test'>;
 }
 declare module 'webpack-cli/lib/migrate/moduleConcatenationPlugin/__testfixtures__/moduleConcatenationPlugin-0.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/moduleConcatenationPlugin/__testfixtures__/moduleConcatenationPlugin-0.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/moduleConcatenationPlugin/__testfixtures__/moduleConcatenationPlugin-0.input'>;
 }
 declare module 'webpack-cli/lib/migrate/moduleConcatenationPlugin/__testfixtures__/moduleConcatenationPlugin-1.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/moduleConcatenationPlugin/__testfixtures__/moduleConcatenationPlugin-1.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/moduleConcatenationPlugin/__testfixtures__/moduleConcatenationPlugin-1.input'>;
 }
 declare module 'webpack-cli/lib/migrate/moduleConcatenationPlugin/__testfixtures__/moduleConcatenationPlugin-2.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/moduleConcatenationPlugin/__testfixtures__/moduleConcatenationPlugin-2.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/moduleConcatenationPlugin/__testfixtures__/moduleConcatenationPlugin-2.input'>;
 }
 declare module 'webpack-cli/lib/migrate/moduleConcatenationPlugin/moduleConcatenationPlugin.js' {
   declare module.exports: $Exports<'webpack-cli/lib/migrate/moduleConcatenationPlugin/moduleConcatenationPlugin'>;
@@ -751,19 +735,13 @@ declare module 'webpack-cli/lib/migrate/moduleConcatenationPlugin/moduleConcaten
   declare module.exports: $Exports<'webpack-cli/lib/migrate/moduleConcatenationPlugin/moduleConcatenationPlugin.test'>;
 }
 declare module 'webpack-cli/lib/migrate/namedModulesPlugin/__testfixtures__/namedModulesPlugin-0.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/namedModulesPlugin/__testfixtures__/namedModulesPlugin-0.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/namedModulesPlugin/__testfixtures__/namedModulesPlugin-0.input'>;
 }
 declare module 'webpack-cli/lib/migrate/namedModulesPlugin/__testfixtures__/namedModulesPlugin-1.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/namedModulesPlugin/__testfixtures__/namedModulesPlugin-1.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/namedModulesPlugin/__testfixtures__/namedModulesPlugin-1.input'>;
 }
 declare module 'webpack-cli/lib/migrate/namedModulesPlugin/__testfixtures__/namedModulesPlugin-2.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/namedModulesPlugin/__testfixtures__/namedModulesPlugin-2.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/namedModulesPlugin/__testfixtures__/namedModulesPlugin-2.input'>;
 }
 declare module 'webpack-cli/lib/migrate/namedModulesPlugin/namedModulesPlugin.js' {
   declare module.exports: $Exports<'webpack-cli/lib/migrate/namedModulesPlugin/namedModulesPlugin'>;
@@ -772,19 +750,13 @@ declare module 'webpack-cli/lib/migrate/namedModulesPlugin/namedModulesPlugin.te
   declare module.exports: $Exports<'webpack-cli/lib/migrate/namedModulesPlugin/namedModulesPlugin.test'>;
 }
 declare module 'webpack-cli/lib/migrate/noEmitOnErrorsPlugin/__testfixtures__/noEmitOnErrorsPlugin-0.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/noEmitOnErrorsPlugin/__testfixtures__/noEmitOnErrorsPlugin-0.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/noEmitOnErrorsPlugin/__testfixtures__/noEmitOnErrorsPlugin-0.input'>;
 }
 declare module 'webpack-cli/lib/migrate/noEmitOnErrorsPlugin/__testfixtures__/noEmitOnErrorsPlugin-1.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/noEmitOnErrorsPlugin/__testfixtures__/noEmitOnErrorsPlugin-1.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/noEmitOnErrorsPlugin/__testfixtures__/noEmitOnErrorsPlugin-1.input'>;
 }
 declare module 'webpack-cli/lib/migrate/noEmitOnErrorsPlugin/__testfixtures__/noEmitOnErrorsPlugin-2.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/noEmitOnErrorsPlugin/__testfixtures__/noEmitOnErrorsPlugin-2.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/noEmitOnErrorsPlugin/__testfixtures__/noEmitOnErrorsPlugin-2.input'>;
 }
 declare module 'webpack-cli/lib/migrate/noEmitOnErrorsPlugin/noEmitOnErrorsPlugin.js' {
   declare module.exports: $Exports<'webpack-cli/lib/migrate/noEmitOnErrorsPlugin/noEmitOnErrorsPlugin'>;
@@ -808,29 +780,19 @@ declare module 'webpack-cli/lib/migrate/outputPath/outputPath.test.js' {
   declare module.exports: $Exports<'webpack-cli/lib/migrate/outputPath/outputPath.test'>;
 }
 declare module 'webpack-cli/lib/migrate/removeDeprecatedPlugins/__testfixtures__/removeDeprecatedPlugins-0.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/removeDeprecatedPlugins/__testfixtures__/removeDeprecatedPlugins-0.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/removeDeprecatedPlugins/__testfixtures__/removeDeprecatedPlugins-0.input'>;
 }
 declare module 'webpack-cli/lib/migrate/removeDeprecatedPlugins/__testfixtures__/removeDeprecatedPlugins-1.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/removeDeprecatedPlugins/__testfixtures__/removeDeprecatedPlugins-1.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/removeDeprecatedPlugins/__testfixtures__/removeDeprecatedPlugins-1.input'>;
 }
 declare module 'webpack-cli/lib/migrate/removeDeprecatedPlugins/__testfixtures__/removeDeprecatedPlugins-2.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/removeDeprecatedPlugins/__testfixtures__/removeDeprecatedPlugins-2.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/removeDeprecatedPlugins/__testfixtures__/removeDeprecatedPlugins-2.input'>;
 }
 declare module 'webpack-cli/lib/migrate/removeDeprecatedPlugins/__testfixtures__/removeDeprecatedPlugins-3.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/removeDeprecatedPlugins/__testfixtures__/removeDeprecatedPlugins-3.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/removeDeprecatedPlugins/__testfixtures__/removeDeprecatedPlugins-3.input'>;
 }
 declare module 'webpack-cli/lib/migrate/removeDeprecatedPlugins/__testfixtures__/removeDeprecatedPlugins-4.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/removeDeprecatedPlugins/__testfixtures__/removeDeprecatedPlugins-4.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/removeDeprecatedPlugins/__testfixtures__/removeDeprecatedPlugins-4.input'>;
 }
 declare module 'webpack-cli/lib/migrate/removeDeprecatedPlugins/removeDeprecatedPlugins.js' {
   declare module.exports: $Exports<'webpack-cli/lib/migrate/removeDeprecatedPlugins/removeDeprecatedPlugins'>;
@@ -839,24 +801,16 @@ declare module 'webpack-cli/lib/migrate/removeDeprecatedPlugins/removeDeprecated
   declare module.exports: $Exports<'webpack-cli/lib/migrate/removeDeprecatedPlugins/removeDeprecatedPlugins.test'>;
 }
 declare module 'webpack-cli/lib/migrate/removeJsonLoader/__testfixtures__/removeJsonLoader-0.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/removeJsonLoader/__testfixtures__/removeJsonLoader-0.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/removeJsonLoader/__testfixtures__/removeJsonLoader-0.input'>;
 }
 declare module 'webpack-cli/lib/migrate/removeJsonLoader/__testfixtures__/removeJsonLoader-1.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/removeJsonLoader/__testfixtures__/removeJsonLoader-1.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/removeJsonLoader/__testfixtures__/removeJsonLoader-1.input'>;
 }
 declare module 'webpack-cli/lib/migrate/removeJsonLoader/__testfixtures__/removeJsonLoader-2.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/removeJsonLoader/__testfixtures__/removeJsonLoader-2.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/removeJsonLoader/__testfixtures__/removeJsonLoader-2.input'>;
 }
 declare module 'webpack-cli/lib/migrate/removeJsonLoader/__testfixtures__/removeJsonLoader-3.input.js' {
-  declare module.exports: $Exports<
-    'webpack-cli/lib/migrate/removeJsonLoader/__testfixtures__/removeJsonLoader-3.input'
-  >;
+  declare module.exports: $Exports<'webpack-cli/lib/migrate/removeJsonLoader/__testfixtures__/removeJsonLoader-3.input'>;
 }
 declare module 'webpack-cli/lib/migrate/removeJsonLoader/removeJsonLoader.js' {
   declare module.exports: $Exports<'webpack-cli/lib/migrate/removeJsonLoader/removeJsonLoader'>;

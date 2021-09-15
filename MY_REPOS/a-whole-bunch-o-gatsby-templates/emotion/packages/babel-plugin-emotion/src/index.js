@@ -9,23 +9,23 @@ import { getSourceMap, getStyledOptions } from './utils'
 let webStyledMacro = createStyledMacro({
   importPath: '@emotion/styled-base',
   originalImportPath: '@emotion/styled',
-  isWeb: true
+  isWeb: true,
 })
 let nativeStyledMacro = createStyledMacro({
   importPath: '@emotion/native',
   originalImportPath: '@emotion/native',
-  isWeb: false
+  isWeb: false,
 })
 let primitivesStyledMacro = createStyledMacro({
   importPath: '@emotion/primitives',
   originalImportPath: '@emotion/primitives',
-  isWeb: false
+  isWeb: false,
 })
 
 export const macros = {
   createEmotionMacro,
   css: cssMacro,
-  createStyledMacro
+  createStyledMacro,
 }
 
 export type BabelPath = any
@@ -33,9 +33,9 @@ export type BabelPath = any
 export type EmotionBabelPluginPass = any
 
 let emotionCoreMacroThatsNotARealMacro = ({ references, state, babel }) => {
-  Object.keys(references).forEach(refKey => {
+  Object.keys(references).forEach((refKey) => {
     if (refKey === 'css') {
-      references[refKey].forEach(path => {
+      references[refKey].forEach((path) => {
         transformCssCallExpression({ babel, state, path: path.parentPath })
       })
     }
@@ -59,7 +59,7 @@ function getInstancePathToCompare(instancePath: string, rootPath: string) {
   return absolutePath
 }
 
-export default function(babel: *) {
+export default function (babel: *) {
   let t = babel.types
   return {
     name: 'emotion',
@@ -91,10 +91,10 @@ export default function(babel: *) {
         if (t.isImportNamespaceSpecifier(path.node.specifiers[0])) {
           return
         }
-        const imports = path.node.specifiers.map(s => ({
+        const imports = path.node.specifiers.map((s) => ({
           localName: s.local.name,
           importedName:
-            s.type === 'ImportDefaultSpecifier' ? 'default' : s.imported.name
+            s.type === 'ImportDefaultSpecifier' ? 'default' : s.imported.name,
         }))
         let shouldExit = false
         let hasReferences = false
@@ -124,7 +124,7 @@ export default function(babel: *) {
          * See: https://github.com/kentcdodds/import-all.macro/issues/7
          */
         state.file.scope.path.traverse({
-          Identifier() {}
+          Identifier() {},
         })
 
         pluginMacros[path.node.source.value]({
@@ -132,7 +132,7 @@ export default function(babel: *) {
           state,
           babel,
           isBabelMacrosCall: true,
-          isEmotionCall: true
+          isEmotionCall: true,
         })
         if (!pluginMacros[path.node.source.value].keepImport) {
           path.remove()
@@ -140,7 +140,8 @@ export default function(babel: *) {
       },
       Program(path: *, state: *) {
         state.emotionInstancePaths = (state.opts.instances || []).map(
-          instancePath => getInstancePathToCompare(instancePath, process.cwd())
+          (instancePath) =>
+            getInstancePathToCompare(instancePath, process.cwd())
         )
         state.pluginMacros = {
           '@emotion/css': cssMacro,
@@ -148,7 +149,7 @@ export default function(babel: *) {
           '@emotion/core': emotionCoreMacroThatsNotARealMacro,
           '@emotion/primitives': primitivesStyledMacro,
           '@emotion/native': nativeStyledMacro,
-          emotion: createEmotionMacro('emotion')
+          emotion: createEmotionMacro('emotion'),
         }
         if (state.opts.cssPropOptimization === undefined) {
           for (const node of path.node.body) {
@@ -156,7 +157,7 @@ export default function(babel: *) {
               t.isImportDeclaration(node) &&
               node.source.value === '@emotion/core' &&
               node.specifiers.some(
-                x => t.isImportSpecifier(x) && x.imported.name === 'jsx'
+                (x) => t.isImportSpecifier(x) && x.imported.name === 'jsx'
               )
             ) {
               state.transformCssProp = true
@@ -202,12 +203,12 @@ export default function(babel: *) {
             babel,
             state,
             path: expressionPath,
-            sourceMap
+            sourceMap,
           })
           if (t.isCallExpression(expressionPath)) {
             if (!state.cssIdentifier) {
               state.cssIdentifier = addDefault(path, '@emotion/css', {
-                nameHint: 'css'
+                nameHint: 'css',
               })
             }
             expressionPath
@@ -234,8 +235,8 @@ export default function(babel: *) {
           } catch (e) {
             throw path.buildCodeFrameError(e)
           }
-        }
-      }
-    }
+        },
+      },
+    },
   }
 }

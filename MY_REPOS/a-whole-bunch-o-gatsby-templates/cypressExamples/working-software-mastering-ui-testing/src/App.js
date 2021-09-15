@@ -12,7 +12,7 @@ import {
   PASSWORD_PLACEHOLDER,
   SUCCESS_FEEDBACK,
   UNAUTHORIZED_ERROR,
-  USERNAME_PLACEHOLDER
+  USERNAME_PLACEHOLDER,
 } from "./strings";
 
 /**
@@ -38,11 +38,15 @@ function App() {
       // the real AJAX call
       response = await Axios.post(SERVER_URL + AUTHENTICATE_API_URL, {
         username: usr,
-        password: pwd
+        password: pwd,
       });
     } catch (e) {
       // 401 error means "unauthorized", it manages all the other error states as "generic" errors
-      setError(e.response && e.response.status === 401 ? UNAUTHORIZED_ERROR : GENERIC_ERROR);
+      setError(
+        e.response && e.response.status === 401
+          ? UNAUTHORIZED_ERROR
+          : GENERIC_ERROR
+      );
       setSuccess(false);
     }
     setLoading(false);
@@ -59,7 +63,7 @@ function App() {
   // @see https://slides.com/noriste/working-software-2019-mastering-ui-testing#test-shortcuts
   if (window.Cypress) {
     window.cypressShortcuts = {
-      authenticate
+      authenticate,
     };
   }
 
@@ -78,15 +82,17 @@ function App() {
         <input
           placeholder={USERNAME_PLACEHOLDER}
           value={username}
-          onChange={e => setUsername(e.target.value)}
+          onChange={(e) => setUsername(e.target.value)}
         />
         <input
           placeholder={PASSWORD_PLACEHOLDER}
           type="password"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
         />
-        <button onClick={() => authenticate(username, password)}>{LOGIN_BUTTON}</button>
+        <button onClick={() => authenticate(username, password)}>
+          {LOGIN_BUTTON}
+        </button>
         {/* AJAX loading feedbacks */}
         <span>
           {loading && LOADING}

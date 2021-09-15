@@ -2,7 +2,7 @@
 
 Gatsby [Contentful](https://www.contentful.com) starter for creating a blog
 
-![The index page of the starter blog](https://rawgit.com/contentful-userland/gatsby-contentful-starter/master/screenshot.jpg "The index page of the starter blog")
+![The index page of the starter blog](https://rawgit.com/contentful-userland/gatsby-contentful-starter/master/screenshot.jpg 'The index page of the starter blog')
 
 Static sites are scalable, secure and have very little required maintenance. They come with a drawback though. Not everybody feels good editing files, building a project and uploading it somewhere. This is where Contentful comes into play.
 
@@ -10,10 +10,10 @@ With Contentful and Gatsby you can connect your favorite static site generator w
 
 ## Features
 
-* Simple content model and structure. Easy to adjust to your needs.
-* Contentful integration using our [Sync API](https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/synchronization/initial-synchronization-of-entries-of-a-specific-content-type)
-* Using our [Delivery API](https://www.contentful.com/developers/docs/references/content-delivery-api/).
-* Responsive/adaptive images via [gatsby-image](https://www.gatsbyjs.org/packages/gatsby-image/)
+- Simple content model and structure. Easy to adjust to your needs.
+- Contentful integration using our [Sync API](https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/synchronization/initial-synchronization-of-entries-of-a-specific-content-type)
+- Using our [Delivery API](https://www.contentful.com/developers/docs/references/content-delivery-api/).
+- Responsive/adaptive images via [gatsby-image](https://www.gatsbyjs.org/packages/gatsby-image/)
 
 ## Contribution
 
@@ -44,7 +44,7 @@ $ gatsby new contentful-starter https://github.com/contentful-userland/gatsby-co
 
 This project comes with a Contentful setup command `yarn run setup`.
 
-![Command line dialog of the yarn run setup command](https://rawgit.com/contentful-userland/gatsby-contentful-starter/master/setup.jpg "Command line dialog of the yarn run setup command")
+![Command line dialog of the yarn run setup command](https://rawgit.com/contentful-userland/gatsby-contentful-starter/master/setup.jpg 'Command line dialog of the yarn run setup command')
 
 This command will ask you for a space ID, and access tokens for the Contentful Management and Delivery API and then import the needed content model into the space you define and write a config file (`./contentful.json`).
 

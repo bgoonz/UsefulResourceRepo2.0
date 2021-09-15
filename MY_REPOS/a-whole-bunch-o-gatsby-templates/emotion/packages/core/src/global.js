@@ -4,7 +4,7 @@ import { withEmotionCache, ThemeContext } from './context'
 import {
   type EmotionCache,
   type SerializedStyles,
-  insertStyles
+  insertStyles,
 } from '@emotion/utils'
 import { isBrowser } from './utils'
 
@@ -14,49 +14,48 @@ import { serializeStyles } from '@emotion/serialize'
 type Styles = Object | Array<Object>
 
 type GlobalProps = {
-  +styles: Styles | (Object => Styles)
+  +styles: Styles | ((Object) => Styles),
 }
 
 let warnedAboutCssPropForGlobal = false
 
-export let Global: React.StatelessFunctionalComponent<
-  GlobalProps
-> = /* #__PURE__ */ withEmotionCache((props: GlobalProps, cache) => {
-  if (
-    process.env.NODE_ENV !== 'production' &&
-    !warnedAboutCssPropForGlobal &&
-    // check for className as well since the user is
-    // probably using the custom createElement which
-    // means it will be turned into a className prop
-    // $FlowFixMe I don't really want to add it to the type since it shouldn't be used
-    (props.className || props.css)
-  ) {
-    console.error(
-      "It looks like you're using the css prop on Global, did you mean to use the styles prop instead?"
-    )
-    warnedAboutCssPropForGlobal = true
-  }
-  let styles = props.styles
+export let Global: React.StatelessFunctionalComponent<GlobalProps> =
+  /* #__PURE__ */ withEmotionCache((props: GlobalProps, cache) => {
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      !warnedAboutCssPropForGlobal &&
+      // check for className as well since the user is
+      // probably using the custom createElement which
+      // means it will be turned into a className prop
+      // $FlowFixMe I don't really want to add it to the type since it shouldn't be used
+      (props.className || props.css)
+    ) {
+      console.error(
+        "It looks like you're using the css prop on Global, did you mean to use the styles prop instead?"
+      )
+      warnedAboutCssPropForGlobal = true
+    }
+    let styles = props.styles
 
-  if (typeof styles === 'function') {
-    return (
-      <ThemeContext.Consumer>
-        {theme => {
-          let serialized = serializeStyles([styles(theme)])
+    if (typeof styles === 'function') {
+      return (
+        <ThemeContext.Consumer>
+          {(theme) => {
+            let serialized = serializeStyles([styles(theme)])
 
-          return <InnerGlobal serialized={serialized} cache={cache} />
-        }}
-      </ThemeContext.Consumer>
-    )
-  }
-  let serialized = serializeStyles([styles])
+            return <InnerGlobal serialized={serialized} cache={cache} />
+          }}
+        </ThemeContext.Consumer>
+      )
+    }
+    let serialized = serializeStyles([styles])
 
-  return <InnerGlobal serialized={serialized} cache={cache} />
-})
+    return <InnerGlobal serialized={serialized} cache={cache} />
+  })
 
 type InnerGlobalProps = {
   serialized: SerializedStyles,
-  cache: EmotionCache
+  cache: EmotionCache,
 }
 
 // maintain place over rerenders.
@@ -69,13 +68,11 @@ class InnerGlobal extends React.Component<InnerGlobalProps> {
     this.sheet = new StyleSheet({
       key: `${this.props.cache.key}-global`,
       nonce: this.props.cache.sheet.nonce,
-      container: this.props.cache.sheet.container
+      container: this.props.cache.sheet.container,
     })
     // $FlowFixMe
     let node: HTMLStyleElement | null = document.querySelector(
-      `style[data-emotion-${this.props.cache.key}="${
-        this.props.serialized.name
-      }"]`
+      `style[data-emotion-${this.props.cache.key}="${this.props.serialized.name}"]`
     )
 
     if (node !== null) {
@@ -98,8 +95,8 @@ class InnerGlobal extends React.Component<InnerGlobalProps> {
     }
     if (this.sheet.tags.length) {
       // if this doesn't exist then it will be null so the style element will be appended
-      let element = this.sheet.tags[this.sheet.tags.length - 1]
-        .nextElementSibling
+      let element =
+        this.sheet.tags[this.sheet.tags.length - 1].nextElementSibling
       this.sheet.before = ((element: any): Element | null)
       this.sheet.flush()
     }
@@ -137,7 +134,7 @@ class InnerGlobal extends React.Component<InnerGlobalProps> {
             {...{
               [`data-emotion-${this.props.cache.key}`]: serializedNames,
               dangerouslySetInnerHTML: { __html: rules },
-              nonce: this.props.cache.sheet.nonce
+              nonce: this.props.cache.sheet.nonce,
             }}
           />
         )

@@ -39,9 +39,8 @@ import { Theme, ThemeCss } from "../../../theme"
 import { INPUT_WIDTH, INPUT_VERTICAL_OFFSET_CALC } from "./FormGroupField"
 import { WithStyledFieldLabel } from "./FormField"
 
-export type RadioButtonFieldProps = WithFormGroupField<
-  RadioButtonFieldSkeletonProps
->
+export type RadioButtonFieldProps =
+  WithFormGroupField<RadioButtonFieldSkeletonProps>
 export function RadioButtonField({
   variant,
   layout,
@@ -100,7 +99,7 @@ export const RadioButtonFieldOption = React.forwardRef<
   )
 })
 
-const getFrameStyles: ThemeCss = theme => ({
+const getFrameStyles: ThemeCss = (theme) => ({
   border: `2px solid ${theme.colors.white}`,
   borderRadius: theme.radii[3],
   margin: 0,
@@ -108,88 +107,85 @@ const getFrameStyles: ThemeCss = theme => ({
   transition: `border .15s ease-in-out`,
 })
 
-export type RadioButtonFieldOptionLabelProps = RadioButtonFieldSkeletonOptionLabelProps &
-  FormGroupFieldOptionLabelProps
-export const RadioButtonFieldOptionLabel: React.FC<
-  RadioButtonFieldOptionLabelProps
-> = ({ size, ...rest }) => {
-  const { hasError } = useFormFieldSkeleton()
-  const { css, ...styledProps } = useStyledGroupFieldOptionLabel({ size })
-  const { variant } = useFormGroupField()
+export type RadioButtonFieldOptionLabelProps =
+  RadioButtonFieldSkeletonOptionLabelProps & FormGroupFieldOptionLabelProps
+export const RadioButtonFieldOptionLabel: React.FC<RadioButtonFieldOptionLabelProps> =
+  ({ size, ...rest }) => {
+    const { hasError } = useFormFieldSkeleton()
+    const { css, ...styledProps } = useStyledGroupFieldOptionLabel({ size })
+    const { variant } = useFormGroupField()
 
-  return (
-    <RadioButtonFieldSkeletonOptionLabel
-      css={(theme: Theme) => [
-        css(theme),
-        {
-          "&:before": {
-            backgroundColor: theme.colors.white,
-            border: hasError
-              ? `1px solid ${theme.colors.red[60]}`
-              : `2px solid ${theme.colors.grey[30]}`,
-            display: `block`,
-            borderRadius: `50%`,
-            content: `""`,
-            height: INPUT_WIDTH,
-            position: `absolute`,
-            top: 0,
-            left: 0,
-            transition: `border-color 0.15s ease-in-out`,
-            transform: `translate(0, calc(${INPUT_VERTICAL_OFFSET_CALC}))`,
-            width: INPUT_WIDTH,
-          },
-        },
-        variant === `framed` && [
-          getFrameStyles(theme),
+    return (
+      <RadioButtonFieldSkeletonOptionLabel
+        css={(theme: Theme) => [
+          css(theme),
           {
-            marginBottom: 0,
-            padding: `${theme.space[4]} ${theme.space[5]}`,
-            paddingLeft: `calc(${INPUT_WIDTH} + ${theme.space[7]})`,
             "&:before": {
-              left: theme.space[4],
-              top: theme.space[4],
+              backgroundColor: theme.colors.white,
+              border: hasError
+                ? `1px solid ${theme.colors.red[60]}`
+                : `2px solid ${theme.colors.grey[30]}`,
+              display: `block`,
+              borderRadius: `50%`,
+              content: `""`,
+              height: INPUT_WIDTH,
+              position: `absolute`,
+              top: 0,
+              left: 0,
+              transition: `border-color 0.15s ease-in-out`,
+              transform: `translate(0, calc(${INPUT_VERTICAL_OFFSET_CALC}))`,
+              width: INPUT_WIDTH,
             },
           },
-        ],
-      ]}
-      {...rest}
-      {...styledProps}
-    />
-  )
-}
+          variant === `framed` && [
+            getFrameStyles(theme),
+            {
+              marginBottom: 0,
+              padding: `${theme.space[4]} ${theme.space[5]}`,
+              paddingLeft: `calc(${INPUT_WIDTH} + ${theme.space[7]})`,
+              "&:before": {
+                left: theme.space[4],
+                top: theme.space[4],
+              },
+            },
+          ],
+        ]}
+        {...rest}
+        {...styledProps}
+      />
+    )
+  }
 
 export type RadioButtonFieldOptionFrameProps = Pick<
   JSX.IntrinsicElements["div"],
   "className" | "style"
 >
 
-export const RadioButtonFieldOptionFrame: React.FC<
-  RadioButtonFieldOptionFrameProps
-> = props => {
-  const { variant } = useFormGroupField()
+export const RadioButtonFieldOptionFrame: React.FC<RadioButtonFieldOptionFrameProps> =
+  (props) => {
+    const { variant } = useFormGroupField()
 
-  return (
-    <div
-      css={(theme: Theme) => [
-        variant !== `framed` ? getFrameStyles(theme) : {},
-        {
-          label: {
-            display: `block`,
-            margin: 0,
+    return (
+      <div
+        css={(theme: Theme) => [
+          variant !== `framed` ? getFrameStyles(theme) : {},
+          {
+            label: {
+              display: `block`,
+              margin: 0,
+            },
+            "&:focus-within": {
+              borderColor: theme.colors.purple[40],
+            },
           },
-          "&:focus-within": {
-            borderColor: theme.colors.purple[40],
-          },
-        },
-      ]}
-      {...props}
-    />
-  )
-}
+        ]}
+        {...props}
+      />
+    )
+  }
 
-export type RadioButtonFieldLabelProps = WithStyledFieldLabel<
-  RadioButtonFieldSkeletonLabelProps
->
+export type RadioButtonFieldLabelProps =
+  WithStyledFieldLabel<RadioButtonFieldSkeletonLabelProps>
 export function RadioButtonFieldLabel({
   children,
   size,
@@ -220,7 +216,8 @@ export function RadioButtonFieldOptions(props: RadioButtonFieldOptionsProps) {
   return <FormGroupFieldOptions {...props} />
 }
 
-export type RadioButtonFieldOptionWrapperProps = FormGroupFieldOptionWrapperProps
+export type RadioButtonFieldOptionWrapperProps =
+  FormGroupFieldOptionWrapperProps
 export function RadioButtonFieldOptionWrapper(
   props: RadioButtonFieldOptionWrapperProps
 ) {

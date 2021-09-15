@@ -15,7 +15,7 @@ const styles = () => ({
     color: "rgba(255,255,255,0.5)",
     "&:hover": {
       backgroundColor: "rgba(0, 0, 0, 0.2)",
-      color: "rgba(255,255,255,1)"
+      color: "rgba(255,255,255,1)",
     },
     ".opened &": {
       background: "rgba(0,0,0,0.7)",
@@ -24,13 +24,13 @@ const styles = () => ({
       color: "rgba(255,255,255,1)",
       "@media (min-width: 500px)": {
         transform: "none",
-        background: "rgba(0,0,0,0)"
-      }
-    }
-  }
+        background: "rgba(0,0,0,0)",
+      },
+    },
+  },
 });
 
-const CreditsDetailsToggle = props => {
+const CreditsDetailsToggle = (props) => {
   const { classes, detailsOpened, onClick } = props;
 
   return (
@@ -43,7 +43,7 @@ const CreditsDetailsToggle = props => {
 CreditsDetailsToggle.propTypes = {
   classes: PropTypes.object.isRequired,
   detailsOpened: PropTypes.bool.isRequired,
-  onClick: PropTypes.func.isRequired
+  onClick: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(CreditsDetailsToggle);

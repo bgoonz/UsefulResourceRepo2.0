@@ -30,20 +30,14 @@ export const Basic = () => (
   <InputField id="inputField">
     <InputFieldWrapper>
       <InputFieldLabel>Field label</InputFieldLabel>
-      <InputFieldControl onChange={e => action(`Change`)(e.target.value)} />
+      <InputFieldControl onChange={(e) => action(`Change`)(e.target.value)} />
     </InputFieldWrapper>
   </InputField>
 )
 
 export const Sandbox = () => {
-  const {
-    label,
-    labelSize,
-    error,
-    hint,
-    disabled,
-    required,
-  } = getFieldBlockSandboxProps()
+  const { label, labelSize, error, hint, disabled, required } =
+    getFieldBlockSandboxProps()
   const placeholder = text(`Placeholder`, `This is a placeholder`)
 
   return (
@@ -53,7 +47,7 @@ export const Sandbox = () => {
           {label}
         </InputFieldLabel>
         <InputFieldControl
-          onChange={e => action(`Change`)(e.target.value)}
+          onChange={(e) => action(`Change`)(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
           required={required}

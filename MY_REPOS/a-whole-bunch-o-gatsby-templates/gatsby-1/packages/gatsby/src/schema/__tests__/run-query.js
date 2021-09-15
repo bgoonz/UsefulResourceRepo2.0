@@ -728,15 +728,7 @@ describe(`Filter fields`, () => {
         // Note: needle property ranges from 1 to 99 or 100. Needles should not exist, otherwise binary search
         // is skipped entirely. This test is trying to verify the op when the needle misses with ~100 nodes.
         for (const needle of [
-          0,
-          1.5,
-          33.5,
-          49.5,
-          50.5,
-          66.5,
-          98.5,
-          99.5,
-          100.5,
+          0, 1.5, 33.5, 49.5, 50.5, 66.5, 98.5, 99.5, 100.5,
         ]) {
           it(`should pivot upward when needle does not exist, needle=${needle}`, async () => {
             // This caught a bug in the binary search algo which was incorrectly generating the next pivot index.
@@ -829,15 +821,7 @@ describe(`Filter fields`, () => {
         // Note: needle property ranges from 1 to 99 or 100. Needles should not exist, otherwise binary search
         // is skipped entirely. This test is trying to verify the op when the needle misses with ~100 nodes.
         for (const needle of [
-          0,
-          1.5,
-          33.5,
-          49.5,
-          50.5,
-          66.5,
-          98.5,
-          99.5,
-          100.5,
+          0, 1.5, 33.5, 49.5, 50.5, 66.5, 98.5, 99.5, 100.5,
         ]) {
           it(`should pivot upward when needle does not exist, needle=${needle}`, async () => {
             // This caught a bug in the binary search algo which was incorrectly generating the next pivot index.
@@ -930,15 +914,7 @@ describe(`Filter fields`, () => {
         // Note: needle property ranges from 1 to 99 or 100. Needles should not exist, otherwise binary search
         // is skipped entirely. This test is trying to verify the op when the needle misses with ~100 nodes.
         for (const needle of [
-          0,
-          1.5,
-          33.5,
-          49.5,
-          50.5,
-          66.5,
-          98.5,
-          99.5,
-          100.5,
+          0, 1.5, 33.5, 49.5, 50.5, 66.5, 98.5, 99.5, 100.5,
         ]) {
           it(`should pivot upward when needle does not exist, needle=${needle}`, async () => {
             // This caught a bug in the binary search algo which was incorrectly generating the next pivot index.
@@ -1032,15 +1008,7 @@ describe(`Filter fields`, () => {
         // Note: needle property ranges from 1 to 99 or 100. Needles should not exist, otherwise binary search
         // is skipped entirely. This test is trying to verify the op when the needle misses with ~100 nodes.
         for (const needle of [
-          0,
-          1.5,
-          33.5,
-          49.5,
-          50.5,
-          66.5,
-          98.5,
-          99.5,
-          100.5,
+          0, 1.5, 33.5, 49.5, 50.5, 66.5, 98.5, 99.5, 100.5,
         ]) {
           it(`should pivot upward when needle does not exist, needle=${needle}`, async () => {
             // This caught a bug in the binary search algo which was incorrectly generating the next pivot index.

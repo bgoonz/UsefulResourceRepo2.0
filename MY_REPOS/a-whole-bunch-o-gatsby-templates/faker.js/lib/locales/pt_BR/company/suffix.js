@@ -1,6 +1,1 @@
-module["exports"] = [
-  "S.A.",
-  "LTDA",
-  "e Associados",
-  "Comércio"
-];
+module["exports"] = ["S.A.", "LTDA", "e Associados", "Comércio"];

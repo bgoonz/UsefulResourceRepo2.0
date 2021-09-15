@@ -4,5 +4,5 @@ module.exports = {
   ...jest.requireActual('react-primitives'),
   View: 'View',
   Image: 'Image',
-  Text: 'Text'
+  Text: 'Text',
 }

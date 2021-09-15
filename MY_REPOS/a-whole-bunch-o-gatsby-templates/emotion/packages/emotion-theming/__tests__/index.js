@@ -9,11 +9,11 @@ test('with styled', () => {
   const theme = { bg: 'green', color: 'red' }
 
   const ThemedComponent = styled.div`
-    color: ${p => p.theme.color};
+    color: ${(p) => p.theme.color};
   `
 
   const ReThemedComponent = styled(ThemedComponent)`
-    background-color: ${p => p.theme.bg};
+    background-color: ${(p) => p.theme.bg};
   `
   const FinalComponent = styled(ReThemedComponent)`
     border: 1px solid blue;

@@ -12,10 +12,10 @@ const recast = require('recast')
 const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
 
-const simplifySet = src =>
+const simplifySet = (src) =>
   j(src)
     .find(j.FunctionDeclaration, { id: { name: 'set' } })
-    .forEach(path => {
+    .forEach((path) => {
       j(path).replaceWith(
         recast.parse(`function set(options) {
         var prefixOpt = options.prefix
@@ -37,11 +37,11 @@ const simplifySet = src =>
     })
     .toSource()
 
-const removeOptions = src =>
+const removeOptions = (src) =>
   j(src)
     .find(j.SwitchStatement)
-    .forEach(thing => {
-      thing.value.cases = thing.value.cases.filter(node => {
+    .forEach((thing) => {
+      thing.value.cases = thing.value.cases.filter((node) => {
         if (!node.test) return true
         switch (node.test.value) {
           case 'keyframe':
@@ -60,10 +60,10 @@ const removeOptions = src =>
     })
     .toSource()
 
-const setOptions = src =>
+const setOptions = (src) =>
   j(src)
     .find(j.VariableDeclarator)
-    .forEach(path => {
+    .forEach((path) => {
       switch (path.value.id.name) {
         case 'escape':
         case 'keyed': {
@@ -77,11 +77,11 @@ const setOptions = src =>
     })
     .toSource()
 
-const removeUMDWrapper = src => {
+const removeUMDWrapper = (src) => {
   let code
   j(src)
     .find(j.FunctionExpression, { id: { name: 'factory' } })
-    .forEach(path => {
+    .forEach((path) => {
       code = j(path).toSource()
     })
     .toSource()
@@ -114,15 +114,17 @@ async function doThing() {
   )
   // await writeFile('./src/stylis.js', result)
   console.log('start request')
-  const data = (await request('https://closure-compiler.appspot.com/compile', {
-    method: 'POST',
-    form: {
-      js_code: result,
-      compilation_level: 'ADVANCED_OPTIMIZATIONS',
-      output_format: 'text',
-      output_info: 'compiled_code'
-    }
-  })).toString()
+  const data = (
+    await request('https://closure-compiler.appspot.com/compile', {
+      method: 'POST',
+      form: {
+        js_code: result,
+        compilation_level: 'ADVANCED_OPTIMIZATIONS',
+        output_format: 'text',
+        output_info: 'compiled_code',
+      },
+    })
+  ).toString()
 
   let finalSrc = data.replace('window.stylis=', 'export default ')
 
@@ -130,7 +132,7 @@ async function doThing() {
     './src/stylis.min.js',
     prettier.format(finalSrc, {
       semi: false,
-      singleQuote: true
+      singleQuote: true,
     })
   )
 

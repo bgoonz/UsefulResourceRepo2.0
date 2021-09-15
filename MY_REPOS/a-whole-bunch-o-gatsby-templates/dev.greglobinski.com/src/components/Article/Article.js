@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const Article = props => {
+const Article = (props) => {
   const { children, theme } = props;
 
   return (
@@ -22,9 +22,7 @@ const Article = props => {
         }
         @from-width desktop {
           .article {
-            padding: ${`calc(${theme.space.default} * 2 + 90px) 0 calc(${
-              theme.space.default
-            } * 2)`};
+            padding: ${`calc(${theme.space.default} * 2 + 90px) 0 calc(${theme.space.default} * 2)`};
             max-width: ${theme.text.maxWidth.desktop};
           }
         }
@@ -35,7 +33,7 @@ const Article = props => {
 
 Article.propTypes = {
   children: PropTypes.node.isRequired,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default Article;

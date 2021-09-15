@@ -1,10 +1,10 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
 
-const SomeComponent = props => (
+const SomeComponent = (props) => (
   <div
     css={{
-      color: 'hotpink'
+      color: 'hotpink',
     }}
     {...props}
   />
