@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>zfs</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<p><a href="http://open-zfs.org/wiki/Main_Page">ZFS</a> is a rethinking of the storage stack, combining traditional file systems as well as volume managers into one cohesive tool. ZFS has some specific terminology that sets it apart from more traditional storage systems, however it has a great set of features with a focus on usability for systems administrators.</p>
+<h2 id="zfs-concepts">ZFS Concepts</h2>
+<h3 id="virtual-devices">Virtual Devices</h3>
+<p>A VDEV is similar to a raid device presented by a RAID card, there are several different types of VDEV’s that offer various advantages, including redundancy and speed. In general VDEV’s offer better reliability and safety than a RAID card. It is discouraged to use a RAID setup with ZFS, as ZFS expects to directly manage the underlying disks.</p>
+<p>Types of VDEV’s</p>
+<ul>
+<li>stripe (a single disk, no redundancy)</li>
+<li>mirror (n-way mirrors supported)</li>
+<li>raidz
+<ul>
+<li>raidz1 (1-disk parity, similar to RAID 5)</li>
+<li>raidz2 (2-disk parity, similar to RAID 6)</li>
+<li>raidz3 (3-disk parity, no RAID analog)</li>
+</ul></li>
+<li>disk</li>
+<li>file (not recommended for production due to another filesystem adding unnecessary layering)</li>
+</ul>
+<p>Your data is striped across all the VDEV’s present in your Storage Pool, so more VDEV’s will increase your IOPS.</p>
+<h3 id="storage-pools">Storage Pools</h3>
+<p>ZFS uses Storage Pools as an abstraction over the lower level storage provider (VDEV), allow you to separate the user visible file system from the physical layout.</p>
+<h3 id="zfs-dataset">ZFS Dataset</h3>
+<p>ZFS datasets are analogous to traditional filesystems but with many more features. They provide many of ZFS’s advantages. Datasets support <a href="https://en.wikipedia.org/wiki/Copy-on-write">Copy on Write</a> snapshots, quota’s, compression and de-duplication.</p>
+<h3 id="limits">Limits</h3>
+<p>One directory may contain up to 2^48 files, up to 16 exabytes each. A single storage pool can contain up to 256 zettabytes (2^78) of space, and can be striped across 2^64 devices. A single host can have 2^64 storage pools. The limits are huge.</p>
+<h2 id="commands">Commands</h2>
+<h3 id="storage-pools-1">Storage Pools</h3>
+<p>Actions:</p>
+<ul>
+<li>List</li>
+<li>Status</li>
+<li>Destroy</li>
+<li>Get/Set properties</li>
+</ul>
+<p>List zpools</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="co"># Create a raidz zpool</span></a>
+<a class="sourceLine" id="cb1-2" title="2">$ <span class="ex">zpool</span> create bucket raidz1 gpt/zfs0 gpt/zfs1 gpt/zfs2</a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="co"># List ZPools</span></a>
+<a class="sourceLine" id="cb1-5" title="5">$ <span class="ex">zpool</span> list</a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="ex">NAME</span>    SIZE  ALLOC   FREE  EXPANDSZ   FRAG    CAP  DEDUP  HEALTH  ALTROOT</a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="ex">zroot</span>   141G   106G  35.2G         -    43%    75%  1.00x  ONLINE  -</a>
+<a class="sourceLine" id="cb1-8" title="8"></a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="co"># List detailed information about a specific zpool</span></a>
+<a class="sourceLine" id="cb1-10" title="10">$ <span class="ex">zpool</span> list -v zroot</a>
+<a class="sourceLine" id="cb1-11" title="11"><span class="ex">NAME</span>                                     SIZE  ALLOC   FREE  EXPANDSZ   FRAG    CAP  DEDUP HEALTH  ALTROOT</a>
+<a class="sourceLine" id="cb1-12" title="12"><span class="ex">zroot</span>                                    141G   106G  35.2G         -    43%    75%  1.00x ONLINE  -</a>
+<a class="sourceLine" id="cb1-13" title="13">  <span class="ex">gptid/c92a5ccf-a5bb-11e4-a77d-001b2172c655</span>   141G   106G  35.2G         -    43%    75%</a></code></pre></div>
+<p>Status of zpools</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="co"># Get status information about zpools</span></a>
+<a class="sourceLine" id="cb2-2" title="2">$ <span class="ex">zpool</span> status</a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="ex">pool</span>: zroot</a>
+<a class="sourceLine" id="cb2-4" title="4"> <span class="ex">state</span>: ONLINE</a>
+<a class="sourceLine" id="cb2-5" title="5">  <span class="ex">scan</span>: scrub repaired 0 in 2h51m with 0 errors on Thu Oct  1 07:08:31 2015</a>
+<a class="sourceLine" id="cb2-6" title="6"><span class="ex">config</span>:</a>
+<a class="sourceLine" id="cb2-7" title="7"></a>
+<a class="sourceLine" id="cb2-8" title="8">        <span class="ex">NAME</span>                                          STATE     READ WRITE CKSUM</a>
+<a class="sourceLine" id="cb2-9" title="9">        <span class="ex">zroot</span>                                         ONLINE       0     0     0</a>
+<a class="sourceLine" id="cb2-10" title="10">          <span class="ex">gptid/c92a5ccf-a5bb-11e4-a77d-001b2172c655</span>  ONLINE       0     0     0</a>
+<a class="sourceLine" id="cb2-11" title="11"></a>
+<a class="sourceLine" id="cb2-12" title="12"><span class="ex">errors</span>: No known data errors</a>
+<a class="sourceLine" id="cb2-13" title="13"></a>
+<a class="sourceLine" id="cb2-14" title="14"><span class="co"># Scrubbing a zpool to correct any errors</span></a>
+<a class="sourceLine" id="cb2-15" title="15">$ <span class="ex">zpool</span> scrub zroot</a>
+<a class="sourceLine" id="cb2-16" title="16">$ <span class="ex">zpool</span> status -v zroot</a>
+<a class="sourceLine" id="cb2-17" title="17">  <span class="ex">pool</span>: zroot</a>
+<a class="sourceLine" id="cb2-18" title="18"> <span class="ex">state</span>: ONLINE</a>
+<a class="sourceLine" id="cb2-19" title="19">  <span class="ex">scan</span>: scrub in progress since Thu Oct 15 16:59:14 2015</a>
+<a class="sourceLine" id="cb2-20" title="20">        <span class="ex">39.1M</span> scanned out of 106G at 1.45M/s, 20h47m to go</a>
+<a class="sourceLine" id="cb2-21" title="21">        <span class="ex">0</span> repaired, 0.04% done</a>
+<a class="sourceLine" id="cb2-22" title="22"><span class="ex">config</span>:</a>
+<a class="sourceLine" id="cb2-23" title="23"></a>
+<a class="sourceLine" id="cb2-24" title="24">        <span class="ex">NAME</span>                                          STATE     READ WRITE CKSUM</a>
+<a class="sourceLine" id="cb2-25" title="25">        <span class="ex">zroot</span>                                         ONLINE       0     0     0</a>
+<a class="sourceLine" id="cb2-26" title="26">          <span class="ex">gptid/c92a5ccf-a5bb-11e4-a77d-001b2172c655</span>  ONLINE       0     0     0</a>
+<a class="sourceLine" id="cb2-27" title="27"></a>
+<a class="sourceLine" id="cb2-28" title="28"><span class="ex">errors</span>: No known data errors</a></code></pre></div>
+<p>Properties of zpools</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="co"># Getting properties from the pool properties can be user set or system provided.</span></a>
+<a class="sourceLine" id="cb3-3" title="3">$ <span class="ex">zpool</span> get all zroot</a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="ex">NAME</span>   PROPERTY                       VALUE                          SOURCE</a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="ex">zroot</span>  size                           141G                           -</a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="ex">zroot</span>  capacity                       75%                            -</a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="ex">zroot</span>  altroot                        -                              default</a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="ex">zroot</span>  health                         ONLINE                         -</a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="ex">...</span></a>
+<a class="sourceLine" id="cb3-10" title="10"></a>
+<a class="sourceLine" id="cb3-11" title="11"><span class="co"># Setting a zpool property</span></a>
+<a class="sourceLine" id="cb3-12" title="12">$ <span class="ex">zpool</span> set comment=<span class="st">&quot;Storage of mah stuff&quot;</span> zroot</a>
+<a class="sourceLine" id="cb3-13" title="13">$ <span class="ex">zpool</span> get comment</a>
+<a class="sourceLine" id="cb3-14" title="14"><span class="ex">NAME</span>   PROPERTY  VALUE                 SOURCE</a>
+<a class="sourceLine" id="cb3-15" title="15"><span class="ex">tank</span>   comment   -                     default</a>
+<a class="sourceLine" id="cb3-16" title="16"><span class="ex">zroot</span>  comment   Storage of mah stuff  local</a></code></pre></div>
+<p>Remove zpool</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1">$ <span class="ex">zpool</span> destroy test</a></code></pre></div>
+<h3 id="datasets">Datasets</h3>
+<p>Actions:</p>
+<ul>
+<li>Create</li>
+<li>List</li>
+<li>Rename</li>
+<li>Delete</li>
+<li>Get/Set properties</li>
+</ul>
+<p>Create datasets</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" title="1"><span class="co"># Create dataset</span></a>
+<a class="sourceLine" id="cb5-2" title="2">$ <span class="ex">zfs</span> create tank/root/data</a>
+<a class="sourceLine" id="cb5-3" title="3">$ <span class="fu">mount</span> <span class="kw">|</span> <span class="fu">grep</span> data</a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="ex">tank/root/data</span> on /data (zfs, local, nfsv4acls)</a>
+<a class="sourceLine" id="cb5-5" title="5"></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="co"># Create child dataset</span></a>
+<a class="sourceLine" id="cb5-7" title="7">$ <span class="ex">zfs</span> create tank/root/data/stuff</a>
+<a class="sourceLine" id="cb5-8" title="8">$ <span class="fu">mount</span> <span class="kw">|</span> <span class="fu">grep</span> data</a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="ex">tank/root/data</span> on /data (zfs, local, nfsv4acls)</a>
+<a class="sourceLine" id="cb5-10" title="10"><span class="ex">tank/root/data/stuff</span> on /data/stuff (zfs, local, nfsv4acls)</a>
+<a class="sourceLine" id="cb5-11" title="11"></a>
+<a class="sourceLine" id="cb5-12" title="12"></a>
+<a class="sourceLine" id="cb5-13" title="13"><span class="co"># Create Volume</span></a>
+<a class="sourceLine" id="cb5-14" title="14">$ <span class="ex">zfs</span> create -V zroot/win_vm</a>
+<a class="sourceLine" id="cb5-15" title="15">$ <span class="ex">zfs</span> list zroot/win_vm</a>
+<a class="sourceLine" id="cb5-16" title="16"><span class="ex">NAME</span>                 USED  AVAIL  REFER  MOUNTPOINT</a>
+<a class="sourceLine" id="cb5-17" title="17"><span class="ex">tank/win_vm</span>         4.13G  17.9G    64K  -</a></code></pre></div>
+<p>List datasets</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1"><span class="co"># List all datasets</span></a>
+<a class="sourceLine" id="cb6-2" title="2">$ <span class="ex">zfs</span> list</a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="ex">NAME</span>                                                                       USED  AVAIL  REFER  MOUNTPOINT</a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="ex">zroot</span>                                                                      106G  30.8G   144K  none</a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="ex">zroot/ROOT</span>                                                                18.5G  30.8G   144K  none</a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="ex">zroot/ROOT/10.1</span>                                                              8K  30.8G  9.63G  /</a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="ex">zroot/ROOT/default</span>                                                        18.5G  30.8G  11.2G  /</a>
+<a class="sourceLine" id="cb6-8" title="8"><span class="ex">zroot/backup</span>                                                              5.23G  30.8G   144K  none</a>
+<a class="sourceLine" id="cb6-9" title="9"><span class="ex">zroot/home</span>                                                                 288K  30.8G   144K  none</a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="ex">...</span></a>
+<a class="sourceLine" id="cb6-11" title="11"></a>
+<a class="sourceLine" id="cb6-12" title="12"><span class="co"># List a specific dataset</span></a>
+<a class="sourceLine" id="cb6-13" title="13">$ <span class="ex">zfs</span> list zroot/home</a>
+<a class="sourceLine" id="cb6-14" title="14"><span class="ex">NAME</span>         USED  AVAIL  REFER  MOUNTPOINT</a>
+<a class="sourceLine" id="cb6-15" title="15"><span class="ex">zroot/home</span>   288K  30.8G   144K  none</a>
+<a class="sourceLine" id="cb6-16" title="16"></a>
+<a class="sourceLine" id="cb6-17" title="17"><span class="co"># List snapshots</span></a>
+<a class="sourceLine" id="cb6-18" title="18">$ <span class="ex">zfs</span> list -t snapshot</a>
+<a class="sourceLine" id="cb6-19" title="19"><span class="ex">zroot@daily-2015-10-15</span>                                                                  0      -   144K  -</a>
+<a class="sourceLine" id="cb6-20" title="20"><span class="ex">zroot/ROOT@daily-2015-10-15</span>                                                             0      -   144K  -</a>
+<a class="sourceLine" id="cb6-21" title="21"><span class="ex">zroot/ROOT/default@daily-2015-10-15</span>                                                     0      -  24.2G  -</a>
+<a class="sourceLine" id="cb6-22" title="22"><span class="ex">zroot/tmp@daily-2015-10-15</span>                                                           124K      -   708M  -</a>
+<a class="sourceLine" id="cb6-23" title="23"><span class="ex">zroot/usr@daily-2015-10-15</span>                                                              0      -   144K  -</a>
+<a class="sourceLine" id="cb6-24" title="24"><span class="ex">zroot/home@daily-2015-10-15</span>                                                             0      -  11.9G  -</a>
+<a class="sourceLine" id="cb6-25" title="25"><span class="ex">zroot/var@daily-2015-10-15</span>                                                           704K      -  1.42G  -</a>
+<a class="sourceLine" id="cb6-26" title="26"><span class="ex">zroot/var/log@daily-2015-10-15</span>                                                       192K      -   828K  -</a>
+<a class="sourceLine" id="cb6-27" title="27"><span class="ex">zroot/var/tmp@daily-2015-10-15</span>                                                          0      -   152K  -</a></code></pre></div>
+<p>Rename datasets</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb7-1" title="1">$ <span class="ex">zfs</span> rename tank/root/home tank/root/old_home</a>
+<a class="sourceLine" id="cb7-2" title="2">$ <span class="ex">zfs</span> rename tank/root/new_home tank/root/home</a></code></pre></div>
+<p>Delete dataset</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb8-1" title="1"><span class="co"># Datasets cannot be deleted if they have any snapshots</span></a>
+<a class="sourceLine" id="cb8-2" title="2">$ <span class="ex">zfs</span> destroy tank/root/home</a></code></pre></div>
+<p>Get / set properties of a dataset</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb9-1" title="1"><span class="co"># Get all properties</span></a>
+<a class="sourceLine" id="cb9-2" title="2">$ <span class="ex">zfs</span> get all  zroot/usr/home                                                                                              │157 <span class="co"># Create Volume</span></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="ex">NAME</span>            PROPERTY              VALUE                  SOURCE                                                                          │158 $ zfs create -V zroot/win_vm</a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="ex">zroot/home</span>      type                  filesystem             -                                                                               │159 $ zfs list zroot/win_vm</a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="ex">zroot/home</span>      creation              Mon Oct 20 14:44 2014  -                                                                               │160 NAME                 USED  AVAIL  REFER  MOUNTPOINT</a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="ex">zroot/home</span>      used                  11.9G                  -                                                                               │161 tank/win_vm         4.13G  17.9G    64K  -</a>
+<a class="sourceLine" id="cb9-7" title="7"><span class="ex">zroot/home</span>      available             94.1G                  -                                                                               │162 <span class="kw">```</span></a>
+<a class="sourceLine" id="cb9-8" title="8"><span class="ex">zroot/home</span>      referenced            11.9G                  -                                                                               │163</a>
+<a class="sourceLine" id="cb9-9" title="9"><span class="ex">zroot/home</span>      mounted               yes                    -</a>
+<a class="sourceLine" id="cb9-10" title="10"><span class="ex">...</span></a>
+<a class="sourceLine" id="cb9-11" title="11"></a>
+<a class="sourceLine" id="cb9-12" title="12"><span class="co"># Get property from dataset</span></a>
+<a class="sourceLine" id="cb9-13" title="13">$ <span class="ex">zfs</span> get compression zroot/usr/home</a>
+<a class="sourceLine" id="cb9-14" title="14"><span class="ex">NAME</span>            PROPERTY     VALUE     SOURCE</a>
+<a class="sourceLine" id="cb9-15" title="15"><span class="ex">zroot/home</span>      compression  off       default</a>
+<a class="sourceLine" id="cb9-16" title="16"></a>
+<a class="sourceLine" id="cb9-17" title="17"><span class="co"># Set property on dataset</span></a>
+<a class="sourceLine" id="cb9-18" title="18">$ <span class="ex">zfs</span> set compression=gzip-9 mypool/lamb</a>
+<a class="sourceLine" id="cb9-19" title="19"></a>
+<a class="sourceLine" id="cb9-20" title="20"><span class="co"># Get a set of properties from all datasets</span></a>
+<a class="sourceLine" id="cb9-21" title="21">$ <span class="ex">zfs</span> list -o name,quota,reservation</a>
+<a class="sourceLine" id="cb9-22" title="22"><span class="ex">NAME</span>                                                               QUOTA  RESERV</a>
+<a class="sourceLine" id="cb9-23" title="23"><span class="ex">zroot</span>                                                               none    none</a>
+<a class="sourceLine" id="cb9-24" title="24"><span class="ex">zroot/ROOT</span>                                                          none    none</a>
+<a class="sourceLine" id="cb9-25" title="25"><span class="ex">zroot/ROOT/default</span>                                                  none    none</a>
+<a class="sourceLine" id="cb9-26" title="26"><span class="ex">zroot/tmp</span>                                                           none    none</a>
+<a class="sourceLine" id="cb9-27" title="27"><span class="ex">zroot/usr</span>                                                           none    none</a>
+<a class="sourceLine" id="cb9-28" title="28"><span class="ex">zroot/home</span>                                                          none    none</a>
+<a class="sourceLine" id="cb9-29" title="29"><span class="ex">zroot/var</span>                                                           none    none</a>
+<a class="sourceLine" id="cb9-30" title="30"><span class="ex">...</span></a></code></pre></div>
+<h3 id="snapshots">Snapshots</h3>
+<p>ZFS snapshots are one of the things about zfs that are a really big deal</p>
+<ul>
+<li>The space they take up is equal to the difference in data between the filesystem and its snapshot</li>
+<li>Creation time is only seconds</li>
+<li>Recovery is as fast as you can write data.</li>
+<li>They are easy to automate.</li>
+</ul>
+<p>Actions:</p>
+<ul>
+<li>Create</li>
+<li>Delete</li>
+<li>Rename</li>
+<li>Access snapshots</li>
+<li>Send / Receive</li>
+<li>Clone</li>
+</ul>
+<p>Create snapshots</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb10-1" title="1"><span class="co"># Create a snapshot of a single dataset</span></a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="ex">zfs</span> snapshot tank/home/sarlalian@now</a>
+<a class="sourceLine" id="cb10-3" title="3"></a>
+<a class="sourceLine" id="cb10-4" title="4"><span class="co"># Create a snapshot of a dataset and its children</span></a>
+<a class="sourceLine" id="cb10-5" title="5">$ <span class="ex">zfs</span> snapshot -r tank/home@now</a>
+<a class="sourceLine" id="cb10-6" title="6">$ <span class="ex">zfs</span> list -t snapshot</a>
+<a class="sourceLine" id="cb10-7" title="7"><span class="ex">NAME</span>                       USED  AVAIL  REFER  MOUNTPOINT</a>
+<a class="sourceLine" id="cb10-8" title="8"><span class="ex">tank/home@now</span>                 0      -    26K  -</a>
+<a class="sourceLine" id="cb10-9" title="9"><span class="ex">tank/home/sarlalian@now</span>       0      -   259M  -</a>
+<a class="sourceLine" id="cb10-10" title="10"><span class="ex">tank/home/alice@now</span>           0      -   156M  -</a>
+<a class="sourceLine" id="cb10-11" title="11"><span class="ex">tank/home/bob@now</span>             0      -   156M  -</a>
+<a class="sourceLine" id="cb10-12" title="12"><span class="ex">...</span></a></code></pre></div>
+<p>Destroy snapshots</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb11-1" title="1"><span class="co"># How to destroy a snapshot</span></a>
+<a class="sourceLine" id="cb11-2" title="2">$ <span class="ex">zfs</span> destroy tank/home/sarlalian@now</a>
+<a class="sourceLine" id="cb11-3" title="3"></a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="co"># Delete a snapshot on a parent dataset and its children</span></a>
+<a class="sourceLine" id="cb11-5" title="5">$ <span class="ex">zfs</span> destroy -r tank/home/sarlalian@now</a></code></pre></div>
+<p>Renaming Snapshots</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb12-1" title="1"><span class="co"># Rename a snapshot</span></a>
+<a class="sourceLine" id="cb12-2" title="2">$ <span class="ex">zfs</span> rename tank/home/sarlalian@now tank/home/sarlalian@today</a>
+<a class="sourceLine" id="cb12-3" title="3">$ <span class="ex">zfs</span> rename tank/home/sarlalian@now today</a>
+<a class="sourceLine" id="cb12-4" title="4"></a>
+<a class="sourceLine" id="cb12-5" title="5">$ <span class="ex">zfs</span> rename -r tank/home@now @yesterday</a></code></pre></div>
+<p>Accessing snapshots</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb13-1" title="1"><span class="co"># CD into a snapshot directory</span></a>
+<a class="sourceLine" id="cb13-2" title="2">$ <span class="bu">cd</span> /home/.zfs/snapshot/</a></code></pre></div>
+<p>Sending and Receiving</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb14-1" title="1"><span class="co"># Backup a snapshot to a file</span></a>
+<a class="sourceLine" id="cb14-2" title="2">$ <span class="ex">zfs</span> send tank/home/sarlalian@now <span class="kw">|</span> <span class="fu">gzip</span> <span class="op">&gt;</span> backup_file.gz</a>
+<a class="sourceLine" id="cb14-3" title="3"></a>
+<a class="sourceLine" id="cb14-4" title="4"><span class="co"># Send a snapshot to another dataset</span></a>
+<a class="sourceLine" id="cb14-5" title="5">$ <span class="ex">zfs</span> send tank/home/sarlalian@now <span class="kw">|</span> <span class="ex">zfs</span> recv backups/home/sarlalian</a>
+<a class="sourceLine" id="cb14-6" title="6"></a>
+<a class="sourceLine" id="cb14-7" title="7"><span class="co"># Send a snapshot to a remote host</span></a>
+<a class="sourceLine" id="cb14-8" title="8">$ <span class="ex">zfs</span> send tank/home/sarlalian@now <span class="kw">|</span> <span class="fu">ssh</span> root@backup_server <span class="st">&#39;zfs recv tank/home/sarlalian&#39;</span></a>
+<a class="sourceLine" id="cb14-9" title="9"></a>
+<a class="sourceLine" id="cb14-10" title="10"><span class="co"># Send full dataset with snapshots to new host</span></a>
+<a class="sourceLine" id="cb14-11" title="11">$ <span class="ex">zfs</span> send -v -R tank/home@now <span class="kw">|</span> <span class="fu">ssh</span> root@backup_server <span class="st">&#39;zfs recv tank/home&#39;</span></a></code></pre></div>
+<p>Cloning Snapshots</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb15-1" title="1"><span class="co"># Clone a snapshot</span></a>
+<a class="sourceLine" id="cb15-2" title="2">$ <span class="ex">zfs</span> clone tank/home/sarlalian@now tank/home/sarlalian_new</a>
+<a class="sourceLine" id="cb15-3" title="3"></a>
+<a class="sourceLine" id="cb15-4" title="4"><span class="co"># Promoting the clone so it is no longer dependent on the snapshot</span></a>
+<a class="sourceLine" id="cb15-5" title="5">$ <span class="ex">zfs</span> promote tank/home/sarlalian_new</a></code></pre></div>
+<h3 id="putting-it-all-together">Putting it all together</h3>
+<p>This following a script utilizing FreeBSD, jails and ZFS to automate provisioning a clean copy of a mysql staging database from a live replication slave.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb16-1" title="1"><span class="co">#!/bin/sh</span></a>
+<a class="sourceLine" id="cb16-2" title="2"></a>
+<a class="sourceLine" id="cb16-3" title="3"><span class="bu">echo</span> <span class="st">&quot;==== Stopping the staging database server ====&quot;</span></a>
+<a class="sourceLine" id="cb16-4" title="4"><span class="ex">jail</span> -r staging</a>
+<a class="sourceLine" id="cb16-5" title="5"></a>
+<a class="sourceLine" id="cb16-6" title="6"><span class="bu">echo</span> <span class="st">&quot;==== Cleaning up existing staging server and snapshot ====&quot;</span></a>
+<a class="sourceLine" id="cb16-7" title="7"><span class="ex">zfs</span> destroy -r zroot/jails/staging</a>
+<a class="sourceLine" id="cb16-8" title="8"><span class="ex">zfs</span> destroy zroot/jails/slave@staging</a>
+<a class="sourceLine" id="cb16-9" title="9"></a>
+<a class="sourceLine" id="cb16-10" title="10"><span class="bu">echo</span> <span class="st">&quot;==== Quiescing the slave database ====&quot;</span></a>
+<a class="sourceLine" id="cb16-11" title="11"><span class="bu">echo</span> <span class="st">&quot;FLUSH TABLES WITH READ LOCK;&quot;</span> <span class="kw">|</span> <span class="ex">/usr/local/bin/mysql</span> -u root -pmyrootpassword -h slave</a>
+<a class="sourceLine" id="cb16-12" title="12"></a>
+<a class="sourceLine" id="cb16-13" title="13"><span class="bu">echo</span> <span class="st">&quot;==== Snapshotting the slave db filesystem as zroot/jails/slave@staging ====&quot;</span></a>
+<a class="sourceLine" id="cb16-14" title="14"><span class="ex">zfs</span> snapshot zroot/jails/slave@staging</a>
+<a class="sourceLine" id="cb16-15" title="15"></a>
+<a class="sourceLine" id="cb16-16" title="16"><span class="bu">echo</span> <span class="st">&quot;==== Starting the slave database server ====&quot;</span></a>
+<a class="sourceLine" id="cb16-17" title="17"><span class="ex">jail</span> -c slave</a>
+<a class="sourceLine" id="cb16-18" title="18"></a>
+<a class="sourceLine" id="cb16-19" title="19"><span class="bu">echo</span> <span class="st">&quot;==== Cloning the slave snapshot to the staging server ====&quot;</span></a>
+<a class="sourceLine" id="cb16-20" title="20"><span class="ex">zfs</span> clone zroot/jails/slave@staging zroot/jails/staging</a>
+<a class="sourceLine" id="cb16-21" title="21"></a>
+<a class="sourceLine" id="cb16-22" title="22"><span class="bu">echo</span> <span class="st">&quot;==== Installing the staging mysql config ====&quot;</span></a>
+<a class="sourceLine" id="cb16-23" title="23"><span class="fu">mv</span> /jails/staging/usr/local/etc/my.cnf /jails/staging/usr/local/etc/my.cnf.slave</a>
+<a class="sourceLine" id="cb16-24" title="24"><span class="fu">cp</span> /jails/staging/usr/local/etc/my.cnf.staging /jails/staging/usr/local/etc/my.cnf</a>
+<a class="sourceLine" id="cb16-25" title="25"></a>
+<a class="sourceLine" id="cb16-26" title="26"><span class="bu">echo</span> <span class="st">&quot;==== Setting up the staging rc.conf file ====&quot;</span></a>
+<a class="sourceLine" id="cb16-27" title="27"><span class="fu">mv</span> /jails/staging/etc/rc.conf.local /jails/staging/etc/rc.conf.slave</a>
+<a class="sourceLine" id="cb16-28" title="28"><span class="fu">mv</span> /jails/staging/etc/rc.conf.staging /jails/staging/etc/rc.conf.local</a>
+<a class="sourceLine" id="cb16-29" title="29"></a>
+<a class="sourceLine" id="cb16-30" title="30"><span class="bu">echo</span> <span class="st">&quot;==== Starting the staging db server ====&quot;</span></a>
+<a class="sourceLine" id="cb16-31" title="31"><span class="ex">jail</span> -c staging</a>
+<a class="sourceLine" id="cb16-32" title="32"></a>
+<a class="sourceLine" id="cb16-33" title="33"><span class="bu">echo</span> <span class="st">&quot;==== Makes the staging database not pull from the master ====&quot;</span></a>
+<a class="sourceLine" id="cb16-34" title="34"><span class="bu">echo</span> <span class="st">&quot;STOP SLAVE;&quot;</span> <span class="kw">|</span> <span class="ex">/usr/local/bin/mysql</span> -u root -pmyrootpassword -h staging</a>
+<a class="sourceLine" id="cb16-35" title="35"><span class="bu">echo</span> <span class="st">&quot;RESET SLAVE;&quot;</span> <span class="kw">|</span> <span class="ex">/usr/local/bin/mysql</span> -u root -pmyrootpassword -h staging</a></code></pre></div>
+<h3 id="additional-reading">Additional Reading</h3>
+<ul>
+<li><a href="http://www.bsdnow.tv/tutorials/zfs">BSDNow’s Crash Course on ZFS</a></li>
+<li><a href="https://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/zfs.html">FreeBSD Handbook on ZFS</a></li>
+<li><a href="http://www.bsdnow.tv/tutorials/zfs">BSDNow’s Crash Course on ZFS</a></li>
+<li><a href="http://www.oracle.com/technetwork/articles/servers-storage-admin/sto-recommended-zfs-settings-1951715.html">Oracle’s Tuning Guide</a></li>
+<li><a href="http://open-zfs.org/wiki/Performance_tuning">OpenZFS Tuning Guide</a></li>
+<li><a href="https://wiki.freebsd.org/ZFSTuningGuide">FreeBSD ZFS Tuning Guide</a></li>
+</ul>
+</body>
+</html>

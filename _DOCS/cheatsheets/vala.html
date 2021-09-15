@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>vala</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<p>In GNOME’s own words, “Vala is a programming language that aims to bring modern programming language features to GNOME developers without imposing any additional runtime requirements and without using a different ABI compared to applications and libraries written in C.”</p>
+<p>Vala has aspects of Java and C#, so it’ll be natural to those who know either.</p>
+<p><a href="https://wiki.gnome.org/Projects/Vala">Read more here.</a></p>
+<pre class="vala"><code>
+// Single line comment
+
+/* Multiline
+Comment */
+
+/**
+* Documentation comment
+*/
+
+/* Data Types */
+
+char character = &#39;a&#39;
+unichar unicode_character = &#39;u&#39; // 32-bit unicode character
+
+int i = 2; // ints can also have guaranteed sizes (e.g. int64, uint64)
+uint j = -6; // Won&#39;t compile; unsigned ints can only be positive
+
+long k;
+
+short l;
+ushort m;
+
+string text = &quot;Hello,&quot;; // Note that the == operator will check string content
+
+string verbatim = &quot;&quot;&quot;This is a verbatim (a.k.a. raw) string. Special characters
+(e.g. \n and &quot;&quot;) are not interpreted. They may also be multiple lines long.&quot;&quot;&quot;;
+
+// String Templates allow for easy string formatting
+string string_template = @&quot;$text world&quot;; // &quot;$text&quot; evaluates to &quot;Hello,&quot;
+
+int test = 5;
+int test2 = 10;
+string template2 = @&quot;$(test * test2) is a number.&quot;; // Expression evaluation
+
+string template_slice = string_template[7:12]; // =&gt; &quot;world&quot;
+
+// Most data types have methods for parsing.
+
+bool parse_bool = bool.parse(&quot;false&quot;); // =&gt; false
+int parse_int = int.parse(&quot;-52&quot;); // =&gt; -52
+string parse_string = parse_int.to_string(); // =&gt; &quot;-52&quot;
+
+/* Basic I/O */
+
+stdout.printf(parse_string); // Prints to console
+string input = stdin.read_line(); // Gets input from console
+
+stderr.printf(&quot;Error message&quot;); // Error printing
+
+/* Arrays */
+
+int[] int_array = new int[10]; // Array of ints with 10 slots
+int better_int_array[10]; // Above expression, shortened
+int_array.length; // =&gt; 10;
+
+int[] int_array2 = {5, 10, 15, 20}; // Can be created on-the-fly
+
+int[] array_slice = int_array2[1:3]; // Slice (copy of data)
+unowned int[] array_slice_ref = int_array2[1:3]; // Reference to data
+
+// Multi-dimensional Arrays (defined with a number of commas in the brackets)
+
+int[,] multi_array = new int[6,4]; // 6 is the number of arrays, 4 is their size
+int[,] multi_array2 = {{7, 4, 6, 4},
+                       {3, 2, 4, 6},
+                       {5, 9, 5, 1}}; // new int[3,4]
+multi_array2[2,3] = 12; // 2 is the array, 3 is the index in the array
+int first_d = multi_array2.length[0] // =&gt; 3
+int second_d = multi_array2.length[1] // =&gt; 4
+
+// Stacked arrays (e.g. int[][]) where array lengths vary are not supported.
+
+// Multi-dimensional arrays cannot be sliced, nor can they be converted to one-
+// dimensional.
+
+int[] add_to_array = {};
+add_to_array += 12; // Arrays can be dynamically added to
+
+add_to_array.resize(20); // Array now has 20 slots
+
+uint8[] chars = &quot;test message&quot;.data;
+chars.move(5, 0, 7);
+stdout.printf((string) chars); // Casts the array to a string and prints it
+
+/* Control Flow */
+
+int a = 1;
+int b = 2;
+int[] foreach_demo = {2, 4, 6, 8};
+
+while (b &gt; a) { // While loop; checks if expression is true before executing
+  b--;
+}
+
+do {
+  b--;
+}
+while (b &gt; a); // Do While loop; executes the code in &quot;do&quot; before while (b &gt; a)
+
+for (a = 0; a &lt; 10; a++) { stdout.printf(&quot;%d\n&quot;, a); } // for loop
+
+foreach (int foreach_demo_var in foreach_demo) {
+  stdout.printf(&quot;%d\n&quot;, foreach_demo_var);
+} // foreach works on any iterable collection
+
+if (a == 0) {
+  stdout.printf(&quot;%d\n&quot;, a);
+} else if (a &gt; 1) {
+  stdout.printf(&quot;%d\n&quot;, a);
+} else {
+  stdout.printf(&quot;A is less than 0&quot;);
+} // if-then-else
+
+switch (a) {
+  case 1:
+    stdout.printf(&quot;A is 1\n&quot;);
+    break;
+  case 5:
+  case 10:
+    stdout.printf(&quot;A is 5 or 10\n&quot;);
+    break;
+  default:
+    stdout.printf(&quot;???\n&quot;)
+    break;
+} // switch statement
+
+/* Type Casting and Inference */
+
+int cast_to_float = 10;
+float casted_float = (float) cast_to_float; // static casting; no runtime checks
+
+// For runtime checks, use dynamic casting.
+// Dynamically casted objects must be the following:
+// - Object&#39;s class is the same class as the desired type
+// - Object&#39;s class is a subclass of the desired type
+// - Desired class is an interface implemented by the object&#39;s class
+
+float dyna_casted_float = cast_to_float as float // Won&#39;t compile
+
+var inferred_string = &quot;hello&quot;; // Type inference
+
+/* Methods (a.k.a. functions) */
+
+int method_demo(string arg1, Object arg2) { // Returns int and takes args
+    return 1;
+}
+
+// Vala methods cannot be overloaded.
+
+void some_method(string text) { }
+void some_method(int number) { }  // Won&#39;t compile
+
+// To achieve similar functionality, use default argument values.
+
+void some_better_method(string text, int number = 0) { }
+
+some_better_method(&quot;text&quot;);
+some_better_method(&quot;text&quot;, 12);
+
+// varargs (variable-length argument lists) are also supported.
+
+void method_with_varargs(int arg1, ...) {
+    var varargs_list = va_list(); // gets the varargs list
+
+    string arg_string = varargs_list.arg(); // gets arguments, one after another
+    int int_vararg = varargs_list.arg();
+
+    stdout.printf(&quot;%s, %d\n&quot;, arg_string, int_vararg)
+}
+
+string? ok_to_be_null(int? test_int) { } // &quot;?&quot; denotes possible null value
+
+// Delegates
+
+delegate void DelegateDemo(char char_a);
+
+void delegate_match(char char_a) { // Matches DelegateDemo&#39;s signature
+  stdout.printf(&quot;%d\n&quot;);
+}
+
+void call_delegate(DelegateDemo d, char char_b) { // Takes a delegate arg
+  d(char_b) // calls delegate
+}
+
+void final_delegate_demo() {
+  call_delegate(delegate_match); // Passes matching method as argument
+}
+
+// Lambdas (a.k.a. Anonymous Methods) are defined with &quot;=&gt;&quot;
+
+(a) =&gt; { stdout.printf(&quot;%d\n&quot;, a); } // Prints &quot;a&quot;
+
+/* Namespaces */
+
+namespace NamespaceDemo {
+  // Allows you to organize variable names
+  int namespace_int = 12;
+}
+namespace_int += 5; // Won&#39;t compile
+
+using NamespaceDemo;
+namespace_int += 5; // Valid
+
+/* Structs and Enums */
+
+struct Closet {
+  public uint shirts; // Default access modifier is private
+  public uint jackets;
+}
+
+Closet struct_init_1 = Closet(); // or Closet struct_init_1 = {};
+Closet struct_init_2 = {15, 3};
+var struct_init_3 = Closet() { // Type inference also works
+  shirts = 15;
+  jackets = 3;
+}
+
+enum HouseSize { // An example of an enum
+  SMALL,
+  MODERATE,
+  BIG
+}
+
+/* Classes and Object-Oriented Programming */
+
+class Message : GLib.Object { // Class Message extends GLib&#39;s Object
+  private string sender; // a private field
+  public string text {get; set;} // a public property (more on that later)
+  protected bool is_digital = true; // protected (this class and subclasses)
+  internal bool sent = false; // internal (classes in same package)
+
+  public void send(string sender) { // public method
+    this.sender = sender;
+    sent = true;
+  }
+
+  public Message() { // Constructor
+    // ...
+  }
+
+}
+
+// Since method overloading isn&#39;t possible, you can&#39;t overload constructors.
+// However, you can use named constructors to achieve the same functionality.
+
+public class Calculator : GLib.Object {
+
+    public Calculator() {
+    }
+
+    public Calculator.with_name(string name) {
+    }
+
+    public Calculator.model(string model_id, string name = &quot;&quot;) {
+      this.with_name(@&quot;$model_id $name&quot;); // Chained constructors with &quot;this&quot;
+    }
+    ~Calculator() { } // Only needed if you&#39;re using manual memory management
+}
+
+var calc1 = new Calculator.with_name(&quot;Temp&quot;);
+var calc2 = new Calculator.model(&quot;TI-84&quot;);
+
+// Signals (a.k.a. events or event listeners) are a way to execute multiple
+// methods with the same signature at the same time.
+
+public class SignalDemo : GLib.Object {
+  public signal void sig_demo(int sig_demo_int); // Must be public
+
+  public static int main(string[] args) {
+    // main method; program does not compile without it
+
+    var sig_demo_class = new SignalDemo(); // New instance of class
+
+    sig_demo_class.sig_demo.connect((ob, sig_int) =&gt; { // Lambda used as handler
+        stdout.printf(&quot;%d\n&quot;, sig_int); // &quot;ob&quot; is object on which it is emitted
+      });
+
+    sig_demo_class.sig_demo(27); // Signal is emitted
+
+    return 0;
+  }
+}
+
+// You may use the connect() method and attach as many handlers as you&#39;d like.
+// They&#39;ll all run at around the same time when the signal is emitted.
+
+// Properties (getters and setters)
+
+class Animal : GLib.Object {
+  private int _legs; // prefixed with underscore to prevent name clashes
+
+  public int legs {
+    get { return _legs; }
+    set { _legs = value; }
+  }
+
+  public int eyes { get; set; default = 5; } // Shorter way
+  public int kingdom { get; private set; default = &quot;Animalia&quot;} // Read-only
+
+  public static void main(string args[]) {
+    rabbit = new Animal();
+
+    // All GLib.Objects have a signal &quot;notify&quot; emitted when a property changes.
+
+    // If you specify a specific property, replace all underscores with dashes
+    // to conform to the GObject naming convention.
+
+    rabbit.notify[&quot;eyes&quot;].connect((s, p) =&gt; { // Remove the [&quot;eyes&quot;] for all
+      stdout.printf(&quot;Property &#39;%s&#39; has changed!\n&quot;, p.name);
+    });
+
+    rabbit.legs = 2;
+    rabbit.legs += 2;
+    rabbit.eyes = 2;
+
+  }
+}
+
+// Inheritance: Vala classes may inherit 1 class. Inheritance is not implicit.
+
+class SuperDemo : GLib.Object {
+  public int data1;
+  protected int data2;
+  internal int data3;
+  private int data4;
+
+  public static void test_method {  } // Statics can be called w/out an object
+}
+class SubDemo : SuperDemo {
+  public static void main(string args[]) {
+    stdout.printf((string) data1); // Will compile
+    stdout.printf((string) data2); // Protected can be accessed by subclasses
+    stdout.printf((string) data3); // Internal is accessible to package
+    stdout.printf((string) data4); // Won&#39;t compile
+  }
+}
+
+// Abstract Classes and Methods
+
+public abstract class OperatingSystem : GLib.Object {
+  public void turn_on() {
+    stdout.printf(&quot;Booted successfully.\n&quot;);
+  }
+  public abstract void use_computer();
+}
+
+public class Linux : OperatingSystem {
+  public override void use_computer() { // Abstract methods must be overridden
+    stdout.printf(&quot;Beep boop\n&quot;);
+  }
+}
+
+// Add default behavior to an abstract method by making it &quot;virtual&quot;.
+
+public abstract class HardDrive : GLib.Object {
+  public virtual void die() {
+    stdout.printf(&quot;CLICK-CLICK-CLICK\n&quot;);
+  }
+}
+public class MyHD : HardDrive {
+  public override void die() {
+    return;
+  }
+}
+
+// Interfaces: classes can implement any number of these.
+
+interface Laptop { // May only contain abstracts or virtuals
+  public abstract void turn_on();
+  public abstract void turn_off();
+
+  public abstract int cores; // Won&#39;t compile; fields cannot be abstract
+  public abstract int cores {get; set;} // Will compile
+
+  public virtual void keyboard() { // Virtuals are allowed (unlike Java/C#)
+    stdout.printf(&quot;Clickity-clack\n&quot;);
+  }
+}
+
+// The ability to use virtuals in Vala means that multiple inheritance is
+// possible (albeit somewhat confined)
+
+// Interfaces cannot implement interfaces, but they may specify that certain
+// interfaces or classes must be also implemented (pre-requisites).
+
+public interface CellPhone : Collection, GLib.Object {}
+
+// You can get the type info of a class at runtime dynamically.
+
+bool type_info = object is TypeName; // uses &quot;is&quot; to get a bool
+
+Type type_info2 = object.get_type();
+var type_name = type_info2.name();
+
+Type type_info3 = typeof(Linux);
+Linux type_demo = (Linux) Object.new(type_info3);
+
+// Generics
+
+class Computer&lt;OperatingSystem&gt; : GLib.Object {
+  private OperatingSystem os;
+
+  public void install_os(OperatingSystem os) {
+    this.os = os;
+  }
+  public OperatingSystem retrieve_os() {
+    return this.os;
+  }
+}
+
+var new_computer = new Computer&lt;Linux&gt;();
+
+/* Other Features */
+
+// Assertions: crash if a statement is not true (at runtime)
+
+bool is_true = true;
+assert(is_true);
+
+// Contract Programming
+
+int contract_demo(int arg1, int arg2) {
+  requires(arg1 &gt; 0 &amp;&amp; arg1 &lt; 10) // Notice the lack of semicolon
+  requires(arg2 &gt;= 12)
+  ensures(result &gt;= 0)
+}
+
+// Error Handling
+
+void error_demo(int int_ex) throws GError {
+  if (int_ex != 1) {
+    throw new GError(&quot;TEST MESSAGE&quot;);
+  }
+}
+void error_demo2() {
+  try {
+    error_demo(0);
+  } catch (GError ge) {
+    stdout.printf(&quot;%s\n&quot;, ge.message);
+  }
+}
+
+// Main Loop
+
+void main() {
+
+  var main_loop = new MainLoop();
+  var time = new TimeoutSource(2000);
+
+  time.set_callback(() =&gt; { // Executes the following lambda after 2000ms
+      stdout.printf(&quot;2000ms have passed\n&quot;);
+      main_loop.quit();
+      return false;
+  });
+
+  time.attach(main_loop.get_context());
+
+  loop.run();
+}
+
+// Pointers (manual memory management)
+
+Object* pointer_obj = new Object(); // Creates Object instance and gives pointer
+
+pointer_obj-&gt;some_method(); // Executes some_method
+pointer_obj-&gt;some_data; // Returns some_data
+
+delete pointer_obj;
+
+int more = 57;
+int* more_pointer = &amp;i; // &amp; = address-of
+int indirection_demo = more_pointer*; // indirection
+
+// Profiles: affect which Vala features are avaliable and which libraries the
+// C-code will use.
+// - gobject (default)
+// posix
+// dova
+// Use &quot;--profile=whatever&quot; when compiling.
+</code></pre>
+<ul>
+<li>More Vala documentation can be found <a href="https://valadoc.org/">here</a>.</li>
+<li><a href="https://wiki.gnome.org/Projects/Vala/Tutorial#GObject-Style_Construction">Alternate construction syntax</a> similar to GObject</li>
+<li>More on contract programming <a href="http://en.wikipedia.org/wiki/Contract_programming">here</a></li>
+<li>Collections library can be found <a href="https://wiki.gnome.org/Projects/Vala/Tutorial#Collections">here</a></li>
+<li><a href="https://wiki.gnome.org/Projects/Vala/Tutorial#Multi-Threading">Multithreading</a></li>
+<li>Read about building GUIs with GTK+ and Vala <a href="http://archive.is/7C7bw">here</a>.</li>
+<li>D-Bus <a href="https://wiki.gnome.org/Projects/Vala/Tutorial#D-Bus_Integration">integration</a></li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>shallow-routing</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="shallow-routing">Shallow Routing</h1>
+    <details>
+      <summary><b>Examples</b></summary>
+      <ul>
+        <li>
+          <a
+            href="https://github.com/vercel/next.js/tree/canary/examples/with-shallow-routing"
+            >Shallow Routing</a
+          >
+        </li>
+      </ul>
+    </details>
+    <p>
+      Shallow routing allows you to change the URL without running data fetching
+      methods again, that includes
+      <a
+        href="/docs/basic-features/data-fetching.md#getserversideprops-server-side-rendering"
+        ><code>getServerSideProps</code></a
+      >,
+      <a
+        href="/docs/basic-features/data-fetching.md#getstaticprops-static-generation"
+        ><code>getStaticProps</code></a
+      >, and
+      <a href="/docs/api-reference/data-fetching/getInitialProps.md"
+        ><code>getInitialProps</code></a
+      >.
+    </p>
+    <p>
+      You’ll receive the updated <code>pathname</code> and the
+      <code>query</code> via the
+      <a href="/docs/api-reference/next/router.md#router-object"
+        ><code>router</code> object</a
+      >
+      (added by
+      <a href="/docs/api-reference/next/router.md#useRouter"
+        ><code>useRouter</code></a
+      >
+      or
+      <a href="/docs/api-reference/next/router.md#withRouter"
+        ><code>withRouter</code></a
+      >), without losing state.
+    </p>
+    <p>
+      To enable shallow routing, set the <code>shallow</code> option to
+      <code>true</code>. Consider the following example:
+    </p>
+    <pre class="jsx"><code>import { useEffect } from &#39;react&#39;
+import { useRouter } from &#39;next/router&#39;
+
+// Current URL is &#39;/&#39;
+function Page() {
+  const router = useRouter()
+
+  useEffect(() =&gt; {
+    // Always do navigations after the first render
+    router.push(&#39;/?counter=10&#39;, undefined, { shallow: true })
+  }, [])
+
+  useEffect(() =&gt; {
+    // The counter changed!
+  }, [router.query.counter])
+}
+
+export default Page</code></pre>
+    <p>
+      The URL will get updated to <code>/?counter=10</code>. and the page won’t
+      get replaced, only the state of the route is changed.
+    </p>
+    <p>
+      You can also watch for URL changes via
+      <a href="https://reactjs.org/docs/react-component.html#componentdidupdate"
+        ><code>componentDidUpdate</code></a
+      >
+      as shown below:
+    </p>
+    <pre class="jsx"><code>componentDidUpdate(prevProps) {
+  const { pathname, query } = this.props.router
+  // verify props have changed to avoid an infinite loop
+  if (query.counter !== prevProps.router.query.counter) {
+    // fetch data based on the new query
+  }
+}</code></pre>
+    <h2 id="caveats">Caveats</h2>
+    <p>
+      Shallow routing <strong>only</strong> works for same page URL changes. For
+      example, let’s assume we have another page called
+      <code>pages/about.js</code>, and you run this:
+    </p>
+    <pre
+      class="jsx"
+    ><code>router.push(&#39;/?counter=10&#39;, &#39;/about?counter=10&#39;, { shallow: true })</code></pre>
+    <p>
+      Since that’s a new page, it’ll unload the current page, load the new one
+      and wait for data fetching even though we asked to do shallow routing.
+    </p>
+  </body>
+</html>
