@@ -1,0 +1,165 @@
+# This configuration is partially based on the CircleCI blog post on publishing NPM packages
+# https://circleci.com/blog/publishing-npm-packages-using-circleci-2-0/
+version: 2
+
+# Default configuration that can be shared between jobs
+defaults: &defaults
+  working_directory: ~/repo
+  docker:
+    - image: circleci/node:10
+
+jobs:
+  # This job checks that the code is good to go (e.g. to be merged or released)
+  is-green:
+    <<: *defaults
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies- # fallback to using the latest cache if no exact match is found
+
+      - run:
+          name: Install yarn
+          command: |
+            curl -o- -L https://yarnpkg.com/install.sh
+      - run:
+          name: Install Dependencies
+          command: yarn install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - run:
+          name: Type check
+          command: yarn type-check
+
+      - run:
+          name: Test
+          command: yarn test
+
+      - run:
+          name: Chromatic
+          command: yarn chromatic:ci
+
+      - persist_to_workspace:
+          root: ~/repo
+          paths: .
+  # This job publishes as prerelease version tagged with a normalized branch name, e.g. gatsby-interface@Elanhant-avatar-component
+  branch-prerelease:
+    <<: *defaults
+    steps:
+      - checkout
+
+      - attach_workspace:
+          at: ~/repo
+
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Run branch prerelease script
+          command: npm run release:branch
+  # This job publishes as prerelease version, available as gatsby-interface@next
+  prerelease:
+    <<: *defaults
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "7a:12:8a:c3:cf:c8:fe:f0:02:76:20:de:df:89:3d:ad"
+
+      - checkout
+
+      - attach_workspace:
+          at: ~/repo
+
+      - run:
+          name: Configure Git
+          command: |
+            git config user.email aleksei+CircleCI@gatsbyjs.com
+            git config user.name "Circle CI"
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Release "next" version
+          command: npm run release -- --no-verify --prerelease next --skip.changelog=true
+      - run:
+          name: Publish to NPM
+          command: git push --follow-tags origin dev && npm publish --tag next
+  # This job publishes a new stable version
+  release:
+    <<: *defaults
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "7a:12:8a:c3:cf:c8:fe:f0:02:76:20:de:df:89:3d:ad"
+
+      - checkout
+
+      - attach_workspace:
+          at: ~/repo
+
+      - run:
+          name: Configure Git
+          command: |
+            git config user.email aleksei+CircleCI@gatsbyjs.com
+            git config user.name "Circle CI"
+      - run:
+          name: Build package
+          command: yarn build
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Release "next" version
+          command: npm run release -- --no-verify
+      - run:
+          name: Publish to NPM
+          command: git push --follow-tags origin master && npm publish
+
+workflows:
+  version: 2
+  run-branch-prerelease:
+    jobs:
+      - is-green:
+          filters:
+            branches:
+              ignore:
+                - master
+                - dev
+      - branch-prerelease:
+          requires:
+            - is-green
+          filters:
+            branches:
+              ignore:
+                - master
+                - dev
+  run-prerelease:
+    jobs:
+      - is-green:
+          filters:
+            branches:
+              only: dev
+      - prerelease:
+          requires:
+            - is-green
+          filters:
+            branches:
+              only: dev
+  run-release:
+    jobs:
+      - is-green:
+          filters:
+            branches:
+              only: master
+      - release:
+          requires:
+            - is-green
+          filters:
+            branches:
+              only: master
