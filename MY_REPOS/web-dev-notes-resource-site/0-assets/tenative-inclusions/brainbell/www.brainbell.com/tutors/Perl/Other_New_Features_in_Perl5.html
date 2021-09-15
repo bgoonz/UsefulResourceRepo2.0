@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <!-- Mirrored from www.brainbell.com/tutors/Perl/Other_New_Features_in_Perl5.htm by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Feb 2021 02:57:40 GMT -->
+  <!-- Added by HTTrack --><meta
+    http-equiv="content-type"
+    content="text/html;charset=utf-8"
+  /><!-- /Added by HTTrack -->
+  <head>
+    <meta charset="UTF-8" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = true;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/boise.js",
+        "https://www.brainbell.com/detroitchicago/boise.js?gcb=192-11&amp;cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/memphis.js",
+        "https://www.brainbell.com/detroitchicago/memphis.js?gcb=192-11&amp;cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/minneapolis.js",
+        "https://www.brainbell.com/detroitchicago/minneapolis.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "https://www.brainbell.com/detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "https://www.brainbell.com/porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("https://www.brainbell.com/");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot
+            .getAdUnitPath(adSlot)
+            .split("https://www.brainbell.com/")
+            .pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (
+              ezimKey.split("https://www.brainbell.com/").pop() === adUnitName
+            ) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/raleigh.js",
+        "https://www.brainbell.com/detroitchicago/raleigh.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/tampa.js",
+        "https://www.brainbell.com/detroitchicago/tampa.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/tulsa.js",
+        "https://www.brainbell.com/detroitchicago/tulsa.js?gcb=192-11&amp;cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Other New Features in Perl5 : CGI and Perl</title>
+    <meta
+      name="description"
+      content="Now let&#039;s take a look at some other new features that you get with Perl5. Newer ones are being considered on an ongoing basis, and may not be mentioned, but the ones that follow are now formally part of the language. BEGIN and END Routines The BEGIN and END statements provide the scriptor with a means to implement certain functionality in the Perl program as it is being compiled or just after it exits. Anything you place within the BEGIN{} block is guaranteed to be executed before any other statement in your program. It executes at the time the program is being compiled. The following gives a simple example:"
+    />
+    <link rel="shortcut icon" href="https://www.brainbell.com/favicon.ico" />
+    <style type="text/css">
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        font-family: sans-serif;
+        line-height: 1.15;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        -ms-overflow-style: scrollbar;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      }
+      @-ms-viewport {
+        width: device-width;
+      }
+      article,
+      aside,
+      figcaption,
+      figure,
+      footer,
+      header,
+      hgroup,
+      main,
+      nav,
+      section {
+        display: block;
+      }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+          "Segoe UI Emoji", "Segoe UI Symbol";
+        font-size: 1.1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        text-align: left;
+        background-color: #fff;
+      }
+      [tabindex="-1"]:focus {
+        outline: 0 !important;
+      }
+      hr {
+        box-sizing: content-box;
+        height: 0;
+        overflow: visible;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        border: 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-family: inherit;
+        font-weight: 500;
+        line-height: 1.2;
+        color: inherit;
+      }
+      h1 {
+        font-size: 2.5rem;
+      }
+      h2 {
+        font-size: 2rem;
+      }
+      h3 {
+        font-size: 1.75rem;
+      }
+      h4 {
+        font-size: 1.5rem;
+      }
+      h5 {
+        font-size: 1.3rem;
+      }
+      h6 {
+        font-size: 1.2rem;
+      }
+      p {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+      abbr[title],
+      abbr[data-original-title] {
+        text-decoration: underline;
+        -webkit-text-decoration: underline dotted;
+        text-decoration: underline dotted;
+        cursor: help;
+        border-bottom: 0;
+      }
+      address {
+        margin-bottom: 1rem;
+        font-style: normal;
+        line-height: inherit;
+      }
+
+      ol,
+      ul,
+      dl {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+      ol ol,
+      ul ul,
+      ol ul,
+      ul ol {
+        margin-bottom: 0;
+      }
+      dt {
+        font-weight: 700;
+      }
+      dd {
+        margin-bottom: 0.5rem;
+        margin-left: 0;
+      }
+
+      blockquote {
+        padding: 1rem 3rem;
+        margin: 3rem 0;
+        position: relative;
+        border-radius: 1rem;
+      }
+
+      blockquote::before {
+        content: "“";
+        left: 0.5rem;
+        top: 1.8rem;
+      }
+      blockquote::after {
+        content: "”";
+        right: 2.5rem;
+        bottom: -1.5rem;
+      }
+
+      blockquote::after,
+      blockquote::before {
+        font-family: georgia;
+        font-size: 5rem;
+        height: 2.5rem;
+        width: 0;
+        display: block;
+        position: absolute;
+      }
+
+      dfn {
+        font-style: italic;
+      }
+      b,
+      strong {
+        font-weight: bolder;
+      }
+      small {
+        font-size: 80%;
+        font-weight: 400;
+      }
+      sub,
+      sup {
+        position: relative;
+        font-size: 75%;
+        line-height: 0;
+        vertical-align: baseline;
+      }
+      sub {
+        bottom: -0.25em;
+      }
+      sup {
+        top: -0.5em;
+      }
+
+      a {
+        color: #0074d9;
+        background-color: transparent;
+        -webkit-text-decoration-skip: objects;
+      }
+      a:hover {
+        color: #002633;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]) {
+        color: inherit;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]):hover,
+      a:not([href]):not([tabindex]):focus {
+        color: inherit;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]):focus {
+        outline: 0;
+      }
+
+      pre,
+      code,
+      kbd,
+      samp,
+      .slog {
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        font-size: 1em;
+      }
+      pre {
+        margin-top: 0;
+        margin-bottom: 2rem;
+        overflow: auto;
+        -ms-overflow-style: scrollbar;
+        display: block;
+        font-size: 87.5%;
+        color: #212529;
+        border: 1px solid #eee !important;
+        padding: 0.8rem !important;
+        border-radius: 8px;
+        line-height: 1.4rem;
+      }
+
+      figure {
+        margin: 0 0 1rem;
+      }
+      img {
+        vertical-align: middle;
+        border-style: none;
+        border: 0;
+        height: auto;
+        max-width: 100%;
+        width: auto;
+      }
+      svg:not(:root) {
+        overflow: hidden;
+        vertical-align: middle;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 2rem;
+      }
+      td,
+      th {
+        padding: 0.25rem;
+        border: 1px solid #dee2e6;
+      }
+      blockquote,
+      code,
+      table tr:nth-of-type(2n) {
+        background: #fbfbfb;
+      }
+      caption {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        color: #6c757d;
+        text-align: left;
+        caption-side: bottom;
+      }
+      th {
+        text-align: inherit;
+      }
+
+      summary {
+        display: list-item;
+        cursor: pointer;
+      }
+      mark {
+        padding: 0.2em;
+        background-color: #fcf8e3;
+      }
+      code {
+        color: #c7254e;
+        word-break: break-word;
+        font-size: 87.5%;
+      }
+      a > code {
+        color: inherit;
+      }
+      kbd {
+        padding: 0.2rem 0.4rem;
+        color: #fff;
+        background-color: #212529;
+        border-radius: 0.2rem;
+      }
+      kbd kbd {
+        padding: 0;
+        font-weight: 700;
+      }
+      pre code {
+        font-size: inherit;
+        color: inherit;
+        word-break: normal;
+      }
+      video {
+        display: block;
+        max-width: 75%;
+      }
+
+      .borderbox {
+        border-left: 3px solid #00f;
+        padding: 1rem 0.5rem 0;
+      }
+      .line {
+        margin: 0 auto;
+        max-width: 71.25rem;
+      }
+      .line:after {
+        display: block;
+        clear: both;
+        content: "";
+      }
+      .fullwidth {
+        width: 100%;
+      }
+
+      .button,
+      #toc a {
+        display: inline-block;
+        cursor: pointer;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        border: 1px solid rgba(50, 205, 50, 0.5);
+        padding: 0.375rem 0.75rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        margin-bottom: 0.3rem;
+        color: #009600;
+        text-decoration: none;
+      }
+      .button ::-moz-focus-inner {
+        padding: 0;
+        border-style: none;
+      }
+      #buttons {
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        padding: 0.5rem;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+      }
+      #navbar-brand {
+        color: #000;
+        display: inline-block;
+        padding-top: 0.3125rem;
+        padding-bottom: 0.3125rem;
+        margin-left: 1rem;
+        white-space: nowrap;
+        -ms-touch-action: manipulation;
+        touch-action: manipulation;
+        text-decoration: none;
+        background-color: transparent;
+        -webkit-text-decoration-skip: objects;
+        line-height: 1rem;
+        font-size: 2.2rem;
+        text-align: center;
+      }
+      #navbar-brand .bell {
+        color: rgba(0, 200, 0, 1);
+      }
+      .slog {
+        font-weight: normal;
+        font-size: 0.85rem;
+      }
+      nav {
+        padding: 0.5rem;
+        margin-top: 0.5rem;
+      }
+      nav a.button {
+        text-decoration: none;
+        margin-left: 0.3rem;
+        flex: 10rem;
+      }
+      #buttons {
+        margin-top: 1rem;
+        display: none;
+      }
+      #menu {
+        font-size: 1.5rem;
+        color: #000;
+        display: block;
+        margin-right: 0.7rem;
+      }
+
+      #heading {
+        padding: 6rem 1.25rem;
+        background-color: #49bf4c;
+        color: #fff;
+        text-align: center;
+      }
+      #heading a {
+        white-space: normal;
+        color: #fff;
+        text-decoration: none;
+        border: 1px solid #fff;
+      }
+      #heading h1 {
+        font-size: 2.5rem;
+        line-height: 2.4rem;
+        margin: 0;
+        margin-bottom: 1rem;
+        font-weight: 400;
+      }
+      #wrapper {
+        padding: 2.5rem 1.25rem;
+      }
+      .leftcol {
+        width: 66.6666%;
+        position: relative;
+      }
+      .rightcol {
+        width: 33.3333%;
+      }
+      .fltright {
+        float: right;
+      }
+      .fltleft {
+        float: left;
+      }
+      .rightcol,
+      .leftcol {
+        padding: 0 0.625rem;
+        position: relative;
+      }
+      .entry-content,
+      .entry-summary {
+        color: #555;
+        line-height: 2rem;
+      }
+      .cat_list {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        margin-bottom: 2.25rem;
+      }
+      .cat_list h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        display: block;
+      }
+      .cat_list a {
+        color: #49bf4c;
+      }
+      .hidden {
+        display: none;
+      }
+      .gsa {
+        text-align: center;
+        margin-bottom: 1.25rem;
+        width: 100%;
+      }
+      #toc a {
+        display: block;
+        font-weight: bold;
+        text-align: left;
+        white-space: normal;
+      }
+      footer {
+        margin-top: 2rem;
+        background: #002633;
+        padding: 0.625rem;
+        text-align: center;
+        font-size: 0.95rem;
+      }
+      footer,
+      footer a,
+      footer a:hover {
+        color: #7697a2;
+      }
+      .next,
+      .prev {
+        display: inline-block;
+        padding: 0.6rem;
+        padding-top: 0.05rem;
+        padding-bottom: 0.25rem;
+        border-radius: 1rem;
+        font-weight: bold;
+        color: #fff;
+        background: #009600;
+      }
+      @media screen and (max-width: 768px) {
+        .leftcol,
+        .rightcol {
+          width: 100%;
+        }
+        video {
+          max-width: 100%;
+        }
+      }
+    </style>
+
+    <script
+      async
+      src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+    ></script>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-1287605604486981",
+        enable_page_level_ads: true,
+      });
+    </script>
+    <link
+      rel="canonical"
+      href="https://brainbell.com/tutors/Perl/Other_New_Features_in_Perl5.htm"
+    />
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base />
+    <script type="text/javascript">
+      var ezoTemplate = "old_site_gc";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_lazyload_version: 0,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        engaged_time_visit: 0,
+        ezcache_level: 2,
+        ezcache_skip_code: 0,
+        form_factor_id: 1,
+        framework_id: 1,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        metro_code: 501,
+        page_ad_positions: "",
+        page_view_count: 262,
+        page_view_id: "ec07187d-a621-453b-4e31-755bccd03219",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 20359,
+        response_time_orig: 15,
+        serverid: "54.198.179.49:3343",
+        state: "NJ",
+        t_epoch: 1613703152,
+        template_id: 126,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/tutors/Perl/Other_New_Features_in_Perl5.htm",
+        user_id: 0,
+        word_count: 1098,
+        worst_bad_word_level: 0,
+      };
+      var _ezExtraQueries = "&ez_orig=1";
+    </script>
+    <script
+      data-ezscrex="false"
+      data-cfasync="false"
+      type="text/javascript"
+      src="https://www.brainbell.com/detroitchicago/rochester.js?dcb=192-11&amp;cb=2&amp;v=9"
+      async
+    ></script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["ec07187d-a621-453b-4e31-755bccd03219", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <header role="banner">
+      <div class="line">
+        <nav id="navbar" role="navigation" aria-label="Primary Menu">
+          <a
+            id="navbar-brand"
+            href="https://www.brainbell.com/"
+            rel="home"
+            itemprop="url"
+            >Brain<span class="bell">Bell</span><br /><span class="slog"
+              >makes easier to learn</span
+            ></a
+          >
+          <span class="button fltright" id="menu">&#9776;</span>
+          <!--menu-->
+          <div id="buttons">
+            <a
+              class="button"
+              title="A+"
+              href="https://www.brainbell.com/tutors/A+/Hardware/"
+              >A+ Certification</a
+            >
+            <a
+              class="button"
+              title="Android"
+              href="https://www.brainbell.com/android/"
+              >Android</a
+            >
+            <a
+              class="button"
+              title="ASP"
+              href="https://www.brainbell.com/tutorials/ASP/"
+              >ASP</a
+            >
+            <a
+              class="button"
+              title="3D, Blender and Unity"
+              href="https://www.brainbell.com/3d/"
+              >Blender &amp; Unity</a
+            >
+            <a
+              class="button"
+              title="C"
+              href="https://www.brainbell.com/tutors/c/Advice_and_Warnings_for_C/"
+              >C Language</a
+            >
+            <a
+              class="button"
+              title="C#"
+              href="https://www.brainbell.com/tutors/C_Sharp/"
+              >C#</a
+            >
+            <a
+              class="button"
+              title="Flash"
+              href="https://www.brainbell.com/tutorials/Flash/"
+              >Flash</a
+            >
+            <a
+              class="button"
+              title="HTML and CSS"
+              href="https://www.brainbell.com/tutorials/HTML_and_CSS/"
+              >HTML &amp; CSS</a
+            >
+            <a
+              class="button"
+              title="Java"
+              href="https://www.brainbell.com/tutorials/java/"
+              >Java</a
+            >
+            <a
+              class="button"
+              title="JavaScript"
+              href="https://www.brainbell.com/javascript/"
+              >JavaScript</a
+            >
+            <a
+              class="button"
+              title="MS Access"
+              href="https://www.brainbell.com/tutorials/ms-office/Access_2003/"
+              >MS Access</a
+            >
+            <a
+              class="button"
+              title="MS Excel"
+              href="https://www.brainbell.com/tutorials/ms-office/excel/"
+              >MS Excel</a
+            >
+            <a
+              class="button"
+              title="MS FrontPage"
+              href="https://www.brainbell.com/tutorials/ms-office/FrontPage_2003/"
+              >MS FrontPage</a
+            >
+            <a
+              class="button"
+              title="MS PowerPoint"
+              href="https://www.brainbell.com/tutorials/ms-office/PowerPoint/"
+              >MS PowerPoint</a
+            >
+            <a
+              class="button"
+              title="MS Word"
+              href="https://www.brainbell.com/tutorials/ms-office/Word/"
+              >MS Word</a
+            >
+            <a
+              class="button"
+              title="MySQL"
+              href="https://www.brainbell.com/tutorials/MySQL/"
+              >MySQL</a
+            >
+            <a
+              class="button"
+              title="Networking"
+              href="https://www.brainbell.com/tutorials/Networking/"
+              >Networking</a
+            >
+            <a
+              class="button"
+              title="Perl CGI"
+              href="https://www.brainbell.com/tutors/Perl/"
+              >Perl &amp; CGI</a
+            >
+            <a
+              class="button"
+              title="PHP &amp; MySQL"
+              href="https://www.brainbell.com/tutorials/php/"
+              >PHP &amp; MySQL</a
+            >
+            <a
+              class="button"
+              title="Adobe Photoshop"
+              href="https://www.brainbell.com/tutorials/Photoshop/"
+              >Photoshop</a
+            >
+            <a
+              class="button"
+              title="Regex"
+              href="https://www.brainbell.com/regex/"
+              >Regular Expressions</a
+            >
+            <a
+              class="button"
+              title="TypeScript"
+              href="https://www.brainbell.com/typescript/"
+              >TypeScript</a
+            >
+            <a
+              class="button"
+              title="Visual Basic"
+              href="https://www.brainbell.com/tutors/Visual_Basic/"
+              >Visual Basic</a
+            >
+            <a
+              class="button"
+              title="XML"
+              href="https://www.brainbell.com/tutorials/XML/"
+              >XML</a
+            >
+          </div>
+          <!--menu end-->
+        </nav>
+      </div>
+    </header>
+
+    <main role="main">
+      <article class="hentry">
+        <header id="heading">
+          <a
+            class="button"
+            href="https://www.brainbell.com/tutors/Perl/"
+            rel="category tag"
+            >CGI and Perl</a
+          >
+          <h1>Other New Features in Perl5</h1>
+          <script
+            async
+            src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+          ></script>
+          <!-- link ad -->
+          <ins
+            class="adsbygoogle"
+            style="display: block"
+            data-ad-client="ca-pub-1287605604486981"
+            data-ad-slot="1609644746"
+            data-ad-format="link"
+          ></ins>
+          <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
+        </header>
+
+        <div id="wrapper">
+          <div class="line">
+            <div class="leftcol fltleft">
+              <div class="entry-summary">
+                <p>
+                  Now let's take a look at some other new features that you get
+                  with Perl5. Newer ones are being considered on an ongoing
+                  basis, and may not be mentioned, but the ones that follow are
+                  now formally part of the language.
+                  <b>BEGIN <code>and</code> END <code>Routines</code></b> The
+                  BEGIN and END statements provide the scriptor with a means to
+                  implement certain functionality in the Perl program as it is
+                  being compiled or just after it exits. Anything you place
+                  within the BEGIN{} block is guaranteed to be executed before
+                  any other statement in your program. It executes at the time
+                  the program is being compiled. The following gives a simple
+                  example:
+                </p>
+              </div>
+              <div class="gsa">
+                <script
+                  async
+                  src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+                ></script>
+                <!-- responsive top -->
+                <ins
+                  class="adsbygoogle"
+                  style="display: block"
+                  data-ad-client="ca-pub-1287605604486981"
+                  data-ad-slot="1025731947"
+                  data-ad-format="rectangle"
+                ></ins>
+                <script>
+                  (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+              </div>
+              <div class="entry-content">
+                <pre>
+print "done that\n";
+ BEGIN { print "been there, "; }
+ # prints: been there, done that
+</pre
+                >
+                <p>
+                  Likewise, anything you place in an END{} block is executed
+                  after every other statement in the program has executed and
+                  just before Perl exits. Multiple END{} blocks are executed in
+                  the reverse order of execution, as follows:
+                </p>
+                <pre>
+END { print "I\'ll see you in my dreams\n"; }
+ END { print "Irene.  "; }
+ print "Goodnight, ";
+ # prints: Goodnight, Irene.  I'll see you in my dreams.
+</pre
+                >
+                <p>
+                  <b>use() <code>and</code> no() <code>Statements</code></b> The
+                  use() statement imports symbols and/or semantics from the
+                  named package into your program by aliasing subroutines and/or
+                  variable names from the package into the current package's
+                  namespace. When you say
+                </p>
+                <pre>
+use Module;
+</pre
+                >
+                <p>in your program, it's the same as saying</p>
+                <pre>
+BEGIN{ require Module; import Module List};
+</pre
+                >
+                <p>
+                  where Module has exported some List of methods (subroutines)
+                  via its @EXPORT or @EXPORT_OK<br />
+                  arrays, and you're making them part of your current package
+                  namespace (main, in this case). Note that the import method is
+                  not a builtin, but is actually a method itself, from the
+                  Exporter module. Much more on this later in this chapter.
+                </p>
+                <p>
+                  You can also specify that nothing be imported by giving an
+                  empty list to use(), like this:
+                </p>
+                <pre>
+use SomeModule ();
+</pre
+                >
+                <p>
+                  Then you have access to all the methods of the package but
+                  only via the full name of the method or a blessed reference to
+                  the package. I discuss these details later in the chapter.
+                </p>
+                <p>
+                  When you use one or more of the pragmatic modules, the use()
+                  statement imports semantics instead of symbols. For instance,
+                </p>
+                <pre>
+use strict subs;
+</pre
+                >
+                <p>
+                  This statement causes a compile-time error if you try to use a
+                  bare word identifier that isn't a subroutine, unless it
+                  appears in curly braces or on the left side of the =&gt;
+                  operator. These pragmas are then in effect through the end of
+                  the file or until the corresponding no() statement turns them
+                  off, as in the following:
+                </p>
+                <pre>
+no strict subs;
+</pre
+                >
+                <p>
+                  See PERLMOD and PERLDSC for more details on the pragmatic
+                  modules, which were previously mentioned when describing the
+                  new warnings and stricture, and PERLVAR for the official
+                  definition of use() and no(). There's also the POD within
+                  strict.pm for full documentation of the strict pragmas. The
+                  strict.pm module is installed with the rest of the Perl
+                  modules in @INC.
+                  <b
+                    ><code>The New</code> :: <code>Operator and the</code> -&gt;
+                    <code>Operator</code></b
+                  >
+                  These :: and -&gt; operators are provided as a means for
+                  invoking the methods within a given package. You should use
+                  the Package::subroutine() syntax instead of the older,
+                  deprecated Package'subroutine() syntax; this new syntax
+                  provides the same semantics. This operator also works when
+                  you're accessing variables within a package, such as
+                  $Package::scalar, @Package::array, and %Package::hash, just
+                  like the older, single tick operator does. Again though, the
+                  single tick operator may not be part of the language forever.
+                  It's better to use the :: operator in all new code.
+                </p>
+                <p>
+                  The -&gt; operator provides a means to invoke the methods of a
+                  class or package, along with any methods of any of its parent
+                  classes, using a blessed reference to the package as well as
+                  serving as a post-fix dereference operator for any general
+                  reference. You will learn about this operator in detail later
+                  in this chapter.
+                  <b
+                    >\U<code>,</code> \L<code>,</code> uc()<code>,</code>
+                    lc()<code>,</code> ucfirst()<code>, and</code> lcfirst()
+                    <code>Operators</code></b
+                  >
+                  The \U, \L, uc(), lc(), ucfirst(), and lcfirst() operators
+                  enable you to operate on strings, modifying them to be all
+                  uppercase, all lowercase, or have just the first letter of the
+                  string be uppercase. The \U and \L operators work within the
+                  double-quoted string, and the others take strings as arguments
+                  and return modified copies. For example,
+                </p>
+                <pre>
+$ucstring = "FOO";
+ $lcstring = lc($ucstring);
+ print $ucstring, ` `, $lcstring, ` `, ucfirst($lcstring),"\n"
+ #prints:
+ FOO foo Foo
+</pre
+                >
+                <p>
+                  <b><code>Closures</code></b> A closure is implemented as an
+                  anonymous subroutine or a reference to a subroutine. It is
+                  generally declared using a reference, which is then used to
+                  invoke the closure. Consider the following example:
+                </p>
+                <pre>
+sub newanon{
+ my $foo = shift;
+ my $anonsub = sub {
+     my $arg = shift;
+     print "Hey, I'm in an $foo $arg\n";
+ };
+ return $anonsub;
+ }
+ $closure = &amp;newanon(`anonymous');
+ { # new lexical scope
+ &amp;$closure(`subroutine');
+ }
+ # prints: Hey, I'm in an anonymous subroutine.
+</pre
+                >
+                <p>
+                  A lexical variable declared within a closure remains intact in
+                  future invocations of the subroutine, even if invoked outside
+                  the lexical scope of the declaration. See PERLSUB and PERLREF
+                  for detailed examples and descriptions of closures.
+                  <b><code>Multiple Simultaneous DBM Implementations</code></b>
+                  The Perl programmer can now access a number of DBM
+                  implementations simultaneously within a program. Perl is now
+                  shipped with SDBM, and consideration is being given to
+                  including the Berkeley DB implementation by default with Perl,
+                  but this has not been implemented yet. GDBM, NDBM, and ODBM
+                  are also available, if you have them on your machine. Having
+                  simultaneous DBM implementations makes it easy to convert from
+                  one DBM format to another within the same program.
+                </p>
+                <p>
+                  You should note that the older dbmopen() function has been
+                  deprecated in favor of the tie() function. See PERLFUNC for
+                  more details on implementing a tie()'d DBM hash.
+                  <b><code>Flags on</code> #! <code>Line</code></b> Any regular
+                  Perl command-line options (flags) appended after the
+                </p>
+                <pre>
+#!/usr/bin/perl
+</pre
+                >
+                <p>
+                  line in a program are now correctly interpreted, even if the
+                  script isn't executed directly. The startup line:
+                </p>
+                <pre>
+#!/usr/bin/perl -d
+</pre
+                >
+                <p>
+                  will, for instance, invoke the debugger each time the script
+                  is run.<br />
+                </p>
+                <div class="hidden">
+                  by
+                  <span class="author vcard"
+                    ><span class="fn">BrainBell</span></span
+                  >updated
+                  <time
+                    class="entry-date updated"
+                    datetime="2016-08-01T20:00:00+00:00"
+                    >Aug 01, 2016</time
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="rightcol fltright">
+              <style type="text/css">
+                .adslot_1 {
+                  display: inline-block;
+                  width: 100%;
+                }
+                @media (max-width: 768px) {
+                  .adslot_1,
+                  .sideadh {
+                    display: none;
+                  }
+                }
+              </style>
+              <div class="gsa">
+                <div class="sideadh">Advertisement:</div>
+                <script
+                  async
+                  src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+                ></script>
+                <!-- responsive banner right -->
+                <ins
+                  class="adsbygoogle adslot_1"
+                  data-ad-client="ca-pub-1287605604486981"
+                  data-ad-slot="2682751945"
+                  data-ad-format="vertical"
+                ></ins>
+                <script>
+                  (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <div class="line">
+        <div class="leftcol fltleft">
+          <div class="gsa">
+            Advertisement:
+            <script
+              async
+              src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+            ></script>
+            <!-- responsive footer -->
+            <ins
+              class="adsbygoogle"
+              style="display: block"
+              data-ad-client="ca-pub-1287605604486981"
+              data-ad-slot="8559331946"
+              data-ad-format="rectangle"
+            ></ins>
+            <script>
+              (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+          </div>
+          <nav>
+            <div class="line">
+              <a
+                rel="next"
+                class="button fltright"
+                href="https://www.brainbell.com/tutors/Perl/References_a2.htm"
+                >Next <span class="next">&gt;</span></a
+              ><a
+                rel="prev"
+                class="button fltleft"
+                href="https://www.brainbell.com/tutors/Perl/Enhanced_Safety_and_Security.htm"
+                ><span class="prev">&lt;</span> Prev</a
+              >
+            </div>
+          </nav>
+        </div>
+        <div class="rightcol fltright"></div>
+      </div>
+    </main>
+
+    <footer>
+      <section>
+        <div class="line">
+          <div class="leftcol fltleft">
+            <p>Copyright &copy; 2021 BrainBell.com</p>
+            <p>Contact us: info&#64;brainbell.com</p>
+          </div>
+          <div class="rightcol fltright">
+            <a href="https://www.brainbell.com/privacy/">Privacy policy</a>
+            &nbsp; : &nbsp;
+            <a href="https://www.brainbell.com/terms/">Terms of use</a>
+          </div>
+        </div>
+      </section>
+    </footer>
+    <script>
+      (function () {
+        var m = document.querySelector("#menu"),
+          n = document.querySelector("#buttons"),
+          o = false;
+
+        m.addEventListener("click", function (e) {
+          var d;
+          o = !o;
+          if (o) {
+            m.innerHTML = "X";
+            n.style.display = "block";
+            n.style.display = "flex";
+            m.style.padding = ".375rem .98rem";
+          } else {
+            m.innerHTML = "&#9776;";
+            n.style.display = "none";
+            m.style.padding = ".375rem .75rem";
+          }
+        });
+      })();
+      (function () {
+        var stop = true,
+          p = document.querySelectorAll("pre");
+        for (var i in p) {
+          p[i].className += " prettyprint";
+          stop = false;
+        }
+        if (stop) return;
+        var script = document.createElement("script");
+        script.src =
+          "https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js";
+        document.head.appendChild(script);
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "https://www.brainbell.com/tutors/Perl/edmonton.php",
+        "/detroitchicago/edmonton.webp?a=a&cb=11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "https://www.brainbell.com/tutors/Perl/jellyfish.php",
+        "/porpoiseant/jellyfish.webp?a=a&cb=11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script>
+      var _audins_dom = "brainbell_com",
+        _audins_did = 83552;
+      __ez.queue.addDelayFunc(
+        "https://www.brainbell.com/tutors/Perl/audins.js",
+        "__ez.script.add",
+        "http://go.ezoic.net/detroitchicago/audins.js?cb=192-11"
+      );
+    </script>
+    <noscript
+      ><div style="display: none">
+        <img
+          src="http://pixel.quantserve.com/pixel/p-31iz6hfFutd16.gif?labels=Domain.brainbell_com,DomainId.83552"
+          border="0"
+          height="1"
+          width="1"
+          alt="Quantcast"
+        /></div
+    ></noscript>
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+
+  <!-- Mirrored from www.brainbell.com/tutors/Perl/Other_New_Features_in_Perl5.htm by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Feb 2021 02:57:40 GMT -->
+</html>

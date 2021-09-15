@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<script>{
+    "title": "The uses of jQuery .queue() and .dequeue()",
+    "level": "advanced",
+    "source": "http://gnarf.net/2010/09/30/the-uses-of-jquery-queue-and-dequeue/"
+}</script>
+<p>Queues in jQuery are used for animations. You can use them for any purpose you like. They are an array of functions stored on a per element basis, using <code>jQuery.data()</code>. They are First In, First Out (FIFO). You can add a function to the queue by calling <code>.queue()</code>, and you remove (by calling) the functions using <code>.dequeue()</code>.</p>
+<p>To understand the internal jQuery queue functions, reading the source and looking at examples helps me out tremendously. One of the best examples of a queue function I’ve seen is <code>.delay()</code>:</p>
+<pre><code>$.fn.delay = function( time, type ) {
+    time = jQuery.fx ? jQuery.fx.speeds[ time ] || time : time;
+    type = type || &quot;fx&quot;;
+
+    return this.queue( type, function( next, hooks ) {
+        var timeout = setTimeout( next, time );
+        hooks.stop = function() {
+            clearTimeout( timeout );
+        };
+    });
+};</code></pre>
+<h2 id="the-default-queue-fx">The default queue – fx</h2>
+<p>The default queue in jQuery is <code>fx</code>. The default queue has some special properties that are not shared with other queues.</p>
+<ul>
+<li>Auto Start: When calling <code>$(elem).queue( function() {} );</code> the fx queue will automatically dequeue the next function and run it if the queue hasn’t started.</li>
+<li>“inprogress” sentinel: Whenever you <code>dequeue()</code> a function from the fx queue, it will <code>unshift()</code> (push into the first location of the array) the string “inprogress” — which flags that the queue is currently being run.</li>
+<li>It’s the default! The fx queue is used by <code>.animate()</code> and all functions that call it by default.</li>
+</ul>
+<p><strong>Note:</strong> If you are using a custom queue, you must manually <code>.dequeue()</code> the functions, they will not auto start!</p>
+<h2 id="retrievingsetting-the-queue">Retrieving/Setting the queue</h2>
+<p>You can retrieve a reference to a jQuery queue by calling <code>.queue()</code> without a function argument. You can use the method if you want to see how many items are in the queue. You can use <code>push</code>, <code>pop</code>, <code>unshift</code>, and <code>shift</code> to manipulate the queue in place. You can replace the entire queue by passing an array to the <code>.queue()</code> function.</p>
+<h2 id="quick-examples">Quick Examples:</h2>
+<pre><code>// Assume elem is a jQuery object that contains an element we are animating
+var queue = elem.queue();
+
+// Remove the last function from the animation queue
+var lastFunc = queue.pop();
+
+// Insert it at the beginning
+queue.unshift( lastFunc );
+
+// Replace queue with the first three items in the queue
+elem.queue( queue.slice( 0, 3 ) );</code></pre>
+<h3 id="an-animation-fx-queue-example">An animation (fx) queue example:</h3>
+<pre><code>$(function() {
+
+    // Let&#39;s do something with Google Maps
+    var canvas = $( &quot;#map_canvas&quot; );
+
+    var latlng = new google.maps.LatLng( -34.397, 150.644 );
+
+    var options = {
+        zoom: 8,
+        center: latlng,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+
+    var geocoder = new google.maps.Geocoder();
+
+    var map = new google.maps.Map( canvas[0], options );
+
+    var resized = function() {
+
+        // Simple animation callback - let maps know we resized
+        google.maps.event.trigger( map, &quot;resize&quot; );
+    };
+
+    // Wait for two seconds
+    canvas.delay( 2000 );
+
+    // Resize the div
+    canvas.animate({
+        width: 250,
+        height: 250,
+        marginLeft: 250,
+        marginTop:250
+    }, resized );
+
+    // Geocode something
+    canvas.queue(function( next ) {
+
+        // Find Stack Overflow&#39;s whois address
+        geocoder.geocode( {
+            address: &quot;55 Broadway New York NY 10006&quot;
+        }, handleResponse );
+
+        function handleResponse( results, status ) {
+            if ( status === google.maps.GeocoderStatus.OK ) {
+                var location = results[ 0 ].geometry.location;
+                map.setZoom( 13 );
+                map.setCenter( location );
+                new google.maps.Marker({
+                    map: map,
+                    position: location
+                });
+            }
+
+            // Geocoder result returned, continue with animations
+            next();
+        }
+    });
+
+    // After we find Stack Overflow, wait 3 more seconds
+    canvas.delay( 3000 );
+
+    // Then resize the map again
+    canvas.animate({
+        width: 500,
+        height: 500,
+        marginLeft:0,
+        marginTop: 0
+    }, resized );
+});</code></pre>
+<h3 id="queueing-something-like-ajax-calls">Queueing something like Ajax Calls:</h3>
+<pre><code>// jQuery on an empty object, we are going to use this as our queue
+var ajaxQueue = $({});
+
+$.ajaxQueue = function( ajaxOpts ) {
+
+    // Hold the original complete function
+    var oldComplete = ajaxOpts.complete;
+
+    // Queue our ajax request
+    ajaxQueue.queue(function( next ) {
+
+        // Create a complete callback to invoke the next event in the queue
+        ajaxOpts.complete = function() {
+
+            // Invoke the original complete if it was there
+            if ( oldComplete ) {
+                oldComplete.apply( this, arguments );
+            }
+
+            // Run the next query in the queue
+            next();
+        };
+
+        // Run the query
+        $.ajax( ajaxOpts );
+    });
+};
+
+// Get each item we want to copy
+$( &quot;#items li&quot; ).each(function( idx ) {
+
+    // Queue up an ajax request
+    $.ajaxQueue({
+        url: &quot;/ajax_html_echo/&quot;,
+        data: {
+            html: &quot;[&quot; + idx + &quot;] &quot; + $( this ).html()
+        },
+        type: &quot;POST&quot;,
+        success: function( data ) {
+
+            // Write to #output
+            $( &quot;#output&quot; ).append( $( &quot;&lt;li&gt;&quot;, {
+                html: data
+            }));
+        }
+    });
+});</code></pre>
+<h3 id="another-custom-queue-example">Another custom queue example</h3>
+<pre><code>// jQuery on an empty object - a perfect queue holder
+var theQueue = $({});
+
+$.each([ 1, 2, 3 ], function( i, num ) {
+
+    // Add some really simple functions to a queue
+    theQueue.queue( &quot;alerts&quot;, function( next ) {
+
+        // Show something, and if the user clicks &quot;yes&quot;, run the next function
+        if ( confirm( &quot;index: &quot; + i + &quot; = &quot; + num + &quot;\nRun the next function?&quot; ) ) {
+            next();
+        }
+    });
+});
+
+// Create a button to run the queue
+$( &quot;&lt;button&gt;&quot;, {
+    text: &quot;Run Queue&quot;,
+    click: function() {
+        theQueue.dequeue( &quot;alerts&quot; );
+    }
+}).appendTo( &quot;body&quot; );
+
+// Create a button to show the length
+$( &quot;&lt;button&gt;&quot;, {
+    text: &quot;Show Length&quot;,
+    click: function() {
+        alert( theQueue.queue( &quot;alerts&quot; ).length );
+    }
+}).appendTo( &quot;body&quot; );</code></pre>
+</body></html>

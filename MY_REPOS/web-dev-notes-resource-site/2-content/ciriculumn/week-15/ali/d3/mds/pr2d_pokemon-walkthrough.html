@@ -1,0 +1,44 @@
+<h1 id="the-rest-of-it">The Rest Of It</h1>
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<hr />
+<p>You have now been given instructions on how to refactor components from managing global application state to putting
+    it in Redux. There are two more pieces left, the “select the current Pokemon" functionality and the “create a new
+    Pokemon" functionality. Refactor the application so those are Redux-supported, as well.</p>
+<h2 id="select-the-current-pokemon">Select the current Pokemon</h2>
+<p>The place to start, here, is to determine how the click of the navigation item on the left gets handled. It’s a <code>NavLink</code>, so the <code>BrowserRouter</code> in the <code>App</code> component handles that by routing to the <code>PokemonBrowser</code> with the route parameters. The <code>PokemonBrowser</code> then routes to the <code>PokemonDetail</code> with a <code>Route</code> component. In the <code>PokemonDetail</code> component, if the value of the <code>this.props.match.params.id</code> changes, then the <code>loadPokemon</code> method is called which, in turn, makes an AJAX call. And, there it is! The AJAX call.</p>
+<p>This is like everything else, create a thunk, an action type, yada yada yada.</p>
+<ul>
+<li>Create a thunk (similar to what you did for logging in) to load the current Pokemon that
+<ul>
+<li>accepts an id</li>
+<li>loads the Pokemon from an AJAX call</li>
+<li>dispatches a “set current Pokemon" action</li>
+</ul></li>
+<li>Create a reducer that handles the “set current Pokemon" action by adding it to the state</li>
+<li>Connect the <code>PokemonDetail</code> to the Redux store by
+<ul>
+<li>mapping the current Pokemon information in the state to its props, and</li>
+<li>mapping the “load the current Pokemon" thunk to its props with a <code>dispatch</code> call (don’t forget the id parameter)</li>
+</ul></li>
+</ul>
+<h2 id="creating-a-new-pokemon">Creating a new Pokemon</h2>
+<p>This is very similar to the login stuff you did with <code>LoginPanel</code>. In the <code>PokemonForm</code>, have</p>
+<ul>
+<li>the <code>componentDidMount</code> method call a thunk to load the Pokemon types</li>
+<li>the <code>handleSubmit</code> method call a thunk to post the form information to the API</li>
+</ul>
+<p>In moving the Pokemon type fetching from the state to the props, you may end up getting an error that there is no method “map" of undefined. If that’s the case, in the reducer in your <strong>src/store/pokemon.js</strong> file, have the default state include an array for the “types" property.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="co">// CODE SNIPPET</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="im">export</span> <span class="im">default</span> <span class="kw">function</span> <span class="at">reducer</span>(state <span class="op">=</span> <span class="op">{</span> <span class="dt">types</span><span class="op">:</span> [] <span class="op">},</span> action) <span class="op">{</span></a></code></pre></div>
+<p>That’s the power of default parameters and initial state!</p>
+<p>The action types, action creators, and thunk created to do this should go into the <strong>src/store/pokemon.js</strong> module. When the AJAX call succeeds to create the new Pokemon, have it <em>then</em> dispatch the <code>getPokemon</code> thunk to get a new list of Pokemon. Redux and React will add a new Pokemon to the end of the list. That’s why you have to provide the “key" property in lists of things, so that React will efficiently determine if something in the list needs to get changed, added, or deleted.</p>
+<p>The only “new" part, here, is the coordination between <code>PokemonForm</code> and <code>PokemonBrowser</code> to determine if it should show a form. This is up to you to decide, if showing the create form is part of the global application state (and should exist in the Redux store), or if it is part of the “local" state between the two components and be managed by <code>PokemonForm</code> invoking a function passed to it by <code>PokemonBrowser</code>. The solution choose the former solution.</p>
+<h2 id="bonus-extend-the-functionality">Bonus: Extend the functionality</h2>
+<p>Think about adding</p>
+<ul>
+<li>A <em>Cancel</em> button on the form that hides it</li>
+<li>Error messages for the forms when something bad happens</li>
+</ul>
+<h2 id="bonus-connected-react-router">Bonus: Connected React Router</h2>
+<p>Rather than relying on <code>Redirect</code> routes in your application, you can use actions to manage the URL of your application. Install <a href="https://github.com/supasate/connected-react-router">Connected React Router</a> and remove all <code>Redirect</code> components from the application, replacing them with dispatched <code>push</code> actions. Check out the <a href="https://github.com/supasate/connected-react-router/blob/master/FAQ.md#how-to-navigate-with-redux-action">How to navigation with Redux action</a> article in the Connected React Router documentation.</p>

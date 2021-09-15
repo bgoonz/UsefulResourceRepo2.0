@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="./prism.css">
+    <script async defer src="./prism.js"></script>
+</head>
+
+<body>;
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+            integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+        <link rel="stylesheet" href="./prism.css">
+        <script async defer src="./prism.js"></script>
+    </head>
+
+    <body>;
+        <script>
+            {
+                "title": "Avoiding Conflicts with Other Libraries",
+                "level": "beginner",
+                "source": "http://jqfundamentals.com/legacy",
+                "attribution": [ "jQuery Fundamentals" ]
+            }
+        </script>
+        <p>The jQuery library and virtually all of its plugins are contained within the <code>jQuery</code> namespace.
+            As a general rule, global objects are stored inside the jQuery namespace as well, so you shouldn’t get a
+            clash between jQuery and any other library (like prototype.js, MooTools, or YUI).</p>
+        <p>That said, there is one caveat: <em>by default, jQuery uses <code>$</code> as a shortcut for
+                <code>jQuery</code>.</em> Thus, if you are using another JavaScript library that uses the <code>$</code>
+            variable, you can run into conflicts with jQuery. In order to avoid these conflicts, you need to put jQuery
+            in no-conflict mode immediately after it is loaded onto the page and before you attempt to use jQuery in
+            your page.</p>
+        <h2 id="putting-jquery-into-no-conflict-mode">Putting jQuery Into No-Conflict Mode</h2>
+        <p>When you put jQuery into no-conflict mode, you have the option of assigning a new variable name to replace
+            the <code>$</code> alias.</p>
+        <pre><code>&lt;!-- Putting jQuery into no-conflict mode. --&gt;
+&lt;script src=&quot;prototype.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;jquery.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+
+var $j = jQuery.noConflict();
+// $j is now an alias to the jQuery function; creating the new alias is optional.
+
+$j(document).ready(function() {
+    $j( &quot;div&quot; ).hide();
+});
+
+// The $ variable now has the prototype meaning, which is a shortcut for
+// document.getElementById(). mainDiv below is a DOM element, not a jQuery object.
+window.onload = function() {
+    var mainDiv = $( &quot;main&quot; );
+}
+
+&lt;/script&gt;</code></pre>
+        <p>In the code above, the <code>$</code> will revert back to its meaning in original library. You’ll still be
+            able to use the full function name <code>jQuery</code> as well as the new alias <code>$j</code> in the rest
+            of your application. The new alias can be named anything you’d like: <code>jq</code>, <code>$J</code>,
+            <code>awesomeQuery</code>, etc.
+        </p>
+        <p>Finally, if you don’t want to define another alternative to the full <code>jQuery</code> function name (you
+            really like to use <code>$</code> and don’t care about using the other library’s <code>$</code> method),
+            then there’s still another approach you might try: simply add the <code>$</code> as an argument passed to
+            your <code>jQuery( document ).ready()</code> function. This is most frequently used in the case where you
+            still want the benefits of really concise jQuery code, but don’t want to cause conflicts with other
+            libraries.</p>
+        <pre><code>&lt;!-- Another way to put jQuery into no-conflict mode. --&gt;
+&lt;script src=&quot;prototype.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;jquery.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+
+jQuery.noConflict();
+
+jQuery( document ).ready(function( $ ) {
+    // You can use the locally-scoped $ in here as an alias to jQuery.
+    $( &quot;div&quot; ).hide();
+});
+
+// The $ variable in the global scope has the prototype.js meaning.
+window.onload = function(){
+    var mainDiv = $( &quot;main&quot; );
+}
+
+&lt;/script&gt;</code></pre>
+        <p>This is probably the ideal solution for most of your code, considering that there’ll be less code that you’ll
+            have to change in order to achieve complete compatibility.</p>
+        <h2 id="including-jquery-before-other-libraries">Including jQuery Before Other Libraries</h2>
+        <p>The code snippets above rely on jQuery being loaded after prototype.js is loaded. If you include jQuery
+            before other libraries, you may use <code>jQuery</code> when you do some work with jQuery, but the
+            <code>$</code> will have the meaning defined in the other library. There is no need to relinquish the
+            <code>$</code> alias by calling <code>jQuery.noConflict()</code>.
+        </p>
+        <pre><code>&lt;!-- Loading jQuery before other libraries. --&gt;
+&lt;script src=&quot;jquery.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;prototype.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+
+// Use full jQuery function name to reference jQuery.
+jQuery( document ).ready(function() {
+    jQuery( &quot;div&quot; ).hide();
+});
+
+// Use the $ variable as defined in prototype.js
+window.onload = function() {
+    var mainDiv = $( &quot;main&quot; );
+};
+
+&lt;/script&gt;</code></pre>
+        <h2 id="summary-of-ways-to-reference-the-jquery-function">Summary of Ways to Reference the jQuery Function</h2>
+        <p>Here’s a recap of ways you can reference the jQuery function when the presence of another library creates a
+            conflict over the use of the <code>$</code> variable:</p>
+        <h3 id="create-a-new-alias">Create a New Alias</h3>
+        <p>The <code>jQuery.noConflict()</code> method returns a reference to the jQuery function, so you can capture it
+            in whatever variable you’d like:</p>
+        <pre><code>&lt;script src=&quot;prototype.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;jquery.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+
+// Give $ back to prototype.js; create new alias to jQuery.
+var $jq = jQuery.noConflict();
+
+&lt;/script&gt;</code></pre>
+        <h3 id="use-an-immediately-invoked-function-expression">Use an Immediately Invoked Function Expression</h3>
+        <p>You can continue to use the standard <code>$</code> by wrapping your code in an immediately invoked function
+            expression; this is also a standard pattern for jQuery plugin authoring, where the author cannot know
+            whether another library will have taken over the <code>$</code>. See the <a href="/plugins/">Plugins</a>
+            section for more information about writing plugins.</p>
+        <pre><code>&lt;!-- Using the $ inside an immediately-invoked function expression. --&gt;
+&lt;script src=&quot;prototype.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;jquery.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+
+jQuery.noConflict();
+
+(function( $ ) {
+    // Your jQuery code here, using the $
+})( jQuery );
+
+&lt;/script&gt;</code></pre>
+        <p>Note that if you use this technique, you will not be able to use prototype.js methods inside the immediately
+            invoked function that expect <code>$</code> to be prototype.js’s <code>$</code>.</p>
+        <h3 id="use-the-argument-thats-passed-to-the-jquery-document-.ready-function">Use the Argument That’s Passed to
+            the <code>jQuery( document ).ready()</code> Function</h3>
+        <pre><code>&lt;script src=&quot;jquery.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;prototype.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+
+jQuery(document).ready(function( $ ) {
+    // Your jQuery code here, using $ to refer to jQuery.
+});
+
+&lt;/script&gt;</code></pre>
+        <p>Or using the more concise syntax for the DOM ready function:</p>
+        <pre><code>&lt;script src=&quot;jquery.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;prototype.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+
+jQuery(function($){
+    // Your jQuery code here, using the $
+});
+
+&lt;/script&gt;</code></pre>
+    </body>
+
+    </html>
+</body>
+
+</html>

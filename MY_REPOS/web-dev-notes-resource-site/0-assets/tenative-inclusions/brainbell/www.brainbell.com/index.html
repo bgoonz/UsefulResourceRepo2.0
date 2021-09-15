@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <!-- Mirrored from www.brainbell.com/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Feb 2021 02:47:48 GMT -->
+  <!-- Added by HTTrack --><meta
+    http-equiv="content-type"
+    content="text/html;charset=UTF-8"
+  /><!-- /Added by HTTrack -->
+  <head>
+    <meta charset="UTF-8" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = true;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "detroitchicago/boise.js",
+        "detroitchicago/boise7ea0.js?gcb=192-11&amp;cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "detroitchicago/memphis.js",
+        "detroitchicago/memphis2b28.js?gcb=192-11&amp;cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "detroitchicago/minneapolis.js",
+        "detroitchicago/minneapolis8baa.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("index.html");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot
+            .getAdUnitPath(adSlot)
+            .split("index.html")
+            .pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (ezimKey.split("index.html").pop() === adUnitName) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "detroitchicago/raleigh.js",
+        "detroitchicago/raleigh8baa.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "detroitchicago/tampa.js",
+        "detroitchicago/tampa8baa.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "detroitchicago/tulsa.js",
+        "detroitchicago/tulsa2b28.js?gcb=192-11&amp;cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BrainBell - home of tutorials</title>
+    <link rel="canonical" href="index.html" />
+    <meta
+      name="description"
+      content="Full Web Building Tutorials. The largest web developer&#039;s site on the net. Here you will find the web resources you need to keep on the cutting edge of Web design and functionality. Also all sorts of HTML, Javascript, PHP, ASP.NET, XML etc. and web authoring tutorials, from beginner to advanced level."
+    />
+    <link rel="shortcut icon" href="favicon.ico" />
+
+    <style>
+      @font-face {
+        font-family: "icomoon";
+        src: url("v10/font/icomoonb40a.eot?7smnjg");
+        src: url("v10/font/icomoonb40a.eot?7smnjg#iefix")
+            format("embedded-opentype"),
+          url("v10/font/icomoonb40a.ttf?7smnjg") format("truetype"),
+          url("v10/font/icomoonb40a.woff?7smnjg") format("woff"),
+          url("v10/font/icomoonb40a.svg?7smnjg#icomoon") format("svg");
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      .icon {
+        font-family: "icomoon" !important;
+        speak: none;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        font-size: 1rem;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        font-family: sans-serif;
+        line-height: 1.15;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        -ms-overflow-style: scrollbar;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      }
+
+      @-ms-viewport {
+        width: device-width;
+      }
+
+      article,
+      aside,
+      figcaption,
+      figure,
+      footer,
+      header,
+      hgroup,
+      main,
+      nav,
+      section {
+        display: block;
+      }
+
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+          "Segoe UI Emoji", "Segoe UI Symbol";
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #555;
+        text-align: left;
+        background-color: #fff;
+        padding-top: 5rem;
+      }
+      main {
+        min-height: 30rem;
+      }
+      h1,
+      h2 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-family: inherit;
+        font-weight: 500;
+        line-height: 1.2;
+        color: inherit;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+      h2 {
+        font-size: 1.4rem;
+      }
+      p {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+
+      a {
+        color: #49bf4c;
+        text-decoration: none;
+        background-color: transparent;
+        -webkit-text-decoration-skip: objects;
+      }
+
+      a:hover {
+        color: rgba(0, 200, 0, 1);
+      }
+
+      .list {
+        padding: 0.625rem;
+        width: 33.333%;
+        float: left;
+        position: relative;
+      }
+      .list1 {
+        width: 66.667%;
+      }
+      #full {
+        width: 100%;
+        padding: 1rem;
+      }
+      .lister {
+        height: 138px;
+        border-radius: 3px;
+        padding: 1.25em;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+      }
+      .listd,
+      .listh {
+        margin: 0;
+        margin-left: 5.625rem;
+      }
+      .icon {
+        font-size: 4em;
+        color: rgba(50, 205, 50, 0.5);
+      }
+      .icon {
+        float: left;
+      }
+      a p {
+        color: #555;
+      }
+
+      .blender:after {
+        content: "\e906";
+      }
+      .flash:after {
+        content: "\e902";
+      }
+      .fp:after {
+        content: "\e903";
+      }
+      .asp:after {
+        content: "\e905";
+      }
+      .c:after {
+        content: "\e639";
+      }
+      .cpp:after {
+        content: "\e635";
+      }
+      .cs:after {
+        content: "\e637";
+      }
+      .css:after {
+        content: "\e679";
+      }
+      .java:after {
+        content: "\e842";
+      }
+      .js:after {
+        content: "\e845";
+      }
+      .mysql:after {
+        content: "\eb61";
+      }
+      .node:after {
+        content: "\eb6a";
+      }
+      .ps:after {
+        content: "\eb6d";
+      }
+      .php:after {
+        content: "\eb71";
+      }
+      .vs:after {
+        content: "\e927";
+      }
+      .access:after {
+        content: "\e907";
+      }
+      .ppt:after {
+        content: "\e908";
+      }
+      .word:after {
+        content: "\e909";
+      }
+      .excel:after {
+        content: "\e90a";
+      }
+      .networking:after {
+        content: "\e91b";
+      }
+      .android:after {
+        content: "\eac0";
+      }
+      .html:after {
+        content: "\eae4";
+      }
+      .ap:after {
+        content: "\e904";
+      }
+      .code:after {
+        content: "\e901";
+      }
+      .electron:after {
+        content: "\e900";
+      }
+
+      .line,
+      .navbar {
+        margin: 0 auto;
+        max-width: 71.25em;
+        padding: 0 0.625em;
+      }
+      .margin {
+        margin: 0 -0.625em;
+      }
+      .margin:after,
+      .line:after {
+        display: block;
+        clear: both;
+        content: "";
+      }
+
+      footer,
+      footer a {
+        color: #7697a2;
+      }
+      .navbar,
+      .sc,
+      .sbox {
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+      }
+      .navbar,
+      .ndiv,
+      footer {
+        background-color: #002633;
+      }
+      .navbar {
+        z-index: 200;
+        -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+        justify-content: space-between;
+        padding: 0.5rem;
+      }
+      .ndiv {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1100;
+      }
+      .navbar-brand {
+        color: #fff;
+        display: inline-block;
+        padding-top: 0.3125rem;
+        padding-bottom: 0.3125rem;
+        margin-right: 3rem;
+        white-space: nowrap;
+        -ms-touch-action: manipulation;
+        touch-action: manipulation;
+
+        text-decoration: none;
+        background-color: transparent;
+        -webkit-text-decoration-skip: objects;
+        line-height: 1rem;
+        font-size: 2.2rem;
+        text-align: center;
+      }
+      .navbar-brand .bell {
+        color: rgba(0, 200, 0, 1);
+      }
+      .navbar-brand .slog {
+        font-weight: normal;
+        font-size: 0.85rem;
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+      }
+
+      .sc {
+        -ms-flex-preferred-size: 100%;
+        flex-basis: 100%;
+        -webkit-box-flex: 1;
+        -ms-flex-positive: 1;
+        flex-grow: 1;
+      }
+      .sbox {
+        -moz-box-orient: horizontal;
+        -webkit-box-orient: horizontal;
+        box-orient: horizontal;
+        -moz-box-direction: normal;
+        -webkit-box-direction: normal;
+        box-direction: normal;
+        -ms-flex-flow: row wrap;
+        flex-flow: row wrap;
+
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        overflow: visible;
+        margin: 0;
+      }
+      #vcard,
+      #message,
+      .hidden {
+        display: none;
+      }
+      #message {
+        position: relative;
+        padding: 0.75rem 1.25rem;
+        padding-right: 4rem;
+        margin: 0 auto;
+        max-width: 50rem;
+        margin-bottom: 1rem;
+        border: 1px solid #ffeeba;
+        border-radius: 0.25rem;
+        color: #856404;
+        background-color: #fff3cd;
+        text-align: center;
+      }
+      #cross {
+        font-size: 1.5rem;
+        line-height: 1rem;
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0.75rem 1.25rem;
+        cursor: pointer;
+      }
+
+      @media screen and (max-width: 1170px) {
+        .list {
+          width: 50%;
+        }
+        .list1 {
+          width: 50%;
+        }
+        .lister {
+          height: auto;
+        }
+      }
+
+      @media screen and (max-width: 980px) {
+        .lister {
+          height: 138px;
+        }
+      }
+
+      @media screen and (max-width: 800px) {
+        .list {
+          width: 100%;
+        }
+        .list1 {
+          width: 100%;
+        }
+        .lister {
+          height: auto;
+        }
+        footer {
+          text-align: center;
+        }
+      }
+      @media screen and (max-width: 510px) {
+        .navbar-brand,
+        .navbar,
+        .sc,
+        .sbox {
+          display: block;
+        }
+        .navbar-brand {
+          width: auto;
+          margin: 0;
+        }
+        body {
+          padding-top: 7rem;
+        }
+        .icon {
+          font-size: 3em;
+        }
+        .listh {
+          margin-left: 70px;
+          margin-top: 10px;
+          margin-bottom: 20px;
+        }
+        .listd {
+          margin-left: 0;
+          text-align: center;
+        }
+      }
+      @media screen and (max-width: 350px) {
+        .list {
+          text-align: center;
+        }
+        .icon {
+          float: none;
+        }
+        .listh {
+          margin-left: 0;
+          margin-top: 0;
+          margin-bottom: 0;
+        }
+      }
+    </style>
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base />
+    <script type="text/javascript">
+      var ezoTemplate = "old_site_gc";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_lazyload_version: 0,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        engaged_time_visit: 0,
+        ezcache_level: 2,
+        ezcache_skip_code: 0,
+        form_factor_id: 1,
+        framework_id: 1,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        metro_code: 501,
+        page_ad_positions: "",
+        page_view_count: 1,
+        page_view_id: "31eb78fb-8ae2-4710-5c8d-84092490f745",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 15503,
+        response_time_orig: 3,
+        serverid: "35.170.79.224:5204",
+        state: "NJ",
+        t_epoch: 1613702796,
+        template_id: 126,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/",
+        user_id: 0,
+        word_count: 245,
+        worst_bad_word_level: 0,
+      };
+      var _ezExtraQueries = "&ez_orig=1";
+    </script>
+    <script
+      data-ezscrex="false"
+      data-cfasync="false"
+      type="text/javascript"
+      src="detroitchicago/rochesterf713.js?dcb=192-11&amp;cb=2&amp;v=9"
+      async
+    ></script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["31eb78fb-8ae2-4710-5c8d-84092490f745", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <header>
+      <div class="ndiv">
+        <nav class="navbar">
+          <a class="navbar-brand" href="index.html"
+            >Brain<span class="bell">Bell</span><br /><span class="slog"
+              >makes easier to learn</span
+            ></a
+          >
+          <div class="sc">
+            <input
+              type="text"
+              name="sbox"
+              id="sbox"
+              value=""
+              class="sbox"
+              placeholder="Search a topic i.e. Android"
+            />
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <article class="hentry">
+        <div class="line">
+          <div id="full">
+            <h1 class="entry-title">Best Courses &amp; Tutorials</h1>
+            <p class="entry-summary">
+              Find resources to learn: Web, Android and desktop apps
+              development; 2d, 3d graphics and website designing; working with
+              Microsoft Office; computer hardware and networking.
+            </p>
+          </div>
+
+          <div id="entry" class="entry-content margin">
+            <div id="message"></div>
+            <a
+              data-keywords="blender,unity,3d"
+              title="3D, Blender and Unity"
+              href="3d/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon blender"></div>
+                  <h2 class="listh">Blender &amp; Unity</h2>
+                  <p class="listd">Learn to make 3d animations.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="a+,comptia"
+              title="A+"
+              href="tutors/A%2b/Hardware/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon ap"></div>
+                  <h2 class="listh">A+ Certification</h2>
+                  <p class="listd">Learn the necessary skills.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="android"
+              title="Android"
+              href="android/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon android"></div>
+                  <h2 class="listh">Android</h2>
+                  <p class="listd">Learn to develop Android apps.</p>
+                </div>
+              </div>
+            </a>
+
+            <a data-keywords="asp" title="ASP" href="tutorials/ASP/index.html">
+              <div class="list">
+                <div class="lister">
+                  <div class="icon asp"></div>
+                  <h2 class="listh">ASP</h2>
+                  <p class="listd">Learn to write Web applications.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="c"
+              title="C"
+              href="tutors/c/Advice_and_Warnings_for_C/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon c"></div>
+                  <h2 class="listh">C Language</h2>
+                  <p class="listd">How to program carefully.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="c#,csharp,c sharp"
+              title="C#"
+              href="tutors/C_Sharp/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon cs"></div>
+                  <h2 class="listh">C#</h2>
+                  <p class="listd">Learn to quickly build applications.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="3d,Creo,PTC,Parametric"
+              title="Creo"
+              href="creo/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon"></div>
+                  <h2 class="listh">Creo</h2>
+                  <p class="listd">Learn 3d CAD Modeling using Creo.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="electron,node"
+              title="Electron.js"
+              href="javascript/electron.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon electron"></div>
+                  <h2 class="listh">Electron.js</h2>
+                  <p class="listd">Develop desktop apps.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="adobe,flash"
+              title="Flash"
+              href="tutorials/Flash/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon flash"></div>
+                  <h2 class="listh">Flash</h2>
+                  <p class="listd">Learn Flash skills step-by-step.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="html,css"
+              title="HTML and CSS"
+              href="tutorials/HTML_and_CSS/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon html"></div>
+                  <h2 class="listh">HTML &amp; CSS</h2>
+                  <p class="listd">Learn to create and style web pages.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="java"
+              title="Java"
+              href="tutorials/java/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon java"></div>
+                  <h2 class="listh">Java</h2>
+                  <p class="listd">Learn what you need to know.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="javascript"
+              title="JavaScript"
+              href="javascript/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon js"></div>
+                  <h2 class="listh">JavaScript</h2>
+                  <p class="listd">Make cross-platform apps.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="ms,microsoft,access,office"
+              title="MS Access"
+              href="tutorials/ms-office/Access_2003/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon access"></div>
+                  <h2 class="listh">MS Access</h2>
+                  <p class="listd">Learn RDBMS concepts.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="node,javascript"
+              title="Node.Js"
+              href="javascript/node.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon node"></div>
+                  <h2 class="listh">Node.js</h2>
+                  <p class="listd">Learn Node.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="ms,microsoft,excel,office"
+              title="MS Excel"
+              href="tutorials/ms-office/excel/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon excel"></div>
+                  <h2 class="listh">MS Excel</h2>
+                  <p class="listd">Learn to build and format spreadsheets.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="ms,microsoft,excel,excel 2019,2019,office"
+              title="MS Excel"
+              href="excel/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon excel"></div>
+                  <h2 class="listh">MS Excel 2019</h2>
+                  <p class="listd">Learn Excel 2019.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="ms,microsoft,fp,frontpage,office"
+              title="MS FrontPage"
+              href="tutorials/ms-office/FrontPage_2003/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon fp"></div>
+                  <h2 class="listh">MS FrontPage</h2>
+                  <p class="listd">Learn if you're the beginner.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="ms,microsoft,powerpoint,ppt,office"
+              title="MS PowerPoint"
+              href="tutorials/ms-office/PowerPoint/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon ppt"></div>
+                  <h2 class="listh">MS PowerPoint</h2>
+                  <p class="listd">Learn to create effective slides.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="ms,microsoft,word,office"
+              title="MS Word"
+              href="tutorials/ms-office/Word/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon word"></div>
+                  <h2 class="listh">MS Word</h2>
+                  <p class="listd">Learn to use new and existing tools.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="db,mysql,database"
+              title="MySQL"
+              href="tutorials/MySQL/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon mysql"></div>
+                  <h2 class="listh">MySQL</h2>
+                  <p class="listd">Learn MySQL database.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="networking"
+              title="Networking"
+              href="tutorials/Networking/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon networking"></div>
+                  <h2 class="listh">Networking</h2>
+                  <p class="listd">WiFi, Ethernet, or Powerline?</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="cgi,perl"
+              title="Perl CGI"
+              href="tutors/Perl/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon code"></div>
+                  <h2 class="listh">Perl &amp; CGI</h2>
+                  <p class="listd">Learn CGI for web &amp; server.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="php,mysql"
+              title="PHP &amp; MySQL"
+              href="tutorials/php/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon php"></div>
+                  <h2 class="listh">PHP &amp; MySQL</h2>
+                  <p class="listd">Learn to make web apps for everyday use.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="adobe,photoshop"
+              title="Adobe Photoshop"
+              href="tutorials/Photoshop/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon ps"></div>
+                  <h2 class="listh">Photoshop</h2>
+                  <p class="listd">Learn basic &amp; complex concepts.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="regular expression,regex"
+              title="Regex"
+              href="regex/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon code"></div>
+                  <h2 class="listh">Regular Expressions</h2>
+                  <p class="listd">Learn search and replace skills.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="typescript"
+              title="TypeScript"
+              href="typescript/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon node"></div>
+                  <h2 class="listh">TypeScript</h2>
+                  <p class="listd">Learn strong typing to JavaScript.</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              data-keywords="vb,visual basic"
+              title="Visual Basic"
+              href="tutors/Visual_Basic/index.html"
+            >
+              <div class="list">
+                <div class="lister">
+                  <div class="icon vs"></div>
+                  <h2 class="listh">Visual Basic</h2>
+                  <p class="listd">Learn a wide range of VB topics.</p>
+                </div>
+              </div>
+            </a>
+
+            <a data-keywords="xml" title="XML" href="tutorials/XML/index.html">
+              <div class="list">
+                <div class="lister">
+                  <div class="icon code"></div>
+                  <h2 class="listh">XML</h2>
+                  <p class="listd">Learn XML in simple &amp; easy steps.</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+        <div id="vcard">
+          by <span class="author vcard"><span class="fn">BrainBell</span></span
+          >updated
+          <time class="entry-date updated" datetime="2020-02-11T00:01:00+00:00"
+            >Feb 11, 2020</time
+          >
+        </div>
+      </article>
+    </main>
+    <footer>
+      <section>
+        <div class="line">
+          <div class="list">
+            <p>
+              Copyright &copy; 2021 BrainBell.com<br />Contact us:
+              info&#64;brainbell.com
+            </p>
+          </div>
+          <div class="list list1">
+            <p>
+              <a href="privacy/index.html">Privacy policy</a> &nbsp; : &nbsp;
+              <a href="terms/index.html">Terms of use</a>
+            </p>
+          </div>
+        </div>
+      </section>
+    </footer>
+    <script>
+      (function () {
+        var l = [],
+          c = document.querySelector("#entry").querySelectorAll("a"),
+          f = document.querySelector("#message"),
+          ff = document.querySelector("#full"),
+          er = '<div id="cross">×</div>Sorry, no result found!',
+          sb = document.querySelector("#sbox");
+        for (var i in c) {
+          var g = c[i];
+          if (g.dataset)
+            l.push({ id: g, k: g.dataset.keywords.toLowerCase().split(",") });
+        }
+        sb.addEventListener("keyup", function (s) {
+          ff.style.display = "none";
+          var z = sb.value
+              .trim()
+              .toLowerCase()
+              .replace(/\s\s+/g, " ")
+              .split(" "),
+            x = [];
+          z.forEach(function (t) {
+            l.forEach(function (o) {
+              o.k.forEach(function (a) {
+                if (a.indexOf(t) === 0) return x.push(o);
+              });
+              o.id.style.display = x.indexOf(o) !== -1 ? "" : "none";
+            });
+          });
+          if (x.length) {
+            f.style.display = "none";
+            f.innerHTML = "";
+          } else {
+            f.style.display = "block";
+            f.innerHTML = er;
+            document
+              .querySelector("#cross")
+              .addEventListener("click", function (s) {
+                f.innerHTML = "";
+                f.style.display = "none";
+                sb.value = "";
+                l.forEach(function (b) {
+                  b.id.style.display = "block";
+                });
+              });
+          }
+        });
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "edmonton.html",
+        "/detroitchicago/edmonton.webp?a=a&cb=11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "jellyfish.html",
+        "/porpoiseant/jellyfish.webp?a=a&cb=11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script>
+      var _audins_dom = "brainbell_com",
+        _audins_did = 83552;
+      __ez.queue.addDelayFunc(
+        "audins.js",
+        "__ez.script.add",
+        "http://go.ezoic.net/detroitchicago/audins.js?cb=192-11"
+      );
+    </script>
+    <noscript
+      ><div style="display: none">
+        <img
+          src="http://pixel.quantserve.com/pixel/p-31iz6hfFutd16.gif?labels=Domain.brainbell_com,DomainId.83552"
+          border="0"
+          height="1"
+          width="1"
+          alt="Quantcast"
+        /></div
+    ></noscript>
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+
+  <!-- Mirrored from www.brainbell.com/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Feb 2021 02:47:56 GMT -->
+</html>

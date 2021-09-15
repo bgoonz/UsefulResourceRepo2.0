@@ -1,0 +1,31 @@
+<p>Dan says the following very clearly about the best practice way to implement async call within useEffect()</p>
+<p>As I explained above, setState(await something())) is a bad idea because you don’t know whether await something() is still relevant. For example, if the user starts fetching one profile page but then switches to another profile. Then you’re at the mercy of which request arrives first, and can show incorrect data.</p>
+<p>This kind of code would handle it correctly:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">    <span class="kw">let</span> didCancel <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="kw">async</span> <span class="kw">function</span> <span class="at">fetchMyAPI</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-5" title="5">        <span class="kw">let</span> url <span class="op">=</span> <span class="st">&quot;http://something/&quot;</span> <span class="op">+</span> productId<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-6" title="6">        <span class="kw">let</span> config <span class="op">=</span> <span class="op">{};</span></a>
+<a class="sourceLine" id="cb1-7" title="7">        <span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> <span class="at">myFetch</span>(url)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-8" title="8">        <span class="cf">if</span> (<span class="op">!</span>didCancel) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-9" title="9">            <span class="co">// Ignore if we started fetching something else</span></a>
+<a class="sourceLine" id="cb1-10" title="10">            <span class="va">console</span>.<span class="at">log</span>(response)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-11" title="11">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-12" title="12">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-13" title="13"></a>
+<a class="sourceLine" id="cb1-14" title="14">    <span class="at">fetchMyAPI</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-15" title="15">    <span class="cf">return</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-16" title="16">        didCancel <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-17" title="17">    <span class="op">};</span> <span class="co">// Remember if we start fetching something else</span></a>
+<a class="sourceLine" id="cb1-18" title="18"><span class="op">},</span> [productId])<span class="op">;</span></a></code></pre></div>
+<h4 id="the-significance-of-the-didcancel">The significance of the didCancel</h4>
+<p>My main target is that - only if didCancel is false, then do some execution like setting state etc.</p>
+<p>So the didCancel is initialized as false and when I am unmounting / leaving the component I make it to be true, by returning a function.</p>
+<h5 id="reading">Reading</h5>
+<ul>
+<li><p><a href="https://stackoverflow.com/questions/53332321/react-hook-warnings-for-async-function-in-useeffect-useeffect-function-must-ret">https://stackoverflow.com/questions/53332321/react-hook-warnings-for-async-function-in-useeffect-useeffect-function-must-ret</a></p></li>
+<li><p><a href="https://github.com/facebook/react/issues/14326">https://github.com/facebook/react/issues/14326</a></p></li>
+<li><p><a href="https://codesandbox.io/s/jpknv0kyn9">https://codesandbox.io/s/jpknv0kyn9</a></p></li>
+<li><p><a href="https://stackoverflow.com/questions/53861916/canceling-an-axios-rest-call-in-react-hooks-useeffects-cleanup-failing">An example of axios cleanup with useEffect before unmounting</a></p></li>
+</ul>

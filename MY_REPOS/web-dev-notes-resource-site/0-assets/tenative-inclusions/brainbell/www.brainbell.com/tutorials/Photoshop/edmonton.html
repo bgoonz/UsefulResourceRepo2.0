@@ -1,0 +1,1089 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = false;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "/detroitchicago/boise.js",
+        "/detroitchicago/boise.js?gcb=192-11&cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "/detroitchicago/memphis.js",
+        "/detroitchicago/memphis.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/minneapolis.js",
+        "/detroitchicago/minneapolis.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "/detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "/porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("/");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot.getAdUnitPath(adSlot).split("/").pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (ezimKey.split("/").pop() === adUnitName) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "/detroitchicago/raleigh.js",
+        "/detroitchicago/raleigh.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/tampa.js",
+        "/detroitchicago/tampa.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_count_adjustment: 0,
+        ad_lazyload_version: 0,
+        ad_location_ids: "",
+        ad_transform_level: 0,
+        adx_ad_count: 0,
+        bidder_method: 1,
+        bidder_version: 3,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        display_ad_count: 0,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        ds_adsize_opt_id: -1,
+        engaged_time_visit: 0,
+        ezcache_level: 1,
+        ezcache_skip_code: 6,
+        form_factor_id: 1,
+        framework_id: 1,
+        has_bad_image: 0,
+        has_bad_words: 0,
+        iab_category: "",
+        is_from_recommended_pages: false,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        max_ads: 0,
+        metro_code: 501,
+        optimization_version: 1,
+        page_ad_positions: "",
+        page_view_count: 441,
+        page_view_id: "88ddb2f9-2cdd-44d0-4bdc-bb20b36b69eb",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 0,
+        response_time_orig: 230,
+        serverid: "18.214.37.77:3722",
+        state: "NJ",
+        sub_page_ad_positions: "",
+        t_epoch: 1613703337,
+        template_id: 0,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/tutorials/Photoshop/edmonton.php",
+        user_id: 0,
+        word_count: 0,
+        worst_bad_word_level: 0,
+      };
+      var _ezim_d = null;
+      var _ezat = {
+        domain_id: 83552,
+        form_factor_id: 1,
+        framework_id: 1,
+        pageview_date: "2021-02-18",
+        pageview_id: "88ddb2f9-2cdd-44d0-4bdc-bb20b36b69eb",
+        template_id: 0,
+        url: "https://www.brainbell.com/tutorials/Photoshop/edmonton.php",
+        visit_uuid: "3b57fc57-4c51-4b3f-6c78-712b82b8f8be",
+      };
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+    >
+      __ez.queue.addFile(
+        "banger.js",
+        "/porpoiseant/banger.js?cb=192-11&bv=3&v=39&PageSpeed=off",
+        true,
+        [],
+        true,
+        false,
+        false,
+        true
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "/detroitchicago/tulsa.js",
+        "/detroitchicago/tulsa.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <title>Article or tutorial not found</title>
+    <link rel="stylesheet" type="text/css" href="/img/404.css" />
+
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base href="https://www.brainbell.com/tutorials/Photoshop/edmonton.php" />
+    <script type="text/javascript">
+      var ezoTemplate = "pub_site_noads";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigeneris",
+        "//g.ezoic.net/ezosuigeneris.js",
+        true,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+      var __ez_ezosuigenerisEvt = function () {
+        if (typeof ezosuigeneris != "undefined") {
+          __ez.bit.AddAndFire(_ezaq["page_view_id"], [
+            new __ezDotData("universal_user_id", ezosuigeneris),
+          ]);
+        }
+      };
+      __ez.queue.addFunc(
+        "__ez_ezosuigenerisEvt",
+        "__ez_ezosuigenerisEvt",
+        null,
+        false,
+        [
+          "__ezf_ezosuigeneris",
+          "/detroitchicago/minneapolis.js",
+          "/detroitchicago/memphis.js",
+        ],
+        false,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigenerisc",
+        "//g.ezoic.net/ezosuigenerisc.js?nogen=1",
+        true,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["88ddb2f9-2cdd-44d0-4bdc-bb20b36b69eb", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <div>
+      <img src="/img/head_pic1.jpg" border="0" />
+    </div>
+    <div class="toc">
+      <h1>404 page not found</h1>
+      <p>
+        Sorry, the page you requested was not found. Please use the following
+        index to browse related topics.
+      </p>
+    </div>
+
+    <h1 style="text-align: center">Adobe Photoshop index</h1>
+    <div class="toc">
+      <h2>How to make Rollovers</h2>
+      <a href="/tutorials/Photoshop/Build_JavaScript_Rollovers.html"
+        >Build JavaScript Rollovers</a
+      >
+      <a href="/tutorials/Photoshop/Create_The_Button.html"
+        >Create the Button</a
+      >
+      <a href="/tutorials/Photoshop/Make_Layer_Duplicates.html"
+        >Make Layer Duplicates</a
+      >
+      <a href="/tutorials/Photoshop/Create_Rollover_States.html"
+        >Create Rollover States</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>The Professional's Studio</h2>
+      <a href="/tutorials/Photoshop/The_Photo_Retouchers_Work_Environment.htm"
+        >The Photo Retoucher's Work Environment</a
+      >
+      <a
+        href="/tutorials/Photoshop/The_Workflow_Of_A_Typical_Retouching_Job.htm"
+        >The Workflow of a Typical Retouching Job</a
+      >
+      <a href="/tutorials/Photoshop/Becoming_A_Professional_Retoucher.htm"
+        >Becoming a Professional Retoucher</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Special Color Request</h2>
+      <a href="/tutorials/Photoshop/Creating_Touch_Plates.htm"
+        >Creating Touch Plates</a
+      >
+      <a href="/tutorials/Photoshop/Merging_Spot_Colors_Into_CMYK.htm"
+        >Merging Spot Colors into CMYK</a
+      >
+      <a href="/tutorials/Photoshop/Converting_CMYK_To_Special_Colors.htm"
+        >Converting CMYK to Special Colors</a
+      >
+      <a
+        href="/tutorials/Photoshop/Changing_A_Four-Color_Image_To_Three_Colors.htm"
+        >Changing a Four-Color Image to Three Colors</a
+      >
+      <a href="/tutorials/Photoshop/Adding_Trap.htm">Adding Trap</a>
+      <a href="/tutorials/Photoshop/Changing_The_Overall_Color.htm"
+        >Changing the Overall Color</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Something form nothing</h2>
+      <a href="/tutorials/Photoshop/Creating_A_Smile.htm">Creating a Smile</a>
+      <a href="/tutorials/Photoshop/Creating_Motion_From_Stillness.htm"
+        >Creating Motion from Stillness</a
+      >
+      <a href="/tutorials/Photoshop/Extending_Backgrounds.htm"
+        >Extending Backgrounds</a
+      >
+      <a href="/tutorials/Photoshop/Shining_Things_Up.htm">Shining Things Up</a>
+    </div>
+
+    <div class="toc">
+      <h2>Shadow and Lights</h2>
+      <a
+        href="/tutorials/Photoshop/Imagining_The_Light_That_Should_Have_Been.htm"
+        >Imagining the Light That Should Have Been</a
+      >
+      <a href="/tutorials/Photoshop/Creating_A_Simple_Shadow.htm"
+        >Creating a Simple Shadow</a
+      >
+      <a href="/tutorials/Photoshop/Creating_Shadows_For_Complex_Objects.htm"
+        >Creating Shadows for Complex Objects</a
+      >
+      <a
+        href="/tutorials/Photoshop/Retaining_An_Existing_Shadow_In_A_New_Background.htm"
+        >Retaining an Existing Shadow in a New Background</a
+      >
+      <a href="/tutorials/Photoshop/Grounding_Objects_With_Shadows.htm"
+        >Grounding Objects with Shadows</a
+      >
+      <a href="/tutorials/Photoshop/Common_Shadow_Mistakes.htm"
+        >Common Shadow Mistakes</a
+      >
+      <a href="/tutorials/Photoshop/Keeping_A_Shadow_Library.htm"
+        >Keeping a Shadow Library</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Packaging Material</h2>
+      <a
+        href="/tutorials/Photoshop/The_Image_You_Have_Versus_The_Image_You_Need.htm"
+        >The Image You Have Versus the Image You Need</a
+      >
+      <a href="/tutorials/Photoshop/The_Spec_Sheet.htm">The Spec Sheet</a>
+      <a href="/tutorials/Photoshop/Preparing_A_CMYK_File.htm"
+        >Preparing a CMYK File</a
+      >
+      <a href="/tutorials/Photoshop/Another_Option_Creating_A_Special_Color.htm"
+        >Another Option: Creating a Special Color</a
+      >
+      <a href="/tutorials/Photoshop/Trapping_On_Special_Packaging.htm"
+        >Trapping on Special Packaging</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Images for Newsprint</h2>
+      <a href="/tutorials/Photoshop/Start_By_Understanding_The_Process.htm"
+        >Start by Understanding the Process</a
+      >
+      <a
+        href="/tutorials/Photoshop/Preparing_A_CMYK_Image_For_Use_In_Newsprint.htm"
+        >Preparing a CMYK Image for Use in Newsprint</a
+      >
+      <a
+        href="/tutorials/Photoshop/Preparing_A_Color_Image_For_A_Black_And_White_Newspaper.htm"
+        >Preparing a Color Image for a Black and White Newspaper</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Images Merging</h2>
+      <a
+        href="/tutorials/Photoshop/Preparing_The_Pieces_Options_For_Selecting_The_Components.htm"
+        >Preparing the Pieces: Options for Selecting the Components</a
+      >
+      <a href="/tutorials/Photoshop/Preparing_The_Canvas_Your_Position_File.htm"
+        >Preparing the Canvas: Your Position File</a
+      >
+      <a href="/tutorials/Photoshop/Putting_The_Pieces_Together.htm"
+        >Putting the Pieces Together</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Making Low Resolution Look High</h2>
+      <a href="/tutorials/Photoshop/Understanding_The_Spec_Sheet.htm"
+        >Understanding the Spec Sheet</a
+      >
+      <a href="/tutorials/Photoshop/Assessing_The_Situation.htm"
+        >Assessing the Situation</a
+      >
+      <a
+        href="/tutorials/Photoshop/Improving_The_Existing_File_To_Survive_Magnification.htm"
+        >Improving the Existing File to Survive Magnification</a
+      >
+      <a href="/tutorials/Photoshop/Dealing_With_Specific_Image_Problems.htm"
+        >Dealing with Specific Image Problems</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Corrections</h2>
+      <a href="/tutorials/Photoshop/Correction_Basics.htm">Correction Basics</a>
+      <a href="/tutorials/Photoshop/Adding_Texture_To_An_Image.htm"
+        >Adding Texture to an Image</a
+      >
+      <a href="/tutorials/Photoshop/Using_The_Clone_Tool.htm"
+        >Using the Clone Tool</a
+      >
+      <a href="/tutorials/Photoshop/Neutralizing_Images.htm"
+        >Neutralizing Images</a
+      >
+      <a href="/tutorials/Photoshop/Brightening_Images.htm"
+        >Brightening Images</a
+      >
+      <a href="/tutorials/Photoshop/Changing_Image_Colors.htm"
+        >Changing Image Colors</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Red Eye and Image Optimization</h2>
+      <a href="/tutorials/Photoshop/JPEG_Optimization_Settings.html"
+        >JPEG Optimization Settings</a
+      >
+      <a href="/tutorials/Photoshop/GIF_Optimization_Settings.html"
+        >GIF Optimization Settings</a
+      >
+      <a href="/tutorials/Photoshop/How_to_Use_Red-Eye_Tool.html"
+        >How to use Red-Eye Tool</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Creating a Navigation Bar</h2>
+      <a href="/tutorials/Photoshop/New_File_for_the_Web.html"
+        >Create New File</a
+      >
+      <a href="/tutorials/Photoshop/Building_a_Navigation_Bar.html"
+        >Building a Navigation</a
+      >
+      <a href="/tutorials/Photoshop/Slicing_and_Optimizing_for_Web_Images.html"
+        >Slicing and Optimization for Web Images</a
+      >
+      <a href="/tutorials/Photoshop/Slice_Options.html">Slice Options</a>
+    </div>
+    <script type="text/javascript" style="display: none">
+      var __ez_dims = (function () {
+        var setCookie = function (name, content, expiry) {
+          return (document.cookie =
+            name +
+            "=" +
+            content +
+            (expiry
+              ? ";expires=" +
+                new Date(
+                  Math.floor(new Date().getTime() + expiry * 1000)
+                ).toUTCString()
+              : "") +
+            ";path=/");
+        };
+        var ffid = 1;
+        var oh = window.screen.height;
+        var ow = window.screen.width;
+        var h = ffid === 1 ? oh : oh > ow ? oh : ow;
+        var w = ffid === 1 ? ow : oh > ow ? ow : oh;
+        var uh =
+          window.innerHeight ||
+          document.documentElement.clientHeight ||
+          document.getElementsByTagName("body")[0].clientHeight;
+        var uw =
+          window.innerWidth ||
+          document.documentElement.clientWidth ||
+          document.getElementsByTagName("body")[0].clientWidth;
+        setCookie(
+          "ezds",
+          encodeURIComponent("ffid=" + ffid + ",w=" + w + ",h=" + h),
+          31536e3 * 7
+        );
+        setCookie(
+          "ezohw",
+          encodeURIComponent("w=" + uw + ",h=" + uh),
+          31536e3 * 7
+        );
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "edmonton.php",
+        "/detroitchicago/edmonton.webp?a=a&cb=192-11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "jellyfish.php",
+        "/porpoiseant/jellyfish.webp?a=a&cb=192-11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+</html>

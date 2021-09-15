@@ -1,0 +1,374 @@
+<h1 id="deploying-any-apps-using-dokku-paas">Deploying Any App(s) Using Dokku PaaS</h1>
+<p>A guide to deploying Any App(s) to your own “Platform-as-a-Service” using Dokku.</p>
+<p><img src="https://user-images.githubusercontent.com/194400/40890782-5509ca8a-6773-11e8-9d3e-3dda57349b88.png" alt="dokku-paas-header-image" /> <!-- if you can improve on, or want/need to edit this intro image, go for it!
+https://docs.google.com/drawings/d/1_JbCorCr96NeJZ9lAzkT6DT7Ze3Jw_PdXfioRLoR8IU
+--> <br /> Like having your own (<em>self-managed/hosted</em>) Heroku platform with full VM access/control at a <em>fraction</em> of the cost.</p>
+<h2 id="why">Why?</h2>
+<p>We need a way of deploying <em>multiple</em> apps to the <em>same</em> Digital Ocean VPS/instance.</p>
+<p>Digital Ocean is a <em>great</em> alternative to the “main” cloud providers (Amazon, Google &amp; Microsoft); it has a <em>much</em> more intuitive (<em>UX-focussed</em>) “control panel” which means you can get your “DevOps” learning and <em>work</em> done a <em>lot</em> faster!</p>
+<h3 id="why-not">Why <em>Not</em>?</h3>
+<p>Managing your own infrastructure (or “Platform”) is a “<strong>rabbit hole</strong>”; it might be <em>easy</em> to get started, but if (<em>when</em>) things go “wrong”, it can take a while to <em>understand</em> the issue (<em>lots of googling!</em>). This is “OK” if you are the type of person who <em>enjoys debugging</em> Docker/Linux, but if you prefer focus on the <em>features</em> of your App, let someone <code>else</code> handle the infra/PaaS until you achieve “critical mass” and can afford to hire a <em>professional</em> DevOps person.</p>
+<h2 id="what">What?</h2>
+<p>Deploy “unlimited”<sup>1</sup> apps to a Virtual Private Server (VPS) instance with great service quality and minimal cost.</p>
+<p>In this guide we will be using the following:</p>
+<ul>
+<li>Digital Ocean Droplet (Virtual Private Server “VPS”)</li>
+<li>CentOS (Operating System) - though any “mainstream linux” will work, and Ubuntu/Debian is the most <em>popular</em>.</li>
+<li>Dokku “Platform as a Service” (“PaaS”) based on Docker.</li>
+<li>LetsEncrypt Free SSL Certificates.</li>
+</ul>
+<p>If you do not <em>already</em> have a Digital Ocean account, please use the following link to register: https://m.do.co/c/29379863a4f8 and get <strong>$10 in Credit</strong>.</p>
+<blockquote>
+<p><em><strong>Note</strong>: we are <strong>launching</strong> a <strong>Digital Ocean instance</strong> in this tutorial. unless you used the “referral link” above, you will incur a <strong>small cost</strong>. If you use the 1GB instance and go through the tutorial in 1 hour it will cost you <strong>0.007 cents</strong> (less than <strong>one cent</strong>)</em>. <em>If you chose to <strong>use</strong> this method for running your apps it will cost you $5/month which is cheaper than the <strong>cheapest</strong> paid tier on Heroku, and since we will cover how to run <strong>multiple apps</strong>, it will cost you <strong>less than $1 per month</strong> (per app) if you run 5+ apps. Crucially, the <strong>service quality/speed</strong> will be <strong>much better</strong> than the “free apps” on Heroku!</em></p>
+</blockquote>
+<p><sup>1</sup>“unlimited” apps is not <em>strictly</em> true; we <em>are</em> limited by the RAM resources of the instance.</p>
+<h2 id="who">Who?</h2>
+<p>Anyone that needs to deploy one or <em>more</em> App(s) to DigitalOcean and needs a <em>step-by-step</em> guide.</p>
+<h2 id="when"><em>When</em>?</h2>
+<p>It’s <em>only</em> worth investing the time to create your own “Mini Platform-as-a-Service” once you have used (<em>and “out-grown”</em>) Heroku.</p>
+<p>Heroku offers <em>significant</em> advantages including logging/alerting and “teams”, which are <em>not</em> covered here.</p>
+<p><em>If you have <strong>never used Heroku</strong>, or this is your <strong>first time</strong> deploying a Node.js app, we <strong>highly recommend</strong> following the</em> <a href="https://github.com/dwyl/learn-heroku"><code>https://github.com/dwyl/learn-heroku</code></a> <em>guide <strong>first</strong></em>. <br /></p>
+<blockquote>
+<p><em><strong>Bookmark</strong> (<strong>Star</strong>) this repo/tutorial <strong>now</strong> so you can return to it when you are spending more than <strong>$10/month</strong> on <strong>Heroku</strong>; it does not make sense to run your own “PaaS” before then!</em></p>
+</blockquote>
+<h2 id="how">How?</h2>
+<p>These are <em>step-by-step</em> instructions, follow them in order and <em>don’t skip</em> steps!</p>
+<h3 id="pre-requisites">0. Pre-requisites</h3>
+<p><em>Before</em> we start, please ensure you have the following:</p>
+<ul>
+<li>[x] Digital Ocean Account (<em>New to “DO”? Please use this link:</em> https://m.do.co/c/29379863a4f8 <em>to register</em>)
+<ul>
+<li>[x] Public SSH Key uploaded to https://cloud.digitalocean.com/settings/security (<em>so that you can login to the instance we are about to launch!</em>) see: https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets</li>
+</ul></li>
+<li>[x] Basic Node.js knowledge (<em>but this guide works for <strong>Any</strong> app e.g: Ruby, Python, Elixir, Go, Java, Scala, etc!</em>)</li>
+<li>[x] 30 mins of time.</li>
+</ul>
+<h3 id="create-the-digitalocean-instance">1. Create the DigitalOcean Instance</h3>
+<p>Go to: https://cloud.digitalocean.com/droplets/new and Create a Droplet!</p>
+<blockquote>
+<p><em><strong>Note</strong>: We are using a “blank” instance as opposed to a “One-click app”, because this will show us how to setup “from scratch” and will thus be applicable to <strong>any</strong> cloud provider</em>.</p>
+</blockquote>
+<p>The instance we are creating is a <strong>CentOS 7.5</strong> Droplet with <strong>1GB RAM</strong>.</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/40320319-2adb2f92-5d23-11e8-88c7-74c9aab084dc.png" alt="digital-ocean-dokku-create-droplet" /><figcaption>digital-ocean-dokku-create-droplet</figcaption>
+</figure>
+<p>Select your desired region (<em>datacenter</em>); (<em>pick the nearest to your users or dev team</em>) e.g:</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/40320737-943863c8-5d24-11e8-8c42-fd8ceb2ec4bc.png" alt="digital-ocean-dokku-choose-region" /><figcaption>digital-ocean-dokku-choose-region</figcaption>
+</figure>
+<p>The default <code>hostname</code> for the instance (<em>based on the selected options</em>) is: <code>centos-s-1vcpu-1gb-lon1-01</code> let’s change that to: <code>centos-dokku-paas</code> so that we know what the instance <em>does</em> from reading it’s hostname.</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/40320799-bd9da58e-5d24-11e8-9812-62560338e6ac.png" alt="digital-ocean-dokku-default-hostname" /><figcaption>digital-ocean-dokku-default-hostname</figcaption>
+</figure>
+<blockquote>
+<p>This also means that if/when we “scale” the instance up we don’t need to <strong>rename</strong> it when the CPU/RAM changes. <br /></p>
+</blockquote>
+<p><code>hostname</code> updated: <img src="https://user-images.githubusercontent.com/194400/40320800-bdb615c4-5d24-11e8-9b75-9f876c58c490.png" alt="dokku-hostname-updated" /></p>
+<p>Click on the “Create” button.</p>
+<p>You will see a “loading” progress bar for a few seconds while the instance is being created:</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/40321021-983b5362-5d25-11e8-8e4f-c0e78222f791.png" alt="digital-ocean-instance-creation-progress-bar" /><figcaption>digital-ocean-instance-creation-progress-bar</figcaption>
+</figure>
+<p>and then something like this:</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/40321034-a27d2d0a-5d25-11e8-9fc1-2b1b9b1d8ae2.png" alt="digital-ocean-dokku-instance-created" /><figcaption>digital-ocean-dokku-instance-created</figcaption>
+</figure>
+<h3 id="login-to-the-instance-via-sshconsole">2. Login to the Instance via SSH/Console</h3>
+<p>There are two ways to access your Digital Ocean instance: the first is via the Web-based console:</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/40321524-49f9d0f0-5d27-11e8-81cb-2cfd295aa494.png" alt="do-centos-dokku-console" /><figcaption>do-centos-dokku-console</figcaption>
+</figure>
+<p>We only tend to use the web-based console when on a device that does not have a “<em>native</em>” terminal app. (<em>e.g: an iPad</em>)</p>
+<p>get the instance’s IP (v4) Address, e.g: <code>138.68.163.126</code> and run the following command into your terminal to <strong>login</strong> to the instance <strong>via SSH</strong>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">ssh</span> root@138.68.163.126</a></code></pre></div>
+<p>While logged in as <code>root</code> run the <em>update</em> command:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">yum</span> update</a></code></pre></div>
+<p>There are <em>security</em> updates: <br /> <img src="https://user-images.githubusercontent.com/194400/40326841-9e2c5b6e-5d38-11e8-9313-66e369777807.png" alt="image" /></p>
+<p>Update complete: <br /> <img src="https://user-images.githubusercontent.com/194400/40326822-8e8e5bda-5d38-11e8-83d1-f8fa03520e17.png" alt="image" /></p>
+<p><code>root</code> <em>is the</em> <code>default</code> <em>user for Digital Ocean instances, we prefer to <strong>minimise</strong> the activity of “root” or <code>sudo</code> users on our instances for security. So our <strong>next step</strong> we will create a new user called</em>: <code>dokku</code> <em>with reduced privileges</em>.</p>
+<h3 id="add-dokku-user">3. Add <code>dokku</code> User</h3>
+<p>Create a <code>dokku</code> user on the server (<em>so that we can avoid running as <code>root</code></em>)""</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="fu">cat</span> ~/.ssh/id_rsa.pub <span class="kw">|</span> <span class="fu">ssh</span> root@<span class="op">&lt;</span>ip4<span class="op">&gt;</span> <span class="st">&quot;sudo sshcommand acl-add dokku root&quot;</span></a></code></pre></div>
+<p>e.g:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1"><span class="fu">cat</span> ~/.ssh/id_rsa.pub <span class="kw">|</span> <span class="fu">ssh</span> root@138.68.163.126 <span class="st">&quot;sudo sshcommand acl-add dokku root&quot;</span></a></code></pre></div>
+<p>If you are already logged into the server, run the following command:</p>
+<pre><code>cat ~/.ssh/id_rsa.pub | sudo sshcommand acl-add dokku root</code></pre>
+<h4 id="i-need-to-remove-the-dokku-user">3.i Need to <em>Remove</em> the Dokku User?</h4>
+<p>If you ever need to <em>remove</em> the <code>dokku</code> user on the instance, run:</p>
+<pre><code>sshcommand acl-remove &lt;USER&gt; &lt;NAME&gt;</code></pre>
+<p>e.g:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb7-1" title="1"><span class="ex">sshcommand</span> acl-remove dokku root</a></code></pre></div>
+<h3 id="configure-custom-domain-name-optionalrecommend">4. Configure Custom Domain Name (Optional/Recommend)</h3>
+<p>In this section we’ll walk through: + Finding and registering a domain name + Point the domain’s DNS record to DigitalOcean so the “droplet” is configured to receive all traffic for all subdomains.</p>
+<blockquote>
+<p><em><strong>Note</strong>: If you <strong>already have</strong> a domain name you can use for this, then skip the registration step. <br /> You will still need to “point” the domain’s DNS to DigitalOcean for the rest to work</em>.</p>
+</blockquote>
+<h4 id="register-the-domain">4.1 Register the Domain</h4>
+<p>We registered a custom domain name as we intend to use this server to host multiple “demo” apps, <br /> <code>ademo.app</code> seemed like a <em>logical</em> name for the domain.</p>
+<p>We use https://domainr.com to <em>lookup</em> if the domain is available:</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/40326177-5344d0ce-5d36-11e8-90da-392c016194ab.png" alt="image" /><figcaption>image</figcaption>
+</figure>
+<p>And then use https://iwantmyname.com to <em>register</em> the domain.</p>
+<h4 id="update-the-dns-nameserver-records-to-digitalocean">4.2 Update the DNS (NameServer) Records to DigitalOcean</h4>
+<p>In the settings (where you registered the domain), point DNS servers at the DigitalOcean’s name servers: + ns1.digitalocean.com + ns2.digitalocean.com + ns3.digitalocean.com</p>
+<p><img src="https://user-images.githubusercontent.com/194400/41946140-c918da82-79a8-11e8-91c5-0810513e9796.png" alt="do-cetos-ademo-app-dns" /> <img src="https://user-images.githubusercontent.com/194400/40325945-80c6ac8a-5d35-11e8-8ff1-000caa8f296f.png" alt="do-cents-ademo-dns-full" /></p>
+<p>This indicates the settings update is in progress … <br /> <img src="https://user-images.githubusercontent.com/194400/40325773-e206ace4-5d34-11e8-9697-82629244a54d.png" alt="dns-settings-updated" /></p>
+<h4 id="verify-the-domain-servers-using-whois-command">4.3 Verify the Domain Servers using <code>whois</code> Command</h4>
+<p>Verify that the new domain servers are listed by running the <code>whois</code> command:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb8-1" title="1">$ <span class="ex">whois</span> <span class="op">&lt;</span>domain.com<span class="op">&gt;</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="st">&quot;Name Server&quot;</span></a></code></pre></div>
+<p>e.g:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb9-1" title="1"><span class="ex">whois</span> ademo.app <span class="kw">|</span> <span class="fu">grep</span> <span class="st">&quot;Name Server&quot;</span></a></code></pre></div>
+<p>You should see something like this: <br /> <img src="https://user-images.githubusercontent.com/194400/40325923-69823cf6-5d35-11e8-808c-448bc510b03a.png" alt="image" /></p>
+<h4 id="background-reading-for-dns-on-digital-ocean">Background Reading for DNS on Digital Ocean</h4>
+<p>https://www.digitalocean.com/community/tutorials/an-introduction-to-digitalocean-dns</p>
+<blockquote>
+<p>Now that we know the domain (DNS) is configured to “point” to DigitalOcean we can move on to creating the SSL Certificate for the domain!</p>
+</blockquote>
+<h3 id="letsencrypt-wildcard-ssl-certificate">5. LetsEncrypt Wildcard SSL Certificate!</h3>
+<p>In order to have multiple subdomains on the same server, e.g: <code>hello.ademo.app</code> and <code>awesome-word-game.ademo.app</code> you will need to have a Wildcard SSL Certificate!</p>
+<p>Thankfully you can get one for <em>free</em> with about 10 mins work. We wrote a <em>separate</em> (<em>self-contained</em>) tutorial for that:</p>
+<p><a href="https://github.com/dwyl/learn-devops/blob/master/letsencrypt-wildcard-certificate.md">letsencrypt-wildcard-certificate.md</a></p>
+<p>once you have finished setting it up, return here and continue.</p>
+<h3 id="install-dokku">6.Install Dokku</h3>
+<h4 id="install-docker-dependency">6.1 Install Docker (Dependency)</h4>
+<p>Given that there is no “package” for CentOS we need to install <code>dokku</code> <em>manually</em> using the “advanced” instructions: <br /> http://dokku.viewdocs.io/dokku/getting-started/advanced-installation</p>
+<p>Run the following commands on your DO instance to install Extra Packages for Enterprise Linux (“EPEL”)<br />
+https://fedoraproject.org/wiki/EPEL to get <code>nginx</code>:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb10-1" title="1"><span class="fu">sudo</span> yum install -y epel-release</a></code></pre></div>
+<p>Install Docker</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb11-1" title="1"><span class="ex">curl</span> -fsSL https://get.docker.com/ <span class="kw">|</span> <span class="fu">sudo</span> sh</a></code></pre></div>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/40327507-26251036-5d3b-11e8-9014-e0da8194873b.png" alt="image" /><figcaption>image</figcaption>
+</figure>
+<h4 id="install-dokku-1">6.2 Install Dokku</h4>
+<p>Once Docker is installed, proceed to installing Dokku using the following script:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb12-1" title="1"><span class="ex">curl</span> -s https://packagecloud.io/install/repositories/dokku/dokku/script.rpm.sh <span class="kw">|</span> <span class="fu">sudo</span> bash</a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="fu">sudo</span> yum install -y herokuish dokku</a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="fu">sudo</span> dokku plugin:install-dependencies --core</a></code></pre></div>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/40327556-53261c6a-5d3b-11e8-9615-6c32a8f8fe58.png" alt="image" /><figcaption>image</figcaption>
+</figure>
+<p>That will install quite a <em>few</em> packages, so go for a walk!</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/40327867-499e990a-5d3c-11e8-9f2e-a748c2c51da5.png" alt="image" /><figcaption>image</figcaption>
+</figure>
+<h4 id="install-dokku-letsencrypt-plugin">6.3 Install Dokku LetsEncrypt Plugin</h4>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb13-1" title="1"><span class="fu">sudo</span> dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git</a></code></pre></div>
+<p>You should see the following output:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb14-1" title="1"><span class="ex">-----</span><span class="op">&gt;</span> Cloning plugin repo https://github.com/dokku/dokku-letsencrypt.git to /var/lib/dokku/plugins/available/letsencrypt</a>
+<a class="sourceLine" id="cb14-2" title="2"><span class="ex">Cloning</span> into <span class="st">&#39;letsencrypt&#39;</span>...</a>
+<a class="sourceLine" id="cb14-3" title="3"><span class="ex">remote</span>: Counting objects: 454, done.</a>
+<a class="sourceLine" id="cb14-4" title="4"><span class="ex">remote</span>: Total 454 (delta 0), <span class="ex">reused</span> 0 (delta 0), <span class="ex">pack-reused</span> 454</a>
+<a class="sourceLine" id="cb14-5" title="5"><span class="ex">Receiving</span> objects: 100% (454/454), <span class="ex">94.57</span> KiB <span class="kw">|</span> <span class="ex">0</span> bytes/s, done.</a>
+<a class="sourceLine" id="cb14-6" title="6"><span class="ex">Resolving</span> deltas: 100% (276/276), <span class="kw">done</span><span class="ex">.</span></a>
+<a class="sourceLine" id="cb14-7" title="7"><span class="ex">-----</span><span class="op">&gt;</span> Plugin letsencrypt enabled</a>
+<a class="sourceLine" id="cb14-8" title="8"><span class="ex">Removed</span> symlink /etc/systemd/system/docker.service.wants/dokku-redeploy.service.</a>
+<a class="sourceLine" id="cb14-9" title="9"><span class="ex">Created</span> symlink from /etc/systemd/system/docker.service.wants/dokku-redeploy.service to /etc/systemd/system/dokku-redeploy.service.</a>
+<a class="sourceLine" id="cb14-10" title="10"><span class="ex">-----</span><span class="op">&gt;</span> Migrating zero downtime env variables to 0.5.x. The following variables have been deprecated</a>
+<a class="sourceLine" id="cb14-11" title="11">=====<span class="op">&gt;</span> <span class="ex">DOKKU_SKIP_ALL_CHECKS</span> DOKKU_SKIP_DEFAULT_CHECKS</a>
+<a class="sourceLine" id="cb14-12" title="12">=====<span class="op">&gt;</span> <span class="ex">Please</span> use dokku checks:[disable<span class="kw">|</span><span class="ex">enable</span>] <span class="op">&lt;</span>app<span class="op">&gt;</span> to control zero downtime functionality</a>
+<a class="sourceLine" id="cb14-13" title="13">=====<span class="op">&gt;</span> <span class="ex">Migration</span> complete</a>
+<a class="sourceLine" id="cb14-14" title="14">=====<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb14-15" title="15"><span class="ex">-----</span><span class="op">&gt;</span> Migrating zero downtime env variables to 0.6.x. The following variables will be migrated</a>
+<a class="sourceLine" id="cb14-16" title="16">=====<span class="op">&gt;</span> <span class="ex">DOKKU_CHECKS_ENABLED</span> -<span class="op">&gt;</span> DOKKU_CHECKS_SKIPPED</a>
+<a class="sourceLine" id="cb14-17" title="17">=====<span class="op">&gt;</span> <span class="ex">Migration</span> complete</a>
+<a class="sourceLine" id="cb14-18" title="18">=====<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb14-19" title="19"><span class="ex">Adding</span> user dokku to group adm</a>
+<a class="sourceLine" id="cb14-20" title="20"><span class="ex">-----</span><span class="op">&gt;</span> Migrating DOKKU_NGINX env variables. The following variables will be migrated</a>
+<a class="sourceLine" id="cb14-21" title="21">=====<span class="op">&gt;</span> <span class="ex">DOKKU_NGINX_PORT</span> -<span class="op">&gt;</span> DOKKU_PROXY_PORT</a>
+<a class="sourceLine" id="cb14-22" title="22">=====<span class="op">&gt;</span> <span class="ex">DOKKU_NGINX_SSL_PORT</span> -<span class="op">&gt;</span> DOKKU_PROXY_SSL_PORT</a>
+<a class="sourceLine" id="cb14-23" title="23">=====<span class="op">&gt;</span> <span class="ex">Migration</span> complete</a>
+<a class="sourceLine" id="cb14-24" title="24"><span class="ex">-----</span><span class="op">&gt;</span> Priming bash-completion cache</a></code></pre></div>
+<h4 id="add-domain-to-dokku">6.4 Add Domain to Dokku</h4>
+<p>Add the desired domain to dokku so that it knows we want to deploy our app(s) to that.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb15-1" title="1"><span class="ex">dokku</span> domains:add-global <span class="op">&lt;</span>domain.com<span class="op">&gt;</span></a></code></pre></div>
+<p>e.g:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb16-1" title="1"><span class="ex">dokku</span> domains:add-global ademo.app</a></code></pre></div>
+<p>via: http://dokku.viewdocs.io/dokku/configuration/domains/#customizing-hostnames</p>
+<!--
+#### 6.6 Quick "Progress" Check
+
+To _confirm_ that everything installed ok,
+visit the IP Address of your droplet e.g: http://138.68.163.126
+![image](https://user-images.githubusercontent.com/194400/40328106-2763230a-5d3d-11e8-9be0-beb70ce960c1.png)
+-->
+<h3 id="configure-dokku">7. Configure Dokku</h3>
+<p>Run the following commands (on the instance) to add your ssh (public) key to the <code>dokku</code> user:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb17-1" title="1"><span class="fu">sudo</span> cp /root/.ssh/authorized_keys /home/dokku/.ssh/dokku.pub</a>
+<a class="sourceLine" id="cb17-2" title="2"><span class="fu">sudo</span> chown dokku:dokku /home/dokku/.ssh/dokku.pub</a>
+<a class="sourceLine" id="cb17-3" title="3"><span class="fu">sudo</span> dokku ssh-keys:add dokku /home/dokku/.ssh/dokku.pub</a></code></pre></div>
+<h4 id="create-the-homedokkuvhost-file">7.1 Create the <code>/home/dokku/VHOST</code> File</h4>
+<pre><code>vi /home/dokku/VHOST</code></pre>
+<p>paste the following:</p>
+<pre><code>A   *.ademo.app  138.68.163.126</code></pre>
+<h3 id="configure-dokku-nginx.conf.sigil">7.2 Configure Dokku <code>nginx.conf.sigil</code></h3>
+<p>Find the file:</p>
+<pre><code>find / -name nginx.conf.sigil</code></pre>
+<p>On CentOS the file is located at:</p>
+<pre><code>/var/lib/dokku/core-plugins/available/nginx-vhosts/templates/nginx.conf.sigil</code></pre>
+<p>For reference, this is the <code>git diff</code> (“before and after”) the change: https://github.com/dwyl/learn-devops/compare/82919299ceaa2d0eb308c7501b8aa95b6be2b848…2da1a06365cce145d98e293a263a8ae747fb2f01</p>
+<p>For details on nginx configuration in Dokku, see: https://github.com/dokku/dokku/blob/master/docs/configuration/nginx.md</p>
+<h3 id="create-a-dokku-app">8. Create a Dokku App</h3>
+<p>Run this command while logged in (via SSH) to the DO instance:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb22-1" title="1"><span class="ex">dokku</span> apps:create hello</a></code></pre></div>
+<p>You should see:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb23-1" title="1"><span class="ex">-----</span><span class="op">&gt;</span> Creating hello... done</a></code></pre></div>
+<h4 id="add-the-ssl-certificate-to-the-app">8.1 Add the SSL Certificate to the App</h4>
+<div class="sourceCode" id="cb24"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb24-1" title="1"><span class="ex">dokku</span> certs:add yourapp <span class="op">&lt;</span> /etc/letsencrypt/live/ademo.app/certs.tar</a></code></pre></div>
+<p>e.g:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb25-1" title="1"><span class="ex">dokku</span> certs:add hello <span class="op">&lt;</span> /etc/letsencrypt/live/ademo.app/certs.tar</a></code></pre></div>
+<h3 id="add-dokku-git-remote">9. Add Dokku Git Remote</h3>
+<p>using https://github.com/nelsonic/hello-world-node-http-server as my “hello world” app.</p>
+<pre><code>git remote add dokku dokku@138.68.163.126:hello</code></pre>
+<p>Now push the app to the Dokku server:</p>
+<pre><code>git push dokku master</code></pre>
+<p>You should see output similar to the following:</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/40329183-a744e4e8-5d40-11e8-8bd0-325de5d25b53.png" alt="image" /><figcaption>image</figcaption>
+</figure>
+<h4 id="confirm-the-app-deployed-successfully">9.1 Confirm The App Deployed Successfully</h4>
+<p>In our case we deployed our <code>hello</code> app to: https://hello.ademo.app</p>
+<figure>
+<img src="https://user-images.githubusercontent.com/194400/42243002-d2c3ad82-7f07-11e8-9bf4-5a9ce6098020.png" alt="hello-world-example-app" /><figcaption>hello-world-example-app</figcaption>
+</figure>
+<!--
+### 9. Add App to Domain
+```
+dokku domains:enable hello
+```
+
+### 10. Configure the "Main" Domain for the Instance
+
+http://dokku.viewdocs.io/dokku/configuration/nginx
+-->
+<h3 id="deploy-another-app-to-prove-it-was-not-a-fluke">10. Deploy Another App to <em>Prove</em> it Was not a “Fluke”!</h3>
+<h4 id="create-new-dokku-app-on-instance">10.1 Create New Dokku App on Instance</h4>
+<p>Create a <code>new</code> Dokku app (<em>on the instance</em>):</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb28-1" title="1"><span class="ex">dokku</span> apps:create hello-world-node</a></code></pre></div>
+<p>Output (<em>you should see</em>):</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb29-1" title="1"><span class="ex">-----</span><span class="op">&gt;</span> Creating hello-world-node... done</a></code></pre></div>
+<h4 id="add-a-git-remote-for-the-app">10.2 Add a git remote for the app</h4>
+<pre><code>git remote add dokku dokku@138.68.163.126:hello-world-node</code></pre>
+<p>Now push the app to the Dokku server:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb31-1" title="1"><span class="fu">git</span> push dokku master</a></code></pre></div>
+<p>In my case I am working on a branch so I did:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb32-1" title="1"><span class="fu">git</span> push dokku dokku-paas-deployment-issue#24:master</a></code></pre></div>
+<p>This pushes the <em>branch</em> but tells Dokku to treat it as <code>master</code> So it will be deployed.</p>
+<p>The “new” app <code>hello-world-node</code> was successfully deployed to: https://hello-world-node.ademo.app <img src="https://user-images.githubusercontent.com/194400/42243190-61f49aa2-7f08-11e8-9cc4-b52dc54bca70.png" alt="hello-world-node" /></p>
+<h1 id="done">Done!</h1>
+<p>You have successfully deployed your first App to A Dokku PaaS!</p>
+<p><br /></p>
+<h3 id="nginx-server-root-and-configuration">nginx Server Root and Configuration</h3>
+<p>Dokku uses nginx as its server for routing requests to specific applications.</p>
+<p>If you want to start serving your own pages or application through Nginx, you will want to know the locations of the Nginx configuration files and default server root directory.</p>
+<h4 id="default-server-root">Default Server Root</h4>
+<p>The default server root directory is <code>/usr/share/nginx/html</code>. Files that are placed in there will be served on your web server. This location is specified in the default server block configuration file that ships with Nginx, which is located at <code>/etc/nginx/nginx.conf</code></p>
+<h4 id="server-block-configuration">Server Block Configuration</h4>
+<p>Any additional server blocks, known as Virtual Hosts in Apache, can be added by creating new configuration files in <code>/etc/nginx/conf.d</code> Files that end with <code>.conf</code> in that directory will be loaded when Nginx is started.</p>
+<h4 id="nginx-global-configuration">Nginx Global Configuration</h4>
+<p>The main Nginx configuration file is located at /etc/nginx/nginx.conf. This is where you can change settings like the user that runs the Nginx daemon processes, and the number of worker processes that get spawned when Nginx is running, among other things.</p>
+<h4 id="default-log-files-for-apps">Default Log Files for Apps</h4>
+<p>By default, access and error logs are written for each app to /var/log/nginx/<span class="math inline"><em>A</em><em>P</em><em>P</em> − <em>a</em><em>c</em><em>c</em><em>e</em><em>s</em><em>s</em>.<em>l</em><em>o</em><em>g</em><em>a</em><em>n</em><em>d</em>/<em>v</em><em>a</em><em>r</em>/<em>l</em><em>o</em><em>g</em>/<em>n</em><em>g</em><em>i</em><em>n</em><em>x</em>/</span>{APP}-error.log respectively</p>
+<h4 id="default-dokku-nginx-conf">Default Dokku Nginx Conf</h4>
+<p><code>/home/dokku/*/nginx.conf</code> e.g:</p>
+<pre><code>/home/dokku/hello/nginx.conf</code></pre>
+<p>nginx -t -c /etc/nginx/conf.d/dokku.conf</p>
+<p><br /></p>
+<h2 id="useful-dokku-nginx-commands">Useful Dokku / Nginx Commands</h2>
+<h3 id="nginx-check-test-config">nginx Check (Test) Config</h3>
+<div class="sourceCode" id="cb34"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb34-1" title="1"><span class="ex">nginx</span> -t</a></code></pre></div>
+<p>via: http://dokku.viewdocs.io/dokku/getting-started/troubleshooting/</p>
+<h3 id="nginx-start-stop-restart">nginx start, stop &amp; restart</h3>
+<div class="sourceCode" id="cb35"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb35-1" title="1"><span class="ex">nginx</span> -s reload</a></code></pre></div>
+<p>via: https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-centos-7</p>
+<h3 id="nginx-running">Nginx Running?</h3>
+<p>To check if <code>nginx</code> is running on the CentOS instance run:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb36-1" title="1"><span class="fu">ps</span> waux <span class="kw">|</span> <span class="fu">grep</span> nginx</a></code></pre></div>
+<p>e.g: <code>sh&lt;br &lt;&gt;br &lt;&gt;br &lt;&gt;br &lt;&gt;br &lt;&gt;br &lt;&gt;br &lt;&gt;br &lt;&gt;br &lt;&gt;br &lt;&gt;br &lt;&gt;br &lt;&gt;br &lt;&gt;b root     14575  0.0  0.0 112704   968 pts/0    S+   20:39   0:00 grep --color=auto nginx root     19119  0.0  0.2 141272  2100 ?        Ss   18:31   0:00 nginx: master process nginx nginx    19120  0.0  0.3 141660  3572 ?        S    18:31   0:00 nginx: worker process</code></p>
+<h3 id="kill-all-nginx-processes">Kill all Nginx Processes</h3>
+<div class="sourceCode" id="cb37"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb37-1" title="1"><span class="bu">kill</span> <span class="va">$(</span><span class="fu">ps</span> aux <span class="kw">|</span> <span class="fu">grep</span> <span class="st">&#39;[n]ginx&#39;</span> <span class="kw">|</span> <span class="fu">awk</span> <span class="st">&#39;{print $2}&#39;</span><span class="va">)</span></a></code></pre></div>
+<p>or the <em>cleaner</em> version:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb38-1" title="1"><span class="ex">pkill</span> nginx</a></code></pre></div>
+<h3 id="check-running-apps">Check Running Apps</h3>
+<pre><code>dokku apps:list</code></pre>
+<p>Sample response:</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb40-1" title="1">=====<span class="op">&gt;</span> <span class="ex">My</span> Apps</a>
+<a class="sourceLine" id="cb40-2" title="2"><span class="ex">hello</span></a></code></pre></div>
+<p>via: https://github.com/dokku/dokku/blob/master/docs/deployment/process-management.md</p>
+<h3 id="proxy-settings">Proxy Settings</h3>
+<div class="sourceCode" id="cb41"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb41-1" title="1"><span class="ex">dokku</span> proxy:report hello</a></code></pre></div>
+<p>Sample output:</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb42-1" title="1">[<span class="ex">root@centos-dokku-paas</span> hello]# dokku proxy:report hello</a>
+<a class="sourceLine" id="cb42-2" title="2">=====<span class="op">&gt;</span> <span class="ex">hello</span> proxy information</a>
+<a class="sourceLine" id="cb42-3" title="3">       <span class="ex">Proxy</span> enabled:                 true                     </a>
+<a class="sourceLine" id="cb42-4" title="4">       <span class="ex">Proxy</span> type:                    nginx                    </a>
+<a class="sourceLine" id="cb42-5" title="5">       <span class="ex">Proxy</span> port map:                http:80:5000  </a></code></pre></div>
+<p>via: http://dokku.viewdocs.io/dokku/networking/proxy-management/</p>
+<h3 id="re-start-an-app">Re-Start an App</h3>
+<div class="sourceCode" id="cb43"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb43-1" title="1"><span class="ex">dokku</span> ps:restart <span class="op">&lt;</span>app<span class="op">&gt;</span></a></code></pre></div>
+<p>e.g:</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb44-1" title="1"><span class="ex">dokku</span> ps:restart hello</a></code></pre></div>
+<p>via: https://stackoverflow.com/questions/21247195/what-is-the-proper-command-to-restart-a-dokku-app-from-ssh</p>
+<h3 id="destroy-delete-an-app">Destroy (Delete) an App</h3>
+<p>To delete or “destro” an app run:</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb45-1" title="1"><span class="ex">dokku</span> apps:destroy <span class="op">&lt;</span>app<span class="op">&gt;</span></a></code></pre></div>
+<p>e.g:</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb46-1" title="1"><span class="ex">dokku</span> apps:destroy hello</a></code></pre></div>
+<p>via: https://github.com/dokku/dokku/issues/36</p>
+<h3 id="docker-info">Docker Info</h3>
+<div class="sourceCode" id="cb47"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb47-1" title="1"><span class="ex">docker</span> -D info</a></code></pre></div>
+<h2 id="background-further-reading">Background / Further Reading</h2>
+<ul>
+<li>https://github.com/dokku/dokku</li>
+<li>https://github.com/gliderlabs/herokuish</li>
+<li>https://www.upcloud.com/support/get-started-dokku-centos</li>
+<li>Nginx beginners guide: https://nginx.org/en/docs/beginners_guide.html</li>
+<li>How to install nginx on CentOS: https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-centos-7</li>
+<li>https://stackoverflow.com/questions/14434120/nginx-set-multiple-server-name-with-ssl-support</li>
+<li>See git commit hash of running Dokku app? https://stackoverflow.com/questions/29801570/see-git-commit-hash-of-running-dokku-app</li>
+<li>How To Set Up Nginx Server Blocks (Virtual Hosts)<br />
+https://www.digitalocean.com/community/tutorials/how-to-set-up-nginx-server-blocks-virtual-hosts-on-ubuntu-16-04</li>
+<li>Nginx Reverse Proxy (<em>good docs</em>): https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy</li>
+<li>How to set up TravisCI for projects that push back to github https://gist.github.com/willprice/e07efd73fb7f13f917ea</li>
+<li>Deploy With Travis CI and Git https://jorin.me/deploy-with-travis-and-git/ (v. “high level”…)</li>
+<li>Deploying from Travis CI to dokku: http://blog.abarbanell.de/linux/2017/09/09/deploy-from-travis-to-dokku</li>
+<li>push a specific commit to a remote: https://stackoverflow.com/questions/3230074/how-can-i-push-a-specific-commit-to-a-remote-and-not-previous-commits</li>
+</ul>
+<h2 id="credits">Credits</h2>
+<p>This tutorial stands on the shoulders of <em>several</em> giants. The <em>particular</em> “guide” we found the <em>most</em> useful was written by Gleb Bahmutov <a href="https://github.com/bahmutov"><code>@bahmutov</code></a> https://glebbahmutov.com/blog/running-multiple-applications-in-dokku PDF snapshot: <a href="https://github.com/dwyl/learn-devops/files/2023606/running-multiple-applications-in-dokku.pdf">running-multiple-applications-in-dokku.pdf</a> <br /> His post is 2 years old, uses a much older version Dokku, and is focussed on Ubuntu, so we had to fill-in quite a few “gaps”. But on the whole, it’s a <em>superb</em> post!</p>
+<h3 id="troubleshooting">Troubleshooting</h3>
+<h4 id="failed-to-push-some-refs">“failed to push some refs”</h4>
+<pre><code>To 138.68.163.126:hello-dokku
+ ! [remote rejected] dokku-paas-deployment-issue#24 -&gt; master (pre-receive hook declined)
+error: failed to push some refs to &#39;dokku@138.68.163.126:hello-dokku&#39;</code></pre>
+<p>I ended up having to “kill” the <code>nginx</code> server <strong><em><code>before</code></em></strong> pushing the app to the server.</p>
+<p>see: <a href="https://github.com/nelsonic/hello-world-node-http-server/blob/5b6f2a29d8d4568cf7337a84ceecf666e50d353e/bin/deploy.sh#L32-L38">/bin/deploy.sh#L32-L38</a></p>
+<h4 id="dokku_proxy_port_map"><code>DOKKU_PROXY_PORT_MAP</code></h4>
+<p>By default Dokku sets the App’s TCP Port to <code>5000</code>. Unless you have a <em>very good</em> reason to change it, leave it as the default. If you see the following error message:</p>
+<pre><code>-----&gt; Configuring ademo.app...(using built-in template)
+-----&gt; Configuring hello-dokku....(using built-in template)
+-----&gt; Configuring hello-dokku.ademo.app...(using built-in template)
+-----&gt; Creating https nginx.conf
+-----&gt; Running nginx-pre-reload
+       Reloading nginx
+Job for nginx.service invalid.
+-----&gt; Configuring ademo.app...(using built-in template)
+-----&gt; Configuring hello-dokku....(using built-in template)
+-----&gt; Configuring hello-dokku.ademo.app...(using built-in template)
+-----&gt; Creating https nginx.conf
+-----&gt; Running nginx-pre-reload
+       Reloading nginx
+Job for nginx.service invalid.</code></pre>
+<p>It’s because you are attempting to override the <code>PORT</code> environment variable. (<em>we learned this he <strong>hard way</strong> … don’t make the same mistake!</em>)</p>
+<!--
+### XX. Add Temporary SSL/TLS Certificate
+
+```sh
+dokku certs:generate <app> DOMAIN
+```
+e.g:
+```sh
+dokku certs:generate hello ademo.app
+```
+-->

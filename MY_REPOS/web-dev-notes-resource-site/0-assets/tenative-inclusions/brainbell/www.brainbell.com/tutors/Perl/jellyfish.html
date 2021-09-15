@@ -1,0 +1,1376 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = false;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "/detroitchicago/boise.js",
+        "/detroitchicago/boise.js?gcb=192-11&cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "/detroitchicago/memphis.js",
+        "/detroitchicago/memphis.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/minneapolis.js",
+        "/detroitchicago/minneapolis.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "/detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "/porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("/");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot.getAdUnitPath(adSlot).split("/").pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (ezimKey.split("/").pop() === adUnitName) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "/detroitchicago/raleigh.js",
+        "/detroitchicago/raleigh.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/tampa.js",
+        "/detroitchicago/tampa.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_count_adjustment: 0,
+        ad_lazyload_version: 0,
+        ad_location_ids: "",
+        ad_transform_level: 0,
+        adx_ad_count: 0,
+        bidder_method: 1,
+        bidder_version: 3,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        display_ad_count: 0,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        ds_adsize_opt_id: -1,
+        engaged_time_visit: 0,
+        ezcache_level: 1,
+        ezcache_skip_code: 6,
+        form_factor_id: 1,
+        framework_id: 1,
+        has_bad_image: 0,
+        has_bad_words: 0,
+        iab_category: "",
+        is_from_recommended_pages: false,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        max_ads: 0,
+        metro_code: 501,
+        optimization_version: 1,
+        page_ad_positions: "",
+        page_view_count: 401,
+        page_view_id: "8729aa48-e2dc-44f3-770c-078da5e5452f",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 0,
+        response_time_orig: 307,
+        serverid: "54.164.101.12:21941",
+        state: "NJ",
+        sub_page_ad_positions: "",
+        t_epoch: 1613703292,
+        template_id: 0,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/tutors/Perl/jellyfish.php",
+        user_id: 0,
+        weather_precipitation: 0,
+        weather_summary: "",
+        weather_temperature: 0,
+        word_count: 0,
+        worst_bad_word_level: 0,
+      };
+      var _ezim_d = null;
+      var _ezat = {
+        domain_id: 83552,
+        form_factor_id: 1,
+        framework_id: 1,
+        pageview_date: "2021-02-18",
+        pageview_id: "8729aa48-e2dc-44f3-770c-078da5e5452f",
+        template_id: 0,
+        url: "https://www.brainbell.com/tutors/Perl/jellyfish.php",
+        visit_uuid: "3b57fc57-4c51-4b3f-6c78-712b82b8f8be",
+      };
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+    >
+      __ez.queue.addFile(
+        "banger.js",
+        "/porpoiseant/banger.js?cb=192-11&bv=3&v=39&PageSpeed=off",
+        true,
+        [],
+        true,
+        false,
+        false,
+        true
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "/detroitchicago/tulsa.js",
+        "/detroitchicago/tulsa.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <title>Article or tutorial not found</title>
+    <link rel="stylesheet" type="text/css" href="/img/404.css" />
+
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base href="https://www.brainbell.com/tutors/Perl/jellyfish.php" />
+    <script type="text/javascript">
+      var ezoTemplate = "pub_site_noads";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigeneris",
+        "//g.ezoic.net/ezosuigeneris.js",
+        true,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+      var __ez_ezosuigenerisEvt = function () {
+        if (typeof ezosuigeneris != "undefined") {
+          __ez.bit.AddAndFire(_ezaq["page_view_id"], [
+            new __ezDotData("universal_user_id", ezosuigeneris),
+          ]);
+        }
+      };
+      __ez.queue.addFunc(
+        "__ez_ezosuigenerisEvt",
+        "__ez_ezosuigenerisEvt",
+        null,
+        false,
+        [
+          "__ezf_ezosuigeneris",
+          "/detroitchicago/minneapolis.js",
+          "/detroitchicago/memphis.js",
+        ],
+        false,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigenerisc",
+        "//g.ezoic.net/ezosuigenerisc.js?nogen=1",
+        true,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["8729aa48-e2dc-44f3-770c-078da5e5452f", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <div>
+      <img src="/img/head_pic1.jpg" border="0" />
+    </div>
+    <div class="toc">
+      <h1>404 page not found</h1>
+      <p>
+        Sorry, the page you requested was not found. Please use the following
+        index to browse related topics.
+      </p>
+    </div>
+    <h1 style="text-align: center">CGI Perl Index</h1>
+    <div class="toc">
+      <a href="Introduction_and_Overview.htm">Introduction and Overview</a
+      ><br />
+      <a href="What_This_Book_Is_Not.htm">What This Tutorial Is Not</a><br />
+      <a href="What_This_Book_Will_Provide.htm"
+        >What This Tutorial Will Provide</a
+      ><br />
+      <a href="The_Layout_of_This_Book.htm">The Layout of This Tutorial</a
+      ><br />
+      <a href="CPAN_History.htm">CPAN History</a><br />
+      <a href="CPAN_Motivation.htm">CPAN Motivation</a><br />
+      <a href="CPAN_Layout.htm">CPAN Layout</a><br />
+      <a href="A_Perl5_Overview_and_Tutorial.htm"
+        >A Perl5 Overview and Tutorial</a
+      ><br />
+      <a href="Usability_and_Simplicity.htm">Usability and Simplicity</a><br />
+      <a href="Lexical_Scoping.htm">Lexical Scoping</a><br />
+      <a href="Data_Structures.htm">Data Structures</a><br />
+      <a href="Modules_and_Libraries.htm">Modules and Libraries</a><br />
+      <a href="Extensible_and_Embeddable.htm">Extensible and Embeddable</a
+      ><br />
+      <a href="Enhanced_Safety_and_Security.htm">Enhanced Safety and Security</a
+      ><br />
+      <a href="Other_New_Features_in_Perl5.htm">Other New Features in Perl5</a
+      ><br />
+      <a href="References_a2.htm">References</a><br />
+      <a href="The_Short_History_of_Perl_Extensions.htm"
+        >The Short History of Perl Extensions</a
+      ><br />
+      <a href="Modules_and_Extensions_Purpose_and_Design.htm"
+        >Modules and Extensions: Purpose and Design</a
+      ><br />
+      <a href="Listing_2_1_A_simple_extension_module.htm"
+        >Listing 2.1. A simple extension module.</a
+      ><br />
+      <a href="Listing_2_2_Using_the_simple_extension_module.htm"
+        >Listing 2.2. Using the simple extension module.</a
+      ><br />
+      <a
+        href="Listing_2_3_Using_a_blessed_reference_to_invoke_methods_from_the_Foo_module.htm"
+        >Listing 2.3. Using a blessed reference to invoke methods from the Foo
+        module.</a
+      ><br />
+      <a href="Listing_2_4_The_Customer_module.htm"
+        >Listing 2.4. The Customer module.</a
+      ><br />
+      <a href="Listing_2_5_Using_the_Customer_module.htm"
+        >Listing 2.5. Using the Customer module.</a
+      ><br />
+      <a href="Object_Oriented_Techniques.htm">Object-Oriented Techniques</a
+      ><br />
+      <a href="Listing_2_6_Subclassing_the_Customer_module.htm"
+        >Listing 2.6. Subclassing the Customer module.</a
+      ><br />
+      <a href="Listing_2_7_Using_the_MyCust_subclass.htm"
+        >Listing 2.7. Using the MyCust subclass.</a
+      ><br />
+      <a href="Listing_2_8_Overriding_Customers_methods.htm"
+        >Listing 2.8. Overriding Customers methods.</a
+      ><br />
+      <a href="Listing_2_9_Using_the_overridden_method_in_MyCust.htm"
+        >Listing 2.9. Using the overridden method in MyCust.</a
+      ><br />
+      <a href="Listing_2_10_Augmenting_base_class_methods.htm"
+        >Listing 2.10. Augmenting base class methods.</a
+      ><br />
+      <a
+        href="Practical_Issues_for_Using_Modules_Downloading_and_Installation.htm"
+        >Practical Issues for Using Modules: Downloading and Installation</a
+      ><br />
+      <a href="Summary_a2.htm">Summary</a><br />
+      <a href="Security_on_the_Web.htm">Security on the Web</a><br />
+      <a href="Server_Configuration_Options.htm">Server Configuration Options</a
+      ><br />
+      <a href="File_Permissions_Setup_and_Monitoring_Changes_in_the_System.htm"
+        >File Permissions Setup and Monitoring Changes in the System</a
+      ><br />
+      <a
+        href="General_ConsiderationsGlobal_versus_Local_Configuration_of_Permissions.htm"
+        >General ConsiderationsGlobal versus Local Configuration of
+        Permissions</a
+      ><br />
+      <a href="Directory_Access_Configuration.htm"
+        >Directory Access Configuration</a
+      ><br />
+      <a href="Whos_There_Configuring_Client_IP_Domain_Restrictions.htm"
+        >Whos There? Configuring Client IP/Domain Restrictions</a
+      ><br />
+      <a href="Whos_There_User_Group_Verification.htm"
+        >Whos There? User/Group Verification</a
+      ><br />
+      <a href="Changing_Passwords_from_the_Web.htm"
+        >Changing Passwords from the Web</a
+      ><br />
+      <a href="Monitoring_Userids.htm">Monitoring Userids</a><br />
+      <a href="General_Considerations_Dos_and_Donts.htm"
+        >General Considerations: Dos and Donts</a
+      ><br />
+      <a href="Tools_for_Executing_CGI_Safely.htm"
+        >Tools for Executing CGI Safely</a
+      ><br />
+      <a href="The_Safe_Module.htm">The Safe Module</a><br />
+      <a href="Transaction_Security.htm">Transaction Security</a><br />
+      <a href="Simplified_PGP_Transactions_Using_the_PGP_Module.htm"
+        >Simplified PGP Transactions Using the PGP Module</a
+      ><br />
+      <a href="Running_httpd_in_the_chroot_2_Environment.htm"
+        >Running httpd in the chroot(2)Environment</a
+      ><br />
+      <a href="Problems_with_Specific_Servers.htm"
+        >Problems with Specific Servers</a
+      ><br />
+      <a
+        href="Monitoring_Filesystem_Changes_Network_Security_and_Analyzing_Password_Security.htm"
+        >Monitoring Filesystem Changes,Network Security, and Analyzing Password
+        Security</a
+      ><br />
+      <a href="Further_Reading.htm">Further Reading</a><br />
+      <a href="HTML_FormsThe_Foundation_of_an_Interactive_Web.htm"
+        >HTML FormsThe Foundation of an Interactive Web</a
+      ><br />
+      <a href="Text_Fields.htm">Text Fields</a><br />
+      <a href="Password_Fields.htm">Password Fields</a><br />
+      <a href="Radio_Buttons.htm">Radio Buttons</a><br />
+      <a href="Checkboxes.htm">Checkboxes</a><br />
+      <a href="Hidden_Fields.htm">Hidden Fields</a><br />
+      <a href="Submit_Buttons.htm">Submit Buttons</a><br />
+      <a href="Image_Buttons.htm">Image Buttons</a><br />
+      <a href="Listboxes.htm">Listboxes</a><br />
+      <a href="Popup_Menus.htm">Popup Menus</a><br />
+      <a href="File_Upload_Fields.htm">File-Upload Fields</a><br />
+      <a href="Image_Maps.htm">Image Maps</a><br />
+      <a href="Generating_HTML_On_the_Fly_with_Perl5.htm"
+        >Generating HTML On-the-Fly with Perl5</a
+      ><br />
+      <a href="Constructing_Headers.htm">Constructing Headers</a><br />
+      <a href="Listing_4_1_Perl_code_for_customer_questionnaire.htm"
+        >Listing 4.1. Perl code for customer questionnaire.</a
+      ><br />
+      <a href="Included_Files.htm">Included Files</a><br />
+      <a href="Listing_4_2_Perl_subroutine_for_including_another_HTML_file.htm"
+        >Listing 4.2. Perl subroutine for including another HTML file.</a
+      ><br />
+      <a
+        href="Listing_4_3_parsessi_pl_CGI_program_for_including_and_parsing_a_shtml_file.htm"
+        >Listing 4.3. parsessi.pl CGI program for including and parsing a .shtml
+        file.</a
+      ><br />
+      <a href="Other_Elements_Within_Elements.htm"
+        >Other Elements Within Elements</a
+      ><br />
+      <a
+        href="Listing_4_4_Perl_code_that_emits_a_form_formatted_using_the_lt_TABLE_gt_object.htm"
+        >Listing 4.4. Perl code that emits a form formatted using the
+        &lt;TABLE&gt; object.</a
+      ><br />
+      <a
+        href="Other_Objects_Applets_Images_Animation_and_the_lt_EMBED_gt_Tag.htm"
+        >Other Objects: Applets, Images, Animation, and the &lt;EMBED&gt; Tag</a
+      ><br />
+      <a href="What_Forms_Cannot_Provide.htm">What Forms Cannot Provide</a
+      ><br />
+      <a href="Putting_It_All_Together.htm">Putting It All Together</a><br />
+      <a href="HTTP_Transactions.htm">HTTP Transactions</a><br />
+      <a href="The_Connection.htm">The Connection</a><br />
+      <a href="The_Request.htm">The Request</a><br />
+      <a href="_TT_Table_5_1_HTTP_FullRequest_methods__TT.htm"
+        ><tt>Table 5.1. HTTP FullRequest methods.</tt></a
+      ><br />
+      <a href="Table_5_2_URI_Characters_That_Must_Be_Encoded.htm"
+        >Table 5.2. URI Characters That Must Be Encoded.</a
+      ><br />
+      <a href="Table_5_3_Headers.htm">Table 5.3. Headers.</a><br />
+      <a href="What_Happens_after_the_Request.htm"
+        >What Happens after the Request</a
+      ><br />
+      <a href="The_Response.htm">The Response</a><br />
+      <a href="CGI_pm_versus_Individual_libwww_Modules.htm"
+        >CGI.pm versus Individual libwww Modules</a
+      ><br />
+      <a href="URL.htm">URL:</a><br />
+      <a href="Listing_5_1_Using_CGI_pm_with_forms.htm"
+        >Listing 5.1. Using CGI.pm with forms</a
+      ><br />
+      <a href="Listing_5_2_Open_a_new_browser_window.htm"
+        >Listing 5.2. Open a new browser window</a
+      ><br />
+      <a href="Example_3_Upload_a_File_to_the_Server.htm"
+        >Example 3: Upload a File to the Server</a
+      ><br />
+      <a href="Listing_5_3_Upload_a_file_to_the_server.htm"
+        >Listing 5.3. Upload a file to the server</a
+      ><br />
+      <a href="Using_the_HTTP_Request_Module_Directly.htm"
+        >Using the HTTP::Request Module Directly</a
+      ><br />
+      <a href="MIME_Documents.htm">MIME Documents</a><br />
+      <a href="MIME_WWW_and_CGI.htm">MIME, WWW, and CGI</a><br />
+      <a href="The_Content_Type_Header_Field.htm"
+        >The Content-Type Header Field</a
+      ><br />
+      <a href="How_MIME_Data_Is_Encoded.htm">How MIME Data Is Encoded</a><br />
+      <a href="Q_Quoted_Printable_Encoding.htm">Q Quoted-Printable Encoding</a
+      ><br />
+      <a href="Using_MIME_Base64.htm">Using MIME::Base64</a><br />
+      <a href="MIME_attachment.htm">MIME attachment</a><br />
+      <a href="Using_MIME_QuotedPrint.htm">Using MIME::QuotedPrint</a><br />
+      <a href="Determining_Fields_of_Information.htm"
+        >Determining Fields of Information</a
+      ><br />
+      <a href="Setting_Up_the_Database.htm">Setting Up the Database</a><br />
+      <a href="Listing_7_1_Perl_subroutine_for_printing_the_guest_book_form.htm"
+        >Listing 7.1. Perl subroutine for printing the guest book form.</a
+      ><br />
+      <a href="Listing_7_2_Perl_subroutine_to_process_the_form_data.htm"
+        >Listing 7.2. Perl subroutine to process the form data.</a
+      ><br />
+      <a href="Listing_7_3_Main_Perl_guest_book_CGI_program.htm"
+        >Listing 7.3. Main Perl guest book CGI program.</a
+      ><br />
+      <a href="Listing_7_4_CGI_program_to_display_the_guest_list.htm"
+        >Listing 7.4. CGI program to display the guest list.</a
+      ><br />
+      <a href="Setting_Up_the_Web_Server_to_Log_Access.htm"
+        >Setting Up the Web Server to Log Access</a
+      ><br />
+      <a href="Parsing_the_Access_Log.htm">Parsing the Access Log</a><br />
+      <a
+        href="Listing_7_5_Perl_subroutine_to_count_the_number_of_hits_on_a_given_page.htm"
+        >Listing 7.5. Perl subroutine to count the number of hits on a given
+        page.</a
+      ><br />
+      <a href="Listing_7_6_CGI_script_that_displays_a_graphical_hit_counter.htm"
+        >Listing 7.6. CGI script that displays a graphical hit counter.</a
+      ><br />
+      <a href="Parsing_the_AgentLog.htm">Parsing the AgentLog</a><br />
+      <a href="Clickable_Maps.htm">Clickable Maps</a><br />
+      <a href="Creating_an_Image.htm">Creating an Image</a><br />
+      <a href="Creating_the_Map.htm">Creating the Map</a><br />
+      <a href="Listing_7_7_Clickable_image_CGI_example.htm"
+        >Listing 7.7. Clickable image CGI example.</a
+      ><br />
+      <a href="Text_File_Search.htm">Text File Search</a><br />
+      <a href="Listing_7_8_Subroutine_to_return_a_search_form.htm"
+        >Listing 7.8. Subroutine to return a search form.</a
+      ><br />
+      <a href="Listing_7_9_Subroutine_to_search_for_a_list_of_words.htm"
+        >Listing 7.9. Subroutine to search for a list of words.</a
+      ><br />
+      <a href="Displaying_the_Results.htm">Displaying the Results</a><br />
+      <a href="Listing_7_10_A_simple_CGI_searching_program.htm"
+        >Listing 7.10. A simple CGI searching program.</a
+      ><br />
+      <a href="Displaying_the_Form_a2.htm">Displaying the Form</a><br />
+      <a href="Listing_7_11_Subroutine_to_print_a_license_plate_form.htm"
+        >Listing 7.11. Subroutine to print a license plate form.</a
+      ><br />
+      <a
+        href="Listing_7_12_Subroutine_to_search_for_a_specific_license_plate_in_the_database.htm"
+        >Listing 7.12. Subroutine to search for a specific license plate in the
+        database.</a
+      ><br />
+      <a
+        href="Listing_7_13_Subroutine_to_print_the_information_found_about_the_license_plate.htm"
+        >Listing 7.13. Subroutine to print the information found about the
+        license plate.</a
+      ><br />
+      <a href="Listing_7_14_Subroutine_for_sending_e_mail_notification.htm"
+        >Listing 7.14. Subroutine for sending e-mail notification.</a
+      ><br />
+      <a href="Listing_7_15_The_license_plate_notification_CGI_program.htm"
+        >Listing 7.15. The license plate notification CGI program.</a
+      ><br />
+      <a href="Database_Access.htm">Database Access</a><br />
+      <a href="DBI.htm">DBI</a><br />
+      <a href="Listing_8_1_Records_to_be_imported_into_database.htm"
+        >Listing 8.1. Records to be imported into database</a
+      ><br />
+      <a href="Listing_8_2_Program_that_imports_data_into_an_mSQL_database.htm"
+        >Listing 8.2. Program that imports data into an mSQL database</a
+      ><br />
+      <a href="Create_an_HTML_Index_from_a_Database.htm"
+        >Create an HTML Index from a Database</a
+      ><br />
+      <a href="Listing_8_3_Program_that_writes_HTML_from_the_database.htm"
+        >Listing 8.3. Program that writes HTML from the database</a
+      ><br />
+      <a href="about_a_single_item_in_the_database.htm"
+        >about a single item in the database.</a
+      ><br />
+      <a href="Listing_8_5_Searching_the_database_for_keywords.htm"
+        >Listing 8.5. Searching the database for keywords</a
+      ><br />
+      <a href="Open_Database_Connectivity_ODBC.htm"
+        >Open Database Connectivity (ODBC)</a
+      ><br />
+      <a href="AgentsWeb_Scanning_Mirroring_and_Background_Tasks.htm"
+        >AgentsWeb Scanning, Mirroring, and Background Tasks</a
+      ><br />
+      <a href="Stock_Quotes_on_the_Hour.htm">Stock Quotes on the Hour</a><br />
+      <a href="Listing_9_1_HTML_returned_by_the_Security_APL_Quote_Server.htm"
+        >Listing 9.1. HTML returned by the Security APL Quote Server.</a
+      ><br />
+      <a href="Listing_9_2_Automatic_stock_quote_retriever_getquote_pl.htm"
+        >Listing 9.2. Automatic stock quote retriever (getquote.pl).</a
+      ><br />
+      <a href="Listing_9_3_Subroutine_to_extract_the_quote_information.htm"
+        >Listing 9.3. Subroutine to extract the quote information.</a
+      ><br />
+      <a
+        href="Listing_9_4_General_purpose_URL_retriever_going_through_a_firewall.htm"
+        >Listing 9.4. General purpose URL retriever going through a firewall.</a
+      ><br />
+      <a href="Generating_Web_Indexes.htm">Generating Web Indexes</a><br />
+      <a href="Web_RobotsSpiders.htm">Web RobotsSpiders</a><br />
+      <a href="Listing_9_5_The_crawlIt__main_function_of_the_Web_spider.htm"
+        >Listing 9.5. The crawlIt() main function of the Web spider.</a
+      ><br />
+      <a href="newfile211.html"
+        >Listing 9.6. Converting a relative URL to an absolute URL.</a
+      ><br />
+      <a href="Listing_9_7_Writing_the_title_and_URL_to_the_log_file.htm"
+        >Listing 9.7. Writing the title and URL to the log file.</a
+      ><br />
+      <a
+        href="Listing_9_8_Specifying_the_starting_points_and_stopping_points.htm"
+        >Listing 9.8. Specifying the starting points and stopping points.</a
+      ><br />
+      <a href="Mirroring_Remote_Sites.htm">Mirroring Remote Sites</a><br />
+      <a
+        href="Listing_9_9_Modified_function_to_convert_relative_URLs_to_absolute_URLs.htm"
+        >Listing 9.9. Modified function to convert relative URLs to absolute
+        URLs.</a
+      ><br />
+      <a href="Listing_9_10_Modified_crawlIt__function_for_mirroring_a_site.htm"
+        >Listing 9.10. Modified crawlIt() function for mirroring a site.</a
+      ><br />
+      <a href="Search_Engines.htm">Search Engines</a><br />
+      <a href="On_Site_Searching_with_Glimpse.htm"
+        >On-Site Searching with Glimpse</a
+      ><br />
+      <a href="GlimpseHTTP.htm">GlimpseHTTP</a><br />
+      <a href="Search_the_Web_with_WWW_Search.htm"
+        >Search the Web with WWW::Search</a
+      ><br />
+      <a href="a_real_world_example_of_WWW_Search.htm"
+        >a real world example of WWW::Search.</a
+      ><br />
+      <a href="Datebooks_Calendars_and_Scheduling_on_the_Web.htm"
+        >Datebooks, Calendars, and Scheduling on the Web</a
+      ><br />
+      <a href="HyperCalA_Modular_Perl5_Calendar_and_Datebook.htm"
+        >HyperCalA Modular Perl5 Calendar and Datebook</a
+      ><br />
+      <a href="Listing_11_1_hypercal_cgi.htm">Listing 11.1. hypercal.cgi</a
+      ><br />
+      <a href="Listing_11_2_Variables_and_configuration_file_for_HyperCal.htm"
+        >Listing 11.2. Variables and configuration file for HyperCal.</a
+      ><br />
+      <a href="Displaying_Appointments_on_a_Specific_Day_disp_day_cgi.htm"
+        >Displaying Appointments on a Specific Day: disp_day.cgi</a
+      ><br />
+      <a href="Listing_11_4_add_date_cgi.htm">Listing 11.4. add_date.cgi.</a
+      ><br />
+      <a href="Listing_11_5_password_change.htm"
+        >Listing 11.5. password.change.</a
+      ><br />
+      <a href="Multimedia.htm">Multimedia</a><br />
+      <a href="GD_Image_Module.htm">GD::Image Module</a><br />
+      <a href="GD_Polygon_Module.htm">GD::Polygon Module</a><br />
+      <a href="GD_Font_Module.htm">GD::Font Module</a><br />
+      <a href="Hangman_Using_the_GD_Module.htm">Hangman Using the GD Module</a
+      ><br />
+      <a href="Server_Push_Animation_Techniques.htm"
+        >Server Push Animation Techniques</a
+      ><br />
+      <a href="Embedding_AVI_QuickTime_WAV_and_GIF89a_within_HTML.htm"
+        >Embedding AVI, QuickTime, WAV, and GIF89a within HTML</a
+      ><br />
+      <a href="Implementation_Issues_a2.htm">Implementation Issues</a><br />
+      <a href="Maintaining_a_Persistent_State.htm"
+        >Maintaining a Persistent State</a
+      ><br />
+      <a href="Dynamic_Generation_of_Forms.htm">Dynamic Generation of Forms</a
+      ><br />
+      <a href="Security.htm">Security</a><br />
+      <a href="MiniVend_Package.htm">MiniVend Package</a><br />
+      <a href="Installation_and_Configuration.htm"
+        >Installation and Configuration</a
+      ><br />
+      <a href="Overview_of_Features.htm">Overview of Features</a><br />
+      <a href="Use_and_Customization.htm">Use and Customization</a><br />
+      <a href="Setting_Up_Your_Product_Catalog.htm"
+        >Setting Up Your Product Catalog</a
+      ><br />
+      <a href="Setting_Up_Your_minivend_cfg_File.htm"
+        >Setting Up Your minivend.cfg File</a
+      ><br />
+      <a href="Listing_13_1_The_main_catalog_page.htm"
+        >Listing 13.1. The main catalog page.</a
+      ><br />
+      <a href="Listing_13_2_The_search_page.htm"
+        >Listing 13.2. The search page.</a
+      ><br />
+      <a href="Listing_13_3_The_browse_page.htm"
+        >Listing 13.3. The browse page.</a
+      ><br />
+      <a href="Listing_13_4_The_results_display_page.htm"
+        >Listing 13.4. The results display page.</a
+      ><br />
+      <a href="Listing_13_5_The_order_page.htm">Listing 13.5. The order page.</a
+      ><br />
+      <a href="Frames.htm">Frames</a><br />
+      <a href="Additional_Tools_for_Administration_of_Your_Site.htm"
+        >Additional Tools for Administration of Your Site</a
+      ><br />
+      <a href="A_Few_Words_About_Security.htm">A Few Words About Security</a
+      ><br />
+      <a href="General_Archive_Management_Considerations.htm"
+        >General Archive Management Considerations</a
+      ><br />
+      <a href="Planning_Design_and_Layout.htm">Planning, Design,and Layout</a
+      ><br />
+      <a href="Revision_Control.htm">Revision Control</a><br />
+      <a href="Summary_of_Archive_Management_Issues.htm"
+        >Summary of Archive Management Issues</a
+      ><br />
+      <a href="General_Parsing_Issues.htm">General Parsing Issues</a><br />
+      <a href="Listing_14_1_simpleparse.htm">Listing 14.1. simpleparse.</a
+      ><br />
+      <a href="Listing_14_2_simpleparse_net.htm"
+        >Listing 14.2. simpleparse-net.</a
+      ><br />
+      <a href="Editing_and_Verifying_HTML.htm">Editing and Verifying HTML</a
+      ><br />
+      <a href="Listing_14_3_relativize.htm">Listing 14.3. relativize.</a><br />
+      <a href="Parsing_HTTP_Logfiles.htm">Parsing HTTP Logfiles</a><br />
+      <a href="Listing_14_4_GD_Logfile_pm.htm">Listing 14.4. GD_Logfile.pm.</a
+      ><br />
+      <a href="Listing_14_5_GD_Logfile_test.htm"
+        >Listing 14.5. GD_Logfile.test.</a
+      ><br />
+      <a href="Converting_Existing_Documentation_to_HTML.htm"
+        >Converting Existing Documentation to HTML</a
+      ><br />
+      <a href="Making_Existing_Archives_Available_via_HTTP.htm"
+        >Making Existing Archives Available via HTTP</a
+      ><br />
+      <a href="Client_Side_Perl.htm">Client-Side Perl</a><br />
+      <a href="newfile295.html"
+        >Embedded Perl Interpreter in a<br />
+        Web Browser</a
+      ><br />
+      <a href="Executing_Perl_as_a_Helper_Application.htm"
+        >Executing Perl as a Helper Application</a
+      ><br />
+      <a href="Listing_15_1_HelperAppPerl.htm">Listing 15.1. HelperAppPerl.</a
+      ><br />
+      <a href="PenguinA_New_Paradigm_in_Remote_Execution.htm"
+        >PenguinA New Paradigm in Remote Execution</a
+      ><br />
+      <a href="Parsing_Netscape_History_Files.htm"
+        >Parsing Netscape History Files</a
+      ><br />
+      <a href="The_Need_for_an_Extended_Session.htm"
+        >The Need for an Extended Session</a
+      ><br />
+      <a href="Listing_16_1_A_very_simple_calculator.htm"
+        >Listing 16.1. A very simple calculator</a
+      ><br />
+      <a href="Listing_16_2_A_personal_notepad.htm"
+        >Listing 16.2. A personal notepad.</a
+      ><br />
+      <a href="Listing_16_3_A_Web_based_command_shell.htm"
+        >Listing 16.3. A Web-based command shell.</a
+      ><br />
+      <a href="Embedded_ObjectsAn_Internet_Proposal.htm"
+        >Embedded ObjectsAn Internet Proposal</a
+      ><br />
+      <a href="Netscape_Cookies_and_Other_Netscape_Feature_Tags.htm"
+        >Netscape Cookies and Other Netscape Feature Tags</a
+      ><br />
+      <a href="Summary_b4.htm">Summary</a><br />
+    </div>
+
+    <script type="text/javascript" style="display: none">
+      var __ez_dims = (function () {
+        var setCookie = function (name, content, expiry) {
+          return (document.cookie =
+            name +
+            "=" +
+            content +
+            (expiry
+              ? ";expires=" +
+                new Date(
+                  Math.floor(new Date().getTime() + expiry * 1000)
+                ).toUTCString()
+              : "") +
+            ";path=/");
+        };
+        var ffid = 1;
+        var oh = window.screen.height;
+        var ow = window.screen.width;
+        var h = ffid === 1 ? oh : oh > ow ? oh : ow;
+        var w = ffid === 1 ? ow : oh > ow ? ow : oh;
+        var uh =
+          window.innerHeight ||
+          document.documentElement.clientHeight ||
+          document.getElementsByTagName("body")[0].clientHeight;
+        var uw =
+          window.innerWidth ||
+          document.documentElement.clientWidth ||
+          document.getElementsByTagName("body")[0].clientWidth;
+        setCookie(
+          "ezds",
+          encodeURIComponent("ffid=" + ffid + ",w=" + w + ",h=" + h),
+          31536e3 * 7
+        );
+        setCookie(
+          "ezohw",
+          encodeURIComponent("w=" + uw + ",h=" + uh),
+          31536e3 * 7
+        );
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "edmonton.php",
+        "/detroitchicago/edmonton.webp?a=a&cb=192-11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "jellyfish.php",
+        "/porpoiseant/jellyfish.webp?a=a&cb=192-11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+## Keys - Always use key attribute for
+<li>
+<p>elements</p>
+<p>Keys in React are utilised to identify specific Virtual DOM Elements that have changed. The classic example of usage of keys is a list. Keys are important when rendering collections of items in React. They are used under the hood by React to determine what needs to be rendered or re-rendered.</p>
+<h2 id="why-you-need-keys-for-collections-in-react">Why you need keys for collections in React</h2>
+<p>Because <strong>React does not render duplicate keys.</strong></p>
+<p>Let’s consider this array of numbers:</p>
+<p>const nums = [1, 2, 3, 5, 2]; (Notice the duplicate value, ‘2’)</p>
+<p>Now let’s take that array, and render it:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="op">&lt;</span>ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="op">{</span><span class="va">nums</span>.<span class="at">map</span>(num <span class="kw">=&gt;</span> <span class="op">&lt;</span>li key<span class="op">={</span>num<span class="op">}&gt;{</span>num<span class="op">}</span>&lt;/li<span class="op">&gt;</span>)<span class="op">}</span></a>
+<a class="sourceLine" id="cb1-3" title="3">&lt;/ul<span class="op">&gt;</span></a></code></pre></div>
+<p>Here we’re just using the numbers themselves as the keys.</p>
+<p>In plain HTML, the above React snippet will create an element structure like this:</p>
+<ul>
+<li key="1">
+1
+</li>
+<li key="2">
+2
+</li>
+<li key="3">
+3
+</li>
+<li key="5">
+5
+</li>
+<li key="2">
+2
+</li>
+</ul>
+<p>React equates elements with matching keys, thus it will only render the first ‘2’, since when it reaches the second element with a key of ‘2’, it’s already rendered an element that same key.</p>
+<p>React will even give you a nice warning something like: “Encountered two children with same key…”</p>
+<p>The output DOM is then:</p>
+<ul>
+<li>
+1
+</li>
+<li>
+2
+</li>
+<li>
+3
+</li>
+<li>
+5
+</li>
+</ul>
+<h4 id="notice-the-lack-of-the-second-2-in-the-above">(Notice the lack of the second 2 in the above)</h4>
+<h4 id="this-makes-sense-because-if-you-consider-that-the-key-is-a-unique-identifier-for-a-conceptual-element-react-doesnt-want-to-waste-time-rendering-both.-its-already-rendered-the-canonical-representation-of-the-2-element-so-it-doesnt-do-it-again.">This makes sense, because if you consider that the key is a unique identifier for a conceptual element, react doesn’t want to waste time rendering both. It’s already rendered the canonical representation of the ‘2’ element, so it doesn’t do it again.</h4>
+<h4 id="now-lets-take-a-simple-basic-example-of-an-array-of-objects">Now lets take a simple basic example of an array of objects:</h4>
+<p><code>fruits = [{name: "Pineapple", id: 1}, {name: "Banana", id: 2}, {name: "Passion Fruit", id: 3}</code></p>
+<p>If we were to pass this array as a prop to a FruitList component in order to render a list of fruits onto the page, we would iterate through our array of fruits, rendering each one as a list item:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">const</span> FruitList <span class="op">=</span> (props) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">    <span class="kw">const</span> fruits <span class="op">=</span> <span class="va">props</span>.<span class="va">fruits</span>.<span class="at">map</span>(fruit <span class="kw">=&gt;</span></a>
+<a class="sourceLine" id="cb2-3" title="3">    <span class="op">&lt;</span>li<span class="op">&gt;{</span><span class="va">fruit</span>.<span class="at">name</span><span class="op">}</span>&lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-4" title="4">   )</a>
+<a class="sourceLine" id="cb2-5" title="5">   <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb2-6" title="6">       <span class="op">&lt;</span>ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-7" title="7">        <span class="op">{</span>fruits<span class="op">}</span></a>
+<a class="sourceLine" id="cb2-8" title="8">       &lt;/ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-9" title="9">   )</a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="op">}</span></a></code></pre></div>
+<p>This works and does indeed render the list of fruits. However at any moment we might want to add new fruits, as well as delete or modify the existing ones. How would React know to perform those changes efficiently? That’s where the key attribute comes in handy. There are usually several choices for creating element’s unique identity. One of them is using existing IDs of each object:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">const</span> FruitList <span class="op">=</span> (props) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">    <span class="kw">const</span> fruits <span class="op">=</span> <span class="va">props</span>.<span class="va">fruits</span>.<span class="at">map</span>(fruit <span class="kw">=&gt;</span></a>
+<a class="sourceLine" id="cb3-3" title="3">    <span class="op">&lt;</span>li key<span class="op">={</span><span class="va">fruit</span>.<span class="at">id</span><span class="op">}&gt;{</span><span class="va">fruit</span>.<span class="at">name</span><span class="op">}</span>&lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb3-4" title="4">   )</a>
+<a class="sourceLine" id="cb3-5" title="5">   <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb3-6" title="6">       <span class="op">&lt;</span>ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb3-7" title="7">        <span class="op">{</span>fruits<span class="op">}</span></a>
+<a class="sourceLine" id="cb3-8" title="8">       &lt;/ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb3-9" title="9">   )</a>
+<a class="sourceLine" id="cb3-10" title="10"><span class="op">}</span></a></code></pre></div>
+<p>You might also find yourself in a situation when items in your array don’t really possess a unique ID. In case of no stable IDs for rendered items, index of iterator may be used as a key.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">const</span> FruitList <span class="op">=</span> (props) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">    <span class="kw">const</span> fruits <span class="op">=</span> <span class="va">props</span>.<span class="va">fruits</span>.<span class="at">map</span>((fruit<span class="op">,</span> index) <span class="kw">=&gt;</span></a>
+<a class="sourceLine" id="cb4-3" title="3">    <span class="op">&lt;</span>li key<span class="op">={</span><span class="va">index</span>.<span class="at">id</span><span class="op">}&gt;{</span><span class="va">fruit</span>.<span class="at">name</span><span class="op">}</span>&lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-4" title="4">   )</a>
+<a class="sourceLine" id="cb4-5" title="5">   <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb4-6" title="6">       <span class="op">&lt;</span>ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-7" title="7">        <span class="op">{</span>fruits<span class="op">}</span></a>
+<a class="sourceLine" id="cb4-8" title="8">       &lt;/ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-9" title="9">   )</a>
+<a class="sourceLine" id="cb4-10" title="10"><span class="op">}</span></a></code></pre></div>
+<h2 id="why-not-to-use-arry-index-as-keys-while-rending-a-list-of-array-elements">Why not to use Arry index as keys while rending a list of array elements</h2>
+<h3 id="st-reason-for-not-using-array-index---performance---react-will-re-render-elements-whose-content-has-changed-for-a-specific-key.-react-also-re-renders-elements-whose-key-has-changed-for-a-specific-elements-contents-even-if-the-content-hasnt-changed.-these-two-cases-are-indistinguishable-from-reacts-point-of-view.-the-below-is-an-example-of-this-creating-performance-issues-in-certain-cases-when-using-array-index-as-keys.">1St Reason for not using array-index - Performance - React will re-render elements whose content has changed for a specific key. React also re-renders elements whose key has changed for a specific element’s contents, even if the content hasn’t changed. These two cases are indistinguishable from React’s point of view. The below is an example of this creating performance issues in certain cases when using array-index as keys.</h3>
+<h4 id="react-cant-tell-with-a-simple-equality-check-wheather-to-re-render-or-not-because-every-time-a-jsx-element-is-created-thats-a-brand-new-object-unequal-to-the-old-one.-so-thats-where-the-key-prop-comes-in.-react-can-look-at-the-key-and-know-that-yes-even-though-this-is-not-strictly-to-the-old-it-actually-is-the-same-because-the-keys-are-the-same.">React can’t tell with a simple equality check wheather to re-render or not, because every time a JSX element is created, that’s a brand new object, unequal to the old one. So that’s where the key prop comes in. React can look at the key and know that, yes, even though this <Item> is not strictly === to the old <Item>, it actually is the same because the keys are the same.</h4>
+<p>Let’s look at how React will render this list of users when using the index as a key.</p>
+<p>const users = [ {username:‘bob’}, {username:‘sue’}];</p>
+users.map((u, i) =&gt;
+<div data-key="{i}">
+{u.username}
+</div>
+<p>); This will render elements like:</p>
+<div data-key="1">
+bob
+</div>
+<div data-key="2">
+sue
+</div>
+<p>Now let’s suppose that we add a user to the front of the list:</p>
+<p>const users = [ {username:‘joe’}, {username:‘bob’}, {username:‘sue’}];</p>
+users.map((u, i) =&gt;
+<div data-key="{i}">
+{u.username}
+</div>
+<p>); This will render elements like:</p>
+<div data-key="1">
+joe
+</div>
+<div data-key="2">
+bob
+</div>
+<div data-key="3">
+sue
+</div>
+<p>After we add another user, React will go into reconciliation, where it will update the dom depending on the shape of the elements returned from the component’s render function. It does this by comparing the new render result to the previous one. If anything is different, React will go through with the expensive Dom update operation.</p>
+<p>Here is the previous result of the operation compared to the new result:</p>
+<div data-key="1">
+bob
+</div>
+|
+<div data-key="1">
+joe
+</div>
+<div data-key="2">
+sue
+</div>
+<blockquote>
+<div data-key="2">
+bob
+</div>
+|
+<div data-key="3">
+sue
+</div>
+</blockquote>
+<p>It’s clear by looking at the two side by side that we’ve simply added “joe” to the beginning of the list.</p>
+<p>What’s the most efficient way to go from the previous dom structure to the next? Obviously, it’s simply to add just the one dom element to the beginning, and leave the previous to unchanged.</p>
+<h4 id="but-react-cannot-determine-this-and-its-because-weve-used-the-indices-as-our-identifiers-instead-of-basing-that-identifier-on-the-actual-content-that-is-rendered.">BUT React cannot determine this, and it’s because we’ve used the indices as our identifiers, (instead of basing that identifier on the actual content that is rendered).</h4>
+<p>From React’s perspective, it looks like we’ve:</p>
+<p>Changed the element with id “1” from bob to joe, Changed the element with id “2” from sue to bob, Added a new element with id “3”, sue.</p>
+<p>React will apply all three of these changes, instead of simply adding one.</p>
+<h4 id="nd-reason-for-not-using-array-index---stability---in-some-other-times-using-the-index-as-keys-while-rendering-a-list-of-items-with-a-map-function-will-make-react-simpley-pick-up-the-wrong-element-after-i-add-a-new-item-to-the-list.">2nd Reason for not using array-index - Stability - In some other times, using the index as keys while rendering a list of items with a map() function, will make React simpley pick up the wrong element, after I add a new item to the list.</h4>
+<h4 id="because-one-of-the-basic-principle-while-selecting-keys-of-rendering-of-a-list-is-that-of-stability-i.e.---the-key-for-the-same-element-should-not-change-with-time-or-page-refresh-or-re-ordering-of-elements.-array-indexes-are-unique-and-predictable.-however-they-are-not-stable-because-after-i-add-a-new-item-to-the-front-of-the-list-that-new-item-will-take-the-foremost-index-position-of-the-array-pushing-back-the-previous-top-most-postioned-item.">Because one of the basic principle while selecting keys of rendering of a list, is that of “Stability” i.e. - The key for the same element should not change with time, or page refresh, or re-ordering of elements. Array indexes are unique, and predictable. However, they are not stable, because after I add a new item to the front of the list, that new item will take the foremost index position of the array pushing back the previous top most postioned item.</h4>
+<h3 id="how-setting-keys-is-so-very-important-for-performance-and-in-sync-with-reacts-core-engineering-philosophy-of-re-rendering-of-what-is-required">How setting keys is so VERY important for Performance and in sync with React’s core Engineering Philosophy of re-rendering of what is required</h3>
+<p>We can hint the react to preserve the existing instance of component by providing “key” props, so that it can get saved from getting unmounted</p>
+<p>If we’ve list of items to be rendered in (li tag) and those list-items can get re-ordered or rearranged at any time (eg: adding item between two items).</p>
+<h3 id="so-in-that-case-if-we-are-missing-the-value-for-key-props-in-li-elements-then-on-every-re-render-cycle-react-will-unmount-all-the-item-node-and-re-mount-back-again-the-same-node-with-updated-sequence.">So, in that case if we are missing the value for “key” props in li elements, then on every re-render cycle react will unmount all the item-node and re-mount back again the same node with updated sequence.</h3>
+<p>So in order to avoid this provide the value for “key” props which is going to be unique for the item-row and also the value should be same (therefore, avoid using array index as value for the key) through out the multiple re-rendering cycle. Because the value of “key” props will act as identifier for react so that it can help in persisting those item across further re-rendering cycle.</p>
+### Lets go through an actual example of adding a
+<li>
+element to an
+<ul>
+<p>tree <a href="https://dzone.com/articles/dom-manipulation-in-react">https://dzone.com/articles/dom-manipulation-in-react</a></p>
+<h3 id="whenever-setstate-method-is-called-reactjs-creates-the-whole-virtual-dom-from-scratch.-creating-a-whole-tree-is-very-fast-so-it-does-not-affect-the-performance.">Whenever setState() method is called, ReactJS creates the whole Virtual DOM from scratch. Creating a whole tree is very fast so it does not affect the performance.</h3>
+<h3 id="once-you-render-a-jsx-element-every-single-virtual-dom-object-gets-updated.compared-to-updating-real-dom-objects-the-virtual-dom-updates-faster.-before-updating-a-copy-of-the-virtual-dom-is-made-and-later-compared-with-the-updated-virtual-dom.">Once you render a JSX element, every single Virtual DOM object gets updated.Compared to updating real DOM objects, the Virtual DOM updates faster. Before updating, a copy of the virtual DOM is made and later compared with the updated Virtual DOM.</h3>
+<h3 id="so-at-any-given-time-reactjs-maintains-two-virtual-dom-one-with-the-updated-state-virtual-dom-and-other-with-the-previous-state-virtual-dom.-then-react-can-figure-out-which-objects-have-been-changed-and-this-process-is-called-diffing.-once-react-knows-which-objects-to-update-it-updates-only-those-objects-in-the-real-dom.">So at any given time, ReactJS maintains two virtual DOM, one with the updated state Virtual DOM and other with the previous state Virtual DOM. Then React can figure out which objects have been changed, and this process is called Diffing. Once React knows which objects to update, it updates only those objects in the Real DOM.</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="co">// List1:</span></a>
+<a class="sourceLine" id="cb5-3" title="3"></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="op">&lt;</span>ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-5" title="5">     <span class="op">&lt;</span>li<span class="op">&gt;</span> Child1 &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-6" title="6">     <span class="op">&lt;</span>li<span class="op">&gt;</span> Child2 &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-7" title="7">&lt;/ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-8" title="8"></a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="co">// List2:</span></a>
+<a class="sourceLine" id="cb5-10" title="10"></a>
+<a class="sourceLine" id="cb5-11" title="11"><span class="op">&lt;</span>ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-12" title="12">    <span class="op">&lt;</span>li<span class="op">&gt;</span> Child1 &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-13" title="13">    <span class="op">&lt;</span>li<span class="op">&gt;</span> Child2 &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-14" title="14">    <span class="op">&lt;</span>li<span class="op">&gt;</span> Child3 &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-15" title="15">&lt;/ul<span class="op">&gt;</span></a></code></pre></div>
+Here, a new child
+<li>
+<p>has been added to the end of the list. Now, React iterates over both lists and inserts the third child to the DOM. It matches every child, and if there is no difference, moves to the next, and generates a mutation, when there’s a difference. But this is fine as the new child is added to the end of the list. A problem arises when the new element is added at the beginning of the list. For example:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1">List1<span class="op">:</span></a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="op">&lt;</span>ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-4" title="4">     <span class="op">&lt;</span>li<span class="op">&gt;</span> Child1 &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-5" title="5">     <span class="op">&lt;</span>li<span class="op">&gt;</span> Child2 &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-6" title="6">&lt;/ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-7" title="7">List2<span class="op">:</span></a>
+<a class="sourceLine" id="cb6-8" title="8"></a>
+<a class="sourceLine" id="cb6-9" title="9"><span class="op">&lt;</span>ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-10" title="10">    <span class="op">&lt;</span>li<span class="op">&gt;</span> Child3 &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-11" title="11">    <span class="op">&lt;</span>li<span class="op">&gt;</span> Child1 &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-12" title="12">    <span class="op">&lt;</span>li<span class="op">&gt;</span> Child2 &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-13" title="13">&lt;/ul<span class="op">&gt;</span></a></code></pre></div>
+<p>Now, React compares the first elements and finds that there is a difference and the element is mutated. The same happens to the next elements as well. So, without knowing it, it is rebuilding the entire list again. This reduces the performance when compared to adding the child at the beginning of the list.</p>
+<p>To solve this issue, React supports an attribute, Key.</p>
+<h2 id="comparing-keys">Comparing Keys</h2>
+<p>If the attribute key is added to the child element, React compares the values in key of the first tree, and matches it to the key value in the second tree.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="co">// List1:</span></a>
+<a class="sourceLine" id="cb7-3" title="3"></a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="op">&lt;</span>ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-5" title="5">    <span class="op">&lt;</span>li key<span class="op">=</span>”101” <span class="op">&gt;</span> Child1 &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-6" title="6">    <span class="op">&lt;</span>li key<span class="op">=</span>”102” <span class="op">&gt;</span> Child2 &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-7" title="7">&lt;/ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-8" title="8"></a>
+<a class="sourceLine" id="cb7-9" title="9"><span class="co">// List2:</span></a>
+<a class="sourceLine" id="cb7-10" title="10"></a>
+<a class="sourceLine" id="cb7-11" title="11"><span class="op">&lt;</span>ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-12" title="12">    <span class="op">&lt;</span>li key<span class="op">=</span>”100” <span class="op">&gt;</span> Child3 &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-13" title="13">    <span class="op">&lt;</span>li key<span class="op">=</span>”101” <span class="op">&gt;</span> Child1 &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-14" title="14">    <span class="op">&lt;</span>li key<span class="op">=</span>”102” <span class="op">&gt;</span> Child2 &lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-15" title="15">&lt;/ul<span class="op">&gt;</span></a></code></pre></div>
+<p>Here, React will know that a new child element with key=“100” has been added to the list, and the rest were moved down. Hence, it’ll not rebuild the entire list again. This will improve the performance of DOM Manipulation.</p>
+<h3 id="what-to-use-for-good-key-selection">What to use for good key selection</h3>
+<p>Any key that you are going to use should be —</p>
+<h4 id="unique-the-key-of-an-element-should-be-unique-among-its-siblings.-it-is-not-necessary-to-have-globally-unique-keys.">1&gt; Unique — The key of an element should be unique among its siblings. It is not necessary to have globally unique keys.</h4>
+<h4 id="stable-the-key-for-the-same-element-should-not-change-with-time-or-page-refresh-or-re-ordering-of-elements.">2&gt; Stable — The key for the same element should not change with time, or page refresh, or re-ordering of elements.</h4>
+<h4 id="predictable-you-can-always-get-the-same-key-again-if-you-want.-that-is-the-key-should-not-be-generated-randomly.">3&gt; Predictable — You can always get the same key again if you want. That is, the key should not be generated randomly.</h4>
+<h4 id="permanent-an-items-key-must-not-change-between-re-renders-unless-that-item-is-different.-so-math.random-is-a-bad-choice-for-a-key-itll-change-every-time-and-it-might-not-be-unique-slim-chance-of-that-though">4&gt; Permanent – An item’s key must not change between re-renders, unless that item is different. So, Math.random is a bad choice for a key (it’ll change every time… and it might not be unique (slim chance of that, though))</h4>
+<p><strong>Array indexes are unique, and predictable. However, they are not stable</strong>. In the same vein, random numbers or timestamps should not be used as keys.</p>
+<p>In general, you should rely on the ID generated by databases such as primary key in Relational databases, and Object IDs in Mongo. If a database ID is not available, you can generate a hash of the content and use that as a key.</p>
+<h4 id="further-reading">Further Reading</h4>
+<p><a href="https://paulgray.net/keys-in-react/">https://paulgray.net/keys-in-react/</a></p>
+</body></html>

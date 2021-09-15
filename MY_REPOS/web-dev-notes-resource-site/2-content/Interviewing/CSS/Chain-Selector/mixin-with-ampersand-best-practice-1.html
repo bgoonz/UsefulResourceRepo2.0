@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<p>I was working <code>ng-select</code> Angular package, and for my case here, I am trying to target both the below 2 classes</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode css"><code class="sourceCode css"><a class="sourceLine" id="cb1-1" title="1">class=&quot;ng-select ng-dropdown-panel&quot;</a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="er">// And also</span></a>
+<a class="sourceLine" id="cb1-4" title="4">class=&quot;ng-dropdown-panel sdk-ng-select&quot;</a></code></pre></div>
+<p>Note when I use <ng-select> component (which is the popular angular package) in .html file all ng-select related classes will have the ultimate parent ‘ng-select’</p>
+<p>Here’s my overall structur of the <span class="citation" data-cites="mixin">@mixin</span> in .scss file</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode css"><code class="sourceCode css"><a class="sourceLine" id="cb2-1" title="1"><span class="im">@mixin</span> sdk-ng-select {</a>
+<a class="sourceLine" id="cb2-2" title="2">    <span class="fu">...many</span> styles here</a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="fu">.ng-dropdown-panel</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  &amp;<span class="fu">.ng-dropdown-panel.sdk-ng-select</span> {</a>
+<a class="sourceLine" id="cb2-5" title="5">    <span class="fu">.ng-dropdown-footer</span> {</a>
+<a class="sourceLine" id="cb2-6" title="6">      <span class="im">@extend</span> <span class="dv">.</span>sdk-text-body-light-2<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-7" title="7">      <span class="kw">display</span>: flex<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-8" title="8">      <span class="kw">align-items</span>: <span class="dv">center</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-9" title="9">      <span class="kw">justify-content</span>: <span class="dv">center</span><span class="op">;</span>      </a>
+<a class="sourceLine" id="cb2-10" title="10">    }</a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="fu">...many</span> styles here</a>
+<a class="sourceLine" id="cb2-12" title="12">}</a>
+<a class="sourceLine" id="cb2-13" title="13"></a>
+<a class="sourceLine" id="cb2-14" title="14"><span class="fu">.sdk-ng-select</span> {</a>
+<a class="sourceLine" id="cb2-15" title="15">  <span class="im">@include</span> sdk-ng-select<span class="fu">()</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-16" title="16">}</a></code></pre></div>
+<p>Then in an .html file of Angular component was consuming the above style as below</p>
+<p><ng-select
+ class="sdk-ng-select"
+> </ng-select></p>
+<h3 id="the-above-will-work-but-its-the-wrong-way-to-handle.">The above will work, but its the wrong way to handle.</h3>
+<h3 id="problem-with-above">Problem with above</h3>
+<p><code>&amp;.ng-dropdown-panel.sdk-ng-select</code> should not be required.</p>
+<p>I could simply do</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode css"><code class="sourceCode css"><a class="sourceLine" id="cb3-1" title="1"><span class="fu">.ng-dropdown-panel</span><span class="op">,</span> &amp;<span class="fu">.ng-dropdown-panel</span></a></code></pre></div>
+<h4 id="in-the-above-the-first-selector-.ng-dropdown-panel-matches-ng-dropdown-panel-inside-the-ng-select">In the above, the first selector (.ng-dropdown-panel) matches “ng-dropdown-panel” inside the “ng-select”</h4>
+#### The second selector (&amp;.ng-dropdown-panel) matches
+<div class="ng-dropdown-panel sdk-ng-select">
+<p>i.e. both the classes</p>
+<p><code>.ng-dropdown-panel.sdk-ng-select</code></p>
+<h3 id="recollect-the-way-ampersand-work-that-it-will-replace-with-.parent-class-which-becomes">Recollect, the way ampersand work, that it will replace “&amp;” with <code>.parent-class</code>, which becomes</h3>
+<p><code>.ng-dropdown-panel.sdk-ng-select</code> in our generated CSS.</p>
+<p>The downside to repeating the <code>.sdk-ng-select</code> selector inside the mixing (as I was doing in the top of this page) is that mixin is made in a way where it does not know about the class <code>.sdk-ng-select</code>, instead, it is used inside it, like below.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode css"><code class="sourceCode css"><a class="sourceLine" id="cb4-1" title="1">  <span class="fu">.sdk-ng-select</span> {</a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="im">@include</span> sdk-ng-select<span class="fu">()</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-3" title="3">}</a></code></pre></div>
+<p>And having the selector <code>.sdk-ng-select</code> inside the mixin breaks this structure.</p>
+<p>So the correct version would be</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode css"><code class="sourceCode css"><a class="sourceLine" id="cb5-1" title="1">  <span class="fu">.ng-dropdown-panel</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  &amp;<span class="fu">.ng-dropdown-panel</span> {</a>
+<a class="sourceLine" id="cb5-3" title="3">    <span class="fu">.ng-dropdown-footer</span> {</a>
+<a class="sourceLine" id="cb5-4" title="4">      <span class="im">@extend</span> <span class="dv">.</span>sdk-text-body-light-2<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-5" title="5">      <span class="kw">display</span>: flex<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-6" title="6">      </a>
+<a class="sourceLine" id="cb5-7" title="7">    }</a></code></pre></div>
+</body></html>

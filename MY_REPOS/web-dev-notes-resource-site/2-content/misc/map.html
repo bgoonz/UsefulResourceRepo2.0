@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/3.0.1/github-markdown.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.18.1/lib/index.min.js">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markdown-it-texmath@0.6.5/css/texmath.css">
+<link rel="stylesheet" href="https://gitcdn.xyz/repo/goessner/mdmath/master/css/vscode-texmath.css">
+
+</head>
+<body class="markdown-body">
+<a for="toc-anchor" id="when-to-use-map-instead-of-plain-javascript-object"></a><h1 id="when-to-use-map-instead-of-plain-javascript-object">When to Use Map instead of Plain JavaScript Object</h1>
+<blockquote>
+<p>Map complements plain objects. Map's main benefits over plain object is allowing keys of any type and any name.</p>
+</blockquote>
+<p>The plain JavaScript object <code>{ key: 'value' }</code> holds structured data. Mostly it does this job well enough.</p>
+<p>But the plain object has a limitation: its keys have to be strings (or rarely used symbols). What happens if you use numbers as keys? Let's try an example:</p>
+<pre><code class="language-js"><div>    <span class="hljs-keyword">const</span> names = {
+      <span class="hljs-number">1</span>: <span class="hljs-string">'One'</span>,
+      <span class="hljs-number">2</span>: <span class="hljs-string">'Two'</span>,
+    };
+    
+    <span class="hljs-built_in">Object</span>.keys(names); 
+</div></code></pre>
+<p>The numbers <code>1</code> and <code>2</code> are keys in <code>names</code> object. Later, when the object's keys are accessed, it turns out the numbers were converted to strings.</p>
+<p>Implicit conversion of keys is tricky because you lose the consistency of the types.</p>
+<p>A lot of plain object's issues (keys to string conversion, impossibility to use objects like keys, etc) are solved by <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map">Map</a> object. This post describes the use cases when it's better to use maps instead of plain objects.</p>
+<a for="toc-anchor" id="%5B%5D(%231-the-map-accepts-any-key-type)1%5C.-the-map-accepts-any-key-type"></a><h2 id="1-the-map-accepts-any-key-type"><a href="#1-the-map-accepts-any-key-type"></a>1. The map accepts any key type</h2>
+<p>As presented above, if the object's key is not a string or symbol, JavaScript implicitly transforms it into a string.</p>
+<p>Contrary, the map accepts keys of any type: strings, numbers, boolean, symbols. Moreover, the map preserves the key type. That's the map's main benefit.</p>
+<p>For example, if you use a number as a key inside a map, it will remain a number:</p>
+<pre><code class="language-js"><div>    <span class="hljs-keyword">const</span> numbersMap = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>();
+    
+    numbersMap.set(<span class="hljs-number">1</span>, <span class="hljs-string">'one'</span>);
+    numbersMap.set(<span class="hljs-number">2</span>, <span class="hljs-string">'two'</span>);
+    
+    [...numbersMap.keys()]; 
+</div></code></pre>
+<p><code>1</code> and <code>2</code> are keys in <code>numbersMap</code>. The type of the keys remains the same.</p>
+<p>You can also use booleans as keys inside a map:</p>
+<pre><code class="language-js"><div>    <span class="hljs-keyword">const</span> booleansMap = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>();
+    
+    booleansMap.set(<span class="hljs-literal">true</span>, <span class="hljs-string">"Yep"</span>);
+    booleansMap.set(<span class="hljs-literal">false</span>, <span class="hljs-string">"Nope"</span>);
+    
+    [...booleansMap.keys()]; 
+</div></code></pre>
+<p><code>booleansMap</code> uses booleans <code>true</code> and <code>false</code> as keys.</p>
+<p>Inside a plain object, the use of booleans as keys is impossible. These keys would be transformed into strings: <code>'true'</code> or <code>'false'</code>.</p>
+<p>Can you use further an entire object as a key? Yes, you can. Just be aware of memory leaks.</p>
+<a for="toc-anchor" id="%5B%5D(%2311-object-as-key)1.1-object-as-key"></a><h2 id="11-object-as-key"><a href="#11-object-as-key"></a>1.1 Object as key</h2>
+<p>Let's say you need to store some object-related data, without attaching this data on the object itself.</p>
+<p>Doing so using plain objects is not possible. But there's a workaround: an array of object-value tuples.</p>
+<pre><code class="language-js"><div>    <span class="hljs-keyword">const</span> foo = { <span class="hljs-attr">name</span>: <span class="hljs-string">'foo'</span> };
+    <span class="hljs-keyword">const</span> bar = { <span class="hljs-attr">name</span>: <span class="hljs-string">'bar'</span> };
+    
+    <span class="hljs-keyword">const</span> kindOfMap = [
+      [foo, <span class="hljs-string">'Foo related data'</span>],
+      [bar, <span class="hljs-string">'Bar related data'</span>],
+    ];
+</div></code></pre>
+<p><code>kindOfMap</code> is an array holding pairs of an object and associated value.</p>
+<p>The downside of this approach is the O(n) complexity of accessing the value by key. You have to loop through the entire array to get the desired value:</p>
+<pre><code class="language-js"><div>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getByKey</span>(<span class="hljs-params">kindOfMap, key</span>) </span>{
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> [k, v] <span class="hljs-keyword">of</span> kindOfMap) {
+        <span class="hljs-keyword">if</span> (key === k) {
+          <span class="hljs-keyword">return</span> v;
+        }
+      }
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
+    }
+    
+    getByKey(kindOfMap, foo); 
+</div></code></pre>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap">WeakMap</a> (a specialized version of <code>Map</code>) is a better solution:</p>
+<ul>
+<li><code>WeakMap</code> accepts objects as keys</li>
+<li>Allows straightforward access of value by the key, with O(1) complexity</li>
+</ul>
+<p>The above code refactored to use <code>WeakMap</code> becomes trivial:</p>
+<pre><code class="language-js"><div>    <span class="hljs-keyword">const</span> foo = { <span class="hljs-attr">name</span>: <span class="hljs-string">'foo'</span> };
+    <span class="hljs-keyword">const</span> bar = { <span class="hljs-attr">name</span>: <span class="hljs-string">'bar'</span> };
+    
+    <span class="hljs-keyword">const</span> mapOfObjects = <span class="hljs-keyword">new</span> <span class="hljs-built_in">WeakMap</span>();
+    
+    mapOfObjects.set(foo, <span class="hljs-string">'Foo related data'</span>);
+    mapOfObjects.set(bar, <span class="hljs-string">'Bar related data'</span>);
+    
+    mapOfObjects.get(foo); 
+</div></code></pre>
+<p>The main difference between <code>Map</code> and <code>WeakMap</code> is the latter allowing garbage collection of keys (which are objects). This prevents memory leaks.</p>
+<p><code>WeakMap</code>, contrary to <code>Map</code>, accepts only <u>objects as keys</u> and has a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap#Methods">reduced set of methods</a>.</p>
+<a for="toc-anchor" id="%5B%5D(%232-the-map-has-no-restriction-over-keys-names)2%5C.-the-map-has-no-restriction-over-keys-names"></a><h2 id="2-the-map-has-no-restriction-over-keys-names"><a href="#2-the-map-has-no-restriction-over-keys-names"></a>2. The map has no restriction over keys names</h2>
+<p>Any JavaScript object inherits properties from its prototype object. The same happens to plain objects.</p>
+<p>The accidentally overwritten property inherited from the prototype is dangerous. Let's study such a dangerous situation.</p>
+<p>First, let's ovewrite the <code>toString()</code> property in an object <code>actor</code>:</p>
+<pre><code class="language-js"><div>    <span class="hljs-keyword">const</span> actor = {
+      <span class="hljs-attr">name</span>: <span class="hljs-string">'Harrison Ford'</span>,
+      <span class="hljs-attr">toString</span>: <span class="hljs-string">'Actor: Harrison Ford'</span>};
+</div></code></pre>
+<p>Then, let's define a function <code>isPlainObject()</code> that determines if the supplied argument is a plain object. This function uses the method <code>toString()</code>:</p>
+<pre><code class="language-js"><div>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isPlainObject</span>(<span class="hljs-params">value</span>) </span>{
+      <span class="hljs-keyword">return</span> value.toString() === <span class="hljs-string">'[object Object]'</span>;
+    }
+</div></code></pre>
+<p>Finally, lets' call <code>isPlainObject(actor)</code>. Here's the problem: because <code>toString</code> property inside <code>actor</code> is a string (instead of an expected function), this call generates an error:</p>
+<p>When the application input is used to <a href="#21-real-world-example">create the keys names</a>, you have to use a map instead of a plain object to avoid the problem described above.</p>
+<p>The map doesn't have any restrictions on the keys names. You can use keys names like <code>toString</code>, <code>constructor</code>, etc. without consequences:</p>
+<pre><code class="language-js"><div>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isMap</span>(<span class="hljs-params">value</span>) </span>{
+      <span class="hljs-keyword">return</span> value.toString() === <span class="hljs-string">'[object Map]'</span>;
+    }
+    
+    <span class="hljs-keyword">const</span> actorMap = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>();
+    
+    actorMap.set(<span class="hljs-string">'name'</span>, <span class="hljs-string">'Harrison Ford'</span>);
+    actorMap.set(<span class="hljs-string">'toString'</span>, <span class="hljs-string">'Actor: Harrison Ford'</span>);
+    
+    
+    isMap(actorMap); 
+</div></code></pre>
+<p>Regardless of <code>actorMap</code> having a property named <code>toString</code>, the method <code>toString()</code> works correctly.</p>
+<a for="toc-anchor" id="%5B%5D(%2321-real-world-example)2.1-real-world-example"></a><h3 id="21-real-world-example"><a href="#21-real-world-example"></a>2.1 Real world example</h3>
+<p>When the user input creates keys on objects? Let's analyze a case.</p>
+<p>Imagine a User Interface that manages custom fields. The user can add a custom field by specifying its name and value:</p>
+<p><a href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/static/9f003911f918adeadfc7b61e9107d577/00787/custom-fields-2.png"><img src="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/static/9f003911f918adeadfc7b61e9107d577/00787/custom-fields-2.png" alt="" title="Custom fields User Interface"></a></p>
+<p>It would be convenient to store the state of the custom fields into a plain object:</p>
+<pre><code class="language-js"><div>    <span class="hljs-keyword">const</span> userCustomFields = {
+      <span class="hljs-string">'color'</span>:    <span class="hljs-string">'blue'</span>,
+      <span class="hljs-string">'size'</span>:     <span class="hljs-string">'medium'</span>,
+      <span class="hljs-string">'toString'</span>: <span class="hljs-string">'A blue box'</span>};
+</div></code></pre>
+<p>But the user can choose a custom field name like <code>toString</code> (as in the example), <code>constructor</code>, etc. As presented above, such keys names on the state object could potentially break the code that later uses this object.</p>
+<p><u>Don't take user input to create keys on your plain objects!</u></p>
+<p>Because the map has no restrictions over the keys names, the right solution is to bind the user interface state to a map.</p>
+<pre><code class="language-js"><div>    <span class="hljs-keyword">const</span> userCustomFieldsMap = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>([
+      [<span class="hljs-string">'color'</span>, <span class="hljs-string">'blue'</span>],
+      [<span class="hljs-string">'size'</span>, <span class="hljs-string">'medium'</span>],
+      [<span class="hljs-string">'toString'</span>, <span class="hljs-string">'A blue box'</span>]
+    ]);
+</div></code></pre>
+<p>There is no way to break the map, even using keys as <code>toString</code>, <code>constructor</code>, etc.</p>
+<a for="toc-anchor" id="%5B%5D(%233-the-map-is-iterable)3%5C.-the-map-is-iterable"></a><h2 id="3-the-map-is-iterable"><a href="#3-the-map-is-iterable"></a>3. The map is iterable</h2>
+<p>To iterate plain object's properties are necessary static functions like <code>Object.keys()</code> or <code>Object.entries()</code> (available in ES2017) .</p>
+<p>For example, let's iterate over the keys and values of <code>colorsHex</code> object:</p>
+<pre><code class="language-js"><div>    <span class="hljs-keyword">const</span> colorsHex = {
+      <span class="hljs-string">'white'</span>: <span class="hljs-string">'#FFFFFF'</span>,
+      <span class="hljs-string">'black'</span>: <span class="hljs-string">'#000000'</span>
+    };
+    
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> [color, hex] <span class="hljs-keyword">of</span> <span class="hljs-built_in">Object</span>.entries(colorsHex)) {  <span class="hljs-built_in">console</span>.log(color, hex);
+    }
+    
+</div></code></pre>
+<p><code>Object.entries(colorsHex)</code> returns an array of key-value pairs extracted from the object.</p>
+<p>Access of keys-values of a map is more comfortable because the map is iterable. Anywhere an iterable is accepted, like <code>for()</code> loop or spread operator, use the map directly.</p>
+<p><code>colorsHexMap</code> keys-values are iterated directly by <code>for()</code> loop:</p>
+<pre><code class="language-js"><div>    <span class="hljs-keyword">const</span> colorsHexMap = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>();
+    
+    colorsHexMap.set(<span class="hljs-string">'white'</span>, <span class="hljs-string">'#FFFFFF'</span>);
+    colorsHexMap.set(<span class="hljs-string">'black'</span>, <span class="hljs-string">'#000000'</span>);
+    
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> [color, hex] <span class="hljs-keyword">of</span> colorsHexMap) {  <span class="hljs-built_in">console</span>.log(color, hex);
+    }
+    
+  
+</div></code></pre>
+<p><code>colorsHexMap</code> is iterable. You can use it anywhere an iterable is accepted: <code>for()</code> loops, spread operator <code>[...map]</code>.</p>
+<p>Moreover, <code>map.keys()</code> returns an iterator over keys and <code>map.values()</code> over values.</p>
+<a for="toc-anchor" id="%5B%5D(%234-maps-size)4%5C.-map's-size"></a><h2 id="4-maps-size"><a href="#4-maps-size"></a>4. Map's size</h2>
+<p>You cannot easily determine the number of properties in a plain object.</p>
+<p>One workaround is to use a helper function like <code>Object.keys()</code>:</p>
+<pre><code class="language-js"><div>    <span class="hljs-keyword">const</span> exams = {
+      <span class="hljs-string">'John Smith'</span>: <span class="hljs-string">'10 points'</span>,
+      <span class="hljs-string">'Jane Doe'</span>: <span class="hljs-string">'8 points'</span>,
+    };
+    
+    <span class="hljs-built_in">Object</span>.keys(exams).length; 
+</div></code></pre>
+<p><code>Object.keys(exams)</code> returns an array with keys of <code>exams</code>. The size of <code>exams</code> is the number of keys this array contains.</p>
+<p>The map provides a better alternative. The property <code>map.size</code> indicates the number of keys-values.</p>
+<p>Let's see how to use <code>size</code> on <code>examsMap</code>:</p>
+<pre><code class="language-js"><div>    <span class="hljs-keyword">const</span> examsMap = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>([
+      [<span class="hljs-string">'John Smith'</span>, <span class="hljs-string">'10 points'</span>],
+      [<span class="hljs-string">'Jane Doe'</span>, <span class="hljs-string">'8 points'</span>],
+    ]);
+      
+    examsMap.size; 
+</div></code></pre>
+<p>It's simple to determine the size of the map: <code>examsMap.size</code>.</p>
+<a for="toc-anchor" id="%5B%5D(%235-conclusion)5%5C.-conclusion"></a><h2 id="5-conclusion"><a href="#5-conclusion"></a>5. Conclusion</h2>
+<p>Plain JavaScript objects do the job of holding structured data. But they have some limitations:</p>
+<ol>
+<li>Only strings or symbols can be used as keys</li>
+<li>Own object properties might collide with property keys inherited from the prototype (e.g. <code>toString</code>, <code>constructor</code>, etc).</li>
+<li>Objects cannot be used as keys</li>
+</ol>
+<p>These limitations are solved by maps. Moreover, maps provide benefits like being iterators and allowing easy size look-up.</p>
+<p>Anyways, don't consider maps as a replacement of plain objects, but rather a complement.</p>
+<p><u>Do you know other benefits of maps over plain objects? Please write a comment below!</u></p>
+<p><a href="https://dmitripavlutin.com/maps-vs-plain-objects-javascript/">Source</a></p>
+
+</body></html>

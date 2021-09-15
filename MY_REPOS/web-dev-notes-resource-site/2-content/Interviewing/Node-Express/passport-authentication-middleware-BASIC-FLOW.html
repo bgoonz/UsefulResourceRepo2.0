@@ -1,0 +1,154 @@
+<p>Passport is a framework, and a Node.js middleware, that is extremely flexible and modular. It allows you to work with the main authentication strategies: Basic &amp; Digest, OpenID, OAuth, OAuth 2.0 and JWT. And also allows you to work with external services authentication, such as Facebook, Google+, Twitter and more. Per its official site, there is a list with +300 authentication strategies, created and maintained by 3rd-party.</p>
+<h3 id="first-note-the-actual-implemented-code-and-flow-in-a-typical-node-app-the-token-is-generated-with-jsonwebtoken-npm-package-using-jwt.sign-function-in-the-auth.js-backend-route-or-controller.-like-below">First note the actual implemented code and flow, in a typical node app, the token is generated with jsonwebtoken npm package using jwt.sign() function in the auth.js backend route or controller. Like below</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">var</span> token <span class="op">=</span> <span class="va">jwt</span>.<span class="at">sign</span>(</a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="dt">username</span><span class="op">:</span> <span class="va">user</span>.<span class="at">username</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="dt">id</span><span class="op">:</span> <span class="va">user</span>.<span class="at">_id</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="dt">employerType</span><span class="op">:</span> <span class="va">user</span>.<span class="at">employerType</span></a>
+<a class="sourceLine" id="cb1-6" title="6">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb1-7" title="7">  <span class="va">settings</span>.<span class="at">secret</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-8" title="8">  <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-9" title="9">    <span class="dt">expiresIn</span><span class="op">:</span> <span class="st">&quot;15s&quot;</span></a>
+<a class="sourceLine" id="cb1-10" title="10">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-11" title="11">)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-12" title="12"><span class="co">// return the information including token as JSON and the imageUrl as an additional data-point so I can get it in the front end to be renderer in the header for the logged-in user</span></a>
+<a class="sourceLine" id="cb1-13" title="13"></a>
+<a class="sourceLine" id="cb1-14" title="14"><span class="va">res</span>.<span class="at">json</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb1-15" title="15">  <span class="dt">success</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-16" title="16">  <span class="dt">token</span><span class="op">:</span> <span class="st">&quot;JWT &quot;</span> <span class="op">+</span> token<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-17" title="17">  <span class="dt">imageUrl</span><span class="op">:</span> <span class="va">user</span>.<span class="at">images</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-18" title="18">  <span class="dt">username</span><span class="op">:</span> <span class="va">user</span>.<span class="at">name</span></a>
+<a class="sourceLine" id="cb1-19" title="19"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>And the way this token is saved in the localStroge in the frontend is within Login.js file in React, i.e. the file that creates a POST request to the backend’s auth.js’s login route (‘/login’) like below</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="va">axios</span>.<span class="at">post</span>(<span class="st">&quot;/api/auth/login&quot;</span><span class="op">,</span> <span class="op">{</span> username<span class="op">,</span> password <span class="op">}</span>).<span class="at">then</span>(result <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="va">localStorage</span>.<span class="at">setItem</span>(<span class="st">&quot;user&quot;</span><span class="op">,</span> <span class="va">JSON</span>.<span class="at">stringify</span>(<span class="va">result</span>.<span class="at">data</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-3" title="3"></a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="kw">this</span>.<span class="at">setState</span>(() <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb2-5" title="5">    <span class="dt">message</span><span class="op">:</span> <span class="st">&quot;&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-6" title="6">    <span class="dt">redirectToReferrer</span><span class="op">:</span> <span class="kw">true</span></a>
+<a class="sourceLine" id="cb2-7" title="7">  <span class="op">}</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h4 id="so-passport-is-not-for-any-specific-method-of-authentication-the-method-for-authentication-like-oauth-jwt-is-implemented-in-passport-by-strategy-pattern-so-it-means-that-you-can-swap-the-authentication-mechanism-without-affecting-other-parts-of-your-application.">So Passport is not for any specific method of authentication, the method for authentication like OAuth, JWT is implemented in Passport by Strategy pattern, so it means that you can swap the authentication mechanism without affecting other parts of your application.</h4>
+<h4 id="passport-jwt-passport-jwt-is-only-for-authenticating-requests.-and-i-will-need-another-tool-to-actually-generate-a-token-and-for-which-job-i-use-jsonwebtoken.">Passport JWT (passport-jwt) is only for authenticating requests. And I will need another tool to actually generate a token, and for which job I use jsonwebtoken.</h4>
+<h4 id="the-jwt-token-which-you-generate-in-the-backend-within-the-auth-route-when-user-sends-a-post-request-to-login-route-in-the-backend-and-return-to-whatever-original-client-route-made-the-request.-so-the-backend-creates-a-signed-token-and-returns-it-in-response.-the-client-saves-the-token-the-one-returned-by-backend-in-response-locally-typically-in-localstorage">The JWT token, which you generate in the backend within the auth route (when user sends a POST request to ‘/login’ route in the backend) and return to whatever original client-route made the request. So, the backend creates a signed token and returns it in response. The client saves the token ( the one returned by backend in response ) locally (typically in localStorage)</h4>
+<h4 id="now-when-any-protected-client-route-makes-a-request-this-token-needs-to-be-present-in-the-header-authorization-jwt-eyj0exaio-on-all-subsequent-requests-that-for-all-subsequent-requst-to-a-protected-route-which-needs-authentication.-passwort-jwt-in-the-backend-for-that-specific-protected-route-checks-this-auth-header-and-verifies-its-validity.-if-it-is-invalid-it-returns-a-401-otherwise-it-populate-your-req.user.">Now when any protected-client route makes a request, this token needs to be present in the header (“Authorization: JWT eyJ0eXAiO…”) on all subsequent requests, that for all subsequent requst to a protected-route, which needs authentication. Passwort-jwt in the backend for that specific protected-route, checks this auth header and verifies it’s validity. If it is invalid, it returns a 401, otherwise it populate your req.user.</h4>
+<h2 id="the-actual-implementation-steps---how-passport-validation-work-flow-works-passport-jwt-strategy-and-jsonwebtoken">The actual implementation steps - How passport validation work-flow works (passport-jwt strategy and jsonwebtoken)</h2>
+<p><strong>1&gt; passport.js</strong> works with the concept of strategies. They basically are a middleware function that a requests runs through before getting to the actual route. If your defined authentication strategy fails, which means that the callback will be called with an error that is not null or false as the second argument, the route will not be called, but a 401 Unauthorized response will be sent.</p>
+<h4 id="in-this-example-i-am-using-passport-jwt-strategy-and-jsonwebtoken-its-from-my-developer-profiler-apphttpsgithub.comrohan-pauldeveloper-profile-app.">In this example I am using passport-jwt strategy and jsonwebtoken (its from my Developer-Profiler app(https://github.com/rohan-paul/Developer-Profile-App)).</h4>
+<p><strong>2&gt; passport-jwt</strong></p>
+<p>My passport.js file below</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">const</span> opts <span class="op">=</span> <span class="op">{};</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="va">opts</span>.<span class="at">jwtFromRequest</span> <span class="op">=</span> <span class="va">ExtractJwt</span>.<span class="at">fromAuthHeaderAsBearerToken</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="co">/* The above is for Extracting the JWT from the request. The JWT is parsed from the request by a user-supplied callback passed in as the jwtFromRequest parameter. This callback, from now on referred to as an extractor, accepts a request object as an argument and returns the encoded JWT string or null.</span></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="co">A number of extractor factory functions are provided in passport-jwt.ExtractJwt. These factory functions return a new extractor configured with the given parameters. fromAuthHeaderAsBearerToken() is one such function, as my scheme here was ‘bearer’ as stated in my user.js routes file. */</span></a>
+<a class="sourceLine" id="cb3-5" title="5"></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="va">opts</span>.<span class="at">secretOrKey</span> <span class="op">=</span> <span class="va">keys</span>.<span class="at">secretOrKey</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-7" title="7"></a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="va">module</span>.<span class="at">exports</span> <span class="op">=</span> passport <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-9" title="9">  <span class="va">passport</span>.<span class="at">use</span>(</a>
+<a class="sourceLine" id="cb3-10" title="10">    <span class="kw">new</span> <span class="at">JwtStrategy</span>(opts<span class="op">,</span> (jwt_payload<span class="op">,</span> done) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-11" title="11">      <span class="co">// console.log(jwt_payload);</span></a>
+<a class="sourceLine" id="cb3-12" title="12">      <span class="va">User</span>.<span class="at">findById</span>(<span class="va">jwt_payload</span>.<span class="at">id</span>)</a>
+<a class="sourceLine" id="cb3-13" title="13">        .<span class="at">then</span>(user <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-14" title="14">          <span class="cf">if</span> (user) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-15" title="15">            <span class="cf">return</span> <span class="at">done</span>(<span class="kw">null</span><span class="op">,</span> user)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-16" title="16">          <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-17" title="17">          <span class="cf">return</span> <span class="at">done</span>(<span class="kw">null</span><span class="op">,</span> <span class="kw">false</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-18" title="18">        <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb3-19" title="19">        .<span class="at">catch</span>(err <span class="kw">=&gt;</span> <span class="va">console</span>.<span class="at">log</span>(err))<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-20" title="20">    <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb3-21" title="21">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-22" title="22"><span class="op">};</span></a></code></pre></div>
+<p>In this strategy above, I assume that the client will send the JWT token in Authorization Header as a Bearer Token when logging in. Server validates user credentials and returns encrypted user object i.e <strong>token</strong>. Client can save token using cookie, local-storage, or other mechanism. Then on every user request it validates token and only on successful validation proceed with the request.</p>
+<p>One great advantage of tokens is that we don’t have to lookup the token in a database on every api call as it contains all needed information in itself. This should help keeping the authentication process small. The biggest downside of that is the inability of revoking a token without having a whitelist or blacklist somewhere. This is the reason we keep the lifetime of the token small (like for example 120 minutes).</p>
+<p>This passport middleware will be injected via passport.use(strategy) function. To finish, two functions will be included from Passport to be used on the application. They are the initialize() function which starts the Passport and authenticate() which is used to authenticate the access for a route.</p>
+<p>https://stackoverflow.com/questions/42306821/why-would-i-need-to-use-passport-package-with-jsonwebtoken-for-applying-token-ba</p>
+<h3 id="understanding-the-main-function-of-official-dox-httpsgithub.comthemikenicholsonpassport-jwtconfigure-strategy">3&gt; Understanding the main function of official dox (https://github.com/themikenicholson/passport-jwt#configure-strategy)</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="va">passport</span>.<span class="at">use</span>(</a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="kw">new</span> <span class="at">JwtStrategy</span>(opts<span class="op">,</span> <span class="kw">function</span>(jwt_payload<span class="op">,</span> done) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-3" title="3">    <span class="va">User</span>.<span class="at">findOne</span>(<span class="op">{</span> <span class="dt">id</span><span class="op">:</span> <span class="va">jwt_payload</span>.<span class="at">sub</span> <span class="op">},</span> <span class="kw">function</span>(err<span class="op">,</span> user) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-4" title="4">      <span class="cf">if</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-5" title="5">        <span class="cf">return</span> <span class="at">done</span>(err<span class="op">,</span> <span class="kw">false</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-6" title="6">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-7" title="7">      <span class="cf">if</span> (user) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-8" title="8">        <span class="cf">return</span> <span class="at">done</span>(<span class="kw">null</span><span class="op">,</span> user)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-9" title="9">      <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-10" title="10">        <span class="cf">return</span> <span class="at">done</span>(<span class="kw">null</span><span class="op">,</span> <span class="kw">false</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-11" title="11">        <span class="co">// or you could create a new account</span></a>
+<a class="sourceLine" id="cb4-12" title="12">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-13" title="13">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-14" title="14">  <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb4-15" title="15">)<span class="op">;</span></a></code></pre></div>
+<p>A&gt; In the above I pass-in a new instance of JwtStrategy and then pass in options and a callback.</p>
+<p>B&gt; <strong>‘jwt_payload’</strong> is an object literal containing the decoded JWT payload. Inside the callback the jwt_payload will contain all my user data, that I included in ../routes/api/users.js file <a href="https://github.com/rohan-paul/Developer-Profile-App/blob/master/routes/api/users.js#L101">https://github.com/rohan-paul/Developer-Profile-App/blob/master/routes/api/users.js#L101</a></p>
+<p><code>const payload = { id: user.id, name: user.name, avatar: user.avatar };</code></p>
+<p>So, this payload will have the attribute id that will be a user id to be used as argument to search a user in the database.</p>
+<p>C&gt; Once I do that, I want to find that user</p>
+<p>D&gt; ‘done’ is a passport error-first callback accepting arguments done(error, user, info)</p>
+<h3 id="nd-implemented-project-where-also-i-am-using-passport-with-jwt-strategy-and-jsonwebtoken">2-nd Implemented project, where also I am using passport (with jwt strategy) and jsonwebtoken</h3>
+<p>/home/paul/codes-Lap/React/Volteo/AP-Ports/frontend-portal-MY-WORK-push-to-github/Phase-2/server/config/passport.js</p>
+<p>Here’s my passport.js file</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="va">module</span>.<span class="at">exports</span> <span class="op">=</span> <span class="kw">function</span>(passport) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="kw">var</span> opts <span class="op">=</span> <span class="op">{};</span></a>
+<a class="sourceLine" id="cb5-3" title="3">  <span class="va">opts</span>.<span class="at">jwtFromRequest</span> <span class="op">=</span> <span class="va">ExtractJwt</span>.<span class="at">fromAuthHeaderWithScheme</span>(<span class="st">&quot;jwt&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="va">opts</span>.<span class="at">secretOrKey</span> <span class="op">=</span> <span class="va">settings</span>.<span class="at">secret</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-5" title="5">  <span class="va">passport</span>.<span class="at">use</span>(</a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="kw">new</span> <span class="at">JwtStrategy</span>(opts<span class="op">,</span> <span class="kw">function</span>(jwt_payload<span class="op">,</span> done) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-7" title="7">      <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;payload received&quot;</span><span class="op">,</span> jwt_payload)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-8" title="8">      <span class="co">// Now the usual database call</span></a>
+<a class="sourceLine" id="cb5-9" title="9">      <span class="va">User</span>.<span class="at">findOne</span>(<span class="op">{</span> <span class="dt">_id</span><span class="op">:</span> <span class="va">jwt_payload</span>.<span class="at">id</span> <span class="op">},</span> <span class="kw">function</span>(err<span class="op">,</span> user) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-10" title="10">        <span class="cf">if</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-11" title="11">          <span class="cf">return</span> <span class="at">done</span>(err<span class="op">,</span> <span class="kw">false</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-12" title="12">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-13" title="13">        <span class="cf">if</span> (user) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-14" title="14">          <span class="at">done</span>(<span class="kw">null</span><span class="op">,</span> user)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-15" title="15">        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-16" title="16">          <span class="at">done</span>(<span class="kw">null</span><span class="op">,</span> <span class="kw">false</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-17" title="17">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-18" title="18">      <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-19" title="19">    <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb5-20" title="20">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-21" title="21"><span class="op">};</span></a></code></pre></div>
+<p>And in my ..server/routes/auth.js for the router.post(’/login) - I had the below</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">var</span> token <span class="op">=</span> <span class="va">jwt</span>.<span class="at">sign</span>(</a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-3" title="3">    <span class="dt">username</span><span class="op">:</span> <span class="va">user</span>.<span class="at">username</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-4" title="4">    <span class="dt">id</span><span class="op">:</span> <span class="va">user</span>.<span class="at">_id</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-5" title="5">    <span class="dt">employerType</span><span class="op">:</span> <span class="va">user</span>.<span class="at">employerType</span></a>
+<a class="sourceLine" id="cb6-6" title="6">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb6-7" title="7">  <span class="va">settings</span>.<span class="at">secret</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-8" title="8">  <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-9" title="9">    <span class="dt">expiresIn</span><span class="op">:</span> <span class="st">&quot;4h&quot;</span></a>
+<a class="sourceLine" id="cb6-10" title="10">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-11" title="11">)<span class="op">;</span></a></code></pre></div>
+<h4 id="to-see-the-actual-contents-of-the-jwt_payload---put-this-console.logpayload-received-jwt_payload-inside-the-passport.js-file-as-above.">To see the actual contents of the jwt_payload - put this &lt; console.log(“payload received”, jwt_payload) &gt; inside the passport.js file as above.</h4>
+<p>Now, after using any protected route (for example adding a new tidal data under /tidal/create) route (which had <code>passport.authenticate</code> as the middleware) I will get the following printed in Terminal (which are actual user’s email, the saved mongo _id and employer type)</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1">payload received <span class="op">{</span> <span class="dt">username</span><span class="op">:</span> <span class="st">&#39;actual_user-email@gmail.com&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-2" title="2">   <span class="dt">id</span><span class="op">:</span> <span class="st">&#39;664633411681589161646&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-3" title="3">   <span class="dt">employerType</span><span class="op">:</span> <span class="st">&#39;port&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-4" title="4">   <span class="dt">iat</span><span class="op">:</span> <span class="dv">1544424322</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-5" title="5">   <span class="dt">exp</span><span class="op">:</span> <span class="dv">1544438722</span> <span class="op">}</span></a></code></pre></div>
+<h4 id="then-the-below-is-how-the-middleware-check-is-implemented-in-the-backend-protected-route-for-adding-a-new-tidal-data-at-createtide-route-in-the-backend.">Then the below is how, the middleware check is implemented in the backend protected route for adding a new tidal data at “/createtide” route in the backend.</h4>
+<h3 id="the-gettoken-function-is-merely-for-getting-the-actual-token-from-headers-so-i-can-check-the-existence-of-a-token---which-is-mainly-required-in-the-frontend-to-conditionally-show-login-or-logout-button.-and-in-the-backend-its-just-another-layer-of-check-but-not-really-required">The getToken() function is merely for getting the actual token from headers so I can check the existence of a token) - which is mainly required in the frontend to conditionally show “Login” or “Logout” button. And in the backend its just another layer of check (but not really required)</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="co">// route to Add a new Tidal data ( Protected routes )</span></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="va">router</span>.<span class="at">post</span>(</a>
+<a class="sourceLine" id="cb8-3" title="3">  <span class="st">&quot;/createtide&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb8-4" title="4">  <span class="va">passport</span>.<span class="at">authenticate</span>(<span class="st">&quot;jwt&quot;</span><span class="op">,</span> <span class="op">{</span> <span class="dt">session</span><span class="op">:</span> <span class="kw">false</span> <span class="op">}</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-5" title="5">  (req<span class="op">,</span> res) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-6" title="6">    <span class="kw">var</span> token <span class="op">=</span> <span class="at">getToken</span>(<span class="va">req</span>.<span class="at">headers</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-7" title="7">    <span class="cf">if</span> (token) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-8" title="8">      <span class="kw">var</span> tide <span class="op">=</span> <span class="kw">new</span> <span class="at">Tide</span>(<span class="va">req</span>.<span class="at">body</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-9" title="9">      <span class="va">tide</span>.<span class="at">save</span>(<span class="kw">function</span>(err<span class="op">,</span> newTide) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-10" title="10">        <span class="cf">if</span> (err) <span class="cf">throw</span> err<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-11" title="11">        <span class="va">res</span>.<span class="at">status</span>(<span class="dv">200</span>).<span class="at">send</span>(newTide)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-12" title="12">      <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-13" title="13">    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-14" title="14">      <span class="cf">return</span> <span class="va">res</span>.<span class="at">status</span>(<span class="dv">403</span>).<span class="at">send</span>(<span class="op">{</span> <span class="dt">success</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">msg</span><span class="op">:</span> <span class="st">&quot;Unauthorized.&quot;</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-15" title="15">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-16" title="16">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-17" title="17">)<span class="op">;</span></a></code></pre></div>
+<h3 id="rd-implemented-project---herer-i-got-passport-local-strategy-as-opposed-to-jwt--httpsgithub.comrohan-paulsignup-form-with-passport-app.-for-more-details-see---httpswww.sitepoint.comlocal-authentication-using-passport-node-js">3-rd Implemented project - Herer, I got passport-local strategy (as opposed to ‘jwt’)- (https://github.com/rohan-paul/SignUp-Form-with-Passport) app. For more details see - https://www.sitepoint.com/local-authentication-using-passport-node-js/</h3>
+<p><strong>In serializeUser</strong> passport attaches the profile information to req.user. This occurs as a direct result of the serializeUser() and deserializeUser() functions. - https://hackernoon.com/passportjs-the-confusing-parts-explained-edca874ebead</p>
+<p><strong>In deserializeUser()</strong>, the first argument is an id which is the same id that was passed in done(null, user.id) of serializeUser(). deserializeUser() then makes a request to our DB to find the full profile information for the user and then calls done(null, user). This is where the user profile is attached to the request handler at req.user. Then finally after all this occurs, the user is routed back to the /login/google/return route handler where we can finally access the user profile information on req.user. - https://hackernoon.com/passportjs-the-confusing-parts-explained-edca874ebead</p>
+<h4 id="general-resources-to-refer">General Resources to refer</h4>
+<p>1&gt; <a href="https://jonathanmh.com/express-passport-json-web-token-jwt-authentication-beginners/">https://jonathanmh.com/express-passport-json-web-token-jwt-authentication-beginners/</a></p>

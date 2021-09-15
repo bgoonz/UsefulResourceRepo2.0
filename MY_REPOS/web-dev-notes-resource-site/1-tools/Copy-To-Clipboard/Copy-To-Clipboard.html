@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<!-- saved from url=(0048)https://deanmarktaylor.github.io/clipboard-test/ -->
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <title>Clipboard Test</title>
+  </head>
+  <body>
+    <div style="display: block">
+      <textarea class="js-useragent" rows="3" style="width: 100%"></textarea>
+    </div>
+    <div style="display: inline-block; vertical-align: top">
+      <button class="js-copy-bob-btn">Set clipboard to BOB</button><br /><br />
+      <button class="js-copy-jane-btn">Set clipboard to JANE</button>
+    </div>
+    <div style="display: inline-block">
+      <textarea class="js-test-textarea" cols="35" rows="4">
+Try pasting into here to see what you have on your clipboard:
+
+        </textarea
+      >
+    </div>
+    <div style="display: block">
+      <textarea class="js-console" rows="10" style="width: 100%"></textarea>
+    </div>
+
+    <script>
+      function fallbackCopyTextToClipboard(text) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+
+        // Avoid scrolling to bottom
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+          var successful = document.execCommand("copy");
+          var msg = successful ? "successful" : "unsuccessful";
+          console.log("Fallback: Copying text command was " + msg);
+        } catch (err) {
+          console.error("Fallback: Oops, unable to copy", err);
+        }
+
+        document.body.removeChild(textArea);
+      }
+      function copyTextToClipboard(text) {
+        if (!navigator.clipboard) {
+          fallbackCopyTextToClipboard(text);
+          return;
+        }
+        navigator.clipboard.writeText(text).then(
+          function () {
+            console.log("Async: Copying to clipboard was successful!");
+          },
+          function (err) {
+            console.error("Async: Could not copy text: ", err);
+          }
+        );
+      }
+
+      document.querySelector(".js-useragent").value = navigator.userAgent;
+
+      var copyBobBtn = document.querySelector(".js-copy-bob-btn"),
+        copyJaneBtn = document.querySelector(".js-copy-jane-btn");
+
+      copyBobBtn.addEventListener("click", function (event) {
+        copyTextToClipboard("Bob");
+      });
+
+      copyJaneBtn.addEventListener("click", function (event) {
+        copyTextToClipboard("Jane");
+      });
+
+      // Displaying console output without opening dev tools.
+      // Please don't include this console override in any production code.
+      window.console = (function (oldConsole) {
+        var counter = 0,
+          localLog = function (logType, text) {
+            counter++;
+            var con = document.querySelector(".js-console");
+            con.value += "\n" + counter + " " + logType + ": " + text;
+            con.scrollTop = con.scrollHeight;
+          };
+        return {
+          log: function (text) {
+            oldConsole.log.apply(null, arguments);
+            localLog("LOG", text);
+          },
+          info: function (text) {
+            oldConsole.info.apply(null, arguments);
+            localLog("INFO", text);
+          },
+          warn: function (text) {
+            oldConsole.warn.apply(null, arguments);
+            localLog("WARN", text);
+          },
+          error: function (text) {
+            oldConsole.error.apply(null, arguments);
+            localLog("ERROR", text);
+            localLog("ERROR - open developers console for more detail");
+          },
+        };
+      })(window.console);
+    </script>
+
+    <span
+      style="
+        margin: 0px auto;
+        border: 2px dotted rgb(0, 0, 0);
+        position: absolute;
+        z-index: 2147483647;
+        visibility: hidden;
+        left: 344px;
+        width: 0px;
+        top: 355px;
+        height: 0px;
+      "
+    ></span
+    ><span
+      style="
+        z-index: 2147483647;
+        position: absolute;
+        visibility: hidden;
+        left: 329px;
+        width: 50px;
+        top: 340px;
+        height: 20px;
+        font-size: 10px;
+        color: black;
+      "
+    ></span>
+  </body>
+</html>

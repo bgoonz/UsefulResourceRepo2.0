@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h2 id="what-exactly-does-the-mongoose-exec-method-do">what exactly does the mongoose ‘exec’ method do?</h2>
+<h3 id="httpmongoosejs.comdocsapi.htmlquery_query-exec">1&gt; http://mongoosejs.com/docs/api.html#query_Query-exec</h3>
+<p>In mongoose, exec method will execute the query and return a Promise.</p>
+<p>2&gt; A working example - <a href="https://github.com/rohan-paul/student-management-CRUD-api/blob/master/controllers/StudentController.js">https://github.com/rohan-paul/student-management-CRUD-api/blob/master/controllers/StudentController.js</a></p>
+<p>Here, I have the below function</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="va">StudentController</span>.<span class="at">list</span> <span class="op">=</span> <span class="kw">function</span> (req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">    <span class="va">Student</span>.<span class="at">find</span>(<span class="op">{}</span>).<span class="at">exec</span>(<span class="kw">function</span> (err<span class="op">,</span> student) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-3" title="3">        <span class="cf">if</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-4" title="4">            <span class="va">console</span>.<span class="at">log</span>(<span class="st">&quot;Error : &quot;</span><span class="op">,</span> err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-5" title="5">        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-6" title="6">            <span class="va">res</span>.<span class="at">render</span>(<span class="st">&quot;../views/students/index&quot;</span><span class="op">,</span> <span class="op">{</span><span class="dt">student</span><span class="op">:</span> student<span class="op">}</span>)</a>
+<a class="sourceLine" id="cb1-7" title="7">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-8" title="8">    <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="op">}</span></a></code></pre></div>
+<p>In Mongoose queries are composed but not necessarily run immediately. They return a query object that you can add (or chain) other queries to. The queries are all run as a unit when needed so there isn’t any storing of unneeded intermediate results. This is what the exec() function does. You’ll sometime hear it referred to as “lazy loading” or “lazy evaluation”</p>
+<p>3&gt; https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/mongoose</p>
+<h3 id="all-callbacks-in-mongoose-use-the-pattern-callbackerror-result.">All callbacks in Mongoose use the pattern: callback(error, result).</h3>
+<p>If an error occurs executing the query, the error parameter will contain an error document, and result will be null. If the query is successful, the error parameter will be null, and the result will be populated with the results of the query.</p>
+<p>You can search for records using query methods, specifying the query conditions as a JSON document. The code fragment below shows how you might find all athletes in a database that play tennis, returning just the fields for athlete name and age. Here we just specify one matching field (sport) but you can add more criteria, specify regular expression criteria, or remove the conditions altogether to return all athletes.</p>
+<p><code>var Athlete = mongoose.model('Athlete', yourSchema);</code></p>
+<p>// find all athletes who play tennis, selecting the ‘name’ and ‘age’ fields</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="va">Athlete</span>.<span class="at">find</span>(<span class="op">{</span> <span class="st">&#39;sport&#39;</span><span class="op">:</span> <span class="st">&#39;Tennis&#39;</span> <span class="op">},</span> <span class="st">&#39;name age&#39;</span><span class="op">,</span> <span class="kw">function</span> (err<span class="op">,</span> athletes) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="cf">if</span> (err) <span class="cf">return</span> <span class="at">handleError</span>(err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="co">// &#39;athletes&#39; contains the list of athletes that match the criteria.</span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="op">}</span>)</a></code></pre></div>
+<p>If you specify a callback, as shown above, the query will execute immediately. The callback will be invoked when the search completes.</p>
+<h2 id="if-you-dont-specify-a-callback-then-the-api-will-return-a-variable-of-type-query.-you-can-use-this-query-object-to-build-up-your-query-and-then-execute-it-with-a-callback-later-using-the-exec-method.">If you don’t specify a callback then the API will return a variable of type Query. You can use this query object to build up your query and then execute it (with a callback) later using the exec() method.</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="co">// find all athletes that play tennis</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="kw">var</span> query <span class="op">=</span> <span class="va">Athlete</span>.<span class="at">find</span>(<span class="op">{</span> <span class="st">&#39;sport&#39;</span><span class="op">:</span> <span class="st">&#39;Tennis&#39;</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-3" title="3"></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="co">// selecting the &#39;name&#39; and &#39;age&#39; fields</span></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="va">query</span>.<span class="at">select</span>(<span class="st">&#39;name age&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-6" title="6"></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="co">// limit our results to 5 items</span></a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="va">query</span>.<span class="at">limit</span>(<span class="dv">5</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-9" title="9"></a>
+<a class="sourceLine" id="cb3-10" title="10"><span class="co">// sort by age</span></a>
+<a class="sourceLine" id="cb3-11" title="11"><span class="va">query</span>.<span class="at">sort</span>(<span class="op">{</span> <span class="dt">age</span><span class="op">:</span> <span class="dv">-1</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-12" title="12"></a>
+<a class="sourceLine" id="cb3-13" title="13"><span class="co">// execute the query at a later time</span></a>
+<a class="sourceLine" id="cb3-14" title="14"><span class="va">query</span>.<span class="at">exec</span>(<span class="kw">function</span> (err<span class="op">,</span> athletes) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-15" title="15">  <span class="cf">if</span> (err) <span class="cf">return</span> <span class="at">handleError</span>(err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-16" title="16">  <span class="co">// athletes contains an ordered list of 5 athletes who play Tennis</span></a>
+<a class="sourceLine" id="cb3-17" title="17"><span class="op">}</span>)</a></code></pre></div>
+<p>4&gt; A nice example of how using the Promise returning feature of .exec makes it possible to avoid callback hell</p>
+<p>https://blog.revathskumar.com/2015/07/using-promises-with-mongoosejs.html</p>
+</body></html>

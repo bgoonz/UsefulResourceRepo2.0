@@ -1,0 +1,2347 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <!-- Mirrored from www.brainbell.com/tutors/Perl/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Feb 2021 02:52:18 GMT -->
+  <!-- Added by HTTrack --><meta
+    http-equiv="content-type"
+    content="text/html;charset=utf-8"
+  /><!-- /Added by HTTrack -->
+  <head>
+    <meta charset="UTF-8" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = true;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "../../detroitchicago/boise.js",
+        "../../detroitchicago/boise7ea0.js?gcb=192-11&amp;cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "../../detroitchicago/memphis.js",
+        "../../detroitchicago/memphis2b28.js?gcb=192-11&amp;cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "../../detroitchicago/minneapolis.js",
+        "../../detroitchicago/minneapolis8baa.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "../../detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "../../porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("../../index.html");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot
+            .getAdUnitPath(adSlot)
+            .split("../../index.html")
+            .pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (ezimKey.split("../../index.html").pop() === adUnitName) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "../../detroitchicago/raleigh.js",
+        "../../detroitchicago/raleigh8baa.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "../../detroitchicago/tampa.js",
+        "../../detroitchicago/tampa8baa.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "../../detroitchicago/tulsa.js",
+        "../../detroitchicago/tulsa2b28.js?gcb=192-11&amp;cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perl Tutorials : CGI and Perl</title>
+    <meta name="description" content="Perl Tutorials CGI and Perl tutorial" />
+    <link rel="shortcut icon" href="../../favicon.ico" />
+    <style type="text/css">
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        font-family: sans-serif;
+        line-height: 1.15;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        -ms-overflow-style: scrollbar;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      }
+      @-ms-viewport {
+        width: device-width;
+      }
+      article,
+      aside,
+      figcaption,
+      figure,
+      footer,
+      header,
+      hgroup,
+      main,
+      nav,
+      section {
+        display: block;
+      }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+          "Segoe UI Emoji", "Segoe UI Symbol";
+        font-size: 1.1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        text-align: left;
+        background-color: #fff;
+      }
+      [tabindex="-1"]:focus {
+        outline: 0 !important;
+      }
+      hr {
+        box-sizing: content-box;
+        height: 0;
+        overflow: visible;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        border: 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-family: inherit;
+        font-weight: 500;
+        line-height: 1.2;
+        color: inherit;
+      }
+      h1 {
+        font-size: 2.5rem;
+      }
+      h2 {
+        font-size: 2rem;
+      }
+      h3 {
+        font-size: 1.75rem;
+      }
+      h4 {
+        font-size: 1.5rem;
+      }
+      h5 {
+        font-size: 1.3rem;
+      }
+      h6 {
+        font-size: 1.2rem;
+      }
+      p {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+      abbr[title],
+      abbr[data-original-title] {
+        text-decoration: underline;
+        -webkit-text-decoration: underline dotted;
+        text-decoration: underline dotted;
+        cursor: help;
+        border-bottom: 0;
+      }
+      address {
+        margin-bottom: 1rem;
+        font-style: normal;
+        line-height: inherit;
+      }
+
+      ol,
+      ul,
+      dl {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+      ol ol,
+      ul ul,
+      ol ul,
+      ul ol {
+        margin-bottom: 0;
+      }
+      dt {
+        font-weight: 700;
+      }
+      dd {
+        margin-bottom: 0.5rem;
+        margin-left: 0;
+      }
+
+      blockquote {
+        padding: 1rem 3rem;
+        margin: 3rem 0;
+        position: relative;
+        border-radius: 1rem;
+      }
+
+      blockquote::before {
+        content: "“";
+        left: 0.5rem;
+        top: 1.8rem;
+      }
+      blockquote::after {
+        content: "”";
+        right: 2.5rem;
+        bottom: -1.5rem;
+      }
+
+      blockquote::after,
+      blockquote::before {
+        font-family: georgia;
+        font-size: 5rem;
+        height: 2.5rem;
+        width: 0;
+        display: block;
+        position: absolute;
+      }
+
+      dfn {
+        font-style: italic;
+      }
+      b,
+      strong {
+        font-weight: bolder;
+      }
+      small {
+        font-size: 80%;
+        font-weight: 400;
+      }
+      sub,
+      sup {
+        position: relative;
+        font-size: 75%;
+        line-height: 0;
+        vertical-align: baseline;
+      }
+      sub {
+        bottom: -0.25em;
+      }
+      sup {
+        top: -0.5em;
+      }
+
+      a {
+        color: #0074d9;
+        background-color: transparent;
+        -webkit-text-decoration-skip: objects;
+      }
+      a:hover {
+        color: #002633;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]) {
+        color: inherit;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]):hover,
+      a:not([href]):not([tabindex]):focus {
+        color: inherit;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]):focus {
+        outline: 0;
+      }
+
+      pre,
+      code,
+      kbd,
+      samp,
+      .slog {
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        font-size: 1em;
+      }
+      pre {
+        margin-top: 0;
+        margin-bottom: 2rem;
+        overflow: auto;
+        -ms-overflow-style: scrollbar;
+        display: block;
+        font-size: 87.5%;
+        color: #212529;
+        border: 1px solid #eee !important;
+        padding: 0.8rem !important;
+        border-radius: 8px;
+        line-height: 1.4rem;
+      }
+
+      figure {
+        margin: 0 0 1rem;
+      }
+      img {
+        vertical-align: middle;
+        border-style: none;
+        border: 0;
+        height: auto;
+        max-width: 100%;
+        width: auto;
+      }
+      svg:not(:root) {
+        overflow: hidden;
+        vertical-align: middle;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 2rem;
+      }
+      td,
+      th {
+        padding: 0.25rem;
+        border: 1px solid #dee2e6;
+      }
+      blockquote,
+      code,
+      table tr:nth-of-type(2n) {
+        background: #fbfbfb;
+      }
+      caption {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        color: #6c757d;
+        text-align: left;
+        caption-side: bottom;
+      }
+      th {
+        text-align: inherit;
+      }
+
+      summary {
+        display: list-item;
+        cursor: pointer;
+      }
+      mark {
+        padding: 0.2em;
+        background-color: #fcf8e3;
+      }
+      code {
+        color: #c7254e;
+        word-break: break-word;
+        font-size: 87.5%;
+      }
+      a > code {
+        color: inherit;
+      }
+      kbd {
+        padding: 0.2rem 0.4rem;
+        color: #fff;
+        background-color: #212529;
+        border-radius: 0.2rem;
+      }
+      kbd kbd {
+        padding: 0;
+        font-weight: 700;
+      }
+      pre code {
+        font-size: inherit;
+        color: inherit;
+        word-break: normal;
+      }
+      video {
+        display: block;
+        max-width: 75%;
+      }
+
+      .borderbox {
+        border-left: 3px solid #00f;
+        padding: 1rem 0.5rem 0;
+      }
+      .line {
+        margin: 0 auto;
+        max-width: 71.25rem;
+      }
+      .line:after {
+        display: block;
+        clear: both;
+        content: "";
+      }
+      .fullwidth {
+        width: 100%;
+      }
+
+      .button,
+      #toc a {
+        display: inline-block;
+        cursor: pointer;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        border: 1px solid rgba(50, 205, 50, 0.5);
+        padding: 0.375rem 0.75rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        margin-bottom: 0.3rem;
+        color: #009600;
+        text-decoration: none;
+      }
+      .button ::-moz-focus-inner {
+        padding: 0;
+        border-style: none;
+      }
+      #buttons {
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        padding: 0.5rem;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+      }
+      #navbar-brand {
+        color: #000;
+        display: inline-block;
+        padding-top: 0.3125rem;
+        padding-bottom: 0.3125rem;
+        margin-left: 1rem;
+        white-space: nowrap;
+        -ms-touch-action: manipulation;
+        touch-action: manipulation;
+        text-decoration: none;
+        background-color: transparent;
+        -webkit-text-decoration-skip: objects;
+        line-height: 1rem;
+        font-size: 2.2rem;
+        text-align: center;
+      }
+      #navbar-brand .bell {
+        color: rgba(0, 200, 0, 1);
+      }
+      .slog {
+        font-weight: normal;
+        font-size: 0.85rem;
+      }
+      nav {
+        padding: 0.5rem;
+        margin-top: 0.5rem;
+      }
+      nav a.button {
+        text-decoration: none;
+        margin-left: 0.3rem;
+        flex: 10rem;
+      }
+      #buttons {
+        margin-top: 1rem;
+        display: none;
+      }
+      #menu {
+        font-size: 1.5rem;
+        color: #000;
+        display: block;
+        margin-right: 0.7rem;
+      }
+
+      #heading {
+        padding: 6rem 1.25rem;
+        background-color: #49bf4c;
+        color: #fff;
+        text-align: center;
+      }
+      #heading a {
+        white-space: normal;
+        color: #fff;
+        text-decoration: none;
+        border: 1px solid #fff;
+      }
+      #heading h1 {
+        font-size: 2.5rem;
+        line-height: 2.4rem;
+        margin: 0;
+        margin-bottom: 1rem;
+        font-weight: 400;
+      }
+      #wrapper {
+        padding: 2.5rem 1.25rem;
+      }
+      .leftcol {
+        width: 66.6666%;
+        position: relative;
+      }
+      .rightcol {
+        width: 33.3333%;
+      }
+      .fltright {
+        float: right;
+      }
+      .fltleft {
+        float: left;
+      }
+      .rightcol,
+      .leftcol {
+        padding: 0 0.625rem;
+        position: relative;
+      }
+      .entry-content,
+      .entry-summary {
+        color: #555;
+        line-height: 2rem;
+      }
+      .cat_list {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        margin-bottom: 2.25rem;
+      }
+      .cat_list h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        display: block;
+      }
+      .cat_list a {
+        color: #49bf4c;
+      }
+      .hidden {
+        display: none;
+      }
+      .gsa {
+        text-align: center;
+        margin-bottom: 1.25rem;
+        width: 100%;
+      }
+      #toc a {
+        display: block;
+        font-weight: bold;
+        text-align: left;
+        white-space: normal;
+      }
+      footer {
+        margin-top: 2rem;
+        background: #002633;
+        padding: 0.625rem;
+        text-align: center;
+        font-size: 0.95rem;
+      }
+      footer,
+      footer a,
+      footer a:hover {
+        color: #7697a2;
+      }
+      .next,
+      .prev {
+        display: inline-block;
+        padding: 0.6rem;
+        padding-top: 0.05rem;
+        padding-bottom: 0.25rem;
+        border-radius: 1rem;
+        font-weight: bold;
+        color: #fff;
+        background: #009600;
+      }
+      @media screen and (max-width: 768px) {
+        .leftcol,
+        .rightcol {
+          width: 100%;
+        }
+        video {
+          max-width: 100%;
+        }
+      }
+    </style>
+    <link rel="canonical" href="index.html" />
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base />
+    <script type="text/javascript">
+      var ezoTemplate = "old_site_gc";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_lazyload_version: 0,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        engaged_time_visit: 0,
+        ezcache_level: 1,
+        ezcache_skip_code: 0,
+        form_factor_id: 1,
+        framework_id: 1,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        metro_code: 501,
+        page_ad_positions: "",
+        page_view_count: 14,
+        page_view_id: "12a2530e-bdbd-4e21-75ed-7cf3509b12a3",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 26822,
+        response_time_orig: 228,
+        serverid: "44.192.72.20:29609",
+        state: "NJ",
+        t_epoch: 1613702830,
+        template_id: 126,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/tutors/Perl/",
+        user_id: 0,
+        word_count: 864,
+        worst_bad_word_level: 0,
+      };
+      var _ezExtraQueries = "&ez_orig=1";
+    </script>
+    <script
+      data-ezscrex="false"
+      data-cfasync="false"
+      type="text/javascript"
+      src="../../detroitchicago/rochesterf713.js?dcb=192-11&amp;cb=2&amp;v=9"
+      async
+    ></script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["12a2530e-bdbd-4e21-75ed-7cf3509b12a3", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <header role="banner">
+      <div class="line">
+        <nav id="navbar" role="navigation" aria-label="Primary Menu">
+          <a id="navbar-brand" href="../../index.html" rel="home" itemprop="url"
+            >Brain<span class="bell">Bell</span><br /><span class="slog"
+              >makes easier to learn</span
+            ></a
+          >
+          <span class="button fltright" id="menu">&#9776;</span>
+          <!--menu-->
+          <div id="buttons">
+            <a class="button" title="A+" href="../A%2b/Hardware/index.html"
+              >A+ Certification</a
+            >
+            <a class="button" title="Android" href="../../android/index.html"
+              >Android</a
+            >
+            <a class="button" title="ASP" href="../../tutorials/ASP/index.html"
+              >ASP</a
+            >
+            <a
+              class="button"
+              title="3D, Blender and Unity"
+              href="../../3d/index.html"
+              >Blender &amp; Unity</a
+            >
+            <a
+              class="button"
+              title="C"
+              href="../c/Advice_and_Warnings_for_C/index.html"
+              >C Language</a
+            >
+            <a class="button" title="C#" href="../C_Sharp/index.html">C#</a>
+            <a
+              class="button"
+              title="Flash"
+              href="../../tutorials/Flash/index.html"
+              >Flash</a
+            >
+            <a
+              class="button"
+              title="HTML and CSS"
+              href="../../tutorials/HTML_and_CSS/index.html"
+              >HTML &amp; CSS</a
+            >
+            <a
+              class="button"
+              title="Java"
+              href="../../tutorials/java/index.html"
+              >Java</a
+            >
+            <a
+              class="button"
+              title="JavaScript"
+              href="../../javascript/index.html"
+              >JavaScript</a
+            >
+            <a
+              class="button"
+              title="MS Access"
+              href="../../tutorials/ms-office/Access_2003/index.html"
+              >MS Access</a
+            >
+            <a
+              class="button"
+              title="MS Excel"
+              href="../../tutorials/ms-office/excel/index.html"
+              >MS Excel</a
+            >
+            <a
+              class="button"
+              title="MS FrontPage"
+              href="../../tutorials/ms-office/FrontPage_2003/index.html"
+              >MS FrontPage</a
+            >
+            <a
+              class="button"
+              title="MS PowerPoint"
+              href="../../tutorials/ms-office/PowerPoint/index.html"
+              >MS PowerPoint</a
+            >
+            <a
+              class="button"
+              title="MS Word"
+              href="../../tutorials/ms-office/Word/index.html"
+              >MS Word</a
+            >
+            <a
+              class="button"
+              title="MySQL"
+              href="../../tutorials/MySQL/index.html"
+              >MySQL</a
+            >
+            <a
+              class="button"
+              title="Networking"
+              href="../../tutorials/Networking/index.html"
+              >Networking</a
+            >
+            <a class="button" title="Perl CGI" href="index.html"
+              >Perl &amp; CGI</a
+            >
+            <a
+              class="button"
+              title="PHP &amp; MySQL"
+              href="../../tutorials/php/index.html"
+              >PHP &amp; MySQL</a
+            >
+            <a
+              class="button"
+              title="Adobe Photoshop"
+              href="../../tutorials/Photoshop/index.html"
+              >Photoshop</a
+            >
+            <a class="button" title="Regex" href="../../regex/index.html"
+              >Regular Expressions</a
+            >
+            <a
+              class="button"
+              title="TypeScript"
+              href="../../typescript/index.html"
+              >TypeScript</a
+            >
+            <a
+              class="button"
+              title="Visual Basic"
+              href="../Visual_Basic/index.html"
+              >Visual Basic</a
+            >
+            <a class="button" title="XML" href="../../tutorials/XML/index.html"
+              >XML</a
+            >
+          </div>
+          <!--menu end-->
+        </nav>
+      </div>
+    </header>
+
+    <main role="main">
+      <article class="hentry">
+        <header id="heading">
+          <a class="button" href="index.html" rel="category tag"
+            >CGI and Perl</a
+          >
+          <h1>Perl Tutorials</h1>
+        </header>
+
+        <div id="wrapper">
+          <div class="line">
+            <div class="leftcol fltleft">
+              <div class="entry-content">
+                <div id="outertoc">
+                  <div id="toc">
+                    <ol>
+                      <li>
+                        <a href="Introduction_and_Overview.html"
+                          >Introduction and Overview</a
+                        >
+                      </li>
+                      <li>
+                        <a href="What_This_Book_Is_Not.html"
+                          >What This Tutorial Is Not</a
+                        >
+                      </li>
+                      <li>
+                        <a href="What_This_Book_Will_Provide.html"
+                          >What This Tutorial Will Provide</a
+                        >
+                      </li>
+                      <li>
+                        <a href="The_Layout_of_This_Book.html"
+                          >The Layout of This Tutorial</a
+                        >
+                      </li>
+                      <li><a href="CPAN_History.html">CPAN History</a></li>
+
+                      <li><a href="CPAN_Layout.html">CPAN Layout</a></li>
+                      <li>
+                        <a href="A_Perl5_Overview_and_Tutorial.html"
+                          >A Perl5 Overview and Tutorial</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Usability_and_Simplicity.html"
+                          >Usability and Simplicity</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Lexical_Scoping.html">Lexical Scoping</a>
+                      </li>
+                      <li>
+                        <a href="Lexical_Scoping.html">Data Structures</a>
+                      </li>
+                      <li>
+                        <a href="Modules_and_Libraries.html"
+                          >Modules and Libraries, Extensible and Embeddable</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Enhanced_Safety_and_Security.html"
+                          >Enhanced Safety and Security</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Other_New_Features_in_Perl5.html"
+                          >Other New Features in Perl5</a
+                        >
+                      </li>
+                      <li><a href="References_a2.html">References</a></li>
+                      <li>
+                        <a href="The_Short_History_of_Perl_Extensions.html"
+                          >The Short History of Perl Extensions</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Listing_2_1_A_simple_extension_module.html"
+                          >A simple extension module.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_2_2_Using_the_simple_extension_module.html"
+                          >Using the simple extension module.</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Listing_2_4_The_Customer_module.html"
+                          >The Customer module.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_2_4_The_Customer_module.html"
+                          >Using the Customer module.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Object_Oriented_Techniques.html"
+                          >Object-Oriented Techniques: Subclassing the Customer
+                          module</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Listing_2_7_Using_the_MyCust_subclass.html"
+                          >Using the MyCust subclass.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_2_7_Using_the_MyCust_subclass.html"
+                          >Overriding Customers methods.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_2_9_Using_the_overridden_method_in_MyCust.html"
+                          >Using the overridden method in MyCust.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_2_9_Using_the_overridden_method_in_MyCust.html"
+                          >Augmenting base class methods.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Practical_Issues_for_Using_Modules_Downloading_and_Installation.html"
+                          >Practical Issues for Using Modules: Downloading and
+                          Installation</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Security_on_the_Web.html"
+                          >Security on the Web</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Server_Configuration_Options.html"
+                          >Server Configuration Options</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="File_Permissions_Setup_and_Monitoring_Changes_in_the_System.html"
+                          >File Permissions Setup and Monitoring Changes in the
+                          System</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="General_ConsiderationsGlobal_versus_Local_Configuration_of_Permissions.html"
+                          >General ConsiderationsGlobal versus Local
+                          Configuration of Permissions</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Directory_Access_Configuration.html"
+                          >Directory Access Configuration</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Whos_There_Configuring_Client_IP_Domain_Restrictions.html"
+                          >Whos There? Configuring Client IP/Domain
+                          Restrictions</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Whos_There_User_Group_Verification.html"
+                          >Whos There? User/Group Verification</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Monitoring_Userids.html"
+                          >Changing Passwords from the Web</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Monitoring_Userids.html">Monitoring Userids</a>
+                      </li>
+                      <li>
+                        <a href="General_Considerations_Dos_and_Donts.html"
+                          >General Considerations: Dos and Donts</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Tools_for_Executing_CGI_Safely.html"
+                          >Tools for Executing CGI Safely</a
+                        >
+                      </li>
+                      <li>
+                        <a href="The_Safe_Module.html">The Safe Module</a>
+                      </li>
+                      <li>
+                        <a href="Transaction_Security.html"
+                          >Transaction Security</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Simplified_PGP_Transactions_Using_the_PGP_Module.html"
+                          >Simplified PGP Transactions Using the PGP Module</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Running_httpd_in_the_chroot_2_Environment.html"
+                          >Running httpd in the chroot(2)Environment</a
+                        >
+                      </li>
+
+                      <li>
+                        <a
+                          href="Monitoring_Filesystem_Changes_Network_Security_and_Analyzing_Password_Security.html"
+                          >Monitoring Filesystem Changes,Network Security, and
+                          Analyzing Password Security</a
+                        >
+                      </li>
+
+                      <li>
+                        <a
+                          href="HTML_FormsThe_Foundation_of_an_Interactive_Web.html"
+                          >HTML FormsThe Foundation of an Interactive Web</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Text_Fields.html">Text and Password Fields</a>
+                      </li>
+
+                      <li><a href="Hidden_Fields.html">Checkboxes</a></li>
+                      <li>
+                        <a href="Hidden_Fields.html"
+                          >Hidden Fields and Submit Buttons</a
+                        >
+                      </li>
+
+                      <li><a href="Image_Buttons.html">Image Buttons</a></li>
+                      <li><a href="Image_Buttons.html">Listboxes</a></li>
+                      <li><a href="Popup_Menus.html">Popup Menus</a></li>
+                      <li><a href="Popup_Menus.html">File-Upload Fields</a></li>
+                      <li><a href="Image_Maps.html">Image Maps</a></li>
+                      <li>
+                        <a href="Generating_HTML_On_the_Fly_with_Perl5.html"
+                          >Generating HTML On-the-Fly with Perl5</a
+                        >
+                      </li>
+
+                      <li>
+                        <a
+                          href="Listing_4_1_Perl_code_for_customer_questionnaire.html"
+                          >Perl code for customer questionnaire.</a
+                        >
+                      </li>
+                      <li><a href="Included_Files.html">Included Files</a></li>
+
+                      <li>
+                        <a
+                          href="Listing_4_3_parsessi_pl_CGI_program_for_including_and_parsing_a_shtml_file.html"
+                          >parsessi.pl CGI program for including and parsing a
+                          .shtml file.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_4_3_parsessi_pl_CGI_program_for_including_and_parsing_a_shtml_file.html"
+                          >Other Elements Within Elements</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_4_4_Perl_code_that_emits_a_form_formatted_using_the_lt_TABLE_gt_object.html"
+                          >Perl code that emits a form formatted using the
+                          &lt;TABLE&gt; object.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Other_Objects_Applets_Images_Animation_and_the_lt_EMBED_gt_Tag.html"
+                          >Other Objects: Applets, Images, Animation, and the
+                          &lt;EMBED&gt; Tag</a
+                        >
+                      </li>
+                      <li>
+                        <a href="What_Forms_Cannot_Provide.html"
+                          >What Forms Cannot Provide</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="HTTP_Transactions.html">HTTP Transactions</a>
+                      </li>
+                      <li><a href="The_Connection.html">The Connection</a></li>
+                      <li><a href="The_Request.html">The Request</a></li>
+                      <li>
+                        <a
+                          href="_TT_Table_5_1_HTTP_FullRequest_methods__TT.html"
+                          ><code>Table 5.1. HTTP FullRequest methods.</code></a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Table_5_2_URI_Characters_That_Must_Be_Encoded.html"
+                          >Table 5.2. URI Characters That Must Be Encoded.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Table_5_3_Headers.html">Table 5.3. Headers.</a>
+                      </li>
+                      <li>
+                        <a href="What_Happens_after_the_Request.html"
+                          >What Happens after the Request</a
+                        >
+                      </li>
+                      <li><a href="The_Response.html">The Response</a></li>
+                      <li>
+                        <a href="CGI_pm_versus_Individual_libwww_Modules.html"
+                          >CGI.pm versus Individual libwww Modules</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Listing_5_1_Using_CGI_pm_with_forms.html"
+                          >Using CGI.pm with forms</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_5_2_Open_a_new_browser_window.html"
+                          >Open a new browser window</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Listing_5_3_Upload_a_file_to_the_server.html"
+                          >Upload a file to the server</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Using_the_HTTP_Request_Module_Directly.html"
+                          >Using the HTTP::Request Module Directly</a
+                        >
+                      </li>
+                      <li><a href="MIME_Documents.html">MIME Documents</a></li>
+
+                      <li>
+                        <a href="The_Content_Type_Header_Field.html"
+                          >The Content-Type Header Field</a
+                        >
+                      </li>
+                      <li>
+                        <a href="How_MIME_Data_Is_Encoded.html"
+                          >How MIME Data Is Encoded, Q Quoted-Printable Encoding
+                          and Using MIME::Base64</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="MIME_attachment.html"
+                          >MIME attachment, Using MIME::QuotedPrint</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Setting_Up_the_Database.html"
+                          >Determining Fields of Information</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Setting_Up_the_Database.html"
+                          >Setting Up the Database</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_7_1_Perl_subroutine_for_printing_the_guest_book_form.html"
+                          >Perl subroutine for printing the guest book form.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_7_2_Perl_subroutine_to_process_the_form_data.html"
+                          >Perl subroutine to process the form data.</a
+                        >
+                      </li>
+
+                      <li>
+                        <a
+                          href="Listing_7_4_CGI_program_to_display_the_guest_list.html"
+                          >CGI program to display the guest list.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Setting_Up_the_Web_Server_to_Log_Access.html"
+                          >Setting Up the Web Server to Log Access, Parsing the
+                          Access Log</a
+                        >
+                      </li>
+
+                      <li>
+                        <a
+                          href="Listing_7_6_CGI_script_that_displays_a_graphical_hit_counter.html"
+                          >CGI script that displays a graphical hit counter.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Parsing_the_AgentLog.html"
+                          >Parsing the AgentLog</a
+                        >
+                      </li>
+                      <li><a href="Clickable_Maps.html">Clickable Maps</a></li>
+
+                      <li>
+                        <a href="Creating_the_Map.html">Creating the Map</a>
+                      </li>
+
+                      <li>
+                        <a
+                          href="Listing_7_8_Subroutine_to_return_a_search_form.html"
+                          >Subroutine to return a search form.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_7_9_Subroutine_to_search_for_a_list_of_words.html"
+                          >Subroutine to search for a list of words.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Displaying_the_Results.html"
+                          >Displaying the Results with A simple CGI searching
+                          program</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Displaying_the_Form_a2.html"
+                          >Displaying the Form</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Displaying_the_Form_a2.html"
+                          >Subroutine to print a license plate form.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_7_12_Subroutine_to_search_for_a_specific_license_plate_in_the_database.html"
+                          >Subroutine to search for a specific license plate in
+                          the database.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_7_12_Subroutine_to_search_for_a_specific_license_plate_in_the_database.html"
+                          >Subroutine to print the information found about the
+                          license plate.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_7_14_Subroutine_for_sending_e_mail_notification.html"
+                          >Subroutine for sending e-mail notification.</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Database_Access.html">Database Access</a>
+                      </li>
+                      <li><a href="DBI.html">DBI</a></li>
+                      <li>
+                        <a
+                          href="Listing_8_1_Records_to_be_imported_into_database.html"
+                          >Records to be imported into database</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_8_2_Program_that_imports_data_into_an_mSQL_database.html"
+                          >Program that imports data into an mSQL database</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_8_3_Program_that_writes_HTML_from_the_database.html"
+                          >Create an HTML Index from a Database</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_8_3_Program_that_writes_HTML_from_the_database.html"
+                          >Program that writes HTML from the database</a
+                        >
+                      </li>
+                      <li>
+                        <a href="about_a_single_item_in_the_database.html"
+                          >about a single item in the database.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_8_5_Searching_the_database_for_keywords.html"
+                          >Searching the database for keywords</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Open_Database_Connectivity_ODBC.html"
+                          >Open Database Connectivity (ODBC)</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="AgentsWeb_Scanning_Mirroring_and_Background_Tasks.html"
+                          >AgentsWeb Scanning, Mirroring, and Background
+                          Tasks</a
+                        >
+                      </li>
+
+                      <li>
+                        <a
+                          href="Listing_9_1_HTML_returned_by_the_Security_APL_Quote_Server.html"
+                          >HTML returned by the Security APL Quote Server.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_9_2_Automatic_stock_quote_retriever_getquote_pl.html"
+                          >Automatic stock quote retriever (getquote.pl).</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_9_2_Automatic_stock_quote_retriever_getquote_pl.html"
+                          >Subroutine to extract the quote information.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_9_4_General_purpose_URL_retriever_going_through_a_firewall.html"
+                          >General purpose URL retriever going through a
+                          firewall.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Generating_Web_Indexes.html"
+                          >Generating Web Indexes</a
+                        >
+                      </li>
+
+                      <li>
+                        <a
+                          href="Listing_9_5_The_crawlIt__main_function_of_the_Web_spider.html"
+                          >The crawlIt() main function of the Web spider.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="newfile211.html"
+                          >Converting a relative URL to an absolute URL.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="newfile211.html"
+                          >Writing the title and URL to the log file.</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Mirroring_Remote_Sites.html"
+                          >Mirroring Remote Sites</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Mirroring_Remote_Sites.html"
+                          >Modified function to convert relative URLs to
+                          absolute URLs.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_9_10_Modified_crawlIt__function_for_mirroring_a_site.html"
+                          >Modified crawlIt() function for mirroring a site.</a
+                        >
+                      </li>
+                      <li><a href="Search_Engines.html">Search Engines</a></li>
+                      <li>
+                        <a href="On_Site_Searching_with_Glimpse.html"
+                          >On-Site Searching with Glimpse</a
+                        >
+                      </li>
+                      <li><a href="GlimpseHTTP.html">GlimpseHTTP</a></li>
+                      <li>
+                        <a href="Search_the_Web_with_WWW_Search.html"
+                          >Search the Web with WWW::Search</a
+                        >
+                      </li>
+                      <li>
+                        <a href="a_real_world_example_of_WWW_Search.html"
+                          >a real world example of WWW::Search.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="a_real_world_example_of_WWW_Search.html"
+                          >Datebooks, Calendars, and Scheduling on the Web</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="HyperCalA_Modular_Perl5_Calendar_and_Datebook.html"
+                          >HyperCalA Modular Perl5 Calendar and Datebook</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_11_1_hypercal_cgi.html"
+                          >hypercal.cgi</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Listing_11_2_Variables_and_configuration_file_for_HyperCal.html"
+                          >Variables and configuration file for HyperCal.</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Displaying_Appointments_on_a_Specific_Day_disp_day_cgi.html"
+                          >Displaying Appointments on a Specific Day:
+                          disp_day.cgi</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_11_4_add_date_cgi.html"
+                          >add_date.cgi.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_11_5_password_change.html"
+                          >password.change.</a
+                        >
+                      </li>
+                      <li><a href="Multimedia.html">Multimedia</a></li>
+                      <li>
+                        <a href="GD_Image_Module.html">GD::Image Module</a>
+                      </li>
+                      <li>
+                        <a href="GD_Polygon_Module.html">GD::Polygon Module</a>
+                      </li>
+                      <li>
+                        <a href="GD_Polygon_Module.html">GD::Font Module</a>
+                      </li>
+                      <li>
+                        <a href="Hangman_Using_the_GD_Module.html"
+                          >Hangman Using the GD Module</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Server_Push_Animation_Techniques.html"
+                          >Server Push Animation Techniques</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Server_Push_Animation_Techniques.html"
+                          >Embedding AVI, QuickTime, WAV, and GIF89a within
+                          HTML</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Implementation_Issues_a2.html"
+                          >Implementation Issues</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Dynamic_Generation_of_Forms.html"
+                          >Dynamic Generation of Forms</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="MiniVend_Package.html">MiniVend Package</a>
+                      </li>
+                      <li>
+                        <a href="Installation_and_Configuration.html"
+                          >Installation and Configuration</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Use_and_Customization.html"
+                          >Use and Customization</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Setting_Up_Your_minivend_cfg_File.html"
+                          >Setting Up Your minivend.cfg File</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_13_1_The_main_catalog_page.html"
+                          >The main catalog page.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_13_2_The_search_page.html"
+                          >The search page.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_13_3_The_browse_page.html"
+                          >The browse page.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_13_4_The_results_display_page.html"
+                          >The results display page.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_13_5_The_order_page.html"
+                          >The order page.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Frames.html"
+                          >Frames and Additional Tools for Administration of
+                          Your Site</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="A_Few_Words_About_Security.html"
+                          >Security and General Archive Management
+                          Considerations</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Planning_Design_and_Layout.html"
+                          >Planning, Design,and Layout</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Revision_Control.html">Revision Control</a>
+                      </li>
+                      <li>
+                        <a href="Summary_of_Archive_Management_Issues.html"
+                          >Summary of Archive Management Issues</a
+                        >
+                      </li>
+                      <li>
+                        <a href="General_Parsing_Issues.html"
+                          >General Parsing Issues</a
+                        >
+                      </li>
+                      <li>
+                        <a href="General_Parsing_Issues.html">simpleparse.</a>
+                      </li>
+                      <li>
+                        <a href="Listing_14_2_simpleparse_net.html"
+                          >simpleparse-net.</a
+                        >
+                      </li>
+
+                      <li>
+                        <a href="Listing_14_3_relativize.html">relativize.</a>
+                      </li>
+                      <li>
+                        <a href="Parsing_HTTP_Logfiles.html"
+                          >Parsing HTTP Logfiles</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_14_4_GD_Logfile_pm.html"
+                          >GD_Logfile.pm.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_14_5_GD_Logfile_test.html"
+                          >GD_Logfile.test.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Converting_Existing_Documentation_to_HTML.html"
+                          >Converting Existing Documentation to HTML</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Making_Existing_Archives_Available_via_HTTP.html"
+                          >Making Existing Archives Available via HTTP</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Client_Side_Perl.html">Client-Side Perl</a>
+                      </li>
+                      <li>
+                        <a href="newfile295.html"
+                          >Embedded Perl Interpreter in a<br />
+                          Web Browser</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Executing_Perl_as_a_Helper_Application.html"
+                          >Executing Perl as a Helper Application</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_15_1_HelperAppPerl.html"
+                          >HelperAppPerl.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="PenguinA_New_Paradigm_in_Remote_Execution.html"
+                          >PenguinA New Paradigm in Remote Execution</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Parsing_Netscape_History_Files.html"
+                          >Parsing Netscape History Files</a
+                        >
+                      </li>
+                      <li>
+                        <a href="The_Need_for_an_Extended_Session.html"
+                          >The Need for an Extended Session</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_16_1_A_very_simple_calculator.html"
+                          >A very simple calculator</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_16_2_A_personal_notepad.html"
+                          >A personal notepad.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Listing_16_3_A_Web_based_command_shell.html"
+                          >A Web-based command shell.</a
+                        >
+                      </li>
+                      <li>
+                        <a href="Embedded_ObjectsAn_Internet_Proposal.html"
+                          >Embedded ObjectsAn Internet Proposal</a
+                        >
+                      </li>
+                      <li>
+                        <a
+                          href="Netscape_Cookies_and_Other_Netscape_Feature_Tags.html"
+                          >Netscape Cookies and Other Netscape Feature Tags</a
+                        >
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+                <div class="hidden">
+                  by
+                  <span class="author vcard"
+                    ><span class="fn">BrainBell</span></span
+                  >updated
+                  <time
+                    class="entry-date updated"
+                    datetime="2016-08-01T20:00:00+00:00"
+                    >Aug 01, 2016</time
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="rightcol fltright"></div>
+          </div>
+        </div>
+      </article>
+
+      <div class="line">
+        <div class="leftcol fltleft"></div>
+        <div class="rightcol fltright"></div>
+      </div>
+    </main>
+
+    <footer>
+      <section>
+        <div class="line">
+          <div class="leftcol fltleft">
+            <p>Copyright &copy; 2021 BrainBell.com</p>
+            <p>Contact us: info&#64;brainbell.com</p>
+          </div>
+          <div class="rightcol fltright">
+            <a href="../../privacy/index.html">Privacy policy</a> &nbsp; :
+            &nbsp;
+            <a href="../../terms/index.html">Terms of use</a>
+          </div>
+        </div>
+      </section>
+    </footer>
+    <script>
+      (function () {
+        var m = document.querySelector("#menu"),
+          n = document.querySelector("#buttons"),
+          o = false;
+
+        m.addEventListener("click", function (e) {
+          var d;
+          o = !o;
+          if (o) {
+            m.innerHTML = "X";
+            n.style.display = "block";
+            n.style.display = "flex";
+            m.style.padding = ".375rem .98rem";
+          } else {
+            m.innerHTML = "&#9776;";
+            n.style.display = "none";
+            m.style.padding = ".375rem .75rem";
+          }
+        });
+      })();
+      (function () {
+        var stop = true,
+          p = document.querySelectorAll("pre");
+        for (var i in p) {
+          p[i].className += " prettyprint";
+          stop = false;
+        }
+        if (stop) return;
+        var script = document.createElement("script");
+        script.src =
+          "https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js";
+        document.head.appendChild(script);
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "edmonton.html",
+        "/detroitchicago/edmonton.webp?a=a&cb=11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "jellyfish.html",
+        "/porpoiseant/jellyfish.webp?a=a&cb=11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script>
+      var _audins_dom = "brainbell_com",
+        _audins_did = 83552;
+      __ez.queue.addDelayFunc(
+        "audins.js",
+        "__ez.script.add",
+        "http://go.ezoic.net/detroitchicago/audins.js?cb=192-11"
+      );
+    </script>
+    <noscript
+      ><div style="display: none">
+        <img
+          src="http://pixel.quantserve.com/pixel/p-31iz6hfFutd16.gif?labels=Domain.brainbell_com,DomainId.83552"
+          border="0"
+          height="1"
+          width="1"
+          alt="Quantcast"
+        /></div
+    ></noscript>
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+
+  <!-- Mirrored from www.brainbell.com/tutors/Perl/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Feb 2021 02:54:50 GMT -->
+</html>

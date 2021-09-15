@@ -1,0 +1,42 @@
+<h3 id="lets-see-a-more-interesting-and-more-directly-use-experience-enhancing-effect-of-using-switchmap">lets see a more interesting and more directly use-experience enhancing effect of using switchMap()</h3>
+<p>Here we will explore the case when a user types some text in an input box and based on that text an api call is being executed to the backend to fetch the relevant data. And we certainly want to make this as smooth and fast experience for the user as possible.</p>
+<p>First note that, the benefits of using a switchMap() operator will becomes, clearer when we execute a time consuming function. Lets define one,</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> <span class="op">{</span> flatMap<span class="op">,</span> switchMap <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;rxjs/operators&quot;</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw">function</span> <span class="at">timeConsumingJob</span>(input) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="cf">return</span> <span class="kw">new</span> <span class="at">Promise</span>((resolve) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="at">setTimeout</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-6" title="6">      <span class="at">resolve</span>(<span class="st">&quot;response based on &quot;</span> <span class="op">+</span> input)</a>
+<a class="sourceLine" id="cb1-7" title="7">    <span class="op">},</span> <span class="dv">2000</span>)</a>
+<a class="sourceLine" id="cb1-8" title="8">  <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="op">}</span></a></code></pre></div>
+<p>In this code, we have a function that takes 2 seconds to execute, and let’s see the effect if we keep using the flatMap() operator in executing this job:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">let</span> longRunningStream$ <span class="op">=</span> keyStream$</a>
+<a class="sourceLine" id="cb2-2" title="2">  .<span class="at">map</span>((ev) <span class="kw">=&gt;</span> <span class="va">ev</span>.<span class="at">key</span>)</a>
+<a class="sourceLine" id="cb2-3" title="3">  .<span class="at">filter</span>((key) <span class="kw">=&gt;</span> <span class="va">elem</span>.<span class="va">value</span>.<span class="at">length</span> <span class="op">&gt;</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb2-4" title="4">  .<span class="at">filter</span>((key) <span class="kw">=&gt;</span> key <span class="op">!==</span> <span class="st">&quot;Backspace&quot;</span>)</a>
+<a class="sourceLine" id="cb2-5" title="5">  .<span class="at">flatMap</span>((key) <span class="kw">=&gt;</span> <span class="va">Rx</span>.<span class="va">Observable</span>.<span class="at">from</span>(<span class="at">timeConsumingJob</span>(<span class="va">elem</span>.<span class="at">value</span>)))</a>
+<a class="sourceLine" id="cb2-6" title="6"></a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="va">longRunningStream$</span>.<span class="at">subscribe</span>((data) <span class="kw">=&gt;</span> <span class="va">console</span>.<span class="at">log</span>(data))</a></code></pre></div>
+<p>With above code, every time user hits a key, it generates an event. However, we have a .filter() operator in place that ensures an event is only generated when at least four keys are entered,</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="at">filter</span>((key) <span class="kw">=&gt;</span> <span class="va">elem</span>.<span class="va">value</span>.<span class="at">length</span> <span class="op">&gt;</span> <span class="dv">3</span>)</a></code></pre></div>
+<p>Now, if a user enters keys in an input control, they expect a request to be made when they are done typing. A user defines being done as entering a few characters and also that they should be able to move characters if they were mistyped. So assume the following input sequences - that almost all of us do regularly:</p>
+<pre><code>// enters abcde
+abcde
+// removes &#39;e&#39;
+</code></pre>
+<p>At this point, they have entered characters and then reasonably quickly, edited their answer. The user expects to receive an answer based on <code>abcd</code> Using the <code>flatMap()</code> operator here, however, means the user will get two answers back because, in reality, they typed <code>abcde</code> and <code>abcd</code>.</p>
+<p>Imagine we get a results list based on these two inputs - it would most likely be two lists that looked somewhat different.</p>
+<p><strong>First the full response based on <code>abcde</code></strong></p>
+<p><strong>And then the full response based on <code>abcd</code></strong></p>
+<p>Our code and app most likely would be able to handle the situation described by re-rendering the results list as soon as a new response arrives. There are two problems with this though:</p>
+<p>firstly, we do an unnecessary network request for abcde, and secondly, if the backend is fast enough in responding, we will see a flickering in the UI as the result list is rendered once and then, shortly after, is rendered again, based on the second response. This is not good, and we want to have a situation where the first request will be abandoned if we keep on typing. This is where the switchMap() operator comes in. It does exactly that.</p>
+<p>Let’s therefore alter the preceding code to the following:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">let</span> longRunningStream$ <span class="op">=</span> keyStream$</a>
+<a class="sourceLine" id="cb5-2" title="2">  .<span class="at">map</span>((ev) <span class="kw">=&gt;</span> <span class="va">ev</span>.<span class="at">key</span>)</a>
+<a class="sourceLine" id="cb5-3" title="3">  .<span class="at">filter</span>((key) <span class="kw">=&gt;</span> <span class="va">elem</span>.<span class="va">value</span>.<span class="at">length</span> <span class="op">&gt;</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb5-4" title="4">  .<span class="at">filter</span>((key) <span class="kw">=&gt;</span> key <span class="op">!==</span> <span class="st">&quot;Backspace&quot;</span>)</a>
+<a class="sourceLine" id="cb5-5" title="5">  .<span class="at">switchMap</span>((key) <span class="kw">=&gt;</span> <span class="va">Rx</span>.<span class="va">Observable</span>.<span class="at">from</span>(<span class="at">timeConsumingJob</span>(<span class="va">elem</span>.<span class="at">value</span>)))</a></code></pre></div>
+<p>In this code, we simply switched our <code>flatMap()</code> to a <code>switchMap()</code>. When we now execute the code in the exact same way, that is, the user firstly typing <code>abcde</code> and shortly altering that to <code>abcd</code>, the end result is:</p>
+<p><strong>the full response based on <code>abcd</code></strong></p>
+<p>Because with <code>switchMap</code> we get one request only. The reason for this is that the previous event is aborted when a new event happens — <code>switchMap()</code> is doing its magic.</p>

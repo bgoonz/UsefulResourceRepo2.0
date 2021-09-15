@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<script>{
+    "title": "Introducing Custom Events",
+    "level": "intermediate",
+    "source": "http://jqfundamentals.com/legacy",
+    "attribution": [ "jQuery Fundamentals" ]
+}</script>
+<h2 id="custom-events">Custom Events</h2>
+<p>We’re all familiar with the basic events — click, mouseover, focus, blur, submit, etc. — that we can latch on to as a user interacts with the browser. Custom events open up a whole new world of event-driven programming. In this chapter, we’ll use jQuery’s custom events system to make a simple Twitter search application.</p>
+<p>It can be difficult at first to understand why you’d want to use custom events, when the built-in events seem to suit your needs just fine. It turns out that custom events offer a whole new way of thinking about event-driven JavaScript. Instead of focusing on the element that triggers an action, custom events put the spotlight on the element being acted upon. This brings a bevy of benefits, including:</p>
+<ul>
+<li>Behaviors of the target element can easily be triggered by different elements using the same code.</li>
+<li>Behaviors can be triggered across multiple, similar, target elements at once.</li>
+<li>Behaviors are more clearly associated with the target element in code, making code easier to read and maintain.</li>
+</ul>
+<p>Why should you care? An example is probably the best way to explain. Suppose you have a lightbulb in a room in a house. The lightbulb is currently turned on, and it’s controlled by two three-way switches and a clapper:</p>
+<pre><code>&lt;div class=&quot;room&quot; id=&quot;kitchen&quot;&gt;
+    &lt;div class=&quot;lightbulb on&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;switch&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;switch&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;clapper&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<p>Triggering the clapper or either of the switches will change the state of the lightbulb. The switches and the clapper don’t care what state the lightbulb is in; they just want to change the state.</p>
+<p>Without custom events, you might write some code like this:</p>
+<pre><code>$( &quot;.switch, .clapper&quot; ).click(function() {
+    var light = $( this ).parent().find( &quot;.lightbulb&quot; );
+    if ( light.hasClass( &quot;on&quot; ) ) {
+        light.removeClass( &quot;on&quot; ).addClass( &quot;off&quot; );
+    } else {
+        light.removeClass( &quot;off&quot; ).addClass( &quot;on&quot; );
+    }
+});</code></pre>
+<p>With custom events, your code might look more like this:</p>
+<pre><code>$( &quot;.lightbulb&quot; ).on( &quot;changeState&quot;, function( e ) {
+    var light = $( this );
+    if ( light.hasClass( &quot;on&quot; ) ) {
+        light.removeClass( &quot;on&quot; ).addClass( &quot;off&quot; );
+    } else {
+        light.removeClass( &quot;off&quot; ).addClass( &quot;on&quot; );
+    }
+});
+
+$( &quot;.switch, .clapper&quot; ).click(function() {
+    $( this ).parent().find( &quot;.lightbulb&quot; ).trigger( &quot;changeState&quot; );
+});</code></pre>
+<p>This last bit of code is not that exciting, but something important has happened: we’ve moved the behavior of the lightbulb away from the switches and the clapper and to the lightbulb itself.</p>
+<p>Let’s make our example a little more interesting. We’ll add another room to our house, along with a master switch, as shown here:</p>
+<pre><code>&lt;div class=&quot;room&quot; id=&quot;kitchen&quot;&gt;
+    &lt;div class=&quot;lightbulb on&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;switch&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;switch&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;clapper&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;room&quot; id=&quot;bedroom&quot;&gt;
+    &lt;div class=&quot;lightbulb on&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;switch&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;switch&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;clapper&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&quot;master_switch&quot;&gt;&lt;/div&gt;</code></pre>
+<p>If there are any lights on in the house, we want the master switch to turn all the lights off; otherwise, we want it to turn all lights on. To accomplish this, we’ll add two more custom events to the lightbulbs: <code>turnOn</code> and <code>turnOff</code>. We’ll make use of them in the <code>changeState</code> custom event, and use some logic to decide which one the master switch should trigger:</p>
+<pre><code>$( &quot;.lightbulb&quot; ).on( &quot;changeState&quot;, function( e ) {
+    var light = $( this );
+    if ( light.hasClass( &quot;on&quot; ) ) {
+        light.trigger( &quot;turnOff&quot; );
+    } else {
+        light.trigger( &quot;turnOn&quot; );
+    }
+}).on( &quot;turnOn&quot;, function( e ) {
+    $( this ).removeClass( &quot;off&quot; ).addClass( &quot;on&quot; );
+}).on( &quot;turnOff&quot;, function( e ) {
+    $( this ).removeClass( &quot;on&quot; ).addClass( &quot;off&quot; );
+});
+
+$( &quot;.switch, .clapper&quot; ).click(function() {
+    $( this ).parent().find( &quot;.lightbulb&quot; ).trigger( &quot;changeState&quot; );
+});
+
+$( &quot;#master_switch&quot; ).click(function() {
+    if ( $( &quot;.lightbulb.on&quot; ).length ) {
+        $( &quot;.lightbulb&quot; ).trigger( &quot;turnOff&quot; );
+    } else {
+        $( &quot;.lightbulb&quot; ).trigger( &quot;turnOn&quot; );
+    }
+});</code></pre>
+<p>Note how the behavior of the master switch is attached to the master switch; the behavior of a lightbulb belongs to the lightbulbs.</p>
+<p>If you’re accustomed to object-oriented programming, you may find it useful to think of custom events as methods of objects. Loosely speaking, the object to which the method belongs is created via the jQuery selector. Binding the <code>changeState</code> custom event to all <code>$( ".light" )</code> elements is akin to having a class called <code>Light</code> with a method of <code>changeState</code>, and then instantiating new <code>Light</code> objects for each element with a classname of <code>light</code>.</p>
+<h3 id="recap-.on-and-.trigger">Recap: <code>.on()</code> and <code>.trigger()</code></h3>
+<p>In the world of custom events, there are two important jQuery methods: <code>.on()</code> and <code>.trigger()</code>. In the <a href="/events/">Events</a> chapter, we saw how to use these methods for working with user events; for this chapter, it’s important to remember two things:</p>
+<ul>
+<li><p><code>.on()</code> method takes an event type and an event handling function as arguments. Optionally, it can also receive event-related data as its second argument, pushing the event handling function to the third argument. Any data that is passed will be available to the event handling function in the <code>data</code> property of the event object. The event handling function always receives the event object as its first argument.</p></li>
+<li><p><code>.trigger()</code> method takes an event type as its argument. Optionally, it can also take an array of values. These values will be passed to the event handling function as arguments after the event object.</p></li>
+</ul>
+<p>Here is an example of the usage of <code>.on()</code> and <code>.trigger()</code> that uses custom data in both cases:</p>
+<pre><code>$( document ).on( &quot;myCustomEvent&quot;, {
+    foo: &quot;bar&quot;
+}, function( event, arg1, arg2 ) {
+    console.log( event.data.foo ); // &quot;bar&quot;
+    console.log( arg1 );           // &quot;bim&quot;
+    console.log( arg2 );           // &quot;baz&quot;
+});
+
+$( document ).trigger( &quot;myCustomEvent&quot;, [ &quot;bim&quot;, &quot;baz&quot; ] );</code></pre>
+<h3 id="a-sample-application">A Sample Application</h3>
+<p>To demonstrate the power of custom events, we’re going to create a simple tool for searching Twitter. The tool will offer several ways for a user to add search terms to the display: by entering a search term in a text box, by entering multiple search terms in the URL, and by querying Twitter for trending terms.</p>
+<p>The results for each term will be shown in a results container; these containers will be able to be expanded, collapsed, refreshed, and removed, either individually or all at once.</p>
+<p>When we’re done, it will look like this:</p>
+<figure>
+<img src="http://gyazo.com/70415e9fffab1c47953f5264ecf722fe.png" alt="Our finished application" /><figcaption>Our finished application</figcaption>
+</figure>
+<pre><code>&lt;h1&gt;Twitter Search&lt;/h1&gt;
+&lt;input type=&quot;button&quot; id=&quot;get_trends&quot; value=&quot;Load Trending Terms&quot; /&gt;
+
+&lt;form&gt;
+    &lt;input type=&quot;text&quot; class=&quot;input_text&quot; id=&quot;search_term&quot; /&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;input_submit&quot; value=&quot;Add Search Term&quot; /&gt;
+&lt;/form&gt;
+
+&lt;div id=&quot;twitter&quot;&gt;
+    &lt;div class=&quot;template results&quot;&gt;
+        &lt;h2&gt;Search Results for
+        &lt;span class=&quot;search_term&quot;&gt;&lt;/span&gt;&lt;/h2&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<p>This gives us a container (<code>#twitter</code>) for our widget, a template for our results containers (hidden via CSS), and a simple form where users can input a search term. (For the sake of simplicity, we’re going to assume that our application is JavaScript-only and that our users will always have CSS.)</p>
+<p>There are two types of objects we’ll want to act on: the results containers, and the Twitter container.</p>
+<p>The results containers are the heart of the application. We’ll create a plugin that will prepare each results container once it’s added to the Twitter container. Among other things, it will bind the custom events for each container and add the action buttons at the top right of each container. Each results container will have the following custom events:</p>
+<ul>
+<li><p><code>refresh</code> — Mark the container as being in the “refreshing” state, and fire the request to fetch the data for the search term.</p></li>
+<li><p><code>populate</code> — Receive the returned JSON data and use it to populate the container.</p></li>
+<li><p><code>remove</code> — Remove the container from the page after the user verifies the request to do so. Verification can be bypassed by passing <code>true</code> as the second argument to the event handler. The <code>remove</code> event also removes the term associated with the results container from the global object containing the search terms.</p></li>
+<li><p><code>collapse</code> — Add a class of collapsed to the container, which will hide the results via CSS. It will also turn the container’s “Collapse” button into an “Expand” button.</p></li>
+<li><p><code>expand</code> — Remove the collapsed class from the container. It will also turn the container’s “Expand” button into a “Collapse” button.</p></li>
+</ul>
+<p>The plugin is also responsible for adding the action buttons to the container. It binds a click event to each action’s list item, and uses the list item’s class to determine which custom event will be triggered on the corresponding results container.</p>
+<pre><code>$.fn.twitterResult = function( settings ) {
+    return this.each(function() {
+        var results = $( this );
+        var actions = $.fn.twitterResult.actions =
+            $.fn.twitterResult.actions || $.fn.twitterResult.createActions();
+        var a = actions.clone().prependTo( results );
+        var term = settings.term;
+
+        results.find( &quot;span.search_term&quot; ).text( term );
+        $.each([ &quot;refresh&quot;, &quot;populate&quot;, &quot;remove&quot;, &quot;collapse&quot;, &quot;expand&quot; ], function( i, ev ) {
+            results.on( ev, {
+                term: term
+            }, $.fn.twitterResult.events[ ev ] );
+        });
+
+        // Use the class of each action to figure out
+        // which event it will trigger on the results panel
+        a.find( &quot;li&quot; ).click(function() {
+
+            // Pass the li that was clicked to the function
+            // so it can be manipulated if needed
+            results.trigger( $( this ).attr( &quot;class&quot; ), [ $( this ) ] );
+        });
+    });
+};
+
+$.fn.twitterResult.createActions = function() {
+    return $( &quot;&lt;ul class=&#39;actions&#39;&gt;&quot; ).append(
+        &quot;&lt;li class=&#39;refresh&#39;&gt;Refresh&lt;/li&gt;&quot; +
+        &quot;&lt;li class=&#39;remove&#39;&gt;Remove&lt;/li&gt;&quot; +
+        &quot;&lt;li class=&#39;collapse&#39;&gt;Collapse&lt;/li&gt;&quot;
+    );
+};
+
+$.fn.twitterResult.events = {
+    refresh: function( e ) {
+
+        // Indicate that the results are refreshing
+        var elem = $( this ).addClass( &quot;refreshing&quot; );
+
+        elem.find( &quot;p.tweet&quot; ).remove();
+        results.append( &quot;&lt;p class=&#39;loading&#39;&gt;Loading...&lt;/p&gt;&quot; );
+
+        // Get the twitter data using jsonp
+        $.getJSON( &quot;http://search.twitter.com/search.json?q=&quot; + escape( e.data.term ) + &quot;&amp;rpp=5&amp;callback=?&quot;, function( json ) {
+            elem.trigger( &quot;populate&quot;, [ json ] );
+        });
+    },
+
+    populate: function( e, json ) {
+        var results = json.results;
+        var elem = $( this );
+
+        elem.find( &quot;p.loading&quot; ).remove();
+        $.each( results, function( i, result ) {
+            var tweet = &quot;&lt;p class=&#39;tweet&#39;&gt;&quot; +
+            &quot;&lt;a href=&#39;http://twitter.com/&quot; +
+            result.from_user +
+            &quot;&#39;&gt;&quot; +
+            result.from_user +
+            &quot;&lt;/a&gt;: &quot; +
+            result.text +
+            &quot; &lt;span class=&#39;date&#39;&gt;&quot; +
+            result.created_at +
+            &quot;&lt;/span&gt;&quot; +
+            &quot;&lt;/p&gt;&quot;;
+
+            elem.append( tweet );
+        });
+
+        // Indicate that the results are done refreshing
+        elem.removeClass(&quot;refreshing&quot;);
+    },
+
+    remove: function( e, force ) {
+        if ( !force &amp;&amp; !confirm( &quot;Remove panel for term &quot; + e.data.term + &quot;?&quot; ) ) {
+            return;
+        }
+        $( this ).remove();
+
+        // Indicate that we no longer have a panel for the term
+        search_terms[ e.data.term ] = 0;
+    },
+
+    collapse: function( e ) {
+        $( this ).find( &quot;li.collapse&quot; )
+            .removeClass( &quot;collapse&quot; )
+            .addClass( &quot;expand&quot; )
+            .text( &quot;Expand&quot; );
+
+        $( this ).addClass( &quot;collapsed&quot; );
+    },
+
+    expand: function( e ) {
+        $( this ).find( &quot;li.expand&quot; )
+            .removeClass( &quot;expand&quot; )
+            .addClass( &quot;collapse&quot; )
+            .text( &quot;Collapse&quot; );
+
+        $( this ).removeClass( &quot;collapsed&quot; );
+    }
+};</code></pre>
+<p>The Twitter container itself will have just two custom events:</p>
+<ul>
+<li><p><code>getResults</code> — Receives a search term and checks to determine whether there’s already a results container for the term; if not, adds a results container using the results template, set up the results container using the <code>$.fn.twitterResult</code> plugin discussed above, and then triggers the <code>refresh</code> event on the results container in order to actually load the results. Finally, it will store the search term so the application knows not to re-fetch the term.</p></li>
+<li><p><code>getTrends</code> — Queries Twitter for the top 10 trending terms, then iterates over them and triggers the <code>getResults</code> event for each of them, thereby adding a results container for each term.</p></li>
+</ul>
+<p>Here’s how the Twitter container bindings look:</p>
+<pre><code>$( &quot;#twitter&quot; ).on( &quot;getResults&quot;, function( e, term ) {
+
+    // Make sure we don&#39;t have a box for this term already
+    if ( !search_terms[ term ] ) {
+        var elem = $( this );
+        var template = elem.find( &quot;div.template&quot; );
+
+        // Make a copy of the template div
+        // and insert it as the first results box
+        results = template.clone()
+            .removeClass( &quot;template&quot; )
+            .insertBefore( elem.find( &quot;div:first&quot; ) )
+            .twitterResult({
+                &quot;term&quot;: term
+            });
+
+        // Load the content using the &quot;refresh&quot;
+        // custom event that we bound to the results container
+        results.trigger( &quot;refresh&quot; );
+
+        search_terms[ term ] = 1;
+    }
+}).on( &quot;getTrends&quot;, function( e ) {
+    var elem = $( this );
+
+    $.getJSON( &quot;http://search.twitter.com/trends.json?callback=?&quot;, function( json ) {
+        var trends = json.trends;
+        $.each( trends, function( i, trend ) {
+            elem.trigger( &quot;getResults&quot;, [ trend.name ] );
+        });
+    });
+});</code></pre>
+<p>So far, we’ve written a lot of code that does approximately nothing, but that’s OK. By specifying all the behaviors that we want our core objects to have, we’ve created a solid framework for rapidly building out the interface.</p>
+<p>Let’s start by hooking up our text input and the “Load Trending Terms” button. For the text input, we’ll capture the term that was entered in the input and pass it as we trigger the Twitter container’s <code>getResults</code> event. Clicking the “Load Trending Terms” will trigger the Twitter container’s <code>getTrends</code> event:</p>
+<pre><code>$( &quot;form&quot; ).submit(function( event ) {
+    var term = $( &quot;#search_term&quot; ).val();
+    $( &quot;#twitter&quot; ).trigger( &quot;getResults&quot;, [ term ] );
+    event.preventDefault();
+});
+
+$( &quot;#get_trends&quot; ).click(function() {
+    $( &quot;#twitter&quot; ).trigger( &quot;getTrends&quot; );
+});</code></pre>
+<p>By adding a few buttons with the appropriate ID’s, we can make it possible to remove, collapse, expand, and refresh all results containers at once, as shown below. For the remove button, note how we’re passing a value of <code>true</code> to the event handler as its second argument, telling the event handler that we don’t want to verify the removal of individual containers.</p>
+<pre><code>$.each([ &quot;refresh&quot;, &quot;expand&quot;, &quot;collapse&quot; ], function( i, ev ) {
+    $( &quot;#&quot; + ev ).click( function( e ) {
+        $( &quot;#twitter div.results&quot; ).trigger( ev );
+    });
+});
+
+$( &quot;#remove&quot; ).click(function( e ) {
+    if ( confirm( &quot;Remove all results?&quot; ) ) {
+        $( &quot;#twitter div.results&quot; ).trigger( &quot;remove&quot;, [ true ] );
+    }
+});</code></pre>
+<h3 id="conclusion">Conclusion</h3>
+<p>Custom events offer a new way of thinking about your code: they put the emphasis on the target of a behavior, not on the element that triggers it. If you take the time at the outset to spell out the pieces of your application, as well as the behaviors those pieces need to exhibit, custom events can provide a powerful way for you to “talk” to those pieces, either one at a time or en masse. Once the behaviors of a piece have been described, it becomes trivial to trigger those behaviors from anywhere, allowing for rapid creation of and experimentation with interface options. Finally, custom events can enhance code readability and maintainability, by making clear the relationship between an element and its behaviors.</p>
+</body></html>

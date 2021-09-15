@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+Set a background color for all elements that are not a
+<p>
+<p>element:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode css"><code class="sourceCode css"><a class="sourceLine" id="cb1-1" title="1"><span class="in">:not(</span>p<span class="in">)</span> {</a>
+<a class="sourceLine" id="cb1-2" title="2">    <span class="kw">background</span>: <span class="cn">#ff0000</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-3" title="3">}</a></code></pre></div>
+<p>The :not(X) property in CSS is a negation pseudo class and accepts a <strong>simple selector</strong> as an argument. Essentially, its just another selector of any kind. <code>:not</code> matches an element that is not represented by the argument. The passed argument may not contain additional selectors or any pseudo-element selectors.</p>
+<p>A <strong>simple selector</strong> is classified as a Type Selector, Universal Selector, Attribute Selector, Class Selector, ID Selector, or Pseudo Class Selector.</p>
+<p>In this example we have an unordered list with a single class on the li:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode html"><code class="sourceCode html"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">&lt;ul&gt;</span></a>
+<a class="sourceLine" id="cb2-2" title="2">    <span class="kw">&lt;li&gt;&lt;/li&gt;</span></a>
+<a class="sourceLine" id="cb2-3" title="3">    <span class="kw">&lt;li</span><span class="ot"> class=</span><span class="st">&quot;different&quot;</span><span class="kw">&gt;&lt;/li&gt;</span></a>
+<a class="sourceLine" id="cb2-4" title="4">    <span class="kw">&lt;li&gt;&lt;/li&gt;</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="kw">&lt;/ul&gt;</span></a></code></pre></div>
+Our CSS would select all the
+<li>
+<p>elements except the one(s) with a class of .different.</p>
+<p>Style everything but the <code>.different</code> class</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode css"><code class="sourceCode css"><a class="sourceLine" id="cb3-1" title="1">li<span class="in">:not(</span><span class="fu">.different</span><span class="in">)</span> {</a>
+<a class="sourceLine" id="cb3-2" title="2">    <span class="kw">font-size</span>: <span class="dv">3</span><span class="dt">em</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-3" title="3">}</a></code></pre></div>
+<p>The specificity of the :not pseudo class is the specificity of its argument. The :not() pseudo class does not add to the selector specificity, unlike other pseudo-classes.</p>
+<p>Negations may not be nested so :not(:not(…)) is never permitted. Authors should also note that since pseudo elements are not considered a simple selector, they are not valid as an argument to :not(X). Be mindful when using attribute selectors as some are not widely supported as others. Chaining :not selectors with other :not selectors is permissible.</p>
+<h3 id="an-interesting-real-world-example">An interesting real-world example</h3>
+<p>In the context of <code>mat-slide-toggle</code> Very starangly the below one WAS ONLY working with <code>!important</code>. Here all I wanted to do when mat-checked or mat-toggled then,</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode css"><code class="sourceCode css"><a class="sourceLine" id="cb4-1" title="1"><span class="fu">.mat-slide-toggle.mat-checked</span> <span class="fu">.mat-slide-toggle-bar</span> {</a>
+<a class="sourceLine" id="cb4-2" title="2">    <span class="kw">background-color</span>: $light-text-color <span class="at">!important</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-3" title="3">}</a>
+<a class="sourceLine" id="cb4-4" title="4"></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="fu">.mat-slide-toggle.mat-checked</span> <span class="fu">.mat-slide-toggle-thumb</span> {</a>
+<a class="sourceLine" id="cb4-6" title="6">    <span class="kw">background-color</span>: mat-color<span class="fu">(</span>$sd-theme-primary<span class="op">,</span> <span class="dv">400</span><span class="fu">)</span> <span class="at">!important</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-7" title="7">}</a></code></pre></div>
+<p>And the reason of using <code>!important</code> here was - we have used ViewEncapsulation.None in the relevant component where I was invoking <code>mat-slide-toggle</code> making the .scss styles in this component global to the whole application.</p>
+<p>We could avoid <code>!important</code>, by using /deep/ (which is deprecated) or ::ng-deep (which will also be deprecated in future) in the local component’s css files but both these implementations are not recommended.</p>
+<p>But then looking at mat-slide-toggle’s source code - It seems like we should not need to use !important,</p>
+<p><a href="https://github.com/angular/components/blob/master/src/material/slide-toggle/_slide-toggle-theme.scss#L12">material/slide-toggle/_slide-toggle-theme.scss#L12</a></p>
+<p>They are not using <code>!important</code>. So why do we need it?</p>
+<p>SO I CHANGED AS BELOW AND IT WORKED - WHEN I BROUGHT IN EXTRA selector .mat-disabled. So in below I am saying, in addition to the other class selector, IT ALSO SHOULD NOT BE <code>.mat-disabled</code></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode css"><code class="sourceCode css"><a class="sourceLine" id="cb5-1" title="1"><span class="fu">.mat-slide-toggle.mat-checked</span><span class="in">:not(</span><span class="fu">.mat-disabled</span><span class="in">)</span> <span class="fu">.mat-slide-toggle-bar</span> {</a>
+<a class="sourceLine" id="cb5-2" title="2">    <span class="kw">background-color</span>: $light-text-color<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-3" title="3">}</a></code></pre></div>
+</body></html>

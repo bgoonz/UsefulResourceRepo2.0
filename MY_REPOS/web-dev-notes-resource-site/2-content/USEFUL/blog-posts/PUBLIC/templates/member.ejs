@@ -1,0 +1,258 @@
+<% 
+'use strict';
+var wrap = function(text, type) {
+  return '<span class="' + type + '">'+ text + '</span>';
+};
+
+var wrapLink = function(text, type) {
+  return '<a class="' + type + '" href="/'+text+'">'+ text + '</a>';
+};
+
+var renderParameters = function(params) {
+  var res = '';
+  for (var i = 0; i < params.length; i++) { 
+    if (res.length) {
+      res += ', ';
+    }
+
+    var param = params[i];
+    
+    if (Array.isArray(param)) {
+      res += wrap('[' + renderParameters(param) + ']', 'optional');
+    }
+    else {
+      res += renderMember(param, /* isPrimary = */ false, /* nestedRenderMember = */ true);
+    }
+  }
+  return res;
+}
+
+var getSubFunctionsWorker = function(member, subfunctions, isTop) {
+  if (member.type === 'Function' &&
+      member.parameters &&
+      member.returnType) {
+
+    if (!isTop) {
+      subfunctions.push(member);
+    }
+
+    for (var i = 0; i < member.parameters.length; i++) {
+      var param = member.parameters[i];
+      getSubFunctionsWorker(param, subfunctions);
+    }
+
+    getSubFunctionsWorker(member.returnType, subfunctions);
+  }
+  else if (isTop && member.type && member.type.type === 'Function') {
+    subfunctions.push(member.type);
+  }
+  else if (member.type === 'Object' &&
+           member.properties) {
+    subfunctions.push(member);
+  }
+  else if (Array.isArray(member)) {
+    for (var j = 0; j < member.length; j++) {
+      var optionalParam = member[j];
+      getSubFunctionsWorker(optionalParam, subfunctions);
+    }
+  }
+};
+
+var getSubFunctions = function(member) {
+  var subfunctions = [];
+  getSubFunctionsWorker(member, subfunctions, true);
+  return subfunctions;
+};
+
+// Constructs html for the specified member
+var renderMember = function(member, isPrimary, nestedRenderMember) {
+  var res = '';
+
+  if (member.isConstructor) {
+    res += 'new ';
+  }
+
+  var name = member.name;
+
+  if (member.type === 'Indexer') {
+    name = 'this';
+  }
+  
+  if (isPrimary && !name) {
+    throw Error('name not specified');
+  }
+  name = name || 'return';
+
+  res += wrap(name, 'membername' + (isPrimary ? ' primary' : ''));
+
+  if (member.defaultValue) {
+    res += wrap('&nbsp;=&nbsp;' + member.defaultValue, 'defaultvalue');
+  }
+
+  var renderType = function(type) {
+    if (type.name) {
+      var res = ''
+      res += wrapLink(type.name, 'membertype');
+
+      if (type.templates) {
+        res += '&lt;'
+
+        type.templates.forEach(function(template, index) {
+          if (index > 0) {
+            res += ', ';
+          }
+          res += renderType(template);
+        });
+
+        res += '&gt;'
+      }
+      return res;
+    }
+    else if (type.type === 'Object') {
+      return wrapLink(type.type, 'membertype');
+    }
+    else if (typeof type === 'string') {
+      return wrapLink(type, 'membertype');
+    }
+    else {
+      console.log(type);
+      throw Error('unexpected type');
+    }
+  };
+
+  if (member.name === '...') {
+  }
+  else if (!nestedRenderMember && member.type === 'Function') {
+    if (!member.parameters && !member.returnType) {
+      res += '&nbsp;:&nbsp;' + renderType(member.type);
+    }
+    else {
+      if (!member.parameters || !member.returnType) {
+        throw new Error('error: ' + member.name  + ' is missing parameters - probably declared as foo : Function instead of foo(bar : baz) : bog'); 
+      }
+
+      res += '(' + renderParameters(member.parameters) + ')';
+      res += '&nbsp;:&nbsp;';
+
+      res += renderType(member.returnType);
+    }
+  }
+  else if (!nestedRenderMember && member.type === 'Indexer') {
+    res += '[' + renderParameters(member.parameters) + ']';
+    res += '&nbsp;:&nbsp;' + renderType(member.returnType);
+  }
+  else if (!nestedRenderMember && member.type && member.type.type === 'Function') {
+    // Type of the parameter/property is a function with more details, print the name and render the details later
+    res += '&nbsp;:&nbsp;' + member.type.name;
+  }
+  else if (!nestedRenderMember && member.type === 'Object' && member.properties) {
+    // Type of the parameter/property is a complex object
+    res += '&nbsp;:&nbsp;{';
+    res += '<table>'
+
+    member.properties.forEach(function(property, index) {
+      res += '<tr>';
+
+      res += '<td>';
+      res += wrap(property.name, 'membername');
+      res += '</td>';
+
+      res += '<td>';
+      res += renderType(property.type);
+      res += '</td>';
+
+      res += '<td>';
+      res += property.description || '';
+      res += '</td>';
+
+      res += '</tr>';
+    });
+    res += '</table>'
+    res += '<span class="subfunctionclose">}</span>';
+  }
+  else if (!member.type) {
+    if (!/^\w+\.\w+$/.test(member.name)) {
+      throw 'Unexpected member type (' + (isPrimary ? 'primary' : 'not primary') + '): ' + member.name + '\n' + JSON.stringify(member); 
+    }
+
+    const nameParts = member.name.split('.');
+    const href = '/' + nameParts[0] + '#' + nameParts[1];
+
+    res = `<a href="${href}">${ res }</a>`;
+  }
+  else {
+    res += '&nbsp;:&nbsp;' + renderType(member.type);
+  }
+
+  return res;
+};
+
+%>
+
+<div class='member'>
+  <div class='expand-members' title='Toggle showing all descriptions and examples'></div>
+<% if (property.source === 'event') { %>
+  <a name='<%= property.name %>'></a>
+  <a name='<%= property.onname %>'></a>
+
+  <div class='declaration'>
+    <span class="membername primary"><%= property.onname %></span> / <span class="membername primary">'<%= property.name %>'</span>&nbsp;&nbsp;<span class='metadata'>event</span>
+    <div class="subfunction"><%- renderMember(property.type) %></div>
+  </div>
+
+  <div class='member-body'>
+
+    <p class='description'>
+      <%- property.description %>
+    </p>
+
+    <% if (property.spec) { %>
+      <div class='membermetadata'> 
+        <a href='<%= property.spec %>' class='spec'>Spec</a>
+      </div>
+    <% } %>
+  </div>
+
+<% } else { %>
+
+  <% if (!inGroup && property.type === 'Function') { 
+    /* For methods, also put an anchor with just the name, instead of name_param1_param2 */ %>
+  <a name='<%= property.name %>'></a>
+  <% } %>
+
+  <a name='<%= getAnchorName(property) %>'></a>
+  <div class='declaration'>
+    <%- renderMember(property, /* isPrimary = */ true) %><% 
+      if (property.readonly) { 
+        %>&nbsp;&nbsp;<span class='metadata'>readonly</span><% 
+      }
+      if (property.value) {
+        %>&nbsp;&nbsp;<span class='metadata'>value = <%= property.value %></span><% 
+      }
+      %>
+    <% var subObjects = getSubFunctions(property); 
+       subObjects.forEach(function(submember) { %>
+         <div class='subfunction'>
+           <%- renderMember(submember) %>
+         </div>
+    <% }); %>
+  </div>
+
+  <div class='member-body'>
+    <p class='description'>
+      <%- property.description %>
+    </p>
+
+    <% if (property.spec || property.version) { %>
+      <div class='membermetadata'> 
+        <% if (property.version) { %>
+          <span class='<%= getVersionClass(property.version) %>'><%= property.version %></span>
+        <% } %>
+        <% if (property.spec) { %>
+          <a href='<%= property.spec %>' class='spec'>Spec</a>
+        <% } %>
+      </div>
+    <% } %>
+  </div>
+<% } %>
+</div>

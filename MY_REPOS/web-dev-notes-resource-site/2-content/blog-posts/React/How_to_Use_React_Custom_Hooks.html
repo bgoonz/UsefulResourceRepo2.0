@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h1 id="how-to-use-react-custom-hooks">How to Use React Custom Hooks</h1>
+<blockquote>
+<p>New to the concept of React custom Hooks? Nate explains the power of custom Hooks and how you can use them to compartmentalize and share code.</p>
+</blockquote>
+<p>My favorite feature of <a href="https://reactjs.org/docs/hooks-intro.html">React Hooks</a> is that they give us the ability to write <a href="https://reactjs.org/docs/hooks-custom.html">custom Hooks</a>.</p>
+<p>Custom Hooks provide a super clean interface to share functionality. They are great for organizing and reusing code, but their real beauty lies in how they encourage comprehension through syntax, naming conventions, and granularity. If you haven’t begun using custom hooks yet, I hope the following example will help you see why they’re appealing to so many people.</p>
+<p>This article assumes you are familiar with <a href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/foundry/category/react">React</a> and the concept of Hooks. You should at least be comfortable with the <a href="https://reactjs.org/docs/hooks-rules.html">rules of Hooks</a> and hopefully familiar with <a href="https://reactjs.org/docs/hooks-reference.html#usestate"><code>useState</code></a> and <a href="https://reactjs.org/docs/hooks-reference.html#useeffect"><code>useEffect</code></a>. For more information on <a href="https://frontarm.com/james-k-nelson/react-hooks-intuition/"><em>when</em> to use Hooks, check out this wonderful article</a>.</p>
+<p>So what are custom Hooks? They’re just functions that call other Hook functions (for a more in-depth answer, I will point you to <a href="https://reactjs.org/docs/hooks-custom.html#extracting-a-custom-hook">the React docs</a>). The Hooks called from a custom Hook can be built-in React Hooks or <em>other</em> custom Hooks themselves. They may trigger side effects, or return state, or both. But at the end of the day, their code paths will ultimately reach the built-in Hooks provided by React.</p>
+<h2 id="react-and-resizeobserver">React and ResizeObserver</h2>
+<p>To get started, we need a subject to demonstrate how one might approach authoring a React component that has a direct dependency on a platform API. For that, I’m choosing <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver">ResizeObserver</a> because I think it’s fun, but more importantly, it’s useful. Let’s take a look at how we might use ResizeObserver in a class component.</p>
+<pre><code>import React, { Component, createRef } from &quot;react&quot;;
+
+class ComponentWithResizeObserver extends Component {
+  resizeObserver = null;
+  resizeSubject = createRef();
+  state = {};
+
+  componentDidMount() {
+    if (&quot;ResizeObserver&quot; in window) {
+      this.observe(ResizeObserver);
+    } else {
+      import(&quot;resize-observer-polyfill&quot;).then(this.observe);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+  }
+
+  observe = RO =&gt; {
+    this.resizeObserver = new RO(entries =&gt; {
+      const {
+        width,
+        height,
+        top,
+        right,
+        bottom,
+        left
+      } = entries[0].contentRect;
+      this.setState({ width, height, top, right, bottom, left });
+    });
+
+    if (this.resizeSubject.current) {
+      this.resizeObserver.observe(this.resizeSubject.current);
+    }
+  };
+
+  render() {
+    return (
+      &lt;div ref={this.resizeSubject}&gt;
+        {width} x {height}
+      &lt;/div&gt;
+    );
+  }
+}</code></pre>
+<p>This component keeps internal references to its own branch of the render tree and initializes ResizeObserver. I’ll walk it through for completeness.</p>
+<ol type="1">
+<li>Internal state and properties
+<ul>
+<li><code>resizeObserver</code> will be a reference to the <code>ResizeObserver</code> constructor</li>
+<li><code>resizeSubject</code> will be the subject of observation</li>
+<li><code>state</code> is initialized to an empty object</li>
+</ul></li>
+<li>Resolution of the observer
+<ul>
+<li>In <code>componentDidMount</code> we check for <code>ResizeObserver</code> in the global object</li>
+<li>If it isn’t found, it loads a <a href="https://www.npmjs.com/package/resize-observer-polyfill#usage-example">polyfill</a></li>
+<li>In both cases, it calls <code>observe</code>, passing the constructor along</li>
+</ul></li>
+<li>Setting up a subscription
+<ul>
+<li><code>observe</code> constructs a new instance of <code>ResizeObserver</code> and assigns it to the appropriate class field</li>
+<li>Its handler takes the subject’s <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserverEntry/contentRect">contentRect</a> and calls <code>setState</code> to update the value</li>
+<li>It begins observing the <code>resizeSubject</code></li>
+</ul></li>
+<li><code>resizeSubject</code> ref is applied to the subject in the render method</li>
+<li>In <code>componentWillUnmount</code> we release the subscription</li>
+</ol>
+<p>Ok, so that’s not too bad, right? It’s thirty-ish lines of code that allow us to track the size and position of a DOM element inside our component. We can take the sizing data and use it in our rendered output. Here’s a CodeSandbox with a slightly expanded example. Resize the box, and the <code>contentRect</code> data of the target element will be updated.</p>
+<p>ResizeObserver has many potential applications. How could another component use this same functionality? Is there a way for multiple elements to be observed within one component?</p>
+<p>There are options. Experienced React devs might tell us to reach for the <a href="https://reactjs.org/docs/higher-order-components.html">higher-order component</a> pattern. Maybe we could refactor the component to use a <a href="https://reactjs.org/docs/render-props.html">render prop</a>. Or maybe we should just copy/paste this code to another component when the need arises. I’m not above suggesting the last option. I mean, abstraction comes with a cost. But I’m not here to tell you <em>when</em> to separate logic from a component. I am here to tell you <em>how</em> to do it. With a custom Hook.</p>
+<h2 id="useresizeobserver">useResizeObserver</h2>
+<p>Let’s put all the observer bits from our class component into a function.</p>
+<pre><code>import { useEffect, useState, useRef } from &quot;react&quot;;
+
+function useResizeObserver(resizeSubject) {
+  const [contentRect, setContentRect] = useState({});
+  const resizeObserver = useRef(null);
+
+  useEffect(() =&gt; {
+    if (&quot;ResizeObserver&quot; in window) {
+      observe(ResizeObserver);
+    } else {
+      import(&quot;resize-observer-polyfill&quot;).then(observe);
+    }
+
+    function observe(RO) {
+      resizeObserver.current = new RO(entries =&gt; {
+        const {
+          width,
+          height,
+          top,
+          right,
+          bottom,
+          left
+        } = entries[0].contentRect;
+        setContentRect({ width, height, top, right, bottom, left });
+      });
+
+      if (resizeSubject.current) {
+        resizeObserver.current.observe(resizeSubject.current);
+      }
+    }
+
+    return disconnect;
+  }, [resizeSubject]);
+
+  function disconnect() {
+    if (resizeObserver.current) {
+      resizeObserver.current.disconnect();
+    }
+  }
+
+  return contentRect;
+}</code></pre>
+<p>Here we’ve taken all ResizeObserver logic and placed it into a function called <code>useResizeObserver</code>. This is a custom Hook. Let’s walk through the function and compare it to the class component (any changes are crossed out so you can easily compare).</p>
+<ol type="1">
+<li>Internal state and properties refs.
+<ul>
+<li><code>resizeObserver</code> will be a reference to the <code>ResizeObserver</code> constructor</li>
+<li><code>resizeSubject</code> will be the subject of observation</li>
+<li><code>state</code> <code>contentRect</code> is initialized to an empty object</li>
+</ul></li>
+<li>Resolution of the observer
+<ul>
+<li>In <code>componentDidMount</code> <code>useEffect</code> we check for <code>ResizeObserver</code> in the global object</li>
+<li>If it isn’t found, it loads a polyfill</li>
+<li>In both cases, it calls <code>observe</code>, passing the constructor along</li>
+</ul></li>
+<li>Setting up a subscription
+<ul>
+<li><code>observe</code> constructs a new instance of <code>ResizeObserver</code> and assigns it to the appropriate class field <code>resizeObserver.current</code></li>
+<li>Its handler takes the subject’s contentRect and calls <code>setState</code> <code>setContentRect</code> to update the value</li>
+<li>It begins observing the <code>resizeSubject</code> <code>resizeSubject.current</code></li>
+</ul></li>
+<li><code>resizeSubject</code> ref is applied to the subject in the render method <em>no rendering here in the custom Hook</em>. The <code>resizeSubject</code> will be passed in by the calling component</li>
+<li>in <code>componentWillUnmount</code> we release the subscription <code>useEffect</code> returns a function that will be invoked when the calling component unmounts, and the subscription will be released.</li>
+</ol>
+<p>The end result is that we’ve decoupled DOM rendering from all the yucky bits of code. Setup, teardown, state management (with respect to element sizing data), and polyfilling all live in <code>useResizeObserver</code>. Now we can stir that into any component.</p>
+<pre><code>import React, { useRef } from &quot;react&quot;;
+import { useResizeObserver } from &quot;./use-resize-observer&quot;;
+
+function ComponentThatUsesResizeObserver() {
+  const resizeSubject = useRef(null);
+  const { width, height } = useResizeObserver(resizeSubject);
+
+  return (
+    &lt;div ref={resizeSubject}&gt;
+      {width} x {height}
+    &lt;/div&gt;
+  );
+}</code></pre>
+<p>The really wonderful thing here is the simplicity of consuming the Hook. We just call the
+  <code>useResizeObserver</code> Hook and take what we need from it. In this case, <code>width</code> and
+  <code>height</code>. Then we return a render tree. There are no render props and no “magic" props from an HOC.</p>
+<p>Here’s the same demo as above but with Hooks.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>If you’re new to React or new to Hooks, I hope this helps you understand not just the power of custom Hooks but why they’re so appealing. Hooks are great at helping us compartmentalize and share our code with arguably better ergonomics than previous solutions. They don’t solve every problem. They <a href="https://reactjs.org/docs/hooks-faq.html#do-hooks-cover-all-use-cases-for-classes">don’t cover every corner of React’s Component API</a> (yet), and they don’t magically reduce the complexity of your particular application requirements. But Hooks can help us organize our code in meaningful ways and allow us to write simpler components that, in many cases, are easier to understand.</p>
+<p>If you haven’t jumped on the Hooks bandwagon yet, I suggest giving them a try. <a href="https://reactjs.org/docs/hooks-intro.html">The React docs</a> or the excellent <a href="https://reactjs.org/docs/hooks-faq.html">faq</a> are great places to start. If you want to see more real-world examples of what you can do with custom Hooks, take a look at the <a href="https://github.com/rehooks/awesome-react-hooks#packages">awesome-react-hooks</a> repo.</p>
+<p><a href="https://sparkbox.com/foundry/using_react_custom_hook">Source</a></p>
+</body></html>

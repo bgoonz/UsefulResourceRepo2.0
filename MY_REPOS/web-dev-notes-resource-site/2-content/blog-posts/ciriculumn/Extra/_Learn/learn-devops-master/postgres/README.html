@@ -1,0 +1,100 @@
+<h1 id="postgresql-setup">PostgreSQL Setup</h1>
+<p>The purpose of this guide is to show how <em>we</em> setup Postgres on a standard VPS. No prior <strong>DevOps</strong> experience is assumed/expected, however some understanding of basic Postgres concepts is <em>useful</em>.</p>
+<blockquote>
+<p><strong>Note</strong>: if you are new to Postgres or need a refresher, please see: <a href="https://github.com/dwyl/learn-postgresql">github.com/dwyl/<strong>learn-postgresql</strong></a></p>
+</blockquote>
+<h2 id="create-a-vps-instance">1. Create a VPS Instance</h2>
+<p>If you don’t already have a Virtual Private Server (VPS) instance, create one.</p>
+<blockquote>
+<p>In the case of this guide, we are using DigitalOcean because they have a good balance of Price/Performance. We did a bunch of research into the comparative cost/perf: <a href="https://github.com/dwyl/learn-devops/issues/58#issuecomment-660650080">learn-devops/issues/58</a> We concluded that the <strong>NVMe SSD Block Storage</strong> of DigitalOcean, was the best in the cost/perf tradeoff.</p>
+</blockquote>
+<p>At the time of writing, there is no 1-click Postgres setup in the DO Marketplace: https://marketplace.digitalocean.com So we are doing our setup from scratch.</p>
+<p>Visit: Select the instance Operating System and Plan: <img src="https://user-images.githubusercontent.com/194400/87891845-4a7bed80-ca33-11ea-8bf5-eb3095eeafe6.png" alt="do-create-01-select-instance-type" /></p>
+<p>Select the instance Operating System and Plan: <img src="https://user-images.githubusercontent.com/194400/87891845-4a7bed80-ca33-11ea-8bf5-eb3095eeafe6.png" alt="do-create-01-select-instance-type" /></p>
+<p>Scroll down to the “Add Block Storage” section and enter 1gb into the field: <img src="https://user-images.githubusercontent.com/194400/87891890-667f8f00-ca33-11ea-9043-cca1b44cc334.png" alt="do-create-02-block-storage" /></p>
+<p>We’re going to increase the size in a later step, so keep it low for now just to set it up. https://www.digitalocean.com/docs/volumes/how-to/increase-size/</p>
+<p>Select <code>Ext4</code> for the filesystem and then select the datacenter region that bests suits your needs.</p>
+<blockquote>
+<p>We selected <code>Ext4</code> filesystem based on reading this post: https://blog.pgaddict.com/posts/postgresql-performance-on-ext4-and-xfs It <em>appears</em> to be 10% faster for Postgres.</p>
+</blockquote>
+<p>Scroll down until you see the “Choose a hostname” field. Enter a relevant name, in our case “hits”: <img src="https://user-images.githubusercontent.com/194400/87892697-b3646500-ca35-11ea-854a-364a4ae0a964.png" alt="do-create-04-hostname" /></p>
+<p>Scroll to the bottom of the page and click “<strong>Create Droplet</strong>”.</p>
+<p>Given that the data directory will be on the <em>separate</em> block storage, we aren’t bothering with the $1/month backup.</p>
+<p>Once your server has been created, follow the initial server setup guide: https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-18-04</p>
+<ol start="2" type="1">
+<li>Install Postgres</li>
+</ol>
+<p>Following this guide: https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-18-04</p>
+<p>Login to the VPS using ssh:</p>
+<pre><code>ssh root@159.65.85.59</code></pre>
+<p>Update the OS and install Postgres:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="fu">sudo</span> apt update</a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="fu">sudo</span> apt install postgresql postgresql-contrib</a></code></pre></div>
+<p>Once everything is installed, Switch to the Postgres user:</p>
+<pre><code>sudo -i -u postgres</code></pre>
+<p>You should see the following in your terminal to indicate that you’re logged in as the postgres user:</p>
+<pre><code>postgres@hits:~$</code></pre>
+<pre><code>createuser --interactive</code></pre>
+<pre><code>hitsnodelete</code></pre>
+<p>This username is fairly self-evident. We want a user that can <code>insert</code> records but not <code>delete</code> any data.</p>
+<pre><code>Shall the new role be a superuser? (y/n)</code></pre>
+<p>Select <code>n</code>, for all options as we don’t <em>want</em> our user to be a <code>superuser</code>.</p>
+<h2 id="change-postgres-directory-to-use-block-storage">3. Change Postgres Directory to use Block Storage</h2>
+<p>Following this guide: https://www.digitalocean.com/community/tutorials/how-to-move-a-postgresql-data-directory-to-a-new-location-on-ubuntu-18-04</p>
+<p>Login to postgres:</p>
+<pre><code>sudo -u postgres psql</code></pre>
+<p>Display the data directory:</p>
+<pre><code>SHOW data_directory;</code></pre>
+<p>You should see:</p>
+<pre><code>       data_directory
+-----------------------------
+ /var/lib/postgresql/10/main
+(1 row)</code></pre>
+<p>Quit postgres:</p>
+<pre><code>\q</code></pre>
+<p>Shut down postgres:</p>
+<pre><code>sudo systemctl stop postgresql</code></pre>
+<p>Confirm the status of postgres:</p>
+<pre><code>sudo systemctl status postgresql</code></pre>
+<p>You should see something similar to the following:</p>
+<pre><code>● postgresql.service - PostgreSQL RDBMS
+   Loaded: loaded (/lib/systemd/system/postgresql.service; enabled; vendor preset: enabled)
+   Active: inactive (dead) since Mon 2020-07-20 03:11:02 UTC; 7s ago
+ Main PID: 8928 (code=exited, status=0/SUCCESS)
+
+Jul 20 02:25:23 hits systemd[1]: Starting PostgreSQL RDBMS...
+Jul 20 02:25:23 hits systemd[1]: Started PostgreSQL RDBMS.
+Jul 20 03:11:02 hits systemd[1]: Stopped PostgreSQL RDBMS.</code></pre>
+<p>Copy the postgres data directory to the block storage volume:</p>
+<pre><code>sudo rsync -av /var/lib/postgresql /mnt/volume_lon1_01</code></pre>
+<p>In our case our mounted block storage is <code>/mnt/volume_lon1_01</code></p>
+<p>Rename <code>main</code> data to <code>main.bak</code> just so we have a backup:</p>
+<pre><code>sudo mv /var/lib/postgresql/10/main /var/lib/postgresql/10/main.bak</code></pre>
+<p>Edit the postgres config:</p>
+<pre><code>sudo nano /etc/postgresql/10/main/postgresql.conf</code></pre>
+<p>Find the <code>data_directory</code> line and update it to:</p>
+<pre><code>data_directory = &#39;/mnt/volume_lon1_01/postgresql/10/main&#39;</code></pre>
+<p>Save and quit the file.</p>
+<p>Start postgres again:</p>
+<pre><code>sudo systemctl start postgresql</code></pre>
+<p>Check the status:</p>
+<pre><code>sudo systemctl status postgresql</code></pre>
+<p>You should see the following:</p>
+<pre><code>● postgresql.service - PostgreSQL RDBMS
+   Loaded: loaded (/lib/systemd/system/postgresql.service; enabled; vendor preset: enabled)
+   Active: active (exited) since Mon 2020-07-20 03:17:59 UTC; 5s ago
+  Process: 20422 ExecStart=/bin/true (code=exited, status=0/SUCCESS)
+ Main PID: 20422 (code=exited, status=0/SUCCESS)
+
+Jul 20 03:17:59 hits systemd[1]: Starting PostgreSQL RDBMS...
+Jul 20 03:17:59 hits systemd[1]: Started PostgreSQL RDBMS.</code></pre>
+<p>Login to <code>psql</code>:</p>
+<pre><code>sudo -u postgres psql</code></pre>
+<p>Show the <code>data_directory</code>:</p>
+<pre><code>SHOW data_directory;</code></pre>
+<p>You should see:</p>
+<pre><code>             data_directory
+----------------------------------------
+ /mnt/volume_lon1_01/postgresql/10/main
+(1 row)</code></pre>
+<p>Success.</p>

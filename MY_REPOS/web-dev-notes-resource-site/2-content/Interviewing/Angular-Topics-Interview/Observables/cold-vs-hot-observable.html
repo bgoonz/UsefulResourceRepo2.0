@@ -1,0 +1,44 @@
+<h3 id="hot-vs-cold-observables">Hot vs Cold Observables</h3>
+<p><strong>Cold Observables</strong> start emitting or creating values only when the subscription starts, like a typical YouTube video. Each subscriber will see the same sequence (or pattern) of events from start to finish.</p>
+<p><strong>Hot Observables</strong> are always being updated with new values, like a live stream on YouTube. When you subscribe you start with the most recent value and only see future changes.</p>
+<p>Another way to think of this - An Observable is called a “cold” Observable if it does not begin to emit items until an observer has subscribed to it; an Observable is called a “hot” Observable if it may begin emitting items at any time, and a subscriber may begin observing the sequence of emitted items at some point after its commencement, missing out on any items emitted previously to the time of the subscription.</p>
+<h4 id="cold-observable-example">Cold Observable Example</h4>
+<p>We know an Observable is cold if we subscribe at the same time, but get a different value.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">const</span> cold <span class="op">=</span> <span class="va">Rx</span>.<span class="va">Observable</span>.<span class="at">create</span>((observer) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="va">observer</span>.<span class="at">next</span>(<span class="va">Math</span>.<span class="at">random</span>())</a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb1-4" title="4"></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="va">cold</span>.<span class="at">subscribe</span>((a) <span class="kw">=&gt;</span> <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Subscriber A: </span><span class="sc">${</span>a<span class="sc">}</span><span class="vs">`</span>))</a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="va">cold</span>.<span class="at">subscribe</span>((b) <span class="kw">=&gt;</span> <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Subscriber B: </span><span class="sc">${</span>b<span class="sc">}</span><span class="vs">`</span>))</a>
+<a class="sourceLine" id="cb1-7" title="7"></a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="co">// Subscriber A: 0.2298339030</span></a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="co">// Subscriber B: 0.9720023832</span></a></code></pre></div>
+<p>They both subscribed to the same Observable with different results. This happens because the cold Observable doesn’t generate the random number until after the subscription starts.</p>
+<h4 id="hot-observable-example">Hot Observable Example</h4>
+<p>A hot observable gets its values from an outside source. We can make it hot by simply moving the random number outside of the observable creation function.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">const</span> x <span class="op">=</span> <span class="va">Math</span>.<span class="at">random</span>()</a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">const</span> hot <span class="op">=</span> <span class="va">Rx</span>.<span class="va">Observable</span>.<span class="at">create</span>((observer) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="va">observer</span>.<span class="at">next</span>(x)</a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb2-6" title="6"></a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="va">hot</span>.<span class="at">subscribe</span>((a) <span class="kw">=&gt;</span> <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Subscriber A: </span><span class="sc">${</span>a<span class="sc">}</span><span class="vs">`</span>))</a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="va">hot</span>.<span class="at">subscribe</span>((b) <span class="kw">=&gt;</span> <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Subscriber B: </span><span class="sc">${</span>b<span class="sc">}</span><span class="vs">`</span>))</a>
+<a class="sourceLine" id="cb2-9" title="9"><span class="co">// Subscriber A: 0.312580103</span></a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="co">// Subscriber B: 0.312580103</span></a></code></pre></div>
+<p>But how do we make an already cold observable hot? We can make a cold Observable hot by simply calling publish() on it. This will allow the subscribers to share the same values in realtime. To make it start emitting values, you call connect() after the subscription has started.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">const</span> cold <span class="op">=</span> <span class="va">Rx</span>.<span class="va">Observable</span>.<span class="at">create</span>((observer) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="va">observer</span>.<span class="at">next</span>(<span class="va">Math</span>.<span class="at">random</span>())</a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb3-4" title="4"></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="kw">const</span> hot <span class="op">=</span> <span class="va">cold</span>.<span class="at">publish</span>()</a>
+<a class="sourceLine" id="cb3-6" title="6"></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="va">hot</span>.<span class="at">subscribe</span>((a) <span class="kw">=&gt;</span> <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Subscriber A: {a}`</span>))</a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="va">hot</span>.<span class="at">subscribe</span>((b) <span class="kw">=&gt;</span> <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Subscriber B: {b}`</span>))</a>
+<a class="sourceLine" id="cb3-9" title="9"></a>
+<a class="sourceLine" id="cb3-10" title="10"><span class="va">hot</span>.<span class="at">connect</span>()</a>
+<a class="sourceLine" id="cb3-11" title="11"></a>
+<a class="sourceLine" id="cb3-12" title="12"><span class="co">/// Subscriber A: 0.7122882102</span></a>
+<a class="sourceLine" id="cb3-13" title="13"><span class="co">/// Subscriber B: 0.7122882102</span></a></code></pre></div>
+<h4 id="further-reading">Further Reading</h4>
+<p><a href="https://fireship.io/lessons/rxjs-basic-pro-tips/">https://fireship.io/lessons/rxjs-basic-pro-tips/</a></p>

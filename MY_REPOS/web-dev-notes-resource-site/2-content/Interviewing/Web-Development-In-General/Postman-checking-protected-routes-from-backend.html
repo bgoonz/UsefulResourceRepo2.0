@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h3 id="how-to-get-the-token-in-postman-whenever-i-use-middleware-in-my-private-routes-so-i-can-check-from-back-end-that-my-secured-authenticated-routes-secured-with-passport.authenticate-middleware-are-all-working-for-each-of-the-protected-routes">How to get-the-token-in-postman-whenever-i-use-middleware-in-my-private-routes, so I can check from back-end that my secured authenticated routes ( secured with Passport.authenticate middleware) are all working for each of the protected routes</h3>
+<p>So, I have this “/createtide”, route that only Logged-in users (having a valid token saved in browser’s localstorage) should be able to use and create new tides-data with this route from the front end.</p>
+<p>But I also want to check that no unauthorized persons are able to submit any new data from Postman backend as well (i.e. who knows only the API), for which I have my Passport.authenticate middleware codes in each of the protected roues in the backend to protect these from the backend.</p>
+<h4 id="in-this-specific-app-this-is-my-flow-of-the-authentication-architecture-from-back-to-front-end--">In this specific App this is my flow of the authentication architecture from back to front-end -</h4>
+<p>First say, I have simple mongo schema like below for Tide model</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">const</span> mongoose <span class="op">=</span> <span class="at">require</span>(<span class="st">&quot;mongoose&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">const</span> Schema <span class="op">=</span> <span class="va">mongoose</span>.<span class="at">Schema</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="kw">let</span> tidalSchema <span class="op">=</span> <span class="kw">new</span> <span class="at">Schema</span>(</a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-6" title="6">    <span class="dt">date</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-7" title="7">      <span class="dt">type</span><span class="op">:</span> Date</a>
+<a class="sourceLine" id="cb1-8" title="8">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb1-9" title="9">    <span class="dt">time</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-10" title="10">      <span class="dt">type</span><span class="op">:</span> Date</a>
+<a class="sourceLine" id="cb1-11" title="11">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb1-12" title="12">    <span class="dt">meters</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-13" title="13">      <span class="dt">type</span><span class="op">:</span> Number</a>
+<a class="sourceLine" id="cb1-14" title="14">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-15" title="15">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb1-16" title="16">  <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-17" title="17">    <span class="dt">timestamps</span><span class="op">:</span> <span class="kw">true</span></a>
+<a class="sourceLine" id="cb1-18" title="18">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-19" title="19">)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-20" title="20"></a>
+<a class="sourceLine" id="cb1-21" title="21"><span class="va">module</span>.<span class="at">exports</span> <span class="op">=</span> <span class="va">mongoose</span>.<span class="at">model</span>(<span class="st">&quot;Tide&quot;</span><span class="op">,</span> tidalSchema)<span class="op">;</span></a></code></pre></div>
+<p>A&gt; In my auth route in the backend - I am creating a token while logging in . This token is saved in localStorage</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="va">router</span>.<span class="at">post</span>(<span class="st">&quot;/login&quot;</span><span class="op">,</span> <span class="kw">function</span>(req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="va">User</span>.<span class="at">findOne</span>(</a>
+<a class="sourceLine" id="cb2-3" title="3">    <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-4" title="4">      <span class="dt">username</span><span class="op">:</span> <span class="va">req</span>.<span class="va">body</span>.<span class="at">username</span></a>
+<a class="sourceLine" id="cb2-5" title="5">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb2-6" title="6">    <span class="kw">function</span>(err<span class="op">,</span> user) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-7" title="7">      <span class="cf">if</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-8" title="8">        <span class="cf">throw</span> err<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-9" title="9">      <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> (<span class="op">!</span>user) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-10" title="10">        <span class="co">// console.log(&quot;Authentication failed. User not found.&quot;);</span></a>
+<a class="sourceLine" id="cb2-11" title="11">        <span class="co">// the case when the user does not exists at all in the database</span></a>
+<a class="sourceLine" id="cb2-12" title="12">        <span class="va">res</span>.<span class="at">status</span>(<span class="dv">404</span>).<span class="at">send</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb2-13" title="13">          <span class="dt">success</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-14" title="14">          <span class="dt">msg</span><span class="op">:</span> <span class="st">&quot;Authentication failed. User not found.&quot;</span></a>
+<a class="sourceLine" id="cb2-15" title="15">        <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-16" title="16">      <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> (user) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-17" title="17">        <span class="co">// user exists but password does not match</span></a>
+<a class="sourceLine" id="cb2-18" title="18">        <span class="kw">var</span> validPassword <span class="op">=</span> <span class="va">user</span>.<span class="at">comparePassword</span>(<span class="va">req</span>.<span class="va">body</span>.<span class="at">password</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-19" title="19"></a>
+<a class="sourceLine" id="cb2-20" title="20">        <span class="cf">if</span> (<span class="op">!</span>validPassword) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-21" title="21">          <span class="co">//   console.log(&quot;Authentication failed. Wrong Password&quot;);</span></a>
+<a class="sourceLine" id="cb2-22" title="22">          <span class="va">res</span>.<span class="at">status</span>(<span class="dv">401</span>).<span class="at">send</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb2-23" title="23">            <span class="dt">success</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-24" title="24">            <span class="dt">msg</span><span class="op">:</span> <span class="st">&quot;Authentication failed. Wrong Password&quot;</span></a>
+<a class="sourceLine" id="cb2-25" title="25">          <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-26" title="26">        <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> (<span class="va">user</span>.<span class="at">employerType</span> <span class="op">!==</span> <span class="st">&quot;port&quot;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-27" title="27">          <span class="va">res</span>.<span class="at">status</span>(<span class="dv">401</span>).<span class="at">send</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb2-28" title="28">            <span class="dt">success</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-29" title="29">            <span class="dt">msg</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-30" title="30">              <span class="st">&quot;Authentication failed. Only person with Port-authorization are elligible to access&quot;</span></a>
+<a class="sourceLine" id="cb2-31" title="31">          <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-32" title="32">        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-33" title="33">          <span class="co">// case when the user exists, password also matches and user.employerType is &quot;port&quot;</span></a>
+<a class="sourceLine" id="cb2-34" title="34">          <span class="co">// so now create a token</span></a>
+<a class="sourceLine" id="cb2-35" title="35">          <span class="kw">var</span> token <span class="op">=</span> <span class="va">jwt</span>.<span class="at">sign</span>(</a>
+<a class="sourceLine" id="cb2-36" title="36">            <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-37" title="37">              <span class="dt">username</span><span class="op">:</span> <span class="va">user</span>.<span class="at">username</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-38" title="38">              <span class="dt">id</span><span class="op">:</span> <span class="va">user</span>.<span class="at">_id</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-39" title="39">              <span class="dt">employerType</span><span class="op">:</span> <span class="va">user</span>.<span class="at">employerType</span></a>
+<a class="sourceLine" id="cb2-40" title="40">            <span class="op">},</span></a>
+<a class="sourceLine" id="cb2-41" title="41">            <span class="va">settings</span>.<span class="at">secret</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-42" title="42">            <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-43" title="43">              <span class="dt">expiresIn</span><span class="op">:</span> <span class="st">&quot;5h&quot;</span></a>
+<a class="sourceLine" id="cb2-44" title="44">            <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-45" title="45">          )<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-46" title="46">          <span class="co">// return the information including token as JSON and the imageUrl as an additional data-point so I can get it in the front end to be renderer in the header for the logged-in user</span></a>
+<a class="sourceLine" id="cb2-47" title="47"></a>
+<a class="sourceLine" id="cb2-48" title="48">          <span class="va">res</span>.<span class="at">json</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb2-49" title="49">            <span class="dt">success</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-50" title="50">            <span class="dt">token</span><span class="op">:</span> <span class="st">&quot;JWT &quot;</span> <span class="op">+</span> token<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-51" title="51">            <span class="dt">imageUrl</span><span class="op">:</span> <span class="va">user</span>.<span class="at">images</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-52" title="52">            <span class="dt">username</span><span class="op">:</span> <span class="va">user</span>.<span class="at">name</span></a>
+<a class="sourceLine" id="cb2-53" title="53">          <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-54" title="54">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-55" title="55">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-56" title="56">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-57" title="57">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-58" title="58"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-59" title="59"></a>
+<a class="sourceLine" id="cb2-60" title="60"><span class="va">module</span>.<span class="at">exports</span> <span class="op">=</span> router<span class="op">;</span></a></code></pre></div>
+<p>B&gt; Then in my Redux Actions creator file (tidalActions.js) - I send the token information as part of axios.post request from front to back end. This is only for those routes , which needs to check back this token in the backend as well before performing the required actions (like create, edit, delete)</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="im">export</span> <span class="kw">const</span> createTide <span class="op">=</span> newTide <span class="kw">=&gt;</span> <span class="kw">async</span> dispatch <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="kw">const</span> res <span class="op">=</span> <span class="cf">await</span> <span class="va">axios</span>.<span class="at">post</span>(<span class="st">&quot;/api/tidal/createtide&quot;</span><span class="op">,</span> newTide<span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-3" title="3">    <span class="dt">headers</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-4" title="4">      <span class="dt">Authorization</span><span class="op">:</span> <span class="va">JSON</span>.<span class="at">parse</span>(<span class="va">localStorage</span>.<span class="at">getItem</span>(<span class="st">&quot;user&quot;</span>))[<span class="st">&quot;token&quot;</span>]</a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-6" title="6">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-7" title="7">  <span class="at">dispatch</span>(<span class="op">{</span> <span class="dt">type</span><span class="op">:</span> CREATE_TIDE<span class="op">,</span> <span class="dt">payload</span><span class="op">:</span> <span class="va">res</span>.<span class="at">data</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="op">};</span></a></code></pre></div>
+<h4 id="remember-unless-i-specifically-send-this-headers-information-to-the-backend-along-with-the-axios.post-request-in-the-backend-there-will-be-no-req.headers-information.-i-can-check-that-by-doing-a-console.logreq.headers-inside-the-backend-routing-code.-and-will-get-null.">Remember, unless I specifically send this headers information to the backend along with the axios.post request, in the backend there will be NO req.headers information. I can check that by doing a console.log(req.headers) inside the backend routing code. and will get null.</h4>
+<p>C&gt; and while creating a new protected resources in the backend (like creating a new Tide ) &gt; I am checking if the same token is being passed to the server from the front-end.</p>
+<p>getToken = function(headers) { if (headers &amp;&amp; headers.authorization) { var parted = headers.authorization.split(" "); if (parted.length === 2) { return parted[1]; } else { return null; } } else { return null; } }</p>
+<p>C&gt; And finally in the tidal create route I have this passport.authenticate() and <code>getToken</code> function implemented as below.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="va">router</span>.<span class="at">post</span>(</a>
+<a class="sourceLine" id="cb4-2" title="2"> <span class="st">&quot;/createtide&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-3" title="3"> <span class="va">passport</span>.<span class="at">authenticate</span>(<span class="st">&quot;jwt&quot;</span><span class="op">,</span> <span class="op">{</span> <span class="dt">session</span><span class="op">:</span> <span class="kw">false</span> <span class="op">}</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb4-4" title="4"> (req<span class="op">,</span> res) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-5" title="5">   <span class="kw">var</span> token <span class="op">=</span> <span class="at">getToken</span>(<span class="va">req</span>.<span class="at">headers</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-6" title="6">   <span class="co">// console.log(&quot;****************&quot;, req.user);</span></a>
+<a class="sourceLine" id="cb4-7" title="7">   <span class="co">// console.log(&quot;------------&quot;, req.body);</span></a>
+<a class="sourceLine" id="cb4-8" title="8">   <span class="co">//console.log(token);</span></a>
+<a class="sourceLine" id="cb4-9" title="9">   <span class="cf">if</span> (token) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-10" title="10">     <span class="kw">var</span> tide <span class="op">=</span> <span class="kw">new</span> <span class="at">Tide</span>(<span class="va">req</span>.<span class="at">body</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-11" title="11">     <span class="va">tide</span>.<span class="at">save</span>(<span class="kw">function</span>(err<span class="op">,</span> newTide) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-12" title="12">       <span class="cf">if</span> (err) <span class="cf">throw</span> err<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-13" title="13">       <span class="va">res</span>.<span class="at">status</span>(<span class="dv">200</span>).<span class="at">send</span>(newTide)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-14" title="14">     <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-15" title="15">   <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-16" title="16">     <span class="cf">return</span> <span class="va">res</span>.<span class="at">status</span>(<span class="dv">403</span>).<span class="at">send</span>(<span class="op">{</span> <span class="dt">success</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">msg</span><span class="op">:</span> <span class="st">&quot;Unauthorized.&quot;</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-17" title="17">   <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-18" title="18"> <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-19" title="19">)<span class="op">;</span></a></code></pre></div>
+<h3 id="actual-manual-test-in-postman-that-the-above-middleware-authorization-is-actually-working-by-not-letting-any-unauthorized-person-to-upload-a-new-tide-data-to-createtide-route.">Actual Manual Test in Postman that the above middleware authorization is actually working by not letting any unauthorized person to upload a new Tide data to /createtide route.</h3>
+<p>1&gt; In Postman, if I just put a POST request as below to - http://localhost:3000/api/tidal/createtide</p>
+<p>{ “date”:“2014-01-22T14:56:59.301Z”, “time”:“2014-01-22T14:56:59.301Z”, “meters”:“55” }</p>
+<p>I will get response msg as “Unauthorized” - WHICH IS GOOD, MEANS UN-AUTHORIZED USERS WERE NOT ABLE TO SUBMIT NEW DATA TO THIS ROUTE.</p>
+<h4 id="so-now-to-test-that-authorized-users-are-able-to-do-this---i-need-to-do-this-from-the-backend-i.e.-from-postman-i-need-to-first-feed-postman-that-token-that-was-generated-from-the-front-end-browser">SO NOW TO TEST THAT AUTHORIZED USERS ARE ABLE TO DO THIS - I NEED TO DO THIS &gt; FROM THE BACKEND i.e. FROM POSTMAN, I NEED TO FIRST FEED POSTMAN THAT TOKEN THAT WAS GENERATED FROM THE FRONT-END (BROWSER)</h4>
+<h4 id="login-in-your-browser-into-the-app-devtool-application-tab-copy-the-token-including-the-part-jwt">1&gt; Login in your browser into the App &gt; DevTool &gt; Application Tab &gt; Copy the Token including the part “JWT”</h4>
+<p>Come to Postman &gt; Headers &gt; Type “Content-Type” and set the Value as application/json</p>
+<p>Then in the next row &gt; type “Authorization” in the Key Field and in Value paste that token that I copied from Browser’ Dev tool.</p>
+<p>And now if I agian, send a POST request as below to - http://localhost:3000/api/tidal/createtide with Postman</p>
+<p>{ “date”:“2014-01-22T14:56:59.301Z”, “time”:“2014-01-22T14:56:59.301Z”, “meters”:“55” }</p>
+<h4 id="i-will-get-a-200-ok-response-with-the-proper-response-data-in-postman-and-also-the-relvant-action-in-this-route-will-get-executed.">I WILL GET A 200 OK RESPONSE with the proper response data in Postman, and also the relvant action in this route will get executed.</h4>
+<h3 id="genral-info-about-authorizations-after-i-log-in-to-the-app-in-browser---chrome-dev-tool">GENRAL INFO ABOUT AUTHORIZATIONS AFTER I LOG-IN TO THE APP IN BROWSER - CHROME-DEV-TOOL</h3>
+<p>After I log-in to the above App (or generally any app with proper credentials and token generaged and saved in localStorage ) and get redirected to - http://localhost:3000/dashboard</p>
+<p>Now in Dev-Tool &gt; Network tab &gt; Headers &gt; I will see a whole host of information like Request Payload</p>
+<p>{username: “mani.gk@example.com”, password: “examplepassword”} 1. password: “test-password” 2. username: “mani.gk@example.com”</p>
+<p>Then under the same Network &gt; sub tab preview I will see all these info ( i.e. my auth routes sent these as part of the token and successful login response.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="op">{</span><span class="dt">success</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span>…<span class="op">}</span></a>
+<a class="sourceLine" id="cb5-3" title="3"> imageUrl<span class="op">:</span> <span class="op">{,</span>…<span class="op">}</span></a>
+<a class="sourceLine" id="cb5-4" title="4">success<span class="op">:</span> true</a>
+<a class="sourceLine" id="cb5-5" title="5">token<span class="op">:</span> <span class="st">&quot;JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1hbmkuZ2tAdm9sdGggdggdgdg[po[piptm554PPORTQ0NDk2NGI4NzI5ODgxYmY4IiwiZW1wbG95ZXJUeXBlIjoicG9ydCIsImlhdCI6MTU0Mzc1MTI5NiwiZXhwIjoxNTQzNzY5Mjk2fQ.6ViXtqRR07SlwrJ9eb9S152KxK7i1ptqBdJfmsyBjmc&quot;</span></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="fl">4.</span> username<span class="op">:</span> <span class="st">&quot;Port admin&quot;</span></a></code></pre></div>
+</body></html>

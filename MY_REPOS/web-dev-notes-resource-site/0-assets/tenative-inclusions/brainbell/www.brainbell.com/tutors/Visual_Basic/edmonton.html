@@ -1,0 +1,1796 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = false;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "/detroitchicago/boise.js",
+        "/detroitchicago/boise.js?gcb=192-11&cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "/detroitchicago/memphis.js",
+        "/detroitchicago/memphis.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/minneapolis.js",
+        "/detroitchicago/minneapolis.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "/detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "/porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("/");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot.getAdUnitPath(adSlot).split("/").pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (ezimKey.split("/").pop() === adUnitName) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "/detroitchicago/raleigh.js",
+        "/detroitchicago/raleigh.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/tampa.js",
+        "/detroitchicago/tampa.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_count_adjustment: 0,
+        ad_lazyload_version: 0,
+        ad_location_ids: "",
+        ad_transform_level: 0,
+        adx_ad_count: 0,
+        bidder_method: 1,
+        bidder_version: 3,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        display_ad_count: 0,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        ds_adsize_opt_id: -1,
+        engaged_time_visit: 0,
+        ezcache_level: 1,
+        ezcache_skip_code: 6,
+        form_factor_id: 1,
+        framework_id: 1,
+        has_bad_image: 0,
+        has_bad_words: 0,
+        iab_category: "",
+        is_from_recommended_pages: false,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        max_ads: 0,
+        metro_code: 501,
+        optimization_version: 1,
+        page_ad_positions: "",
+        page_view_count: 460,
+        page_view_id: "d41463b7-f568-42f8-4fe8-e9a743970d69",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 0,
+        response_time_orig: 344,
+        serverid: "54.234.147.209:24898",
+        state: "NJ",
+        sub_page_ad_positions: "",
+        t_epoch: 1613703367,
+        template_id: 0,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/tutors/Visual_Basic/edmonton.php",
+        user_id: 0,
+        word_count: 0,
+        worst_bad_word_level: 0,
+      };
+      var _ezim_d = null;
+      var _ezat = {
+        domain_id: 83552,
+        form_factor_id: 1,
+        framework_id: 1,
+        pageview_date: "2021-02-18",
+        pageview_id: "d41463b7-f568-42f8-4fe8-e9a743970d69",
+        template_id: 0,
+        url: "https://www.brainbell.com/tutors/Visual_Basic/edmonton.php",
+        visit_uuid: "3b57fc57-4c51-4b3f-6c78-712b82b8f8be",
+      };
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+    >
+      __ez.queue.addFile(
+        "banger.js",
+        "/porpoiseant/banger.js?cb=192-11&bv=3&v=39&PageSpeed=off",
+        true,
+        [],
+        true,
+        false,
+        false,
+        true
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "/detroitchicago/tulsa.js",
+        "/detroitchicago/tulsa.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <title>Article or tutorial not found</title>
+    <link rel="stylesheet" type="text/css" href="/img/404.css" />
+
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base href="https://www.brainbell.com/tutors/Visual_Basic/edmonton.php" />
+    <script type="text/javascript">
+      var ezoTemplate = "pub_site_noads";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigeneris",
+        "//g.ezoic.net/ezosuigeneris.js",
+        true,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+      var __ez_ezosuigenerisEvt = function () {
+        if (typeof ezosuigeneris != "undefined") {
+          __ez.bit.AddAndFire(_ezaq["page_view_id"], [
+            new __ezDotData("universal_user_id", ezosuigeneris),
+          ]);
+        }
+      };
+      __ez.queue.addFunc(
+        "__ez_ezosuigenerisEvt",
+        "__ez_ezosuigenerisEvt",
+        null,
+        false,
+        [
+          "__ezf_ezosuigeneris",
+          "/detroitchicago/minneapolis.js",
+          "/detroitchicago/memphis.js",
+        ],
+        false,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigenerisc",
+        "//g.ezoic.net/ezosuigenerisc.js?nogen=1",
+        true,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["d41463b7-f568-42f8-4fe8-e9a743970d69", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <div>
+      <img src="/img/head_pic1.jpg" border="0" />
+    </div>
+    <div class="toc">
+      <h1>404 page not found</h1>
+      <p>
+        Sorry, the page you requested was not found. Please use the following
+        index to browse related topics.
+      </p>
+    </div>
+
+    <h1 style="text-align: center">Visual Basic Index</h1>
+    <div class="toc">
+      <h2>A Methodical Approach to Error Handling</h2>
+      <a
+        href="/tutors/Visual_Basic/Tip_1_Inconsistent_as_it_is_try_to_mimic_Visual_Basic_s_own_error_handling_scheme_as_much_as_possible.htm"
+        >Inconsistent as it is, try to mimic Visual Basic's own error handling
+        scheme as much as possible.</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Tip_2_Use_line_numbers_in_your_source_code.htm"
+        >Use line numbers in your source code.</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Tip_3_Raise_exceptions_when_possible_because_return_values_I_will_I_be_ignored.htm"
+        >Raise exceptions when possible because return values <i>will</i> be
+        ignored.</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Tip_4_Automatically_log_critical_I_MsgBox_I_errors.htm"
+        >Automatically log critical <i>MsgBox</i> errors.</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Tip_5_Have_an_error_handler_in_every_routine.htm"
+        >Have an error handler in every routine.</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Tip_6_Write_meaningful_error_logs_to_a_central_location_if_possible.htm"
+        >Write meaningful error logs (to a central location if possible).</a
+      >
+      <a href="/tutors/Visual_Basic/Tip_7_Use_assertions.htm"
+        >Use assertions.</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Tip_8_Don_t_retrofit_blind_error_handlers.htm"
+        >Don't retrofit blind error handlers.</a
+      >
+      <a href="/tutors/Visual_Basic/Tip_9_Trace_the_stack.htm"
+        >Trace the stack.</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Tip_11_Replace_useful_intrinsic_objects_with_your_own.htm"
+        >Replace useful intrinsic objects with your own.</a
+      >
+      <a href="/tutors/Visual_Basic/Tip_12_Check_DLL_version_errors.htm"
+        >Check DLL version errors.</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Tip_13_Use_Microsoft_System_Information_MSINFO32_EXE_when_you_can.htm"
+      >
+        Use Microsoft System Information (MSINFO32.EXE) when you can.</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Tip_14_Treat_error_handling_like_transaction_processing.htm"
+        >Treat error handling like transaction processing.</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Tip_15_Don_t_test_your_own_software_or_write_your_own_test_plans.htm"
+        >Don't test your own software or write your own test plans.</a
+      >
+      <a href="/tutors/Visual_Basic/Tip_16_Stress_test_your_applications.htm"
+        >Stress test your applications.</a
+      >
+      <a href="/tutors/Visual_Basic/Tip_18_Consider_error_values.htm"
+        >Consider error values.</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Tip_19_Tighten_up_Visual_Basic_s_type_checking.htm"
+        >Tighten up Visual Basic's type checking.</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Tip_20_Define_constants_using_a_TypeLib_or_an_Enum.htm"
+        >Define constants using a TypeLib or an Enum.</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Tip_21_Keep_error_text_in_a_resource_file.htm"
+        >Keep error text in a resource file.</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Tip_22_Always_handle_errors_in_controls_and_components_that_you_build.htm"
+        >Always handle errors in controls and components (that you build).</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Tip_23_Use_symbolic_debugging_information.htm"
+        >Use symbolic debugging information.</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Business objects</h2>
+      <a href="/tutors/Visual_Basic/Data_Access_Layer.htm">Data Access Layer</a>
+      <a href="/tutors/Visual_Basic/Data_Access_Layer_Specifics.htm"
+        >Data Access Layer Specifics</a
+      >
+      <a href="/tutors/Visual_Basic/Recordset.htm">Recordset</a>
+      <a href="/tutors/Visual_Basic/Retrieving_a_Recordset.htm"
+        >Retrieving a Recordset</a
+      >
+      <a href="/tutors/Visual_Basic/Serializing_a_Recordset.htm"
+        >Serializing a Recordset</a
+      >
+      <a href="/tutors/Visual_Basic/Updating_a_Recordset.htm"
+        >Updating a Recordset</a
+      >
+      <a href="/tutors/Visual_Basic/Synchronizing_a_Recordset.htm"
+        >Synchronizing a Recordset</a
+      >
+      <a href="/tutors/Visual_Basic/Factory_Worker_Model.htm"
+        >Factory-Worker Model</a
+      >
+      <a href="/tutors/Visual_Basic/Factory_Objects.htm">Factory Objects</a>
+      <a href="/tutors/Visual_Basic/Persistence_Perhaps.htm"
+        >Persistence (Perhaps?)</a
+      >
+      <a href="/tutors/Visual_Basic/Removing_and_Deleting.htm"
+        >Removing and Deleting</a
+      >
+      <a href="/tutors/Visual_Basic/Getting_at_the_Recordset.htm"
+        >Getting at the Recordset</a
+      >
+      <a href="/tutors/Visual_Basic/Determining_the_Parameters_of_a_Factory.htm"
+        >Determining the Parameters of a Factory</a
+      >
+      <a href="/tutors/Visual_Basic/Worker_Objects.htm">Worker Objects</a>
+      <a href="/tutors/Visual_Basic/Business_Object_Browser.htm"
+        >Business Object Browser</a
+      >
+      <a href="/tutors/Visual_Basic/Action_Objects.htm">Action Objects</a>
+      <a href="/tutors/Visual_Basic/Action_Object_Interface.htm"
+        >Action Object Interface</a
+      >
+      <a href="/tutors/Visual_Basic/Transactions_in_Action.htm"
+        >Transactions in Action</a
+      >
+      <a href="/tutors/Visual_Basic/Clients.htm">Clients</a>
+    </div>
+
+    <div class="toc">
+      <h2>Developing Web Applications</h2>
+      <a href="/tutors/Visual_Basic/Just_What_Is_a_Web_Application.htm"
+        >Just What Is a Web Application?</a
+      >
+      <a href="/tutors/Visual_Basic/IIS_or_ASP.htm">IIS or ASP?</a>
+      <a
+        href="/tutors/Visual_Basic/What_Does_Visual_Basic_6_Need_for_Web_Application_Development.htm"
+        >What Does Visual Basic 6 Need for Web Application Development?</a
+      >
+      <a href="/tutors/Visual_Basic/Foundations_The_Free_Stuff.htm"
+        >Foundations: The Free Stuff</a
+      >
+      <a href="/tutors/Visual_Basic/Building_a_Home_of_Your_Own.htm"
+        >Building a Home of Your Own</a
+      >
+      <a href="/tutors/Visual_Basic/Extending_Your_Home_to_Guests.htm"
+        >Extending Your Home to Guests</a
+      >
+      <a href="/tutors/Visual_Basic/Turning_Your_Home_into_a_Business.htm"
+        >Turning Your Home into a Business</a
+      >
+      <a href="/tutors/Visual_Basic/Conclusion_a2.htm">Conclusion</a>
+    </div>
+
+    <div class="toc">
+      <h2>Programming With Variants</h2>
+      <a href="/tutors/Visual_Basic/Overview_of_Variants.htm"
+        >Overview of Variants</a
+      >
+      <a href="/tutors/Visual_Basic/Internal_Structure.htm"
+        >Internal Structure</a
+      >
+      <a href="/tutors/Visual_Basic/Performance_Doesn_t_Matter.htm"
+        >Performance Doesn't Matter</a
+      >
+      <a href="/tutors/Visual_Basic/Memory_Doesn_t_Matter.htm"
+        >Memory Doesn't Matter</a
+      >
+      <a href="/tutors/Visual_Basic/Type_Safety.htm">Type Safety</a>
+      <a href="/tutors/Visual_Basic/Flexibility.htm">Flexibility</a>
+      <a href="/tutors/Visual_Basic/Defensive_Coding.htm">Defensive Coding</a>
+      <a
+        href="/tutors/Visual_Basic/Using_the_Variant_as_a_General_Numeric_Data_Type.htm"
+        >Using the Variant as a General Numeric Data Type</a
+      >
+      <a href="/tutors/Visual_Basic/Using_Variants_Instead_of_Objects.htm"
+        >Using Variants Instead of Objects</a
+      >
+      <a href="/tutors/Visual_Basic/newfile073.html"
+        ><i>Empty </i>and <i>Null</i>
+      </a>
+      <a href="/tutors/Visual_Basic/Arrays.htm">Arrays</a>
+      <a href="/tutors/Visual_Basic/User_Defined_Types.htm"
+        >User-Defined Types</a
+      >
+      <a href="/tutors/Visual_Basic/Side_effects_when_passing_by_reference.htm"
+        >Side effects when passing by reference</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Developing Applications in Windows CE</h2>
+      <a href="/tutors/Visual_Basic/What_Is_Windows_CE.htm"
+        >What Is Windows CE?</a
+      >
+      <a href="/tutors/Visual_Basic/Target_Audience.htm">Target Audience</a>
+      <a href="/tutors/Visual_Basic/Building_a_Windows_CE_Device.htm"
+        >Building a Windows CE Device</a
+      >
+      <a href="/tutors/Visual_Basic/Supported_Architectures.htm"
+        >Supported Architectures</a
+      >
+      <a href="/tutors/Visual_Basic/Win32_API.htm">Win32 API</a>
+      <a href="/tutors/Visual_Basic/The_Object_Store.htm">The Object Store</a>
+      <a href="/tutors/Visual_Basic/Processes_and_Threads.htm"
+        >Processes and Threads</a
+      >
+      <a href="/tutors/Visual_Basic/Real_Time_Capabilities.htm"
+        >Real-Time Capabilities</a
+      >
+      <a href="/tutors/Visual_Basic/Development_Environments.htm"
+        >Development Environments</a
+      >
+      <a href="/tutors/Visual_Basic/Windows_CE_and_the_IT_Department.htm"
+        >Windows CE and the IT Department</a
+      >
+      <a href="/tutors/Visual_Basic/The_Development_Environment.htm"
+        >The Development Environment</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Windows_CE_Application_Design_Philosophy.htm"
+        >Windows CE Application Design Philosophy</a
+      >
+      <a href="/tutors/Visual_Basic/Your_First_Windows_CE_Application.htm"
+        >Your First Windows CE Application</a
+      >
+      <a href="/tutors/Visual_Basic/General_Design_Considerations.htm"
+        >General Design Considerations</a
+      >
+      <a href="/tutors/Visual_Basic/Dealing_with_Errors.htm"
+        >Dealing with Errors</a
+      >
+      <a href="/tutors/Visual_Basic/The_Windows_CE_Desktop_Emulator.htm"
+        >The Windows CE Desktop Emulator</a
+      >
+      <a href="/tutors/Visual_Basic/Testing_and_Debugging_Your_Application.htm"
+        >Testing and Debugging Your Application</a
+      >
+      <a href="/tutors/Visual_Basic/Deploying_Your_Application.htm"
+        >Deploying Your Application</a
+      >
+      <a href="/tutors/Visual_Basic/Extending_Visual_Basic_Using_COM_DLLs.htm"
+        >Extending Visual Basic Using COM DLLs</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Staying in Control War Against Bugs</h2>
+      <a href="/tutors/Visual_Basic/An_Expensive_Tale.htm">An Expensive Tale</a>
+      <a href="/tutors/Visual_Basic/What_Are_We_Trying_to_Accomplish.htm"
+        >What Are We Trying to Accomplish?</a
+      >
+      <a href="/tutors/Visual_Basic/A_Guided_Tour.htm">A Guided Tour</a>
+      <a href="/tutors/Visual_Basic/Priorities_The_Four_Ball_Juggling_Act.htm"
+        >Priorities: The Four-Ball Juggling Act</a
+      >
+      <a href="/tutors/Visual_Basic/Progress_Can_Be_Dangerous.htm"
+        >Progress Can Be Dangerous</a
+      >
+      <a href="/tutors/Visual_Basic/Dancing_in_Step.htm">Dancing in Step</a>
+      <a href="/tutors/Visual_Basic/Swallowing_a_Rhinoceros_Sideways.htm"
+        >Swallowing a Rhinoceros Sideways</a
+      >
+      <a href="/tutors/Visual_Basic/Looping_the_Loop.htm">Looping the Loop</a>
+      <a href="/tutors/Visual_Basic/Back_to_School.htm">Back to School</a>
+      <a href="/tutors/Visual_Basic/Yet_More_Schoolwork.htm"
+        >Yet More Schoolwork</a
+      >
+      <a href="/tutors/Visual_Basic/Eating_Humble_Pie.htm">Eating Humble Pie</a>
+      <a href="/tutors/Visual_Basic/Jumping_Out_of_The_Loop.htm"
+        >Jumping Out of The Loop</a
+      >
+      <a href="/tutors/Visual_Basic/Getting_Our_Hands_Dirty.htm"
+        >Getting Our Hands Dirty</a
+      >
+      <a
+        href="/tutors/Visual_Basic/In_Flight_Testing_Using_the_I_Assert_I_Statement.htm"
+        >In-Flight Testing: Using the <i>Assert</i> Statement</a
+      >
+      <a href="/tutors/Visual_Basic/How_Sane_Is_Your_Program.htm"
+        >How Sane Is Your Program?</a
+      >
+      <a href="/tutors/Visual_Basic/Peering_Inside_Stored_Procedures.htm"
+        >Peering Inside Stored Procedures</a
+      >
+      <a href="/tutors/Visual_Basic/Here_Be_Dragons.htm">Here Be Dragons</a>
+      <a href="/tutors/Visual_Basic/Evil_Type_Coercion.htm"
+        >Evil Type Coercion</a
+      >
+      <a href="/tutors/Visual_Basic/The_Bug_Hunt.htm">The Bug Hunt</a>
+      <a href="/tutors/Visual_Basic/Declaring_Your_Intentions.htm"
+        >Declaring Your Intentions</a
+      >
+      <a href="/tutors/Visual_Basic/ActiveX_Documents.htm">ActiveX Documents</a>
+      <a href="/tutors/Visual_Basic/Assert_Yourself_The_Assertion_Sourcerer.htm"
+        >Assert Yourself: The Assertion Sourcerer</a
+      >
+      <a href="/tutors/Visual_Basic/Size_Matters_The_Metrics_Sourcerer.htm"
+        >Size Matters: The Metrics Sourcerer</a
+      >
+      <a
+        href="/tutors/Visual_Basic/A_Black_Box_The_Instrumentation_Sourcerer.htm"
+        >A Black Box: The Instrumentation Sourcerer</a
+      >
+      <a href="/tutors/Visual_Basic/Final_Thoughts.htm">Final Thoughts</a>
+    </div>
+
+    <div class="toc">
+      <h2>Minutiae</h2>
+      <a href="/tutors/Visual_Basic/A_Little_About_P_Code.htm"
+        >A Little About P-Code</a
+      >
+      <a href="/tutors/Visual_Basic/Generating_Code.htm">Generating Code</a>
+      <a href="/tutors/Visual_Basic/The_Loggers.htm">The Loggers</a>
+      <a href="/tutors/Visual_Basic/The_Linker.htm">The Linker</a>
+      <a
+        href="/tutors/Visual_Basic/Using_the_Compiler_to_Optimize_Your_Code.htm"
+        >Using the Compiler to Optimize Your Code</a
+      >
+      <a href="/tutors/Visual_Basic/Advanced_Optimizations.htm"
+        >Advanced Optimizations</a
+      >
+      <a href="/tutors/Visual_Basic/The_Logger_Code.htm">The Logger Code</a>
+      <a href="/tutors/Visual_Basic/Using_Mixed_Language_Programming.htm"
+        >Using Mixed Language Programming</a
+      >
+      <a href="/tutors/Visual_Basic/Controlling_Your_Code_s_Speed.htm"
+        >Controlling Your Code's Speed</a
+      >
+      <a href="/tutors/Visual_Basic/_quot_Borrowing_quot_Code.htm"
+        >&quot;Borrowing&quot; Code</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Calling_on_All_Your_Problem_Solving_Skills.htm"
+        >Calling on All Your Problem-Solving Skills</a
+      >
+      <a href="/tutors/Visual_Basic/Using_Smoke_and_Mirrors.htm"
+        >Using Smoke and Mirrors</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Visual_Basic_as_an_Object_Oriented_Language.htm"
+        >Visual Basic as an Object-Oriented Language</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Using_Collections_to_Extend_the_Type_System.htm"
+        >Using Collections to Extend the Type System</a
+      >
+      <a href="/tutors/Visual_Basic/newfile153.html"
+        >Adding to <i>VarType</i></a
+      >
+      <a href="/tutors/Visual_Basic/Pointers.htm">Pointers</a>
+      <a href="/tutors/Visual_Basic/Stuff_About_Type_Libraries.htm"
+        >Stuff About Type Libraries</a
+      >
+      <a href="/tutors/Visual_Basic/newfile156.html"
+        >Removing <i>Declare</i> Statements</a
+      >
+      <a href="/tutors/Visual_Basic/Stuff_About_Smarties.htm"
+        >Stuff About Smarties</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Understanding_Software_Development_by_Dining_Out.htm"
+        >Understanding Software Development by Dining Out</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>How Does Y2K Affect Visual Basic?</h2>
+      <a href="/tutors/Visual_Basic/How_Does_Y2K_Affect_Visual_Basic.htm"
+        >How Does Y2K Affect Visual Basic?</a
+      >
+      <a href="/tutors/Visual_Basic/The_Date_Data_Type.htm"
+        >The Date Data Type</a
+      >
+      <a href="/tutors/Visual_Basic/Manipulating_Dates_in_Visual_Basic.htm"
+        >Manipulating Dates in Visual Basic</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Going_Under_the_Covers_Dating_Assignments.htm"
+        >Going Under the Covers: Dating Assignments</a
+      >
+      <a href="/tutors/Visual_Basic/Sometimes_You_Have_to_Get_Strict.htm"
+        >Sometimes You Have to Get Strict</a
+      >
+      <a href="/tutors/Visual_Basic/Displaying_Date_Information.htm"
+        >Displaying Date Information</a
+      >
+      <a href="/tutors/Visual_Basic/Date_Entry.htm">Date Entry</a>
+      <a href="/tutors/Visual_Basic/Working_with_Databases.htm"
+        >Working with Databases</a
+      >
+      <a
+        href="/tutors/Visual_Basic/When_It_s_Time_to_Move_On_Migration_Issues.htm"
+        >When It's Time to Move On: Migration Issues</a
+      >
+      <a
+        href="/tutors/Visual_Basic/What_to_Look_Out_for_When_Renovating_Old_Code.htm"
+        >What to Look Out for When Renovating Old Code</a
+      >
+      <a href="/tutors/Visual_Basic/Testing.htm">Testing</a>
+      <a href="/tutors/Visual_Basic/Test_Data_and_Conditions.htm"
+        >Test Data and Conditions</a
+      >
+      <a href="/tutors/Visual_Basic/Change_Your_System_Date.htm"
+        >Change Your System Date</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Find_Out_More_About_Your_Date_s_Background.htm"
+        >Find Out More About Your Date's Background
+      </a>
+      <a href="/tutors/Visual_Basic/Conclusion_a3.htm">Conclusion</a>
+    </div>
+
+    <div class="toc">
+      <h2>Software Testing</h2>
+      <a href="/tutors/Visual_Basic/The_Value_of_Software_Testing.htm"
+        >&quot;Well, at Least It Compiled OK!&quot;</a
+      >
+      <a href="/tutors/Visual_Basic/The_Purpose_of_Testing.htm"
+        >The Purpose of Testing</a
+      >
+      <a href="/tutors/Visual_Basic/Unit_Component_Testing.htm"
+        >Unit/Component Testing</a
+      >
+      <a href="/tutors/Visual_Basic/System_Testing.htm">System Testing</a>
+      <a href="/tutors/Visual_Basic/User_Acceptance_Testing.htm"
+        >User Acceptance Testing</a
+      >
+      <a href="/tutors/Visual_Basic/Code_Reviews.htm">Code Reviews</a>
+      <a href="/tutors/Visual_Basic/Partner_with_Another_Developer.htm"
+        >Partner with Another Developer</a
+      >
+      <a href="/tutors/Visual_Basic/Test_as_You_Go.htm">Test as You Go</a>
+      <a href="/tutors/Visual_Basic/Create_Regular_Builds.htm"
+        >Create Regular Builds</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Write_Test_Scripts_at_the_Same_Time_You_Code.htm"
+        >Write Test Scripts at the Same Time You Code</a
+      >
+      <a href="/tutors/Visual_Basic/Decide_Where_to_Put_Test_Code.htm"
+        >Decide Where to Put Test Code</a
+      >
+      <a href="/tutors/Visual_Basic/Understand_the_Test_Data.htm"
+        >Understand the Test Data</a
+      >
+      <a href="/tutors/Visual_Basic/Get_the_Users_Involved.htm"
+        >Get the Users Involved</a
+      >
+      <a href="/tutors/Visual_Basic/Track_Defects.htm">Track Defects</a>
+      <a href="/tutors/Visual_Basic/Test_Plans.htm">Test Plans</a>
+      <a href="/tutors/Visual_Basic/Test_Scripts.htm">Test Scripts</a>
+      <a href="/tutors/Visual_Basic/Stubs_and_Drivers.htm">Stubs and Drivers</a>
+      <a href="/tutors/Visual_Basic/Planning_a_Code_Component.htm"
+        >Planning a Code Component</a
+      >
+      <a href="/tutors/Visual_Basic/Functional_Specification.htm"
+        >Functional Specification</a
+      >
+      <a href="/tutors/Visual_Basic/Test_Script_Specification.htm"
+        >Test Script Specification</a
+      >
+      <a href="/tutors/Visual_Basic/Performance_Testing.htm"
+        >Performance Testing</a
+      >
+      <a href="/tutors/Visual_Basic/Preparing_a_Suitable_Test_Environment.htm"
+        >Preparing a Suitable Test Environment</a
+      >
+      <a href="/tutors/Visual_Basic/Test_Machine_Configurations.htm"
+        >Test Machine Configurations</a
+      >
+      <a href="/tutors/Visual_Basic/A_Final_Word_of_Caution.htm"
+        >A Final Word of Caution</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Building Base Code</h2>
+      <a href="/tutors/Visual_Basic/Why_Base_Code.htm">Why Base Code?</a>
+      <a href="/tutors/Visual_Basic/Helper_Functions.htm">Helper Functions</a>
+      <a href="/tutors/Visual_Basic/Subclassing.htm">Subclassing</a>
+      <a href="/tutors/Visual_Basic/Subclassing_Functions_and_Subroutines.htm"
+        >Subclassing Functions and Subroutines</a
+      >
+      <a href="/tutors/Visual_Basic/What_Are_the_Benefits_of_Subclassing.htm"
+        >What Are the Benefits of Subclassing?</a
+      >
+      <a href="/tutors/Visual_Basic/Problems_with_Subclassing.htm"
+        >Problems with Subclassing</a
+      >
+      <a href="/tutors/Visual_Basic/Subclassing_Objects.htm"
+        >Subclassing Objects</a
+      >
+      <a href="/tutors/Visual_Basic/Common_Forms_a2.htm">Common Forms</a>
+      <a href="/tutors/Visual_Basic/Hide_Your_API_Calls.htm"
+        >Hide Your API Calls</a
+      >
+      <a href="/tutors/Visual_Basic/Registry_Tools.htm">Registry Tools</a>
+      <a href="/tutors/Visual_Basic/Resource_Files.htm">Resource Files</a>
+      <a href="/tutors/Visual_Basic/Documentation.htm">Documentation</a>
+      <a href="/tutors/Visual_Basic/The_Object_Browser.htm"
+        >The Object Browser</a
+      >
+      <a href="/tutors/Visual_Basic/Where_Do_You_Begin.htm"
+        >Where Do You Begin?</a
+      >
+      <a href="/tutors/Visual_Basic/Who_Should_Build_It.htm"
+        >Who Should Build It?</a
+      >
+      <a href="/tutors/Visual_Basic/Changing_Base_Code.htm"
+        >Changing Base Code</a
+      >
+      <a href="/tutors/Visual_Basic/Templates.htm">Templates</a>
+    </div>
+
+    <div class="toc">
+      <h2>Mixed Languages with Visual Studio</h2>
+      <a href="/tutors/Visual_Basic/Typical_MLP_Scenarios.htm"
+        >Typical MLP Scenarios</a
+      >
+      <a href="/tutors/Visual_Basic/What_s_Required_for_Using_MLP.htm"
+        >What's Required for Using MLP?</a
+      >
+      <a href="/tutors/Visual_Basic/How_Is_MLP_Possible_in_Windows.htm"
+        >How Is MLP Possible in Windows?</a
+      >
+      <a href="/tutors/Visual_Basic/Mixed_Language_Approaches.htm"
+        >Mixed Language Approaches</a
+      >
+      <a href="/tutors/Visual_Basic/Using_COM_and_ActiveX_vs_Using_a_DLL.htm"
+        >Using COM and ActiveX vs. Using a DLL</a
+      >
+      <a href="/tutors/Visual_Basic/Using_a_Single_Entry_Point.htm"
+        >Using a Single Entry Point</a
+      >
+      <a href="/tutors/Visual_Basic/Connectivity_Example.htm"
+        >Connectivity Example</a
+      >
+      <a href="/tutors/Visual_Basic/Calling_C__DLLs_from_Visual_B.htm"
+        >Calling C++ DLLs from Visual B++</a
+      >
+      <a href="/tutors/Visual_Basic/Passing_a_Visual_B__Object_to_Visual_C.htm"
+        >Passing a Visual B++ Object to Visual C++</a
+      >
+      <a href="/tutors/Visual_Basic/Using_an_ActiveX_Control_for_MLP.htm"
+        >Using an ActiveX Control for MLP</a
+      >
+      <a href="/tutors/Visual_Basic/Other_Languages.htm">Other Languages</a>
+      <a href="/tutors/Visual_Basic/Versioning_Components.htm"
+        >Versioning Components</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Databases</h2>
+      <a
+        href="/tutors/Visual_Basic/Do_It_Once_Do_It_Right_and_Forget_It_Forever.htm"
+        >Do It Once, Do It Right, and Forget It Forever</a
+      >
+      <a href="/tutors/Visual_Basic/Let_s_Look_at_Data.htm"
+        >Let's Look at Data</a
+      >
+      <a href="/tutors/Visual_Basic/Tiering_and_Data.htm">Tiering and Data</a>
+      <a href="/tutors/Visual_Basic/Getting_Data_Back.htm">Getting Data Back</a>
+      <a href="/tutors/Visual_Basic/Beefing_Up_Two_tier.htm"
+        >Beefing Up Two-tier</a
+      >
+      <a href="/tutors/Visual_Basic/Classic_Client_Server_Computing.htm"
+        >Classic Client/Server Computing</a
+      >
+      <a href="/tutors/Visual_Basic/Journal_Temporary_Entry.htm"
+        >Journal/Temporary Entry</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Stateful_Transactional_Conversational_Servers.htm"
+        >Stateful/Transactional/Conversational Servers</a
+      >
+      <a href="/tutors/Visual_Basic/Locking_and_Unlocking.htm"
+        >Locking and Unlocking</a
+      >
+      <a href="/tutors/Visual_Basic/The_Trouble_with_Teraflops.htm"
+        >The Trouble with Teraflops</a
+      >
+      <a href="/tutors/Visual_Basic/When_to_Open_and_Close_Connections.htm"
+        >When to Open and Close Connections</a
+      >
+      <a href="/tutors/Visual_Basic/Deciding_Where_to_Put_Transaction_Scope.htm"
+        >Deciding Where to Put Transaction Scope</a
+      >
+      <a href="/tutors/Visual_Basic/Let_s_Get_Tiering.htm">Let's Get Tiering</a>
+      <a href="/tutors/Visual_Basic/What_About_SQL.htm">What About SQL?</a>
+      <a href="/tutors/Visual_Basic/Static_Lookup_Data.htm"
+        >Static Lookup Data</a
+      >
+      <a href="/tutors/Visual_Basic/Tiers_and_Data.htm">Tiers and Data</a>
+      <a href="/tutors/Visual_Basic/Objects_State_and_Data_The_Buxom_Server.htm"
+        >Objects, State, and Data: The Buxom Server</a
+      >
+      <a href="/tutors/Visual_Basic/newfile276.html"
+        >Still Not Sure What Data Is Where Objects Are Concerned?</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Data_8212_the_Currency_of_an_Object_System.htm"
+        >Data?the Currency of an Object System</a
+      >
+      <a href="/tutors/Visual_Basic/Remoting.htm">Remoting</a>
+      <a href="/tutors/Visual_Basic/Epilogue.htm">Epilogue</a>
+    </div>
+
+    <div class="toc">
+      <h2>Programming on Purpose</h2>
+      <a href="/tutors/Visual_Basic/Managing_Windows.htm">Managing Windows</a>
+      <a href="/tutors/Visual_Basic/Modal_or_Modeless.htm"
+        >Modal or Modeless?</a
+      >
+      <a href="/tutors/Visual_Basic/Toward_a_General_Modality_Class.htm"
+        >Toward a General Modality Class</a
+      >
+      <a href="/tutors/Visual_Basic/Extending_the_CFormAttributes_Class.htm"
+        >Extending the CFormAttributes Class</a
+      >
+      <a href="/tutors/Visual_Basic/Dealing_with_Complexity.htm"
+        >Dealing with Complexity</a
+      >
+      <a href="/tutors/Visual_Basic/The_Art_of_the_State.htm"
+        >The Art of the State</a
+      >
+      <a href="/tutors/Visual_Basic/Modeling_a_GUI_with_an_FSM.htm"
+        >Modeling a GUI with an FSM</a
+      >
+      <a href="/tutors/Visual_Basic/The_End_of_the_Elegance.htm"
+        >The End of the Elegance</a
+      >
+      <a href="/tutors/Visual_Basic/Implementing_FSMs.htm">Implementing FSMs</a>
+      <a href="/tutors/Visual_Basic/Data_Driven_Code.htm">Data-Driven Code</a>
+      <a href="/tutors/Visual_Basic/After_the_Dust_Has_Settled.htm"
+        >After the Dust Has Settled</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Reusability of Coding</h2>
+      <a href="/tutors/Visual_Basic/Deadline_Pressures.htm"
+        >Deadline Pressures</a
+      >
+      <a href="/tutors/Visual_Basic/Quality_of_Development_Teams.htm"
+        >Quality of Development Teams</a
+      >
+      <a href="/tutors/Visual_Basic/The_Business_Case_for_Reuse.htm"
+        >The Business Case for Reuse</a
+      >
+      <a href="/tutors/Visual_Basic/The_Keys_to_Reuse.htm">The Keys to Reuse</a>
+      <a href="/tutors/Visual_Basic/Meeting_Reuse_Requirements_Effectively.htm"
+        >Meeting Reuse Requirements Effectively</a
+      >
+      <a href="/tutors/Visual_Basic/Code_Reuse_Using_Objects.htm"
+        >Code Reuse Using Objects</a
+      >
+      <a href="/tutors/Visual_Basic/Forms_as_Reusable_Components.htm"
+        >Forms as Reusable Components</a
+      >
+      <a href="/tutors/Visual_Basic/Creating_Your_Own_Controls.htm"
+        >Creating Your Own Controls</a
+      >
+      <a href="/tutors/Visual_Basic/Using_a_ROOS.htm">Using a ROOS</a>
+      <a href="/tutors/Visual_Basic/Reuse_Issues_for_the_Programmer.htm"
+        >Reuse Issues for the Programmer</a
+      >
+      <a href="/tutors/Visual_Basic/Develop_a_Coupling_Strategy.htm"
+        >Develop a Coupling Strategy</a
+      >
+      <a href="/tutors/Visual_Basic/Refine_Your_Habits.htm"
+        >Refine Your Habits</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>How to Juggle 30 Balls Blindfolded</h2>
+      <a href="/tutors/Visual_Basic/A_Visual_Basic_Quality_Crisis.htm"
+        >A Visual Basic Quality Crisis?</a
+      >
+      <a href="/tutors/Visual_Basic/Risk_Management.htm">Risk Management</a>
+      <a href="/tutors/Visual_Basic/Technical_Infrastructure.htm"
+        >Technical Infrastructure</a
+      >
+      <a href="/tutors/Visual_Basic/Insist_on_Great_Project_Management.htm"
+        >Insist on Great Project Management</a
+      >
+      <a href="/tutors/Visual_Basic/Understand_Where_You_Came_From.htm"
+        >Understand Where You Came From</a
+      >
+      <a href="/tutors/Visual_Basic/Understand_Where_You_Are.htm"
+        >Understand Where You Are</a
+      >
+      <a href="/tutors/Visual_Basic/Build_Commitment_and_Understand_Users.htm"
+        >Build Commitment and Understand Users</a
+      >
+      <a href="/tutors/Visual_Basic/Understand_the_Technology.htm"
+        >Understand the Technology</a
+      >
+      <a href="/tutors/Visual_Basic/Create_a_Sensible_Management_Structure.htm"
+        >Create a Sensible Management Structure</a
+      >
+      <a href="/tutors/Visual_Basic/Get_a_Process.htm">Get a Process</a>
+      <a href="/tutors/Visual_Basic/Choose_a_Method.htm">Choose a Method</a>
+      <a href="/tutors/Visual_Basic/Case_Study.htm">Case Study</a>
+      <a href="/tutors/Visual_Basic/The_Process_and_the_Players.htm"
+        >The Process and the Players</a
+      >
+      <a href="/tutors/Visual_Basic/Skill_Requirements.htm"
+        >Skill Requirements</a
+      >
+      <a href="/tutors/Visual_Basic/Infrastructure_Requirements.htm"
+        >Infrastructure Requirements</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Vertical_Partitioning_Means_80_Percent_Complete_Is_80_Percent_Delivered.htm"
+        >Vertical Partitioning Means 80 Percent Complete Is 80 Percent
+        Delivered</a
+      >
+      <a href="/tutors/Visual_Basic/Cut_the_Politics_and_Get_Serious.htm"
+        >Cut the Politics and Get Serious</a
+      >
+      <a href="/tutors/Visual_Basic/See_the_Big_Picture_Plan_for_Change.htm"
+        >See the Big Picture, Plan for Change</a
+      >
+      <a href="/tutors/Visual_Basic/Ways_of_Ensuring_Quality.htm"
+        >Ways of Ensuring Quality</a
+      >
+      <a href="/tutors/Visual_Basic/Teach_the_Fundamentals.htm"
+        >Teach the Fundamentals</a
+      >
+      <a href="/tutors/Visual_Basic/Commit_to_Staff.htm">Commit to Staff</a>
+      <a href="/tutors/Visual_Basic/Why_Are_You_Prototyping.htm"
+        >Why Are You Prototyping?</a
+      >
+      <a
+        href="/tutors/Visual_Basic/Creating_a_Foundation_with_a_Pathfinder_Project.htm"
+        >Creating a Foundation with a Pathfinder Project</a
+      >
+      <a href="/tutors/Visual_Basic/Proving_the_Technical_Architecture.htm"
+        >Proving the Technical Architecture</a
+      >
+      <a href="/tutors/Visual_Basic/Focusing_on_Design.htm"
+        >Focusing on Design</a
+      >
+      <a href="/tutors/Visual_Basic/What_Is_Design.htm">What Is Design?</a>
+      <a href="/tutors/Visual_Basic/What_Is_I_Not_I_Design.htm"
+        >What Is <i>Not</i> Design?</a
+      >
+      <a href="/tutors/Visual_Basic/Developing_Design_Patterns.htm"
+        >Developing Design Patterns</a
+      >
+      <a href="/tutors/Visual_Basic/Benchmark_Driven_Design.htm"
+        >Benchmark-Driven Design</a
+      >
+      <a href="/tutors/Visual_Basic/Understanding_Objects.htm"
+        >Understanding Objects</a
+      >
+      <a href="/tutors/Visual_Basic/Investing_in_Reuse.htm"
+        >Investing in Reuse</a
+      >
+      <a href="/tutors/Visual_Basic/Finding_the_Right_Tools.htm"
+        >Finding the Right Tools</a
+      >
+      <a href="/tutors/Visual_Basic/Configuration_Management_Just_Do_It.htm"
+        >Configuration Management:Just Do It!</a
+      >
+      <a href="/tutors/Visual_Basic/Design_Specification.htm"
+        >Design Specification</a
+      >
+      <a href="/tutors/Visual_Basic/Testing_a3.htm">Testing</a>
+      <a href="/tutors/Visual_Basic/Window_Design_Testing.htm"
+        >Window Design Testing</a
+      >
+      <a href="/tutors/Visual_Basic/Navigational_Testing.htm"
+        >Navigational Testing</a
+      >
+      <a href="/tutors/Visual_Basic/Functional_Testing.htm"
+        >Functional Testing</a
+      >
+      <a href="/tutors/Visual_Basic/Build_Planning.htm">Build Planning</a>
+      <a href="/tutors/Visual_Basic/Concluding_Thoughts.htm"
+        >Concluding Thoughts</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Accessibility in Visual Basic</h2>
+      <a href="/tutors/Visual_Basic/Using_the_Keyboard.htm"
+        >Using the Keyboard</a
+      >
+      <a href="/tutors/Visual_Basic/Colors.htm">Colors</a>
+      <a href="/tutors/Visual_Basic/Sound.htm">Sound</a>
+      <a href="/tutors/Visual_Basic/Size.htm">Size</a>
+      <a href="/tutors/Visual_Basic/Windows_Versions.htm">Windows Versions</a>
+      <a href="/tutors/Visual_Basic/_I_SystemParametersInfo_I.htm"
+        ><i>SystemParametersInfo</i></a
+      >
+      <a href="/tutors/Visual_Basic/_I_GetSystemMetrics_I.htm"
+        ><i>GetSystemMetrics</i></a
+      >
+      <a href="/tutors/Visual_Basic/_I_FlashWindow_I.htm"><i>FlashWindow</i></a>
+      <a href="/tutors/Visual_Basic/Microsoft_Active_Accessibility.htm"
+        >Microsoft Active Accessibility</a
+      >
+      <a href="/tutors/Visual_Basic/Why_Should_I_Use_Active_Accessibility.htm"
+        >Why Should I Use Active Accessibility?</a
+      >
+      <a href="/tutors/Visual_Basic/Setting_Up_Your_Project.htm"
+        >Setting Up Your Project</a
+      >
+      <a href="/tutors/Visual_Basic/Retrieving_Accessibility_Information.htm"
+        >Retrieving Accessibility Information</a
+      >
+      <a href="/tutors/Visual_Basic/The_Planning_Stage.htm"
+        >The Planning Stage</a
+      >
+      <a href="/tutors/Visual_Basic/The_Design_Stage.htm">The Design Stage</a>
+      <a href="/tutors/Visual_Basic/Legal_Stuff.htm">Legal Stuff</a>
+    </div>
+
+    <div class="toc">
+      <h2>How To Recruit And Retain Developers</h2>
+      <a href="/tutors/Visual_Basic/Three_Steps_to_Employment_Heaven.htm"
+        >Three Steps to Employment Heaven</a
+      >
+      <a href="/tutors/Visual_Basic/What_Sort_of_Person_Should_You_Look_For.htm"
+        >What Sort of Person Should You Look For?</a
+      >
+      <a href="/tutors/Visual_Basic/Defining_the_Job_Description.htm"
+        >Defining the Job Description</a
+      >
+      <a href="/tutors/Visual_Basic/How_to_Locate_the_Right_People.htm"
+        >How to Locate the Right People</a
+      >
+      <a href="/tutors/Visual_Basic/The_Initial_Filtering_Process.htm"
+        >The Initial Filtering Process</a
+      >
+      <a href="/tutors/Visual_Basic/Interviewing.htm">Interviewing</a>
+      <a href="/tutors/Visual_Basic/Testing_a2.htm">Testing</a>
+      <a href="/tutors/Visual_Basic/The_Offer.htm">The Offer</a>
+      <a href="/tutors/Visual_Basic/Step_3_Retaining_Great_Developers.htm"
+        >Step 3: Retaining Great Developers</a
+      >
+      <a href="/tutors/Visual_Basic/Human_Resources_Management_A_Key_Role.htm"
+        >Human Resources Management: A Key Role</a
+      >
+      <a href="/tutors/Visual_Basic/Career_Development.htm"
+        >Career Development</a
+      >
+      <a href="/tutors/Visual_Basic/The_Effects_of_the_Year_2000.htm"
+        >The Effects of the Year 2000</a
+      >
+      <a href="/tutors/Visual_Basic/What_to_Do_When_Someone_Leaves.htm"
+        >What to Do When Someone Leaves</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Some more useful things</h2>
+      <a href="/tutors/Visual_Basic/Type_Information.htm">Type Information</a>
+      <a href="/tutors/Visual_Basic/Variables.htm">Variables</a>
+      <a href="/tutors/Visual_Basic/Functions_and_Subroutines.htm"
+        >Functions and Subroutines</a
+      >
+      <a href="/tutors/Visual_Basic/Constants.htm">Constants</a>
+      <a href="/tutors/Visual_Basic/OtherNaming_Conventions.htm"
+        >OtherNaming Conventions</a
+      >
+      <a href="/tutors/Visual_Basic/Some_Specifics.htm">Some Specifics</a>
+      <a href="/tutors/Visual_Basic/Miscellaneous_Conventions.htm"
+        >Miscellaneous Conventions</a
+      >
+      <a href="/tutors/Visual_Basic/Formatting.htm">Formatting</a>
+      <a href="/tutors/Visual_Basic/Code_Commenting.htm">Code Commenting</a>
+      <a href="/tutors/Visual_Basic/File_Headers.htm">File Headers</a>
+      <a href="/tutors/Visual_Basic/Function_and_Subroutine_Headers.htm"
+        >Function and Subroutine Headers</a
+      >
+      <a href="/tutors/Visual_Basic/Type_Prefixes.htm">Type Prefixes</a>
+      <a
+        href="/tutors/Visual_Basic/Sample_Answers_to_the_Technical_Test_in_Chapter_17.htm"
+        >Sample Answers to the Technical Test</a
+      >
+      <a href="/tutors/Visual_Basic/VB_Vogue.htm">VB Vogue</a>
+      <a href="/tutors/Visual_Basic/Application_Template.htm"
+        >Application Template</a
+      >
+      <a href="/tutors/Visual_Basic/Vogue_Tools.htm">Vogue Tools</a>
+      <a href="/tutors/Visual_Basic/Structured_Exception_Handling_Scenario.htm"
+        >Structured Exception Handling Scenario</a
+      >
+      <a href="/tutors/Visual_Basic/Visual_DateScope_2000_and_VBA2000.htm"
+        >Visual DateScope 2000 and VBA2000</a
+      >
+      <a href="/tutors/Visual_Basic/Date_Identification_Process.htm"
+        >Date Identification Process</a
+      >
+      <a href="/tutors/Visual_Basic/Year_2000_Library.htm">Year 2000 Library</a>
+    </div>
+    <script type="text/javascript" style="display: none">
+      var __ez_dims = (function () {
+        var setCookie = function (name, content, expiry) {
+          return (document.cookie =
+            name +
+            "=" +
+            content +
+            (expiry
+              ? ";expires=" +
+                new Date(
+                  Math.floor(new Date().getTime() + expiry * 1000)
+                ).toUTCString()
+              : "") +
+            ";path=/");
+        };
+        var ffid = 1;
+        var oh = window.screen.height;
+        var ow = window.screen.width;
+        var h = ffid === 1 ? oh : oh > ow ? oh : ow;
+        var w = ffid === 1 ? ow : oh > ow ? ow : oh;
+        var uh =
+          window.innerHeight ||
+          document.documentElement.clientHeight ||
+          document.getElementsByTagName("body")[0].clientHeight;
+        var uw =
+          window.innerWidth ||
+          document.documentElement.clientWidth ||
+          document.getElementsByTagName("body")[0].clientWidth;
+        setCookie(
+          "ezds",
+          encodeURIComponent("ffid=" + ffid + ",w=" + w + ",h=" + h),
+          31536e3 * 7
+        );
+        setCookie(
+          "ezohw",
+          encodeURIComponent("w=" + uw + ",h=" + uh),
+          31536e3 * 7
+        );
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "edmonton.php",
+        "/detroitchicago/edmonton.webp?a=a&cb=192-11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "jellyfish.php",
+        "/porpoiseant/jellyfish.webp?a=a&cb=192-11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+</html>

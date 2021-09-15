@@ -1,0 +1,179 @@
+<p>Observable isn’t an Angular specific feature, but a new standard for managing async data that will be included in the ES7 release. Angular uses observables extensively in the event system and the HTTP service.</p>
+<p><strong>Most simply, </strong>observables** are lazy collections of multiple values over time. Instead of thinking about it as a singular event or piece of data that we use at a single point in time, it should be thought about as a collection of events or pieces of data over a period of time. “A stream is a sequence of data elements made available over time”.**</p>
+<h4 id="observable-is-an-abstraction-of-asynchronous-stream-of-data.-for-example-when-we-look-at-observable-it-represents-a-stream-of-strings-which-will-be-delivered-one-by-one-over-the-time.">Observable is an abstraction of asynchronous stream of data. For example, when we look at Observable<string>, it represents a stream of strings which will be delivered one by one over the time.</h4>
+<p><strong>If you are used to utilizing promises or something more obscure you will most likely implement code that is only run once and then succeed or fail. Observables, on the other hand, are data streams. They can keep emitting values and any subscriptions will receive and process them separately at the time they each arrive.</strong></p>
+<p>Observables are declarative—that is, you define a function for publishing values, but it is not executed until a consumer subscribes to it. The subscribed consumer then receives notifications until the function completes, or until they unsubscribe.</p>
+<p><strong>Observables are lazy</strong></p>
+<p>You could think of lazy observables as newsletters. For each subscriber a new newsletter is created. They are then only send to those people, and not to anyone else.</p>
+<p><strong>Observables can have multiple values over time</strong></p>
+<p>Now if you keep that subscription to the newsletter open, you will get a new one every once and a while. The sender decides when you get it but all you have to do is just wait until it comes straight into your inbox.</p>
+<h3 id="comparison-with-promise">Comparison with Promise</h3>
+<p>If you come from the world of promises this is a key difference as promises always return only one value. Another thing is that observables are cancelable. If you don’t want your newsletter anymore, you unsubscribe. With promises this is different, you can’t cancel a promise. If the promise is handed to you, the process that will produce that promise’s resolution is already underway, and you generally don’t have access to prevent that promise’s resolution from executing.</p>
+<h3 id="push-vs-pull">Push vs pull</h3>
+<p>A key thing to understand when using observables is that observables push. Push and pull are two different ways that describe how a data producer communicates with the data consumer.</p>
+<h3 id="pull">Pull</h3>
+<p>When pulling, the data consumer decides when it get’s data from the data producer. The producer is unaware of when data will be delivered to the consumer. Every javascript function uses the pull. The function is a Producer of data, and the code that calls the function is consuming it by “pulling” out a single return value from its call.</p>
+<h3 id="push">Push</h3>
+<p>When pushing, it works the other way around. The data producer (the creator of the newsletter) decides when the consumer (the subscriber to the newsletter) gets the data. Promises are the most common way of push in JavaScript today. A promise (the producer) delivers a resolved value to registered callbacks (the consumers), but unlike functions, it is the promise which is in charge of determining precisely when that value is “pushed” to the callbacks. Observables are a new way of pushing data in JavaScript. An observable is a Producer of multiple values, “pushing” them to subscribers.</p>
+<h3 id="observables-in-angular">Observables in Angular</h3>
+<p>If you start using Angular you will probably encounter observables when setting up your HTTP requests. So let’s start there.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> <span class="op">{</span> Observable <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;rxjs/Rx&quot;</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="im">import</span> <span class="op">{</span> Injectable <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;@angular/core&quot;</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="im">import</span> <span class="op">{</span> Http<span class="op">,</span> Response <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;@angular/http&quot;</span></a>
+<a class="sourceLine" id="cb1-4" title="4"></a>
+<a class="sourceLine" id="cb1-5" title="5">@<span class="at">Injectable</span>()</a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="im">export</span> <span class="kw">class</span> HttpClient <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-7" title="7"></a>
+<a class="sourceLine" id="cb1-8" title="8">    <span class="at">constructor</span>(</a>
+<a class="sourceLine" id="cb1-9" title="9">        <span class="kw">public</span> <span class="dt">http</span><span class="op">:</span> Http</a>
+<a class="sourceLine" id="cb1-10" title="10">    ) <span class="op">{}</span></a>
+<a class="sourceLine" id="cb1-11" title="11"></a>
+<a class="sourceLine" id="cb1-12" title="12">    <span class="kw">public</span> <span class="at">fetchUsers</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-13" title="13">        <span class="cf">return</span> <span class="kw">this</span>.<span class="va">http</span>.<span class="at">get</span>(<span class="st">&quot;/api/users&quot;</span>).<span class="at">map</span>((<span class="dt">res</span><span class="op">:</span> Response) <span class="kw">=&gt;</span> <span class="va">res</span>.<span class="at">json</span>())</a>
+<a class="sourceLine" id="cb1-14" title="14">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-15" title="15"><span class="op">}</span></a></code></pre></div>
+<p>We have now created a simple HttpClient with a fetchUsers method that returns an observable. We probably like to display the users in some sort of list, so let’s do something with this method. Since this method returns an observable we have to subscribe to it. In Angular we can subscribe to an observable in two ways: Manner 1:</p>
+<p>We subscribe to an observable in our template using the async pipe. The benefit of this is that Angular deals with your subscription during the lifecycle of a component. Angular will automatically subscribe and unsubscribe for you. Don’t forget to import the “CommonModule” into your module, as the async pipe will be exposed from that.</p>
+<p><strong>component.ts</strong></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="im">import</span> <span class="op">{</span> Component <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;@angular/core&quot;</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="im">import</span> <span class="op">{</span> Observable <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;rxjs/Rx&quot;</span></a>
+<a class="sourceLine" id="cb2-3" title="3"></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="co">// client</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="im">import</span> <span class="op">{</span> HttpClient <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;../services/client&quot;</span></a>
+<a class="sourceLine" id="cb2-6" title="6"></a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="co">// interface</span></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="im">import</span> <span class="op">{</span> IUser <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;../services/interfaces&quot;</span></a>
+<a class="sourceLine" id="cb2-9" title="9"></a>
+<a class="sourceLine" id="cb2-10" title="10">@<span class="at">Component</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb2-11" title="11">    <span class="dt">selector</span><span class="op">:</span> <span class="st">&quot;user-list&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-12" title="12">    <span class="dt">templateUrl</span><span class="op">:</span>  <span class="st">&quot;./template.html&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb2-14" title="14"><span class="im">export</span> <span class="kw">class</span> UserList <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-15" title="15"></a>
+<a class="sourceLine" id="cb2-16" title="16">    <span class="kw">public</span> <span class="dt">users$</span><span class="op">:</span> Observable<span class="op">&lt;</span>IUser[]<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-17" title="17"></a>
+<a class="sourceLine" id="cb2-18" title="18">    <span class="at">constructor</span>(</a>
+<a class="sourceLine" id="cb2-19" title="19">        <span class="kw">public</span> <span class="dt">client</span><span class="op">:</span> HttpClient<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-20" title="20">    ) <span class="op">{}</span></a>
+<a class="sourceLine" id="cb2-21" title="21"></a>
+<a class="sourceLine" id="cb2-22" title="22">    <span class="co">// do a call to fetch the users on init of component</span></a>
+<a class="sourceLine" id="cb2-23" title="23">    <span class="co">// the fetchUsers method returns an observable</span></a>
+<a class="sourceLine" id="cb2-24" title="24">    <span class="co">// which we assign to the users$ property of our class</span></a>
+<a class="sourceLine" id="cb2-25" title="25">    <span class="kw">public</span> <span class="at">ngOnInit</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-26" title="26">        <span class="kw">this</span>.<span class="at">users$</span> <span class="op">=</span> <span class="kw">this</span>.<span class="va">client</span>.<span class="at">fetchUsers</span>()</a>
+<a class="sourceLine" id="cb2-27" title="27">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-28" title="28"><span class="op">}</span></a></code></pre></div>
+<p>And the corresponding template, where I am using the pipe (“|”) and async to subscribe to the Observable.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode html"><code class="sourceCode html"><a class="sourceLine" id="cb3-1" title="1"><span class="co">&lt;!-- We use the async pipe to automatically subscribe/unsubscribe to our observable --&gt;</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="kw">&lt;ul</span><span class="ot"> class=</span><span class="st">&quot;user__list&quot;</span><span class="ot"> *ngIf=</span><span class="st">&quot;(users$ | async).length&quot;</span><span class="kw">&gt;</span></a>
+<a class="sourceLine" id="cb3-3" title="3">    <span class="kw">&lt;li</span><span class="ot"> class=</span><span class="st">&quot;user&quot;</span><span class="ot"> *ngFor=</span><span class="st">&quot;let user of users$ | async&quot;</span><span class="kw">&gt;</span></a>
+<a class="sourceLine" id="cb3-4" title="4">        {{ user.name }} - {{ user.birth_date }}</a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="kw">&lt;/li&gt;</span></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="kw">&lt;/ul&gt;</span></a></code></pre></div>
+<p><strong>Note the dollar sign. Using the dollar sign in the name of a variable that is an observable, is considered best practice. This way it’s easy to identify if your variable is an observable or not.</strong></p>
+<h2 id="key-points-about-observables">Key Points about Observables</h2>
+<ul>
+<li><ol type="1">
+<li>Observables are not executed until a consumer subscribes. The subscribe() executes the defined behavior once, and it can be called again. Each subscription has its own computation. Resubscription causes recomputation of values.</li>
+</ol></li>
+</ul>
+<h3 id="manner-2">Manner 2:</h3>
+<p>We subscribe to the observable ourselves using the actual subscribe() method. This can be handy if you would first like to do something with the data before displaying it. The downside is that you have to manage the subscription yourself.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="im">import</span> <span class="op">{</span> Component <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;@angular/core&quot;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="co">// client</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="im">import</span> <span class="op">{</span> HttpClient <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;../services/client&quot;</span></a>
+<a class="sourceLine" id="cb4-5" title="5"></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="co">// interface</span></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="im">import</span> <span class="op">{</span> IUser <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;../services/interfaces&quot;</span></a>
+<a class="sourceLine" id="cb4-8" title="8"></a>
+<a class="sourceLine" id="cb4-9" title="9">@<span class="at">Component</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb4-10" title="10">    <span class="dt">selector</span><span class="op">:</span> <span class="st">&quot;user-list&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-11" title="11">    <span class="dt">templateUrl</span><span class="op">:</span>  <span class="st">&quot;./template.html&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-12" title="12"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb4-13" title="13"><span class="im">export</span> <span class="kw">class</span> UserList <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-14" title="14"></a>
+<a class="sourceLine" id="cb4-15" title="15">    <span class="kw">public</span> <span class="dt">users</span><span class="op">:</span> IUser[]</a>
+<a class="sourceLine" id="cb4-16" title="16"></a>
+<a class="sourceLine" id="cb4-17" title="17">    <span class="at">constructor</span>(</a>
+<a class="sourceLine" id="cb4-18" title="18">        <span class="kw">public</span> <span class="dt">client</span><span class="op">:</span> HttpClient<span class="op">,</span></a>
+<a class="sourceLine" id="cb4-19" title="19">    ) <span class="op">{}</span></a>
+<a class="sourceLine" id="cb4-20" title="20"></a>
+<a class="sourceLine" id="cb4-21" title="21">    <span class="co">// do a call to fetch the users on init of component</span></a>
+<a class="sourceLine" id="cb4-22" title="22">    <span class="co">// we manually subscribe to this method and take the users</span></a>
+<a class="sourceLine" id="cb4-23" title="23">    <span class="co">// in our callback</span></a>
+<a class="sourceLine" id="cb4-24" title="24">    <span class="kw">public</span> <span class="at">ngOnInit</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-25" title="25">        <span class="kw">this</span>.<span class="va">client</span>.<span class="at">fetchUsers</span>().<span class="at">subscribe</span>((<span class="dt">users</span><span class="op">:</span> IUser[]) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-26" title="26"></a>
+<a class="sourceLine" id="cb4-27" title="27">            <span class="co">// do stuff with our data here.</span></a>
+<a class="sourceLine" id="cb4-28" title="28">            <span class="co">// ....</span></a>
+<a class="sourceLine" id="cb4-29" title="29"></a>
+<a class="sourceLine" id="cb4-30" title="30">            <span class="co">// asign data to our class property in the end</span></a>
+<a class="sourceLine" id="cb4-31" title="31">            <span class="co">// so it will be available to our template</span></a>
+<a class="sourceLine" id="cb4-32" title="32">            <span class="kw">this</span>.<span class="at">users</span> <span class="op">=</span> users</a>
+<a class="sourceLine" id="cb4-33" title="33">        <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb4-34" title="34">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-35" title="35"><span class="op">}</span></a></code></pre></div>
+<p>And then the template</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode html"><code class="sourceCode html"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">&lt;ul</span><span class="ot"> class=</span><span class="st">&quot;user__list&quot;</span><span class="ot"> *ngIf=</span><span class="st">&quot;users.length&quot;</span><span class="kw">&gt;</span></a>
+<a class="sourceLine" id="cb5-2" title="2">    <span class="kw">&lt;li</span><span class="ot"> class=</span><span class="st">&quot;user&quot;</span><span class="ot"> *ngFor=</span><span class="st">&quot;let user of users&quot;</span><span class="kw">&gt;</span></a>
+<a class="sourceLine" id="cb5-3" title="3">        {{ user.name }} - {{ user.birth_date }}</a>
+<a class="sourceLine" id="cb5-4" title="4">    <span class="kw">&lt;/li&gt;</span></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="kw">&lt;/ul&gt;</span></a></code></pre></div>
+<p>As you can see the template logic is quite similar, the component logic can actually become much different and more complex if you go for manner 2. In general, for simple projects and component, I would recommend to choose manner 1. As this is the most easy and you don’t have to manually manage your subscriptions. <strong>Keeping your subscriptions open while not using them is a memory leak and therefore not good.</strong></p>
+<h3 id="creating-an-observable-yourself">Creating an observable yourself</h3>
+<p>Now that you know how to deal with common observables that are given to you by Angular, it’s good to know how you create an observable yourself. The simplest version looks like this:</p>
+<p>Observable.ts</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="im">import</span> <span class="op">{</span> Observable <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;rxjs/Observable&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="co">// create observable</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="kw">const</span> simpleObservable <span class="op">=</span> <span class="kw">new</span> <span class="at">Observable</span>(observer <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-5" title="5">    <span class="co">// observable execution</span></a>
+<a class="sourceLine" id="cb6-6" title="6">    <span class="va">observer</span>.<span class="at">next</span>(<span class="st">&quot;bla bla bla&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-7" title="7">    <span class="va">observer</span>.<span class="at">complete</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-8" title="8"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-9" title="9"></a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="co">// subscribe to the observable</span></a>
+<a class="sourceLine" id="cb6-11" title="11"><span class="va">simpleObservable</span>.<span class="at">subscribe</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-12" title="12"></a>
+<a class="sourceLine" id="cb6-13" title="13"><span class="co">// dispose the observable</span></a>
+<a class="sourceLine" id="cb6-14" title="14"><span class="va">simpleObservable</span>.<span class="at">unsubscribe</span>()<span class="op">;</span></a></code></pre></div>
+<h4 id="it-would-be-better-to-handle-the-subscription-in-the-parent-component-itself">It would be better to handle the subscription in the parent component itself:</h4>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="co">// GOOD</span></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="co">// app.component.ts</span></a>
+<a class="sourceLine" id="cb7-3" title="3">@<span class="at">Component</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb7-4" title="4">    <span class="dt">selector</span><span class="op">:</span> <span class="st">&#39;app&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-5" title="5">    <span class="dt">template</span><span class="op">:</span> <span class="vs">`</span></a>
+<a class="sourceLine" id="cb7-6" title="6"><span class="vs">        &lt;user-detail [user]=&quot;user$|async&quot;&gt;&lt;/user-detail&gt;</span></a>
+<a class="sourceLine" id="cb7-7" title="7"><span class="vs">    `</span></a>
+<a class="sourceLine" id="cb7-8" title="8"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb7-9" title="9"><span class="kw">class</span> AppComponent <span class="kw">implements</span> OnInit <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-10" title="10">    <span class="dt">users$</span><span class="op">:</span> Observable<span class="op">&lt;</span>User[]<span class="op">&gt;</span> <span class="op">=</span> <span class="kw">this</span>.<span class="va">http</span>.<span class="at">get</span>(...)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-11" title="11">    <span class="dt">user</span><span class="op">:</span> User<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-12" title="12">    <span class="at">ngOnInit</span>()<span class="op">{</span></a>
+<a class="sourceLine" id="cb7-13" title="13">        <span class="co">// the app component (smart) subscribes to the user$ which will</span></a>
+<a class="sourceLine" id="cb7-14" title="14">        <span class="co">// do an XHR call here</span></a>
+<a class="sourceLine" id="cb7-15" title="15">        <span class="kw">this</span>.<span class="at">users$</span> <span class="op">=</span> <span class="kw">this</span>.<span class="va">http</span>.<span class="at">get</span>(...)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-16" title="16">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-17" title="17">    ...</a>
+<a class="sourceLine" id="cb7-18" title="18"><span class="op">}</span></a>
+<a class="sourceLine" id="cb7-19" title="19"></a>
+<a class="sourceLine" id="cb7-20" title="20"><span class="co">// user-detail.component.ts</span></a>
+<a class="sourceLine" id="cb7-21" title="21">@<span class="at">Component</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb7-22" title="22">    <span class="dt">selector</span><span class="op">:</span> <span class="st">&#39;user-detail&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-23" title="23">    <span class="dt">template</span><span class="op">:</span> <span class="vs">`</span></a>
+<a class="sourceLine" id="cb7-24" title="24"></a>
+<a class="sourceLine" id="cb7-25" title="25"><span class="vs">    `</span></a>
+<a class="sourceLine" id="cb7-26" title="26"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb7-27" title="27"><span class="kw">class</span> UserDetailComponent <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-28" title="28">    <span class="co">// This component doesn&#39;t even know that we are using RxJS which</span></a>
+<a class="sourceLine" id="cb7-29" title="29">    <span class="co">// results in better decoupling</span></a>
+<a class="sourceLine" id="cb7-30" title="30">    @<span class="at">Input</span>() <span class="dt">user</span><span class="op">:</span> User<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-31" title="31"><span class="op">}</span></a></code></pre></div>
+<p>The responsibility of the component is clear. The user-detail is meant to be dumb and is completely decoupled from its parent.</p>
+<p>There are however situations where we would like to create a stream from an input. In that case we could take a look at this library: ngx-reactivetoolkit</p>
+<h4 id="further-reading">Further Reading</h4>
+<ol type="1">
+<li><p><a href="https://medium.com/@luukgruijs/understanding-creating-and-subscribing-to-observables-in-angular-426dbf0b04a3">understanding-creating-and-subscribing-to-observables-in-angular-426dbf0b04a3</a></p></li>
+<li><p><a href="https://angular.io/guide/observables">https://angular.io/guide/observables</a></p></li>
+</ol>

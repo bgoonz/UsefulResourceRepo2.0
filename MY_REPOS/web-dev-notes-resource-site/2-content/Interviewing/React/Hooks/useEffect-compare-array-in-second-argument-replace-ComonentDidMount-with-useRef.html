@@ -1,0 +1,36 @@
+<h4 id="the-problem-around-dependency-array">The problem around dependency array</h4>
+<p>I trying to wrap my head around the new hooks api of react. Specifically, I’m trying to construct the classic use case that once was the following:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="at">componentDidUpdate</span>(prevProps) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">    <span class="cf">if</span> (<span class="va">prevProps</span>.<span class="at">foo</span> <span class="op">!==</span> <span class="kw">this</span>.<span class="va">props</span>.<span class="at">foo</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-3" title="3">        <span class="co">// animate dom elements here...</span></a>
+<a class="sourceLine" id="cb1-4" title="4">        <span class="kw">this</span>.<span class="at">animateSomething</span>(<span class="kw">this</span>.<span class="at">ref</span><span class="op">,</span> <span class="kw">this</span>.<span class="va">props</span>.<span class="at">onAnimationComplete</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="op">}</span></a></code></pre></div>
+<p>Now, I tried to build the same with a function component and useEffect, but can’t figure out how to do it. This is what I tried:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="at">animateSomething</span>(ref<span class="op">,</span> <span class="va">props</span>.<span class="at">onAnimationComplete</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="op">},</span> [<span class="va">props</span>.<span class="at">foo</span>])<span class="op">;</span></a></code></pre></div>
+<p>This way, the effect is only called when props.foo changes. And that does work – BUT! It appears to be an anti-pattern since the eslint-plugin-react-hooks marks this as an error. All dependencies that are used inside the effect should be declared in the dependencies array. So that means I would have to do the following:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="at">animateSomething</span>(ref<span class="op">,</span> <span class="va">props</span>.<span class="at">onAnimationComplete</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="op">},</span> [<span class="va">props</span>.<span class="at">foo</span><span class="op">,</span> ref<span class="op">,</span> <span class="va">props</span>.<span class="at">onAnimationComplete</span>])<span class="op">;</span></a></code></pre></div>
+<p>That does not lead to the linting error BUT it totally defeats the purpose of only calling the effect when props.foo changes. I don’t WANT it to be called when the other props or the ref change.</p>
+<h4 id="the-solution">The Solution</h4>
+<p>const previousFooRef = useRef(props.foo);</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="cf">if</span> (<span class="va">previousFooRef</span>.<span class="at">current</span> <span class="op">!==</span> <span class="va">props</span>.<span class="at">foo</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-3" title="3">    <span class="at">animateSomething</span>(ref<span class="op">,</span> <span class="va">props</span>.<span class="at">onAnimationComplete</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" title="4">    <span class="va">previousFooRef</span>.<span class="at">current</span> <span class="op">=</span> <span class="va">props</span>.<span class="at">foo</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-5" title="5">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="op">},</span> [<span class="va">props</span>.<span class="at">foo</span><span class="op">,</span> <span class="va">props</span>.<span class="at">onAnimationComplete</span>])<span class="op">;</span></a></code></pre></div>
+<p>You can’t avoid the complexity of having a condition inside the effect, because without it you will run your animation on mount rather than just when props.foo changes. The condition also allows you to avoid animating when things other than props.foo change.</p>
+<p>By including props.onAnimationComplete in the dependencies array, you avoid disabling the lint rule which helps ensure that you don’t introduce future bugs related to missing dependencies.</p>
+<h3 id="further-reading">Further Reading</h3>
+<ul>
+<li><ol type="1">
+<li><a href="https://stackoverflow.com/questions/55228102/react-hook-useeffect-dependency-array">https://stackoverflow.com/questions/55228102/react-hook-useeffect-dependency-array</a></li>
+</ol></li>
+<li><ol start="2" type="1">
+<li><a href="https://codesandbox.io/s/oll0y54436?fontsize=14">https://codesandbox.io/s/oll0y54436?fontsize=14</a></li>
+</ol></li>
+</ul>

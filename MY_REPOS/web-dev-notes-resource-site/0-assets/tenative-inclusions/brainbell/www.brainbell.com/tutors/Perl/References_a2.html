@@ -1,0 +1,2149 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <!-- Mirrored from www.brainbell.com/tutors/Perl/References_a2.htm by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Feb 2021 02:57:41 GMT -->
+  <!-- Added by HTTrack --><meta
+    http-equiv="content-type"
+    content="text/html;charset=utf-8"
+  /><!-- /Added by HTTrack -->
+  <head>
+    <meta charset="UTF-8" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = true;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/boise.js",
+        "https://www.brainbell.com/detroitchicago/boise.js?gcb=192-11&amp;cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/memphis.js",
+        "https://www.brainbell.com/detroitchicago/memphis.js?gcb=192-11&amp;cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/minneapolis.js",
+        "https://www.brainbell.com/detroitchicago/minneapolis.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "https://www.brainbell.com/detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "https://www.brainbell.com/porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("https://www.brainbell.com/");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot
+            .getAdUnitPath(adSlot)
+            .split("https://www.brainbell.com/")
+            .pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (
+              ezimKey.split("https://www.brainbell.com/").pop() === adUnitName
+            ) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/raleigh.js",
+        "https://www.brainbell.com/detroitchicago/raleigh.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/tampa.js",
+        "https://www.brainbell.com/detroitchicago/tampa.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/tulsa.js",
+        "https://www.brainbell.com/detroitchicago/tulsa.js?gcb=192-11&amp;cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Summary of the New Perl5 Features : CGI and Perl</title>
+    <meta
+      name="description"
+      content="Perl5 is easier to learn and use and is clearly more powerful than previous major versions of Perl. Other new features, modules, and documentation that enhance Perl&#039;s usability are also available but haven&#039;t been mentioned here. You should explore them all as time allows."
+    />
+    <link rel="shortcut icon" href="https://www.brainbell.com/favicon.ico" />
+    <style type="text/css">
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        font-family: sans-serif;
+        line-height: 1.15;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        -ms-overflow-style: scrollbar;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      }
+      @-ms-viewport {
+        width: device-width;
+      }
+      article,
+      aside,
+      figcaption,
+      figure,
+      footer,
+      header,
+      hgroup,
+      main,
+      nav,
+      section {
+        display: block;
+      }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+          "Segoe UI Emoji", "Segoe UI Symbol";
+        font-size: 1.1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        text-align: left;
+        background-color: #fff;
+      }
+      [tabindex="-1"]:focus {
+        outline: 0 !important;
+      }
+      hr {
+        box-sizing: content-box;
+        height: 0;
+        overflow: visible;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        border: 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-family: inherit;
+        font-weight: 500;
+        line-height: 1.2;
+        color: inherit;
+      }
+      h1 {
+        font-size: 2.5rem;
+      }
+      h2 {
+        font-size: 2rem;
+      }
+      h3 {
+        font-size: 1.75rem;
+      }
+      h4 {
+        font-size: 1.5rem;
+      }
+      h5 {
+        font-size: 1.3rem;
+      }
+      h6 {
+        font-size: 1.2rem;
+      }
+      p {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+      abbr[title],
+      abbr[data-original-title] {
+        text-decoration: underline;
+        -webkit-text-decoration: underline dotted;
+        text-decoration: underline dotted;
+        cursor: help;
+        border-bottom: 0;
+      }
+      address {
+        margin-bottom: 1rem;
+        font-style: normal;
+        line-height: inherit;
+      }
+
+      ol,
+      ul,
+      dl {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+      ol ol,
+      ul ul,
+      ol ul,
+      ul ol {
+        margin-bottom: 0;
+      }
+      dt {
+        font-weight: 700;
+      }
+      dd {
+        margin-bottom: 0.5rem;
+        margin-left: 0;
+      }
+
+      blockquote {
+        padding: 1rem 3rem;
+        margin: 3rem 0;
+        position: relative;
+        border-radius: 1rem;
+      }
+
+      blockquote::before {
+        content: "“";
+        left: 0.5rem;
+        top: 1.8rem;
+      }
+      blockquote::after {
+        content: "”";
+        right: 2.5rem;
+        bottom: -1.5rem;
+      }
+
+      blockquote::after,
+      blockquote::before {
+        font-family: georgia;
+        font-size: 5rem;
+        height: 2.5rem;
+        width: 0;
+        display: block;
+        position: absolute;
+      }
+
+      dfn {
+        font-style: italic;
+      }
+      b,
+      strong {
+        font-weight: bolder;
+      }
+      small {
+        font-size: 80%;
+        font-weight: 400;
+      }
+      sub,
+      sup {
+        position: relative;
+        font-size: 75%;
+        line-height: 0;
+        vertical-align: baseline;
+      }
+      sub {
+        bottom: -0.25em;
+      }
+      sup {
+        top: -0.5em;
+      }
+
+      a {
+        color: #0074d9;
+        background-color: transparent;
+        -webkit-text-decoration-skip: objects;
+      }
+      a:hover {
+        color: #002633;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]) {
+        color: inherit;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]):hover,
+      a:not([href]):not([tabindex]):focus {
+        color: inherit;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]):focus {
+        outline: 0;
+      }
+
+      pre,
+      code,
+      kbd,
+      samp,
+      .slog {
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        font-size: 1em;
+      }
+      pre {
+        margin-top: 0;
+        margin-bottom: 2rem;
+        overflow: auto;
+        -ms-overflow-style: scrollbar;
+        display: block;
+        font-size: 87.5%;
+        color: #212529;
+        border: 1px solid #eee !important;
+        padding: 0.8rem !important;
+        border-radius: 8px;
+        line-height: 1.4rem;
+      }
+
+      figure {
+        margin: 0 0 1rem;
+      }
+      img {
+        vertical-align: middle;
+        border-style: none;
+        border: 0;
+        height: auto;
+        max-width: 100%;
+        width: auto;
+      }
+      svg:not(:root) {
+        overflow: hidden;
+        vertical-align: middle;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 2rem;
+      }
+      td,
+      th {
+        padding: 0.25rem;
+        border: 1px solid #dee2e6;
+      }
+      blockquote,
+      code,
+      table tr:nth-of-type(2n) {
+        background: #fbfbfb;
+      }
+      caption {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        color: #6c757d;
+        text-align: left;
+        caption-side: bottom;
+      }
+      th {
+        text-align: inherit;
+      }
+
+      summary {
+        display: list-item;
+        cursor: pointer;
+      }
+      mark {
+        padding: 0.2em;
+        background-color: #fcf8e3;
+      }
+      code {
+        color: #c7254e;
+        word-break: break-word;
+        font-size: 87.5%;
+      }
+      a > code {
+        color: inherit;
+      }
+      kbd {
+        padding: 0.2rem 0.4rem;
+        color: #fff;
+        background-color: #212529;
+        border-radius: 0.2rem;
+      }
+      kbd kbd {
+        padding: 0;
+        font-weight: 700;
+      }
+      pre code {
+        font-size: inherit;
+        color: inherit;
+        word-break: normal;
+      }
+      video {
+        display: block;
+        max-width: 75%;
+      }
+
+      .borderbox {
+        border-left: 3px solid #00f;
+        padding: 1rem 0.5rem 0;
+      }
+      .line {
+        margin: 0 auto;
+        max-width: 71.25rem;
+      }
+      .line:after {
+        display: block;
+        clear: both;
+        content: "";
+      }
+      .fullwidth {
+        width: 100%;
+      }
+
+      .button,
+      #toc a {
+        display: inline-block;
+        cursor: pointer;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        border: 1px solid rgba(50, 205, 50, 0.5);
+        padding: 0.375rem 0.75rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        margin-bottom: 0.3rem;
+        color: #009600;
+        text-decoration: none;
+      }
+      .button ::-moz-focus-inner {
+        padding: 0;
+        border-style: none;
+      }
+      #buttons {
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        padding: 0.5rem;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+      }
+      #navbar-brand {
+        color: #000;
+        display: inline-block;
+        padding-top: 0.3125rem;
+        padding-bottom: 0.3125rem;
+        margin-left: 1rem;
+        white-space: nowrap;
+        -ms-touch-action: manipulation;
+        touch-action: manipulation;
+        text-decoration: none;
+        background-color: transparent;
+        -webkit-text-decoration-skip: objects;
+        line-height: 1rem;
+        font-size: 2.2rem;
+        text-align: center;
+      }
+      #navbar-brand .bell {
+        color: rgba(0, 200, 0, 1);
+      }
+      .slog {
+        font-weight: normal;
+        font-size: 0.85rem;
+      }
+      nav {
+        padding: 0.5rem;
+        margin-top: 0.5rem;
+      }
+      nav a.button {
+        text-decoration: none;
+        margin-left: 0.3rem;
+        flex: 10rem;
+      }
+      #buttons {
+        margin-top: 1rem;
+        display: none;
+      }
+      #menu {
+        font-size: 1.5rem;
+        color: #000;
+        display: block;
+        margin-right: 0.7rem;
+      }
+
+      #heading {
+        padding: 6rem 1.25rem;
+        background-color: #49bf4c;
+        color: #fff;
+        text-align: center;
+      }
+      #heading a {
+        white-space: normal;
+        color: #fff;
+        text-decoration: none;
+        border: 1px solid #fff;
+      }
+      #heading h1 {
+        font-size: 2.5rem;
+        line-height: 2.4rem;
+        margin: 0;
+        margin-bottom: 1rem;
+        font-weight: 400;
+      }
+      #wrapper {
+        padding: 2.5rem 1.25rem;
+      }
+      .leftcol {
+        width: 66.6666%;
+        position: relative;
+      }
+      .rightcol {
+        width: 33.3333%;
+      }
+      .fltright {
+        float: right;
+      }
+      .fltleft {
+        float: left;
+      }
+      .rightcol,
+      .leftcol {
+        padding: 0 0.625rem;
+        position: relative;
+      }
+      .entry-content,
+      .entry-summary {
+        color: #555;
+        line-height: 2rem;
+      }
+      .cat_list {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        margin-bottom: 2.25rem;
+      }
+      .cat_list h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        display: block;
+      }
+      .cat_list a {
+        color: #49bf4c;
+      }
+      .hidden {
+        display: none;
+      }
+      .gsa {
+        text-align: center;
+        margin-bottom: 1.25rem;
+        width: 100%;
+      }
+      #toc a {
+        display: block;
+        font-weight: bold;
+        text-align: left;
+        white-space: normal;
+      }
+      footer {
+        margin-top: 2rem;
+        background: #002633;
+        padding: 0.625rem;
+        text-align: center;
+        font-size: 0.95rem;
+      }
+      footer,
+      footer a,
+      footer a:hover {
+        color: #7697a2;
+      }
+      .next,
+      .prev {
+        display: inline-block;
+        padding: 0.6rem;
+        padding-top: 0.05rem;
+        padding-bottom: 0.25rem;
+        border-radius: 1rem;
+        font-weight: bold;
+        color: #fff;
+        background: #009600;
+      }
+      @media screen and (max-width: 768px) {
+        .leftcol,
+        .rightcol {
+          width: 100%;
+        }
+        video {
+          max-width: 100%;
+        }
+      }
+    </style>
+
+    <script
+      async
+      src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+    ></script>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-1287605604486981",
+        enable_page_level_ads: true,
+      });
+    </script>
+    <link
+      rel="canonical"
+      href="https://brainbell.com/tutors/Perl/References_a2.htm"
+    />
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base />
+    <script type="text/javascript">
+      var ezoTemplate = "old_site_gc";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_lazyload_version: 0,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        engaged_time_visit: 0,
+        ezcache_level: 1,
+        ezcache_skip_code: 0,
+        form_factor_id: 1,
+        framework_id: 1,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        metro_code: 501,
+        page_ad_positions: "",
+        page_view_count: 263,
+        page_view_id: "514dec78-1d38-4a5d-6a47-d6293a486098",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 31309,
+        response_time_orig: 286,
+        serverid: "3.236.128.137:23825",
+        state: "NJ",
+        t_epoch: 1613703153,
+        template_id: 126,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/tutors/Perl/References_a2.htm",
+        user_id: 0,
+        word_count: 2722,
+        worst_bad_word_level: 0,
+      };
+      var _ezExtraQueries = "&ez_orig=1";
+    </script>
+    <script
+      data-ezscrex="false"
+      data-cfasync="false"
+      type="text/javascript"
+      src="https://www.brainbell.com/detroitchicago/rochester.js?dcb=192-11&amp;cb=2&amp;v=9"
+      async
+    ></script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["514dec78-1d38-4a5d-6a47-d6293a486098", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <header role="banner">
+      <div class="line">
+        <nav id="navbar" role="navigation" aria-label="Primary Menu">
+          <a
+            id="navbar-brand"
+            href="https://www.brainbell.com/"
+            rel="home"
+            itemprop="url"
+            >Brain<span class="bell">Bell</span><br /><span class="slog"
+              >makes easier to learn</span
+            ></a
+          >
+          <span class="button fltright" id="menu">&#9776;</span>
+          <!--menu-->
+          <div id="buttons">
+            <a
+              class="button"
+              title="A+"
+              href="https://www.brainbell.com/tutors/A+/Hardware/"
+              >A+ Certification</a
+            >
+            <a
+              class="button"
+              title="Android"
+              href="https://www.brainbell.com/android/"
+              >Android</a
+            >
+            <a
+              class="button"
+              title="ASP"
+              href="https://www.brainbell.com/tutorials/ASP/"
+              >ASP</a
+            >
+            <a
+              class="button"
+              title="3D, Blender and Unity"
+              href="https://www.brainbell.com/3d/"
+              >Blender &amp; Unity</a
+            >
+            <a
+              class="button"
+              title="C"
+              href="https://www.brainbell.com/tutors/c/Advice_and_Warnings_for_C/"
+              >C Language</a
+            >
+            <a
+              class="button"
+              title="C#"
+              href="https://www.brainbell.com/tutors/C_Sharp/"
+              >C#</a
+            >
+            <a
+              class="button"
+              title="Flash"
+              href="https://www.brainbell.com/tutorials/Flash/"
+              >Flash</a
+            >
+            <a
+              class="button"
+              title="HTML and CSS"
+              href="https://www.brainbell.com/tutorials/HTML_and_CSS/"
+              >HTML &amp; CSS</a
+            >
+            <a
+              class="button"
+              title="Java"
+              href="https://www.brainbell.com/tutorials/java/"
+              >Java</a
+            >
+            <a
+              class="button"
+              title="JavaScript"
+              href="https://www.brainbell.com/javascript/"
+              >JavaScript</a
+            >
+            <a
+              class="button"
+              title="MS Access"
+              href="https://www.brainbell.com/tutorials/ms-office/Access_2003/"
+              >MS Access</a
+            >
+            <a
+              class="button"
+              title="MS Excel"
+              href="https://www.brainbell.com/tutorials/ms-office/excel/"
+              >MS Excel</a
+            >
+            <a
+              class="button"
+              title="MS FrontPage"
+              href="https://www.brainbell.com/tutorials/ms-office/FrontPage_2003/"
+              >MS FrontPage</a
+            >
+            <a
+              class="button"
+              title="MS PowerPoint"
+              href="https://www.brainbell.com/tutorials/ms-office/PowerPoint/"
+              >MS PowerPoint</a
+            >
+            <a
+              class="button"
+              title="MS Word"
+              href="https://www.brainbell.com/tutorials/ms-office/Word/"
+              >MS Word</a
+            >
+            <a
+              class="button"
+              title="MySQL"
+              href="https://www.brainbell.com/tutorials/MySQL/"
+              >MySQL</a
+            >
+            <a
+              class="button"
+              title="Networking"
+              href="https://www.brainbell.com/tutorials/Networking/"
+              >Networking</a
+            >
+            <a
+              class="button"
+              title="Perl CGI"
+              href="https://www.brainbell.com/tutors/Perl/"
+              >Perl &amp; CGI</a
+            >
+            <a
+              class="button"
+              title="PHP &amp; MySQL"
+              href="https://www.brainbell.com/tutorials/php/"
+              >PHP &amp; MySQL</a
+            >
+            <a
+              class="button"
+              title="Adobe Photoshop"
+              href="https://www.brainbell.com/tutorials/Photoshop/"
+              >Photoshop</a
+            >
+            <a
+              class="button"
+              title="Regex"
+              href="https://www.brainbell.com/regex/"
+              >Regular Expressions</a
+            >
+            <a
+              class="button"
+              title="TypeScript"
+              href="https://www.brainbell.com/typescript/"
+              >TypeScript</a
+            >
+            <a
+              class="button"
+              title="Visual Basic"
+              href="https://www.brainbell.com/tutors/Visual_Basic/"
+              >Visual Basic</a
+            >
+            <a
+              class="button"
+              title="XML"
+              href="https://www.brainbell.com/tutorials/XML/"
+              >XML</a
+            >
+          </div>
+          <!--menu end-->
+        </nav>
+      </div>
+    </header>
+
+    <main role="main">
+      <article class="hentry">
+        <header id="heading">
+          <a
+            class="button"
+            href="https://www.brainbell.com/tutors/Perl/"
+            rel="category tag"
+            >CGI and Perl</a
+          >
+          <h1>Summary of the New Perl5 Features</h1>
+          <script
+            async
+            src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+          ></script>
+          <!-- link ad -->
+          <ins
+            class="adsbygoogle"
+            style="display: block"
+            data-ad-client="ca-pub-1287605604486981"
+            data-ad-slot="1609644746"
+            data-ad-format="link"
+          ></ins>
+          <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
+        </header>
+
+        <div id="wrapper">
+          <div class="line">
+            <div class="leftcol fltleft">
+              <div class="entry-summary">
+                <p>
+                  Perl5 is easier to learn and use and is clearly more powerful
+                  than previous major versions of Perl. Other new features,
+                  modules, and documentation that enhance Perl's usability are
+                  also available but haven't been mentioned here. You should
+                  explore them all as time allows.<br />
+                </p>
+              </div>
+              <div class="gsa">
+                <script
+                  async
+                  src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+                ></script>
+                <!-- responsive top -->
+                <ins
+                  class="adsbygoogle"
+                  style="display: block"
+                  data-ad-client="ca-pub-1287605604486981"
+                  data-ad-slot="1025731947"
+                  data-ad-format="rectangle"
+                ></ins>
+                <script>
+                  (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+              </div>
+              <div class="entry-content">
+                <h2>Extended Perl5 Tutorial</h2>
+                <p>
+                  Now that you've been introduced to the new features in Perl5,
+                  you're ready to embark on an extended tutorial on references
+                  and modules. You need to understand how these elements work so
+                  that you can make use of the examples to follow in this
+                  tutorial. There's a lot to cover here, so grab a cup of
+                  coffee, and I'll try to avoid monotony. You might find it
+                  helpful to be sitting at your computer with your copy of Perl5
+                  ready to run so that you can try out the sample code as you go
+                  along.<br />
+                </p>
+                <p>
+                  In the past, the Perl programmer had to go through some
+                  contortions to implement various complex data types, such as
+                  arrays of arrays. The notion of a variable that "pointed" to
+                  another data type did not exist. With the advent of Perl5, you
+                  now have the reference variable type. References are actually
+                  just standard Perl scalar variables, which are assigned or
+                  initialized to allow them to be used to refer or "point" to
+                  some other Perl data type. References give you powerful new
+                  capabilities when writing Perl programs.
+                </p>
+                <p>
+                  To create a new real reference variable, you use the following
+                  general syntax:
+                </p>
+                <pre>
+$variable = \datatype;
+</pre
+                >
+                <p>
+                  Here, you set $variable to be a reference to datatype by
+                  preceding datatype with a backslash. $variable can now be used
+                  to refer or assign to datatype using an explicit form of a
+                  dereference, depending on what datatype is. Table 2.2
+                  illustrates the syntax for using real references. A number of
+                  other types of references also exist, each with its own
+                  assignment syntax, but I won't explain those types just yet.
+                  <code
+                    >Table 2.2. References: Data types and
+                    assignment/dereference syntax.<br />
+                    <br
+                  /></code>
+                </p>
+                <table border="0">
+                  <tr align="left">
+                    <td width="111" align="left">Data Type</td>
+                    <td width="121" align="left">Assignment Syntax</td>
+                    <td align="left">Dereference Syntax</td>
+                  </tr>
+                  <tr align="left">
+                    <td width="111" align="left">Scalar</td>
+                    <td width="121" align="left">$ref = \$var;</td>
+                    <td align="left">$$ref</td>
+                  </tr>
+                  <tr align="left">
+                    <td width="111" align="left">Scalar Array</td>
+                    <td width="121" align="left">$ref = \@array</td>
+                    <td align="left">
+                      @{$ref} or ${$ref}[0] for individual elements
+                    </td>
+                  </tr>
+                  <tr align="left">
+                    <td width="111" align="left">Hash</td>
+                    <td width="121" align="left">$ref = \%array</td>
+                    <td align="left">%{$ref} or ${$ref}{key} for</td>
+                  </tr>
+                  <tr align="left">
+                    <td width="111" align="left">individual elements</td>
+                    <td width="121" align="left"></td>
+                    <td align="left"></td>
+                  </tr>
+                  <tr align="left">
+                    <td width="111" align="left">Reference</td>
+                    <td width="121" align="left">$refref = \$ref</td>
+                    <td align="left">$$$ref</td>
+                  </tr>
+                  <tr align="left">
+                    <td width="111" align="left">Subroutine (CODE)</td>
+                    <td width="121" align="left">$ref = \&amp;sub</td>
+                    <td align="left">&amp;$sub</td>
+                  </tr>
+                  <tr align="left">
+                    <td width="111" align="left">Package</td>
+                    <td width="121" align="left">bless $ref, Package</td>
+                    <td align="left">$ref-&gt;method() $ref-&gt;variable</td>
+                  </tr>
+                </table>
+                <br />
+                <br />
+                In the following sections, you'll look at each of these data
+                types in depth, and I'll demonstrate their use with some
+                examples. These examples should provide you with some general
+                insight as to how each type of reference can be used, but note
+                that they are not comprehensive. You can study the full power
+                and capabilities of references by reading PERLREF and PERLDSC.
+                Another potentially useful document for studying how references
+                work is the test script for references in the Perl distribution,
+                called ref.t. Under UNIX, you can find it in the t/op directory
+                under the Perl build directory. Under Macintosh, the t/op
+                directory should be located within the installation directory.
+                Under Windows 95, this directory is named ntt, and the file has
+                been given the .ntt extension. Look for ntt/op/ref.ntt instead
+                of t/op/ref.t under Windows(ntperl). It contains a complete test
+                suite for all types of Perl references.
+                <b><code>References to Scalars</code></b> Scalar variables, the
+                simplest type of Perl variable, can be referenced, as can all
+                other types. Although the usefulness of references to simple
+                scalars may not be immediately evident, referencing is certainly
+                an option.
+                <p>Consider the following example:</p>
+                <pre>
+$foo = "Initial value";
+ &amp;update_scalar();
+ print $foo,"\n";
+ sub update_scalar{
+     $foo = "Updated";
+ }
+ # prints: Updated
+</pre
+                >
+                <p>
+                  This example takes a global variable, $foo, and sets it to an
+                  initial value; then it calls the update_scalar subroutine to
+                  set it to a new value. Simple enough, but if the update_scalar
+                  subroutine lives in a package, you're out of luck. Observe the
+                  following:
+                </p>
+                <pre>
+$foo = "Initial value";
+ &amp;test::update_scalar();
+ print $foo,"\n";
+ package test;
+ sub update_scalar{
+ $foo = "Updated";
+ }
+ # prints: Initial value
+</pre
+                >
+                <p>
+                  Here, the $foo variable doesn't get changed because the test
+                  package has its own namespace and its own $foo variable, and
+                  can't access the $foo in main without some specific semantics.
+                  When you work with modules and packages, you'll be faced with
+                  this restriction.
+                </p>
+                <p>
+                  So, what to do? Well, you could pass in the $foo from main as
+                  a parameter to the subroutine and try to update it within the
+                  subroutine like this:
+                </p>
+                <pre>
+$foo = "Initial value";
+ &amp;test::update_scalar($foo);
+ print $foo,"\n";
+ package test;
+ sub update_scalar{
+ ($foo) = @_;
+ $foo = "Updated";
+ }
+ # prints: Initial value
+</pre
+                >
+                <p>
+                  Alas, the $foo that gets updated in the update_scalar
+                  subroutine is just a copy of the $foo that is passed in.
+                  You're still dealing with two specific variables, in different
+                  packages, and you're essentially passing by value when you
+                  make a reassignment within the subroutine. The experienced
+                  Perl4 programmer will recognize that there's also the option
+                  of modifying $_[0] directly, but references provide a cleaner
+                  solution.
+                </p>
+                <p>
+                  The solution I've chosen, using a reference to a scalar, is to
+                  create a reference to main's $foo, pass it into the
+                  update_scalar subroutine, and then dereference for the
+                  assignment, as follows:
+                </p>
+                <pre>
+$foo = "Initial value";
+ &amp;test::update_scalar(\$foo);
+ print $foo,"\n";
+ package test;
+ sub update_scalar{
+ ($foo) = @_;
+ $$foo = "Updated";
+ }
+ # prints: Updated
+</pre
+                >
+                <p>
+                  Notice how you implicitly pass the reference to the subroutine
+                  by using the backslash operator on main's $foo variable in the
+                  subroutine call. You thus pass main's $foo by reference to the
+                  update_scalar subroutine, and when you assign it to the $foo
+                  in the subroutine, you are actually creating a real reference
+                  to the $foo in main. Using the dereferencing syntax described
+                  in Table 2.2, you then can change $main::foo implicitly
+                  through the reference, using the $$foo dereferencing syntax.
+                </p>
+                <p>
+                  References to scalar types have many uses; this simple example
+                  describes only one.
+                  <b><code>References to Scalar Arrays</code></b> Scalar arrays
+                  are arrays of Perl scalar types. You declare them using the
+                  @name syntax. Using a reference to the scalar array enables
+                  you to access the elements of an array individually or refer
+                  to the entire array, as shown in Table 2.2. Of course, you
+                  also can use the reference anywhere an array is expected, such
+                  as within a foreach() loop. The following example again
+                  illustrates the usefulness of references when passing
+                  arguments to subroutines. Consider the following code:
+                </p>
+                <pre>
+@array1 = (1, 3, 5);
+ @array2 = (2, 4, 6);
+</pre
+                >
+                <p>
+                  Now, what if you want to pass these arrays to a Perl
+                  subroutine and then access them within the subroutine,
+                  possibly modifying their values? If you've ever tried to pass
+                  two or more arrays to a Perl subroutine, then you know that it
+                  can't be done easily, because there's no way to determine
+                  where the first array ends and the next one begins. (Recall
+                  that the parameters passed to a Perl subroutine are accessible
+                  only through the @_ array and thus appear to be a single array
+                  to the subroutine that receives them.)
+                </p>
+                <p>
+                  Using references, you can circumvent this limitation. If you
+                  create references to each of the preceding arrays, you can
+                  easily pass two scalars to the subroutine and then dereference
+                  the arrays those scalars have been assigned to, like this:
+                </p>
+                <pre>
+@array1 = (1, 3, 5);
+ @array2 = (2, 4, 6);
+ $ref1 = \@array1;
+ $ref2 = \@array2;
+ @sum = &amp;array_adder($ref1, $ref2);
+ print "\@sum = (", join(`,',@sum), ")\n";
+ sub array_adder{
+ my($ref1, $ref2) = @_;
+ my $i = 0;
+ my @sum;
+ for($i = 0; $i &lt;= $#{$ref1} ; $i++){
+     $sum[$i] = ${$ref1}[$i] + ${$ref2}[$i];
+ }
+ return @sum;
+ }
+ # prints: @sum = (3,7,11)
+</pre
+                >
+                <p>
+                  Here, you've created a new array, whose elements are the sum
+                  of the individual elements of two equal-length arrays'
+                  elements. That's easy, but you do it by passing the arrays to
+                  a subroutine using references and thus make a formerly
+                  difficult, or at least nonintuitive, task easier. In Perl4,
+                  you would have had to either use glob types or have passed in
+                  the length of the arrays as the first or last argument and
+                  then split @_ appropriately. Not pretty.
+                </p>
+                <p>
+                  Note how you are able to use the reference within the
+                  subroutine in the $#array context (the highest index of the
+                  array from zero-base), as well as access the individual
+                  elements of the arrays that are being referred to. Again, this
+                  is just one single use for references to arrays. See the
+                  documentation mentioned previously for many more examples,
+                  PERLLOL for instance.
+                  <b><code>References to Hashes (Associative Arrays)</code></b>
+                  When you create a reference to an associative array (hash),
+                  you can access all the keys and values of the associative
+                  array through the reference. You can also use the reference in
+                  place of the hash, using the syntax in Table 2.2, within any
+                  given Perl function that operates on associative arrays or
+                  their elements, such as keys(), foreach(), and delete().
+                </p>
+                <p>
+                  Hash references are extremely powerful. Using them, you can
+                  build up complex data structures containing all the Perl data
+                  types or references to those types. In the following example,
+                  you use the standard assignment/dereference syntax described
+                  previously and one of the other dereferencing syntaxes:
+                </p>
+                <pre>
+@array = (1, 2, 3);
+ %Hash = (
+     `foo'=&gt; `bar',
+     `aref' =&gt; \@array,
+     `internalhash' =&gt; {
+                        `birds' =&gt; `duck',
+                        `plants' =&gt; `tomato'
+                       }
+ );
+ # print out the simple scalar element
+ print $Hash{`foo'}, "\n";
+ # print out the elements of @array
+ print join(` `,@{$Hash{`aref'}}),"\n";
+ # print out the elements of the %internalhash
+ foreach $key  (keys( %{$Hash{`internalhash'}} )){
+     print "Key is $key, value is $Hash{`internalhash'}-&gt;{$key} \n";
+ }
+ # prints:
+ bar
+ 1 2 3
+ Key is plants, value is tomato
+ Key is birds, value is duck
+</pre
+                >
+                <p>
+                  Note how you dereference the value corresponding to the
+                  internal hash key of %Hash by using the -&gt; dereferencing
+                  operator. You can use -&gt; because the value is itself a
+                  reference to an anonymous hash. Because it's a reference, you
+                  can use it as a regular scalar element of the array and still
+                  emulate a multidimensional hash.
+                </p>
+                <h2>Caution:</h2>
+                <blockquote>
+                  <p>
+                    Remember, in spite of appearances, arrays are always one
+                    dimensional within Perl. You're only emulating
+                    multidimensionality here by using references. See PERLDSC
+                    for more details.<br />
+                  </p>
+                  <hr />
+                </blockquote>
+                <p>
+                  <b><code>References to References</code></b> References, like
+                  any other Perl data type, can have references to themselves.
+                  You may, for instance, have several references to various
+                  types or data structures that you want to group together under
+                  a single reference. Here's an example:
+                </p>
+                <pre>
+$scalar = "a string";  # a regular scalar
+ $array = [1, 2, 3];    # anonymous array
+ $hash = {"foo" =&gt; "bar", "baz" =&gt; "blech"}; # anonymous hash
+ $scalarref = \$scalar;  # ref to scalar
+ $refref = [\$scalarref, \$array, \$hash];  # anon array of refs to refs
+ # print out the contents of the ref to ref to scalar
+ print $${$refref-&gt;[0]},"\n";
+ # print out the elements of the ref to ref to array
+ print join(` `,@{${$refref-&gt;[1]}}),"\n";
+ # print out the elements of the ref to ref to hash
+ foreach $key  (keys( %{${$refref-&gt;[2]}} )){
+     print "Key is $key, value is ${${$refref-&gt;[2]}}{$key} \n";
+ }
+ # prints:
+ a string
+ 1 2 3
+ Key is foo, value is bar
+ Key is baz, value is blech
+</pre
+                >
+                <p>
+                  You can go as deep as you like with references to references.
+                  Of course, at some point, readability may suffer. I recommend
+                  readability over complexity in most cases, especially in a
+                  public interface to a module or library, or within code that
+                  may require modifications by someone other than yourself in
+                  the future. <b><code>References to Subroutines</code></b> The
+                  last type of standard reference to look at, before getting to
+                  blessed references and object-<br />
+                  oriented Perl, is the reference to code. Specifically, let's
+                  look at how to set up and use a reference to a subroutine.
+                </p>
+                <p>
+                  References to subroutines may be useful in a number of
+                  situations. You can use them to implement closures, as
+                  previously described, or as subroutine parameters, or as part
+                  of complex data types. Subroutine references are also useful
+                  within packages, but note that you can't take an external (to
+                  a package) reference to a subroutine which is within the
+                  external package, because of inheritance. See PERLSUB for more
+                  details.
+                </p>
+                <p>
+                  The following example illustrates a simple case in which you
+                  set up an array of references to subroutines in the same
+                  package. Here, you use two types of references to access the
+                  subroutines:
+                </p>
+                <pre>
+sub foo{
+     return "I\'m in foo now\n";
+ }
+ sub bar{
+     return "Here I am in bar\n";
+ }
+ %subrefs = (`foo' =&gt; \&amp;foo, `bar' =&gt; `bar', ); # bar is a "fake" reference
+ while(($key,$ref) = each(%subrefs)){
+    print ${key}, " : ", &amp;$ref;
+ }
+ # prints:
+ foo : I'm in foo now
+ baz : Here I am in baz
+</pre
+                >
+                <p>
+                  You set up a single hash to contain multiple references to
+                  subroutines. The potential for dynamic runtime decision trees
+                  should be evident. You could arbitrarily assign references to
+                  subroutines at runtime, based on some input parameters, for
+                  instance, then execute the subroutines using the references.
+                  You could have easily done the same with a regular scalar
+                  array, emulating a C-style array of pointers to functions--not
+                  as powerful as a hash of function pointers, but potentially
+                  useful.
+                </p>
+                <p>
+                  Note how, in the preceding example when setting up the
+                  reference to the bar subroutine in the %subrefs declaration, I
+                  didn't use the \ operator to prepend it. Instead, you use a
+                  fake reference, which is another way to access a given data
+                  type by its name. This technique could also be used in Perl4;
+                  however, it works for any data type in Perl5, and it is an
+                  actual reference in Perl5. You can easily declare another
+                  (fake) reference to fake reference, to any depth. The ref.t
+                  test suite has a nice example for using fake references. I
+                  won't discuss them much more, because they're not widely used,
+                  but they're worth noting.
+                  <b><code>References to Packages (When Blessed)</code></b> When
+                  the reference variable refers to a Perl package and has been
+                  blessed into the package, as shown in Table 2.2, it is known
+                  as a Perl object. It can then be used to store, and allow
+                  access to, any Perl data type that is used by the package,
+                  akin to public instance variables being accessed by a
+                  reference in C++.
+                </p>
+                <p>
+                  You also can use the blessed reference to invoke the methods
+                  of the package, also analogous to a C++ class reference. When
+                  you use a blessed reference in this way, the method that gets
+                  invoked automatically has access to the object. This technique
+                  is very common in the Perl modules, and it's very powerful.
+                  You need to have a clear understanding of it in order to use
+                  and reuse the examples modify them to suit your needs.
+                </p>
+                <p>
+                  Let me give you a simple example to illustrate the concepts.
+                  In this example, the object is a reference to hash. You could
+                  simplify it to a reference to array or scalar, if it were
+                  appropriate. A hash reference gives the most flexibility to
+                  access and grow the object dynamically. Consider the
+                  following:
+                </p>
+                <pre>
+package Customer;
+ sub new {
+ my $type = shift;
+ my %args = @_;
+ my $self = {};
+ $self-&gt;{`Name'} =
+     length($args{`Name'}) ? $args{`Name'} : "No name given";
+ $self-&gt;{`Vitals'} =
+     defined(@{$args{`Vitals'}}) ? $args{`Vitals'} : ["No vitals"];
+ bless $self, $type;
+ }
+ sub dumpcust{
+ my $self = shift;
+ # Print out the values for the object
+ print $self-&gt;{Name},"\n";
+ print join(` `,@{$self-&gt;{Vitals}}),"\n";
+ }
+ package main;
+ # Create a new customer object
+ $cust  = Customer-&gt;new( `Name' =&gt; "Billy T. Kid",
+         `Vitals' =&gt; ["Age : 42", "Sex : M"] );
+ # Invoke the method to print out the values for the object
+ print $cust-&gt;dumpcust;
+ # prints:
+ Billy T. Kid
+ Age : 42 Sex : M
+</pre
+                >
+                <p>
+                  In this simple example, you see how to initialize the Perl
+                  object, which is a reference to hash, with both scalar
+                  elements and a reference to a scalar array. Then you invoke
+                  the dumpcust() method from the Customer package or class,
+                  using the blessed reference.
+                </p>
+                <p>
+                  I'll continue to develop this example as we progress into the
+                  extended study of the Perl module, and the object-oriented
+                  features of Perl programming.<br />
+                </p>
+                <div class="hidden">
+                  by
+                  <span class="author vcard"
+                    ><span class="fn">BrainBell</span></span
+                  >updated
+                  <time
+                    class="entry-date updated"
+                    datetime="2016-08-01T20:00:00+00:00"
+                    >Aug 01, 2016</time
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="rightcol fltright">
+              <style type="text/css">
+                .adslot_1 {
+                  display: inline-block;
+                  width: 100%;
+                }
+                @media (max-width: 768px) {
+                  .adslot_1,
+                  .sideadh {
+                    display: none;
+                  }
+                }
+              </style>
+              <div class="gsa">
+                <div class="sideadh">Advertisement:</div>
+                <script
+                  async
+                  src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+                ></script>
+                <!-- responsive banner right -->
+                <ins
+                  class="adsbygoogle adslot_1"
+                  data-ad-client="ca-pub-1287605604486981"
+                  data-ad-slot="2682751945"
+                  data-ad-format="vertical"
+                ></ins>
+                <script>
+                  (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <div class="line">
+        <div class="leftcol fltleft">
+          <div class="gsa">
+            Advertisement:
+            <script
+              async
+              src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+            ></script>
+            <!-- responsive footer -->
+            <ins
+              class="adsbygoogle"
+              style="display: block"
+              data-ad-client="ca-pub-1287605604486981"
+              data-ad-slot="8559331946"
+              data-ad-format="rectangle"
+            ></ins>
+            <script>
+              (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+          </div>
+          <nav>
+            <div class="line">
+              <a
+                rel="next"
+                class="button fltright"
+                href="https://www.brainbell.com/tutors/Perl/The_Short_History_of_Perl_Extensions.htm"
+                >Next <span class="next">&gt;</span></a
+              ><a
+                rel="prev"
+                class="button fltleft"
+                href="https://www.brainbell.com/tutors/Perl/Other_New_Features_in_Perl5.htm"
+                ><span class="prev">&lt;</span> Prev</a
+              >
+            </div>
+          </nav>
+        </div>
+        <div class="rightcol fltright"></div>
+      </div>
+    </main>
+
+    <footer>
+      <section>
+        <div class="line">
+          <div class="leftcol fltleft">
+            <p>Copyright &copy; 2021 BrainBell.com</p>
+            <p>Contact us: info&#64;brainbell.com</p>
+          </div>
+          <div class="rightcol fltright">
+            <a href="https://www.brainbell.com/privacy/">Privacy policy</a>
+            &nbsp; : &nbsp;
+            <a href="https://www.brainbell.com/terms/">Terms of use</a>
+          </div>
+        </div>
+      </section>
+    </footer>
+    <script>
+      (function () {
+        var m = document.querySelector("#menu"),
+          n = document.querySelector("#buttons"),
+          o = false;
+
+        m.addEventListener("click", function (e) {
+          var d;
+          o = !o;
+          if (o) {
+            m.innerHTML = "X";
+            n.style.display = "block";
+            n.style.display = "flex";
+            m.style.padding = ".375rem .98rem";
+          } else {
+            m.innerHTML = "&#9776;";
+            n.style.display = "none";
+            m.style.padding = ".375rem .75rem";
+          }
+        });
+      })();
+      (function () {
+        var stop = true,
+          p = document.querySelectorAll("pre");
+        for (var i in p) {
+          p[i].className += " prettyprint";
+          stop = false;
+        }
+        if (stop) return;
+        var script = document.createElement("script");
+        script.src =
+          "https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js";
+        document.head.appendChild(script);
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "https://www.brainbell.com/tutors/Perl/edmonton.php",
+        "/detroitchicago/edmonton.webp?a=a&cb=11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "https://www.brainbell.com/tutors/Perl/jellyfish.php",
+        "/porpoiseant/jellyfish.webp?a=a&cb=11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script>
+      var _audins_dom = "brainbell_com",
+        _audins_did = 83552;
+      __ez.queue.addDelayFunc(
+        "https://www.brainbell.com/tutors/Perl/audins.js",
+        "__ez.script.add",
+        "http://go.ezoic.net/detroitchicago/audins.js?cb=192-11"
+      );
+    </script>
+    <noscript
+      ><div style="display: none">
+        <img
+          src="http://pixel.quantserve.com/pixel/p-31iz6hfFutd16.gif?labels=Domain.brainbell_com,DomainId.83552"
+          border="0"
+          height="1"
+          width="1"
+          alt="Quantcast"
+        /></div
+    ></noscript>
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+
+  <!-- Mirrored from www.brainbell.com/tutors/Perl/References_a2.htm by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Feb 2021 02:57:41 GMT -->
+</html>

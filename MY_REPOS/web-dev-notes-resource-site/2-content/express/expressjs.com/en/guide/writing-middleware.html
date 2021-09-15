@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+
+<html lang="en" prefix="og: http://ogp.me/ns#">
+<head>
+<title>Writing middleware for use in Express apps</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="og:image" content="https://expressjs.com/images/express-facebook-share.png">
+<link rel="icon" type="image/png" href="/images/favicon.png" />
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/dropit.css">
+<link rel="stylesheet" href="/css/prism.css">
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&amp;amp;subset=latin,latin-ext">
+<link rel="stylesheet" href="/css/en.css">
+<link rel="stylesheet" href="/css/nodeinteractive.css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script data-cfasync="false" src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script data-cfasync="false" src="/js/ismobile.js"></script>
+<script data-cfasync="false" src="/js/app.js"></script>
+<script data-cfasync="false" src="/js/retina.js"></script>
+<script data-cfasync="false" src="/js/dropit.js"></script>
+<script data-cfasync="false" src="/js/prism.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+</head>
+<body class="en-doc">
+<section class="page content">
+<header>
+<div id="blm-banner">
+Black Lives Matter. <br>
+<a id="blm-donate" href="https://support.eji.org/give/153413/#!/donation/checkout">Support the Equal Justice Initiative</a>.
+</div>
+<div id="mobile-menu">
+<div id="nav-button" class="fa fa-bars fa-2x button"></div>
+</div>
+<section id="logo"><a href="/" class="express">Express</a>
+</section>
+<div id="navbar">
+<input id="q" placeholder="🔎 search">
+<ul id="navmenu">
+<li><a href="/" id="home-menu">Home</a></li>
+<li>
+<ul id="getting-started-menu" class="menu">
+<li><a href="/en/starter/installing.html">Getting started</a>
+<ul>
+<li>
+<a href="/en/starter/installing.html">
+Installing
+</a>
+</li>
+<li>
+<a href="/en/starter/hello-world.html">
+Hello world
+</a>
+</li>
+<li>
+<a href="/en/starter/generator.html">
+Express generator
+</a>
+</li>
+<li>
+<a href="/en/starter/basic-routing.html">
+Basic routing
+</a>
+</li>
+<li>
+<a href="/en/starter/static-files.html">
+Static files
+</a>
+</li>
+<li>
+<a href="/en/starter/examples.html">
+More examples
+</a>
+</li>
+<li>
+<a href="/en/starter/faq.html">
+FAQ
+</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<ul id="guide-menu" class="menu">
+<li><a href="/en/guide/routing.html" class="active">Guide</a>
+<ul>
+<li><a href="/en/guide/routing.html">Routing</a>
+</li>
+<li><a href="/en/guide/writing-middleware.html">Writing middleware</a>
+</li>
+<li><a href="/en/guide/using-middleware.html">Using middleware</a>
+</li>
+<li><a href="/en/guide/overriding-express-api.html">Overriding the Express API</a>
+</li>
+<li><a href="/en/guide/using-template-engines.html">Using template engines</a>
+</li>
+<li><a href="/en/guide/error-handling.html">Error handling</a>
+</li>
+<li><a href="/en/guide/debugging.html">Debugging</a>
+</li>
+<li><a href="/en/guide/behind-proxies.html">Express behind proxies</a>
+</li>
+<li><a href="/en/guide/migrating-4.html">Moving to Express 4</a>
+</li>
+<li><a href="/en/guide/migrating-5.html">Moving to Express 5</a>
+</li>
+<li><a href="/en/guide/database-integration.html">Database integration</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<ul id="application-menu" class="menu">
+<li><a href="/en/4x/api.html">API reference</a>
+<ul>
+<li><a href="/en/5x/api.html">5.x (alpha)</a>
+</li>
+<li><a href="/en/4x/api.html">4.x</a>
+</li>
+<li><a href="/en/3x/api.html">3.x (deprecated)</a>
+</li>
+<li><a href="/2x/">2.x (deprecated)</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<ul id="advanced-topics-menu" class="menu">
+<li><a href="/en/advanced/developing-template-engines.html">Advanced topics</a>
+<ul>
+<li><a href="/en/advanced/developing-template-engines.html">Template engines</a>
+</li>
+<li><a href="/en/advanced/pm.html">Process managers</a>
+</li>
+<li><a href="/en/advanced/security-updates.html">Security updates</a>
+</li>
+<li><a href="/en/advanced/best-practice-security.html">Security best practices</a>
+</li>
+<li><a href="/en/advanced/best-practice-performance.html">Performance best practices</a>
+</li>
+<li><a href="/en/advanced/healthcheck-graceful-shutdown.html">Health checks and graceful shutdown</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<ul id="resources-menu" class="menu">
+<li><a href="/en/resources/glossary.html">Resources</a>
+<ul>
+<li>
+<a href="/en/resources/community.html">Community</a>
+</li>
+<li>
+<a href="/en/resources/glossary.html">Glossary</a>
+</li>
+<li>
+<a href="/en/resources/template-engines.html">Template Engines</a>
+</li>
+<li>
+<a href="/en/resources/middleware.html">Middleware</a>
+</li>
+<li>
+<a href="/en/resources/utils.html">Utility modules</a>
+ </li>
+<li>
+<a href="/en/resources/frameworks.html">Frameworks</a>
+</li>
+<li>
+<a href="/en/resources/companies-using-express.html">Companies using Express</a>
+</li>
+<li>
+<a href="/en/resources/open-source-using-express.html">Open-source projects</a>
+</li>
+<li>
+<a href="/en/resources/learning.html">Additional learning</a>
+</li>
+<li>
+<a href="/en/resources/contributing.html">Contributing to Express</a>
+</li>
+<li>
+<a href="/en/changelog/4x.html">Release Change Log</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+
+</ul>
+</div>
+</header>
+<div id="overlay"></div>
+<div id="page-doc" markdown="1">
+<h1 id="writing-middleware-for-use-in-express-apps">Writing middleware for use in Express apps</h1>
+<h2>Overview</h2>
+<p><em>Middleware</em> functions are functions that have access to the <a href="/en/4x/api.html#req">request object</a> (<code>req</code>), the <a href="/en/4x/api.html#res">response object</a> (<code>res</code>), and the <code>next</code> function in the application’s request-response cycle. The <code>next</code> function is a function in the Express router which, when invoked, executes the middleware succeeding the current middleware.</p>
+<p>Middleware functions can perform the following tasks:</p>
+<ul>
+<li>Execute any code.</li>
+<li>Make changes to the request and the response objects.</li>
+<li>End the request-response cycle.</li>
+<li>Call the next middleware in the stack.</li>
+</ul>
+<p>If the current middleware function does not end the request-response cycle, it must call <code>next()</code> to pass control to the next middleware function. Otherwise, the request will be left hanging.</p>
+<p>The following figure shows the elements of a middleware function call:</p>
+<table id="mw-fig">
+<tr><td id="mw-fig-imgcell">
+<img src="/images/express-mw.png" id="mw-fig-img" />
+</td>
+<td class="mw-fig-callouts">
+<div class="callout" id="callout1">HTTP method for which the middleware function applies.</div>
+<div class="callout" id="callout2">Path (route) for which the middleware function applies.</div>
+<div class="callout" id="callout3">The middleware function.</div>
+<div class="callout" id="callout4">Callback argument to the middleware function, called "next" by convention.</div>
+<div class="callout" id="callout5">HTTP <a href="/en/4x/api.html#res">response</a> argument to the middleware function, called "res" by convention.</div>
+<div class="callout" id="callout6">HTTP <a href="/en/4x/api.html#req">request</a> argument to the middleware function, called "req" by convention.</div>
+</td></tr>
+</table>
+<p>Starting with Express 5, middleware functions that return a Promise will call <code>next(value)</code> when they reject or throw an error. <code>next</code> will be called with either the rejected value or the thrown Error.</p>
+<h2>Example</h2>
+<p>Here is an example of a simple "Hello World" Express application.
+The remainder of this article will define and add three middleware functions to the application:
+one called <code>myLogger</code> that prints a simple log message, one called <code>requestTime</code> that
+displays the timestamp of the HTTP request, and one called <code>validateCookies</code> that validates incoming cookies.</p>
+<pre><code class="language-js">var express = require('express')
+var app = express()
+
+app.get('/', function (req, res) {
+  res.send('Hello World!')
+})
+
+app.listen(3000)
+</code></pre>
+<h3>Middleware function myLogger</h3>
+<p>Here is a simple example of a middleware function called "myLogger". This function just prints "LOGGED" when a request to the app passes through it. The middleware function is assigned to a variable named <code>myLogger</code>.</p>
+<pre><code class="language-js">var myLogger = function (req, res, next) {
+  console.log('LOGGED')
+  next()
+}
+</code></pre>
+<div class="doc-box doc-notice">
+<p>Notice the call above to <code>next()</code>. Calling this function invokes the next middleware function in the app.
+The <code>next()</code> function is not a part of the Node.js or Express API, but is the third argument that is passed to the middleware function. The <code>next()</code> function could be named anything, but by convention it is always named "next".
+To avoid confusion, always use this convention.</p>
+</div>
+<p>To load the middleware function, call <code>app.use()</code>, specifying the middleware function.
+For example, the following code loads the <code>myLogger</code> middleware function before the route to the root path (/).</p>
+<pre><code class="language-js">var express = require('express')
+var app = express()
+
+var myLogger = function (req, res, next) {
+  console.log('LOGGED')
+  next()
+}
+
+app.use(myLogger)
+
+app.get('/', function (req, res) {
+  res.send('Hello World!')
+})
+
+app.listen(3000)
+</code></pre>
+<p>Every time the app receives a request, it prints the message "LOGGED" to the terminal.</p>
+<p>The order of middleware loading is important: middleware functions that are loaded first are also executed first.</p>
+<p>If <code>myLogger</code> is loaded after the route to the root path, the request never reaches it and the app doesn’t print "LOGGED", because the route handler of the root path terminates the request-response cycle.</p>
+<p>The middleware function <code>myLogger</code> simply prints a message, then passes on the request to the next middleware function in the stack by calling the <code>next()</code> function.</p>
+<h3>Middleware function requestTime</h3>
+<p>Next, we’ll create a middleware function called "requestTime" and add a property called <code>requestTime</code>
+to the request object.</p>
+<pre><code class="language-js">var requestTime = function (req, res, next) {
+  req.requestTime = Date.now()
+  next()
+}
+</code></pre>
+<p>The app now uses the <code>requestTime</code> middleware function. Also, the callback function of the root path route uses the property that the middleware function adds to <code>req</code> (the request object).</p>
+<pre><code class="language-js">var express = require('express')
+var app = express()
+
+var requestTime = function (req, res, next) {
+  req.requestTime = Date.now()
+  next()
+}
+
+app.use(requestTime)
+
+app.get('/', function (req, res) {
+  var responseText = 'Hello World!&lt;br&gt;'
+  responseText += '&lt;small&gt;Requested at: ' + req.requestTime + '&lt;/small&gt;'
+  res.send(responseText)
+})
+
+app.listen(3000)
+</code></pre>
+<p>When you make a request to the root of the app, the app now displays the timestamp of your request in the browser.</p>
+<h3>Middleware function validateCookies</h3>
+<p>Finally, we’ll create a middleware function that validates incoming cookies and sends a 400 response if cookies are invalid.</p>
+<p>Here’s an example function that validates cookies with an external async service.</p>
+<pre><code class="language-js">async function cookieValidator (cookies) {
+  try {
+    await externallyValidateCookie(cookies.testCookie)
+  } catch {
+    throw new Error('Invalid cookies')
+  }
+}
+</code></pre>
+<p>Here we use the <a href="/resources/middleware/cookie-parser.html"><code>cookie-parser</code></a> middleware to parse incoming cookies off the <code>req</code> object and pass them to our <code>cookieValidator</code> function. The <code>validateCookies</code> middleware returns a Promise that upon rejection will automatically trigger our error handler.</p>
+<pre><code class="language-js">var express = require('express')
+var cookieParser = require('cookie-parser')
+var cookieValidator = require('./cookieValidator')
+
+var app = express()
+
+async function validateCookies (req, res, next) {
+  await cookieValidator(req.cookies)
+  next()
+}
+
+app.use(cookieParser())
+
+app.use(validateCookies)
+
+// error handler
+app.use(function (err, req, res, next) {
+  res.status(400).send(err.message)
+})
+
+app.listen(3000)
+
+</code></pre>
+<div class="doc-box doc-notice">
+<p>Note how <code>next()</code> is called after <code>await cookieValidator(req.cookies)</code>. This ensures that if <code>cookieValidator</code> resolves, the next middleware in the stack will get called. If you pass anything to the <code>next()</code> function (except the string <code>'route'</code> or <code>'router'</code>), Express regards the current request as being an error and will skip any remaining non-error handling routing and middleware functions.</p>
+</div>
+<p>Because you have access to the request object, the response object, the next middleware function in the stack, and the whole Node.js API, the possibilities with middleware functions are endless.</p>
+<p>For more information about Express middleware, see: <a href="/en/guide/using-middleware.html">Using Express middleware</a>.</p>
+<h2>Configurable middleware</h2>
+<p>If you need your middleware to be configurable, export a function which accepts an options object or other parameters, which, then returns the middleware implementation based on the input parameters.</p>
+<p>File: <code>my-middleware.js</code></p>
+<pre><code class="language-js">module.exports = function (options) {
+  return function (req, res, next) {
+    // Implement the middleware function based on the options object
+    next()
+  }
+}
+</code></pre>
+<p>The middleware can now be used as shown below.</p>
+<pre><code class="language-js">var mw = require('./my-middleware.js')
+
+app.use(mw({ option1: '1', option2: '2' }))
+</code></pre>
+<p>Refer to <a href="https://github.com/expressjs/cookie-session">cookie-session</a> and <a href="https://github.com/expressjs/compression">compression</a> for examples of configurable middleware.</p>
+</div>
+</section>
+<a id="top" href="#"><img src="/images/arrow.png"></a>
+<footer>
+<section id="doc-langs">
+Documentation translations provided by <a href="http://strongloop.com">StrongLoop/IBM</a>:
+<a href="/fr/">French</a>, <a href="/de/">German</a>, <a href="/es/">Spanish</a>, <a href="/it/">Italian</a>, <a href="/ja/">Japanese</a>, <a href="/ru/">Russian</a>, <a href="/zh-cn/">Chinese</a>, <a href="/zh-tw/">Traditional Chinese</a>, <a href="/ko/">Korean</a>, <a href="/pt-br/">Portuguese</a>.
+<br>
+Community translation available for: <a href="/sk/">Slovak</a>, <a href="/uk/">Ukrainian</a>, <a href="/uz/">Uzbek</a>, <a href="/tr/">Turkish</a> and <a href="/th/">Thai</a>.
+</section>
+<div id="footer-content">
+<div id="github">
+<a class="github-button" href="https://github.com/expressjs/expressjs.com" data-icon="octicon-star" aria-label="Star expressjs/expressjs.com on GitHub">Star</a>
+</div>
+<div id="sponsor"><a href="https://expressjs.com">Express</a> is a project of the <a href="https://openjsf.org">OpenJS Foundation</a>.</div>
+<div id="fork"><a href="https://github.com/expressjs/expressjs.com">Fork the website on GitHub</a>.</div>
+<div>Copyright &copy; 2017 StrongLoop, IBM, and other expressjs.com contributors.</div>
+</div>
+<div id="license">
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons Attribution-ShareAlike 3.0 United States License</a>.
+</div>
+</footer>
+<script async defer src="https://buttons.github.io/buttons.js" type="0c3fa3566d857f9752094816-text/javascript"></script>
+<script type="0c3fa3566d857f9752094816-text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js" onload="docsearch({
+  apiKey: '7164e33055faa6ecddefd9e08fc59f5d',
+  indexName: 'expressjs',
+  inputSelector: '#q',
+  algoliaOptions: { 'facetFilters': ['lang:en'] }
+})" async></script>
+<script src="https://ajax.cloudflare.com/cdn-cgi/scripts/7089c43e/cloudflare-static/rocket-loader.min.js" data-cf-settings="0c3fa3566d857f9752094816-|49" defer=""></script></body>
+</html>

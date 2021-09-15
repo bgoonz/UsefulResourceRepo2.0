@@ -1,0 +1,1445 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = false;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "/detroitchicago/boise.js",
+        "/detroitchicago/boise.js?gcb=192-11&cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "/detroitchicago/memphis.js",
+        "/detroitchicago/memphis.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/minneapolis.js",
+        "/detroitchicago/minneapolis.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "/detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "/porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("/");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot.getAdUnitPath(adSlot).split("/").pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (ezimKey.split("/").pop() === adUnitName) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "/detroitchicago/raleigh.js",
+        "/detroitchicago/raleigh.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/tampa.js",
+        "/detroitchicago/tampa.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_count_adjustment: 0,
+        ad_lazyload_version: 0,
+        ad_location_ids: "",
+        ad_transform_level: 0,
+        adx_ad_count: 0,
+        bidder_method: 3,
+        bidder_version: 5,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        display_ad_count: 0,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        ds_adsize_opt_id: -1,
+        engaged_time_visit: 0,
+        ezcache_level: 1,
+        ezcache_skip_code: 6,
+        form_factor_id: 1,
+        framework_id: 1,
+        has_bad_image: 0,
+        has_bad_words: 0,
+        iab_category: "",
+        is_from_recommended_pages: false,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        max_ads: 0,
+        metro_code: 501,
+        optimization_version: 4,
+        page_ad_positions: "",
+        page_view_count: 129,
+        page_view_id: "744c8a3f-708e-4a62-722c-f822f08e598a",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 0,
+        response_time_orig: 299,
+        serverid: "3.83.20.134:29385",
+        state: "NJ",
+        sub_page_ad_positions: "",
+        t_epoch: 1613702984,
+        template_id: 0,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/tutors/C_Sharp/edmonton.php",
+        user_id: 0,
+        word_count: 0,
+        worst_bad_word_level: 0,
+      };
+      var _ezim_d = null;
+      var _ezat = {
+        domain_id: 83552,
+        form_factor_id: 1,
+        framework_id: 1,
+        pageview_date: "2021-02-18",
+        pageview_id: "744c8a3f-708e-4a62-722c-f822f08e598a",
+        template_id: 0,
+        url: "https://www.brainbell.com/tutors/C_Sharp/edmonton.php",
+        visit_uuid: "3b57fc57-4c51-4b3f-6c78-712b82b8f8be",
+      };
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+    >
+      __ez.queue.addFile(
+        "banger.js",
+        "/porpoiseant/banger.js?cb=192-11&bv=3&v=39&PageSpeed=off",
+        true,
+        [],
+        true,
+        false,
+        false,
+        true
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "/detroitchicago/tulsa.js",
+        "/detroitchicago/tulsa.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <title>Article or tutorial not found</title>
+    <link rel="stylesheet" type="text/css" href="/img/404.css" />
+
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base href="https://www.brainbell.com/tutors/C_Sharp/edmonton.php" />
+    <script type="text/javascript">
+      var ezoTemplate = "pub_site_noads";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigeneris",
+        "//g.ezoic.net/ezosuigeneris.js",
+        true,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+      var __ez_ezosuigenerisEvt = function () {
+        if (typeof ezosuigeneris != "undefined") {
+          __ez.bit.AddAndFire(_ezaq["page_view_id"], [
+            new __ezDotData("universal_user_id", ezosuigeneris),
+          ]);
+        }
+      };
+      __ez.queue.addFunc(
+        "__ez_ezosuigenerisEvt",
+        "__ez_ezosuigenerisEvt",
+        null,
+        false,
+        [
+          "__ezf_ezosuigeneris",
+          "/detroitchicago/minneapolis.js",
+          "/detroitchicago/memphis.js",
+        ],
+        false,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigenerisc",
+        "//g.ezoic.net/ezosuigenerisc.js?nogen=1",
+        true,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["744c8a3f-708e-4a62-722c-f822f08e598a", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <div>
+      <img src="/img/head_pic1.jpg" border="0" />
+    </div>
+    <div class="toc">
+      <h1>404 page not found</h1>
+      <p>
+        Sorry, the page you requested was not found. Please use the following
+        index to browse related topics.
+      </p>
+    </div>
+
+    <h1 style="text-align: center">C Sharp Index</h1>
+    <div class="toc">
+      <h2>Object Oriented Programming</h2>
+      <a href="/tutors/C_Sharp/Everything_Is_an_Object.htm"
+        >Everything Is an Object</a
+      >
+      <a href="/tutors/C_Sharp/Objects_vs_Classes.htm">Objects vs. Classes</a>
+      <a href="/tutors/C_Sharp/Instantiation.htm">Instantiation</a>
+      <a href="/tutors/C_Sharp/Encapsulation.htm">Encapsulation</a>
+      <a href="/tutors/C_Sharp/Designing_Abstractions.htm"
+        >Designing Abstractions</a
+      >
+      <a href="/tutors/C_Sharp/Benefits_of_Good_Abstraction.htm"
+        >Benefits of Good Abstraction</a
+      >
+      <a href="/tutors/C_Sharp/Inheritance.htm">Inheritance</a>
+      <a href="/tutors/C_Sharp/Defining_Proper_Inheritance.htm"
+        >Defining Proper Inheritance</a
+      >
+      <a href="/tutors/C_Sharp/Polymorphism.htm">Polymorphism</a>
+    </div>
+
+    <div class="toc">
+      <h2>Microsoft .NET</h2>
+      <a href="/tutors/C_Sharp/The_Microsoft_NET_Platform.htm"
+        >The Microsoft .NET Platform</a
+      >
+      <a href="/tutors/C_Sharp/Windows_DNA_and_NET.htm">Windows DNA and .NET</a>
+      <a href="/tutors/C_Sharp/The_Common_Language_Runtime.htm"
+        >The Common Language Runtime</a
+      >
+      <a href="/tutors/C_Sharp/The_NET_Framework_Class_Libraries.htm"
+        >The .NET Framework Class Libraries</a
+      >
+      <a
+        href="/tutors/C_Sharp/Microsoft_Intermediate_Language_and_the_JITters.htm"
+        >Microsoft Intermediate Language and the JITters</a
+      >
+      <a href="/tutors/C_Sharp/Metadata_and_Reflection.htm"
+        >Metadata and Reflection</a
+      >
+      <a href="/tutors/C_Sharp/Deployment.htm">Deployment</a>
+      <a href="/tutors/C_Sharp/Interoperability_with_Unmanaged_Code.htm"
+        >Interoperability with Unmanaged Code</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Hello, C#</h2>
+      <a href="/tutors/C_Sharp/Notepad.htm">Notepad</a>
+      <a href="/tutors/C_Sharp/Visual_Studio_6.htm">Visual Studio 6</a>
+      <a href="/tutors/C_Sharp/What_I_Used_for_this_Book.htm"
+        >What I Used for this tutorial</a
+      >
+      <a href="/tutors/C_Sharp/Using_the_Command_Line_Compiler.htm"
+        >Using the Command-Line Compiler</a
+      >
+      <a href="/tutors/C_Sharp/Running_the_Application.htm"
+        >Running the Application</a
+      >
+      <a href="/tutors/C_Sharp/One_Stop_Programming.htm"
+        >One-Stop Programming</a
+      >
+      <a href="/tutors/C_Sharp/The_Main_Method.htm">The Main Method</a>
+      <a href="/tutors/C_Sharp/Namespaces_and_the_using_Directive.htm"
+        >Namespaces and the <i>using</i> Directive</a
+      >
+      <a href="/tutors/C_Sharp/Skeleton_Code.htm">Skeleton Code</a>
+      <a href="/tutors/C_Sharp/Compile_Time_Errors.htm">Compile-Time Errors</a>
+      <a href="/tutors/C_Sharp/Spelunking_with_ILDASM.htm"
+        >Spelunking with ILDASM</a
+      >
+      <a href="/tutors/C_Sharp/Hello_World_in_MSIL.htm"
+        >"Hello, World" in MSIL</a
+      >
+      <a href="/tutors/C_Sharp/When_to_Define_Your_Own_Namespaces.htm"
+        >When to Define Your Own Namespaces</a
+      >
+      <a href="/tutors/C_Sharp/Naming_Guidelines.htm">Naming Guidelines</a>
+      <a href="/tutors/C_Sharp/Hungarian_Notation.htm">Hungarian Notation</a>
+      <a href="/tutors/C_Sharp/Pascal_Casing_and_Camel_Casing.htm"
+        >Pascal Casing and Camel Casing</a
+      >
+      <a href="/tutors/C_Sharp/Methods.htm">Methods</a>
+      <a href="/tutors/C_Sharp/Class_Members.htm">Class Members</a>
+    </div>
+
+    <div class="toc">
+      <h2>The Type System</h2>
+      <a href="/tutors/C_Sharp/Value_Types.htm">Value Types</a>
+      <a href="/tutors/C_Sharp/Boxing_and_Unboxing.htm">Boxing and Unboxing</a>
+      <a href="/tutors/C_Sharp/The_Root_of_All_Types_System_Object.htm"
+        >The Root of All Types: <i>System.Object</i></a
+      >
+      <a href="/tutors/C_Sharp/Types_and_Aliases.htm">Types and Aliases</a>
+      <a href="/tutors/C_Sharp/Casting_Between_Types.htm"
+        >Casting Between Types</a
+      >
+      <a href="/tutors/C_Sharp/The_using_Keyword.htm"
+        >The <i>using</i> Keyword</a
+      >
+      <a href="/tutors/C_Sharp/Language_Interoperability.htm"
+        >Language Interoperability</a
+      >
+      <a href="/tutors/C_Sharp/Singly_Rooted_Object_Hierarchy.htm"
+        >Singly Rooted Object Hierarchy</a
+      >
+      <a href="/tutors/C_Sharp/Type_Safety.htm">Type Safety</a>
+    </div>
+
+    <div class="toc">
+      <h2>Classes</h2>
+      <a href="/tutors/C_Sharp/Class_Members_a2.htm">Class Members</a>
+      <a href="/tutors/C_Sharp/Access_Modifiers.htm">Access Modifiers</a>
+      <a href="/tutors/C_Sharp/The_Main_Method_a2.htm">The Main Method</a>
+      <a href="/tutors/C_Sharp/Command_Line_Arguments.htm"
+        >Command-Line Arguments</a
+      >
+      <a href="/tutors/C_Sharp/Multiple_Main_Methods.htm"
+        >Multiple Main Methods</a
+      >
+      <a href="/tutors/C_Sharp/Constructors.htm">Constructors</a>
+      <a href="/tutors/C_Sharp/Static_Members_and_Instance_Members.htm"
+        >Static Members and Instance Members</a
+      >
+      <a href="/tutors/C_Sharp/Constructor_Initializers.htm"
+        >Constructor Initializers</a
+      >
+      <a href="/tutors/C_Sharp/Constants.htm">Constants</a>
+      <a href="/tutors/C_Sharp/Read_Only_Fields.htm">Read-Only Fields</a>
+      <a href="/tutors/C_Sharp/Object_Cleanup_and_Resource_Management.htm"
+        >Object Cleanup and Resource Management</a
+      >
+      <a href="/tutors/C_Sharp/A_Bit_of_History.htm">A Bit of History</a>
+      <a href="/tutors/C_Sharp/Deterministic_Finalization.htm"
+        >Deterministic Finalization</a
+      >
+      <a href="/tutors/C_Sharp/Tracing_Collection.htm">Tracing Collection</a>
+      <a href="/tutors/C_Sharp/Performance.htm">Performance</a>
+      <a href="/tutors/C_Sharp/The_Perfect_Solution.htm"
+        >The Perfect Solution</a
+      >
+      <a href="/tutors/C_Sharp/The_Almost_Perfect_Solution.htm"
+        >The (Almost) Perfect Solution</a
+      >
+      <a href="/tutors/C_Sharp/Composition.htm">Composition</a>
+      <a href="/tutors/C_Sharp/Interfaces_a2.htm">Interfaces</a>
+      <a href="/tutors/C_Sharp/The_Dispose_Design_Pattern.htm"
+        >The Dispose Design Pattern</a
+      >
+      <a href="/tutors/C_Sharp/Inheritance_a2.htm">Inheritance</a>
+      <a href="/tutors/C_Sharp/Multiple_Interfaces.htm">Multiple Interfaces</a>
+      <a href="/tutors/C_Sharp/Sealed_Classes.htm">Sealed Classes</a>
+    </div>
+
+    <div class="toc">
+      <h2>Methods</h2>
+      <a href="/tutors/C_Sharp/ref_and_out_Method_Parameters.htm"
+        ><i>ref</i> and <i>out</i> Method Parameters</a
+      >
+      <a href="/tutors/C_Sharp/Method_Overloading.htm">Method Overloading</a>
+      <a href="/tutors/C_Sharp/Variable_Method_Parameters.htm"
+        >Variable Method Parameters</a
+      >
+      <a href="/tutors/C_Sharp/Method_Overriding.htm">Method Overriding</a>
+      <a href="/tutors/C_Sharp/Polymorphism_a2.htm">Polymorphism</a>
+      <a href="/tutors/C_Sharp/Static_Methods.htm">Static Methods</a>
+      <a href="/tutors/C_Sharp/Access_to_Class_Members.htm"
+        >Access to Class Members</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Properties, Arrays, and Indexers</h2>
+      <a href="/tutors/C_Sharp/Properties_as_Smart_Fields.htm"
+        >Properties as Smart Fields</a
+      >
+      <a href="/tutors/C_Sharp/Defining_and_Using_Properties.htm"
+        >Defining and Using Properties</a
+      >
+      <a href="/tutors/C_Sharp/What_the_Compiler_Is_Really_Doing.htm"
+        >What the Compiler Is Really Doing</a
+      >
+      <a href="/tutors/C_Sharp/Read_Only_Properties.htm"
+        >Read-Only Properties</a
+      >
+      <a href="/tutors/C_Sharp/Advanced_Use_of_Properties.htm"
+        >Advanced Use of Properties</a
+      >
+      <a href="/tutors/C_Sharp/Arrays.htm">Arrays</a>
+      <a href="/tutors/C_Sharp/Declaring_Arrays.htm">Declaring Arrays</a>
+      <a href="/tutors/C_Sharp/Single_Dimensional_Array_Example.htm"
+        >Single-Dimensional Array Example</a
+      >
+      <a href="/tutors/C_Sharp/Multidimensional_Arrays.htm"
+        >Multidimensional Arrays</a
+      >
+      <a href="/tutors/C_Sharp/Querying_for_Rank.htm">Querying for Rank</a>
+      <a href="/tutors/C_Sharp/Jagged_Arrays.htm">Jagged Arrays</a>
+      <a
+        href="/tutors/C_Sharp/Treating_Objects_Like_Arrays_by_Using_Indexers.htm"
+        >Treating Objects Like Arrays by Using Indexers</a
+      >
+      <a href="/tutors/C_Sharp/Defining_Indexers.htm">Defining Indexers</a>
+      <a href="/tutors/C_Sharp/Indexer_Example.htm">Indexer Example</a>
+      <a href="/tutors/C_Sharp/Design_Guidelines.htm">Design Guidelines</a>
+    </div>
+
+    <div class="toc">
+      <h2>Attributes</h2>
+      <a href="/tutors/C_Sharp/Introducing_Attributes.htm"
+        >Introducing Attributes</a
+      >
+      <a href="/tutors/C_Sharp/Defining_Attributes.htm">Defining Attributes</a>
+      <a href="/tutors/C_Sharp/Querying_About_Attributes.htm"
+        >Querying About Attributes</a
+      >
+      <a href="/tutors/C_Sharp/Class_Attributes.htm">Class Attributes</a>
+      <a href="/tutors/C_Sharp/Method_Attributes.htm">Method Attributes</a>
+      <a href="/tutors/C_Sharp/Field_Attributes.htm">Field Attributes</a>
+      <a href="/tutors/C_Sharp/Positional_Parameters_and_Named_Parameters.htm"
+        >Positional Parameters and Named Parameters</a
+      >
+      <a href="/tutors/C_Sharp/Common_Mistakes_with_Named_Parameters.htm"
+        >Common Mistakes with Named Parameters</a
+      >
+      <a href="/tutors/C_Sharp/Valid_Attribute_Parameter_Types.htm"
+        >Valid Attribute Parameter Types</a
+      >
+      <a href="/tutors/C_Sharp/Defining_an_Attribute_Target.htm"
+        >Defining an Attribute Target</a
+      >
+      <a href="/tutors/C_Sharp/Single_Use_and_Multiuse_Attributes.htm"
+        >Single-Use and Multiuse Attributes</a
+      >
+      <a href="/tutors/C_Sharp/Attribute_Identifiers.htm"
+        >Attribute Identifiers</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Interface</h2>
+      <a href="/tutors/C_Sharp/Interface_Use.htm">Interface Use</a>
+      <a href="/tutors/C_Sharp/Declaring_Interfaces.htm"
+        >Declaring Interfaces</a
+      >
+      <a href="/tutors/C_Sharp/Implementing_Interfaces.htm"
+        >Implementing Interfaces</a
+      >
+      <a href="/tutors/C_Sharp/Querying_for_Implementation_by_Using_is.htm"
+        >Querying for Implementation by Using <i>is</i></a
+      >
+      <a href="/tutors/C_Sharp/Querying_for_Implementation_by_Using_as.htm"
+        >Querying for Implementation by Using <i>as</i></a
+      >
+      <a href="/tutors/C_Sharp/Name_Hiding_with_Interfaces.htm"
+        >Name Hiding with Interfaces</a
+      >
+      <a href="/tutors/C_Sharp/Avoiding_Name_Ambiguity.htm"
+        >Avoiding Name Ambiguity</a
+      >
+      <a href="/tutors/C_Sharp/Interfaces_and_Inheritance.htm"
+        >Interfaces and Inheritance</a
+      >
+      <a href="/tutors/C_Sharp/Combining_Interfaces.htm"
+        >Combining Interfaces</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Expressions and Operators</h2>
+      <a href="/tutors/C_Sharp/Operator_Precedence.htm">Operator Precedence</a>
+      <a href="/tutors/C_Sharp/How_C_Determines_Precedence.htm"
+        >How C# Determines Precedence</a
+      >
+      <a href="/tutors/C_Sharp/Left_and_Right_Associativity.htm"
+        >Left and Right Associativity</a
+      >
+      <a href="/tutors/C_Sharp/Practical_Usage.htm">Practical Usage</a>
+      <a href="/tutors/C_Sharp/Primary_Expression_Operators.htm"
+        >Primary Expression Operators</a
+      >
+      <a href="/tutors/C_Sharp/typeof.htm"><i>typeof</i></a>
+      <a href="/tutors/C_Sharp/sizeof.htm"><i>sizeof</i></a>
+      <a href="/tutors/C_Sharp/Mathematical_Operators.htm"
+        >Mathematical Operators</a
+      >
+      <a href="/tutors/C_Sharp/Unary_Operators.htm"> Unary Operators</a>
+      <a href="/tutors/C_Sharp/Compound_Assignment_Operators.htm"
+        >Compound Assignment Operators</a
+      >
+      <a href="/tutors/C_Sharp/Increment_Operators_and_Decrement_Operators.htm"
+        >Increment Operators and Decrement Operators</a
+      >
+      <a href="/tutors/C_Sharp/Comparison_Operators.htm"
+        >Comparison Operators</a
+      >
+      <a href="/tutors/C_Sharp/Simple_Assignment_Operators.htm"
+        >Simple Assignment Operators</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Program Flow Control</h2>
+      <a href="/tutors/C_Sharp/The_if_Statement.htm">The <i>if</i> Statement</a>
+      <a href="/tutors/C_Sharp/Multiple_else_Clauses.htm"
+        >Multiple else Clauses</a
+      >
+      <a href="/tutors/C_Sharp/How_C_Enforces_if_Rules.htm"
+        >How C# Enforces if Rules</a
+      >
+      <a href="/tutors/C_Sharp/The_switch_Statement.htm">
+        The <i>switch</i> Statement</a
+      >
+      <a href="/tutors/C_Sharp/Combining_Case_Labels.htm"
+        >Combining Case Labels</a
+      >
+      <a href="/tutors/C_Sharp/No_Fall_Through_in_switch_Statements.htm"
+        >No Fall-Through in <i>switch</i> Statements</a
+      >
+      <a href="/tutors/C_Sharp/The_while_Statement.htm"
+        >The <i>while</i> Statement</a
+      >
+      <a href="/tutors/C_Sharp/The_do_while_Statement.htm"
+        >The <i>do/while</i> Statement</a
+      >
+      <a href="/tutors/C_Sharp/The_for_Statement.htm">
+        The <i>for</i> Statement</a
+      >
+      <a href="/tutors/C_Sharp/Nested_Loops.htm">Nested Loops</a>
+      <a href="/tutors/C_Sharp/Using_the_Comma_Operator.htm"
+        >Using the Comma Operator</a
+      >
+      <a href="/tutors/C_Sharp/The_foreach_Statement.htm"
+        >The <i>foreach</i> Statement</a
+      >
+      <a href="/tutors/C_Sharp/The_break_Statement.htm"
+        >The <i>break</i> Statement</a
+      >
+      <a href="/tutors/C_Sharp/Breaking_Out_of_Infinite_Loops.htm"
+        >Breaking Out of Infinite Loops</a
+      >
+      <a href="/tutors/C_Sharp/The_continue_Statement.htm"
+        >The <i>continue</i> Statement</a
+      >
+      <a href="/tutors/C_Sharp/The_goto_Statement_A_Very_Brief_History.htm"
+        >The goto Statement: A (Very) Brief History</a
+      >
+      <a href="/tutors/C_Sharp/Using_the_goto_Statement.htm"
+        >Using the <i>goto</i> Statement</a
+      >
+      <a href="/tutors/C_Sharp/The_return_Statement.htm"
+        >The <i>return</i> Statement</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Error Handling with Exceptions</h2>
+      <a href="/tutors/C_Sharp/Overview_of_Exception_Handling.htm"
+        >Overview of Exception Handling</a
+      >
+      <a href="/tutors/C_Sharp/Throwing_an_Exception.htm"
+        >Throwing an Exception</a
+      >
+      <a href="/tutors/C_Sharp/Catching_an_Exception.htm"
+        >Catching an Exception</a
+      >
+      <a href="/tutors/C_Sharp/Rethrowing_an_Exception.htm"
+        >Rethrowing an Exception</a
+      >
+      <a href="/tutors/C_Sharp/Cleaning_Up_with_finally.htm"
+        >Cleaning Up with <i>finally</i></a
+      >
+      <a href="/tutors/C_Sharp/Comparing_Error_Handling_Techniques.htm"
+        >Comparing Error-Handling Techniques</a
+      >
+      <a
+        href="/tutors/C_Sharp/The_Benefits_of_Exception_Handling_Over_Return_Codes.htm"
+      >
+        The Benefits of Exception Handling Over Return Codes</a
+      >
+      <a href="/tutors/C_Sharp/Handling_Errors_in_the_Correct_Context.htm"
+        >Handling Errors in the Correct Context</a
+      >
+      <a href="/tutors/C_Sharp/Improving_Code_Readability.htm"
+        >Improving Code Readability</a
+      >
+      <a href="/tutors/C_Sharp/Throwing_Exceptions_From_Constructors.htm"
+        >Throwing Exceptions From Constructors</a
+      >
+      <a href="/tutors/C_Sharp/Constructing_an_Exception_Object.htm"
+        >Constructing an <i>Exception</i> Object</a
+      >
+      <a href="/tutors/C_Sharp/Using_the_StackTrace_Property.htm"
+        >Using the <i>StackTrace</i> Property</a
+      >
+      <a href="/tutors/C_Sharp/Catching_Multiple_Exception_Types.htm"
+        >Catching Multiple Exception Types</a
+      >
+      <a href="/tutors/C_Sharp/Deriving_Your_Own_Exception_Classes.htm"
+        >Deriving Your Own <i>Exception</i> Classes</a
+      >
+      <a href="/tutors/C_Sharp/Design_Issues_with_the_try_Block.htm"
+        >Design Issues with the <i>try</i> Block</a
+      >
+      <a href="/tutors/C_Sharp/Design_Issues_with_the_catch_Block.htm"
+        >Design Issues with the <i>catch</i> Block</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Operator Overloading and User-Defined Conversions</h2>
+      <a href="/tutors/C_Sharp/Syntax_and_Example.htm">Syntax and Example</a>
+      <a href="/tutors/C_Sharp/Restrictions_on_Operator_Overloading.htm"
+        >Restrictions on Operator Overloading</a
+      >
+      <a href="/tutors/C_Sharp/Design_Guidelines_a2.htm">Design Guidelines</a>
+      <a href="/tutors/C_Sharp/Syntax_and_Example_a2.htm">Syntax and Example</a>
+    </div>
+
+    <div class="toc">
+      <h2>Delegates and Event Handlers</h2>
+      <a href="/tutors/C_Sharp/Using_Delegates_as_Callback_Methods.htm"
+        >Using Delegates as Callback Methods</a
+      >
+      <a href="/tutors/C_Sharp/Defining_Delegates_as_Static_Members.htm"
+        >Defining Delegates as Static Members</a
+      >
+      <a href="/tutors/C_Sharp/Creating_Delegates_Only_When_Needed.htm"
+        >Creating Delegates Only When Needed</a
+      >
+      <a href="/tutors/C_Sharp/Delegate_Composition.htm"
+        >Delegate Composition</a
+      >
+      <a href="/tutors/C_Sharp/Defining_Events_with_Delegates.htm"
+        >Defining Events with Delegates</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Multithreaded Programming</h2>
+      <a href="/tutors/C_Sharp/Threads_and_Multitasking.htm"
+        >Threads and Multitasking</a
+      >
+      <a href="/tutors/C_Sharp/A_Multithreaded_Application_in_C.htm"
+        >A Multithreaded Application in C#</a
+      >
+      <a href="/tutors/C_Sharp/AppDomain.htm"><i>AppDomain</i></a>
+      <a href="/tutors/C_Sharp/Managing_Thread_Lifetimes.htm"
+        >Managing Thread Lifetimes</a
+      >
+      <a href="/tutors/C_Sharp/Destroying_Threads.htm">Destroying Threads</a>
+      <a href="/tutors/C_Sharp/Scheduling_Threads.htm">Scheduling Threads</a>
+      <a href="/tutors/C_Sharp/Thread_Safety_and_Synchronization.htm"
+        >Thread Safety and Synchronization</a
+      >
+      <a href="/tutors/C_Sharp/Protecting_Code_by_Using_the_Monitor_Class.htm"
+        >Protecting Code by Using the Monitor Class</a
+      >
+      <a
+        href="/tutors/C_Sharp/Using_Monitor_Locks_with_the_C_lock_Statement.htm"
+        >Using Monitor Locks with the C# lock Statement</a
+      >
+      <a href="/tutors/C_Sharp/Synchronizing_Code_by_Using_the_Mutex_Class.htm"
+        >Synchronizing Code by Using the Mutex Class</a
+      >
+      <a href="/tutors/C_Sharp/Increased_Concurrency.htm"
+        >Increased Concurrency</a
+      >
+      <a href="/tutors/C_Sharp/When_Not_to_Use_Threads.htm"
+        >When Not to Use Threads</a
+      >
+      <a href="/tutors/C_Sharp/Summary_b5.htm">Summary</a>
+    </div>
+
+    <div class="toc">
+      <h2>Querying Metadata with Reflection</h2>
+
+      <a href="/tutors/C_Sharp/Retrieving_the_Type_of_an_Instance.htm"
+        >Retrieving the Type of an Instance</a
+      >
+      <a href="/tutors/C_Sharp/Interrogating_Types.htm">Interrogating Types</a>
+      <a href="/tutors/C_Sharp/Iterating_Through_the_Types_of_an_Assembly.htm"
+        >Iterating Through the Types of an Assembly</a
+      >
+      <a href="/tutors/C_Sharp/Listing_an_Assembly_s_Modules.htm"
+        >Listing an Assembly's Modules</a
+      >
+      <a href="/tutors/C_Sharp/Late_Binding_with_Reflection.htm"
+        >Late Binding with Reflection</a
+      >
+      <a href="/tutors/C_Sharp/Creating_and_Executing_Code_at_Run_Time.htm"
+        >Creating and Executing Code at Run Time</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Interoperating with Unmanaged Code</h2>
+      <a href="/tutors/C_Sharp/Declaring_the_Exported_DLL_Function.htm"
+        >Declaring the Exported DLL Function</a
+      >
+      <a href="/tutors/C_Sharp/Using_Callback_Functions_with_C.htm"
+        >Using Callback Functions with C#</a
+      >
+      <a href="/tutors/C_Sharp/Marshalling_and_PInvoke.htm"
+        >Marshalling and <i>PInvoke</i></a
+      >
+      <a href="/tutors/C_Sharp/Writing_Unsafe_Code.htm">Writing Unsafe Code</a>
+      <a href="/tutors/C_Sharp/Using_Pointers_in_C.htm">Using Pointers in C#</a>
+      <a href="/tutors/C_Sharp/The_fixed_Statement.htm"
+        >The <i>fixed</i> Statement</a
+      >
+      <a href="/tutors/C_Sharp/A_Brave_New_World.htm">A Brave New World</a>
+      <a href="/tutors/C_Sharp/Getting_Started.htm">Getting Started</a>
+      <a href="/tutors/C_Sharp/Generating_Metadata_from_a_COM_typelib.htm"
+        >Generating Metadata from a COM <i>typelib</i></a
+      >
+      <a href="/tutors/C_Sharp/Early_Binding_to_COM_Components.htm"
+        >Early Binding to COM Components</a
+      >
+      <a
+        href="/tutors/C_Sharp/Using_Dynamic_Type_Discovery_to_Select_COM_Interfaces.htm"
+        >Using Dynamic Type Discovery to Select COM Interfaces</a
+      >
+      <a href="/tutors/C_Sharp/Late_Binding_to_COM_Components.htm"
+        >Late Binding to COM Components</a
+      >
+      <a href="/tutors/C_Sharp/COM_Threading_Models.htm"
+        >COM Threading Models</a
+      >
+      <a href="/tutors/C_Sharp/Summary_b7.htm">Summary</a>
+    </div>
+
+    <div class="toc">
+      <h2>Working with Assemblies</h2>
+      <a href="/tutors/C_Sharp/Manifest_Data.htm">Manifest Data</a>
+      <a href="/tutors/C_Sharp/Assembly_Deployment.htm">Assembly Deployment</a>
+      <a href="/tutors/C_Sharp/Assembly_Versioning.htm">Assembly Versioning</a>
+      <a href="/tutors/C_Sharp/Building_Assemblies.htm">Building Assemblies</a>
+      <a
+        href="/tutors/C_Sharp/Creating_Assemblies_that_Have_Multiple_Modules.htm"
+        >Creating Assemblies that Have Multiple Modules</a
+      >
+      <a href="/tutors/C_Sharp/Creating_Shared_Assemblies.htm"
+        >Creating Shared Assemblies</a
+      >
+      <a href="/tutors/C_Sharp/Viewing_the_Cache.htm">Viewing the Cache</a>
+      <a href="/tutors/C_Sharp/Versioning_Assemblies.htm"
+        >Versioning Assemblies</a
+      >
+      <a href="/tutors/C_Sharp/Creating_a_Safe_Mode_Configuration_File.htm"
+        >Creating a Safe Mode Configuration File</a
+      >
+      <a href="/tutors/C_Sharp/Using_Specific_Versions_of_Assemblies.htm"
+        >Using Specific Versions of Assemblies</a
+      >
+    </div>
+    <script type="text/javascript" style="display: none">
+      var __ez_dims = (function () {
+        var setCookie = function (name, content, expiry) {
+          return (document.cookie =
+            name +
+            "=" +
+            content +
+            (expiry
+              ? ";expires=" +
+                new Date(
+                  Math.floor(new Date().getTime() + expiry * 1000)
+                ).toUTCString()
+              : "") +
+            ";path=/");
+        };
+        var ffid = 1;
+        var oh = window.screen.height;
+        var ow = window.screen.width;
+        var h = ffid === 1 ? oh : oh > ow ? oh : ow;
+        var w = ffid === 1 ? ow : oh > ow ? ow : oh;
+        var uh =
+          window.innerHeight ||
+          document.documentElement.clientHeight ||
+          document.getElementsByTagName("body")[0].clientHeight;
+        var uw =
+          window.innerWidth ||
+          document.documentElement.clientWidth ||
+          document.getElementsByTagName("body")[0].clientWidth;
+        setCookie(
+          "ezds",
+          encodeURIComponent("ffid=" + ffid + ",w=" + w + ",h=" + h),
+          31536e3 * 7
+        );
+        setCookie(
+          "ezohw",
+          encodeURIComponent("w=" + uw + ",h=" + uh),
+          31536e3 * 7
+        );
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "edmonton.php",
+        "/detroitchicago/edmonton.webp?a=a&cb=192-11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "jellyfish.php",
+        "/porpoiseant/jellyfish.webp?a=a&cb=192-11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+</html>

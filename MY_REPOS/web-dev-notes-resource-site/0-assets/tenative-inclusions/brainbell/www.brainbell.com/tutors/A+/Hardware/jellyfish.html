@@ -1,0 +1,1554 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = false;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "/detroitchicago/boise.js",
+        "/detroitchicago/boise.js?gcb=192-11&cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "/detroitchicago/memphis.js",
+        "/detroitchicago/memphis.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/minneapolis.js",
+        "/detroitchicago/minneapolis.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "/detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "/porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("/");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot.getAdUnitPath(adSlot).split("/").pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (ezimKey.split("/").pop() === adUnitName) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "/detroitchicago/raleigh.js",
+        "/detroitchicago/raleigh.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/tampa.js",
+        "/detroitchicago/tampa.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_count_adjustment: 0,
+        ad_lazyload_version: 0,
+        ad_location_ids: "",
+        ad_transform_level: 0,
+        adx_ad_count: 0,
+        bidder_method: 1,
+        bidder_version: 3,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        display_ad_count: 0,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        ds_adsize_opt_id: -1,
+        engaged_time_visit: 0,
+        ezcache_level: 1,
+        ezcache_skip_code: 6,
+        form_factor_id: 1,
+        framework_id: 1,
+        has_bad_image: 0,
+        has_bad_words: 0,
+        iab_category: "",
+        is_from_recommended_pages: false,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        max_ads: 0,
+        metro_code: 501,
+        optimization_version: 1,
+        page_ad_positions: "",
+        page_view_count: 65,
+        page_view_id: "deba2727-e4f7-4369-4d98-5f0603c846d8",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 0,
+        response_time_orig: 306,
+        serverid: "44.192.66.195:505",
+        state: "NJ",
+        sub_page_ad_positions: "",
+        t_epoch: 1613702903,
+        template_id: 0,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/tutors/A+/Hardware/jellyfish.php",
+        user_id: 0,
+        word_count: 0,
+        worst_bad_word_level: 0,
+      };
+      var _ezim_d = null;
+      var _ezat = {
+        domain_id: 83552,
+        form_factor_id: 1,
+        framework_id: 1,
+        pageview_date: "2021-02-18",
+        pageview_id: "deba2727-e4f7-4369-4d98-5f0603c846d8",
+        template_id: 0,
+        url: "https://www.brainbell.com/tutors/A+/Hardware/jellyfish.php",
+        visit_uuid: "3b57fc57-4c51-4b3f-6c78-712b82b8f8be",
+      };
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+    >
+      __ez.queue.addFile(
+        "banger.js",
+        "/porpoiseant/banger.js?cb=192-11&bv=3&v=39&PageSpeed=off",
+        true,
+        [],
+        true,
+        false,
+        false,
+        true
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "/detroitchicago/tulsa.js",
+        "/detroitchicago/tulsa.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <title>Article or tutorial not found</title>
+    <link rel="stylesheet" type="text/css" href="/img/404.css" />
+
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base href="https://www.brainbell.com/tutors/A+/Hardware/jellyfish.php" />
+    <script type="text/javascript">
+      var ezoTemplate = "pub_site_noads";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigeneris",
+        "//g.ezoic.net/ezosuigeneris.js",
+        true,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+      var __ez_ezosuigenerisEvt = function () {
+        if (typeof ezosuigeneris != "undefined") {
+          __ez.bit.AddAndFire(_ezaq["page_view_id"], [
+            new __ezDotData("universal_user_id", ezosuigeneris),
+          ]);
+        }
+      };
+      __ez.queue.addFunc(
+        "__ez_ezosuigenerisEvt",
+        "__ez_ezosuigenerisEvt",
+        null,
+        false,
+        [
+          "__ezf_ezosuigeneris",
+          "/detroitchicago/minneapolis.js",
+          "/detroitchicago/memphis.js",
+        ],
+        false,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigenerisc",
+        "//g.ezoic.net/ezosuigenerisc.js?nogen=1",
+        true,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["deba2727-e4f7-4369-4d98-5f0603c846d8", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <div>
+      <img src="/img/head_pic1.jpg" border="0" />
+    </div>
+    <div class="toc">
+      <h1>404 page not found</h1>
+      <p>
+        Sorry, the page you requested was not found. Please use the following
+        index to browse related topics.
+      </p>
+    </div>
+
+    <h1 style="text-align: center">Computer Hardware index</h1>
+    <div class="toc">
+      <h2>Introduction to Computer</h2>
+      <a href="/tutors/A+/Hardware/The_Abacus.htm"
+        >The Abacus - The Analytical Engine</a
+      >
+      <a href="/tutors/A+/Hardware/The_First_Electrically_Driven_Computer.htm"
+        >The First Electrically Driven Computer</a
+      >
+      <a href="/tutors/A+/Hardware/The_Digital_Electronic_Computer.htm"
+        >The Digital Electronic Computer</a
+      >
+      <a
+        href="/tutors/A+/Hardware/Lesson_2_The_Role_of_a_Computer_Service_Professional.htm"
+        >Lesson 2: The Role of a Computer Service Professional</a
+      >
+      <a href="/tutors/A+/Hardware/Chapter_Summary.htm">Tutorial Summary</a>
+    </div>
+
+    <div class="toc">
+      <h2>Understanding Electronic Communication</h2>
+      <a href="/tutors/A+/Hardware/Early_Forms_of_Communication.htm"
+        >Computer Communication: Dots and Dashes, Bits and Bytes</a
+      >
+      <a href="/tutors/A+/Hardware/The_Binary_Language_of_Computers.htm"
+        >The Binary Language of Computers</a
+      >
+      <a href="/tutors/A+/Hardware/ASCII_Code.htm">ASCII Code</a>
+      <a href="/tutors/A+/Hardware/Lesson_2_The_Computer_Bus.htm"
+        >Lesson 2: The Computer Bus</a
+      >
+      <a href="/tutors/A+/Hardware/Chapter_Summary_a2.htm">tutorial Summary</a>
+    </div>
+
+    <div class="toc">
+      <h2>An Overview of Computer</h2>
+      <a href="/tutors/A+/Hardware/Processing.htm">Input and Processing</a>
+      <a href="/tutors/A+/Hardware/Output.htm">Input Processing and Output</a>
+      <a href="/tutors/A+/Hardware/Input_a2.htm">Input Devices</a>
+      <a href="/tutors/A+/Hardware/Processing_a2.htm">Processing (CPU)</a>
+      <a href="/tutors/A+/Hardware/Output_a2.htm">Output Devices</a>
+      <a href="/tutors/A+/Hardware/Input_and_Output.htm"
+        >Input and Output Devices</a
+      >
+      <a href="/tutors/A+/Hardware/Lesson_3_Support_Hardware.htm"
+        >Support Hardware</a
+      >
+      <a href="/tutors/A+/Hardware/Chapter_Summary_a3.htm">Tutorial Summary</a>
+      <a href="/tutors/A+/Hardware/Review_a3.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>The Centeral Processing Unit (CPU)</h2>
+      <a href="/tutors/A+/Hardware/The_External_Data_Bus.htm"
+        >The External Data Bus</a
+      >
+      <a href="/tutors/A+/Hardware/The_CPU.htm">The CPU</a>
+      <a href="/tutors/A+/Hardware/Memory.htm">Memory</a>
+      <a href="/tutors/A+/Hardware/How_Microprocessors_Work.htm"
+        >How Microprocessors Work</a
+      >
+      <a
+        href="/tutors/A+/Hardware/PC_Microprocessor_Developments_and_Features.htm"
+        >PC Microprocessor Developments and Features</a
+      >
+      <a href="/tutors/A+/Hardware/Pentium.htm">Pentium</a>
+      <a href="/tutors/A+/Hardware/Lesson_Summary_a8.htm">Lesson Summary</a>
+      <a href="/tutors/A+/Hardware/Lesson_2_Replacing_and_Upgrading_Chips.htm"
+        >Replacing and Upgrading Chips</a
+      >
+      <a href="/tutors/A+/Hardware/Possible_Upgrade_Scenarios.htm"
+        >Possible Upgrade Scenarios</a
+      >
+      <a href="/tutors/A+/Hardware/Inserting_a_CPU.htm">Inserting a CPU</a>
+      <a href="/tutors/A+/Hardware/Chapter_Summary_a4.htm">tutorial Summary</a>
+    </div>
+
+    <div class="toc">
+      <h2>Supplying Power to a Computer</h2>
+      <a href="/tutors/A+/Hardware/Overview_of_Power_Supplies.htm"
+        >Overview of Power Supplies</a
+      >
+      <a href="/tutors/A+/Hardware/Power_Supply_Sizes.htm"
+        >Power-Supply Sizes</a
+      >
+      <a href="/tutors/A+/Hardware/Power_Supply_Wattage.htm"
+        >Power-Supply Wattage</a
+      >
+      <a href="/tutors/A+/Hardware/Power_Supply_Connectors.htm"
+        >Power-Supply Connectors</a
+      >
+      <a href="/tutors/A+/Hardware/Lesson_2_Power_Supply_Problems.htm"
+        >Power-Supply Problems</a
+      >
+      <a href="/tutors/A+/Hardware/Power_Failures.htm">Power Failures</a>
+      <a href="/tutors/A+/Hardware/Power_Protection_Devices.htm"
+        >Power-Protection Devices</a
+      >
+      <a href="/tutors/A+/Hardware/Chapter_Summary_a5.htm">Tutorial Summary</a>
+      <a href="/tutors/A+/Hardware/Review_a5.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>Primary PC Components</h2>
+      <a href="/tutors/A+/Hardware/_The_Computer_Case.htm">The Computer Case</a>
+      <a href="/tutors/A+/Hardware/_Working_with_Cases.htm"
+        >Working with Cases</a
+      >
+      <a href="/tutors/A+/Hardware/_Lesson_2_Motherboards.htm">Motherboards</a>
+      <a href="/tutors/A+/Hardware/_The_Motherboard.htm"
+        >Motherboard and its functions</a
+      >
+      <a href="/tutors/A+/Hardware/_Chip_Sets.htm">Chip Sets</a>
+      <a href="/tutors/A+/Hardware/_Lesson_3_ROM_BIOS.htm">ROM BIOS</a>
+      <a href="/tutors/A+/Hardware/_ROM_BIOS.htm">Types of ROM BIOS</a>
+      <a href="/tutors/A+/Hardware/_Updating_CMOS.htm">Updating CMOS</a>
+      <a href="/tutors/A+/Hardware/_The_CMOS_Battery.htm">The CMOS Battery</a>
+      <a href="/tutors/A+/Hardware/_All_Other_Chips.htm">ROM Chips with BIOS</a>
+      <a href="/tutors/A+/Hardware/_POST_8212_Power_On_Self_Test.htm"
+        >POST-Power-On Self Test Codes</a
+      >
+      <a href="/tutors/A+/Hardware/_Chapter_Summary.htm"> Tutorial Summary</a>
+    </div>
+
+    <div class="toc">
+      <h2>Memory</h2>
+      <a href="/tutors/A+/Hardware/Nonvolatile_and_Volatile_Memory.htm"
+        >Memory: Nonvolatile and Volatile Memory</a
+      >
+      <a href="/tutors/A+/Hardware/ROM_Read_Only_Memory.htm"
+        >ROM: Read-Only Memory</a
+      >
+      <a href="/tutors/A+/Hardware/RAM_Random_Access_Memory.htm"
+        >RAM: Random Access Memory</a
+      >
+      <a href="/tutors/A+/Hardware/RAM_Packaging.htm">RAM Packaging</a>
+      <a href="/tutors/A+/Hardware/SIMMs_30_pin.htm">SIPPs and SIMMs</a>
+      <a href="/tutors/A+/Hardware/Memory_Configuration.htm"
+        >Memory Configuration</a
+      >
+      <a href="/tutors/A+/Hardware/Specifying_SIPPs_and_SIMMs.htm"
+        >Specifying SIPPs and SIMMs</a
+      >
+      <a href="/tutors/A+/Hardware/The_72_Pin_SIMM.htm">The 72-Pin SIMM</a>
+      <a href="/tutors/A+/Hardware/Installing_SIMMs.htm">Installing SIMMs</a>
+      <a href="/tutors/A+/Hardware/Cache_Memory.htm">DIMMs and Memory Cache</a>
+      <a href="/tutors/A+/Hardware/Lesson_2_Memory_Mapping.htm"
+        >Memory Mapping</a
+      >
+      <a href="/tutors/A+/Hardware/The_Workings_of_Hexadecimal_Code.htm"
+        >The Workings of Hexadecimal Code</a
+      >
+      <a href="/tutors/A+/Hardware/Memory_Allocation.htm">Memory Allocation</a>
+      <a href="/tutors/A+/Hardware/Determining_Usable_Memory.htm"
+        >Determining Usable Memory</a
+      >
+      <a href="/tutors/A+/Hardware/Chapter_Summary_a6.htm">Tutorial Summary</a>
+    </div>
+
+    <div class="toc">
+      <h2>Basic Disk Drivers</h2>
+      <a href="/tutors/A+/Hardware/_The_Basics_of_Floppy_Disk_Drives.htm"
+        >The Basics of Floppy Disk Drives</a
+      >
+      <a href="/tutors/A+/Hardware/_Keeping_a_Floppy_Disk_Drive_Running.htm"
+        >Keeping a Floppy Disk Drive Running</a
+      >
+      <a href="/tutors/A+/Hardware/_Errors_Caused_by_the_Floppy_Disk.htm"
+        >Errors Caused by the Floppy Disk</a
+      >
+      <a href="/tutors/A+/Hardware/_Lesson_2_Hard_Disk_Drives.htm"
+        >Hard Disk Drives</a
+      >
+      <a href="/tutors/A+/Hardware/_Physical_Characteristics.htm"
+        >Hard Disk Physical Characteristics</a
+      >
+      <a href="/tutors/A+/Hardware/_Storing_Data.htm">Storing Data</a>
+      <a href="/tutors/A+/Hardware/_Actuator_Arms.htm"
+        >Actuator Arms and Head to Disk Interference</a
+      >
+      <a href="/tutors/A+/Hardware/_Geometry.htm"
+        >Head, Cylinders and Sectors</a
+      >
+      <a href="/tutors/A+/Hardware/_Hard_Disk_Drive_Types.htm"
+        >Hard Disk Drive Types</a
+      >
+      <a href="/tutors/A+/Hardware/_Installation_and_Setup.htm"
+        >Installation and Setup</a
+      >
+      <a href="/tutors/A+/Hardware/_Maintaining_a_Disk_Drive.htm"
+        >Maintaining a Disk Drive</a
+      >
+      <a href="/tutors/A+/Hardware/_Chapter_Summary_a2.htm">Tutorial Summary</a>
+      <a href="/tutors/A+/Hardware/_Review_a2.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>High Capacity Disk Drives</h2>
+      <a href="/tutors/A+/Hardware/Advantages_of_CD_ROM_Drives.htm"
+        >CD-ROMs: Advantages of CD-ROM Drives</a
+      >
+      <a href="/tutors/A+/Hardware/Development_of_the_CD.htm"
+        >Development of the CD</a
+      >
+      <a href="/tutors/A+/Hardware/CD_ROM_Technology.htm"
+        >CD-ROM Technology: Hard Disk Vs. CD-ROM</a
+      >
+      <a href="/tutors/A+/Hardware/Connecting_a_CD_ROM_Drive.htm"
+        >Connecting a CD-ROM Drive</a
+      >
+      <a href="/tutors/A+/Hardware/Access_Time.htm"
+        >Audio Capability and Access Time</a
+      >
+      <a href="/tutors/A+/Hardware/Installing_a_CD_ROM_Drive.htm"
+        >Installing a CD-ROM Drive</a
+      >
+      <a href="/tutors/A+/Hardware/Multimedia.htm">CD-ROM and Multimedia</a>
+      <a href="/tutors/A+/Hardware/Lesson_2_Advanced_Hard_Disk_Drives.htm"
+        >Advanced Hard Disk Drives</a
+      >
+      <a href="/tutors/A+/Hardware/Limitations_of_Early_Hard_Disk_Drives.htm"
+        >Limitations of Early Hard Disk Drives</a
+      >
+      <a href="/tutors/A+/Hardware/Overcoming_the_528_MB_Barrier.htm"
+        >Overcoming the 528-MB Barrier</a
+      >
+      <a href="/tutors/A+/Hardware/Breaking_the_8_4_GB_barrier.htm"
+        >Breaking the 8.4-GB barrier</a
+      >
+      <a href="/tutors/A+/Hardware/Installing_EIDE_Drives.htm"
+        >Installing EIDE Drives</a
+      >
+      <a href="/tutors/A+/Hardware/Other_Settings.htm"
+        >EIDE Drives: Other Settings</a
+      >
+      <a href="/tutors/A+/Hardware/Lesson_3_SCSI_Drives.htm">SCSI Drives</a>
+      <a href="/tutors/A+/Hardware/SCSI_1.htm">SCSI-1</a>
+      <a href="/tutors/A+/Hardware/SCSI_2.htm">SCSI-2 and Fast SCSI-2</a>
+      <a href="/tutors/A+/Hardware/SCSI_3.htm">SCSI-3</a>
+      <a href="/tutors/A+/Hardware/Noise_and_SCSI.htm">Noise and SCSI</a>
+      <a href="/tutors/A+/Hardware/Costs_and_Benefits_of_SCSI.htm"
+        >Costs and Benefits of SCSI</a
+      >
+      <a href="/tutors/A+/Hardware/The_Future_of_SCSI.htm"
+        >The Future of SCSI and SCSI Subsystem</a
+      >
+      <a href="/tutors/A+/Hardware/Setting_SCSI_IDs.htm">Setting SCSI IDs</a>
+      <a href="/tutors/A+/Hardware/Termination.htm"
+        >Logical Unit Number (LUN) and Signal Termination</a
+      >
+      <a href="/tutors/A+/Hardware/Chapter_Summary_a7.htm">Tutorial Summary</a>
+      <a href="/tutors/A+/Hardware/Review_a7.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>Expansion Buses</h2>
+      <a href="/tutors/A+/Hardware/Development_of_the_Expansion_Bus.htm"
+        >Development of the Expansion Bus</a
+      >
+      <a href="/tutors/A+/Hardware/Industry_Standard_Architecture_ISA.htm"
+        >Industry Standard Architecture (ISA)</a
+      >
+      <a href="/tutors/A+/Hardware/Micro_Channel_Architecture_MCA.htm"
+        >Micro Channel Architecture (MCA)</a
+      >
+      <a href="/tutors/A+/Hardware/Enhanced_ISA_EISA.htm"
+        >Enhanced ISA (EISA)</a
+      >
+      <a href="/tutors/A+/Hardware/VESA_Local_Bus_VLB.htm"
+        >VESA Local Bus (VLB)</a
+      >
+      <a href="/tutors/A+/Hardware/Peripheral_Component_Interconnect_PCI.htm"
+        >Peripheral Component Interconnect (PCI)</a
+      >
+      <a href="/tutors/A+/Hardware/Accelerated_Graphics_Port_AGP.htm"
+        >Accelerated Graphics Port (AGP)</a
+      >
+      <a href="/tutors/A+/Hardware/Universal_Serial_Bus_USB.htm"
+        >Universal Serial Bus (USB)</a
+      >
+      <a href="/tutors/A+/Hardware/Lesson_2_Configuring_Expansion_Cards.htm"
+        >Configuring Expansion Cards</a
+      >
+      <a href="/tutors/A+/Hardware/I_O_Addresses.htm">I/O Addresses</a>
+      <a href="/tutors/A+/Hardware/Interrupt_Request.htm">Interrupt Request</a>
+      <a href="/tutors/A+/Hardware/Direct_Memory_Access_DMA.htm"
+        >Direct Memory Access (DMA)</a
+      >
+      <a href="/tutors/A+/Hardware/COM_and_Ports.htm">COM and Ports</a>
+      <a href="/tutors/A+/Hardware/Installing_Expansion_Cards.htm"
+        >Installing Expansion Cards</a
+      >
+      <a href="/tutors/A+/Hardware/Chapter_Summary_a8.htm">Tutorial Summary</a>
+      <a href="/tutors/A+/Hardware/Review_a8.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>The Display System Monitors and Adapters</h2>
+      <a href="/tutors/A+/Hardware/Basic_Monitor_Operation.htm"
+        >Basic Monitor Operation</a
+      >
+      <a
+        href="/tutors/A+/Hardware/Other_Considerations_in_Choosing_Monitors.htm"
+        >Considerations in Choosing Monitors</a
+      >
+      <a href="/tutors/A+/Hardware/Power_Saving_Features.htm"
+        >Power-Saving Features</a
+      >
+      <a href="/tutors/A+/Hardware/Tuning_the_Monitor_s_Display.htm"
+        >Tuning the Monitor's Display</a
+      >
+      <a href="/tutors/A+/Hardware/Lesson_Summary_b9.htm">Display Adapters</a>
+      <a href="/tutors/A+/Hardware/Evolution_of_the_Display_Adapter.htm"
+        >Evolution of the Display Adapter</a
+      >
+      <a href="/tutors/A+/Hardware/The_Advent_of_Advanced_Display_Systems.htm"
+        >The Advent of Advanced Display Systems</a
+      >
+      <a
+        href="/tutors/A+/Hardware/High_Color_True_Color_Photorealism_and_Multimedia_Displays.htm"
+        >High-Color, True-Color, Photorealism, and Multimedia Displays</a
+      >
+      <a href="/tutors/A+/Hardware/Video_Memory.htm"
+        >Video Memory: DRAM, VRAM, WRAM etc.</a
+      >
+      <a href="/tutors/A+/Hardware/Display_Drivers.htm">Display Drivers</a>
+      <a
+        href="/tutors/A+/Hardware/Lesson_3_Choosing_and_Troubleshooting_Display_Systems.htm"
+        >Choosing and Troubleshooting Display Systems</a
+      >
+      <a href="/tutors/A+/Hardware/Troubleshooting_Display_Systems.htm"
+        >Troubleshooting Display Systems</a
+      >
+      <a href="/tutors/A+/Hardware/Chapter_Summary_a9.htm">Tutorial Summary</a>
+    </div>
+
+    <div class="toc">
+      <h2>Printers Modems and Cables</h2>
+      <a href="/tutors/A+/Hardware/Printer_Basics.htm">Printer Basics</a>
+      <a href="/tutors/A+/Hardware/Printer_Ports.htm">Printer Ports</a>
+      <a href="/tutors/A+/Hardware/Impact_Printers.htm"
+        >Impact,Dot-Matrix and Daisy-Wheel Printers</a
+      >
+      <a href="/tutors/A+/Hardware/Thermal_Wax_Transfer_Printers.htm"
+        >Thermal and Thermal Wax-Transfer Printers</a
+      >
+      <a href="/tutors/A+/Hardware/Ink_Jet_Printers.htm"
+        >Ink-Jet and Laser Printers</a
+      >
+      <a href="/tutors/A+/Hardware/Primary_Components_of_a_Laser_Printer.htm"
+        >Primary Components of a Laser Printer</a
+      >
+      <a href="/tutors/A+/Hardware/The_Mechanics_of_Laser_Printing.htm"
+        >The Mechanics of Laser Printing</a
+      >
+      <a href="/tutors/A+/Hardware/Lesson_Summary_c2.htm">Modems</a>
+      <a href="/tutors/A+/Hardware/Modem_Basics.htm">Modem Basics</a>
+      <a href="/tutors/A+/Hardware/Modem_Installation.htm"
+        >Modem Installation</a
+      >
+      <a href="/tutors/A+/Hardware/Modem_Speeds.htm">Modem Speeds</a>
+      <a href="/tutors/A+/Hardware/Fax_Speeds.htm">Fax Speeds</a>
+      <a href="/tutors/A+/Hardware/Information_Transfer_Protocols.htm"
+        >Information Transfer Protocols</a
+      >
+      <a href="/tutors/A+/Hardware/Handshaking.htm">Modem's Handshaking</a>
+      <a href="/tutors/A+/Hardware/Modem_Standards.htm">Modem Standards</a>
+      <a href="/tutors/A+/Hardware/Modem_Commands.htm">Modem Commands</a>
+      <a href="/tutors/A+/Hardware/Troubleshooting.htm"
+        >Modem Troubleshooting</a
+      >
+      <a href="/tutors/A+/Hardware/Lesson_3_Cables_and_Connectors.htm"
+        >Cables and Connectors</a
+      >
+      <a href="/tutors/A+/Hardware/Parallel_Printer_Cables.htm"
+        >Parallel Printer Cables</a
+      >
+      <a href="/tutors/A+/Hardware/Serial_Port_Cables.htm"
+        >Serial Port Cables</a
+      >
+      <a href="/tutors/A+/Hardware/Keyboard_Cables.htm"
+        >Null Modem, SCSI and Keyboard Cables</a
+      >
+      <a href="/tutors/A+/Hardware/Identifying_Cables_and_Connectors.htm"
+        >Identifying Cables and Connectors</a
+      >
+      <a href="/tutors/A+/Hardware/Troubleshooting_Cables.htm"
+        >Troubleshooting Cables</a
+      >
+      <a href="/tutors/A+/Hardware/Summary_of_Connectors.htm"
+        >Summary of Connectors</a
+      >
+      <a href="/tutors/A+/Hardware/Chapter_Summary_b0.htm">Tutorial Summary</a>
+      <a href="/tutors/A+/Hardware/Review_b0.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>The Basics of Electrical Energy</h2>
+      <a
+        href="/tutors/A+/Hardware/Understanding_Electricity_and_Electrical_Energy.htm"
+        >Understanding Electricity and Electrical Energy</a
+      >
+      <a href="/tutors/A+/Hardware/Ohm_s_LAW.htm">Ohm's LAW</a>
+      <a href="/tutors/A+/Hardware/AC_Power_Alternating_Current.htm"
+        >AC Power (Alternating Current)</a
+      >
+      <a href="/tutors/A+/Hardware/DC_Power_Direct_Current.htm"
+        >DC Power (Direct Current)</a
+      >
+      <a href="/tutors/A+/Hardware/Measuring_Electricity.htm"
+        >Measuring Electricity</a
+      >
+      <a href="/tutors/A+/Hardware/Testing_a_Power_Supply.htm"
+        >Testing a Power Supply</a
+      >
+      <a href="/tutors/A+/Hardware/Electronic_Components.htm"
+        >Electronic Components</a
+      >
+      <a href="/tutors/A+/Hardware/Lesson_Summary_c5.htm">Lesson Summary</a>
+      <a href="/tutors/A+/Hardware/Causes_of_Electrostatic_Discharge.htm"
+        >Causes of Electrostatic Discharge</a
+      >
+      <a href="/tutors/A+/Hardware/Preventing_ESD.htm">Preventing ESD</a>
+      <a href="/tutors/A+/Hardware/Electrical_Safety_Is_Your_Responsibility.htm"
+        >Electrical Safety Is Your Responsibility</a
+      >
+      <a href="/tutors/A+/Hardware/Chapter_Summary_b1.htm">Tutorial Summary</a>
+    </div>
+
+    <div class="toc">
+      <h2>Upgrading a Computer</h2>
+      <a href="/tutors/A+/Hardware/Preparation.htm"
+        >Computer Disassembly and Reassembly</a
+      >
+      <a href="/tutors/A+/Hardware/Recommended_Hardware.htm"
+        >Recommended Hardware</a
+      >
+      <a href="/tutors/A+/Hardware/Recommended_Software.htm"
+        >Recommended Software and Software Utilities</a
+      >
+      <a href="/tutors/A+/Hardware/Disassembly.htm">Disassembly</a>
+      <a href="/tutors/A+/Hardware/Reassembly.htm">Reassembly</a>
+      <a href="/tutors/A+/Hardware/Lesson_2_Upgrading_a_Computer.htm"
+        >Upgrading a Computer</a
+      >
+      <a href="/tutors/A+/Hardware/Memory_Memory_Memory.htm">Memory</a>
+      <a href="/tutors/A+/Hardware/CPU_Upgrades.htm">CPU Upgrades</a>
+      <a href="/tutors/A+/Hardware/Expansion_Cards.htm">Expansion Cards</a>
+      <a href="/tutors/A+/Hardware/Drives.htm">Drives</a>
+      <a href="/tutors/A+/Hardware/Motherboards.htm"
+        >Replacing a Motherboards</a
+      >
+      <a href="/tutors/A+/Hardware/Chapter_Summary_b2.htm">Tutorial Summary</a>
+      <a href="/tutors/A+/Hardware/Review_b2.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>MS DOS and Windows 3.x</h2>
+      <a href="/tutors/A+/Hardware/Lesson_1_Operating_System_Basics.htm"
+        >Operating System Basics</a
+      >
+      <a href="/tutors/A+/Hardware/MS_DOS.htm">MS-DOS</a>
+      <a href="/tutors/A+/Hardware/Microsoft_Windows.htm">Microsoft Windows</a>
+      <a href="/tutors/A+/Hardware/Windows_NT.htm">Windows 98 and Windows NT</a>
+      <a href="/tutors/A+/Hardware/Windows_2000.htm">Windows 2000</a>
+      <a href="/tutors/A+/Hardware/Lesson_2_MS_DOS.htm">MS-DOS</a>
+      <a href="/tutors/A+/Hardware/The_Boot_Process.htm">The Boot Process</a>
+      <a href="/tutors/A+/Hardware/MS_DOS_Terms_and_Commands.htm"
+        >MS-DOS Terms and Commands</a
+      >
+      <a href="/tutors/A+/Hardware/Optimizing_MS_DOS.htm">Optimizing MS-DOS</a>
+      <a href="/tutors/A+/Hardware/Lesson_3_Windows_3_x.htm">Windows 3.x</a>
+      <a href="/tutors/A+/Hardware/Windows_Features.htm">Windows Features</a>
+      <a href="/tutors/A+/Hardware/Minimum_Requirements_for_Running_Windows.htm"
+        >Minimum Requirements for Running Windows</a
+      >
+      <a href="/tutors/A+/Hardware/Installing_and_Configuring_Windows_3_x.htm"
+        >Installing and Configuring Windows 3.x</a
+      >
+      <a href="/tutors/A+/Hardware/Windows_Operating_System_Files.htm"
+        >Windows Operating System Files</a
+      >
+      <a href="/tutors/A+/Hardware/Windows_Configuration.htm"
+        >Windows Configuration</a
+      >
+      <a href="/tutors/A+/Hardware/Configuring_Virtual_Memory.htm"
+        >Configuring Virtual Memory</a
+      >
+      <a href="/tutors/A+/Hardware/Improving_Hard_Disk_Drive_Speed.htm"
+        >Improving Hard Disk Drive Speed</a
+      >
+      <a href="/tutors/A+/Hardware/Temp_Files.htm">Temp Files</a>
+      <a href="/tutors/A+/Hardware/Memory_Configuration_a2.htm"
+        >Memory Configuration</a
+      >
+      <a href="/tutors/A+/Hardware/Running_MS_DOS_Applications_from_Windows.htm"
+        >Running MS-DOS Applications from Windows</a
+      >
+      <a href="/tutors/A+/Hardware/Troubleshooting_Windows_3_x.htm"
+        >Troubleshooting Windows 3.x</a
+      >
+      <a href="/tutors/A+/Hardware/Chapter_Summary_b3.htm">Tutorial Summary</a>
+    </div>
+
+    <div class="toc">
+      <h2>Windows 95 and Beyond</h2>
+      <a href="/tutors/A+/Hardware/Lesson_1_A_New_Operating_System.htm"
+        >A New Operating System</a
+      >
+      <a href="/tutors/A+/Hardware/DOS_7.htm">DOS 7</a>
+      <a href="/tutors/A+/Hardware/The_Windows_95_GUI.htm"
+        >The Windows 95 GUI</a
+      >
+      <a href="/tutors/A+/Hardware/The_Windows_95_File_Structure.htm"
+        >The Windows 95 File Structure</a
+      >
+      <a href="/tutors/A+/Hardware/Windows_95_Enhancements.htm"
+        >Windows 95 Enhancements</a
+      >
+      <a href="/tutors/A+/Hardware/Advantages_of_Windows_95.htm"
+        >Advantages of Windows 95</a
+      >
+      <a href="/tutors/A+/Hardware/Installing_Windows_95.htm"
+        >Installing Windows 95</a
+      >
+      <a href="/tutors/A+/Hardware/A_New_Desktop_Environment.htm"
+        >A New Desktop Environment</a
+      >
+      <a href="/tutors/A+/Hardware/Lesson_3_How_Windows_95_Works.htm"
+        >How Windows 95 Works</a
+      >
+      <a href="/tutors/A+/Hardware/The_Windows_95_File_Structure_a2.htm"
+        >The Windows 95 File Structure</a
+      >
+      <a href="/tutors/A+/Hardware/The_Registry.htm">The Registry</a>
+      <a href="/tutors/A+/Hardware/Device_Drivers_in_Windows_95.htm"
+        >Device Drivers in Windows 95</a
+      >
+      <a href="/tutors/A+/Hardware/Configuration_Tips_for_Windows_95.htm"
+        >Configuration Tips for Windows 95</a
+      >
+      <a
+        href="/tutors/A+/Hardware/Setting_Up_Proper_Caching_and_Performance_Enhancement.htm"
+        >Setting Up Proper Caching and Performance Enhancement</a
+      >
+      <a href="/tutors/A+/Hardware/Chapter_Summary_b4.htm">Tutorial Summary</a>
+      <a href="/tutors/A+/Hardware/Review_b4.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>Managing and Troubleshooting Windows</h2>
+      <a href="/tutors/A+/Hardware/File_Management_Improvements.htm"
+        >File Management Improvements</a
+      >
+      <a href="/tutors/A+/Hardware/Managing_Files_with_Explorer.htm"
+        >Managing Files with Explorer</a
+      >
+      <a href="/tutors/A+/Hardware/The_Recycle_Bin.htm"
+        >Windows Taskbar and Recycle Bin</a
+      >
+      <a href="/tutors/A+/Hardware/Managing_Disks.htm">Managing Disks</a>
+      <a href="/tutors/A+/Hardware/Lesson_2_Troubleshooting_Windows_95.htm"
+        >Troubleshooting Windows 95</a
+      >
+      <a href="/tutors/A+/Hardware/The_System_Monitor.htm"
+        >The System Monitor</a
+      >
+      <a href="/tutors/A+/Hardware/Resource_Meter.htm">Resource Meter</a>
+      <a href="/tutors/A+/Hardware/MS_DOS_Application_Incompatibilities.htm"
+        >MS-DOS-Application Incompatibilities</a
+      >
+      <a href="/tutors/A+/Hardware/Printing_Problems.htm">Printing Problems</a>
+      <a href="/tutors/A+/Hardware/Viruses.htm">Viruses</a>
+      <a href="/tutors/A+/Hardware/Chapter_Summary_b5.htm">Tutorial Summary</a>
+    </div>
+
+    <div class="toc">
+      <h2>Connectivity and Portability</h2>
+      <a href="/tutors/A+/Hardware/Basic_Requirements_of_a_Network.htm"
+        >Basic Requirements of a Network</a
+      >
+      <a href="/tutors/A+/Hardware/Local_Area_Networks.htm"
+        >Local Area Networks</a
+      >
+      <a href="/tutors/A+/Hardware/Types_of_Networks.htm">Types of Networks</a>
+      <a href="/tutors/A+/Hardware/Network_Topology.htm"
+        >Network Topology: Star, Bus and Ring</a
+      >
+      <a href="/tutors/A+/Hardware/Network_Interface_Cards.htm"
+        >Network Operating system and Network Interface Cards</a
+      >
+      <a href="/tutors/A+/Hardware/Network_Cabling.htm">Network Cabling</a>
+      <a href="/tutors/A+/Hardware/LAN_Communication.htm">LAN Communication</a>
+      <a href="/tutors/A+/Hardware/Network_Protocols.htm">Network Protocols</a>
+      <a href="/tutors/A+/Hardware/Extending_a_LAN.htm">Extending a LAN</a>
+      <a href="/tutors/A+/Hardware/Maintaining_and_Troubleshooting_Networks.htm"
+        >Maintaining and Troubleshooting Networks</a
+      >
+      <a href="/tutors/A+/Hardware/Network_Certification.htm"
+        >Network Certification</a
+      >
+      <a href="/tutors/A+/Hardware/The_Internet.htm">The Internet</a>
+      <a href="/tutors/A+/Hardware/Lesson_2_Portable_Computers.htm"
+        >Portable Computers</a
+      >
+      <a href="/tutors/A+/Hardware/Types_of_Portables.htm"
+        >Types of Portables</a
+      >
+      <a href="/tutors/A+/Hardware/Computer_Cards_PCMCIA.htm"
+        >Computer Cards (PCMCIA)</a
+      >
+      <a href="/tutors/A+/Hardware/Portable_Computer_Hardware.htm"
+        >Portable Computer Hardware</a
+      >
+      <a href="/tutors/A+/Hardware/Batteries.htm">Batteries</a>
+      <a href="/tutors/A+/Hardware/Power_Management.htm">Power Management</a>
+      <a href="/tutors/A+/Hardware/Chapter_Summary_b6.htm">Tutorial Summary</a>
+      <a href="/tutors/A+/Hardware/Review_b6.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>Maintaining Computer Hardware</h2>
+      <a href="/tutors/A+/Hardware/Cleaning.htm">Cleaning</a>
+      <a href="/tutors/A+/Hardware/Preventive_Maintenance.htm"
+        >Monitors, Hard Drives, Key Board, Mouse and Printers Maintenance</a
+      >
+      <a href="/tutors/A+/Hardware/Preventive_Maintenance_Schedule.htm"
+        >Preventive Maintenance Schedule</a
+      >
+      <a href="/tutors/A+/Hardware/Lesson_2_Safety_and_the_Environment.htm"
+        >Safety and the Environment</a
+      >
+      <a href="/tutors/A+/Hardware/General_Safety.htm">General Safety</a>
+      <a href="/tutors/A+/Hardware/Power_and_Safety.htm">Power and Safety</a>
+      <a href="/tutors/A+/Hardware/Fire.htm">Fire</a>
+      <a href="/tutors/A+/Hardware/Environmental_Issues.htm"
+        >Environmental Issues</a
+      >
+      <a href="/tutors/A+/Hardware/Chapter_Summary_b7.htm">Tutorial Summary</a>
+    </div>
+
+    <div class="toc">
+      <h2>Staying on Top of Your Profession</h2>
+      <a href="/tutors/A+/Hardware/Staying_on_Top.htm"
+        >Becoming an A+ Technician</a
+      >
+      <a href="/tutors/A+/Hardware/Technical_Support.htm">Technical Support</a>
+      <a href="/tutors/A+/Hardware/Tools_of_the_Trade.htm"
+        >Tools of the Trade</a
+      >
+      <a href="/tutors/A+/Hardware/Troubleshooting_a2.htm">Troubleshooting</a>
+      <a href="/tutors/A+/Hardware/Lesson_2_Customer_Service.htm"
+        >Customer Service</a
+      >
+      <a href="/tutors/A+/Hardware/Getting_Organized_8212_Keeping_Records.htm"
+        >Getting Organized: Keeping Records</a
+      >
+      <a href="/tutors/A+/Hardware/Levels_of_Support.htm">Levels of Support</a>
+      <a href="/tutors/A+/Hardware/Spare_Parts.htm">Spare Parts</a>
+      <a href="/tutors/A+/Hardware/Standardization.htm">Standardization</a>
+      <a href="/tutors/A+/Hardware/Customer_Service.htm">Customer Service</a>
+      <a href="/tutors/A+/Hardware/Chapter_Summary_b8.htm">Tutorial Summary</a>
+      <a href="/tutors/A+/Hardware/Appendix_B__Table_of_Acronyms.htm"
+        >Table of Acronyms</a
+      >
+    </div>
+    <script type="text/javascript" style="display: none">
+      var __ez_dims = (function () {
+        var setCookie = function (name, content, expiry) {
+          return (document.cookie =
+            name +
+            "=" +
+            content +
+            (expiry
+              ? ";expires=" +
+                new Date(
+                  Math.floor(new Date().getTime() + expiry * 1000)
+                ).toUTCString()
+              : "") +
+            ";path=/");
+        };
+        var ffid = 1;
+        var oh = window.screen.height;
+        var ow = window.screen.width;
+        var h = ffid === 1 ? oh : oh > ow ? oh : ow;
+        var w = ffid === 1 ? ow : oh > ow ? ow : oh;
+        var uh =
+          window.innerHeight ||
+          document.documentElement.clientHeight ||
+          document.getElementsByTagName("body")[0].clientHeight;
+        var uw =
+          window.innerWidth ||
+          document.documentElement.clientWidth ||
+          document.getElementsByTagName("body")[0].clientWidth;
+        setCookie(
+          "ezds",
+          encodeURIComponent("ffid=" + ffid + ",w=" + w + ",h=" + h),
+          31536e3 * 7
+        );
+        setCookie(
+          "ezohw",
+          encodeURIComponent("w=" + uw + ",h=" + uh),
+          31536e3 * 7
+        );
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "edmonton.php",
+        "/detroitchicago/edmonton.webp?a=a&cb=192-11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "jellyfish.php",
+        "/porpoiseant/jellyfish.webp?a=a&cb=192-11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+</html>

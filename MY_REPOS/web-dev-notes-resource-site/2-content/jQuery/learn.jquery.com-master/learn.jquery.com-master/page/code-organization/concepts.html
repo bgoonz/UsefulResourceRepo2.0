@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<script>{
+    "title": "Code Organization Concepts",
+    "level": "beginner",
+    "source": "http://jqfundamentals.com/legacy",
+    "attribution": [ "jQuery Fundamentals" ]
+}</script>
+<p>When you move beyond adding simple enhancements to your website with jQuery and start developing full-blown client-side applications, you need to consider how to organize your code. In this chapter, we’ll take a look at various code organization patterns you can use in your jQuery application and explore the <a href="http://requirejs.org/">RequireJS</a> dependency management and build system.</p>
+<h2 id="key-concepts">Key Concepts</h2>
+<p>Before we jump into code organization patterns, it’s important to understand some concepts that are common to all good code organization patterns.</p>
+<ul>
+<li>Your code should be divided into units of functionality — modules, services, etc. Avoid the temptation to have all of your code in one huge <code>$( document ).ready()</code> block. This concept, loosely, is known as encapsulation.</li>
+<li>Don’t repeat yourself. Identify similarities among pieces of functionality, and use inheritance techniques to avoid repetitive code.</li>
+<li>Despite jQuery’s DOM-centric nature, JavaScript applications are not all about the DOM. Remember that not all pieces of functionality need to — or should — have a DOM representation.</li>
+<li>Units of functionality should be <a href="http://en.wikipedia.org/wiki/Loose_coupling">loosely coupled</a>, that is, a unit of functionality should be able to exist on its own, and communication between units should be handled via a messaging system such as custom events or pub/sub. Stay away from direct communication between units of functionality whenever possible.</li>
+</ul>
+<p>The concept of loose coupling can be especially troublesome to developers making their first foray into complex applications, so be mindful of this as you’re getting started.</p>
+<h2 id="encapsulation">Encapsulation</h2>
+<p>The first step to code organization is separating pieces of your application into distinct pieces; sometimes, even just this effort is sufficient to lend</p>
+<h3 id="the-object-literal">The Object Literal</h3>
+<p>An object literal is perhaps the simplest way to encapsulate related code. It doesn’t offer any privacy for properties or methods, but it’s useful for eliminating anonymous functions from your code, centralizing configuration options, and easing the path to reuse and refactoring.</p>
+<pre><code>// An object literal
+var myFeature = {
+    myProperty: &quot;hello&quot;,
+
+    myMethod: function() {
+        console.log( myFeature.myProperty );
+    },
+
+    init: function( settings ) {
+        myFeature.settings = settings;
+    },
+
+    readSettings: function() {
+        console.log( myFeature.settings );
+    }
+};
+
+myFeature.myProperty === &quot;hello&quot;; // true
+
+myFeature.myMethod(); // &quot;hello&quot;
+
+myFeature.init({
+    foo: &quot;bar&quot;
+});
+
+myFeature.readSettings(); // { foo: &quot;bar&quot; }</code></pre>
+<p>The object literal above is simply an object assigned to a variable. The object has one property and several methods. All of the properties and methods are public, so any part of your application can see the properties and call methods on the object. While there is an init method, there’s nothing requiring that it be called before the object is functional.</p>
+<p>How would we apply this pattern to jQuery code? Let’s say that we had this code written in the traditional jQuery style:</p>
+<pre><code>// Clicking on a list item loads some content using the
+// list item&#39;s ID, and hides content in sibling list items
+$( document ).ready(function() {
+    $( &quot;#myFeature li&quot; ).append( &quot;&lt;div&gt;&quot; ).click(function() {
+        var item = $( this );
+        var div = item.find( &quot;div&quot; );
+        div.load( &quot;foo.php?item=&quot; + item.attr( &quot;id&quot; ), function() {
+            div.show();
+            item.siblings().find( &quot;div&quot; ).hide();
+        });
+    });
+});</code></pre>
+<p>If this were the extent of our application, leaving it as-is would be fine. On the other hand, if this was a piece of a larger application, we’d do well to keep this functionality separate from unrelated functionality. We might also want to move the URL out of the code and into a configuration area. Finally, we might want to break up the chain to make it easier to modify pieces of the functionality later.</p>
+<pre><code>// Using an object literal for a jQuery feature
+var myFeature = {
+    init: function( settings ) {
+        myFeature.config = {
+            items: $( &quot;#myFeature li&quot; ),
+            container: $( &quot;&lt;div class=&#39;container&#39;&gt;&lt;/div&gt;&quot; ),
+            urlBase: &quot;/foo.php?item=&quot;
+        };
+
+        // Allow overriding the default config
+        $.extend( myFeature.config, settings );
+
+        myFeature.setup();
+    },
+
+    setup: function() {
+        myFeature.config.items
+            .each( myFeature.createContainer )
+            .click( myFeature.showItem );
+    },
+
+    createContainer: function() {
+        var item = $( this );
+        var container = myFeature.config.container
+            .clone()
+            .appendTo( item );
+        item.data( &quot;container&quot;, container );
+    },
+
+    buildUrl: function() {
+        return myFeature.config.urlBase + myFeature.currentItem.attr( &quot;id&quot; );
+    },
+
+    showItem: function() {
+        myFeature.currentItem = $( this );
+        myFeature.getContent( myFeature.showContent );
+    },
+
+    getContent: function( callback ) {
+        var url = myFeature.buildUrl();
+        myFeature.currentItem.data( &quot;container&quot; ).load( url, callback );
+    },
+
+    showContent: function() {
+        myFeature.currentItem.data( &quot;container&quot; ).show();
+        myFeature.hideContent();
+    },
+
+    hideContent: function() {
+        myFeature.currentItem.siblings().each(function() {
+            $( this ).data( &quot;container&quot; ).hide();
+        });
+    }
+};
+
+$( document ).ready( myFeature.init );</code></pre>
+<p>The first thing you’ll notice is that this approach is obviously far longer than the original — again, if this were the extent of our application, using an object literal would likely be overkill. Assuming it’s not the extent of our application, though, we’ve gained several things:</p>
+<ul>
+<li>We’ve broken our feature up into tiny methods. In the future, if we want to change how content is shown, it’s clear where to change it. In the original code, this step is much harder to locate.</li>
+<li>We’ve eliminated the use of anonymous functions.</li>
+<li>We’ve moved configuration options out of the body of the code and put them in a central location.</li>
+<li>We’ve eliminated the constraints of the chain, making the code easier to refactor, remix, and rearrange.</li>
+</ul>
+<p>For non-trivial features, object literals are a clear improvement over a long stretch of code stuffed in a <code>$( document ).ready()</code> block, as they get us thinking about the pieces of our functionality. However, they aren’t a whole lot more advanced than simply having a bunch of function declarations inside of that <code>$( document ).ready()</code> block.</p>
+<h3 id="the-module-pattern">The Module Pattern</h3>
+<p>The module pattern overcomes some of the limitations of the object literal, offering privacy for variables and functions while exposing a public API if desired.</p>
+<pre><code>// The module pattern
+var feature = (function() {
+
+    // Private variables and functions
+    var privateThing = &quot;secret&quot;;
+    var publicThing = &quot;not secret&quot;;
+
+    var changePrivateThing = function() {
+        privateThing = &quot;super secret&quot;;
+    };
+
+    var sayPrivateThing = function() {
+        console.log( privateThing );
+        changePrivateThing();
+    };
+
+    // Public API
+    return {
+        publicThing: publicThing,
+        sayPrivateThing: sayPrivateThing
+    };
+})();
+
+feature.publicThing; // &quot;not secret&quot;
+
+// Logs &quot;secret&quot; and changes the value of privateThing
+feature.sayPrivateThing();</code></pre>
+<p>In the example above, we self-execute an anonymous function that returns an object. Inside of the function, we define some variables. Because the variables are defined inside of the function, we don’t have access to them outside of the function unless we put them in the return object. This means that no code outside of the function has access to the <code>privateThing</code> variable or to the <code>changePrivateThing</code> function. However, <code>sayPrivateThing</code> does have access to <code>privateThing</code> and <code>changePrivateThing</code>, because both were defined in the same scope as <code>sayPrivateThing</code>.</p>
+<p>This pattern is powerful because, as you can gather from the variable names, it can give you private variables and functions while exposing a limited API consisting of the returned object’s properties and methods.</p>
+<p>Below is a revised version of the previous example, showing how we could create the same feature using the module pattern while only exposing one public method of the module, <code>showItemByIndex()</code>.</p>
+<pre><code>// Using the module pattern for a jQuery feature
+$( document ).ready(function() {
+    var feature = (function() {
+        var items = $( &quot;#myFeature li&quot; );
+        var container = $( &quot;&lt;div class=&#39;container&#39;&gt;&lt;/div&gt;&quot; );
+        var currentItem = null;
+        var urlBase = &quot;/foo.php?item=&quot;;
+
+        var createContainer = function() {
+            var item = $( this );
+            var _container = container.clone().appendTo( item );
+            item.data( &quot;container&quot;, _container );
+        };
+
+        var buildUrl = function() {
+            return urlBase + currentItem.attr( &quot;id&quot; );
+        };
+
+        var showItem = function() {
+            currentItem = $( this );
+            getContent( showContent );
+        };
+
+        var showItemByIndex = function( idx ) {
+            $.proxy( showItem, items.get( idx ) );
+        };
+
+        var getContent = function( callback ) {
+            currentItem.data( &quot;container&quot; ).load( buildUrl(), callback );
+        };
+
+        var showContent = function() {
+            currentItem.data( &quot;container&quot; ).show();
+            hideContent();
+        };
+
+        var hideContent = function() {
+            currentItem.siblings().each(function() {
+                $( this ).data( &quot;container&quot; ).hide();
+            });
+        };
+
+        items.each( createContainer ).click( showItem );
+
+        return {
+            showItemByIndex: showItemByIndex
+        };
+    })();
+
+    feature.showItemByIndex( 0 );
+});</code></pre>
+</body></html>

@@ -1,0 +1,24 @@
+<p>Even if you implement take(1) still you may need to pass an unsubscription function. Below example</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1">  <span class="at">downloadFunction</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">    <span class="kw">let</span> <span class="dt">taskId</span><span class="op">:</span> number<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="kw">this</span>.<span class="at">downloadSubscription</span> <span class="op">=</span> <span class="kw">this</span>.<span class="at">taskId$</span></a>
+<a class="sourceLine" id="cb1-4" title="4">      .<span class="at">pipe</span>(</a>
+<a class="sourceLine" id="cb1-5" title="5">        <span class="at">take</span>(<span class="dv">1</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-6" title="6">        <span class="at">mergeMap</span>(taskId <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-7" title="7">          taskId <span class="op">=</span> taskId<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-8" title="8">          <span class="cf">return</span> <span class="kw">this</span>.<span class="va">bulkImportWizardService</span>.<span class="at">downloadTemplateWithIssues</span>(</a>
+<a class="sourceLine" id="cb1-9" title="9">            taskId</a>
+<a class="sourceLine" id="cb1-10" title="10">          )<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-11" title="11">        <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb1-12" title="12">      )</a>
+<a class="sourceLine" id="cb1-13" title="13">      .<span class="at">subscribe</span>(blob <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-14" title="14">        <span class="va">fileSaver</span>.<span class="at">saveAs</span>(blob<span class="op">,</span> <span class="vs">`template_with_issues_</span><span class="sc">${</span>taskId<span class="sc">}</span><span class="vs">.xlsx`</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-15" title="15">      <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-16" title="16">    <span class="kw">this</span>.<span class="at">trackSubscription</span>(<span class="kw">this</span>.<span class="at">downloadSubscription</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-17" title="17">  <span class="op">}</span></a></code></pre></div>
+<p>And in above trackSubscription() is a separate function coming from a mixin that will manage subscription and unsubscription (onNgOnDestroy)</p>
+<h3 id="reason-to-still-unsubscribe-even-with-take1">Reason to still unsubscribe() even with take(1)</h3>
+<p>Some subscriptions only have to happen once during the application startup. They might be needed to kick-start some processing or fire the first request to load the initial data. In such scenarios we can use RxJS take(1) operator which is great because it automatically unsubscribes after the first execution.</p>
+<p>But note that the take(1) will not fire (and complete the observable stream) in case the original observable never emits. We have to make sure we only use it in cases where this can’t happen or provide additional unsubscription handling!</p>
+<p>That take(1) still doesn’t unsubscribe when component is being destroyed. The subscription remains active until first value is emitted no matter if component is active or destroyed. So if we do something more crazy, like accessing the DOM, in our subscription — we might end up with an error in the console</p>
+<p><a href="https://medium.com/angular-in-depth/the-best-way-to-unsubscribe-rxjs-observable-in-the-angular-applications-d8f9aa42f6a0">https://medium.com/angular-in-depth/the-best-way-to-unsubscribe-rxjs-observable-in-the-angular-applications-d8f9aa42f6a0</a></p>

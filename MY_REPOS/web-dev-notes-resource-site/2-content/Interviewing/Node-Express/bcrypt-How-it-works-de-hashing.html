@@ -1,0 +1,162 @@
+<h2 id="fist-what-is-password-hashing---its-the-below-kind-of-transforming.">Fist, What is password hashing - its the below kind of transforming.</h2>
+<p>hash(“hello”) = 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824 hash(“hbllo”) = 58756879c05c68dfac9866712fad6a93f8146f337a69afe7dd238f3364946366 hash(“waltz”) = c0e81794384491161f1777c232bc6bd9ec38f616560b120fda8e90f383853542</p>
+<p>Hash algorithms are one way functions. They turn any amount of data into a fixed-length “fingerprint” that cannot be reversed. They also have the property that if the input changes by even a tiny bit, the resulting hash is completely different (see the example above). This is great for protecting passwords, because we want to store passwords in a form that protects them even if the password file itself is compromised, but at the same time, we need to be able to verify that a user’s password is correct.</p>
+<p>The general workflow for account registration and authentication in a hash-based account system is as follows:</p>
+<p>1&gt; The user creates an account.</p>
+<p>2&gt; Their password is hashed and stored in the database. At no point is the plain-text (unencrypted) password ever written to the hard drive.</p>
+<p>3&gt; When the user attempts to login, the hash of the password they entered is checked against the hash of their real password (retrieved from the database).</p>
+<p>4&gt; If the hashes match, the user is granted access. If not, the user is told they entered invalid login credentials.</p>
+<p>5&gt; Steps 3 and 4 repeat every time someone tries to login to their account.</p>
+<h3 id="bcrypt-works-in-2-steps-first-gensalt-and-then-hash-the-password-with-that-salt">bcrypt works in 2 steps, first genSalt and then hash the password with that salt</h3>
+<h3 id="the-regular-steps-are-generate-the-salt-first-if-err-throw-err-else-give-me-the-salt">The regular steps are &gt;&gt; Generate the salt first (if err throw err else give me the salt)</h3>
+<h3 id="and-then-hash-the-password-with-the-generated-salt-passing-a-cb-so-if-theres-error-throw-error-else-give-me-the-hash.">and then hash the password with the generated salt (passing a cb so if there’s error throw error else give me the hash).</h3>
+<p>So from <a href="https://github.com/dcodeIO/bcrypt.js#usage---async">official doc</a> the below function is for the first step of <strong>generating the salt and hashing</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">var</span> salt <span class="op">=</span> <span class="va">bcrypt</span>.<span class="at">genSaltSync</span>(<span class="dv">10</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">var</span> hash <span class="op">=</span> <span class="va">bcrypt</span>.<span class="at">hashSync</span>(<span class="st">&quot;B4c0//&quot;</span><span class="op">,</span> salt)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="co">// And to hash a password the ES6 Async way is combine them both without blocking any other operation</span></a>
+<a class="sourceLine" id="cb1-5" title="5"></a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="va">bcrypt</span>.<span class="at">genSalt</span>(<span class="dv">10</span><span class="op">,</span> <span class="kw">function</span>(err<span class="op">,</span> salt) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-7" title="7">  <span class="va">bcrypt</span>.<span class="at">hash</span>(<span class="st">&quot;B4c0//&quot;</span><span class="op">,</span> salt<span class="op">,</span> <span class="kw">function</span>(err<span class="op">,</span> hash) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-8" title="8">    <span class="co">// Store hash in your password DB.</span></a>
+<a class="sourceLine" id="cb1-9" title="9">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-10" title="10"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Bcrypt allows us to choose the value of saltRounds, which gives us control over the cost of processing the data. The higher this number is, the longer it takes for the machine to calculate the hash associated with the password. It is important when choosing this value, to select a number high enough that someone who tries to find the password for a user by brute force, requires so much time to generate all the possible hash of passwords that does not compensate him. And on the other hand, it must be small enough so as not to end the user’s patience when registering and logging in (this patience is not usually very high). By default, the saltRounds value is 10.</p>
+<h3 id="one-example-of-the-first-step-of-generating-the-salt-and-hashing---httpsgithub.comrohan-paultiny-twitter-cloneblobmastermodelsuser.js">One example of the first step of generating the salt and hashing - <a href="https://github.com/rohan-paul/Tiny-Twitter-Clone/blob/master/models/user.js">https://github.com/rohan-paul/Tiny-Twitter-Clone/blob/master/models/user.js</a></h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="va">UserSchema</span>.<span class="at">pre</span>(<span class="st">&quot;save&quot;</span><span class="op">,</span> <span class="kw">function</span>(next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="kw">let</span> user <span class="op">=</span> <span class="kw">this</span><span class="op">;</span> <span class="co">// This is how I access UserSchema object</span></a>
+<a class="sourceLine" id="cb2-3" title="3"></a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="co">// I shall only hash the password if it has been modified (or is new). So, in below line I make sure if there was already a password and isModified in not true, then move-on with next()</span></a>
+<a class="sourceLine" id="cb2-5" title="5">  <span class="cf">if</span> (<span class="op">!</span><span class="va">user</span>.<span class="at">isModified</span>(<span class="st">&quot;password&quot;</span>)) <span class="cf">return</span> <span class="at">next</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-6" title="6"></a>
+<a class="sourceLine" id="cb2-7" title="7">  <span class="co">// and for new password</span></a>
+<a class="sourceLine" id="cb2-8" title="8">  <span class="cf">if</span> (<span class="va">user</span>.<span class="at">password</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-9" title="9">    <span class="va">bcrypt</span>.<span class="at">genSalt</span>(<span class="dv">10</span><span class="op">,</span> <span class="kw">function</span>(err<span class="op">,</span> salt) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-10" title="10">      <span class="cf">if</span> (err) <span class="cf">return</span> <span class="at">next</span>(err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-11" title="11">      <span class="va">bcrypt</span>.<span class="at">hash</span>(<span class="va">user</span>.<span class="at">password</span><span class="op">,</span> salt<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="kw">function</span>(err<span class="op">,</span> hash) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-12" title="12">        <span class="cf">if</span> (err) <span class="cf">return</span> <span class="at">next</span>(err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-13" title="13">        <span class="va">user</span>.<span class="at">password</span> <span class="op">=</span> hash<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-14" title="14">        <span class="at">next</span>(err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-15" title="15">      <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-16" title="16">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-17" title="17">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-18" title="18"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Explanation of <code>UserSchmea.pre</code> in above - Its the middleware - also known as “pre” and “post” hooks that tie particular functions to particular lifecycle and query events. This middleware is defined on the schema level and can modify the query or the document itself as it is executed. Middleware is invoked with two arguments: the event trigger (as a string) and the callback function that is triggered for that particular event. The callback itself takes in an argument of a function, which we typically call next , and when invoked — advances the document/query to the next awaiting middleware. So what the below function does is - before (i.e. pre) user saves the normal text password into the database, making sure it encrypts it first</p>
+<h3 id="example-from-my-dev-book-app---httpsgithub.comrohan-pauldeveloper-profile-appblobmasterroutesapiusers.js">Example from my <a href="https://github.com/rohan-paul/Developer-Profile-App/blob/master/routes/api/users.js">dev-book app - https://github.com/rohan-paul/Developer-Profile-App/blob/master/routes/api/users.js</a></h3>
+<h3 id="first-hashing-and-then-save-the-hashed-password-into-mongo">First hashing and then save the hashed password into mongo</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="co">// and then get other details of the new user from the post request</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="kw">const</span> newUser <span class="op">=</span> <span class="kw">new</span> <span class="at">User</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="dt">name</span><span class="op">:</span> <span class="va">req</span>.<span class="va">body</span>.<span class="at">name</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-4" title="4">  <span class="dt">email</span><span class="op">:</span> <span class="va">req</span>.<span class="va">body</span>.<span class="at">email</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-5" title="5">  avatar<span class="op">,</span></a>
+<a class="sourceLine" id="cb3-6" title="6">  <span class="dt">password</span><span class="op">:</span> <span class="va">req</span>.<span class="va">body</span>.<span class="at">password</span></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-8" title="8"></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="va">bcrypt</span>.<span class="at">genSalt</span>(<span class="dv">10</span><span class="op">,</span> (err<span class="op">,</span> salt) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-10" title="10">  <span class="va">bcrypt</span>.<span class="at">hash</span>(<span class="va">newUser</span>.<span class="at">password</span><span class="op">,</span> salt<span class="op">,</span> (err<span class="op">,</span> hash) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-11" title="11">    <span class="cf">if</span> (err) <span class="cf">throw</span> err<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-12" title="12">    <span class="va">newUser</span>.<span class="at">password</span> <span class="op">=</span> hash<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-13" title="13">    newUser</a>
+<a class="sourceLine" id="cb3-14" title="14">      .<span class="at">save</span>()</a>
+<a class="sourceLine" id="cb3-15" title="15">      .<span class="at">then</span>(user <span class="kw">=&gt;</span> <span class="va">res</span>.<span class="at">json</span>(user))</a>
+<a class="sourceLine" id="cb3-16" title="16">      .<span class="at">catch</span>(user <span class="kw">=&gt;</span> <span class="va">console</span>.<span class="at">log</span>(err))<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-17" title="17">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-18" title="18"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h3 id="next-step-before-signing-in-a-new-user-it-compares-the-password-with-that-saved-in-the-database">Next step before signing-in a new user, it compares the password with that saved in the database</h3>
+<p>Example <a href="https://github.com/rohan-paul/Developer-Profile-App/blob/master/routes/api/users.js">https://github.com/rohan-paul/Developer-Profile-App/blob/master/routes/api/users.js</a></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="va">router</span>.<span class="at">post</span>(<span class="st">&quot;/login&quot;</span><span class="op">,</span> (req<span class="op">,</span> res) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="co">/* I pass the data to the validateRegisterInput() function. The data (i.e. req.body) includes</span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="co">    all the information that the user puts in while registering.</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="co">    And get the function&#39;s return values assigned to const { errors, isValid }. */</span></a>
+<a class="sourceLine" id="cb4-5" title="5">  <span class="kw">const</span> <span class="op">{</span> errors<span class="op">,</span> isValid <span class="op">}</span> <span class="op">=</span> <span class="at">validateLoginInput</span>(<span class="va">req</span>.<span class="at">body</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-6" title="6">  <span class="co">// Check Validation</span></a>
+<a class="sourceLine" id="cb4-7" title="7">  <span class="cf">if</span> (<span class="op">!</span>isValid) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-8" title="8">    <span class="cf">return</span> <span class="va">res</span>.<span class="at">status</span>(<span class="dv">400</span>).<span class="at">json</span>(errors)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-9" title="9">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-10" title="10"></a>
+<a class="sourceLine" id="cb4-11" title="11">  <span class="kw">const</span> email <span class="op">=</span> <span class="va">req</span>.<span class="va">body</span>.<span class="at">email</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-12" title="12">  <span class="kw">const</span> password <span class="op">=</span> <span class="va">req</span>.<span class="va">body</span>.<span class="at">password</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-13" title="13"></a>
+<a class="sourceLine" id="cb4-14" title="14">  <span class="co">//Check if the user email exists at all in database</span></a>
+<a class="sourceLine" id="cb4-15" title="15">  <span class="va">User</span>.<span class="at">findOne</span>(<span class="op">{</span> email <span class="op">}</span>).<span class="at">then</span>(user <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-16" title="16">    <span class="cf">if</span> (<span class="op">!</span>user) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-17" title="17">      <span class="va">errors</span>.<span class="at">email</span> <span class="op">=</span> <span class="st">&quot;User not found&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-18" title="18">      <span class="cf">return</span> <span class="va">res</span>.<span class="at">status</span>(<span class="dv">404</span>).<span class="at">json</span>(<span class="op">{</span> <span class="dt">email</span><span class="op">:</span> <span class="st">&quot;User not found&quot;</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-19" title="19">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-20" title="20"></a>
+<a class="sourceLine" id="cb4-21" title="21">    <span class="co">// Compare password hash saved in database with the password provided in the req.body</span></a>
+<a class="sourceLine" id="cb4-22" title="22">    <span class="va">bcrypt</span>.<span class="at">compare</span>(password<span class="op">,</span> <span class="va">user</span>.<span class="at">password</span>).<span class="at">then</span>(isMatch <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-23" title="23">      <span class="cf">if</span> (isMatch) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-24" title="24">        <span class="co">// if User is matched, then create JWT Payload</span></a>
+<a class="sourceLine" id="cb4-25" title="25">        <span class="kw">const</span> payload <span class="op">=</span> <span class="op">{</span> <span class="dt">id</span><span class="op">:</span> <span class="va">user</span>.<span class="at">id</span><span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="va">user</span>.<span class="at">name</span><span class="op">,</span> <span class="dt">avatar</span><span class="op">:</span> <span class="va">user</span>.<span class="at">avatar</span> <span class="op">};</span></a>
+<a class="sourceLine" id="cb4-26" title="26"></a>
+<a class="sourceLine" id="cb4-27" title="27">        <span class="co">// signed JWT token to be sent to server</span></a>
+<a class="sourceLine" id="cb4-28" title="28">        <span class="va">jwt</span>.<span class="at">sign</span>(</a>
+<a class="sourceLine" id="cb4-29" title="29">          payload<span class="op">,</span></a>
+<a class="sourceLine" id="cb4-30" title="30">          <span class="va">keys</span>.<span class="at">secretOrKey</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-31" title="31">          <span class="op">{</span> <span class="dt">expiresIn</span><span class="op">:</span> <span class="dv">3600</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb4-32" title="32">          (err<span class="op">,</span> token) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-33" title="33">            <span class="va">res</span>.<span class="at">json</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb4-34" title="34">              <span class="dt">success</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-35" title="35">              <span class="dt">token</span><span class="op">:</span> <span class="st">&quot;Bearer &quot;</span> <span class="op">+</span> token</a>
+<a class="sourceLine" id="cb4-36" title="36">            <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-37" title="37">          <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-38" title="38">        )<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-39" title="39">      <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-40" title="40">        <span class="va">errors</span>.<span class="at">password</span> <span class="op">=</span> <span class="st">&quot;Password Incorrect&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-41" title="41">        <span class="cf">return</span> <span class="va">res</span>.<span class="at">status</span>(<span class="dv">400</span>).<span class="at">json</span>(errors)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-42" title="42">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-43" title="43">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-44" title="44">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-45" title="45"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h3 id="authentication-at-the-time-of-signing-in-a-user">Authentication at the time of signing in a user</h3>
+<p><a href="https://solidgeargroup.com/hashing-passwords-nodejs-mongodb-bcrypt">https://solidgeargroup.com/hashing-passwords-nodejs-mongodb-bcrypt</a></p>
+<p>The salt is incorporated into the hash (as plaintext). The compare function simply pulls the salt out of the hash and then uses it to hash the password and perform the comparison. When a user logs into our system, we need to check that the password entered is correct. Unlike other systems that would decrypt the password in the database (if it is encrypted), and compare it with the one entered by the user, what we do with bcrypt is encrypt the one entered by the user. To do this, we will pass the password to bcrypt to calculate the hash, but also the password stored in the database associated with the user (hash). This is because, as mentioned before, the bcrypt algorithm used a random segment (salt) to generate the hash associated with the pasword. This was stored along with the password, and you need it to recalculate the hash of the password entered by the user and finally compare with the one entered when registering and see if they match.</p>
+<p>Looking at the <a href="https://github.com/dcodeIO/bcrypt.js/blob/b09f7f266a7015456b7b36deeb026dc636f64542/dist/bcrypt.js#L269">source code of bcrypt.compare</a> function makes the above steps clear</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="va">bcrypt</span>.<span class="at">compare</span> <span class="op">=</span> <span class="kw">function</span>(s<span class="op">,</span> hash<span class="op">,</span> callback<span class="op">,</span> progressCallback) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="kw">function</span> <span class="at">_async</span>(callback) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-3" title="3">    <span class="cf">if</span> (<span class="kw">typeof</span> s <span class="op">!==</span> <span class="st">&quot;string&quot;</span> <span class="op">||</span> <span class="kw">typeof</span> hash <span class="op">!==</span> <span class="st">&quot;string&quot;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-4" title="4">      <span class="at">nextTick</span>(</a>
+<a class="sourceLine" id="cb5-5" title="5">        <span class="va">callback</span>.<span class="at">bind</span>(</a>
+<a class="sourceLine" id="cb5-6" title="6">          <span class="kw">this</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb5-7" title="7">          <span class="at">Error</span>(<span class="st">&quot;Illegal arguments: &quot;</span> <span class="op">+</span> <span class="kw">typeof</span> s <span class="op">+</span> <span class="st">&quot;, &quot;</span> <span class="op">+</span> <span class="kw">typeof</span> hash)</a>
+<a class="sourceLine" id="cb5-8" title="8">        )</a>
+<a class="sourceLine" id="cb5-9" title="9">      )<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-10" title="10">      <span class="cf">return</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-11" title="11">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-12" title="12">    <span class="cf">if</span> (<span class="va">hash</span>.<span class="at">length</span> <span class="op">!==</span> <span class="dv">60</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-13" title="13">      <span class="at">nextTick</span>(<span class="va">callback</span>.<span class="at">bind</span>(<span class="kw">this</span><span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="kw">false</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-14" title="14">      <span class="cf">return</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-15" title="15">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-16" title="16">    <span class="va">bcrypt</span>.<span class="at">hash</span>(</a>
+<a class="sourceLine" id="cb5-17" title="17">      s<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-18" title="18">      <span class="va">hash</span>.<span class="at">substr</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">29</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-19" title="19">      <span class="kw">function</span>(err<span class="op">,</span> comp) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-20" title="20">        <span class="cf">if</span> (err) <span class="at">callback</span>(err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-21" title="21">        <span class="cf">else</span> <span class="at">callback</span>(<span class="kw">null</span><span class="op">,</span> <span class="at">safeStringCompare</span>(comp<span class="op">,</span> hash))<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-22" title="22">      <span class="op">},</span></a>
+<a class="sourceLine" id="cb5-23" title="23">      progressCallback</a>
+<a class="sourceLine" id="cb5-24" title="24">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-25" title="25">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-26" title="26"></a>
+<a class="sourceLine" id="cb5-27" title="27">  <span class="cf">if</span> (callback) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-28" title="28">    <span class="cf">if</span> (<span class="kw">typeof</span> callback <span class="op">!==</span> <span class="st">&quot;function&quot;</span>)</a>
+<a class="sourceLine" id="cb5-29" title="29">      <span class="cf">throw</span> <span class="at">Error</span>(<span class="st">&quot;Illegal callback: &quot;</span> <span class="op">+</span> <span class="kw">typeof</span> callback)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-30" title="30">    <span class="at">_async</span>(callback)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-31" title="31">  <span class="op">}</span> <span class="cf">else</span></a>
+<a class="sourceLine" id="cb5-32" title="32">    <span class="cf">return</span> <span class="kw">new</span> <span class="at">Promise</span>(<span class="kw">function</span>(resolve<span class="op">,</span> reject) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-33" title="33">      <span class="at">_async</span>(<span class="kw">function</span>(err<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-34" title="34">        <span class="cf">if</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-35" title="35">          <span class="at">reject</span>(err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-36" title="36">          <span class="cf">return</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-37" title="37">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-38" title="38">        <span class="at">resolve</span>(res)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-39" title="39">      <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-40" title="40">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-41" title="41"><span class="op">};</span></a></code></pre></div>
+<h3 id="online-bcrypt-hashing-and-de-hashing-generator-and-checker">Online bcrypt hashing and de-hashing generator and checker</h3>
+<p><a href="https://bcrypt-generator.com/">https://bcrypt-generator.com/</a></p>
+<p>Just put the rounds (which is the salt length to generate, i.e. the function where I am hashing the plain-text password )</p>
+<p><code>bcrypt.hashSync(plainTextPassword, 10)</code> So the number 10 is the rounds in the above online tool</p>
+<p>After hashing a plaintext password, for checking I will just put the hashed password from the mongo database - i.e. after running terminal command something like <code>db.users.find()</code> which will give all the users saved in the mongo database.</p>
+<p>So an example is this hashed password - <code>$2a$10$m0mq4PYOOvm74Gukml4FN.T0Ntobhzi42T6b5v1WIsJ5aZkVzJz3a</code> And then put the round as 10 and I will get <code>123</code> which was my plaintext password in this case.</p>

@@ -1,0 +1,77 @@
+<h4 id="replacing-componentwillunmount-with-useeffect">Replacing componentWillUnmount with useEffect()</h4>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="at">componentWillUnmount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;will unmount&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="op">}</span></a>
+<a class="sourceLine" id="cb1-4" title="4"></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="co">// Now to replicate the above, just return a function inside useEffect() which will do the same job that I amd doing inside componentWillUnmount</span></a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-7" title="7">  <span class="cf">return</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-8" title="8">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;will unmount&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-9" title="9">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-10" title="10"><span class="op">},</span> [])<span class="op">;</span></a></code></pre></div>
+<p><strong>IMPORTANT - When you return a function in the callback passed to useEffect, the returned function will be called before the component is removed from the UI. In other words, Whatever function we return from the useEffect will be treated as componentWillUnmount and will run either when the useEffect runs again or when the component is about to leave the UI.</strong> <strong>So to clean up the side effects you must return a function.</strong></p>
+<p><strong>we can also use as many useEffect we want to add. That means you can subscribe to an event and unsubscribe from it inside one useEffect and hit APIs in another useEffect</strong> <a href="https://medium.com/recraftrelic/usestate-and-useeffect-explained-cdb5dc252baf">Source</a></p>
+<p>As we discussed previously, we need to pass an empty list as the second argument for useEffect so that the callback will only be called once. This apply to the returned function too.</p>
+<p>Normally we do cleanups in the componentWillUnmount.</p>
+<h4 id="example---create-an-event-listener-on-componentdidmount-and-clean-it-up-on-componentdidunmount.-with-hooks-the-code-will-be-combined-into-one-callback-function.">Example - create an event listener on componentDidMount and clean it up on componentDidUnmount. With hooks the code will be combined into one callback function.</h4>
+<p>To get setup we’ll create two hooks to help test out how the useEffect hook operates. One will trigger a simple state update to re-render. The other will control unmounting of our child component (named Position) we’ll create.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> useEffect<span class="op">,</span> useState <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">const</span> App <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="kw">const</span> [trigger<span class="op">,</span> setTrigger] <span class="op">=</span> <span class="at">useState</span>(<span class="kw">true</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-5" title="5">  <span class="kw">const</span> [mounted<span class="op">,</span> setMount] <span class="op">=</span> <span class="at">useState</span>(<span class="kw">true</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-6" title="6">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb2-7" title="7">    <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-8" title="8">      <span class="op">&lt;</span>button onClick<span class="op">={</span>() <span class="kw">=&gt;</span> <span class="at">setTrigger</span>(<span class="op">!</span>trigger)<span class="op">}&gt;</span>Trigger Update&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-9" title="9">      <span class="op">&lt;</span>button onClick<span class="op">={</span>() <span class="kw">=&gt;</span> <span class="at">setMount</span>(<span class="op">!</span>mounted)<span class="op">}&gt;</span>Toggle Mount&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-10" title="10">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-11" title="11">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-12" title="12"><span class="op">};</span></a></code></pre></div>
+<p>Now the Child Component Position</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">const</span> logMousePosition <span class="op">=</span> e <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb3-3" title="3">    <span class="dt">x</span><span class="op">:</span> <span class="va">e</span>.<span class="at">clientX</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-4" title="4">    <span class="dt">y</span><span class="op">:</span> <span class="va">e</span>.<span class="at">clientY</span></a>
+<a class="sourceLine" id="cb3-5" title="5">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="op">};</span></a>
+<a class="sourceLine" id="cb3-7" title="7"></a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="kw">const</span> Position <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-9" title="9">  <span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-10" title="10">    <span class="va">window</span>.<span class="at">addEventListener</span>(<span class="st">&quot;mousemove&quot;</span><span class="op">,</span> logMousePosition)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-11" title="11">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Created);</span></a>
+<a class="sourceLine" id="cb3-12" title="12">    <span class="cf">return</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-13" title="13">        <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Cleaned up&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-14" title="14">        <span class="va">window</span>.<span class="at">removeEventListener</span>(<span class="st">&#39;mousemove&#39;</span><span class="op">,</span> logMousePosition)</a>
+<a class="sourceLine" id="cb3-15" title="15">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-16" title="16">  <span class="op">},</span> [])<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-17" title="17"></a>
+<a class="sourceLine" id="cb3-18" title="18">  <span class="cf">return</span> <span class="kw">null</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-19" title="19"><span class="op">};</span></a></code></pre></div>
+<p>A&gt; The reason we have to clean up here - We want to avoid attaching an endless amount of event listeners so we’ll use the clean up phase of the effect. Every time the component re-renders all effects will be re-run. To clean up the side effects you must return a function.</p>
+<p>B&gt; The reason we need to pass in an empty array as the second argument to useEffect - If you run the code without the second empty list of array everything will work, however when you trigger an update. You can see with our console logs that the clean up phase is run. We don’t need to keep attaching and detaching the listeners. So, in order to register just once we need to pass in an empty array as the second argument to useEffect.</p>
+<p>This (passing the empty array) typically is used to control whether or not the useEffect needs to be re-applied. This array is diffed from the original creation of the effect and the new one being passed in. It will diff the array (just like it does the virtual DOM) and decide if it needs to re-apply the effect.</p>
+<p>Passing in an empty array tells React to diff, however there is nothing different between each render so the effect will only be run once. Be aware though, if you are calling a function from props, or relying on props inside the effect you will need to pass them into the array to re-apply the effect.</p>
+<p><strong>For example if you were relying on an id inside the effect you’d pass in [props.id] and React will take care of re-applying it for you.</strong></p>
+<h5 id="final-implementation">Final Implementation</h5>
+<p>Finally to prove that React is cleaning up our effects when the component unmounts you can toggle the rendering of our Position component. You can see that when you unmount it, Cleaned up will be logged and our mouse movements will no longer be logged.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">const</span> App <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="kw">const</span> [trigger<span class="op">,</span> setTrigger] <span class="op">=</span> <span class="at">useState</span>(<span class="kw">true</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-3" title="3">  <span class="kw">const</span> [mounted<span class="op">,</span> setMount] <span class="op">=</span> <span class="at">useState</span>(<span class="kw">true</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" title="4">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb4-5" title="5">    <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-6" title="6">      <span class="op">&lt;</span>button onClick<span class="op">={</span>() <span class="kw">=&gt;</span> <span class="at">setTrigger</span>(<span class="op">!</span>trigger)<span class="op">}&gt;</span>Trigger Update&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-7" title="7">      <span class="op">&lt;</span>button onClick<span class="op">={</span>() <span class="kw">=&gt;</span> <span class="at">setMount</span>(<span class="op">!</span>mounted)<span class="op">}&gt;</span>Toggle Mount&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-8" title="8"></a>
+<a class="sourceLine" id="cb4-9" title="9">      <span class="op">{</span>mounted <span class="op">?</span> <span class="op">&lt;</span>Position /<span class="op">&gt;</span> : <span class="kw">null</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb4-10" title="10">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-11" title="11">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-12" title="12"><span class="op">};</span></a></code></pre></div>
+<h4 id="further-reading">Further Reading</h4>
+<ul>
+<li><ol type="1">
+<li><a href="https://codedaily.io/tutorials/59/Create-a-componentDidMount-useEffect-hook-in-React">https://codedaily.io/tutorials/59/Create-a-componentDidMount-useEffect-hook-in-React</a></li>
+</ol></li>
+<li><ol start="2" type="1">
+<li><a href="https://dev.to/trentyang/replace-lifecycle-with-hooks-in-react-3d4n">https://dev.to/trentyang/replace-lifecycle-with-hooks-in-react-3d4n</a></li>
+</ol></li>
+</ul>

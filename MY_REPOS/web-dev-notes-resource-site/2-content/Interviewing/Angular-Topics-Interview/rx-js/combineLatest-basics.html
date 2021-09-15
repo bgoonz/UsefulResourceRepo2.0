@@ -1,0 +1,64 @@
+<p><code>combineLatest</code> creates a stream that will have a new value every time one of the source streams changes.</p>
+<p><a href="http://reactivex.io/rxjs/class/es6/Observable.js~Observable.html#instance-method-combineLatest">From Official Doc</a></p>
+<p><strong>Combines multiple Observables to create an Observable whose values are calculated from the latest values of each of its input Observables. Whenever any input Observable emits a value, it computes a formula using the latest values from all the inputs, then emits the output of that formula.</strong></p>
+<p><strong>This is done by subscribing to each Observable, in order, and collecting an array of each of the most recent values any time any of the input Observables emits, then either taking that array and passing it as arguments to an optional project function and emitting the return value of that, or just emitting the array of recent values directly if there is no project function.</strong></p>
+<h3 id="combinelatest-expects-two-arguments">combineLatest expects two arguments:</h3>
+<ol type="1">
+<li>List Of Observables</li>
+<li>Function</li>
+</ol>
+<p>General Syntax</p>
+<p>The new version of combineLatest() accepts an array of Observables as its argument:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">combineLatest</span>(<span class="op">[</span><span class="va">this</span><span class="op">.</span><span class="at">items$</span><span class="op">,</span> <span class="va">this</span><span class="op">.</span><span class="at">emails$</span><span class="op">]</span>).<span class="fu">subscribe</span>((<span class="op">[</span>items<span class="op">,</span> emails<span class="op">]</span>) <span class="kw">=&gt;</span> <span class="op">{}</span>)<span class="op">;</span></a></code></pre></div>
+<h3 id="a-common-pattern-of-use-case-in-actual-application-with-both-pipe-and-subscribe">A common pattern of use-case in actual application with both pipe() and subscribe()</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb2-1" title="1">    <span class="im">import</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  combineLatest<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-3" title="3">  combineLatest <span class="im">as</span> observableCombineLatest<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  Observable</a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="op">}</span> <span class="im">from</span> <span class="st">&quot;rxjs&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-6" title="6"></a>
+<a class="sourceLine" id="cb2-7" title="7">  <span class="co">// This selectors are coming from redux-reselect</span></a>
+<a class="sourceLine" id="cb2-8" title="8">  @<span class="fu">select</span>(selector1)</a>
+<a class="sourceLine" id="cb2-9" title="9">  selector1$<span class="op">:</span> Observable<span class="op">&lt;</span>SomeType<span class="op">[]&gt;;</span></a>
+<a class="sourceLine" id="cb2-10" title="10">  selector1<span class="op">:</span> SomeType<span class="op">[];</span></a>
+<a class="sourceLine" id="cb2-11" title="11"></a>
+<a class="sourceLine" id="cb2-12" title="12">  @<span class="fu">select</span>(selector2)</a>
+<a class="sourceLine" id="cb2-13" title="13">  selector2$<span class="op">:</span> Observable<span class="op">&lt;</span>SomeType<span class="op">[]&gt;;</span></a>
+<a class="sourceLine" id="cb2-14" title="14">  selector2<span class="op">:</span> SomeType<span class="op">[];</span></a>
+<a class="sourceLine" id="cb2-15" title="15"></a>
+<a class="sourceLine" id="cb2-16" title="16">  @<span class="fu">select</span>(mySomeOtherSelector$)</a>
+<a class="sourceLine" id="cb2-17" title="17">  mySomeOtherSelector$<span class="op">:</span> Observable<span class="op">&lt;</span>SomeotherType<span class="op">&gt;;</span></a>
+<a class="sourceLine" id="cb2-18" title="18"></a>
+<a class="sourceLine" id="cb2-19" title="19">  someState<span class="op">:</span> someState<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-20" title="20"></a>
+<a class="sourceLine" id="cb2-21" title="21"><span class="fu">ngOnInit</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-22" title="22"><span class="va">this</span><span class="op">.</span><span class="at">mySomeOtherSelector$</span></a>
+<a class="sourceLine" id="cb2-23" title="23">    .<span class="fu">pipe</span>(</a>
+<a class="sourceLine" id="cb2-24" title="24">        <span class="fu">filter</span>(somData <span class="kw">=&gt;</span> <span class="fu">isDefinedAndNotNull</span>(someData))<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-25" title="25">        <span class="fu">mergeMap</span>(data<span class="op">&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-26" title="26">            <span class="va">this</span><span class="op">.</span><span class="at">someState</span> <span class="op">=</span> data</a>
+<a class="sourceLine" id="cb2-27" title="27">            <span class="cf">return</span> <span class="fu">observableCombineLatest</span>(</a>
+<a class="sourceLine" id="cb2-28" title="28">                <span class="va">this</span><span class="op">.</span><span class="at">selector1$</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-29" title="29">                <span class="va">this</span><span class="op">.</span><span class="fu">someFunction</span>()<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-30" title="30">                <span class="va">this</span><span class="op">.</span><span class="at">selector2$</span></a>
+<a class="sourceLine" id="cb2-31" title="31">            )<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-32" title="32">        <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb2-33" title="33">    )</a>
+<a class="sourceLine" id="cb2-34" title="34">    .<span class="fu">subscribe</span>((<span class="op">[</span>selector1<span class="op">,</span> someFunctionResult<span class="op">,</span> selector2<span class="op">]</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-35" title="35">        <span class="co">// And here I have the subscibed observer results</span></a>
+<a class="sourceLine" id="cb2-36" title="36">        <span class="va">this</span><span class="op">.</span><span class="at">selector1</span> <span class="op">=</span> selector1<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-37" title="37">        <span class="va">this</span><span class="op">.</span><span class="at">someState2</span> <span class="op">=</span> someFunctionResult<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-38" title="38">        <span class="va">this</span><span class="op">.</span><span class="at">selector2</span> <span class="op">=</span> selector2<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-39" title="39">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-40" title="40"></a>
+<a class="sourceLine" id="cb2-41" title="41"><span class="op">}</span></a>
+<a class="sourceLine" id="cb2-42" title="42"></a>
+<a class="sourceLine" id="cb2-43" title="43"></a>
+<a class="sourceLine" id="cb2-44" title="44">  <span class="fu">someFunction</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-45" title="45">    <span class="cf">return</span> <span class="fu">combineLatest</span>(<span class="va">this</span><span class="op">.</span><span class="at">someObservable1$</span><span class="op">,</span> <span class="va">this</span><span class="op">.</span><span class="at">someObservable2$</span>).<span class="fu">pipe</span>(</a>
+<a class="sourceLine" id="cb2-46" title="46">      <span class="fu">map</span>((<span class="op">[</span>observer1<span class="op">,</span> observer2<span class="op">]</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-47" title="47">        <span class="co">// ...DO ANYTHING HERE...</span></a>
+<a class="sourceLine" id="cb2-48" title="48">        <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-49" title="49">      <span class="op">}</span>)</a></code></pre></div>
+<h4 id="further-reading">Further Reading</h4>
+<p><a href="https://scotch.io/tutorials/rxjs-operators-for-dummies-forkjoin-zip-combinelatest-withlatestfrom#toc-combinelatest-the-go-dutch-operator">https://scotch.io/tutorials/rxjs-operators-for-dummies-forkjoin-zip-combinelatest-withlatestfrom#toc-combinelatest-the-go-dutch-operator</a></p>

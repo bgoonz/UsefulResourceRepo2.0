@@ -1,0 +1,255 @@
+<script>{
+    "title": "Deferred examples",
+    "level": "advanced",
+    "source": "http://msdn.microsoft.com/en-us/magazine/gg723713.aspx",
+    "attribution": [
+        "Julian Aubourg <j@ubourg.net>",
+        "Addy Osmani <addyosmani@gmail.com>",
+        "Andree Hansson <peolanha@gmail.com>"
+    ]
+}</script>
+<h2 id="further-deferreds-examples">Further Deferreds examples</h2>
+<p>Deferreds are used behind the hood in Ajax but it doesn’t mean they can’t also be used elsewhere. This section describes situations where deferreds will help abstract away asynchronous behaviour and decouple our code.</p>
+<h3 id="caching">Caching</h3>
+<h4 id="asynchronous-cache">Asynchronous cache</h4>
+<p>When it comes to asynchronous tasks, caching can be a bit demanding since you have to make sure a task is only performed once for a given key. As a consequence, the code has to somehow keep track of inbound tasks.</p>
+<pre><code>$.cachedGetScript( url, callback1 );
+$.cachedGetScript( url, callback2 );</code></pre>
+<p>The caching mechanism has to make sure the URL is only requested once even if the script isn’t in cache yet. This shows some logic to keep track of callbacks bound to a given URL in order for the cache system to properly handle both complete and inbound requests.</p>
+<pre><code>var cachedScriptPromises = {};
+
+$.cachedGetScript = function( url, callback ) {
+    if ( !cachedScriptPromises[ url ] ) {
+        cachedScriptPromises[ url ] = $.Deferred(function( defer ) {
+            $.getScript( url ).then( defer.resolve, defer.reject );
+        }).promise();
+    }
+    return cachedScriptPromises[ url ].done( callback );
+};</code></pre>
+<p>One promise is cached per URL. If there is no promise for the given URL yet, then a deferred is created and the request is issued. If it already exists, however, the callback is attached to the existing deferred. The big advantage of this solution is that it will handle both complete and inbound requests transparently. Another advantage is that a deferred-based cache will deal with failure gracefully. The promise will end up rejected which can be tested for by providing an error callback:</p>
+<pre><code>$.cachedGetScript( url ).then( successCallback, errorCallback );</code></pre>
+<h4 id="generic-asynchronous-cache">Generic asynchronous cache</h4>
+<p>It is also possible to make the code completely generic and build a cache factory that will abstract out the actual task to be performed when a key isn’t in the cache yet:</p>
+<pre><code>$.createCache = function( requestFunction ) {
+    var cache = {};
+    return function( key, callback ) {
+        if ( !cache[ key ] ) {
+            cache[ key ] = $.Deferred(function( defer ) {
+                requestFunction( defer, key );
+            }).promise();
+        }
+        return cache[ key ].done( callback );
+    };
+};</code></pre>
+<p>Now that the request logic is abstracted away, <code>$.cachedGetScript()</code> can be rewritten as follows:</p>
+<pre><code>$.cachedGetScript = $.createCache(function( defer, url ) {
+    $.getScript( url ).then( defer.resolve, defer.reject );
+});</code></pre>
+<p>This will work because every call to <code>$.createCache()</code> will create a new cache repository and return a new cache-retrieval function.</p>
+<h4 id="image-loading">Image loading</h4>
+<p>A cache can be used to ensure that the same image is not loaded multiple times.</p>
+<pre><code>$.loadImage = $.createCache(function( defer, url ) {
+    var image = new Image();
+    function cleanUp() {
+        image.onload = image.onerror = null;
+    }
+    defer.then( cleanUp, cleanUp );
+    image.onload = function() {
+        defer.resolve( url );
+    };
+    image.onerror = defer.reject;
+    image.src = url;
+});</code></pre>
+<p>Again, the following snippet:</p>
+<pre><code>$.loadImage( &quot;my-image.png&quot; ).done( callback1 );
+$.loadImage( &quot;my-image.png&quot; ).done( callback2 );</code></pre>
+<p>will work regardless of whether <code>my-image.png</code> has already been loaded or not, or if it is actually in the process of being loaded.</p>
+<h4 id="caching-data-api-responses">Caching Data API responses</h4>
+<p>API requests that are considered immutable during the lifetime of your page are also perfect candidates. For instance, the following:</p>
+<pre><code>$.searchTwitter = $.createCache(function( defer, query ) {
+    $.ajax({
+        url: &quot;http://search.twitter.com/search.json&quot;,
+        data: {
+            q: query
+        },
+        dataType: &quot;jsonp&quot;,
+        success: defer.resolve,
+        error: defer.reject
+    });
+});</code></pre>
+<p>will allow you to perform searches on Twitter and cache them at the same time:</p>
+<pre><code>$.searchTwitter( &quot;jQuery Deferred&quot;, callback1 );
+$.searchTwitter( &quot;jQuery Deferred&quot;, callback2 );</code></pre>
+<h4 id="timing">Timing</h4>
+<p>This deferred-based cache is not limited to network requests; it can also be used for timing purposes.</p>
+<p>For instance, you may need to perform an action on the page after a given amount of time so as to attract the user’s attention to a specific feature they may not be aware of or deal with a timeout (for a quiz question for instance). While <code>setTimeout()</code> is good for most use-cases it doesn’t handle the situation when the timer is asked for later, even after it has theoretically expired. We can handle that with the following caching system:</p>
+<pre><code>var readyTime;
+
+$(function() {
+    readyTime = jQuery.now();
+});
+
+$.afterDOMReady = $.createCache(function( defer, delay ) {
+    delay = delay || 0;
+    $(function() {
+        var delta = $.now() - readyTime;
+        if ( delta &gt;= delay ) {
+            defer.resolve();
+        } else {
+            setTimeout( defer.resolve, delay - delta );
+        }
+    });
+});</code></pre>
+<p>The new <code>$.afterDOMReady()</code> helper method provides proper timing after the DOM is ready while ensuring the bare minimum of timers will be used. If the delay is already expired, any callback will be called right away.</p>
+<h3 id="one-time-event">One-time event</h3>
+<p>While jQuery offers all the event binding one may need, it can become a bit cumbersome to handle events that are only supposed to be dealt with once.</p>
+<p>For instance, you may wish to have a button that will open a panel the first time it is clicked and leave it open afterwards or take special initialization actions the first time said button is clicked. When dealing with such a situation, one usually end up with code like this:</p>
+<pre><code>var buttonClicked = false;
+
+$( &quot;#myButton&quot; ).click(function() {
+    if ( !buttonClicked ) {
+        buttonClicked = true;
+        initializeData();
+        showPanel();
+    }
+});</code></pre>
+<p>then, later on, you may wish to take actions, but only if the panel is opened:</p>
+<pre><code>if ( buttonClicked ) {
+
+    // Perform specific action
+
+}</code></pre>
+<p>This is a very coupled solution. If you want to add some other action, you have to edit the bind code or just duplicate it all. If you don’t, your only option is to test for <code>buttonClicked</code> and you may lose that new action because the <code>buttonClicked</code> variable may be <code>false</code> and your new code may never be executed.</p>
+<p>We can do much better using deferreds (for simplification sake, the following code will only work for a single element and a single event type, but it can be easily generalized for full-fledged collections with multiple event types):</p>
+<pre><code>$.fn.bindOnce = function( event, callback ) {
+    var element = $( this[ 0 ] ),
+        defer = element.data( &quot;bind_once_defer_&quot; + event );
+
+    if ( !defer ) {
+        defer = $.Deferred();
+        function deferCallback() {
+            element.unbind( event, deferCallback );
+            defer.resolveWith( this, arguments );
+        }
+        element.bind( event, deferCallback )
+        element.data( &quot;bind_once_defer_&quot; + event , defer );
+    }
+
+    return defer.done( callback ).promise();
+};</code></pre>
+<p>The code works as follows:</p>
+<ul>
+<li>Check if the element already has a deferred attached for the given event</li>
+<li>if not, create it and make it so it is resolved when the event is fired the first time around</li>
+<li>then attach the given callback to the deferred and return the promise</li>
+</ul>
+<p>While the code is definitely more verbose, it makes dealing with the problem at hand much simpler in a compartmentalized and decoupled way. But let’s define a helper method first:</p>
+<pre><code>$.fn.firstClick = function( callback ) {
+    return this.bindOnce( &quot;click&quot;, callback );
+};</code></pre>
+<p>Then the logic can be re-factored as follows:</p>
+<pre><code>var openPanel = $( &quot;#myButton&quot; ).firstClick();
+
+openPanel.done( initializeData );
+openPanel.done( showPanel );</code></pre>
+<p>If an action should be performed only when a panel is opened later on:</p>
+<pre><code>openPanel.done(function() {
+
+    // Perform specific action
+
+});</code></pre>
+<p>Nothing is lost if the panel isn’t opened yet, the action will just get deferred until the button is clicked.</p>
+<h3 id="combining-helpers">Combining helpers</h3>
+<p>All of the samples above can seem a bit limited when looked at separately. However, the true power of promises comes into play when you mix them together.</p>
+<h4 id="requesting-panel-content-on-first-click-and-opening-said-panel">Requesting panel content on first click and opening said panel</h4>
+<p>Following is the code for a button that, when clicked, opens a panel. It requests its content over the wire and then fades the content in. Using the helpers defined earlier, it could be defined as:</p>
+<pre><code>$( &quot;#myButton&quot; ).firstClick(function() {
+    var panel = $( &quot;#myPanel&quot; );
+    $.when(
+        $.get( &quot;panel.html&quot; ),
+        panel.slideDownPromise()
+    ).done(function( ajaxResponse ) {
+        panel.html( ajaxResponse[ 0 ] ).fadeIn();
+    });
+});</code></pre>
+<h4 id="loading-images-in-a-panel-on-first-click-and-opening-said-panel">Loading images in a panel on first click and opening said panel</h4>
+<p>Another possible goal is to have the panel fade in, only after the button has been clicked and after all of the images have been loaded.</p>
+<p>The HTML code for this would look something like:</p>
+<pre><code>&lt;div id=&quot;myPanel&quot;&gt;
+    &lt;img data-src=&quot;image1.png&quot; alt=&quot;&quot;&gt;
+    &lt;img data-src=&quot;image2.png&quot; alt=&quot;&quot;&gt;
+    &lt;img data-src=&quot;image3.png&quot; alt=&quot;&quot;&gt;
+    &lt;img data-src=&quot;image4.png&quot; alt=&quot;&quot;&gt;
+&lt;/div&gt;</code></pre>
+<p>We use the <code>data-src</code> attribute to keep track of the real image location. The code to handle our use case using our promise helpers is as follows:</p>
+<pre><code>$( &quot;#myButton&quot; ).firstClick(function() {
+    var panel = $( &quot;#myPanel&quot; ),
+        promises = [];
+
+    panel.find( &quot;img&quot; ).each(function() {
+        var image = $( this ),
+            src = element.attr( &quot;data-src&quot; );
+        if ( src ) {
+            promises.push(
+                $.loadImage( src ).then(function() {
+                    image.attr( &quot;src&quot;, src );
+                }, function() {
+                    image.attr( &quot;src&quot;, &quot;error.png&quot; );
+                })
+            );
+        }
+    });
+
+    promises.push( panel.slideDownPromise() );
+
+    $.when.apply( null, promises ).done(function() {
+        panel.fadeIn();
+    });
+});</code></pre>
+<p>The trick here is to keep track of all the <code>$.loadImage()</code> promises. We later join them with the panel <code>.slideDown()</code> animation using <code>$.when()</code>. So when the button is first clicked, the panel will slide down and the images will start loading. Once the panel has finished sliding down and all the images have been loaded, then, and only then, will the panel fade in.</p>
+<h4 id="loading-images-on-the-page-after-a-specific-delay">Loading images on the page after a specific delay</h4>
+<p>In order to implement deferred image display on the entire page, the following format in HTML can be used.</p>
+<pre><code>&lt;img data-src=&quot;image1.png&quot; data-after=&quot;1000&quot; src=&quot;placeholder.png&quot; alt=&quot;&quot;&gt;
+&lt;img data-src=&quot;image2.png&quot; data-after=&quot;1000&quot; src=&quot;placeholder.png&quot; alt=&quot;&quot;&gt;
+&lt;img data-src=&quot;image1.png&quot; src=&quot;placeholder.png&quot; alt=&quot;&quot;&gt;
+&lt;img data-src=&quot;image2.png&quot; data-after=&quot;2000&quot; src=&quot;placeholder.png&quot; alt=&quot;&quot;&gt;</code></pre>
+<p>What it says is pretty straight-forward:</p>
+<ul>
+<li>Load <code>image1.png</code> and show it immediately for the third image and after one second for the first one</li>
+<li>Load <code>image2.png</code> and show it after one second for the second image and after two seconds for the fourth image</li>
+</ul>
+<pre><code>$( &quot;img&quot; ).each(function() {
+    var element = $( this ),
+        src = element.attr( &quot;data-src&quot; ),
+        after = element.attr( &quot;data-after&quot; );
+    if ( src ) {
+        $.when(
+            $.loadImage( src ),
+            $.afterDOMReady( after )
+        ).then(function() {
+            element.attr( &quot;src&quot;, src );
+        }, function() {
+            element.attr( &quot;src&quot;, &quot;error.png&quot; );
+        }).done(function() {
+            element.fadeIn();
+        });
+    }
+});</code></pre>
+<p>In order to delay the loading of the images themselves:</p>
+<pre><code>$( &quot;img&quot; ).each(function() {
+    var element = $( this ),
+        src = element.attr( &quot;data-src&quot; ),
+        after = element.attr( &quot;data-after&quot; );
+    if ( src ) {
+        $.afterDOMReady( after, function() {
+            $.loadImage( src ).then(function() {
+                element.attr( &quot;src&quot;, src );
+            }, function() {
+                element.attr( &quot;src&quot;, &quot;error.png&quot; );
+            }).done(function() {
+                element.fadeIn();
+            });
+        });
+    }
+});</code></pre>
+<p>Here, after the delay to be fulfilled then the image is loaded. It can make a lot of sense when you want to limit the number or network requests on page load.</p>

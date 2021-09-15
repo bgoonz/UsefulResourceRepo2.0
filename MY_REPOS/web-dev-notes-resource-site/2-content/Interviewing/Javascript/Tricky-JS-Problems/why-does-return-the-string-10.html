@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h3 id="why-does-return-the-string-10">Why does ++[[]][+[]]+[+[]] return the string “10”?</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="va">console</span>.<span class="at">log</span>(<span class="op">++</span>[[]][<span class="op">+</span>[]] <span class="op">+</span> [<span class="op">+</span>[]])</a></code></pre></div>
+<p><strong>Output is 10</strong></p>
+<hr />
+<h3 id="explanation-1"><a href="https://stackoverflow.com/a/7202287/1902852">Explanation-1</a></h3>
+<p>If we split it up, the mess is equal to:</p>
+<pre><code>++[[]][+[]]
++
+[+[]]</code></pre>
+<p>In JavaScript, it is true that <code>+[] === 0</code>. <code>+</code> converts something into a number, and in this case it will come down to <code>+""</code> or <code>0</code> (see specification details below).</p>
+<p>Therefore, we can simplify it (<code>++</code> has precendence over <code>+</code>):</p>
+<pre><code>++[[]][0]
++
+[0]</code></pre>
+<p>Because <code>[[]][0]</code> means: get the first element from <code>[[]]</code>, it is true that:</p>
+<p><code>[[]][0]</code> returns the inner array (<code>[]</code>). Due to references it’s wrong to say <code>[[]][0] === []</code>, but let’s call the inner array <code>A</code> to avoid the wrong notation.</p>
+<p><code>++</code> before its operand means “increment by one and return the incremented result”. So <code>++[[]][0]</code> is equivalent to <code>Number(A) + 1</code> (or <code>+A + 1</code>).</p>
+<p>Again, we can simplify the mess into something more legible. Let’s substitute <code>[]</code> back for <code>A</code>:</p>
+<pre><code>(+[] + 1)
++
+[0]</code></pre>
+<p>Before <code>+[]</code> can coerce the array into the number <code>0</code>, it needs to be coerced into a string first, which is <code>""</code>, again. Finally, <code>1</code> is added, which results in <code>1</code>.</p>
+<ul>
+<li><code>(+[] + 1) === (+"" + 1)</code></li>
+<li><code>(+"" + 1) === (0 + 1)</code></li>
+<li><code>(0 + 1) === 1</code></li>
+</ul>
+<p>Let’s simplify it even more:</p>
+<pre><code>1
++
+[0]</code></pre>
+<p>Also, this is true in JavaScript: <code>[0] == "0"</code>, because it’s joining an array with one element. Joining will concatenate the elements separated by <code>,</code>. With one element, you can deduce that this logic will result in the first element itself.</p>
+<p>In this case, <code>+</code> sees two operands: a number and an array. It’s now trying to coerce the two into the same type. First, the array is coerced into the string <code>"0"</code>, next, the number is coerced into a string (<code>"1"</code>). <em>Number <code>+</code> String <code>===</code> String</em>.</p>
+<pre><code>&quot;1&quot; + &quot;0&quot; === &quot;10&quot; // Yay!</code></pre>
+<hr />
+<p>Specification details for <code>+[]</code>:</p>
+<p>This is quite a maze, but to do <code>+[]</code>, first it is being converted to a string because that’s what <code>+</code> says:</p>
+<p>11.4.6 Unary + Operator The unary + operator converts its operand to Number type. The production UnaryExpression : + UnaryExpression is evaluated as follows:</p>
+<ol type="1">
+<li>Let expr be the result of evaluating UnaryExpression.</li>
+<li>Return ToNumber(GetValue(expr)).</li>
+</ol>
+<p><code>ToNumber()</code> says:</p>
+<p>Object</p>
+<p>Apply the following steps:</p>
+<ol type="1">
+<li><p>Let primValue be ToPrimitive(input argument, hint String).</p></li>
+<li><p>Return ToString(primValue).</p></li>
+</ol>
+<p><code>ToPrimitive()</code> says:</p>
+<p>Object Return a default value for the Object. The default value of an object is retrieved by calling the [[DefaultValue]] internal method of the object, passing the optional hint PreferredType. The behaviour of the [[DefaultValue]] internal method is defined by this specification for all native ECMAScript objects in 8.12.8.</p>
+<p><code>[[DefaultValue]]</code> says:</p>
+<p>8.12.8 <a href="hint">[DefaultValue]</a> When the [[DefaultValue]] internal method of O is called with hint String, the following steps are taken:</p>
+<ol type="1">
+<li>Let toString be the result of calling the [[Get]] internal method of object O with argument “toString”.</li>
+<li>If IsCallable(toString) is true then,
+<ol type="a">
+<li>Let str be the result of calling the [[Call]] internal method of toString, with O as the this value and an empty argument list.</li>
+<li>If str is a primitive value, return str.</li>
+</ol></li>
+</ol>
+<p>The <code>.toString</code> of an array says:</p>
+<p>15.4.4.2 Array.prototype.toString ( ) When the toString method is called, the following steps are taken:</p>
+<ol type="1">
+<li><p>Let array be the result of calling ToObject on the this value.</p></li>
+<li><p>Let func be the result of calling the [[Get]] internal method of array with argument “join”.</p></li>
+<li><p>If IsCallable(func) is false, then let func be the standard built-in method Object.prototype.toString (15.2.4.2).</p></li>
+<li><p>Return the result of calling the [[Call]] internal method of func providing array as the this value and an empty arguments list.</p></li>
+</ol>
+<p>So <code>+[]</code> comes down to <code>+""</code>, because <code>[].join() === ""</code>.</p>
+<p>Again, the <code>+</code> is defined as:</p>
+<p>11.4.6 Unary + Operator</p>
+<p>The unary + operator converts its operand to Number type. The production UnaryExpression : + UnaryExpression is evaluated as follows:</p>
+<ol type="1">
+<li>Let expr be the result of evaluating UnaryExpression.</li>
+<li>Return ToNumber(GetValue(expr)).</li>
+</ol>
+<p><code>ToNumber</code> is defined for <code>""</code> as:</p>
+<p>The MV of StringNumericLiteral ::: [empty] is 0.</p>
+<p>So <code>+"" === 0</code>, and thus <code>+[] === 0</code>.</p>
+<hr />
+<h3 id="explanation-2">Explanation-2</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1">    <span class="op">++</span>[[]][<span class="op">+</span>[]] <span class="kw">=&gt;</span> <span class="dv">1</span> <span class="co">// [+[]] = [0], ++0 = 1</span></a>
+<a class="sourceLine" id="cb7-2" title="2">    [<span class="op">+</span>[]] <span class="kw">=&gt;</span> [<span class="dv">0</span>]</a></code></pre></div>
+<p>Then we have a string concatenation</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="dv">1</span> <span class="op">+</span> [<span class="dv">0</span>].<span class="at">toString</span>() <span class="op">=</span> <span class="dv">10</span></a></code></pre></div>
+<hr />
+<h3 id="explanation-3">Explanation-3</h3>
+<p>+[] evaluates to 0 […] then summing (+ operation) it with anything converts array content to its string representation consisting of elements joined with comma.</p>
+<p>Anything other like taking index of array (have grater priority than + operation) is ordinal and is nothing interesting.</p>
+<hr />
+<h3 id="explanation-4">Explanation-4</h3>
+<p>The following is adapted from a <a href="http://tmik.co.uk/?p=672">blog post</a> answering this question that I posted while this question was still closed. Links are to (an HTML copy of) the ECMAScript 3 spec, still the baseline for JavaScript in today’s commonly used web browsers.</p>
+<p>First, a comment: this kind of expression is never going to show up in any (sane) production environment and is only of any use as an exercise in just how well the reader knows the dirty edges of JavaScript. The general principle that JavaScript operators implicitly convert between types is useful, as are some of the common conversions, but much of the detail in this case is not.</p>
+<p>The expression <code>++[[]][+[]]+[+[]]</code> may initially look rather imposing and obscure, but is actually relatively easy break down into separate expressions. Below I’ve simply added parentheses for clarity; I can assure you they change nothing, but if you want to verify that then feel free to read up about the <a href="http://bclary.com/2004/11/07/#a-11.1.6">grouping operator</a>. So, the expression can be more clearly written as</p>
+<pre><code>( ++[[]][+[]] ) + ( [+[]] )</code></pre>
+<p>Breaking this down, we can simplify by observing that <code>+[]</code> evaluates to <code>0</code>. To satisfy yourself why this is true, check out the <a href="http://bclary.com/2004/11/07/#a-11.4.6">unary + operator</a> and follow the slightly tortuous trail which ends up with <a href="http://bclary.com/2004/11/07/#a-9.1">ToPrimitive</a> converting the empty array into an empty string, which is then finally converted to <code>0</code> by <a href="http://bclary.com/2004/11/07/#a-9.3">ToNumber</a>. We can now substitute <code>0</code> for each instance of <code>+[]</code>:</p>
+<pre><code>( ++[[]][0] ) + [0]</code></pre>
+<p>Simpler already. As for <code>++[[]][0]</code>, that’s a combination of the <a href="http://bclary.com/2004/11/07/#a-11.4.4">prefix increment operator</a> (<code>++</code>), an <a href="http://bclary.com/2004/11/07/#a-11.1.4">array literal</a> defining an array with single element that is itself an empty array (<code>[[]]</code>) and a <a href="http://bclary.com/2004/11/07/#a-11.2.1">property accessor</a> (<code>[0]</code>) called on the array defined by the array literal.</p>
+<p>So, we can simplify <code>[[]][0]</code> to just <code>[]</code> and we have <code>++[]</code>, right? In fact, this is not the case because evaluating <code>++[]</code> throws an error, which may initially seem confusing. However, a little thought about the nature of <code>++</code> makes this clear: it’s used to increment a variable (e.g. <code>++i</code>) or an object property (e.g. <code>++obj.count</code>). Not only does it evaluate to a value, it also stores that value somewhere. In the case of <code>++[]</code>, it has nowhere to put the new value (whatever it may be) because there is no reference to an object property or variable to update. In spec terms, this is covered by the internal <a href="http://bclary.com/2004/11/07/#a-8.7.2">PutValue</a> operation, which is called by the prefix increment operator.</p>
+<p>So then, what does <code>++[[]][0]</code> do? Well, by similar logic as <code>+[]</code>, the inner array is converted to <code>0</code> and this value is incremented by <code>1</code> to give us a final value of <code>1</code>. The value of property <code>0</code> in the outer array is updated to <code>1</code> and the whole expression evaluates to <code>1</code>.</p>
+<p>This leaves us with</p>
+<pre><code>1 + [0]</code></pre>
+<p>… which is a simple use of the <a href="http://bclary.com/2004/11/07/#a-11.6.1">addition operator</a>. Both operands are first <a href="http://bclary.com/2004/11/07/#a-9.1">converted to primitives</a> and if either primitive value is a string, string concatenation is performed, otherwise numeric addition is performed. <code>[0]</code> converts to <code>"0"</code>, so string concatenation is used, producing <code>"10"</code>.</p>
+<p>As a final aside, something that may not be immediately apparent is that overriding either one of the <code>toString()</code> or <code>valueOf()</code> methods of <code>Array.prototype</code> will change the result of the expression, because both are checked and used if present when converting an object into a primitive value. For example, the following</p>
+<pre><code>Array.prototype.toString = function() {
+  return &quot;foo&quot;;
+};
+++[[]][+[]]+[+[]]</code></pre>
+<p>… produces <code>"NaNfoo"</code>. Why this happens is left as an exercise for the reader…</p>
+</body></html>

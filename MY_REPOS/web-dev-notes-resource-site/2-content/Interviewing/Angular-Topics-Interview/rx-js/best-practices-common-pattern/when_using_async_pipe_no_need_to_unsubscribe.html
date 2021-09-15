@@ -1,0 +1,41 @@
+<h3 id="async-pipe">Async | Pipe</h3>
+<h4 id="short-ans-we-dontt-need-to-unsubscribe-when-using-async-pipe.">Short ANS we DONT’T need to unsubscribe when using async pipe.</h4>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="im">export</span> <span class="kw">class</span> AsyncPipeCardComponent <span class="kw">implements</span> OnInit <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">messageSubscription</span><span class="op">:</span> Observable<span class="op">&lt;</span>string<span class="op">&gt;;</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="at">constructor</span>(<span class="kw">private</span> <span class="dt">upperCaseService</span><span class="op">:</span> UpperCaseService) <span class="op">{}</span></a>
+<a class="sourceLine" id="cb1-4" title="4"> </a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="at">ngOnInit</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-6" title="6">    <span class="kw">this</span>.<span class="at">messageSubscription</span> <span class="op">=</span> <span class="kw">this</span>.<span class="va">upperCaseService</span>.<span class="at">getUpperCaseMessage</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-7" title="7">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="op">}</span></a>
+<a class="sourceLine" id="cb1-9" title="9">  </a></code></pre></div>
+<p>Then in the template</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode html"><code class="sourceCode html"><a class="sourceLine" id="cb2-1" title="1">    <span class="kw">&lt;h4</span><span class="ot"> class=</span><span class="st">&quot;card-title&quot;</span><span class="kw">&gt;</span>{{messageSubscription | async}}<span class="kw">&lt;/h4&gt;</span></a></code></pre></div>
+<p>The async pipe subscribes to an Observable or Promise and returns the latest value it has emitted. When a new value is emitted, the async pipe marks the component to be checked for changes.</p>
+<h4 id="when-the-component-gets-destroyed-the-asyncpipe-automatically-unsubscribes-all-active-subscriptions-to-avoid-potential-memory-leaks.">When the component gets destroyed, the asyncpipe automatically unsubscribes all active subscriptions to avoid potential memory leaks.</h4>
+<p>Using the async pipe is a huge advantage if we are using Observables in our components because it will subscribe to them and unsubscribe from them. We will not be bothered about forgetting to unsubscribe from them in ngOnDestroy when the component is being killed off.</p>
+<p><img src="./async_pipe.png"></p>
+<p>Another big advantage of using | async pipe together with *ngIf directive is that we can guarantee that the unwrapped value will be available to all child components at the time they are rendered. Such an approach helps us to prevent excessive use of “elvis” operator (?.)in our templates which is used to get rid prop of undefined errors…</p>
+<p>Without <ng-container> it would look more like this…</p>
+<p><img src="./async_pipe-2.png"></p>
+<p>As a conclusion</p>
+<p>we should always use async pipe when possible and only use .subscribe when the side effect is an absolute necessity as we are safe as long as we stay in the observable. The code terminating the observable should be the framework (Angular) and the last piece (the UI).</p>
+<p>A real life example</p>
+<p>In above case I really dont need to unsubscribe. Instead transforming the params object to the <code>character</code> list using the <code>switchMap</code> operator. And managing the subscription imperatively by unwrapping it in the template with the async pipe.</p>
+<p>Create your character observable.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">this</span>.<span class="at">characters$</span> <span class="op">=</span> <span class="kw">this</span>.<span class="va">activatedRoute</span>.<span class="at">params</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  .<span class="at">pipe</span>(<span class="at">switchMap</span>(parms <span class="kw">=&gt;</span> <span class="kw">this</span>.<span class="at">fetchCharactersByBook</span>(<span class="va">parms</span>.<span class="at">bookId</span>)))<span class="op">;</span></a></code></pre></div>
+<p>The dollar $ is a convention to know that the variable is observable.</p>
+<p>Once the observable is created, then to display from the UI, we would need to use the async pipe. Will need to use the <strong>async pipe</strong> to unwrap it by replacing template references (i.e. in .html file) to <code>characters list</code> directly with</p>
+<p><code>characters$ | async</code></p>
+<p>The component will dispose of the `characters$`` observable as part of the tear down process.</p>
+<h4 id="another-example">Another example</h4>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1">costs$<span class="op">:</span> Observable<span class="op">&lt;</span>Cost[]<span class="op">&gt;;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="at">ngOnInit</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-3" title="3">    <span class="kw">this</span>.<span class="at">costs$</span> <span class="op">=</span> <span class="kw">this</span>.<span class="at">getCosts</span>()</a>
+<a class="sourceLine" id="cb4-4" title="4">        .<span class="at">combineLatest</span>(<span class="kw">this</span>.<span class="at">getFilter</span>())</a>
+<a class="sourceLine" id="cb4-5" title="5">        .<span class="at">map</span>(([costs<span class="op">,</span> filter]) <span class="kw">=&gt;</span> <span class="va">costs</span>.<span class="at">filter</span>(e <span class="kw">=&gt;</span> <span class="va">e</span>.<span class="at">type</span> <span class="op">===</span> filter))<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="op">}</span></a></code></pre></div>
+<p>Then to display from the UI, we would need to use the async pipe.</p>
+<p>`{{ costs$ | async }}``</p>
+<p><a href="https://medium.com/isop-nepal/subscribe-vs-async-pipe-in-angular-21bb38f3ee49">https://medium.com/isop-nepal/subscribe-vs-async-pipe-in-angular-21bb38f3ee49</a></p>

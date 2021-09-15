@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h2 id="most-important-key-point-of-using-prototype---method-delegation-can-preserve-memory-resources-because-you-only-need-one-copy-of-each-method-to-be-shared-by-all-instances.-there-are-several-ways-to-set-up-the-relationship-in-javascript.">MOST IMPORTANT KEY POINT OF USING PROTOTYPE - Method delegation can preserve memory resources because you only need one copy of each method to be shared by all instances. There are several ways to set up the relationship in JavaScript.</h2>
+<h2 id="when-you-try-to-access-a-property-on-the-new-object-it-checks-the-objects-own-properties-first.-if-it-doesnt-find-it-there-it-checks-the-prototype-and-so-on-up-the-prototype-chain-until-it-gets-back-to-object.prototype-which-is-the-root-delegate-for-most-objects.">When you try to access a property on the new object, it checks the object’s own properties first. If it doesn’t find it there, it checks the <code>[[Prototype]]</code>, and so on up the prototype chain until it gets back to <code>Object.prototype</code>, which is the root delegate for most objects.</h2>
+<pre><code>function Person (firstName, lastName) {
+    this.firstName = firstName,
+    this.lastName = lastName;
+    this.fullName = function() {
+        return (this.firstName + &quot; &quot; + this.lastName)
+    }
+}
+
+// console.log(Person.prototype)
+
+var person1 = new Person(&quot;Bill&quot;, &quot;Gates&quot;);
+var person2 = new Person(&quot;Steve&quot;, &quot;Jobs&quot;);
+
+console.log(person1.fullName()) // =&gt; Bill Gates
+console.log(person2.fullName()) // =&gt; Steve Jobs</code></pre>
+<p>On executing the above code JavaScript engine will create two copy of constructor function each for person1 and person2. i.e. every object created using the constructor function will have it’s own copy of properties and methods. It doesn’t make sense to have two instances of function fullName that do the same thing. Storing separate instances of function for each objects results into wastage of memory.</p>
+<p>Now, to access the prototype of the above Person() function, I do <code>console.log(Person.prototype)</code> in a browser dev-tool and I get the below (here I am pasting it in Firefox)</p>
+<pre><code>{…}
+​
+constructor: Person()
+​​
+    arguments: null
+    ​​
+    caller: null
+    ​​
+    length: 2
+    ​​
+    name: &quot;Person&quot;
+    ​​
+    prototype: {…}
+    ​​​
+        constructor: function Person()
+        ​​​
+        &lt;prototype&gt;: Object { … }
+        ​​
+        &lt;prototype&gt;: function ()
+    ​
+&lt;prototype&gt;: {…}
+​​
+    __defineGetter__: function __defineGetter__()
+    ​​
+    __defineSetter__: function __defineSetter__()
+    ​​
+    __lookupGetter__: function __lookupGetter__()
+    ​​
+    __lookupSetter__: function __lookupSetter__()
+    ​​
+    __proto__: Getter &amp; Setter
+    ​​
+    constructor: function Object()
+    ​​
+    hasOwnProperty: function hasOwnProperty()
+    ​​
+    isPrototypeOf: function isPrototypeOf()
+    ​​
+    propertyIsEnumerable: function propertyIsEnumerable()
+    ​​
+    toLocaleString: function toLocaleString()
+    ​​
+    toSource: function toSource()
+    ​​
+    toString: function toString()
+    ​​
+    valueOf: function valueOf()
+</code></pre>
+<p>As shown in the above, Person constructor function has a prototype property which points to the prototype object. The prototype object has a constructor property which points back to the Person constructor function.</p>
+<p>When a function is created in JavaScript, JavaScript engine adds a prototype property to the function. This prototype property is an object (called as prototype object) has a constructor property by default. constructor property points back to the function on which prototype object is a property. We can access the function’s prototype property using the syntax <code>functionName.prototype.</code></p>
+<p>As seen from the above prototype property of the function is an object (prototype object) with two properties:</p>
+<h3 id="constructor-property-which-points-to-person-function-itself">constructor property which points to Person function itself</h3>
+<h3 id="proto-property-we-will-discuss-about-this-while-explaining-inheritance-in-javascript"><strong>proto</strong> property — We will discuss about this while explaining inheritance in JavaScript</h3>
+<h2 id="creating-an-object-using-the-constructor-function">Creating an object using the constructor function</h2>
+<h2 id="when-an-object-is-created-in-javascript-javascript-engine-adds-a-proto-property-to-the-newly-created-object-which-is-called-as-dunder-proto.-dunder-proto-or-proto-points-to-the-prototype-object-of-the-constructor-function.">When an object is created in JavaScript, JavaScript engine adds a <strong>proto</strong> property to the newly created object which is called as dunder proto. dunder proto or <strong>proto</strong> points to the prototype object of the constructor function.</h2>
+<p><img src="Prototype-Dev-Tool-1.png"></p>
+<p>As it can be seen from the above image, both person1’s dunder proto or <strong>proto</strong> property and Person.prototype property are equal let’s check if they point at the some location using === operator</p>
+<p><code>Person.prototype === person1.__proto__ // =&gt; true</code></p>
+<p>I can also check that</p>
+<p><code>person1.__proto__ === person2.__proto__ // =&gt; true</code></p>
+<p>Even person2’s dunder proto property is equal to the Person.prototype property and they points to the same object.</p>
+<h2 id="so-prototype-object-of-the-constructor-function-is-shared-among-all-the-objects-created-using-the-constructor-function.">So, Prototype object of the constructor function is shared among all the objects created using the constructor function.</h2>
+<p>As prototype object is an object, we can attach properties and methods to the prototype object. Thus, enabling all the objects created using the constructor function to share those properties and methods.</p>
+<p>New property can be added to the constructor function’s prototype property using either the dot notation or square bracket notation as shown below:</p>
+<pre><code>//Dot notation
+
+Person.prototype.name = &quot;Ashwin&quot;;
+
+console.log(Person.prototype.name)  // =&gt; Output: Ashwin
+
+// Square bracket notation
+
+Person.prototype[&quot;age&quot;] = 26;
+
+console.log(Person.prototype[&quot;age&quot;]);    // =&gt; Output: 26
+
+console.log(Person.prototype);
+</code></pre>
+<p>Now an example of how JS Engine gets the property value from an object</p>
+<pre><code>//Create an empty constructor function
+
+function Person(){
+
+}
+//Add property name, age to the prototype property of the Person constructor function
+
+Person.prototype.name = &quot;Ashwin&quot; ;
+
+Person.prototype.age = 26;
+
+Person.prototype.sayName = function(){
+    console.log(this.name);
+}
+
+//Create an object using the Person constructor function
+
+var person1 = new Person();
+
+//Access the name property using the person object
+
+console.log(person1.name)// Output&quot; Ashwin
+</code></pre>
+<p>Let’s analyze what happened when we did <code>console.log(person.name)</code> and <code>console.log(person1.name)</code> Let’s check if person object has name property.</p>
+<p>person1 object is empty and it does not have any property except it’s dunder proto property. So how does the output of <code>console.log(person.name)</code> was “Ashwin”?</p>
+<p>When we try to access a property of an object, JavaScript engines first tries to find the property on the object; if the property is present on the object it outputs its value. But, if the property is not present on the object then it tries to find the property on the prototype object or dunder proto of the object. If the property is found the value is returned else JavaScript engine tries to find the property on the dunder proto of the dunder proto of the object. This chain continues till the dunder proto property is null. In this cases output will be undefined.</p>
+<p>So, when person1.name is called, JavaScript engine checks if the property exists on the person object. In this case, name property was not on the person’s object. So, now JavaScript engine checks if the name property exists on the dunder proto property or the prototype of the person’s object. In this cases, name property was there on the dunder proto property or the prototype of person’s object. Hence, the output was returned “Ashwin”.</p>
+<p>Now, let’s define a property name on the person1 object</p>
+<pre><code>person1.name = &quot;Anil&quot;
+console.log(person1.name)    // =&gt; Output: Anil
+console.log(person2.name)    // =&gt; Output: Ashwin
+</code></pre>
+<p>Here person1.name outputs “Anil”, because as mentioned earlier JavaScript engines first tries to find the property on the object itself as in case of person1 the property is present on the object JavaScript engines outputs value of name property of person1.</p>
+<p>In case of person2, name property is not present on the object. Hence, it outputs person2’s prototype property name.</p>
+<p>As prototype object is shared among all the objects created using the constructor function, it’s properties and methods are also shared among all the objects. If an object A modifies property of the prototype having primitive value, other objects will not be effected by this as A will create a property on its objects as shown abover. That <code>person2.name</code> did not change, even though <code>person1.name</code> was changed.</p>
+<h1 id="so-prototype-vs-constructor-way-of-declaring-function">So Prototype vs Constructor way of declaring function</h1>
+<h2 id="problem-with-constructor-every-object-has-its-own-instance-of-the-function">- Problem with constructor: Every object has its own instance of the function</h2>
+<h2 id="problem-with-the-prototype-modifying-a-property-using-one-object-reflects-the-other-object-also">- Problem with the prototype: Modifying a property using one object reflects the other object also</h2>
+<h2 id="to-solve-above-both-problems-we-can-define-all-the-object-specific-properties-inside-the-constructor-and-all-shared-properties-and-methods-insdie-the-prototype-as-shown-below">To solve above both problems, we can define all the object specific properties inside the constructor and all shared properties and methods insdie the prototype as shown below:</h2>
+<pre><code>//Define the object specific properties inside the constructor
+function Person(name, age) {
+    this.name = name;
+    this.age = age;
+    this.friends = [&quot;A&quot;, &quot;B&quot;];
+
+    // Define the shared properties and methods using the prototype
+    Person.prototype.sayName = function(){
+        console.log(this.name);
+    }
+
+    //Create two objects using the Person constructor function
+    var person1 = new Person(&quot;Virat&quot;, &quot;Kohli&quot;);
+    var person2 = new Person(&quot;Sachin&quot;, &quot;Tendulkar&quot;);
+
+    //Lets check if person1 and person2 have points to the same instance of the sayName function
+    console.log(person1.sayName === person2.sayName) // =&gt; true
+
+    //Let&#39;s modify friends property and check
+    person1.friends.push(&quot;C&quot;);
+
+    console.log(person1.friends)  // =&gt; Output: &quot;A&quot;, &quot;B&quot;, &quot;C&quot;
+    console.log(person2.frinds)   // =&gt; Output: &quot;A&quot;, &quot;B&quot;
+
+    }
+}
+</code></pre>
+<h2 id="in-the-above-example-friends-property-of-person2-did-not-change-on-changing-the-friends-property-of-person1.-because-friends-prop-was-a-object-specific-prop.">In the above example, friends property of person2 did not change on changing the friends property of person1. Because friends prop was a object specific prop.</h2>
+</body></html>

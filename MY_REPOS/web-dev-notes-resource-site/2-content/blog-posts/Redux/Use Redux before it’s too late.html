@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h1 id="use-redux-before-its-too-late">Use Redux before it’s too late</h1>
+<blockquote>
+<p>2019 note: You absolutely do not need to use redux. It may be useful to you, it may not be. The most important thing is that you reason…</p>
+</blockquote>
+<p><a href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/@ian.mundy?source=post_page-----a73d837a06aa--------------------------------"><img src="https://miro.medium.com/fit/c/56/56/0*zLKXuC-suK_ytguL." alt="Ian Mundy" /></a></p>
+<figure>
+<img src="https://miro.medium.com/max/60/1*Ur2yV071L8jnkpXpOoGPHA.png?q=20" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<figure>
+<img src="https://miro.medium.com/max/2972/1*Ur2yV071L8jnkpXpOoGPHA.png" alt="Image for post" /><figcaption>Image for post</figcaption>
+</figure>
+<p><strong>2019 note</strong>: You absolutely do not <em>need</em> to use redux. It may be useful to you, it may not be. The most important thing is that you reason about state in the right way. You keep state local where it makes sense, elevate it when necessary, and build composable applications. What library you use for that (if you choose to use one at all — which I do not anymore) is second to the way in which you structure your state.</p>
+<p>You may have heard advice that you <a href="http://redux.js.org/docs/faq/General.html#general-when-to-use">might not need redux</a>. If you’re new to redux (or other flux implementations, I’m being opinionated here), this might seem like comforting advice. There’s a lot of good truth to it too — for very simple apps you don’t need it and you shouldn’t use it.</p>
+<p>For example say you’re writing a Blog. You don’t want comments (if I want that kind of abuse I’ll just get on Twitter) — just raw text, images, and headings. Pretty simple. We don’t need flux for that. We probably don’t even need React for that.</p>
+<p>But me? I’m a developer which means I don’t realize how difficult a problem is until I’ve finished a pack of redbull
+  and filled up a whiteboard — at which point I lean over to my friend and say “huh, I guess this is nontrivial."</p>
+<p>Do you think there’s a chance your application is going to grow to a point where you <em>will want redux</em>? If so, don’t wait — do it right now.</p>
+<p>Why?</p>
+<p>I can’t express how true this was for me. For example, I’ll pretend we’re writing a text editor. (As an aside — can we just agree for a moment that writing your own text editor for your project is a terrible idea? Please trust me on this one… I don’t think I have the room here to go into it).</p>
+<p>So, I think my text editor is definitely going to need redux at some point, but screw it, I’m already over my head and I don’t need that right now. I might decide to have 3 types of components.</p>
+<p>Document:</p>
+<p>{<br />
+sections: []<br />
+}</p>
+<p>Section:</p>
+<p>{<br />
+id: 1,<br />
+type: ‘text’,<br />
+title: ‘Heading’,<br />
+selectedLine: 1,<br />
+lines: []<br />
+}</p>
+<p>Line:</p>
+<p>{<br />
+id: 1,<br />
+type: ‘text’,<br />
+content: ‘The assyrian came down like a wolf on the fold’<br />
+}</p>
+<p>Three separate components all controlling their own states. This all makes sense on the surface (ignoring the inherit complexities of the problem space). For instance, if I wanted to change the text in a line, then I would only need to control the content of that <code>Line</code> component. The section would not have to know about the state of the line. Similarly a section would only care about the lines it had, but not what was in the lines. We could move a line around in a section, or between sections without knowing the content.</p>
+<p>The issue though, is that we end up solving weird problems we don’t really need to be solving. For instance, imagine deleting a line. We’ll need to remove it from the section’s array, but also merge its content with the line before it. And then if it’s the first line in a section we’ll need to merge it to the previous section. With our current state, we might start writing this function…</p>
+<p>// Section component that owns statedeleteLine = (id, content) =&gt; {<br />
+const lines = [ …this.state.lines]<br />
+const index = this.state.lines.findIndex(line =&gt; line.id === id);<br />
+const lineToUpdate = Object.assign(this.state.lines[index - 1], {});<br />
+// wait how do I tell it to update? refs? some prop?<br />
+lineToUpdate.someProp = content;<br />
+lines[index - 1] = lineToUpdate;<br />
+// uh maybe this is wrong.</p>
+<p>So you see the complexity here? All because we thought about our state “reasonably". But when we move to redux, our entire document is in our store and no component will controls its own state. So this problem we spent an hour solving (okay maybe l spent more than that), ends up being trivial. We just dispatch an action like:</p>
+<p>// DocumentActions.js<br />
+const DeleteLine = (sectionId, lineId, content) =&gt; {<br />
+return({ type: ‘DELETE’, sectionId, lineId, content });<br />
+}// DocumentReducer.js<br />
+case ‘DELETE’:<br />
+const section = state.document.sections[sectionId];<br />
+const lineToDelete = section.lines[lineId];<br />
+const index = section.lines.findIndex(id =&gt; id === lineId);<br />
+// now we know what we need to know. We can account for it being<br />
+// the first line in the section. Or the first line in the<br />
+// document. We have all the information.</p>
+<p>So that problem we spent so much time solving? It’s not really something we need to solve at all. We spent time and cognitive space on a solution that we end up not having with redux. This is also known as wasting time :)</p>
+<p>* I realize now that maybe a more accurate title for my heading might be “It changes the way we reason about <em>changing</em> state"</p>
+<p>This is a pretty simple one. When you lift state out of components, it makes you question whether they really need to extend <code>Component</code> at all. Maybe they can just be pure functional components? For example, a header with a text input to search the content of our current screen — we might consider this to be a part of the component itself before redux. I mean it’s modifying the list in our state right?</p>
+<p>class SomeComponent extends Component {state = {<br />
+list: []<br />
+}filterList = () =&gt; { …modify the results }render() {<br />
+return (<br />
+<View><br />
+<TextInput onChangeText={this.filterList}></TextInput><br />
+…rest of the component<br />
+</View><br />
+);<br />
+}</p>
+<p>But when we change to redux we could filter our list through the store if we wanted. This means we could move our header component into some other file where it takes the filtering method as a prop. From my experience, this decomposition has a snowball effect. Once you remove one set of methods and rendering, you start to realize that other “integral" parts of the component, turn out to be their own little reusable sections. A <code>TextInput</code> that filters the results in one part of your application can actually filter <em>any</em> list in your application.</p>
+<p>A lot of this is more trivial than reasoning about state. You’re not wasting as much time by moving stuff around, but you’re still rethinking your decisions earlier once the components move to redux. You skip this “rethinking" by reduxifying your app earlier. While I’m a fan of rewriting, and rewriting often, it all still needs to be headed in the right direction. Redux connects ideas that you didn’t see as connected before. (get it guys? <code>connect</code>?)</p>
+<p>This one is pretty straightforward. It’s the reason you don’t want to use redux in the first place. I’m actually agreeing with you. If you’ve never used it before, <em>redux is complicated.</em> Learning it — like learning many things — is painful. You are wrong, and you have to rewrite, but then you’re wrong again. <em>It’s a different way of thinking.</em></p>
+<p>But trust me, make the switch now. Just dive in and start working through the problems. It will be hard. You will probably be faster writing components in a more familiar way, especially if you’re coming from a different framework like MVC. But in the end, you will love it.</p>
+<p>The jump is worth it.</p>
+<p>You know you want to right? Just go for it.</p>
+<p><a href="https://medium.com/@ian.mundy/use-redux-before-its-too-late-a73d837a06aa">Source</a></p>
+</body></html>

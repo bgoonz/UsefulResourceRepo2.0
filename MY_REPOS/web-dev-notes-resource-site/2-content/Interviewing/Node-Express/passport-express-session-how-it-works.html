@@ -1,0 +1,102 @@
+<p>If you’ll recall, Express works with a request-response cycle in which callback functions are tied to specific routes and have access to request and response objects, like so:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> (request<span class="op">,</span> response) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="co">// index logic</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Now let’s go over the building blocks for sessions and authentication, one by one.</p>
+<h4 id="express-session">express-session</h4>
+<p>express-session is an Express middleware used for persisting sessions across stateless HTTP requests. It expands on some key objects provided by both Express and Node.js.</p>
+<h4 id="overview">Overview</h4>
+<p>Sessions are used for storing data about a user and presenting dynamic data based on a user’s identity. They rely upon saving session data to a cookie that is sent to the user’s browser and then received back in future user requests.</p>
+<p>This module expands the Express request object with the session property (among other things), which itself is an object that can be used by other middleware.</p>
+<p>By default it uses a MemoryStore, an in-memory key-value database not intended for production use, to store the session data. But you can and should plug in another memory store middleware when deploying a serious product.</p>
+<p>It creates a session for every user by generating a special ID that serves as a unique key for the session data. This ID is stored and sent in a cookie, while the session data is saved in a memory store or cache.</p>
+<p>This way cookies are very lightweight while more costly lookups to the database are reduced since the session object containing all the session data is stored in-memory.</p>
+<p>You can view the value of this ID in action by logging request.sessionID when inside an Express route callback.</p>
+<h4 id="conceptual-workflow">Conceptual Workflow</h4>
+<p>The way you would usually provide information for a session is through an HTML form element in a web page. You would “log in” a user through a POST request to your web server containing username and password values.</p>
+<p>Your login page form would look like this:</p>
+<pre><code>&lt;form action=&quot;/login&quot; method=&quot;POST&quot;&gt;
+  &lt;input type=&quot;text&quot; name=&quot;username&quot;&gt;
+  &lt;input type=&quot;password&quot; name=&quot;password&quot;&gt;
+  &lt;input type=&quot;submit&quot;&gt;
+&lt;/form&gt;</code></pre>
+<p>And the route on your app.js would be something close to this:</p>
+<pre><code>app.post(&#39;/login&#39;, (request, response) =&gt; {
+  // login logic goes here
+});</code></pre>
+<p>At this point you would need to store the login information somewhere in order to create a user session. Passport does exactly this, but we’ll get into that later.</p>
+<p>Let’s understand what goes on once you use express-session in your project.</p>
+<p>When a new session is created for a user:</p>
+<p>A special ID is generated and the session object is appended to request.</p>
+<p>The special ID is encrypted with a secret provided by the developer and is written to the HTTP response header as a cookie that eventually reaches the user’s browser.</p>
+<p>The express-session module expands the standard response.end() method of the Node HTTP module, and ensures that the special ID and the session are saved to the memory store near the end of the request-response lifecycle.</p>
+<p>When a user is browsing our web site/web app under a session:</p>
+<p>The browser sends the cookie containing the ID for the session as part of the HTTP request. express-session parses and decrypts the cookie. express-session reads the ID. express-session retrieves the session data from the store. express-session appends the session object as a property in the request object, restoring the stored session for the new request. Plugging It into Express In app.js add the following require statement:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">const</span> session <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;express-session&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="co">// express-session must be used before passport</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="va">app</span>.<span class="at">use</span>(<span class="at">session</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb4-5" title="5">    <span class="dt">secret</span><span class="op">:</span> <span class="st">&#39;Insert randomized text here&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-6" title="6">    <span class="dt">resave</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-7" title="7">    <span class="dt">saveUninitialized</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb4-8" title="8"><span class="op">}</span>))<span class="op">;</span></a></code></pre></div>
+<p>Now a session (ID and object) will be created for every unique user across multiple HTTP requests.</p>
+<p>However, right now the session object is not storing any important information. That is where passport comes in to take advantage of this functionality for implementing user authentication.</p>
+<p>Passport is a module that provides and automates user authentication for Express. It is mostly used to support authentication sessions over HTTP.</p>
+<p>Configuration In app.js add the following require statement:</p>
+<p><code>const passport = require('passport');</code></p>
+<p>To configure passport correctly, you need to provide three things:</p>
+<p>An Authentication Strategy Application Middleware Sessions</p>
+<p>passport.authenticate() will call our ‘local’ auth strategy, so we need to configure passport to use that strategy. We can configure passport with passport.use(new strategyClass). Here we tell passport how the local strategy can be used to authenticate the user.</p>
+<p>Inside the strategyClass declaration, we will take in the data from our POST request, use that to find the matching user in the database and check that the credentials match.</p>
+<p>Authentication strategies are a way for passport to delegate authentication to other modular packages. For example, there are Node packages that provide passport authentication strategies for Facebook and Twitter, etc.</p>
+<p>For our local use case, the strategy is provided by the passport-local package. Passport provides the use() function for plugging in the strategy (we’ll be doing that differently later), and it generally looks like this when using mongoose:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">const</span> passport <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;passport&#39;</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  LocalStrategy <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;passport-local&#39;</span>).<span class="at">Strategy</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-3" title="3"></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="va">passport</span>.<span class="at">use</span>(<span class="kw">new</span> <span class="at">LocalStrategy</span>(</a>
+<a class="sourceLine" id="cb5-5" title="5">  <span class="kw">function</span>(username<span class="op">,</span> password<span class="op">,</span> done) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="va">User</span>.<span class="at">findOne</span>(<span class="op">{</span> <span class="dt">username</span><span class="op">:</span> username <span class="op">},</span> <span class="kw">function</span> (err<span class="op">,</span> user) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-7" title="7">      <span class="cf">if</span> (err) <span class="op">{</span> <span class="cf">return</span> <span class="at">done</span>(err)<span class="op">;</span> <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-8" title="8">      <span class="cf">if</span> (<span class="op">!</span>user) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-9" title="9">        <span class="cf">return</span> <span class="at">done</span>(<span class="kw">null</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> <span class="op">{</span> <span class="dt">message</span><span class="op">:</span> <span class="st">&#39;Incorrect username.&#39;</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-10" title="10">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-11" title="11">      <span class="cf">if</span> (<span class="op">!</span><span class="va">user</span>.<span class="at">validPassword</span>(password)) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-12" title="12">        <span class="cf">return</span> <span class="at">done</span>(<span class="kw">null</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> <span class="op">{</span> <span class="dt">message</span><span class="op">:</span> <span class="st">&#39;Incorrect password.&#39;</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-13" title="13">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-14" title="14">      <span class="cf">return</span> <span class="at">done</span>(<span class="kw">null</span><span class="op">,</span> user)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-15" title="15">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-16" title="16">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-17" title="17">))<span class="op">;</span></a></code></pre></div>
+<p>Notice that the callback function provided to the LocalStrategy object is the one that contains the logic used to verify a user’s identity.</p>
+<p>The verify callback must return a model of the user when the authentication is successful (the credentials are valid).</p>
+<p>In our case it is a mongoose model of the User that will be returned.</p>
+<p>Once a strategy has been supplied, the relevant middleware has to be configured with Express so our web server can use passport. In an app.js file, it generally looks like the following:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">const</span> session <span class="op">=</span> <span class="at">require</span>(<span class="st">&quot;express-session&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="va">app</span>.<span class="at">use</span>(<span class="at">session</span>(<span class="op">{</span> <span class="dt">secret</span><span class="op">:</span> <span class="st">&quot;cats&quot;</span> <span class="op">}</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="va">app</span>.<span class="at">use</span>(<span class="va">express</span>.<span class="at">urlencoded</span>(<span class="op">{</span> <span class="dt">extended</span><span class="op">:</span> <span class="kw">true</span> <span class="op">}</span>))<span class="op">;</span> <span class="co">// express body-parser</span></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="va">app</span>.<span class="at">use</span>(<span class="va">passport</span>.<span class="at">initialize</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="va">app</span>.<span class="at">use</span>(<span class="va">passport</span>.<span class="at">session</span>())<span class="op">;</span></a></code></pre></div>
+<h3 id="the-order-of-these-statements-are-important-so-keep-that-in-mind.">The order of these statements are important, so keep that in mind.</h3>
+<h3 id="using-sessions-with-passport">Using Sessions with Passport</h3>
+<p>For supporting sessions, passport has to be added as a middleware to the login route or endpoint that you are using to authenticate your users, usually with the redirect route values for your application:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="co">// Use the passport middleware for authentication</span></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="va">app</span>.<span class="at">post</span>(<span class="st">&#39;/login&#39;</span><span class="op">,</span> <span class="va">passport</span>.<span class="at">authenticate</span>(<span class="st">&#39;local&#39;</span><span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-3" title="3">    <span class="dt">successRedirect</span><span class="op">:</span> <span class="st">&#39;/dashboard&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-4" title="4">    <span class="dt">failureRedirect</span><span class="op">:</span> <span class="st">&#39;/login&#39;</span></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="op">}</span>))<span class="op">;</span></a></code></pre></div>
+<p>When a POST request with the user’s login information is made to the ‘/login’ route, passport uses the local authentication strategy to verify that the user’s credentials are valid.</p>
+<h3 id="it-then-serializes-the-provided-user-model-into-one-value-that-is-stored-in-the-session-object-provided-by-express-session.">It then serializes the provided User model into one value that is stored in the session object provided by express-session.</h3>
+<h3 id="when-future-requests-from-the-same-user-are-made-with-the-session-cookie-passport-uses-the-serialized-session-value-to-deserialize-or-retrieve-the-user-model.">When future requests from the same user are made with the session cookie, passport uses the serialized session value to deserialize or retrieve the User model.</h3>
+<p>This User object is made available through the request.user property.</p>
+<p>In this way, passport builds upon the functionality provided by the express-session package.</p>
+<p>Logging Out Passport includes a logout() function on request that can be called from a route handler. It removes the request.user property and clears the login session.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/logout&#39;</span><span class="op">,</span> (request<span class="op">,</span> response) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-2" title="2">  <span class="va">request</span>.<span class="at">logout</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-3" title="3">  <span class="va">response</span>.<span class="at">redirect</span>(<span class="st">&#39;/&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h4 id="good-resources">Good resources</h4>
+<ul>
+<li>https://mianlabs.com/2018/05/09/understanding-sessions-and-local-authentication-in-express-with-passport-and-mongodb/</li>
+</ul>

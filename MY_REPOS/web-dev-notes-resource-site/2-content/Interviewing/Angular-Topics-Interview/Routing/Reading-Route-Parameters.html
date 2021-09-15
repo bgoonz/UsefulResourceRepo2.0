@@ -1,0 +1,58 @@
+<p>Say we are creating an application that displays a product list. When the user clicks on a product in the list, we want to display a page showing the detailed information about that product. To do this you must:</p>
+<ul>
+<li>add a route parameter ID</li>
+<li>link the route to the parameter</li>
+<li>add the service that reads the parameter.</li>
+</ul>
+<h4 id="declaring-route-parameters">Declaring Route Parameters</h4>
+<p>The route for the component that displays the details for a specific product would need a route parameter for the ID of that product. We could implement this using the following Routes:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="im">export</span> <span class="kw">const</span> routes<span class="op">:</span> Routes <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb1-2" title="2">    <span class="op">{</span> <span class="dt">path</span><span class="op">:</span> <span class="st">&quot;&quot;</span><span class="op">,</span> <span class="dt">redirectTo</span><span class="op">:</span> <span class="st">&quot;product-list&quot;</span><span class="op">,</span> <span class="dt">pathMatch</span><span class="op">:</span> <span class="st">&quot;full&quot;</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="op">{</span> <span class="dt">path</span><span class="op">:</span> <span class="st">&quot;product-list&quot;</span><span class="op">,</span> <span class="dt">component</span><span class="op">:</span> ProductList <span class="op">},</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="op">{</span> <span class="dt">path</span><span class="op">:</span> <span class="st">&quot;product-details/:id&quot;</span><span class="op">,</span> <span class="dt">component</span><span class="op">:</span> ProductDetails <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-5" title="5">]<span class="op">;</span></a></code></pre></div>
+<p>Note <code>:id</code> in the path of the product-details route, which places the parameter in the path. For example, to see the product details page for product with ID 5, you must use the following URL: localhost:3000/product-details/5 we know it’s a variable since it begins with a colon : A path can have any number of variables as long as they all start with : and have different names.</p>
+<p>Linking to Routes with Parameters In the ProductList component you could display a list of products. Each product would have a link to the product-details route, passing the ID of the product:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="op">&lt;</span>a <span class="op">*</span>ngFor<span class="op">=</span><span class="st">&quot;let product of products&quot;</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  [routerLink]<span class="op">=</span><span class="st">&quot;[&#39;/product-details&#39;, product.id]&quot;</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="op">{{</span> <span class="va">product</span>.<span class="at">name</span> <span class="op">}}</span></a>
+<a class="sourceLine" id="cb2-4" title="4">&lt;/a<span class="op">&gt;</span></a></code></pre></div>
+<p>Note that the routerLink directive passes an array which specifies the path and the route parameter. Alternatively we could navigate to the route programmatically:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="at">goToProductDetails</span>(id) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="kw">this</span>.<span class="va">router</span>.<span class="at">navigate</span>([<span class="st">&#39;/product-details&#39;</span><span class="op">,</span> id])<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="op">}</span></a></code></pre></div>
+<h4 id="and-now-finally-reading-route-parameters">And now finally, Reading Route Parameters</h4>
+<p>The ProductDetails component (LoanDetailsPage in the below example) must read the parameter, then load the product based on the ID given in the parameter.</p>
+<p>The <strong>ActivatedRoute</strong> service provides a params Observable which we can subscribe to to get the route parameters (see Observables).</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="im">import</span> <span class="op">{</span> Component<span class="op">,</span> OnInit<span class="op">,</span> OnDestroy <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;@angular/core&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="im">import</span> <span class="op">{</span> ActivatedRoute <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;@angular/router&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-3" title="3"></a>
+<a class="sourceLine" id="cb4-4" title="4">@<span class="at">Component</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb4-5" title="5">  <span class="dt">selector</span><span class="op">:</span> <span class="st">&#39;product-details&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-6" title="6">  <span class="dt">template</span><span class="op">:</span> <span class="vs">`</span></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="vs">    &lt;div&gt;</span></a>
+<a class="sourceLine" id="cb4-8" title="8"><span class="vs">      Showing product details for product: {{id}}</span></a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="vs">    &lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb4-10" title="10"><span class="vs">  `</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-11" title="11"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb4-12" title="12"><span class="im">export</span> <span class="kw">class</span> LoanDetailsPage <span class="kw">implements</span> OnInit<span class="op">,</span> OnDestroy <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-13" title="13">  <span class="dt">id</span><span class="op">:</span> number<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-14" title="14">  <span class="kw">private</span> <span class="dt">sub</span><span class="op">:</span> any<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-15" title="15"></a>
+<a class="sourceLine" id="cb4-16" title="16">  <span class="at">constructor</span>(<span class="kw">private</span> <span class="dt">route</span><span class="op">:</span> ActivatedRoute) <span class="op">{}</span></a>
+<a class="sourceLine" id="cb4-17" title="17"></a>
+<a class="sourceLine" id="cb4-18" title="18">  <span class="at">ngOnInit</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-19" title="19">    <span class="kw">this</span>.<span class="at">sub</span> <span class="op">=</span> <span class="kw">this</span>.<span class="va">route</span>.<span class="va">params</span>.<span class="at">subscribe</span>(params <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-20" title="20">       <span class="kw">this</span>.<span class="at">id</span> <span class="op">=</span> <span class="op">+</span>params[<span class="st">&#39;id&#39;</span>]<span class="op">;</span> <span class="co">// (+) converts string &#39;id&#39; to a number</span></a>
+<a class="sourceLine" id="cb4-21" title="21"></a>
+<a class="sourceLine" id="cb4-22" title="22">       <span class="co">// In a real app: dispatch action to load the details here.</span></a>
+<a class="sourceLine" id="cb4-23" title="23">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-24" title="24">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-25" title="25"></a>
+<a class="sourceLine" id="cb4-26" title="26">  <span class="at">ngOnDestroy</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-27" title="27">    <span class="kw">this</span>.<span class="va">sub</span>.<span class="at">unsubscribe</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-28" title="28">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-29" title="29"><span class="op">}</span></a></code></pre></div>
+<p>The reason that the params property on ActivatedRoute is an Observable is that the router may not recreate the component when navigating to the same component. In this case the parameter may change without the component being recreated.</p>
+<h4 id="further-reading">Further Reading</h4>
+<p><a href="https://angular-2-training-book.rangle.io/routing/routeparams">https://angular-2-training-book.rangle.io/routing/routeparams</a></p>

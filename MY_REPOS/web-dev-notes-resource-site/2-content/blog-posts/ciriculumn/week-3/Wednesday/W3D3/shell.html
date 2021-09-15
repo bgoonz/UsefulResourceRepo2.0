@@ -1,0 +1,176 @@
+<h1 id="the-shell-and-the-command-line-interface-cli">The Shell, and the Command Line Interface (CLI)</h1>
+<h2 id="command-line-interface-basics-lesson-learning-objectives">Command Line Interface Basics Lesson Learning Objectives</h2>
+<p>Below is a complete list of the terminal learning objectives for this lesson. When you complete this lesson, you should be able to perform each of the following objectives. These objectives capture how you may be evaluated on the assessment for this lesson.</p>
+<ol type="1">
+<li>Given a folder structure diagram, a list of ‘cd (path)’ commands and target files, match the paths to the target files.</li>
+<li>Create, rename, and move folders using unix command line tools.</li>
+<li>Use grep and | to count matches of a pattern in a sample text file and save result to another file.</li>
+<li>Find what -c, -r, and -b flags do in grep by reading the manual.</li>
+<li>Identify the difference in two different files using diff.</li>
+<li>Open and close nano with and without saving a file.</li>
+<li>Use ‘curl’ to download a file.</li>
+<li>Read the variables of $PATH.</li>
+<li>Explain the difference between .bash_profile and .bashrc.</li>
+<li>Create a new alias by editing the .bash_profile.</li>
+<li>Given a list of common scenarios, identify when it is appropriate and safe to use sudo, and when it is a dangerous mistake.</li>
+<li>Write a shell script that greets a user by their $USER name using echo.</li>
+<li>Use chmod to make a shell script executable.</li>
+</ol>
+<h2 id="the-way-of-the-shell">The Way of the Shell</h2>
+<blockquote>
+<p><em>In computing, a shell is a user interface for access to an operating system’s services. In general, operating system shells use either a command-line interface (CLI) or graphical user interface (GUI), depending on a computer’s role and particular operation. It is named a shell because it is the outermost layer around the operating system.</em></p>
+</blockquote>
+<p>— <em>Wikipedia, “Shell (computing)”</em></p>
+<p><em>In the beginning of computers that could run programs as we understand them, there was the shell.</em></p>
+<p>The <strong>Thompson Shell</strong> (1971) was the first Unix shell and offered a new approach to input and output redirection. Following in this tradition, every program starts with a standard input and output file (<code>0</code> and <code>1</code>, respectively); by default these files are tied to the console, but they can be redirected from (<code>&lt;</code>) or to (<code>&gt;</code>) the file system using this syntax:</p>
+<pre><code>my_program &lt; my_input_file &gt; my_output_file</code></pre>
+<p>programs can also be chained together using the pipe character (<code>|</code>):</p>
+<pre><code>my_analysis_program &lt; my_data | my_filter | my_report_generator &gt; my_report</code></pre>
+<p>The <strong>Bourne Shell</strong> (1979) added the use of file descriptor 2 for error messages. This shell kept the same program name as its predecessor, and can still be invoked on most Linux systems as <code>/bin/sh</code>.</p>
+<p><strong>NOTE:</strong> These three standard file handles - input <code>(0)</code>, output <code>(1)</code>, and errors or logging <code>(2)</code> - are associated with any program you will run that interacts with the shell. In particular, you may remember the <em>input</em> (<code>process.stdin</code>) and <em>output</em> (<code>process.stdout</code>) attributes associated with the call to <code>readline.createInterface()</code> from the lessons on the <code>readline</code> module.</p>
+<p>On most Linux systems and the Mac OS each user has a particular default shell; other shells will generally either already be available or easily installed. Three notable more recent widely used shells are the <strong>Korn Shell</strong> (<code>ksh</code>, 1983) <em>(some Linux servers)</em>, the <strong>Bourne-Again Shell</strong> (<code>bash</code>, 1989) <em>(most Linux workstations and many servers)</em>, and the <strong>Z Shell</strong> (<code>zsh</code>, 1990) <em>(Mac OS Catalina)</em>.</p>
+<p>(<strong>COMMAND.COM</strong>, <strong>CMD.EXE</strong> and <strong>POWERSHELL</strong> are all Microsoft shells with some similarities to the UNIX-style shells discussed; they will not be discussed further here)</p>
+<h2 id="graphs-nodes-edges-trees-forests">Graphs, Nodes, Edges, Trees &amp; Forests</h2>
+<p>Later on, we will explore a variety of data structures in some detail - but at this point it may help to have some vocabulary that relates directly to how file systems are organized. Via Wikipedia: &gt;In mathematics, and more specifically in graph theory, a graph is a structure amounting to a set of objects in which some pairs of the objects are in some sense “related”. The objects correspond to mathematical abstractions called vertices (also called <strong>nodes</strong> or points) and each of the related pairs of vertices is called an <strong>edge</strong> (also called link or line). Typically, a graph is depicted in diagrammatic form as a set of dots or circles for the vertices, joined by lines or curves for the edges.<br />
+&gt;Edges may be directed or undirected. … The former type of graph is called an <em>undirected</em> graph while the latter type of graph is called a <em>directed</em> graph.</p>
+<p>From the same article, a <strong>tree</strong> is defined as a <em>graph</em> where any two <em>nodes</em> are connected by exactly one <strong>path</strong>. A tree will have exactly one <strong>root</strong> node; the file system on UNIX (Linux/Mac OS) computers is a tree rooted on the <code>/</code> folder. In contrast, a <strong>forest</strong> is a disjoint collection of trees; the Windows file system is a forest with each tree rooted on a physical or virtual device. (<code>C:\</code>, <code>D:\</code> etc)</p>
+<h2 id="unix-linux-file-systems-in-general">UNIX / Linux File Systems In General</h2>
+<p>The <em>nodes</em> in the UNIX file system are <strong>files</strong>, which are themselves an ordered sequence of zero or more bytes (binary files) or characters (text files). One special type of (binary) <em>file</em> is the <strong>directory</strong>, which is a file that holds a list of other files. The <strong><em>path</em></strong> for any file is the sequence of directories from some starting point to the file itself; <strong>absolute</strong> paths start with the root directory (<code>/etc/hosts</code>); while <strong>relative</strong> paths start anywhere else. (<em>this</em> file is currently <code>Documents/Curricula/2020-may/shell.md</code>, starting from my home directory)</p>
+<h2 id="shell-commands-from-the-lectures">Shell Commands from the Lectures</h2>
+<ul>
+<li><strong><code>&lt; | &gt; &gt;&gt;</code></strong> - (file redirection) - <code>&lt; &lt;file&gt;</code> redirects the standard input stream to read from a file; <code>&gt; &lt;file&gt;</code> redirects the standard output stream into a new file; <code>&gt;&gt; &lt;file&gt;</code> redirects the standard output stream into a file, appending if the file already exists. NOTE: a common redirection pattern is <code>2&gt;&amp;1</code>, which means ‘direct the stderr stream (<code>2</code>) to the same stream as stdout (<code>1</code>). Another one is <code>2&gt;/dev/null</code>, which means ’discard any error messages’.</li>
+<li><strong><code>. .. ~</code></strong> - (special directories) Dot (<code>.</code>) and dot-dot (<code>..</code>) are “this directory” and “the parent of this directory”, respectively. Tilde (<code>~</code>) is the user’s home directory.</li>
+<li><strong><code>alias</code></strong> - define or display aliases</li>
+<li><strong><code>cd</code></strong> - change directory</li>
+<li><strong><code>chmod</code></strong> - change file permissions</li>
+<li><strong><code>cp</code></strong> - copy a file</li>
+<li><strong><code>curl</code></strong> - Client URL - download the contents of a URL</li>
+<li><strong><code>diff</code></strong> - display differences between two files</li>
+<li><strong><code>echo</code></strong> - write a string out to the standard output</li>
+<li><strong><code>git</code></strong> - standard source control tool</li>
+<li><strong><code>grep</code></strong> - g/re/p - globally search for a regular expression and print matching lines</li>
+<li><strong><code>ls</code></strong> - list files in one or more directories</li>
+<li><strong><code>man</code></strong> - get information about a command line program or command</li>
+<li><strong><code>mkdir</code></strong> - create a directory</li>
+<li><strong><code>mv</code></strong> - move (or rename) a file</li>
+<li><strong><code>nano</code></strong> - simple file editor</li>
+<li><strong><code>node</code></strong> - JavaScript execution environment</li>
+<li><strong><code>npm</code></strong> - the <em>Node Package Manager</em> - manages optional JavaScript modules</li>
+<li><strong><code>pwd</code></strong> print the current working directory</li>
+<li><strong><code>rm</code></strong> - remove (a file)</li>
+<li><strong><code>rmdir</code></strong> - remove an empty directory</li>
+<li><strong><code>source</code></strong> - execute a script, loading functions and variables into the current script (aliased as <code>.</code> in modern shells)</li>
+<li><strong><code>sudo</code></strong> - execute a command as the root user</li>
+<li><strong><code>touch</code></strong> - change file access and modification time (also creates empty files)</li>
+<li><strong><code>wc</code></strong> - word count - count the number of words or lines or characters in a file</li>
+<li><strong><code>which</code></strong> - identify which versions of a program are found in the $PATH variable</li>
+<li><strong><code>whoami</code></strong> - return the current user’s name</li>
+</ul>
+<h2 id="environmental-variables-of-note">Environmental Variables of Note</h2>
+<ul>
+<li>$HOME</li>
+<li>$PATH</li>
+<li>$SHELL</li>
+<li>$USER</li>
+</ul>
+<h2 id="special-places-in-the-unix-file-system">Special places in the UNIX File System</h2>
+<p><code>/</code> - the root folder - <strong>everything</strong> is located ‘under’ this folder.<br />
+<code>/home/&lt;user&gt;</code> - default location for user files<br />
+<code>/etc/</code> - system configuration information<br />
+<code>/dev/</code> - system devices - normally you won’t care about these unless you are mounting a device.<br />
+<code>/dev/null</code> - a write-only device, aka the ‘bit-bucket’ - output to be suppressed is routed here. <code>/usr/</code> - shells, programing languages, and other standard parts of the OS go here.<br />
+<code>/opt/</code> - custom-installed (global) programs will go here. (non-global programs will be installed under <code>/home/&lt;user&gt;</code>)</p>
+<p><em>(There are more - this is just to get you started!)</em></p>
+<h2 id="wednesday-lecture-notes">Wednesday Lecture Notes</h2>
+<h3 id="navigation">Navigation</h3>
+<p>What is a path? A series of directories, separated by slashes. You can see the directory you are in by typing the command <code>pwd</code>.</p>
+<p>What is a home directory? Every regular user has a personal storage space - on Linux it is typically <code>/home/&lt;user&gt;</code>; on Mac OS it is <code>/Users/&lt;user&gt;</code></p>
+<p>What is the difference between an <em>absolute</em> path and a <em>relative</em> path? An absolute path starts at the root direcory, and so begins with a slash.</p>
+<p>How does one navigate the file system? The <code>cd</code> command allows one to change to a new directory; tab completion can be used to speed this process up dramatically. Special directories often used in navigation and locating files are <code>~</code> (the user’s home directory), <code>.</code> (the current directory), and <code>..</code> (the parent of the current directory).</p>
+<p>You can make a new directory with the <code>mkdir</code> command; this command creates directories under the current one, and can make several directories at once - as in Alex’s example: <code>mkdir assets scripts styles</code>.</p>
+<p><code>touch</code> is a simple command to update the access time on a file; <code>touch &lt;file&gt;</code> “touches” the file. <code>touch</code> will create an empty file if the named file does not exist.</p>
+<p><code>cp</code> (copy) and <code>mv</code> (move) will copy and move-or-rename files, respectively. (Because all files have a unique path including their name, moving a file is the same as renaming it).</p>
+<p><code>ls</code> (list) is a command you will know well - <code>ls</code> lists the contents of one or more folders. Commonly used options are <code>-l</code> (list or detailed format), <code>-a</code> (<em>all files</em>, including hidden ones), and <code>-h</code> (human-readable file sizes).</p>
+<p>NOTE: single character options like these are called <strong>flags</strong> - they are two-state (Boolean) values, and can usually be combined by running them together, thus <code>ls -lha</code>.</p>
+<p>Files that start with a period (or only are a period!) are <em>hidden</em>, which is to say not displayed when ls is invoked without the <code>-a</code> option. The example Alex gave was the file he created with the command <code>touch assets/.keep</code>, in order to force <code>git</code> to include the <code>assets</code> directory in his repository.</p>
+<p>The <code>rm</code> command removes files. (and directories, with the proper options). Unlike in the GUI shell, there is no recycle bin for deleted files, so be very careful using the <code>rm</code> command. Similarly, the <code>rmdir</code> command deletes empty directories; while not as generally useful as <code>rm</code> it is less likely to be involved in a file system accident.</p>
+<h3 id="common-tasks">Common Tasks</h3>
+<p>In this lecture, Alex demonstrated <code>curl</code> - the “Client URL” tool - that copies the document fetched from a URL to the stdout stream. You can use the <code>-o</code> option to redirect the output of <code>curl</code> to a file.</p>
+<p>He also demonstrated the <code>grep</code> command. <code>grep</code> is a powerful general-purpose search tool. (The name is short for <code>g/re/p</code>, which means <em>“global regular expression print”</em>)</p>
+<p>A really important point he made was the use of the <code>man</code> pages - by typing <code>man grep</code> you can access extensive documentation about the <code>grep</code> command, and this same feature documents most shell commands. The navigation commands within the <code>man</code> program are the same as in <code>less</code> (a pagination tool / document reader) and <code>vi</code> (a commonly used, older editor) - <code>/&lt;string&gt;</code> searches for the next occurance of <em>&lt;string&gt;</em>, <code>n</code> repeats the last search, <code>N</code> reverses the search, using <code>?</code> instead of <code>/</code> searches backwards, and <code>q</code> gets you out of the program.</p>
+<p>Alex used the pipe operator (<code>|</code>) to run grep on the output of a program; the pipe operator in general allows you to route the output of one program into the input of another.</p>
+<p>Alex demonstrated the <code>nano</code> editor - this text editor is generally available on all modern shells and is relatively easy to use compared to older alternatives like <code>vi / vim</code> and <code>emacs</code>.</p>
+<p>Finally, he demonstrated the <code>diff</code> command, which like the <code>git diff</code> command, displays the differences between two files.</p>
+<p>(For global search-and-replace tasks, <code>sed</code> and <code>awk</code> are commonly available, and often used)</p>
+<h3 id="shell-basics">Shell Basics</h3>
+<p>In this lecture, Alex instroduced the <code>bash</code> shell, as the default shell on the Mac OS. (This has changed with the release of <em>catalina</em>; the default shell on Mac OS is now <code>zsh</code>)</p>
+<p>NOTE: In general, users of modern UNIX-flavored OS’s (Linux, Mac OS, WSL on Windows) have their choice of shells. <code>ksh</code>, <code>bash</code> and <code>zsh</code> are all in common use and offer similar functionality. They all have strong points and strong advocates, and are in practice mostly capable of the same things.</p>
+<p>Alex mentioned the <code>$PATH</code> variable. This is an environmental variable which documents the directories to be searched (in order) to find an executable file to run. He also mentioned the <code>which</code> command, which will search the <code>$PATH</code> for matches on a given program’s name.</p>
+<p>Special attention was given to the <code>bash</code> user files, <code>.bash_profile</code> and <code>.bashrc</code>. (The <code>zsh</code> shell has similar files, most notably, <code>.zshrc</code>) These files load scripted functions and varibles into the <strong><em>environment</em></strong>, which provides configurable resources to scripts and other programs at run-time. As per the video:</p>
+<p><code>.bash_profile</code>: on Linux this file is loaded only on login. (on Mac OS it was loaded for every new terminal instance) <code>.bashrc</code>: on Linux, this file is loaded for every new terminal instance. (on the Mac OS it only is loaded when explicit new <code>bash</code> shell is started)</p>
+<p>NOTE: Users running Ubuntu under WSL on Windows will not have a <code>.bash_profile</code> script. This is (presumably) because you are already logged in on Windows, so there is no additional login script to run; in this case, put your customized shell settings in <code>.bashrc</code>.</p>
+<p>Alex mentioned <code>aliases</code>, which are short-cuts used to shorten commands and to provide default options - these are generally user-customized.</p>
+<h3 id="shell-scripting">Shell Scripting</h3>
+<p>In the last video, Alex introduced shell scripts proper. He mentions that each generally starts with a “shebang” (<code>#! /&lt;path_to_interpreter&gt;</code>), which tells the shell which interpreter to use to run the script.</p>
+<p>He noted that files by default are not executable, and so to make them runnable one must use the <code>chmod</code> command, as in <code>chmod +x &lt;script async&gt;</code>. He also demonstrated the <code>echo</code> command, which writes strings to the stdout stream, the <code>$USER</code> environmental variable, which is the current user’s name, and the <code>whoami</code> command, which accesses this variable.</p>
+<h2 id="deep-resources-for-further-study">Deep Resources for Further Study</h2>
+<p>For Free and Open Source Software (FOSS), good* documentation is generally part of the package. In order to make the most of these resources, one has to spend some time to get to know them; you might want to download one or more of these reference guides for the shell or shells you most commonly use - all this will make more sense the more you use it!</p>
+<p><strong>The GNU Bash Reference Manual</strong>: https://www.gnu.org/software/bash/manual/bash.pdf</p>
+<p><strong>The Zsh Manual</strong>: http://zsh.sourceforge.net/Doc/</p>
+<p><strong>KornShell (ksh) Documentation</strong>: http://kornshell.com/doc/</p>
+<p><em>*opinions often differ regarding what ‘good’ documentation is, of course!</em></p>
+<h2 id="expanded-list-of-shell-commands">Expanded List of Shell Commands</h2>
+<ul>
+<li><code>&lt; | &gt; &gt;&gt;</code> - (file redirection) - <code>&lt; &lt;file&gt;</code> redirects the standard input stream to read from a file; <code>&gt; &lt;file&gt;</code> redirects the standard output stream into a new file; <code>&gt;&gt; &lt;file&gt;</code> redirects the standard output stream into a file, appending if the file already exists. NOTE: a common redirection pattern is <code>2&gt;&amp;1</code>, which means ‘direct the stderr stream (<code>2</code>) to the same stream as stdout (<code>1</code>). Another one is <code>2&gt;/dev/null</code>, which means ’discard any error messages’.</li>
+<li><code>. .. ~</code> - (special directories) Dot (<code>.</code>) and dot-dot (<code>..</code>) are “this directory” and “the parent of this directory”, respectively. Tilde (<code>~</code>) is the user’s home directory.</li>
+<li><code>", ', &lt;backtick&gt;</code> - (string delimiters) double-quotes delimit interpolated strings; single-quotes delimit literal strings; backticks delimit commands that are run, returning the output as a string (this backtick thing is an older syntax - the modern form is <code>$(&lt;command&gt;)</code>)</li>
+<li><code>${&lt;variable&gt;}</code> - (variable expansion)</li>
+<li><code>alias</code> - define or display aliases</li>
+<li><code>apt</code> - Debian/Ubuntu Linux Package Manager - installs and update software</li>
+<li><code>brew</code> - Mac OS (add on) Package Manager = installs and update non-Apple software</li>
+<li><code>cat</code> - concatenate and print files</li>
+<li><code>cd</code> - change directory</li>
+<li><code>chmod</code> - change file permissions</li>
+<li><code>chown</code> - change the owner of files</li>
+<li><code>chgrp</code> - change the group files belong to</li>
+<li><code>cp</code> - copy a file</li>
+<li><code>curl</code> - Client URL - download the contents of a URL</li>
+<li><code>date</code> - display the date and time</li>
+<li><code>df</code> - report free disk space</li>
+<li><code>diff</code> - display differences between two files</li>
+<li><code>du</code> - estimate file space usage</li>
+<li><code>echo</code> - write a string out to the standard output</li>
+<li><code>env</code> - show all environmental variables (usually a long list!)</li>
+<li><code>find</code> - file system search tool - searches on attributes - name, size, type, date</li>
+<li><code>git</code> - standard source control tool</li>
+<li><code>grep</code> - g/re/p - globally search for a regular expression and print matching lines</li>
+<li><code>head</code> - copy the first part of a file</li>
+<li><code>history</code> - list, edit, manage and re-execute previously entered commands (see also <code>fc</code>)</li>
+<li><code>kill</code> - terminate or signal processes</li>
+<li><code>less</code> - browse through a file by line or page; also has search functionality</li>
+<li><code>ln</code> - link files (create softlinks with -s)</li>
+<li><code>ls</code> - list files in one or more directories</li>
+<li><code>man</code> - get information about a command line program or command</li>
+<li><code>mkdir</code> - create a directory</li>
+<li><code>mv</code> - move (or rename) a file</li>
+<li><code>nano</code> - simple file editor</li>
+<li><code>node</code> - JavaScript execution environment</li>
+<li><code>npm</code> - the <em>Node Package Manager</em> - manages optional JavaScript modules</li>
+<li><code>od</code> - octal debugger - dumps files in various formats</li>
+<li><code>ps</code> - report process status (typically used as <code>ps aux | grep &lt;program&gt;</code>)</li>
+<li><code>pwd</code> print the current working directory</li>
+<li><code>rm</code> - remove (a file)</li>
+<li><code>rmdir</code> - remove an empty directory</li>
+<li><code>sed</code> - stream editor - parses and transforms text</li>
+<li><code>sort</code> - sort, merge or sequence check text files</li>
+<li><code>source</code> - execute a script, loading functions and variables into the current script (aliased as <code>.</code> in modern shells)</li>
+<li><code>sudo</code> - execute a command as the root user</li>
+<li><code>tail</code> - copy the last part of a file (follow a log with <code>tail -F</code>)</li>
+<li><code>top</code> - display and update sorted information about processes</li>
+<li><code>touch</code> - change file access and modification time (also creates empty files)</li>
+<li><code>unlink</code> - remove a file system link</li>
+<li><code>vi</code> - modal editor for test processing</li>
+<li><code>wc</code> - word count - count the number of words or lines or characters in a file</li>
+<li><code>which</code> - identify which versions of a program are found in the $PATH variable</li>
+<li><code>whoami</code> - return the current user’s name</li>
+</ul>

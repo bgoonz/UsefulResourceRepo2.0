@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" ng-app="AWSDocsDocPageApp">
+   
+<!-- Mirrored from docs.aws.amazon.com/lambda/latest/dg/with-mq.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 21 Feb 2021 15:02:07 GMT -->
+<head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <title>Using Lambda with Amazon MQ - AWS Lambda</title>
+      <meta name="viewport" content="width=device-width,initial-scale=1" />
+      <meta name="assets_root" content="/assets" />
+      <meta name="target_state" content="with-mq" />
+      <meta name="default_state" content="with-mq" />
+      <link rel="icon" type="image/ico" href="https://docs.aws.amazon.com/assets/images/favicon.ico" />
+      <link rel="shortcut icon" type="image/ico" href="https://docs.aws.amazon.com/assets/images/favicon.ico" />
+      <link rel="canonical" href="with-mq.html" />
+      <meta name="description" content="Use a Lambda function with Amazon MQ to process records from a message broker." />
+      <meta name="deployment_region" content="IAD" />
+      <meta name="product" content="AWS Lambda" />
+      <meta name="guide" content="Developer Guide" />
+      <meta name="locales" content="de_de:Deutsch/en_us:English/es_es:Español/fr_fr:Français/it_it:Italiano/ja_jp:日本語/ko_kr:한국어/pt_br:Português/zh_cn:中文 (简体)/zh_tw:中文 (繁體)" />
+      <meta name="abstract" content="" />
+      <meta name="guide-locale" content="en_us" />
+      <meta name="tocs" content="toc-contents.json" />
+      <meta name="feedback-item" content="Lambda" />
+      <meta name="this_doc_product" content="AWS Lambda" />
+      <meta name="this_doc_guide" content="Developer Guide" />
+      <link href="https://docs.aws.amazon.com/assets/css/vendor4.css?version=2020.09.30" rel="stylesheet" />
+      <link href="https://docs.aws.amazon.com/assets/css/awsdocs-common.css?version=2020.09.30" rel="stylesheet" /><script type="text/javascript" src="https://docs.aws.amazon.com/assets/js/vendor3.js?version=2020.09.30" defer=""></script><script type="text/javascript" src="https://docs.aws.amazon.com/assets/js/vendor4.js?version=2020.09.30" defer=""></script><script type="text/javascript" src="https://docs.aws.amazon.com/assets/js/vendor1.js?version=2020.09.30" defer=""></script><script type="text/javascript" src="https://docs.aws.amazon.com/assets/js/awsdocs-common.js?version=2020.09.30" defer=""></script><script type="text/javascript" src="https://docs.aws.amazon.com/assets/js/awsdocs-doc-app.js?version=2020.09.30" defer=""></script></head>
+   <body class="awsdocs awsui">
+      <div class="awsdocs-container">
+         <awsdocs-header></awsdocs-header>
+         <awsui-app-layout id="app-layout" class="awsui-util-no-gutters" ng-controller="ContentController as $ctrl" header-selector="awsdocs-header" navigation-hide="false" navigation-width="$ctrl.navWidth" navigation-open="$ctrl.navOpen" navigation-change="$ctrl.onNavChange($event)" tools-hide="$ctrl.hideTools" tools-width="$ctrl.toolsWidth" tools-open="$ctrl.toolsOpen" tools-change="$ctrl.onToolsChange($event)">
+            <div id="guide-toc" dom-region="navigation">
+               <awsdocs-toc></awsdocs-toc>
+            </div>
+            <div id="main-column" dom-region="content" tabindex="-1">
+               <awsdocs-view class="awsdocs-view">
+                  <div id="awsdocs-content">
+                     <head>
+                        <title>Using Lambda with Amazon MQ - AWS Lambda</title>
+                        <meta name="pdf" content="lambda-dg.pdf#with-mq" />
+                        <meta name="kindle" content="https://www.amazon.com/dp/B07GFJLN6D" />
+                        <meta name="github" content="https://github.com/awsdocs/aws-lambda-developer-guide/tree/main/doc_source/with-mq.md" />
+                        <meta name="rss" content="lambda-updates.rss" />
+                        <meta name="forums" content="http://forums.aws.amazon.com/forum.jspa?forumID=186" />
+                        <meta name="feedback" content="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=Lambda&amp;topic_url=http://docs.aws.amazon.com/en_us/lambda/latest/dg/with-mq.html" />
+                        <meta name="feedback-yes" content="feedbackyes.html?topic_url=http://docs.aws.amazon.com/en_us/lambda/latest/dg/with-mq.html" />
+                        <meta name="feedback-no" content="feedbackno.html?topic_url=http://docs.aws.amazon.com/en_us/lambda/latest/dg/with-mq.html" />
+                        <meta name="keywords" content="Lambda,AWS Lambda,serverless,serverless applications,cloud computing" />
+                     </head>
+                     <body>
+                        <div id="main">
+                           <div style="display: none"><a href="lambda-dg.pdf#with-mq" target="_blank" title="Open PDF"></a><a target="_blank" href="https://www.amazon.com/dp/B07GFJLN6D" title="Open Kindle"></a><a href="https://github.com/awsdocs/aws-lambda-developer-guide/tree/main/doc_source/with-mq.md" target="_blank" title="Edit this page on GitHub"></a></div>
+                           <div id="breadcrumbs" class="breadcrumb"><a href="http://aws.amazon.com/">AWS</a><a href="https://docs.aws.amazon.com/index.html">Documentation</a><a href="https://docs.aws.amazon.com/lambda/index.html">AWS Lambda</a><a href="welcome.html">Developer Guide</a></div>
+                           <div id="page-toc-src"><a href="#services-mq-configure">Lambda consumer group</a><a href="#events-mq-permissions">Execution role permissions</a><a href="#services-mq-eventsourcemapping">Configuring a broker as an event source</a><a href="#services-mq-api">Event source mapping API</a><a href="#services-mq-errors">Event source mapping errors</a></div>
+                           <div id="main-content" class="awsui-util-container">
+                              <div id="main-col-body">
+                                 <awsdocs-language-banner data-service="$ctrl.pageService"></awsdocs-language-banner>
+                                 <h1 class="topictitle" id="with-mq">Using Lambda with Amazon MQ</h1>
+                                 <div class="awsdocs-page-header-container">
+                                    <awsdocs-page-header></awsdocs-page-header>
+                                    <awsdocs-filter-selector id="awsdocs-filter-selector"></awsdocs-filter-selector>
+                                 </div>
+                                 <p>Amazon MQ is a managed message broker service for
+                                    <a href="https://activemq.apache.org/" rel="noopener noreferrer" target="_blank"><span>Apache ActiveMQ</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a> and <a href="https://www.rabbitmq.com/" rel="noopener noreferrer" target="_blank"><span>RabbitMQ</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a>. Lambda only supports Apache ActiveMQ. A <em>message
+                                       broker</em> allows software applications and components to communicate using various programming
+                                    languages,
+                                    operating systems, and formal messaging protocols through either topic or queue event
+                                    destinations.
+                                 </p>
+                                 <p>Amazon MQ can also manage Amazon Elastic Compute Cloud (Amazon EC2) instances on your
+                                    behalf by installing ActiveMQ brokers and by providing
+                                    different network topologies and other infrastructure needs.
+                                 </p>
+                                 <p>You can use a Lambda function to process records from your Amazon MQ message broker.
+                                    Your function is triggered
+                                    through an <a href="invocation-eventsourcemapping.html">event source mapping</a>, a Lambda resource that reads
+                                    messages from your broker and invokes the function <a href="invocation-sync.html">synchronously</a>.
+                                 </p>
+                                 <p>The Amazon MQ event source mapping has the following configuration restrictions:</p>
+                                 <div class="itemizedlist">
+                                     
+                                     
+                                     
+                                     
+                                     
+                                     
+                                    
+                                    <ul class="itemizedlist" type="disc">
+                                       <li class="listitem">
+                                          
+                                          <p>Authentication – Only the ActiveMQ <a href="https://activemq.apache.org/security#simple-authentication-plugin" rel="noopener noreferrer" target="_blank"><span>SimpleAuthenticationPlugin</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a> is supported. User credentials associated with the broker
+                                             are the only method of connection. For more information about authentication, see
+                                             <a href="https://docs.aws.amazon.com/amazon-mq/latest/developer-guide/security-authentication-authorization.html">Messaging Authentication and
+                                                Authorization for ActiveMQ</a> in the <em>Amazon MQ Developer Guide</em>.
+                                          </p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p>Connection quota – Brokers have a maximum number of allowed connections per wire-level
+                                             protocol. This
+                                             quota is based on the broker instance type. For more information, see the <a href="https://docs.aws.amazon.com/amazon-mq/latest/developer-guide/amazon-mq-limits.html#broker-limits">Brokers</a>
+                                             section of <b>Quotas in Amazon MQ</b> in the
+                                             <em>Amazon MQ Developer Guide</em>.
+                                          </p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p>Connectivity – You can create brokers in a public or private virtual private cloud
+                                             (VPC). For private VPCs, your Lambda function needs access to the VPC to interact
+                                             with the records. For more information, see <a href="#services-mq-api">Event source mapping API</a> later in this
+                                             topic.
+                                          </p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p>Event destinations – Only queue destinations are supported. However, you can use a
+                                             virtual topic,
+                                             which behaves  as a topic internally while interacting with Lambda as a queue. For
+                                             more information, see <a href="https://activemq.apache.org/virtual-destinations" rel="noopener noreferrer" target="_blank"><span>Virtual Destinations</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a>
+                                             on
+                                             the Apache ActiveMQ website.
+                                          </p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p>Network topology – Only one single-instance or standby broker is supported per event
+                                             source mapping.
+                                             Single-instance brokers require a failover endpoint. For more information about these
+                                             broker deployment modes,
+                                             see <a href="https://docs.aws.amazon.com/amazon-mq/latest/developer-guide/amazon-mq-broker-architecture.html">Amazon MQ
+                                                Broker Architecture</a> in the <em>Amazon MQ Developer Guide</em>.
+                                          </p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p>Protocols – Lambda consumes messages using the OpenWire/Java Message Service (JMS)
+                                             protocol. No other
+                                             protocols are supported. Within the JMS protocol, only <a href="https://activemq.apache.org/maven/apidocs/org/apache/activemq/command/ActiveMQTextMessage.html" rel="noopener noreferrer" target="_blank"><span><code class="code">TextMessage</code></span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a> and <a href="https://activemq.apache.org/maven/apidocs/org/apache/activemq/command/ActiveMQBytesMessage.html" rel="noopener noreferrer" target="_blank"><span><code class="code">BytesMessage</code></span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a> are supported. For more information about the OpenWire protocol, see
+                                             <a href="https://activemq.apache.org/openwire.html" rel="noopener noreferrer" target="_blank"><span>OpenWire</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a> on the Apache ActiveMQ website.
+                                          </p>
+                                          
+                                       </li>
+                                    </ul>
+                                 </div>
+                                 <p>Lambda
+                                    automatically supports the latest versions of ActiveMQ that Amazon MQ supports. For
+                                    the latest supported versions, see <a href="https://docs.aws.amazon.com/amazon-mq/latest/developer-guide/amazon-mq-release-notes.html">Amazon MQ Release Notes</a> in the
+                                    <em>Amazon MQ Developer Guide</em>.
+                                 </p>
+                                 <div class="awsdocs-note">
+                                    <div class="awsdocs-note-title">
+                                       <awsui-icon name="status-info" variant="link"></awsui-icon><span>Note</span></div>
+                                    <div class="awsdocs-note-text">
+                                       <p>By default, Amazon MQ has a weekly maintenance window for brokers. During that
+                                          window of time, brokers are unavailable. For brokers without standby, Lambda cannot
+                                          process any messages during that window.
+                                       </p>
+                                    </div>
+                                 </div>
+                                 <div class="highlights" id="inline-topiclist">
+                                    <p><strong>Sections</strong></p>
+                                    <ul>
+                                       <li><a href="#services-mq-configure">Lambda consumer group</a></li>
+                                       <li><a href="#events-mq-permissions">Execution role permissions</a></li>
+                                       <li><a href="#services-mq-eventsourcemapping">Configuring a broker as an event source</a></li>
+                                       <li><a href="#services-mq-api">Event source mapping API</a></li>
+                                       <li><a href="#services-mq-errors">Event source mapping errors</a></li>
+                                    </ul>
+                                 </div>
+                                 
+                                 <h2 id="services-mq-configure">Lambda consumer group</h2>
+                                 
+                                 
+                                 <p>To interact with Amazon MQ, Lambda creates a consumer group which can read from your
+                                    Amazon MQ brokers. The consumer
+                                    group is created with the same ID as the event source mapping UUID.
+                                 </p>
+                                 
+                                 <p>Lambda will pull messages until it has processed a maximum of 6 MB, until timeout,
+                                    or until the batch size is fulfilled. When configured, batch size determines the maximum
+                                    number of items to retrieve in a single batch. Your batch is converted into a Lambda
+                                    payload, and your target function is invoked. Messages are neither persisted nor deserialized.
+                                    Instead,
+                                    they are retrieved by the consumer group as a BLOB of bytes and are base64-encoded
+                                    for a JSON payload.
+                                 </p>
+                                 
+                                 <div class="awsdocs-note">
+                                    <div class="awsdocs-note-title">
+                                       <awsui-icon name="status-info" variant="link"></awsui-icon><span>Note</span></div>
+                                    <div class="awsdocs-note-text">
+                                       <p>The maximum function invocation time is 14 minutes. </p>
+                                    </div>
+                                 </div>
+                                 
+                                 <p>Lambda processes all incoming batches concurrently and automatically scales the concurrency
+                                    to meet demands.
+                                    You can monitor a given function's concurrency usage using the <code class="code">ConcurrentExecutions</code> metric in
+                                    Amazon CloudWatch. For more information about concurrency, see <a href="configuration-concurrency.html">Managing concurrency for a Lambda function</a>.
+                                 </p>
+                                 
+                                 
+                                 <div class="example">
+                                    <p class="title"><b>Example Amazon MQ record event</b></p>
+                                    <div class="example-contents"><pre class="programlisting"><div class="code-btn-container"></div><code class="nohighlight"><span>{</span>
+    "eventSource": "aws:amq",
+    "eventSourceArn": "arn:aws:mq:us-west-2:112556298976:broker:test:b-9bcfa592-423a-4942-879d-eb284b418fc8",
+    "messages": <span>{</span> [
+            <span>{</span>
+                "messageID": "ID:b-9bcfa592-423a-4942-879d-eb284b418fc8-1.mq.us-west-2.amazonaws.com-37557-1234520418293-4:1:1:1:1",
+                "messageType": "jms/text-message",
+                "data": "QUJDOkFBQUE=",
+                "connectionId": "myJMSCoID",
+                "redelivered": false,
+                "destination": <span>{</span>
+                   "physicalname": "testQueue" 
+                }, 
+                "timestamp": 1598827811958,
+                "brokerInTime": 1598827811958,
+                "brokerOutTime": 1598827811959
+            },
+            <span>{</span>
+                "messageID": "ID:b-9bcfa592-423a-4942-879d-eb284b418fc8-1.mq.us-west-2.amazonaws.com-37557-1234520418293-4:1:1:1:1",
+                "messageType":"jms/bytes-message",
+                "data": "3DTOOW7crj51prgVLQaGQ82S48k=",
+                "connectionId": "myJMSCoID1",
+                "persistent": false,
+                "destination": <span>{</span>
+                   "physicalname": "testQueue" 
+                }, 
+                "timestamp": 1598827811958,
+                "brokerInTime": 1598827811958,
+                "brokerOutTime": 1598827811959
+            }
+        ]
+    }
+}</code></pre></div>
+                                 </div>
+                                  
+                                 
+                                 <h2 id="events-mq-permissions">Execution role permissions</h2>
+                                 
+                                 <p>To read records from an Amazon MQ broker, your Lambda function needs the following
+                                    permissions added to its
+                                    <a href="lambda-intro-execution-role.html">execution role</a>:
+                                 </p>
+                                 
+                                 <div class="itemizedlist">
+                                     
+                                     
+                                     
+                                     
+                                     
+                                     
+                                     
+                                     
+                                    
+                                    <ul class="itemizedlist" type="disc">
+                                       <li class="listitem">
+                                          
+                                          <p><a href="https://docs.aws.amazon.com/amazon-mq/latest/api-reference/brokers-broker-id.html#brokers-broker-id-http-methods">mq:DescribeBroker</a></p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p><a href="https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html">secretsmanager:GetSecretValue</a></p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p><a href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateNetworkInterface.html">ec2:CreateNetworkInterface</a></p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p><a href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DeleteNetworkInterface.html">ec2:DeleteNetworkInterface</a></p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p><a href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeNetworkInterfaces.html">ec2:DescribeNetworkInterfaces</a></p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p><a href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeSecurityGroups.html">ec2:DescribeSecurityGroups</a></p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p><a href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeSubnets.html">ec2:DescribeSubnets</a></p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p><a href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeVpcs.html">ec2:DescribeVpcs</a></p>
+                                          
+                                       </li>
+                                    </ul>
+                                 </div>
+                                 
+                                 <div class="awsdocs-note">
+                                    <div class="awsdocs-note-title">
+                                       <awsui-icon name="status-info" variant="link"></awsui-icon><span>Note</span></div>
+                                    <div class="awsdocs-note-text">
+                                       <p>When using an encrypted customer managed key, add the <code class="code"><a href="https://docs.aws.amazon.com/msk/1.0/apireference/clusters-clusterarn-bootstrap-brokers.html#clusters-clusterarn-bootstrap-brokersget">kms:Decrypt</a></code> permission as well.
+                                       </p>
+                                    </div>
+                                 </div>
+                                 	
+                                  
+                                 
+                                 <h2 id="services-mq-eventsourcemapping">Configuring a broker as an event source</h2>
+                                 
+                                 
+                                 <p>Create
+                                    an <a href="invocation-eventsourcemapping.html">event source mapping</a> to tell Lambda to
+                                    send records from an Amazon MQ broker to a Lambda function. You can create multiple
+                                    event source mappings to process
+                                    the same data with multiple functions, or to process items from multiple sources with
+                                    a single function.
+                                 </p>
+                                 
+                                 <p>To configure your function to read from Amazon MQ, create an <b>MQ</b> trigger in the Lambda
+                                    console.
+                                 </p>
+                                 
+                                 
+                                 <div class="procedure">
+                                    <p class="title"><b>To create a trigger</b></p>
+                                    <ol>
+                                       <li>
+                                          <p>Open the <a href="https://console.aws.amazon.com/lambda/home#/functions" rel="noopener noreferrer" target="_blank"><span>Functions page</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a> on the Lambda console.
+                                          </p>
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Choose a function.</p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Under <b>Designer</b>, choose <b>Add trigger</b>.
+                                          </p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Choose a trigger type.</p>
+                                          
+                                       </li>
+                                       <li>
+                                          
+                                          <p>Configure the required options and then choose <b>Add</b>.
+                                          </p>
+                                          
+                                       </li>
+                                    </ol>
+                                 </div>
+                                 
+                                 
+                                 <p>Lambda supports the following options for Amazon MQ event sources:</p>
+                                 
+                                 <div class="itemizedlist">
+                                     
+                                     
+                                     
+                                     
+                                     
+                                    
+                                    <ul class="itemizedlist" type="disc">
+                                       <li class="listitem">
+                                          
+                                          <p><b>MQ broker</b> – Select an Amazon MQ broker.
+                                          </p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p><b>Batch size</b> – Set the maximum number of messages to retrieve in a single
+                                             batch.
+                                          </p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p><b>Queue name</b> – Enter the Amazon MQ queue to consume.
+                                          </p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p><b>Source access configuration</b> – Select the AWS Secrets Manager secret that stores your
+                                             broker credentials.
+                                          </p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p><b>Enable trigger</b> – Disable the trigger to stop processing records.
+                                          </p>
+                                          
+                                       </li>
+                                    </ul>
+                                 </div>
+                                 
+                                 <p>To enable or disable the trigger (or delete it), choose the <b>MQ</b> trigger in the <a href="getting-started-create-function.html#get-started-designer">designer</a>. To reconfigure the trigger, use the event source mapping API
+                                    operations.
+                                 </p>
+                                  
+                                 
+                                 <h2 id="services-mq-api">Event source mapping API</h2>
+                                 
+                                 
+                                 
+                                 <p>To manage an event source with the <a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html">AWS CLI</a> or <a href="http://aws.amazon.com/getting-started/tools-sdks/" rel="noopener noreferrer" target="_blank"><span>AWS SDK</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a>, you can use the following API operations:
+                                 </p>
+                                 
+                                 <div class="itemizedlist">
+                                     
+                                     
+                                     
+                                     
+                                     
+                                    
+                                    <ul class="itemizedlist" type="disc">
+                                       <li class="listitem">
+                                          
+                                          <p><a href="API_CreateEventSourceMapping.html">CreateEventSourceMapping</a></p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p><a href="API_ListEventSourceMappings.html">ListEventSourceMappings</a></p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p><a href="API_GetEventSourceMapping.html">GetEventSourceMapping</a></p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p><a href="API_UpdateEventSourceMapping.html">UpdateEventSourceMapping</a></p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p><a href="API_DeleteEventSourceMapping.html">DeleteEventSourceMapping</a></p>
+                                          
+                                       </li>
+                                    </ul>
+                                 </div>
+                                 
+                                 
+                                 <p>To create the event source mapping with the AWS Command Line Interface (AWS CLI),
+                                    use the <a href="https://awscli.amazonaws.com/v2/documentation/api/latest/reference/lambda/create-event-source-mapping.html" rel="noopener noreferrer" target="_blank"><span><code class="code">create-event-source-mapping</code></span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a> command.
+                                 </p>
+                                 		  
+                                 
+                                 <p>By default, Amazon MQ brokers are created with the <code class="code">PubliclyAccessible</code> flag set to false. It is only when <code class="code">PubliclyAccessible</code> is set to true that the broker is given a public IP address. 
+                                 </p>
+                                 	  
+                                 
+                                 <p>For full access with your event source mapping, your broker must either use a public
+                                    endpoint or provide
+                                    access to the VPC. To meet the
+                                    Amazon VPC access requirements, you can do one of the following:
+                                 </p>
+                                 	  
+                                 <div class="itemizedlist">
+                                    		 
+                                    		
+                                    		 
+                                    	
+                                    <ul class="itemizedlist" type="disc">
+                                       <li class="listitem">
+                                          <p>Configure one NAT gateway per public subnet. For more information, see <a href="configuration-vpc.html#vpc-internet">Internet and service access for VPC-connected functions</a>.
+                                          </p> 
+                                       </li>
+                                       <li class="listitem">
+                                          <p>Create a connection between your Amazon VPC and Lambda. Your Amazon VPC must also
+                                             connect to AWS STS and Secrets Manager endpoints. For more information, see <a href="configuration-vpc-endpoints.html">Configuring interface VPC endpoints for Lambda</a>.
+                                          </p>
+                                       </li>
+                                    </ul>
+                                 </div>	  
+                                 	  
+                                 
+                                 <p>The Amazon Virtual Private Cloud (Amazon VPC) security group rules that you configure
+                                    should have the following settings at
+                                    minimum:
+                                 </p>
+                                 
+                                 <div class="itemizedlist">
+                                     
+                                     
+                                    
+                                    <ul class="itemizedlist" type="disc">
+                                       <li class="listitem">
+                                          
+                                          <p>Inbound rules – For a
+                                             broker without public accessibility, allow all traffic on all ports for the security
+                                             group that's specified as your
+                                             source. For a broker with public accessibility, allow all traffic on all ports for
+                                             all destinations.
+                                          </p>
+                                          
+                                       </li>
+                                       <li class="listitem">
+                                          
+                                          <p>Outbound rules – Allow all traffic on all ports for all destinations.</p>
+                                          
+                                       </li>
+                                    </ul>
+                                 </div>
+                                 
+                                 <p>The Amazon VPC configuration is discoverable through the <a href="https://docs.aws.amazon.com/amazon-mq/latest/api-reference/resources.html">Amazon MQ API</a> and does not need to be configured in the
+                                    <code class="code">create-event-source-mapping</code> setup.
+                                 </p>
+                                 
+                                 <p>The following example AWS CLI command creates an event source which maps a Lambda
+                                    function named
+                                    <code class="code">MQ-Example-Function</code> to an Amazon MQ broker named <code class="code">ExampleMQBroker</code>. The command also
+                                    provides a Secrets Manager secret named <code class="code">ExampleMQBrokerUserPassword</code> that stores the broker
+                                    credentials.
+                                 </p>
+                                 <pre class="programlisting"><div class="code-btn-container"></div><code class="nohighlight"><code class="userinput">aws lambda create-event-source-mapping \
+--event-source-arn arn:aws:mq:<code class="replaceable">us-east-1:12345678901:broker:ExampleMQBroker:b-b4d492ef-bdc3-45e3-a781-cd1a3102ecca</code> \
+--function-name <code class="replaceable">MQ-Example-Function</code> \
+--source-access-configuration Type=BASIC_AUTH,URI=arn:aws:secretsmanager:<code class="replaceable">us-east-1:12345678901:secret:ExampleMQBrokerUserPassword-xPBMTt</code> \
+--queues <code class="replaceable">ExampleQueue</code> </code></code></pre>
+                                 <p>You should see the following output:</p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "UUID": "91eaeb7e-c976-1234-9451-8709db01f137",
+    "BatchSize": 100,
+    "EventSourceArn": "arn:aws:mq:us-east-1:12345678901:broker:ExampleMQBroker:b-b4d492ef-bdc3-45e3-a781-cd1a3102ecca",
+    "FunctionArn": "arn:aws:lambda:us-east-1:12345678901:function:MQ-Example-Function",
+    "LastModified": 1601927898.741,
+    "LastProcessingResult": "No records processed",
+    "State": "Creating",
+    "StateTransitionReason": "USER_INITIATED",
+    "Queues": [
+        "ExampleQueue"
+    ],
+    "SourceAccessConfigurations": [
+        <span>{</span>
+            "Type": "BASIC_AUTH",
+            "URI": "arn:aws:secretsmanager:us-east-1:12345678901:secret:ExampleMQBrokerUserPassword-xPBMTt"
+        }
+    ]
+}</code></pre>
+                                 <p>Using the <code class="code"><a href="https://awscli.amazonaws.com/v2/documentation/api/latest/reference/lambda/update-event-source-mapping.html" rel="noopener noreferrer" target="_blank"><span>update-event-source-mapping</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a></code> command, you can configure additional options such as how batches are processed and
+                                    to specify when to discard records that can't be processed. The following example
+                                    command
+                                    updates an event source mapping to have a batch size of 2.
+                                 </p>
+                                 <pre class="programlisting"><div class="code-btn-container"></div><code class="nohighlight"><code class="userinput">aws lambda update-event-source-mapping \
+--uuid <code class="replaceable">91eaeb7e-c976-1234-9451-8709db01f137</code> \
+--batch-size <code class="replaceable">2</code></code></code></pre>
+                                 <p>You should see the following output:</p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "UUID": "91eaeb7e-c976-1234-9451-8709db01f137",
+    "BatchSize": 2,
+    "EventSourceArn": "arn:aws:mq:us-east-1:12345678901:broker:ExampleMQBroker:b-b4d492ef-bdc3-45e3-a781-cd1a3102ecca",
+    "FunctionArn": "arn:aws:lambda:us-east-1:12345678901:function:MQ-Example-Function",
+    "LastModified": 1601928393.531,
+    "LastProcessingResult": "No records processed",
+    "State": "Updating",
+    "StateTransitionReason": "USER_INITIATED"
+} </code></pre>
+                                 <p>Updated settings are applied asynchronously and aren't reflected in the output until
+                                    the process completes. To
+                                    view the current status of your resource, use the <a href="https://awscli.amazonaws.com/v2/documentation/api/latest/reference/lambda/get-event-source-mapping.html" rel="noopener noreferrer" target="_blank"><span><code class="code">get-event-source-mapping</code></span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a> command.
+                                 </p>
+                                 <pre class="programlisting"><div class="code-btn-container"></div><code class="nohighlight"><code class="userinput">aws lambda get-event-source-mapping \
+--uuid <code class="replaceable">91eaeb7e-c976-4939-9451-8709db01f137</code></code></code></pre>
+                                 <p>You should see the following output:</p>
+                                 <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><code class=""><span>{</span>
+    "UUID": "91eaeb7e-c976-4939-9451-8709db01f137",
+    "BatchSize": 2,
+    "EventSourceArn": "arn:aws:mq:us-east-1:12345678901:broker:ExampleMQBroker:b-b4d492ef-bdc3-45e3-a781-cd1a3102ecca",
+    "FunctionArn": "arn:aws:lambda:us-east-1:12345678901:function:MQ-Example-Function",
+    "LastModified": 1601928393.531,
+    "LastProcessingResult": "No records processed",
+    "State": "Enabled",
+    "StateTransitionReason": "USER_INITIATED"
+}</code></pre>
+                                  
+                                 <h2 id="services-mq-errors">Event source mapping errors</h2>
+                                 
+                                 <p>When a Lambda function encounters an unrecoverable error, your Amazon MQ consumer
+                                    stops processing records. Any
+                                    other consumers can continue processing, provided they don't encounter the same error.
+                                    To determine the potential
+                                    cause of a stopped consumer, check the <code class="code">StateTransitionReason</code> field in the return details of your
+                                    <code class="code">EventSourceMapping</code> for one of the following codes:
+                                 </p>
+                                 
+                                 <div class="variablelist">
+                                     
+                                     
+                                     
+                                     
+                                    
+                                    <dl>
+                                       
+                                       <dt><b><span class="term"><code class="code">ESM_CONFIG_NOT_VALID</code></span></b></dt>
+                                       
+                                       <dd>
+                                          
+                                          <p>The event source mapping configuration is not valid.</p>
+                                          
+                                       </dd>
+                                       
+                                       
+                                       <dt><b><span class="term"><code class="code">EVENT_SOURCE_AUTHN_ERROR</code></span></b></dt>
+                                       
+                                       <dd>
+                                          
+                                          <p>Lambda failed to authenticate the event source.</p>
+                                          
+                                       </dd>
+                                       
+                                       
+                                       <dt><b><span class="term"><code class="code">EVENT_SOURCE_AUTHZ_ERROR</code></span></b></dt>
+                                       
+                                       <dd>
+                                          
+                                          <p>Lambda does not have the required permissions to access the event source.</p>
+                                          
+                                       </dd>
+                                       
+                                       
+                                       <dt><b><span class="term"><code class="code">FUNCTION_CONFIG_NOT_VALID</code></span></b></dt>
+                                       
+                                       <dd>
+                                          
+                                          <p>The function's configuration is not valid.</p>
+                                          
+                                       </dd>
+                                       
+                                    </dl>
+                                 </div>
+                                 
+                                 <p>Records also go unprocessed if they are dropped due to their size. The size limit
+                                    for Lambda records is 6 MB.
+                                    To redeliver messages upon function error, you can use a redelivery policy and dead-letter
+                                    queue (DLQ) handling
+                                    with Amazon MQ. For more information, see <a href="https://activemq.apache.org/message-redelivery-and-dlq-handling" rel="noopener noreferrer" target="_blank"><span>Message Redelivery and DLQ Handling</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a> on the Apache ActiveMQ website.
+                                 </p>
+                                 
+                                 <awsdocs-copyright class="copyright-print"></awsdocs-copyright>
+                                 <awsdocs-thumb-feedback right-edge="{{$ctrl.thumbFeedbackRightEdge}}"></awsdocs-thumb-feedback>
+                              </div>
+                              <noscript>
+                                 <div>
+                                    <div>
+                                       <div>
+                                          <div id="js_error_message">
+                                             <p><img src="https://d1ge0kk1l5kms0.cloudfront.net/images/G/01/webservices/console/warning.png" alt="Warning" /> <strong>Javascript is disabled or is unavailable in your
+                                                   browser.</strong></p>
+                                             <p>To use the AWS Documentation, Javascript must be
+                                                enabled. Please refer to your browser's Help pages for instructions.
+                                             </p>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </noscript>
+                              <div id="main-col-footer" class="awsui-util-font-size-0">
+                                 <div id="doc-conventions"><a target="_top" href="https://docs.aws.amazon.com/general/latest/gr/docconventions.html">Document Conventions</a></div>
+                                 <div class="prev-next">
+                                    <div id="previous" class="prev-link" accesskey="p" href="services-lex.html">Lex</div>
+                                    <div id="next" class="next-link" accesskey="n" href="services-rds.html">RDS</div>
+                                 </div>
+                              </div>
+                              <awsdocs-page-utilities></awsdocs-page-utilities>
+                           </div>
+                           <div id="quick-feedback-yes" style="display: none;">
+                              <div class="title">Did this page help you? - Yes</div>
+                              <div class="content">
+                                 <p>Thanks for letting us know we're doing a good
+                                    job!
+                                 </p>
+                                 <p>If you've got a moment, please tell us what we did right
+                                    so we can do more of it.
+                                 </p>
+                                 <p>
+                                    <awsui-button id="fblink" target="_blank" text="Feedback" click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=Lambda&amp;topic_url=https://docs.aws.amazon.com/en_us/lambda/latest/dg/with-mq.html"></awsui-button>
+                                 </p>
+                              </div>
+                           </div>
+                           <div id="quick-feedback-no" style="display: none;">
+                              <div class="title">Did this page help you? - No</div>
+                              <div class="content">
+                                 <p>Thanks for letting us know this page needs work. We're
+                                    sorry we let you down.
+                                 </p>
+                                 <p>If you've got a moment, please tell us how we can make
+                                    the documentation better.
+                                 </p>
+                                 <p>
+                                    <awsui-button id="fblink" target="_blank" text="Feedback" click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=Lambda&amp;topic_url=https://docs.aws.amazon.com/en_us/lambda/latest/dg/with-mq.html"></awsui-button>
+                                 </p>
+                              </div>
+                           </div>
+                        </div>
+                     </body>
+                  </div>
+               </awsdocs-view>
+               <div class="page-loading-indicator" id="page-loading-indicator">
+                  <awsui-spinner size="large"></awsui-spinner>
+               </div>
+            </div>
+            <div id="tools-panel" dom-region="tools">
+               <awsdocs-tools-panel id="awsdocs-tools-panel"></awsdocs-tools-panel>
+            </div>
+         </awsui-app-layout>
+         <awsdocs-cookie-banner class="doc-cookie-banner"></awsdocs-cookie-banner>
+         <!--
+                SiteCatalyst code version: H.25.2.
+                Copyright 1996-2012 Adobe, Inc. All Rights Reserved
+                More info available at http://www.omniture.com
+            --><script language="JavaScript" type="text/javascript">
+var awsdocs = awsdocs || {};
+awsdocs.prop66 = 'AWS Lambda';
+awsdocs.prop65 =  'Developer Guide';
+            </script><script src="https://a0.awsstatic.com/s_code/js/3.0/awshome_s_code.js" language="JavaScript" type="text/javascript"></script>
+         <!--/DO NOT REMOVE/-->
+         <!--End SiteCatalyst code version: H.25.2.--></div>
+   </body>
+
+<!-- Mirrored from docs.aws.amazon.com/lambda/latest/dg/with-mq.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 21 Feb 2021 15:02:09 GMT -->
+</html>

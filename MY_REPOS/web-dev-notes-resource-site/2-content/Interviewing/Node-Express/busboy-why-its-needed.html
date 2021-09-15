@@ -1,0 +1,55 @@
+<h3 id="why-bus-boy-is-needed">Why <a href="https://github.com/mscdex/busboy">bus-boy</a> is needed</h3>
+<h4 id="a-node.js-module-for-parsing-incoming-html-form-data.-its-used-to-upload-files.-busboy-is-a-writable-stream-and-its-an-alternative-for-multer.-a-writable-stream-is-an-abstraction-for-a-destination-to-which-data-can-be-written.-an-example-of-that-is-the-fs.createwritestream-method.">A node.js module for parsing incoming HTML form data. Its used to upload files. Busboy is a Writable stream and its an alternative for multer. A writable stream is an abstraction for a destination to which data can be written. An example of that is the <code>fs.createWriteStream</code> method.</h4>
+<p>On busboy ‘file’ event you get parameter named ‘file’ and this is a stream so you can pipe it.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="va">busboy</span>.<span class="at">on</span>(<span class="st">&#39;file&#39;</span><span class="op">,</span> <span class="kw">function</span>(fieldname<span class="op">,</span> file<span class="op">,</span> filename<span class="op">,</span> encoding<span class="op">,</span> mimetype) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">    <span class="va">file</span>.<span class="at">pipe</span>(streamToSQS)</a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="op">}</span>)</a></code></pre></div>
+<p><a href="https://gist.github.com/shobhitg/5b367f01b6daf46a0287">An example of file upload with busboy and express</a></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// accept POST request on the homepage</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="va">app</span>.<span class="at">post</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-3" title="3">    <span class="kw">var</span> busboy <span class="op">=</span> <span class="kw">new</span> <span class="at">Busboy</span>(<span class="op">{</span> <span class="dt">headers</span><span class="op">:</span> <span class="va">req</span>.<span class="at">headers</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-4" title="4">    <span class="va">busboy</span>.<span class="at">on</span>(<span class="st">&#39;file&#39;</span><span class="op">,</span> <span class="kw">function</span>(fieldname<span class="op">,</span> file<span class="op">,</span> filename<span class="op">,</span> encoding<span class="op">,</span> mimetype) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-5" title="5">      <span class="kw">var</span> saveTo <span class="op">=</span> <span class="va">path</span>.<span class="at">join</span>(<span class="st">&#39;.&#39;</span><span class="op">,</span> filename)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-6" title="6">      <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Uploading: &#39;</span> <span class="op">+</span> saveTo)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-7" title="7">      <span class="va">file</span>.<span class="at">pipe</span>(<span class="va">fs</span>.<span class="at">createWriteStream</span>(saveTo))<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-8" title="8">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-9" title="9">    <span class="va">busboy</span>.<span class="at">on</span>(<span class="st">&#39;finish&#39;</span><span class="op">,</span> <span class="kw">function</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-10" title="10">      <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Upload complete&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-11" title="11">      <span class="va">res</span>.<span class="at">writeHead</span>(<span class="dv">200</span><span class="op">,</span> <span class="op">{</span> <span class="st">&#39;Connection&#39;</span><span class="op">:</span> <span class="st">&#39;close&#39;</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-12" title="12">      <span class="va">res</span>.<span class="at">end</span>(<span class="st">&quot;That&#39;s all folks!&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-13" title="13">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-14" title="14">    <span class="cf">return</span> <span class="va">req</span>.<span class="at">pipe</span>(busboy)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-15" title="15"></a>
+<a class="sourceLine" id="cb2-16" title="16"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>The function <code>fs.createWriteStream()</code> creates a writable stream in a very simple manner. After a call to fs.createWriteStream with the filepath, you have a writeable stream to work with.</p>
+<h2 id="comparison-with-multer">Comparison with multer</h2>
+<p>Some developers opine that Multer is easier because it abstracts away some of the details of Busboy.</p>
+<h3 id="difference-between-busboy-and-connect-busboy">Difference between busboy and connect-busboy</h3>
+<p><a href="https://stackoverflow.com/questions/39439922/difference-between-busboy-and-connect-busboy">https://stackoverflow.com/questions/39439922/difference-between-busboy-and-connect-busboy</a> Connect is a middleware layer for building servers in Node.js. It was originally the basis for the Express web framework.</p>
+<p>What middleware here really means is essentially an array of functions that conform to an interface which get called on each request in the order they are defined.</p>
+<p>connect-busboy wraps the busboy library into a connect compatible middleware. You can see in the source it really just returns a function.</p>
+<p>If you’re using express you might want to take a look at express-busboy which uses connect-busboy under the hood and has recent updates.</p>
+<h3 id="what-exactly-are-streams">What exactly are streams?*</h3>
+<p>Streams are collections of data — just like arrays or strings. The difference is that streams might not be available all at once, and they don’t have to fit in memory. This makes streams really powerful when working with large amounts of data, or data that’s coming from an external source one chunk at a time.</p>
+<p>However, streams are not only about working with big data. They also give us the power of composability in our code. Just like we can compose powerful linux commands by piping other smaller Linux commands, we can do exactly the same in Node with streams.</p>
+<h4 id="heres-the-magic-line-about-pipe-and-stream-that-you-need-to-remember">Here’s the magic line about pipe() and stream that you need to remember:</h4>
+<p><code>readableSrc.pipe(writableDest)</code></p>
+<p>In this simple line, we’re piping the output of a readable stream — the source of data, as the input of a writable stream — the destination.</p>
+<h2 id="using-fs.createwritestream"><a href="https://stackabuse.com/writing-to-files-in-node-js/">Using fs.createWriteStream()</a></h2>
+<p>When handling particularly large files, or files that come in chunks, say from a network connection, using streams is preferable to writing files in one go via the above methods that write entire files.</p>
+<p>Streams write small amounts of data at a time. While this has the disadvantage of being slower because data is transferred in chunks, it has advantages for RAM performance. Since the whole file is not loaded in memory all at once, RAM usage is lower.</p>
+<p>To write to a file using streams, you need to create a new writable stream. You can then write data to the stream at intervals, all at once, or according to data availability from a server or other process, then close the stream for good once all the data packets have been written.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">const</span> fs <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;fs&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="kw">const</span> writeStream <span class="op">=</span> <span class="va">fs</span>.<span class="at">createWriteStream</span>(<span class="st">&#39;secret.txt&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-4" title="4"></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="co">// write some data with a base64 encoding</span></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="va">writeStream</span>.<span class="at">write</span>(<span class="st">&#39;aef35ghhjdk74hja83ksnfjk888sfsf&#39;</span><span class="op">,</span> <span class="st">&#39;base64&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-7" title="7"></a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="co">// the finish event is emitted when all data has been flushed from the stream</span></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="va">writeStream</span>.<span class="at">on</span>(<span class="st">&#39;finish&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-10" title="10">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;wrote all data to file&#39;</span>)</a>
+<a class="sourceLine" id="cb3-11" title="11"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb3-12" title="12"></a>
+<a class="sourceLine" id="cb3-13" title="13"><span class="va">writeStream</span>.<span class="at">end</span>()<span class="op">;</span></a></code></pre></div>
+<p>We created a writable stream, then wrote some data to the stream. We have included a log statement when the “finish” event is emitted, letting us know that all data has been flushed to the underlying system. In this case, that means all data has been written to the file system.</p>

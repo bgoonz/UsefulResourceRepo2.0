@@ -1,0 +1,168 @@
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<hr />
+<h1 id="thunks">Thunks</h1>
+<p>One of the most common problems you need middleware to solve is asynchronicity. When building web applications that interact with a server, you’ll need to request resources and then dispatch the response to your store when it eventually gets back.</p>
+<p>While it’s possible to make these API calls from your components and dispatch synchronously on success, for consistency and reusability it’s preferable to have the source of every change to our application state be an action creator. Thunks are a new kind of action creator that will allow you to do that.</p>
+<p>When you finish this article, you should be able to write a thunk action creator to make an asynchronous request to an API and dispatch an action when the response is received.</p>
+<h2 id="looking-at-how-thunks-work">Looking at how thunks work</h2>
+<p>Rather than returning a plain object, a thunk action creator returns a function. This function, when called with an argument of <code>dispatch</code>, can then dispatch one or more actions, immediately, or later. Here’s an example:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">const</span> thunkActionCreator <span class="op">=</span> () <span class="kw">=&gt;</span> dispatch <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="at">dispatch</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;RECEIVE_MESSAGE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="dt">message</span><span class="op">:</span> <span class="st">&#39;This will be dispatched immediately.&#39;</span></a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-6" title="6"></a>
+<a class="sourceLine" id="cb1-7" title="7">  <span class="at">setTimeout</span>(() <span class="kw">=&gt;</span> <span class="at">dispatch</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb1-8" title="8">    <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;RECEIVE_MESSAGE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-9" title="9">    <span class="dt">message</span><span class="op">:</span> <span class="st">&#39;This will be dispatched 1 second later.&#39;</span></a>
+<a class="sourceLine" id="cb1-10" title="10">  <span class="op">},</span> <span class="dv">1000</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-11" title="11"><span class="op">}</span></a></code></pre></div>
+<p>This is great, but without custom middleware it will break as soon as the function action hits your reducer. You need middleware to intercept all actions of type <code>function</code> and then trigger the dispatch:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// ./src/middleware/thunkMiddleware.js</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">const</span> thunk <span class="op">=</span> (<span class="op">{</span> dispatch<span class="op">,</span> getState <span class="op">}</span>) <span class="kw">=&gt;</span> next <span class="kw">=&gt;</span> action <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="cf">if</span> (<span class="kw">typeof</span> action <span class="op">===</span> <span class="st">&#39;function&#39;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-5" title="5">    <span class="cf">return</span> <span class="at">action</span>(dispatch<span class="op">,</span> getState)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-6" title="6">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-7" title="7">  <span class="cf">return</span> <span class="at">next</span>(action)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="op">};</span></a>
+<a class="sourceLine" id="cb2-9" title="9"></a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="im">export</span> <span class="im">default</span> thunk<span class="op">;</span></a></code></pre></div>
+<p>Notice how the <code>getState</code> function is passed into the <code>action</code> in case your asynchronous action creators need access to your application state.</p>
+<p>Then you’d apply your custom middleware to your store:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="co">// ./src/store.js</span></a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="im">import</span> <span class="op">{</span> createStore<span class="op">,</span> applyMiddleware <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="im">import</span> logger <span class="im">from</span> <span class="st">&#39;redux-logger&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-5" title="5"></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="im">import</span> rootReducer <span class="im">from</span> <span class="st">&#39;./reducers/rootReducer&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="im">import</span> thunk <span class="im">from</span> <span class="st">&#39;./middleware/thunkMiddleware&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-8" title="8"></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="kw">const</span> configureStore <span class="op">=</span> (preloadedState <span class="op">=</span> <span class="op">{}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-10" title="10">  <span class="cf">return</span> <span class="at">createStore</span>(</a>
+<a class="sourceLine" id="cb3-11" title="11">    rootReducer<span class="op">,</span></a>
+<a class="sourceLine" id="cb3-12" title="12">    preloadedState<span class="op">,</span></a>
+<a class="sourceLine" id="cb3-13" title="13">    <span class="at">applyMiddleware</span>(thunk<span class="op">,</span> logger)<span class="op">,</span></a>
+<a class="sourceLine" id="cb3-14" title="14">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-15" title="15"><span class="op">};</span></a>
+<a class="sourceLine" id="cb3-16" title="16"></a>
+<a class="sourceLine" id="cb3-17" title="17"><span class="im">export</span> <span class="im">default</span> configureStore<span class="op">;</span></a></code></pre></div>
+<p>That’s it! Now that you have all the pieces, you’re ready to review a more concrete example.</p>
+<h2 id="reviewing-a-concrete-example">Reviewing a concrete example</h2>
+<p>Much like the logger from the previous article, thunk middleware is available as the <code>redux-thunk</code> library.</p>
+<blockquote>
+<p>The middleware you just wrote is almost the entire original library! (<a href="https://github.com/gaearon/redux-thunk/blob/master/src/index.js">Check out the source code</a>). For more on thunks and handling asynchronicity in Redux, you can take a look at <a href="http://stackoverflow.com/questions/35411423/how-to-dispatch-a-redux-action-with-a-timeout/35415559#35415559">this interesting SO post from the creator</a>.</p>
+</blockquote>
+<p>Start by using npm to install the <code>redux-thunk</code> package:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1"><span class="ex">npm</span> install redux-thunk</a></code></pre></div>
+<p>Then apply the middleware to your store:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="co">// ./src/store.js</span></a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="im">import</span> <span class="op">{</span> createStore<span class="op">,</span> applyMiddleware <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="im">import</span> thunk <span class="im">from</span> <span class="st">&#39;redux-thunk&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="im">import</span> logger <span class="im">from</span> <span class="st">&#39;redux-logger&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-6" title="6"></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="im">import</span> rootReducer <span class="im">from</span> <span class="st">&#39;./reducers/rootReducer&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-8" title="8"></a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="kw">const</span> configureStore <span class="op">=</span> (preloadedState <span class="op">=</span> <span class="op">{}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-10" title="10">  <span class="cf">return</span> <span class="at">createStore</span>(</a>
+<a class="sourceLine" id="cb5-11" title="11">    rootReducer<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-12" title="12">    preloadedState<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-13" title="13">    <span class="at">applyMiddleware</span>(thunk<span class="op">,</span> logger)<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-14" title="14">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-15" title="15"><span class="op">};</span></a>
+<a class="sourceLine" id="cb5-16" title="16"></a>
+<a class="sourceLine" id="cb5-17" title="17"><span class="im">export</span> <span class="im">default</span> configureStore<span class="op">;</span></a></code></pre></div>
+<p>Imagine that you’re updating the Fruit Stand application to use a Node/Express API for data persistence. You would use a <code>fetchFruits</code> thunk action creator to retrieve the list of fruits from the API:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="co">// ./src/actions/fruitActions.js</span></a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="im">import</span> <span class="op">{</span> FRUIT_STAND_API_BASE_URL <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../config&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-4" title="4"></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="im">export</span> <span class="kw">const</span> RECEIVE_FRUITS <span class="op">=</span> <span class="st">&#39;RECEIVE_FRUITS&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-6" title="6"></a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="im">export</span> <span class="kw">const</span> fetchFruits <span class="op">=</span> () <span class="kw">=&gt;</span> (dispatch) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb6-8" title="8">  <span class="at">fetch</span>(<span class="vs">`</span><span class="sc">${</span>FRUIT_STAND_API_BASE_URL<span class="sc">}</span><span class="vs">/fruits`</span>)</a>
+<a class="sourceLine" id="cb6-9" title="9">    .<span class="at">then</span>((res) <span class="kw">=&gt;</span> <span class="va">res</span>.<span class="at">json</span>())</a>
+<a class="sourceLine" id="cb6-10" title="10">    .<span class="at">then</span>((data) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-11" title="11">      <span class="at">dispatch</span>(<span class="at">receiveFruits</span>(<span class="va">data</span>.<span class="at">fruits</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-12" title="12">    <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb6-13" title="13">)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-14" title="14"></a>
+<a class="sourceLine" id="cb6-15" title="15"><span class="kw">const</span> receiveFruits <span class="op">=</span> (fruits) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-16" title="16">  <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-17" title="17">    <span class="dt">type</span><span class="op">:</span> RECEIVE_FRUITS<span class="op">,</span></a>
+<a class="sourceLine" id="cb6-18" title="18">    fruits<span class="op">,</span></a>
+<a class="sourceLine" id="cb6-19" title="19">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb6-20" title="20"><span class="op">};</span></a></code></pre></div>
+<p>Notice that the Fetch API is used to make an HTTP request to the <code>/fruits</code> API endpoint. When the promise returned from the <code>fetch</code> method call resolves, the <code>res.json</code> method is called to parse the JSON into JavaScript objects, which in turn is dispatched to the store using the <code>receiveFruits</code> action creator. The <code>receiveFruits</code> action creator returns an action of type <code>RECEIVE_FRUITS</code> that includes the <code>fruit</code> payload.</p>
+<p>In the <code>fruitReducer</code>, the <code>RECEIVE_FRUITS</code> case clause simply returns the <code>action.fruits</code> payload as the new state:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="co">// ./src/reducers/fruitReducer.js</span></a>
+<a class="sourceLine" id="cb7-2" title="2"></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="im">import</span> <span class="op">{</span> RECEIVE_FRUITS <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/fruitActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-4" title="4"></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-6" title="6">  <span class="va">Object</span>.<span class="at">freeze</span>(state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-7" title="7">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-8" title="8">    <span class="cf">case</span> <span class="dt">RECEIVE_FRUITS</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb7-9" title="9">      <span class="cf">return</span> <span class="va">action</span>.<span class="at">fruits</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-10" title="10">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb7-11" title="11">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-12" title="12">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-13" title="13"><span class="op">};</span></a>
+<a class="sourceLine" id="cb7-14" title="14"></a>
+<a class="sourceLine" id="cb7-15" title="15"><span class="im">export</span> <span class="im">default</span> fruitReducer<span class="op">;</span></a></code></pre></div>
+<p>To load the fruits from the API when the React application starts up, you can update the <code>index.js</code> file to dispatch the <code>fetchFruits</code> thunk action creator after creating the store:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="co">// ./src/index.js</span></a>
+<a class="sourceLine" id="cb8-2" title="2"></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="im">import</span> ReactDOM <span class="im">from</span> <span class="st">&#39;react-dom&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-5" title="5"><span class="im">import</span> <span class="op">{</span> Provider <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react-redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-6" title="6"></a>
+<a class="sourceLine" id="cb8-7" title="7"><span class="im">import</span> <span class="st">&#39;./index.css&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-8" title="8"><span class="im">import</span> App <span class="im">from</span> <span class="st">&#39;./App&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-9" title="9"><span class="im">import</span> configureStore <span class="im">from</span> <span class="st">&#39;./store&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-10" title="10"><span class="im">import</span> <span class="op">{</span> fetchFruits <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;./actions/fruitActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-11" title="11"></a>
+<a class="sourceLine" id="cb8-12" title="12"><span class="kw">const</span> store <span class="op">=</span> <span class="at">configureStore</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-13" title="13"><span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">fetchFruits</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-14" title="14"></a>
+<a class="sourceLine" id="cb8-15" title="15"><span class="va">ReactDOM</span>.<span class="at">render</span>(</a>
+<a class="sourceLine" id="cb8-16" title="16">  <span class="op">&lt;</span><span class="va">React</span>.<span class="at">StrictMode</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-17" title="17">    <span class="op">&lt;</span>Provider store<span class="op">={</span>store<span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb8-18" title="18">      <span class="op">&lt;</span>App /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-19" title="19">    &lt;/Provider<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-20" title="20">  &lt;/<span class="va">React</span>.<span class="at">StrictMode</span><span class="op">&gt;,</span></a>
+<a class="sourceLine" id="cb8-21" title="21">  <span class="va">document</span>.<span class="at">getElementById</span>(<span class="st">&#39;root&#39;</span>)</a>
+<a class="sourceLine" id="cb8-22" title="22">)<span class="op">;</span></a></code></pre></div>
+<h3 id="adding-configuration-for-the-api-base-url">Adding configuration for the API base URL</h3>
+<p>The <code>FRUIT_STAND_API_BASE_URL</code> variable (imported at the top of the <code>fruitActions.js</code> file) is defined in the <code>config.js</code> file:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="im">export</span> <span class="kw">const</span> FRUIT_STAND_API_BASE_URL <span class="op">=</span> <span class="va">process</span>.<span class="va">env</span>.<span class="at">REACT_APP_FRUIT_STAND_API_BASE_URL</span><span class="op">;</span></a></code></pre></div>
+<p>And the <code>REACT_APP_FRUIT_STAND_API_BASE_URL</code> environment variable is defined in an <code>.env</code> file (located in the root of the React project):</p>
+<pre><code>REACT_APP_FRUIT_STAND_API_BASE_URL=http://localhost:8080</code></pre>
+<p>Adding configuration for the API base URL keeps you from having to hard-code a value that’ll change between environments.</p>
+<h2 id="reviewing-a-completed-fruit-stand-example">Reviewing a completed Fruit Stand example</h2>
+<p>To review and run a completed Fruit Stand example application that utilizes middleware and thunks to support asynchronous interaction with a backend API, clone the <a href="https://github.com/appacademy-starters/redux-fruit-stand-examples">redux-fruit-stand-examples</a> repo.</p>
+<p>After cloning the repo, open a terminal and browse to the <code>fruit-stand-redux-with-react-middleware-thunks</code> folder.</p>
+<h3 id="running-the-api">Running the API</h3>
+<p>To run the Node/Express API application, complete the following steps:</p>
+<ol type="1">
+<li><p>Within the <code>backend</code> folder, add an <code>.env</code> file based upon the <code>.env.example</code> file.</p></li>
+<li><p>Use the following SQL statements to create a PostgreSQL database and user:</p></li>
+</ol>
+<div class="sourceCode" id="cb11"><pre class="sourceCode sql"><code class="sourceCode sql"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">create</span> <span class="kw">database</span> fruit_stand;</a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="kw">create</span> <span class="fu">user</span> fruit_stand_app <span class="kw">with</span> encrypted <span class="kw">password</span> <span class="st">&#39;«a strong password for the fruit_stand_app user»&#39;</span>;</a>
+<a class="sourceLine" id="cb11-3" title="3"><span class="kw">grant</span> <span class="kw">all</span> <span class="kw">privileges</span> <span class="kw">on</span> <span class="kw">database</span> fruit_stand <span class="kw">to</span> fruit_stand_app;</a></code></pre></div>
+<ol start="3" type="1">
+<li>From a terminal, browse to the <code>backend</code> folder and run the following commands to apply the Sequelize migrations and seed data:</li>
+</ol>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb12-1" title="1"><span class="ex">npx</span> dotenv sequelize db:migrate</a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="ex">npx</span> dotenv sequelize db:seed:all</a></code></pre></div>
+<ol start="4" type="1">
+<li>Start the application using <code>npm start</code>.</li>
+</ol>
+<h3 id="running-the-react-application">Running the React application</h3>
+<p>From the <code>frontend</code> folder, run the command <code>npm install</code> to install the project’s dependencies. Then use the command <code>npm start</code> to run the Fruit Stand application.</p>
+<p>This Fruit Stand example application is a React application created by the Create React App tooling. When running the application using <code>npm start</code>, the application should automatically open in your default browser. If it doesn’t, you can manually browse to <code>http://localhost:3000/</code> to view the application.</p>
+<h2 id="what-you-learned">What you learned</h2>
+<p>In this article, you learned how to write a thunk action creator to make an asynchronous request to an API and dispatch an action when the response is received.</p>

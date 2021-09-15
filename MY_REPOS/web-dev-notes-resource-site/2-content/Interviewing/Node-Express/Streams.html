@@ -1,0 +1,43 @@
+<h2 id="what-are-streams">What are Streams?</h2>
+<p>Streams are collections of data — just like arrays or strings. The difference is that streams might not be available all at once, and they don’t have to fit in memory. This makes streams really powerful when working with large amounts of data, or data that’s coming from an external source one chunk at a time.</p>
+<p>However, streams are not only about working with big data. They also give us the power of composability in our code. Just like we can compose powerful linux commands by piping other smaller Linux commands, we can do exactly the same in Node with streams.</p>
+<p>Ans. Typically, Stream is a mechanism for transferring data between two points. Node.js provides you streams to read data from the source or to write data to the destination. In Node.js, Streams can be readable, writable, or both and all streams are instances of EventEmitter class.</p>
+<p>Streams are unix pipes that let you easily read data from a source and pipe it to a destination. Simply put, a stream is nothing but an EventEmitter and implements some specials methods. Depending on the methods implemented, a stream becomes Readable, Writable, or Duplex (both readable and writable). Readable streams let you read data from a source while writable streams let you write data to a destination.</p>
+<p>If you have already worked with Node.js, you may have come across streams. #### For example, in a Node.js based HTTP server, request is a readable stream and response is a writable stream. You might have used fs module which lets you work with both readable and writable file streams.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">var</span> http <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;http&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">var</span> server <span class="op">=</span> <span class="va">http</span>.<span class="at">createServer</span>(<span class="kw">function</span> (req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="co">// here, req is a readable stream</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="co">// here, res is a writable stream</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h2 id="what-are-the-different-types-of-streams">What are the different types of Streams?</h2>
+<p>Node.js supports four types of streams as given below:</p>
+<h3 id="readable---used-for-read-operation.">Readable - Used for read operation.</h3>
+<h3 id="writable---used-for-write-operation.">Writable - Used for write operation.</h3>
+<h3 id="duplex---used-for-both-read-and-write-operations.-both-operations-are-independent-and-each-have-separate-internal-buffer.">Duplex - Used for both read and write operations. Both operations are independent and each have separate internal buffer.</h3>
+<h3 id="transform---a-type-of-duplex-stream-where-the-output-is-computed-based-on-input.-both-operations-are-linked-via-some-transform.">Transform - A type of duplex stream where the output is computed based on input. Both operations are linked via some transform.</h3>
+<h3 id="many-of-the-built-in-modules-in-node-implement-the-streaming-interface">Many of the built-in modules in Node implement the streaming interface:</h3>
+<p><img src="Streams-Node.jpeg"></p>
+<p>The list above has some examples for native Node.js objects that are also readable and writable streams. Some of these objects are both readable and writable streams, like TCP sockets, zlib and crypto streams.</p>
+<p>Notice that the objects are also closely related. While an HTTP response is a readable stream on the client, it’s a writable stream on the server. This is because in the HTTP case, we basically read from one object (http.IncomingMessage) and write to the other (http.ServerResponse).</p>
+<h2 id="using-fs.createwritestream"><a href="https://stackabuse.com/writing-to-files-in-node-js/">Using fs.createWriteStream()</a></h2>
+<p>When handling particularly large files, or files that come in chunks, say from a network connection, using streams is preferable to writing files in one go via the above methods that write entire files.</p>
+<p>Streams write small amounts of data at a time. While this has the disadvantage of being slower because data is transferred in chunks, it has advantages for RAM performance. Since the whole file is not loaded in memory all at once, RAM usage is lower.</p>
+<p>To write to a file using streams, you need to create a new writable stream. You can then write data to the stream at intervals, all at once, or according to data availability from a server or other process, then close the stream for good once all the data packets have been written.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">const</span> fs <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;fs&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">const</span> writeStream <span class="op">=</span> <span class="va">fs</span>.<span class="at">createWriteStream</span>(<span class="st">&#39;secret.txt&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="co">// write some data with a base64 encoding</span></a>
+<a class="sourceLine" id="cb2-6" title="6"><span class="va">writeStream</span>.<span class="at">write</span>(<span class="st">&#39;aef35ghhjdk74hja83ksnfjk888sfsf&#39;</span><span class="op">,</span> <span class="st">&#39;base64&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-7" title="7"></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="co">// the finish event is emitted when all data has been flushed from the stream</span></a>
+<a class="sourceLine" id="cb2-9" title="9"><span class="va">writeStream</span>.<span class="at">on</span>(<span class="st">&#39;finish&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-10" title="10">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;wrote all data to file&#39;</span>)</a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb2-12" title="12"></a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="va">writeStream</span>.<span class="at">end</span>()<span class="op">;</span></a></code></pre></div>
+<p>We created a writable stream, then wrote some data to the stream. We have included a log statement when the “finish” event is emitted, letting us know that all data has been flushed to the underlying system. In this case, that means all data has been written to the file system.</p>
+<h3 id="further-reading">Further Reading</h3>
+<p>1&gt; <a href="https://www.sitepoint.com/basics-node-js-streams/">https://www.sitepoint.com/basics-node-js-streams/</a></p>
+<p>2&gt; <a href="https://medium.freecodecamp.org/node-js-streams-everything-you-need-to-know-c9141306be93">https://medium.freecodecamp.org/node-js-streams-everything-you-need-to-know-c9141306be93</a></p>
+<p>3&gt;</p>

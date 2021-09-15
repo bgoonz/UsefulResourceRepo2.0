@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="./prism.css">
+    <script async defer src="./prism.js"></script>
+</head>
+
+<body>;
+    <h3 id="synopsis">Synopsis</h3>
+    <div class="sourceCode" id="cb1">
+        <pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="ex">npm</span> dedupe</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="ex">npm</span> ddp</a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="ex">aliases</span>: find-dupes, ddp</a></code></pre>
+    </div>
+    <h3 id="description">Description</h3>
+    <p>Searches the local package tree and attempts to simplify the overall structure by moving dependencies further up
+        the tree, where they can be more effectively shared by multiple dependent packages.</p>
+    <p>For example, consider this dependency graph:</p>
+    <pre><code>a
++-- b &lt;-- depends on c@1.0.x
+|   `-- c@1.0.3
+`-- d &lt;-- depends on c@~1.0.9
+    `-- c@1.0.10</code></pre>
+    <p>In this case, <code>npm dedupe</code> will transform the tree to:</p>
+    <div class="sourceCode" id="cb3">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="ex">a</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="ex">+--</span> b</a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="ex">+--</span> d</a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="kw">`</span><span class="ex">--</span> c@1.0.10</a></code></pre>
+    </div>
+    <p>Because of the hierarchical nature of node’s module lookup, b and d will both get their dependency met by the
+        single c package at the root level of the tree.</p>
+    <p>In some cases, you may have a dependency graph like this:</p>
+    <pre><code>a
++-- b &lt;-- depends on c@1.0.x
++-- c@1.0.3
+`-- d &lt;-- depends on c@1.x
+    `-- c@1.9.9</code></pre>
+    <p>During the installation process, the <code>c@1.0.3</code> dependency for <code>b</code> was placed in the root of
+        the tree. Though <code>d</code>’s dependency on <code>c@1.x</code> could have been satisfied by
+        <code>c@1.0.3</code>, the newer <code>c@1.9.0</code> dependency was used, because npm favors updates by default,
+        even when doing so causes duplication.
+    </p>
+    <p>Running <code>npm dedupe</code> will cause npm to note the duplication and re-evaluate, deleting the nested
+        <code>c</code> module, because the one in the root is sufficient.
+    </p>
+    <p>To prefer deduplication over novelty during the installation process, run <code>npm install
+            --prefer-dedupe</code> or <code>npm config set prefer-dedupe true</code>.</p>
+    <p>Arguments are ignored. Dedupe always acts on the entire tree.</p>
+    <p>Note that this operation transforms the dependency tree, but will never result in new modules being installed.
+    </p>
+    <p>Using <code>npm find-dupes</code> will run the command in <code>--dry-run</code> mode.</p>
+    <h3 id="see-also">See Also</h3>
+    <ul>
+        <li><a href="/cli-commands/ls">npm ls</a></li>
+        <li><a href="/cli-commands/update">npm update</a></li>
+        <li><a href="/cli-commands/install">npm install</a></li>
+    </ul>
+</body>
+
+</html>

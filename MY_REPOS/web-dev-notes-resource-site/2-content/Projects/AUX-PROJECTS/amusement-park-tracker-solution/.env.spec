@@ -1,0 +1,7 @@
+NODE_ENV=test
+PORT=8081
+DB_USERNAME=amusement_park_tracker_app
+DB_PASSWORD=password
+DB_DATABASE=amusement_park_tracker
+DB_HOST=localhost
+DB_CONN=sqlite::memory

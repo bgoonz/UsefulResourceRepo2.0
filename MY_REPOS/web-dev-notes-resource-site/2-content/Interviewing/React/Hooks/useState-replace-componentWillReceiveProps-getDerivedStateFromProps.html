@@ -1,0 +1,79 @@
+<h4 id="first-a-super-simple-example">First a super simple example</h4>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> useState <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw">const</span> Message <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="kw">const</span> [messageState<span class="op">,</span> setMessageState] <span class="op">=</span> <span class="at">useState</span>(<span class="st">&quot;&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="kw">const</span> [listState<span class="op">,</span> setListState] <span class="op">=</span> <span class="at">useState</span>([])<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="op">};</span></a></code></pre></div>
+<p><strong>useState</strong> takes an initial state as an argument, and returns a pair (the current state and an updater function) as an array with two items. The first item is the current value, and the second is a function that lets us update it.</p>
+<p>In the above case the current state is ‘messageState’ and the updater function is ‘setMessageState’. This is similar to this.state.messageState and this.setState in a class component. The <strong>array destructuring</strong> syntax lets us give different names to the state variables we declared by calling useState. These names aren’t a part of the useState API.</p>
+<p>By the <a href="https://reactjs.org/docs/hooks-state.html#tip-what-do-square-brackets-mean">Official doc on the above array-destructuring syntax</a></p>
+<p>It means that we’re making two new variables <strong>messageState</strong> and <strong>setMessateState</strong>, where <strong>messageState</strong> is set to the first value returned by <strong>useState</strong>, and <strong>setMessageState</strong> is the second. It is equivalent to this code:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">var</span> messageStateVariable <span class="op">=</span> <span class="at">useState</span>(<span class="st">&quot;some message&quot;</span>)<span class="op">;</span> <span class="co">// Returns a pair</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="kw">var</span> messageState <span class="op">=</span> messageStateVariable[<span class="dv">0</span>]<span class="op">;</span> <span class="co">// First item in a pair</span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">var</span> setMessageState <span class="op">=</span> messageStateVariable[<span class="dv">1</span>]<span class="op">;</span> <span class="co">// Second item in a pair</span></a></code></pre></div>
+<p><strong>You can pass the initial value of the state variable as an argument directly, as shown in the previous example, or use a function to lazily initialize the variable (useful when the initial state is the result of an expensive computation):</strong></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">const</span> Message <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="kw">const</span> messageState <span class="op">=</span> <span class="at">useState</span>(() <span class="kw">=&gt;</span> <span class="at">expensiveComputation</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="co">/* ... */</span></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="op">};</span></a></code></pre></div>
+<p><strong>The initial value will be assigned only on the initial render (if it’s a function, it will be executed only on the initial render).</strong></p>
+<p><strong>In subsequent renders (due to a change of state in the component or a parent component), the argument of the useState hook will be ignored and the current value of the state will be retrieved. It is important to keep this in mind because, for example, if you want to update the state based on the new properties the component receives:</strong></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">const</span> Message <span class="op">=</span> props <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="kw">const</span> messageState <span class="op">=</span> <span class="at">useState</span>(<span class="va">props</span>.<span class="at">message</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-3" title="3">  <span class="ss">/_ ... _/</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="op">};</span></a></code></pre></div>
+<p>In the above, Using useState alone won’t work because its argument is used the first time only, not every time the property changes. The issue will be, the state is being set upon component being loaded the first time. But when it receive new props, the state (props.message) will not get updated.</p>
+<p>Look below example taken from an SO question for the right way to do this. <strong>You must make use of useEffect hooks to implement what you would call the componentWillReceiveProps/getDerivedStateFromProps functionality.</strong></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">const</span> Persons <span class="op">=</span> props <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="co">// console.log(props.name);</span></a>
+<a class="sourceLine" id="cb5-3" title="3"></a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="kw">const</span> [nameState<span class="op">,</span> setNameState] <span class="op">=</span> <span class="at">useState</span>(props)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-5" title="5"></a>
+<a class="sourceLine" id="cb5-6" title="6">  <span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-7" title="7">    <span class="at">setNameState</span>(props)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-8" title="8">  <span class="op">},</span> [props])<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-9" title="9"></a>
+<a class="sourceLine" id="cb5-10" title="10">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb5-11" title="11">    <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-12" title="12">      <span class="op">&lt;</span>p<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-13" title="13">        My name is <span class="op">{</span><span class="va">props</span>.<span class="at">name</span><span class="op">}</span> and my age is <span class="op">{</span><span class="va">props</span>.<span class="at">age</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-14" title="14">      &lt;/p<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-15" title="15">      <span class="op">&lt;</span>p<span class="op">&gt;</span>My profession is <span class="op">{</span><span class="va">props</span>.<span class="at">profession</span><span class="op">}</span>&lt;/p<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-16" title="16">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-17" title="17">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-18" title="18"><span class="op">};</span></a></code></pre></div>
+<p>The <strong>setNameState</strong> function is used to update the state. It accepts a new state value, as its argument and enqueues a re-render of the component. Remember unlike the class-based component’s <code>setState()</code> method, there is NO <code>setState()</code> in react-hooks. So whatever the name of the state is (in this case ‘nameState’) just add the keyword <strong>set</strong> to that with a proper camel-casing. So here that becomes <strong>setNameState</strong> but this <strong>setNameState</strong> can theoretically be any word.</p>
+<p><a href="https://stackoverflow.com/questions/54625831/how-to-sync-props-to-state-using-react-hook-setstate">https://stackoverflow.com/questions/54625831/how-to-sync-props-to-state-using-react-hook-setstate</a></p>
+<h3 id="some-more-explanation-of-usestate-and-syntax">Some more explanation of useState and syntax</h3>
+<p>Stateful function components are enabled with the new function useState.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="im">import</span> <span class="op">{</span> useState <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="kw">const</span> SomeComponent <span class="op">=</span> props <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-3" title="3">  <span class="kw">const</span> [state<span class="op">,</span> setState] <span class="op">=</span> <span class="at">useState</span>(initialState)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-4" title="4">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb6-5" title="5">    <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-6" title="6">      <span class="op">{</span>state<span class="op">}</span> <span class="op">&lt;</span>input onChange<span class="op">={</span>e <span class="kw">=&gt;</span> <span class="at">setState</span>(<span class="va">e</span>.<span class="va">target</span>.<span class="at">value</span>)<span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb6-7" title="7">    &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-8" title="8">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-9" title="9"><span class="op">};</span></a></code></pre></div>
+<p>Pere <a href="https://reactjs.org/docs/hooks-reference.html">Hooks Official Docs</a> - <strong>During the initial render, the returned state (state) is the same as the value passed as the first argument (initialState). During subsequent re-renders (i.e. after invoking a setState (like setCount or whatever) inside useEffect()), the first value returned by useState will always be, whatever is the most recent state after applying updates.</strong></p>
+<p>The setState it returns is almost the same used by class components—it can accept a callback that gets the current state as an argument, but it doesn’t automatically merge top-level object keys.</p>
+<p>Each call to useState is paired with a component, with its state persisting across renders. This means that you can call useState multiple times within a single function component to get multiple independent state values. Because the setState returned isn’t scoped to a single component, we can define stateful behaviors independent of the component. This enables powerful new ways to abstract stateful logic.</p>
+<h4 id="when-we-want-to-display-the-current-count-in-a-class-we-read-this.state.count">When we want to display the current count in a class, we read this.state.count:</h4>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="op">&lt;</span>p<span class="op">&gt;</span>You clicked <span class="op">{</span><span class="kw">this</span>.<span class="va">state</span>.<span class="at">count</span><span class="op">}</span> times&lt;/p<span class="op">&gt;</span></a></code></pre></div>
+<p><strong>In a function, we can use ’count. directly - no need to use <code>this.state.count</code> - And as far as passing down props are concerned there is no difference in usage with React Hooks.</strong></p>
+<p><code>&lt;p&gt;You clicked {count} times&lt;/p&gt;</code></p>
+<h4 id="updating-state">Updating State</h4>
+<p>In a class, we need to call this.setState() to update the count state:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="op">&lt;</span>button onClick<span class="op">={</span>() <span class="kw">=&gt;</span> <span class="kw">this</span>.<span class="at">setState</span>(<span class="op">{</span> <span class="dt">count</span><span class="op">:</span> <span class="kw">this</span>.<span class="va">state</span>.<span class="at">count</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">}</span>)<span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb8-2" title="2">  Click me</a>
+<a class="sourceLine" id="cb8-3" title="3">&lt;/button<span class="op">&gt;</span></a></code></pre></div>
+<p><strong>In a function, we already have setCount and count as variables so we don’t need this:</strong></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="op">&lt;</span>button onClick<span class="op">={</span>() <span class="kw">=&gt;</span> <span class="at">setCount</span>(count <span class="op">+</span> <span class="dv">1</span>)<span class="op">}&gt;</span>Click me&lt;/button<span class="op">&gt;</span></a></code></pre></div>
+<h4 id="further-reading">Further Reading</h4>
+<ul>
+<li><span class="citation" data-cites="vcarl/everything-you-need-to-know-about-react-hooks-8f680dfd4349">[https://medium.com/@vcarl/everything-you-need-to-know-about-react-hooks-8f680dfd4349]</span>(https://medium.com/<span class="citation" data-cites="vcarl/everything-you-need-to-know-about-react-hooks-8f680dfd4349">@vcarl/everything-you-need-to-know-about-react-hooks-8f680dfd4349</span>)</li>
+<li><a href="https://blog.logrocket.com/a-guide-to-usestate-in-react-ecb9952e406c">https://blog.logrocket.com/a-guide-to-usestate-in-react-ecb9952e406c</a></li>
+<li><a href="https://reactjs.org/docs/hooks-state.html">https://reactjs.org/docs/hooks-state.html</a></li>
+<li><a href="https://reactjs.org/docs/hooks-reference.html#usestate">https://reactjs.org/docs/hooks-reference.html#usestate</a></li>
+</ul>

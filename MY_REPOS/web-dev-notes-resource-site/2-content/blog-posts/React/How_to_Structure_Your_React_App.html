@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h1 id="how-to-structure-your-react-app">How to Structure Your React App</h1>
+<blockquote>
+<p>Stop wondering where your files are and start structuring your React app projects better. Start by organizing files not by purpose, but by the component the file supports.</p>
+</blockquote>
+<p>Component-based development for the web is fun. In many ways, it has changed the way we think about how we build for the web. But change isn’t always fun. Change brings about new challenges, which, without proper guidance, can introduce new pains and frustrations into our workflows.</p>
+<p>I’ve been involved in building several different React applications over the past few years. In the course of building them, one of the pains I noticed early on was the hassle of finding all the pieces the components were made of in the project structure. Various component pieces were spread out in different places. It became clear that the organizational structures we had been using for apps built with different architectural patterns didn’t work as well for component-based applications. <em>We needed a better way.</em></p>
+<p>In this article, I hope to ease some of those frustrations and pains by sharing the organizational strategy I feel like makes the most sense for building component-based React applications.</p>
+<h2 id="where-is-that-file">Where Is That File…?</h2>
+<p>For the first several React applications I built, I attempted to adapt many of the same organizational principles I
+  had previously used with other patterns I’d used for building web applications, which was to arrange files of similar
+  purpose and intent into folders named accordingly. For example, I would put my components into a “components" folder,
+  and my specs into a “specs" folder, and my styles into a “style" folder. My file system for those applications always
+  ended up looking something like this:</p>
+<pre><code>Project
+└── src
+  └── js
+    └── components
+      │    component-one.js
+      │    component-two.js
+      │    component-three.js
+      │    component-four.js
+    └── specs
+      │    component-one.spec.js
+      │    component-two.spec.js
+      │    component-three.spec.js
+      │    component-four.spec.js
+    └── stories
+      │    component-one.story.js
+      │    component-two.story.js
+      │    component-three.story.js
+      │    component-four.story.js
+  └── css
+    │    component-one.css
+    │    component-two.css
+    │    component-three.css
+    │    component-four.css
+    │    main.css</code></pre>
+<p>This works and is a very reasonable approach to organizing your application’s files. However, one of the big challenges a developer will face with this approach is finding the file you need when you need it as the application grows. Having a solid naming strategy for your files will certainly help (especially if you use an editor that allows you to open a file by searching for its name), but as the number of project files grows, and the more you find the need to find files that you don’t know the name of, this organizational strategy can make finding what you need when you need it an exercise in frustration.</p>
+<p><em><strong>NOTE</strong>: If you’re not familiar with it, the <code>.story.js</code> files are intended to be files that are consumed and rendered by <a href="https://storybook.js.org/">Storybook</a>, which is a fantastic and useful tool for the development, test, and documentation of components in isolation.</em></p>
+<h2 id="there-is-a-better-way">There Is a Better Way</h2>
+<p>Things got better when I was introduced to and read <a href="https://marmelab.com/blog/2015/12/17/react-directory-structure.html">this article</a> by marmelab; it opened my eyes to the idea that, in a component-based application, <em><strong>we can organize our files not by the file’s purpose, but rather by the component the file supports</strong></em>.</p>
+<p>By using this strategy, each component can be represented by a folder that contains all the files it is composed of in a single place. This can include not only the JavaScript files but also stylesheets, images, supporting data files, or whatever the component might need. There are a few exceptions here, with the most obvious being the idea of shared or common components: consider in this example, the <code>shopping-list-editor</code> composes the <code>shared/dialog</code>, <code>shared/list</code> and <code>shared/list-item</code> components, and the <code>shopping-list</code> composes the <code>shared/list</code> and <code>shopping-list-item</code> components. Here’s a look at what an application that employs this organizational structure might start to look like:</p>
+<pre><code>Project
+└── src
+  └── js
+    └── components
+      └── shopping-list-editor        
+      │    index.js
+        │    index.spec.js
+        │    index.story.js
+        │    README.md
+        │    style.css
+      └── shopping-list
+      └── components
+          └── header
+            │    background.png
+            │    index.spec.js
+            │    style.css
+          └── footer
+            │    index.js
+            │    style.css
+        │    index.js
+        │    index.spec.js
+        │    index.story.js
+        │    style.css
+      └── shopping-list-item  &lt;= composes shared/list-item
+        │    index.js
+        │    index.spec.js
+        │    index.story.js
+        │    style.css
+      └── shared
+        └── dialog
+          │    index.js
+          │    index.spec.js
+          │    index.story.js
+          │    style.css
+        └── list
+          │    index.js
+          │    index.spec.js
+          │    index.story.js
+          │    style.css
+        └── list-item
+          │    index.js
+          │    index.spec.js
+          │    index.story.js
+          │    style.css</code></pre>
+<p>There are a few things you will likely notice when you look at the above application directory structure. First of all, you’ll notice that all the files that compose a component are, for the most part, in one place, with the exception of shared components. With this solution, there is no longer a need to go digging through folders to try to find where that stylesheet is.</p>
+<p>You may also notice that, in the case of the <code>shopping-list</code> component, it has its own subfolder of components. In many cases you may have components complex enough that it makes sense to decompose them into smaller standalone components. This can simplify long-term maintenance, even if they’re not used anywhere else. Notice also that each of those subcomponents are similarly self-contained, including the fact that the header component has an image (<code>background.png</code>) that is specific to its use in the component hierarchy (not needed or shared elsewhere). Again, the benefit of this is the ease of finding it if/when it is ever decided to change or replace the component in the future.</p>
+<p>Additionally, note that the <code>shopping-list-editor</code> component also contains its own <code>README.md</code> file. For components that need additional documentation specific to their maintenance, integration, or whatever else, this organizational strategy makes it very obvious that there is information specific to this component that is important to developers on the team. which could be very difficult and not obvious if this were just another in a collection of markdown files in a <code>/docs</code> folder in the project.</p>
+<p>If your application begins to grow to a scale where even this structure starts to get a bit out of control, this approach can be extended even further by adding in higher-level folder containers, like “admin," to organize related components by page or related functional behavior.</p>
+<h2 id="bonuses">Bonuses</h2>
+<p>There are a few other nice little things that this organizational approach delivers as well, especially if you’re <a href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/foundry/webpack_but_really">using webpack</a> for bundling your application assets. First, you can <a href="https://webpack.js.org/configuration/resolve/">configure webpack to resolve</a> the path to your dependencies in such a way that you can have really nice, clean, readable import statements for your application’s components, which would end up looking like this (depending on how you configure module resolution):</p>
+<pre><code>import List from &#39;components/shared/list&#39;;
+import ShoppingListItem from &#39;components/shopping-list-item&#39;;</code></pre>
+<p>That’s a lot cleaner and simpler to read and make sense of than using relative path references, which would look more like this:</p>
+<pre><code>import List from &#39;../../shared/list&#39;;
+import ShoppingListItem from &#39;../../shopping-list-item&#39;;</code></pre>
+<p>If you’re using the <a href="https://github.com/facebook/create-react-app">create-react-app CLI tool</a> for managing your project’s build configuration, this is as simple as adding <code>NODE_PATH=src</code> to a <code>.env</code> file in your project.</p>
+<p>Additionally, <a href="https://survivejs.com/webpack/styling/loading/">a webpack configuration with the appropriate loaders</a> will build a bundled and minified deliverable stylesheet for you simply by importing each of the stylesheets for your components into them. Here’s an example of what I’m referring to:</p>
+<pre><code>...
+import &#39;./style.css&#39;;
+
+
+...
+import &#39;./style.css&#39;;</code></pre>
+<p>This capability is delivered out-of-the-box for applications generated and managed with create-react-app.</p>
+<h2 id="adapt-and-move-forward">Adapt and Move Forward</h2>
+<p>The ways we build component-based web applications continue to grow and change. As with any change, there is a learning curve, and aches and pains that come along with it. Hopefully, this organizational strategy can help ease a few of those annoyances and frustrations for you as you work your way along your journey into component-based development for the web.</p>
+<p><a href="https://sparkbox.com/foundry/file_structure_react_app">Source</a></p>
+</body></html>

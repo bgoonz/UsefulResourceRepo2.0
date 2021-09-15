@@ -1,0 +1,217 @@
+<h1 id="from-javascript-to-dom">From JavaScript To DOM</h1>
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<!-- code_chunk_output -->
+<ul>
+<li><a href="#using-react">Using React</a></li>
+<li><a href="#creating-elements">Creating elements</a></li>
+<li><a href="#converting-to-virtual-dom">Converting to virtual DOM</a></li>
+<li><a href="#updates">Updates</a></li>
+<li><a href="#what-youve-learned">What you’ve learned</a></li>
+</ul>
+<!-- /code_chunk_output -->
+<hr />
+<p>The path from JavaScript to actual DOM elements appearing in your HTML document is not complex thanks to React. However, it is worth reviewing so that there is no mystery about it.</p>
+<p>In this article, you will review how to use <code>React.createElement</code> to get what you want into React’s virtual DOM so that React will convert into real DOM. There are three steps:</p>
+<ul>
+<li>Invoking <code>createElement</code> to build the "element tree"</li>
+<li>Invoking <code>render</code> to let React build its virtual DOM</li>
+<li>"Waiting" for React to convert its virtual DOM into real DOM</li>
+</ul>
+<p>This article’s goal is for React to create the following HTML in the DOM.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode html"><code class="sourceCode html"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">&lt;ul&gt;</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="kw">&lt;li</span><span class="ot"> class=</span><span class="st">&quot;selected&quot;</span><span class="kw">&gt;</span></a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="kw">&lt;a</span><span class="ot"> href=</span><span class="st">&quot;/pets&quot;</span><span class="kw">&gt;</span>Pets<span class="kw">&lt;/a&gt;</span></a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="kw">&lt;/li&gt;</span></a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="kw">&lt;li&gt;</span></a>
+<a class="sourceLine" id="cb1-6" title="6">    <span class="kw">&lt;a</span><span class="ot"> href=</span><span class="st">&quot;/owners&quot;</span><span class="kw">&gt;</span>Owners<span class="kw">&lt;/a&gt;</span></a>
+<a class="sourceLine" id="cb1-7" title="7">  <span class="kw">&lt;/li&gt;</span></a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="kw">&lt;/ul&gt;</span></a></code></pre></div>
+<h2 id="using-react">Using React</h2>
+<p>There is one method to consider when building interfaces using low-level React. From the <a href="https://reactjs.org/docs/react-api.html#createelement">documentation</a>, the <code>React.createElement</code> function has the following form:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="va">React</span>.<span class="at">createElement</span>(</a>
+<a class="sourceLine" id="cb2-2" title="2">  type<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-3" title="3">  [props]<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  [...<span class="at">children</span>]</a>
+<a class="sourceLine" id="cb2-5" title="5">)</a></code></pre></div>
+<p>The arguments for it are</p>
+<ul>
+<li><strong>type</strong>: the type of element to create, either a string for an HTML element, or a reference to a function or class that is a React component</li>
+<li><strong>props</strong>: an object that contains data to render the element, either data to dynamically show or attributes to put on the element in the HTML</li>
+<li><strong>children</strong>: the children of the element, as many as you want</li>
+</ul>
+<h2 id="creating-elements">Creating elements</h2>
+<p>For each tag that you want to create with React, you will make a call to <code>React.createElement</code>. In the HTML above, there are five tags to create:</p>
+<ul>
+<li>One <code>ul</code> element</li>
+<li>Two <code>li</code> elements</li>
+<li>Two <code>a</code> elements</li>
+</ul>
+<p>Three of those tags have attributes that you want to have appear in the DOM:</p>
+<ul>
+<li>One <code>li</code> element has a "class" attribute (which you <em>must</em> translate to "className" when using in React)</li>
+<li>Both <code>a</code> elements have "href" attributes</li>
+</ul>
+<p>Finally, there is a parent-child relationship between the elements.</p>
+<ul>
+<li>The <code>ul</code> element is the parent of both <code>li</code> elements</li>
+<li>Both <code>li</code> elements have a single <code>a</code> element child</li>
+<li>Both <code>a</code> elements have "child" text content</li>
+</ul>
+<p>To summarize, here are the elements and how you would translate them to their respective arguments for <code>React.createElement</code>.</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 6%" />
+<col style="width: 22%" />
+<col style="width: 46%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>HTML snippet</th>
+<th>type</th>
+<th>props</th>
+<th>children</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>&lt;ul&gt;...&lt;/ul&gt;</code></td>
+<td><code>'ul'</code></td>
+<td><code>null</code></td>
+<td>Two calls to <code>React.createElement</code>, one for each <code>li</code> child</td>
+</tr>
+<tr class="even">
+<td><code>&lt;li class="selected"&gt;...&lt;/li&gt;</code></td>
+<td><code>'li'</code></td>
+<td><code>{ className: 'selected' }</code></td>
+<td>One call to <code>React.createElement</code> for the <code>a</code> child</td>
+</tr>
+<tr class="odd">
+<td><code>&lt;li&gt;...&lt;/li&gt;</code></td>
+<td><code>'li'</code></td>
+<td><code>null</code></td>
+<td>One call to <code>React.createElement</code> for the <code>a</code> child</td>
+</tr>
+<tr class="even">
+<td><code>&lt;a href="/pets"&gt;Pets&lt;/a&gt;</code></td>
+<td><code>'a'</code></td>
+<td><code>{ href: '/pets' }</code></td>
+<td>The string <code>'Pets'</code></td>
+</tr>
+<tr class="odd">
+<td><code>&lt;a href="/owners"&gt;Owners&lt;/a&gt;</code></td>
+<td><code>'a'</code></td>
+<td><code>{ href: '/owners' }</code></td>
+<td>The string <code>'Owners'</code></td>
+</tr>
+</tbody>
+</table>
+<p>To create this tree of elements, you will use nested calls to <code>React.createElement</code>. The standard formatting for this is for elements to have children, put each argument on its own line, and for elements that have no children or just text content, put all arguments on a single line.</p>
+<p>Since the <code>ul</code> has children, it will have its arguments on separate lines. Referring to the table above gives you:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="va">React</span>.<span class="at">createElement</span>(</a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="st">&#39;ul&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="kw">null</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-4" title="4">  <span class="co">// First li child,</span></a>
+<a class="sourceLine" id="cb3-5" title="5">  <span class="co">// Second li child,</span></a>
+<a class="sourceLine" id="cb3-6" title="6">)<span class="op">;</span></a></code></pre></div>
+<p>The first <code>li</code> element has a child. Its call to <code>React.createElement</code> will have its arguments each go on their own separate lines:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="va">React</span>.<span class="at">createElement</span>(</a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="st">&#39;ul&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-3" title="3">  <span class="kw">null</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-4" title="4">  <span class="va">React</span>.<span class="at">createElement</span>(</a>
+<a class="sourceLine" id="cb4-5" title="5">    <span class="st">&#39;li&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-6" title="6">    <span class="op">{</span> <span class="dt">className</span><span class="op">:</span> <span class="st">&#39;selected&#39;</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb4-7" title="7">    <span class="co">// a child</span></a>
+<a class="sourceLine" id="cb4-8" title="8">  )<span class="op">,</span></a>
+<a class="sourceLine" id="cb4-9" title="9">  <span class="co">// Second li child,</span></a>
+<a class="sourceLine" id="cb4-10" title="10">)<span class="op">;</span></a></code></pre></div>
+<p>The anchor element for "Pets" has only one text child. Its call to <code>React.createElement</code> will have its arguments on one line:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="va">React</span>.<span class="at">createElement</span>(</a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="st">&#39;ul&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb5-3" title="3">  <span class="kw">null</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="va">React</span>.<span class="at">createElement</span>(</a>
+<a class="sourceLine" id="cb5-5" title="5">    <span class="st">&#39;li&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="op">{</span> <span class="dt">className</span><span class="op">:</span> <span class="st">&#39;selected&#39;</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb5-7" title="7">    <span class="va">React</span>.<span class="at">createElement</span>(<span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="op">{</span> <span class="dt">href</span><span class="op">:</span> <span class="st">&#39;/pets&#39;</span><span class="op">},</span> <span class="st">&#39;Pets&#39;</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-8" title="8">  )<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-9" title="9">  <span class="co">// Second li child,</span></a>
+<a class="sourceLine" id="cb5-10" title="10">)<span class="op">;</span></a></code></pre></div>
+<p>The second <code>li</code> element has a child. Its call to <code>React.createElement</code> will have its arguments each go on their own separate lines:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="va">React</span>.<span class="at">createElement</span>(</a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="st">&#39;ul&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-3" title="3">  <span class="kw">null</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-4" title="4">  <span class="va">React</span>.<span class="at">createElement</span>(</a>
+<a class="sourceLine" id="cb6-5" title="5">    <span class="st">&#39;li&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-6" title="6">    <span class="op">{</span> <span class="dt">className</span><span class="op">:</span> <span class="st">&#39;selected&#39;</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb6-7" title="7">    <span class="va">React</span>.<span class="at">createElement</span>(<span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="op">{</span> <span class="dt">href</span><span class="op">:</span> <span class="st">&#39;/pets&#39;</span><span class="op">},</span> <span class="st">&#39;Pets&#39;</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb6-8" title="8">  )<span class="op">,</span></a>
+<a class="sourceLine" id="cb6-9" title="9">  <span class="va">React</span>.<span class="at">createElement</span>(</a>
+<a class="sourceLine" id="cb6-10" title="10">    <span class="st">&#39;li&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-11" title="11">    <span class="kw">null</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-12" title="12">    <span class="co">// a child</span></a>
+<a class="sourceLine" id="cb6-13" title="13">  )<span class="op">,</span></a>
+<a class="sourceLine" id="cb6-14" title="14">)<span class="op">;</span></a></code></pre></div>
+<p>The other anchor element, the one for "Owners" has only one text child. Its call to <code>React.createElement</code> will have its arguments on one line:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="va">React</span>.<span class="at">createElement</span>(</a>
+<a class="sourceLine" id="cb7-2" title="2">  <span class="st">&#39;ul&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-3" title="3">  <span class="kw">null</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-4" title="4">  <span class="va">React</span>.<span class="at">createElement</span>(</a>
+<a class="sourceLine" id="cb7-5" title="5">    <span class="st">&#39;li&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-6" title="6">    <span class="op">{</span> <span class="dt">className</span><span class="op">:</span> <span class="st">&#39;selected&#39;</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb7-7" title="7">    <span class="va">React</span>.<span class="at">createElement</span>(<span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="op">{</span> <span class="dt">href</span><span class="op">:</span> <span class="st">&#39;/pets&#39;</span><span class="op">},</span> <span class="st">&#39;Pets&#39;</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb7-8" title="8">  )<span class="op">,</span></a>
+<a class="sourceLine" id="cb7-9" title="9">  <span class="va">React</span>.<span class="at">createElement</span>(</a>
+<a class="sourceLine" id="cb7-10" title="10">    <span class="st">&#39;li&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-11" title="11">    <span class="kw">null</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-12" title="12">    <span class="va">React</span>.<span class="at">createElement</span>(<span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="op">{</span> <span class="dt">href</span><span class="op">:</span> <span class="st">&#39;/owners&#39;</span><span class="op">},</span> <span class="st">&#39;Owners&#39;</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb7-13" title="13">  )<span class="op">,</span></a>
+<a class="sourceLine" id="cb7-14" title="14">)<span class="op">;</span></a></code></pre></div>
+<p>That’s how you translate what you want from simple HTML into well-formatted calls to <code>React.createElement</code>. That will build the "element tree" for React to use.</p>
+<h2 id="converting-to-virtual-dom">Converting to virtual DOM</h2>
+<p>To tell React to start the conversion process, you have to use the <code>React.render</code> method which takes a value returned from <code>React.createElement</code> and a DOM node in the actual document where React will insert the result of the conversion into real DOM.</p>
+<p>If you wanted to insert what was created in the last section into the <code>main</code> tag, the most forward way of doing that is like this.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="co">// Put the element tree in a variable</span></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="kw">const</span> navList <span class="op">=</span> <span class="va">React</span>.<span class="at">createElement</span>(</a>
+<a class="sourceLine" id="cb8-3" title="3">  <span class="st">&#39;ul&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb8-4" title="4">  <span class="kw">null</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb8-5" title="5">  <span class="va">React</span>.<span class="at">createElement</span>(</a>
+<a class="sourceLine" id="cb8-6" title="6">    <span class="st">&#39;li&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb8-7" title="7">    <span class="op">{</span> <span class="dt">className</span><span class="op">:</span> <span class="st">&#39;selected&#39;</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb8-8" title="8">    <span class="va">React</span>.<span class="at">createElement</span>(<span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="op">{</span> <span class="dt">href</span><span class="op">:</span> <span class="st">&#39;/pets&#39;</span><span class="op">},</span> <span class="st">&#39;Pets&#39;</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-9" title="9">  )<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-10" title="10">  <span class="va">React</span>.<span class="at">createElement</span>(</a>
+<a class="sourceLine" id="cb8-11" title="11">    <span class="st">&#39;li&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb8-12" title="12">    <span class="kw">null</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb8-13" title="13">    <span class="va">React</span>.<span class="at">createElement</span>(<span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="op">{</span> <span class="dt">href</span><span class="op">:</span> <span class="st">&#39;/owners&#39;</span><span class="op">},</span> <span class="st">&#39;Owners&#39;</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-14" title="14">  )<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-15" title="15">)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-16" title="16"></a>
+<a class="sourceLine" id="cb8-17" title="17"><span class="co">// Get a DOM node for React to render to</span></a>
+<a class="sourceLine" id="cb8-18" title="18"><span class="kw">const</span> mainElement <span class="op">=</span> <span class="va">document</span>.<span class="at">querySelector</span>(<span class="st">&#39;main&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-19" title="19"></a>
+<a class="sourceLine" id="cb8-20" title="20"><span class="co">// Give React the element tree and the target</span></a>
+<a class="sourceLine" id="cb8-21" title="21"><span class="va">ReactDOM</span>.<span class="at">render</span>(navList<span class="op">,</span> mainElement)<span class="op">;</span></a></code></pre></div>
+<p>At this point, you have given the element tree that you want created to React. It will then take that and construct its virtual DOM from it.</p>
+<figure>
+<img src="https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/intro-to-react/assets/react-example-conversion-virtual-dom.svg" alt="Convert element tree to virtual DOM" /><figcaption>Convert element tree to virtual DOM</figcaption>
+</figure>
+<p>Now that it has built it’s own model of the virtual DOM using the elements that you created, it can now take that and turn that into real DOM.</p>
+<figure>
+<img src="images/react-example-conversion-real-dom.svg" alt="Convert virtual DOM to real DOM" /><figcaption>Convert virtual DOM to real DOM</figcaption>
+</figure>
+<p>It takes that real DOM and inserts it as the content of the target that you gave it which, in this case, is the <code>main</code> element in the body of the document.</p>
+<h2 id="updates">Updates</h2>
+<p>When you call <code>React.render</code> again for the same component and target, React takes the existing virtual DOM it knows about last time it rendered the element tree, compares it to whatever new thing you want to render, and determines which (if any) of the living DOM needs to change.</p>
+<p>For example, let’s say you constructed the same element tree but left off the "selected" class for the first list element. Then, when you rendered it, again, by calling <code>React.render</code>, React would compare the new element tree with the old element tree, figure out that one class was missing on that one <code>li</code> element, and remove that and only that from the real DOM.</p>
+<figure>
+<embed src="images/react-example-virtual-dom-diff.svgimages/react-example-virtual-dom-diff.svg%20orderedList=false%7D%20--%3E" /><figcaption>Virtual DOM diff</figcaption>
+</figure>
+<h2 id="what-youve-learned">What you’ve learned</h2>
+<p>In this article, you learned</p>
+<ul>
+<li>To convert desired HTML into properly-formatted nested calls of <code>React.createElement</code></li>
+<li>How React takes your element tree and builds its virtual DOM from the elements that you created</li>
+<li>How React takes that virtual DOM and inserts it into the living HTML document</li>
+<li>How React will compare an old virtual DOM tree with a new virtual DOM tree, figure out what changed, and then change that and only that in the real DOM</li>
+</ul>

@@ -1,0 +1,211 @@
+<p><img src="http://i.imgur.com/xl1xgjm.png" alt="elasticsearch logo" /> <a href="https://travis-ci.org/dwyl/learn-elasticsearch"><img src="https://travis-ci.org/dwyl/learn-elasticsearch.svg?branch=master" alt="Build Status" /></a></p>
+<p>In the next 30 mins you will learn how to use ElasticSearch to power a great search experience for your project/product/website.</p>
+<h2 id="why">Why?</h2>
+<p>For anything more than a <em>basic</em> website, <strong><em>people</em></strong> (visiting/using your site/app) <strong><em>expect</em></strong> to be able to <strong><em>search</em></strong> through your content (blog posts, recipes, products, reviews, etc.)</p>
+<p>You <em>could</em> use <a href="https://www.google.com/cse"><strong>google custom search</strong></a> to provide this functionality and side-step having to run your own (<em>cluster of</em>) search server(s)… But I suspect your project/customer wants/needs more control over the search experience and that’s why you’re reading this intro?</p>
+<h3 id="why-not-xyz-database-that-has-full-text-search">Why <em>Not</em> XYZ Database (that <em>has</em> Full-Text-Search) ?</h3>
+<p>Simple/Short answer: Pick the <strong><em>Best tool for the job</em></strong>.</p>
+<p>In the past we’ve used MongoDB’s full-text-search (<em>and even wrote a</em> <a href="https://github.com/ideaq/mongo-search"><strong><em>tutorial</em></strong></a> <em>for it</em>!), <a href="http://dev.mysql.com/doc/refman/5.0/en/fulltext-search.html">MySQL full-text-search</a> to <em>reasonable</em> success (Deal Searcher V.1 <span class="citation" data-cites="Groupon">@Groupon</span>) and many of our <em>Rails</em> friends swear by <a href="http://www.postgresql.org/docs/8.3/static/textsearch.html">Postgres full-text-search</a> but <em>none</em> of these databases were <strong><em>designed from scratch</em></strong> to provide <strong><em>scalable full-text search</em></strong>. So, if you want search, <strong><em>Elasticsearch</em></strong>!</p>
+<h2 id="what">What?</h2>
+<figure>
+<img src="http://i.imgur.com/HfuxgaM.png" alt="buzz explains elasticsearch" /><figcaption>buzz explains elasticsearch</figcaption>
+</figure>
+<p>Elasticsearch is a search server based on <a href="http://en.wikipedia.org/wiki/Lucene">Lucene</a>. It provides a distributed, multitenant-capable <strong>full-text search</strong> engine with a RESTful web interface and schema-free JSON documents. i.e. <em>awesomeness in a box</em>!</p>
+<blockquote>
+<p>Read more: http://www.elasticsearch.org/overview/elasticsearch/</p>
+</blockquote>
+<h3 id="whhaaaat">Whhaaaat…?</h3>
+<figure>
+<img src="http://i.imgur.com/JeOf6lZ.png" alt="whaaat" /><figcaption>whaaat</figcaption>
+</figure>
+<p>Feeling <em>bewildered</em> by that <strong><em>buzzword fest</em></strong>? let’s break it down:</p>
+<ul>
+<li><p><strong><em>Real-Time</em></strong>: a system in which input data is processed within milliseconds so that it is available virtually <strong><em>immediately</em></strong> as feedback to the process from which it is coming - i.e. things happen without a noticeable delay. An example of “<em>real time</em>” is <em>instant messaging</em>.<br />
+see: https://en.wikipedia.org/wiki/Real-time_computing</p></li>
+<li><p>“<strong><em>Near</em></strong>” <em>Real-Time</em>: means there is a small (<em>but noticeable</em>) delay. You can insert/update a record in the “index” and it will be <em>searchable</em> in <strong><em>less than a second</em></strong>. (It is <em>not immediate</em>, but its close, so they say “<em>Near</em>” Real Time) And example of “<em>near real time</em>” is email (<em>not quite instant</em>)</p></li>
+<li><p><strong>Full-Text</strong> Search: means when you search through the records in an ElasticSearch database (cluster) your search term(s) will be searched for everywhere in the desired field(s) of the document. For example: Imagine you have a blog and each blog post has: Title, Intro, Body and Comments section. When searching for a particular string e.g: “this is awesomeness”, you could search in <strong>all-the-fields</strong> which could return a result in one of the comments.<br />
+read more: https://en.wikipedia.org/wiki/Full_text_search</p></li>
+<li><p><strong>Distributed</strong> means you can have several ElasticSearch <em>nodes</em> in different data centers or regions to improve retrieval reliability.<br />
+see: https://en.wikipedia.org/?title=Distributed_computing</p></li>
+<li><p>Having a <strong>REST API</strong> means you can access your ElasticSearch cluster using standard HTTP requests. ˜</p></li>
+</ul>
+<h2 id="how">How?</h2>
+<p>There are a few options for running ElasticSearch:<br />
+<strong>A</strong>. Boot a Virtual Machine with ES and all its dependencies (<em>using Vagrant</em>)<br />
+<strong>B</strong>. Install the “<em>binary</em>” package for your Operating System.<br />
+<strong>C</strong>. Don’t install <em>anything</em> and just use a <em>free heroku</em> instance! (<em>See: <strong>Heroku</strong> section below</em>)</p>
+<h3 id="download-install">Download &amp; Install</h3>
+<p>ElasticSearch <strong><em>requires Java 8</em></strong>, so if you want to install ElasticSearch (“<em>natively</em>”) on your local machine you will need to have Java running… We prefer <em>not</em> to have Java running on our <em>personal</em> machines (because its <a href="http://krebsonsecurity.com/2014/04/critical-java-update-plugs-37-security-holes/"><em>chronically insecure</em></a>) so we created a Vagrant box to consistently boot ES (using a VM!) … see below.</p>
+<h4 id="running-elasticsearch-on-any-operating-system-with-vagrant">Running ElasticSearch on <em>Any Operating System</em> with Vagrant</h4>
+<p>If you aren’t using Vagrant, read our Vagrant tutorial <em>now</em>: https://github.com/docdis/learn-vagrant</p>
+<p>If you <em>are</em> already using Vagrant, simply clone this repo:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">git</span> clone git@github.com:docdis/learn-elasticsearch.git <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> learn-elasticsearch</a></code></pre></div>
+<p>Then run this command (<em>in your terminal</em>):</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">vagrant</span> up</a></code></pre></div>
+<p><em>Note: expect the installation to take a few minutes, go for a walk, or skip to the Tutorial section below and start watching the video.</em></p>
+<h4 id="ubuntu">Ubuntu</h4>
+<ul>
+<li>Install ElasticSearch on Ubuntu: https://www.digitalocean.com/community/tutorials/how-to-install-elasticsearch-on-an-ubuntu-vps</li>
+</ul>
+<h4 id="mac">Mac</h4>
+<p>If you don’t mind having Java running on your Mac, you can use <a href="http://brew.sh/"><em>Homebrew</em></a> to install ES:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="ex">brew</span> install elasticsearch</a></code></pre></div>
+<p>To have launchd start elasticsearch at login:</p>
+<pre><code>ln -sfv /usr/local/opt/elasticsearch/*.plist ~/Library/LaunchAgents</code></pre>
+<p>Then to load elasticsearch now:</p>
+<pre><code>launchctl load ~/Library/LaunchAgents/homebrew.mxcl.elasticsearch.plist</code></pre>
+<p>Or, if you don’t want/need launchctl, you can just run:</p>
+<pre><code>elasticsearch --config=/usr/local/opt/elasticsearch/config/elasticsearch.yml</code></pre>
+<ul>
+<li>More info on installation options: http://stackoverflow.com/questions/22850247/installing-elasticsearch-on-osx-mavericks</li>
+</ul>
+<h4 id="windows">Windows</h4>
+<p>see: https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service-win.html<br />
+(<em>but, seriously, try Vagrant!</em>)</p>
+<h3 id="elasticsearch-server-status">ElasticSearch Server Status</h3>
+<p>To confirm that everything is working as expected, open your terminal and run the following command:</p>
+<pre><code>curl -XGET http://localhost:9200</code></pre>
+<p>You should expect to see something similar to:</p>
+<figure>
+<img src="https://cloud.githubusercontent.com/assets/194400/8233220/f03d7714-15cc-11e5-9e6d-0f47036b89ef.png" alt="elasticsearch-status-response-1 6" /><figcaption>elasticsearch-status-response-1 6</figcaption>
+</figure>
+<h2 id="tutorial">Tutorial</h2>
+<p>Once you have installed ElasticSearch (<em>following the instructions above</em>)</p>
+<blockquote>
+<p>Visit: https://www.elastic.co/webinars/getting-started-with-elasticsearch (<em>register using fake data if you want to avoid email spam</em>) and watch the video.</p>
+</blockquote>
+<h3 id="inserting-a-record-using-curl-rest-api">Inserting a record using cURL (REST API)</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb8-1" title="1"><span class="ex">curl</span> -XPUT <span class="st">&#39;http://localhost:9200/twitter/tweet/1&#39;</span> -d <span class="st">&#39;{&quot;user&quot;:&quot;kimchy&quot;,&quot;post_date&quot;:&quot;2009-11-15T14:12:12&quot;,&quot;message&quot; : &quot;trying out Elasticsearch&quot;}&#39;</span></a></code></pre></div>
+<h3 id="video-tutorial-code">Video Tutorial Code:</h3>
+<p>If you want to following along with the ElasticSearch getting started video:</p>
+<p>Insert a record:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb9-1" title="1"><span class="ex">curl</span> -XPUT <span class="st">&#39;http://localhost:9200/vehicles/tv/one&#39;</span> -d <span class="st">&#39;{&quot;color&quot;:&quot;green&quot;,&quot;driver&quot;:{&quot;born&quot;:&quot;1959-09-07&quot;,&quot;name&quot;:&quot;Walter White&quot;},&quot;make&quot;:&quot;Pontiac&quot;,&quot;model&quot;:&quot;Aztek&quot;,&quot;value_usd&quot;:5000.0, &quot;year&quot;:2003}&#39;</span></a></code></pre></div>
+<p>Check the <strong>mapping</strong> for the index:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb10-1" title="1"><span class="ex">curl</span> http://localhost:9200/vehicles/_mapping?pretty</a></code></pre></div>
+<p>To delete an index you accidentally created:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb11-1" title="1"><span class="ex">curl</span> -XDELETE <span class="st">&#39;http://localhost:9200/vehicles/&#39;</span></a></code></pre></div>
+<p>Search:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" title="1">curl <span class="st">&#39;localhost:9200/vehicles/tv/_search?q=_id:one&amp;pretty&#39;</span></a></code></pre></div>
+<p>Insert another document/record:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb13-1" title="1"><span class="ex">curl</span> -XPUT <span class="st">&#39;http://localhost:9200/vehicles/tv/two&#39;</span> -d <span class="st">&#39;{&quot;color&quot;:&quot;black&quot;,&quot;driver&quot;:{&quot;born&quot;:&quot;1949-01-09&quot;,&quot;name&quot;:&quot;Michael Knight&quot;},&quot;make&quot;:&quot;Pontiac&quot;,&quot;model&quot;:&quot;Trans Am&quot;,&quot;value_usd&quot;:9999999.00, &quot;year&quot;:1982}&#39;</span></a></code></pre></div>
+<p>curl ’http://localhost:9200/vehicles/_search?q=pontiac&amp;pretty’</p>
+<h3 id="updating-a-record-index">Updating a Record (Index)</h3>
+<p>The Update API is quite well documented: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/docs-update.html</p>
+<p>## Node.js</p>
+<p>see: <code>/nodejs</code> folder for sample scripts you can run in node.js</p>
+<h2 id="elixir">Elixir</h2>
+<p>This section is about using ElasticSearch within the <code>Elixir</code> programming language. If you are new to <code>Elixir</code>, see: <a href="https://github.com/dwyl/learn-elixir/">github.com/dwyl/<strong>learn-elixir</strong></a> (<em>you’re in for a treat!</em>)</p>
+<p>Once you know a bit about Elixir, writing to an ElasticSearch cluster is quite straight forward thanks to <span class="citation" data-cites="Zatvobor">@Zatvobor</span>’s module <code>tirexs</code> see: https://github.com/Zatvobor/tirexs#getting-started</p>
+<p>We’ve included a simple Write/Read example in <code>/elixir/lib/elastic.ex</code> and <code>/elixir/lib/elastic_test.ex</code></p>
+<p>To try it out on your local computer, simply run the following command(s):</p>
+<pre><code>git clone git@github.com:dwyl/learn-elasticsearch.git
+cd learn-elasticsearch
+mix deps.get
+mix test</code></pre>
+<blockquote>
+<p>Tip: you can copy paste the whole block and run all the commands in order.</p>
+</blockquote>
+<ul>
+<li>Extended example: https://gist.github.com/oivoodoo/845b857b28e24bc1acdc13c18e1b32d6</li>
+</ul>
+<h2 id="useful-links">Useful Links</h2>
+<ul>
+<li>Guide: http://www.elasticsearch.org/guide/ (online docs)</li>
+<li>Talking to ES: http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/_talking_to_elasticsearch.html</li>
+<li>Searching: https://github.com/elasticsearch/elasticsearch-definitive-guide/tree/master/050_Search</li>
+<li>http://www.elasticsearch.org/blog/client-for-node-js-and-the-browser/</li>
+<li>http://thomasardal.com/running-elasticsearch-on-linux-using-vagrant/</li>
+<li>http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-repositories.html</li>
+<li>http://exploringelasticsearch.com/overview.html</li>
+<li>The <strong><em>Definitive Guide</em></strong>: http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/</li>
+<li><strong><em>Exploring ElasticSearch</em></strong> by Andrew Cholakian: http://exploringelasticsearch.com/</li>
+</ul>
+<h3 id="video">Video</h3>
+<ul>
+<li>Elasticsearch from the bottom up: https://www.youtube.com/watch?v=PpX7J-G2PEo</li>
+<li>Getting started video: <del>http://www.elasticsearch.org/webinars/getting-started-with-elasticsearch/?watch=1</del></li>
+<li>Getting Down and Dirty with ElasticSearch: https://www.youtube.com/watch?v=7FLXjgB0PQI (Clinton Gormley)</li>
+<li>Running ES in Travis-CI (build testing): http://docs.travis-ci.com/user/database-setup/#ElasticSearce</li>
+</ul>
+<h2 id="background-reading">Background Reading</h2>
+<ul>
+<li>Elasticsearch (wikipedia): http://en.wikipedia.org/wiki/Elasticsearch</li>
+<li>Beginner’s Guide to Elasticsearch: http://seanmcgary.com/posts/beginners-guide-to-elasticsearch</li>
+<li>Faceted Search: http://en.wikipedia.org/wiki/Faceted_search</li>
+<li>Solr vs Elasticsearch: http://stackoverflow.com/questions/10213009/solr-vs-elasticsearch</li>
+<li>More detailed Solr vs ES: http://blog.sematext.com/2012/08/23/solr-vs-elasticsearch-part-1-overview</li>
+<li>A Clustered Setup: http://mookid.dk/oncode/archives/3518</li>
+<li>Reverse Port Forwarding: http://stackoverflow.com/questions/16244601/vagrant-reverse-port-forwarding/17012410#17012410</li>
+<li>How HipChat use ElasticSearch for storing messages: https://blog.hipchat.com/category/how-hipchat-works/</li>
+<li>Decent (but old) tutorial: http://www.sitepoint.com/building-recipe-search-site-angular-elasticsearch</li>
+<li><strong>Testing ElasticSearch with Node.js</strong>: http://faiq.me/testing-elasticsearch-node (use sinon)</li>
+<li>http://www.elasticsearch.org/blog/client-for-node-js-and-the-browser</li>
+<li>http://www.elasticsearch.org/guide/en/elasticsearch/client/javascript-api/current/quick-start.html</li>
+</ul>
+<h3 id="elk">ELK</h3>
+<p>ELK is a Logging Stack comprised of ElasticSearch, LogStash &amp; Kibana</p>
+<ul>
+<li>http://www.elasticsearch.org/overview/elkdownloads/</li>
+<li>http://www.elasticsearch.org/overview/kibana/</li>
+<li>http://www.elasticsearch.org/overview/logstash/</li>
+<li>https://www.digitalocean.com/community/tutorials/how-to-use-logstash-and-kibana-to-centralize-and-visualize-logs-on-ubuntu-14-04</li>
+<li>Flume: http://flume.apache.org/</li>
+<li>Fluentd: http://www.fluentd.org/</li>
+</ul>
+<h1 id="tldr">tl;dr</h1>
+<h2 id="history">History</h2>
+<p>I chose elasticsearch to power the search for a project I lead at <a href="http://news.co.uk/">News</a> after careful consideration of Solr. There are great <a href="https://addons.heroku.com/?q=elasticsearch">heroku addons</a> (we used <a href="https://addons.heroku.com/bonsai">Bonsai</a> because they have a <em>free</em> dev tier) and the quality of the search results is superb.</p>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<blockquote>
+<p>see <strong>ERRORS.md</strong></p>
+</blockquote>
+<h3 id="how-do-we-archive-a-record">How do we Archive a Record?</h3>
+<blockquote>
+<p>need to research this</p>
+</blockquote>
+<h2 id="which-node.js-module-should-i-use-for-elasticsearch"><em>Which</em> Node.js Module Should I Use for ElasticSearch?</h2>
+<p>There are over a hundred modules for ElasticSearch on NPM<br />
+see: http://node-modules.com/search?q=elasticsearch</p>
+<p>While writing this post we tried the following modules:</p>
+<ul>
+<li>ElasticSearch (the <em>official</em> module): https://github.com/elasticsearch/elasticsearch-js works(ish) but the <a href="http://www.elasticsearch.org/guide/en/elasticsearch/client/javascript-api/current/quick-start.html">API is promise-based</a> which forces anyone using it to use promises. Not for me</li>
+<li>Elastical: https://github.com/ramv/node-elastical simple API but the author describes it as “<em>not quite finished</em>” (and I have to agree). Documentation is good, and it only uses two 3rd party dependencies (good news). Has not been updated in 7 months, could be worth submitting a PR to - except that there are a couple of open PRs: https://github.com/ramv/node-elastical/pulls which are being ignored by the module maintainer, never a good sign…</li>
+<li>Simple ElasticSearch: https://github.com/BryanDonovan/node-simple-elasticsearch 99% coverage, single dependency (qs); promising. but <em>master</em> build is faling <a href="https://travis-ci.org/BryanDonovan/node-simple-elasticsearch/builds/32594301">23 failing tests</a> and it hasn’t been updated in 4 months; generally low movement.</li>
+<li>elastic.js https://github.com/fullscale/elastic.js JavaScript implementation of the elasticsearch Query DSL. High number of stars (410) But uses the ElasticSearch (<em>Official</em>) module (see above) which <em>forces</em> promises and uses <em>Grunt</em> where its <em>not required</em>.</li>
+<li><strong>es</strong> https://github.com/ncb000gt/node-es the simplest one I found. 99% code coverage. has not been updated in a while…</li>
+</ul>
+<h3 id="we-wrote-a-simpler-node.js-module">We Wrote a <em>Simpler</em> Node.js Module!</h3>
+<p>We got frustrated using the other modules, so we wrote a better one: https://github.com/dwyl/esta</p>
+<h4 id="how-is-it-better">How is it “Better”?</h4>
+<ul>
+<li>[x] Focus on simplicity</li>
+<li>[x] Readable code</li>
+<li>[x] Zero Dependencies (never worry about upgrading to the latest version of node or the module)</li>
+<li>[x] 100% Test Coverage</li>
+<li>[x] Optional Backup of Data</li>
+</ul>
+<h2 id="graphical-user-interfaces-to-es">Graphical User Interfaces to ES</h2>
+<p>http://www.elasticsearch.org/guide/en/elasticsearch/client/community/current/front-ends.html</p>
+<h2 id="security">Security</h2>
+<ul>
+<li>Securing Your Elasticsearch Cluster https://www.found.no/foundation/elasticsearch-security/</li>
+</ul>
+<h2 id="pitfalls">Pitfalls</h2>
+<h3 id="the-split-brain-problem">The Split Brain Problem</h3>
+<p>Where your cluster looses communication and you end up with two masters.</p>
+<ul>
+<li>http://blog.trifork.com/2013/10/24/how-to-avoid-the-split-brain-problem-in-elasticsearch/comment-page-1/</li>
+<li>https://github.com/elasticsearch/elasticsearch/issues/2488</li>
+</ul>
+<h2 id="hosted-elasticsearch-providers"><em>Hosted</em> ElasticSearch Providers</h2>
+<p>If you prefer not to administer your own database/cluster there are a few services you can use:</p>
+<ul>
+<li>Amzon: https://aws.amazon.com/elasticsearch-service/</li>
+<li>Bonsai: https://bonsai.io/plans</li>
+<li>Elastic: https://www.elastic.co/pricing/</li>
+<li>QBox: https://qbox.io/pricing</li>
+</ul>
+<h2 id="host-your-own-elasticsearch">Host your own ElasticSearch</h2>
+<ul>
+<li>Tips for running on AWS: http://www.elasticsearch.com/webinars/elasticsearch-on-aws/</li>
+</ul>

@@ -1,0 +1,1517 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = false;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "/detroitchicago/boise.js",
+        "/detroitchicago/boise.js?gcb=192-11&cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "/detroitchicago/memphis.js",
+        "/detroitchicago/memphis.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/minneapolis.js",
+        "/detroitchicago/minneapolis.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "/detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "/porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("/");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot.getAdUnitPath(adSlot).split("/").pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (ezimKey.split("/").pop() === adUnitName) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "/detroitchicago/raleigh.js",
+        "/detroitchicago/raleigh.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/tampa.js",
+        "/detroitchicago/tampa.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_count_adjustment: 0,
+        ad_lazyload_version: 0,
+        ad_location_ids: "",
+        ad_transform_level: 0,
+        adx_ad_count: 0,
+        bidder_method: 1,
+        bidder_version: 3,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        display_ad_count: 0,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        ds_adsize_opt_id: -1,
+        engaged_time_visit: 0,
+        ezcache_level: 1,
+        ezcache_skip_code: 6,
+        form_factor_id: 1,
+        framework_id: 1,
+        has_bad_image: 0,
+        has_bad_words: 0,
+        iab_category: "",
+        is_from_recommended_pages: false,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        max_ads: 0,
+        metro_code: 501,
+        optimization_version: 1,
+        page_ad_positions: "",
+        page_view_count: 251,
+        page_view_id: "d5f5c672-0d3c-493d-5366-1e02a1752153",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 0,
+        response_time_orig: 304,
+        serverid: "52.2.190.208:32311",
+        state: "NJ",
+        sub_page_ad_positions: "",
+        t_epoch: 1613703139,
+        template_id: 0,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/tutorials/Networking/jellyfish.php",
+        user_id: 0,
+        word_count: 0,
+        worst_bad_word_level: 0,
+      };
+      var _ezim_d = null;
+      var _ezat = {
+        domain_id: 83552,
+        form_factor_id: 1,
+        framework_id: 1,
+        pageview_date: "2021-02-18",
+        pageview_id: "d5f5c672-0d3c-493d-5366-1e02a1752153",
+        template_id: 0,
+        url: "https://www.brainbell.com/tutorials/Networking/jellyfish.php",
+        visit_uuid: "3b57fc57-4c51-4b3f-6c78-712b82b8f8be",
+      };
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+    >
+      __ez.queue.addFile(
+        "banger.js",
+        "/porpoiseant/banger.js?cb=192-11&bv=3&v=39&PageSpeed=off",
+        true,
+        [],
+        true,
+        false,
+        false,
+        true
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "/detroitchicago/tulsa.js",
+        "/detroitchicago/tulsa.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <title>Article or tutorial not found</title>
+    <link rel="stylesheet" type="text/css" href="/img/404.css" />
+
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base href="https://www.brainbell.com/tutorials/Networking/jellyfish.php" />
+    <script type="text/javascript">
+      var ezoTemplate = "pub_site_noads";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigeneris",
+        "//g.ezoic.net/ezosuigeneris.js",
+        true,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+      var __ez_ezosuigenerisEvt = function () {
+        if (typeof ezosuigeneris != "undefined") {
+          __ez.bit.AddAndFire(_ezaq["page_view_id"], [
+            new __ezDotData("universal_user_id", ezosuigeneris),
+          ]);
+        }
+      };
+      __ez.queue.addFunc(
+        "__ez_ezosuigenerisEvt",
+        "__ez_ezosuigenerisEvt",
+        null,
+        false,
+        [
+          "__ezf_ezosuigeneris",
+          "/detroitchicago/minneapolis.js",
+          "/detroitchicago/memphis.js",
+        ],
+        false,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigenerisc",
+        "//g.ezoic.net/ezosuigenerisc.js?nogen=1",
+        true,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["d5f5c672-0d3c-493d-5366-1e02a1752153", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <div>
+      <img src="/img/head_pic1.jpg" border="0" />
+    </div>
+    <div class="toc">
+      <h1>404 page not found</h1>
+      <p>
+        Sorry, the page you requested was not found. Please use the following
+        index to browse related topics.
+      </p>
+    </div>
+
+    <h1 style="text-align: center">Networking index</h1>
+    <div class="toc">
+      <h2>Cabling Standards Media And Connectors</h2>
+      <a href="/tutorials/Networking/Simplex_Half_Duplex_And_Full_Duplex.html"
+        >Simplex, Half Duplex, and Full Duplex</a
+      >
+      <a href="/tutorials/Networking/Data_Transmission_Rates.html"
+        >Data Transmission Rates</a
+      >
+      <a href="/tutorials/Networking/Network_Media.html">Network Media</a>
+      <a href="/tutorials/Networking/Twisted-pair_Cabling.html"
+        >Twisted-pair Cabling</a
+      >
+      <a href="/tutorials/Networking/Coaxial.html">Coaxial</a>
+      <a href="/tutorials/Networking/Thin_Coax.html">Thin Coax</a>
+      <a href="/tutorials/Networking/Fiber-optic_Cable.html"
+        >Fiber-optic Cable</a
+      >
+      <a href="/tutorials/Networking/BNC_Connectors.html">BNC Connectors</a>
+      <a href="/tutorials/Networking/RJ-11_Connectors.html">RJ-11 Connectors</a>
+      <a href="/tutorials/Networking/F-Type.html">F-Type</a>
+      <a href="/tutorials/Networking/Universal_Serial_Bus_USB.html"
+        >Universal Serial Bus (USB)</a
+      >
+      <a href="/tutorials/Networking/10Base2.html">10Base2</a>
+      <a href="/tutorials/Networking/10BaseFL.html">10BaseFL</a>
+      <a href="/tutorials/Networking/100BaseT4.html">100BaseT4</a>
+      <a href="/tutorials/Networking/100BaseFX.html">100BaseFX</a>
+      <a href="/tutorials/Networking/802.3z.html">802.3z</a>
+      <a href="/tutorials/Networking/802.3ab.html">802.3ab</a>
+      <a href="/tutorials/Networking/10_Gigabit_Ethernet.html"
+        >10 Gigabit Ethernet</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Introduction to Networking</h2>
+      <a href="/tutorials/Networking/WANs.html">WANs</a>
+      <a href="/tutorials/Networking/Peer-to-peer_Networking.html"
+        >Peer-to-peer Networking</a
+      >
+      <a href="/tutorials/Networking/Client_Server_Networking_Model.html"
+        >Client/Server Networking Model</a
+      >
+      <a href="/tutorials/Networking/Bus_Topology.html">Bus Topology</a>
+      <a href="/tutorials/Networking/Ring_Topology.html">Ring Topology</a>
+      <a href="/tutorials/Networking/Star_Topology.html">Star Topology</a>
+      <a href="/tutorials/Networking/Mesh_Topology.html">Mesh Topology</a>
+      <a href="/tutorials/Networking/Infrastructure_Wireless_Topology.html"
+        >Infrastructure Wireless Topology</a
+      >
+      <a href="/tutorials/Networking/IEEE_And_Networking_Standards.html"
+        >IEEE and Networking Standards</a
+      >
+      <a href="/tutorials/Networking/802.3_IEEE_Standard.html"
+        >802.3 IEEE Standard</a
+      >
+      <a href="/tutorials/Networking/802.5_IEEE_Standard.html"
+        >802.5 IEEE Standard</a
+      >
+      <a href="/tutorials/Networking/FDDI.html">FDDI</a>
+      <a href="/tutorials/Networking/802.11_IEEE_Standards.html"
+        >802.11 IEEE Standards</a
+      >
+      <a href="/tutorials/Networking/Infrared_Wireless_Networking.html"
+        >Infrared Wireless Networking</a
+      >
+      <a href="/tutorials/Networking/Bluetooth.html">Bluetooth</a>
+      <a href="/tutorials/Networking/Spread_Spectrum_Technology.html"
+        >Spread Spectrum Technology</a
+      >
+      <a href="/tutorials/Networking/FHSS_DSSS_And_802.11_Standards.html"
+        >FHSS, DSSS, and 802.11 Standards</a
+      >
+      <a
+        href="/tutorials/Networking/Establishing_Communications_Between_Wireless_Devices.html"
+        >Establishing Communications Between Wireless Devices</a
+      >
+      <a href="/tutorials/Networking/Interference_Types.html"
+        >Interference Types</a
+      >
+      <a href="/tutorials/Networking/Wireless_Antennas.html"
+        >Wireless Antennas</a
+      >
+      <a href="/tutorials/Networking/Antenna_Coverage.html">Antenna Coverage</a>
+    </div>
+
+    <div class="toc">
+      <h2>Network Operating Systems And Client Connectivity</h2>
+      <a href="/tutorials/Networking/Network_Operating_Systems.html"
+        >Network Operating Systems</a
+      >
+      <a href="/tutorials/Networking/Linux_UNIX.html">Linux/UNIX</a>
+      <a href="/tutorials/Networking/Linux_File_And_Print_Services.html"
+        >Linux File and Print Services</a
+      >
+      <a href="/tutorials/Networking/Linux_Application_Support.html"
+        >Linux Application Support</a
+      >
+      <a href="/tutorials/Networking/Linux_Security.html">Linux Security</a>
+      <a
+        href="/tutorials/Networking/Mac_OS_X_File_Systems_And_File_And_Print_Services.html"
+        >Mac OS X File Systems and File and Print Services</a
+      >
+      <a href="/tutorials/Networking/Mac_OS_X_Security.html"
+        >Mac OS X Security</a
+      >
+      <a href="/tutorials/Networking/Novell_NetWare.html">Novell NetWare</a>
+      <a href="/tutorials/Networking/NetWare_Authentication.html"
+        >NetWare Authentication</a
+      >
+      <a href="/tutorials/Networking/NetWare_File_Services.html"
+        >NetWare File Services</a
+      >
+      <a href="/tutorials/Networking/NetWare_Print_Services.html"
+        >NetWare Print Services</a
+      >
+      <a href="/tutorials/Networking/NetWare_Security.html">NetWare Security</a>
+      <a href="/tutorials/Networking/Windows_2000_And_Windows_Server_2003.html"
+        >Windows 2000 and Windows Server 2003</a
+      >
+      <a href="/tutorials/Networking/Microsoft_Active_Directory.html"
+        >Microsoft Active Directory</a
+      >
+      <a
+        href="/tutorials/Networking/Windows_Server_File_And_Print_Services.html"
+        >Windows Server File and Print Services</a
+      >
+      <a href="/tutorials/Networking/Windows_Security.html">Windows Security</a>
+      <a href="/tutorials/Networking/AppleShare_IP.html">AppleShare IP</a>
+      <a href="/tutorials/Networking/AppleShare_Authentication.html"
+        >AppleShare Authentication</a
+      >
+      <a href="/tutorials/Networking/Using_Windows_With_NetWare.html"
+        >Using Windows with NetWare</a
+      >
+      <a href="/tutorials/Networking/Using_Windows_And_Linux_Servers.html"
+        >Using Windows and Linux Servers</a
+      >
+      <a href="/tutorials/Networking/Windows_Server_Client_Support.html"
+        >Windows Server Client Support</a
+      >
+      <a href="/tutorials/Networking/Choosing_A_NIC.html">Choosing a NIC</a>
+      <a href="/tutorials/Networking/Media.html">Media</a>
+      <a href="/tutorials/Networking/Choosing_LAN_Protocols.html"
+        >Choosing LAN Protocols</a
+      >
+      <a href="/tutorials/Networking/Configuring_Client_Systems_For_TCP_IP.html"
+        >Configuring Client Systems for TCP/IP</a
+      >
+      <a href="/tutorials/Networking/Wire_Crimpers.html">Wire Crimpers</a>
+      <a href="/tutorials/Networking/Punchdown_Tools.html">Punchdown Tools</a>
+      <a href="/tutorials/Networking/Tone_Generators_(and_Tone_Locators).html"
+        >Tone Generators (and Tone Locators)</a
+      >
+      <a href="/tutorials/Networking/Media_Testers.html">Media Testers</a>
+      <a href="/tutorials/Networking/Hardware_Loopback_Connectors.html"
+        >Hardware Loopback Connectors</a
+      >
+      <a href="/tutorials/Networking/Physical_Connections.html"
+        >Physical Connections</a
+      >
+      <a href="/tutorials/Networking/Protocols.html">Protocols</a>
+    </div>
+
+    <div class="toc">
+      <h2>Network Security</h2>
+      <a href="/tutorials/Networking/Firewalls_1.html">Firewalls</a>
+      <a href="/tutorials/Networking/Packet-filtering_Firewalls.html"
+        >Packet-filtering Firewalls</a
+      >
+      <a href="/tutorials/Networking/Application_Gateway_Firewalls.html"
+        >Application Gateway Firewalls</a
+      >
+      <a href="/tutorials/Networking/Proxy_Servers.html">Proxy Servers</a>
+      <a href="/tutorials/Networking/Caching_Proxy_Servers.html"
+        >Caching Proxy Servers</a
+      >
+      <a href="/tutorials/Networking/Using_A_Proxy_Server.html"
+        >Using a Proxy Server</a
+      >
+      <a href="/tutorials/Networking/Blocking_Port_Numbers.html"
+        >Blocking Port Numbers</a
+      >
+      <a href="/tutorials/Networking/Authentication.html">Authentication</a>
+      <a href="/tutorials/Networking/Password_Policies.html"
+        >Password Policies</a
+      >
+      <a href="/tutorials/Networking/Password_Strength.html"
+        >Password Strength</a
+      >
+      <a href="/tutorials/Networking/Encryption.html">Encryption</a>
+      <a href="/tutorials/Networking/Implementing_Encryption.html"
+        >Implementing Encryption</a
+      >
+      <a href="/tutorials/Networking/Intranets.html">Intranets</a>
+      <a href="/tutorials/Networking/Extranets.html">Extranets</a>
+    </div>
+
+    <div class="toc">
+      <h2>Networking Devices</h2>
+      <a href="/tutorials/Networking/Switches.html">Switches</a>
+      <a href="/tutorials/Networking/Hub_And_Switch_Cabling.html"
+        >Hub and Switch Cabling</a
+      >
+      <a href="/tutorials/Networking/Bridges.html">Bridges</a>
+      <a href="/tutorials/Networking/Types_Of_Bridges.html">Types of Bridges</a>
+      <a href="/tutorials/Networking/Routers.html">Routers</a>
+      <a href="/tutorials/Networking/Dynamic_Routing.html">Dynamic Routing</a>
+      <a href="/tutorials/Networking/Distance_Vector_Routing.html"
+        >Distance Vector Routing</a
+      >
+      <a href="/tutorials/Networking/Link_State_Routing.html"
+        >Link State Routing</a
+      >
+      <a href="/tutorials/Networking/Gateways.html">Gateways</a>
+      <a href="/tutorials/Networking/Network_Cards.html">Network Cards</a>
+      <a href="/tutorials/Networking/ISDN_Adapters.html">ISDN Adapters</a>
+      <a href="/tutorials/Networking/Wireless_Access_Points.html"
+        >Wireless Access Points</a
+      >
+      <a href="/tutorials/Networking/Modems.html">Modems</a>
+      <a href="/tutorials/Networking/Transceivers_Media_Converters.html"
+        >Transceivers (Media Converters)</a
+      >
+      <a href="/tutorials/Networking/Firewalls.html">Firewalls</a>
+      <a href="/tutorials/Networking/MAC_Addresses.html">MAC Addresses</a>
+    </div>
+
+    <div class="toc">
+      <h2>OSI Model and Network Protocols</h2>
+      <a href="/tutorials/Networking/Physical_Layer_Layer_1.html"
+        >Physical Layer (Layer 1)</a
+      >
+      <a href="/tutorials/Networking/Network_Layer_Layer_3.html"
+        >Network Layer (Layer 3)</a
+      >
+      <a href="/tutorials/Networking/Flow_Control.html">Flow Control</a>
+      <a href="/tutorials/Networking/Presentation_Layer_Layer_6.html"
+        >Presentation Layer (Layer 6)</a
+      >
+      <a href="/tutorials/Networking/OSI_Model_Summary.html"
+        >OSI Model Summary</a
+      >
+      <a
+        href="/tutorials/Networking/Identifying_The_OSI_Layers_At_Which_Various_Network_Components_Operate.html"
+        >Identifying the OSI Layers at Which Various Network Components
+        Operate</a
+      >
+      <a
+        href="/tutorials/Networking/Connectionless_And_Connection-oriented_Protocols.html"
+        >Connectionless and Connection-oriented Protocols</a
+      >
+      <a
+        href="/tutorials/Networking/Internetwork_Packet_Exchange_Sequenced_Packet_Exchange.html"
+        >Internetwork Packet Exchange/Sequenced Packet Exchange</a
+      >
+      <a href="/tutorials/Networking/IPX_Interoperability.html"
+        >IPX Interoperability</a
+      >
+      <a href="/tutorials/Networking/AppleTalk.html">AppleTalk</a>
+      <a href="/tutorials/Networking/AppleTalk_Routing.html"
+        >AppleTalk Routing</a
+      >
+      <a href="/tutorials/Networking/The_TCP_IP_Protocol_Suite.html"
+        >The TCP/IP Protocol Suite</a
+      >
+      <a href="/tutorials/Networking/TCP_IP_Addressing.html"
+        >TCP/IP Addressing</a
+      >
+      <a href="/tutorials/Networking/TCP_IP_Naming.html">TCP/IP Naming</a>
+      <a href="/tutorials/Networking/Protocol_Summary.html">Protocol Summary</a>
+    </div>
+
+    <div class="toc">
+      <h2>TCP/IP (Transmission Control Protocol Internet Protocol)</h2>
+      <a href="/tutorials/Networking/IPv4.html">IPv4</a>
+      <a href="/tutorials/Networking/IP_Address_Classes.html"
+        >IP Address Classes</a
+      >
+      <a href="/tutorials/Networking/Subnet_Mask_Assignment.html"
+        >Subnet Mask Assignment</a
+      >
+      <a href="/tutorials/Networking/IPv6_Addressing.html">IPv6 Addressing</a>
+      <a href="/tutorials/Networking/Subnetting.html">Subnetting</a>
+      <a
+        href="/tutorials/Networking/Identifying_The_Differences_Between_Public_And_Private_Networks.html"
+        >Identifying the Differences Between Public and Private Networks</a
+      >
+      <a href="/tutorials/Networking/Private_Address_Ranges.html"
+        >Private Address Ranges</a
+      >
+      <a href="/tutorials/Networking/Static_Addressing.html"
+        >Static Addressing</a
+      >
+      <a href="/tutorials/Networking/Dynamic_Addressing.html"
+        >Dynamic Addressing</a
+      >
+      <a href="/tutorials/Networking/APIPA.html">APIPA</a>
+      <a href="/tutorials/Networking/Transmission_Control_Protocol_TCP.html"
+        >Transmission Control Protocol (TCP)</a
+      >
+      <a href="/tutorials/Networking/File_Transfer_Protocol_FTP.html"
+        >File Transfer Protocol (FTP)</a
+      >
+      <a href="/tutorials/Networking/FTP_Security_Concerns.html"
+        >FTP Security Concerns</a
+      >
+      <a href="/tutorials/Networking/Trivial_File_Transfer_Protocol_TFTP.html"
+        >Trivial File Transfer Protocol (TFTP)</a
+      >
+      <a href="/tutorials/Networking/Hypertext_Transfer_Protocol_HTTP.html"
+        >Hypertext Transfer Protocol (HTTP)</a
+      >
+      <a href="/tutorials/Networking/Secure_Shell_SSH.html"
+        >Secure Shell (SSH)</a
+      >
+      <a
+        href="/tutorials/Networking/Address_Resolution_Protocol_Reverse_Address_Resolution_Protocol_ARP_RARP.html"
+        >Address Resolution Protocol/Reverse Address Resolution Protocol
+        (ARP/RARP)</a
+      >
+      <a href="/tutorials/Networking/Secure_Copy_Protocol_SCP.html"
+        >Secure Copy Protocol (SCP)</a
+      >
+      <a
+        href="/tutorials/Networking/Lightweight_Directory_Access_Protocol_LDAP.html"
+        >Lightweight Directory Access Protocol (LDAP)</a
+      >
+      <a href="/tutorials/Networking/TCP_IP_Protocol_Suite_Summary.html"
+        >TCP/IP Protocol Suite Summary</a
+      >
+      <a href="/tutorials/Networking/TCP_UDP_Port_Functions.html"
+        >TCP/UDP Port Functions</a
+      >
+      <a href="/tutorials/Networking/Domain_Name_Service_DNS.html"
+        >Domain Name Service (DNS)</a
+      >
+      <a href="/tutorials/Networking/NAT.html">NAT</a>
+      <a href="/tutorials/Networking/Windows_Internet_Name_Service_(WINS).html"
+        >Windows Internet Name Service (WINS)</a
+      >
+      <a
+        href="/tutorials/Networking/Simple_Network_Management_Protocol_SNMP.html"
+        >Simple Network Management Protocol (SNMP)</a
+      >
+      <a href="/tutorials/Networking/Zero_Configuration_Zeroconf.html"
+        >Zero Configuration (Zeroconf)</a
+      >
+      <a href="/tutorials/Networking/Line_Printer_Daemon_LPD.html"
+        >Line Printer Daemon (LPD)</a
+      >
+      <a href="/tutorials/Networking/TCP_IP_Service_Summary.html"
+        >TCP/IP Service Summary</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Troubleshooting Connectivity</h2>
+      <a
+        href="/tutorials/Networking/The_Trace_Route_Utility_tracert_traceroute.html"
+        >The Trace Route Utility (tracert/traceroute)</a
+      >
+      <a href="/tutorials/Networking/ping.html">ping</a>
+      <a href="/tutorials/Networking/The_Request_Timed_Out_Message.html"
+        >The Request Timed Out Message</a
+      >
+      <a href="/tutorials/Networking/The_Unknown_Host_Message.html"
+        >The Unknown Host Message</a
+      >
+      <a href="/tutorials/Networking/Troubleshooting_With_Ping.html"
+        >Troubleshooting with ping</a
+      >
+      <a href="/tutorials/Networking/ARP.html">ARP</a>
+      <a href="/tutorials/Networking/The_Netstat_Command.html"
+        >The netstat Command</a
+      >
+      <a href="/tutorials/Networking/netstat_E.html">netstat e</a>
+      <a href="/tutorials/Networking/netstat_-a.html">netstat -a</a>
+      <a href="/tutorials/Networking/netstat_-r.html">netstat -r</a>
+      <a href="/tutorials/Networking/netstat_S.html">netstat s</a>
+      <a href="/tutorials/Networking/nbtstat.html">nbtstat</a>
+      <a href="/tutorials/Networking/The_Ipconfig_Command.html"
+        >The ipconfig Command</a
+      >
+      <a href="/tutorials/Networking/ifconfig.html">ifconfig</a>
+      <a href="/tutorials/Networking/The_Winipcfg_Command.html"
+        >The winipcfg Command</a
+      >
+      <a href="/tutorials/Networking/nslookup.html">nslookup</a>
+      <a href="/tutorials/Networking/dig.html">dig</a>
+      <a href="/tutorials/Networking/LEDs_On_Networking_Devices.html"
+        >LEDs on Networking Devices</a
+      >
+      <a href="/tutorials/Networking/LEDs_On_NICs_And_Other_Devices.html"
+        >LEDs on NICs and Other Devices</a
+      >
+      <a href="/tutorials/Networking/Troubleshooting_Remote_Connectivity.html"
+        >Troubleshooting Remote Connectivity</a
+      >
+      <a href="/tutorials/Networking/DSL.html">DSL</a>
+      <a
+        href="/tutorials/Networking/Wireless_Internet_Access_Troubleshooting_Procedures.html"
+        >Wireless Internet Access Troubleshooting Procedures</a
+      >
+      <a href="/tutorials/Networking/POTS_Troubleshooting_Procedures.html"
+        >POTS Troubleshooting Procedures</a
+      >
+      <a href="/tutorials/Networking/Modem-Specific_Troubleshooting.html"
+        >Modem-Specific Troubleshooting</a
+      >
+      <a
+        href="/tutorials/Networking/Troubleshooting_Protocol_Configuration_Problems.html"
+        >Troubleshooting Protocol Configuration Problems</a
+      >
+      <a href="/tutorials/Networking/Troubleshooting.html">Troubleshooting</a>
+      <a href="/tutorials/Networking/Protocol_Errors.html">Protocol Errors</a>
+      <a href="/tutorials/Networking/Protocol-Specific_Issues.html"
+        >Protocol-Specific Issues</a
+      >
+      <a href="/tutorials/Networking/Permissions_Errors.html"
+        >Permissions Errors</a
+      >
+      <a href="/tutorials/Networking/Physical_Connectivity_Errors.html"
+        >Physical Connectivity Errors</a
+      >
+      <a href="/tutorials/Networking/Troubleshooting_Cabling_Problems.html"
+        >Troubleshooting Cabling Problems</a
+      >
+      <a
+        href="/tutorials/Networking/Troubleshooting_Operating_System_Connectivity.html"
+        >Troubleshooting Operating System Connectivity</a
+      >
+      <a href="/tutorials/Networking/Troubleshooting_Network_Printing.html"
+        >Troubleshooting Network Printing</a
+      >
+      <a href="/tutorials/Networking/Troubleshooting_Data_Access.html"
+        >Troubleshooting Data Access</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Troubleshooting and Supporting the Network</h2>
+      <a href="/tutorials/Networking/Adding_Modifying_Or_Removing_DHCP.html"
+        >Adding, Modifying, or Removing DHCP</a
+      >
+      <a href="/tutorials/Networking/Adding_Modifying_Or_Removing_WINS.html"
+        >Adding, Modifying, or Removing WINS</a
+      >
+      <a href="/tutorials/Networking/Star_Topology_1.html">Star Topology</a>
+      <a href="/tutorials/Networking/Ring_Topology_1.html">Ring Topology</a>
+      <a href="/tutorials/Networking/Bus_Network_Errors.html"
+        >Bus Network Errors</a
+      >
+      <a href="/tutorials/Networking/Mesh_Network_Errors.html"
+        >Mesh Network Errors</a
+      >
+      <a href="/tutorials/Networking/Troubleshooting_Network_Media.html"
+        >Troubleshooting Network Media</a
+      >
+      <a
+        href="/tutorials/Networking/Troubleshooting_Infrastructure_Hardware.html"
+        >Troubleshooting Infrastructure Hardware</a
+      >
+      <a href="/tutorials/Networking/Wireless_Signal_Quality.html"
+        >Wireless Signal Quality</a
+      >
+      <a href="/tutorials/Networking/Wireless_Channels.html"
+        >Wireless Channels</a
+      >
+      <a href="/tutorials/Networking/WEP_Settings.html">WEP Settings</a>
+      <a href="/tutorials/Networking/Wireless_AP_Coverage.html"
+        >Wireless AP Coverage</a
+      >
+      <a href="/tutorials/Networking/Troubleshooting_Steps_And_Procedures.html"
+        >Troubleshooting Steps and Procedures</a
+      >
+      <a
+        href="/tutorials/Networking/Identify_The_Symptoms_And_Potential_Causes.html"
+        >Identify the Symptoms and Potential Causes</a
+      >
+      <a href="/tutorials/Networking/Establishing_What_Has_Changed.html"
+        >Establishing What Has Changed</a
+      >
+      <a
+        href="/tutorials/Networking/Implement_An_Action_Plan_And_Solution_Including_Potential_Effects.html"
+        >Implement an Action Plan and Solution Including Potential Effects</a
+      >
+      <a
+        href="/tutorials/Networking/Identify_The_Results_And_Effects_Of_The_Solution.html"
+        >Identify the Results and Effects of the Solution</a
+      >
+      <a href="/tutorials/Networking/Documenting_The_Solution.html"
+        >Documenting the Solution</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>VLANs Antivirus Fault Tolerance And Disaster Recovery</h2>
+      <a href="/tutorials/Networking/Virtual_LANs.html">Virtual LANs</a>
+      <a href="/tutorials/Networking/Protocol-based_VLANs.html"
+        >Protocol-based VLANs</a
+      >
+      <a href="/tutorials/Networking/MAC_Addressbased_VLANs.html"
+        >MAC Addressbased VLANs</a
+      >
+      <a
+        href="/tutorials/Networking/Viruses_Virus_Solutions_And_Malicious_Software.html"
+        >Viruses, Virus Solutions, and Malicious Software</a
+      >
+      <a href="/tutorials/Networking/Trojans_Worms_Spyware_And_Hoaxes.html"
+        >Trojans, Worms, Spyware, and Hoaxes</a
+      >
+      <a href="/tutorials/Networking/Protecting_Computers_From_Viruses.html"
+        >Protecting Computers from Viruses</a
+      >
+      <a href="/tutorials/Networking/Disk-level_Fault_Tolerance.html"
+        >Disk-level Fault Tolerance</a
+      >
+      <a href="/tutorials/Networking/RAID_0_Stripe_Set_Without_Parity.html"
+        >RAID 0: Stripe Set Without Parity</a
+      >
+      <a href="/tutorials/Networking/RAID_1.html">RAID 1</a>
+      <a href="/tutorials/Networking/RAID_5.html">RAID 5</a>
+      <a href="/tutorials/Networking/RAID_10.html">RAID 10</a>
+      <a href="/tutorials/Networking/Stand-by_Servers.html">Stand-by Servers</a>
+      <a href="/tutorials/Networking/Link_Redundancy.html">Link Redundancy</a>
+      <a href="/tutorials/Networking/Why_Use_A_UPS.html">Why Use a UPS?</a>
+      <a href="/tutorials/Networking/Power_Threats.html">Power Threats</a>
+      <a href="/tutorials/Networking/Disaster_Recovery.html"
+        >Disaster Recovery</a
+      >
+      <a href="/tutorials/Networking/Full_Backup.html">Full Backup</a>
+      <a href="/tutorials/Networking/Differential_Backup.html"
+        >Differential Backup</a
+      >
+      <a href="/tutorials/Networking/Incremental_Backup.html"
+        >Incremental Backup</a
+      >
+      <a href="/tutorials/Networking/Backup_Best_Practices.html"
+        >Backup Best Practices</a
+      >
+      <a href="/tutorials/Networking/Hot_Spare_And_Hot_Swapping.html"
+        >Hot Spare and Hot Swapping</a
+      >
+      <a href="/tutorials/Networking/Cold_Spare_And_Cold_Swapping.html"
+        >Cold Spare and Cold Swapping</a
+      >
+      <a href="/tutorials/Networking/Hot_Warm_And_Cold_Sites.html"
+        >Hot, Warm, and Cold Sites</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>WAN Technologies Internet Access And Security Protocols</h2>
+      <a href="/tutorials/Networking/Packet_Switching.html">Packet Switching</a>
+      <a href="/tutorials/Networking/Circuit_Switching.html"
+        >Circuit Switching</a
+      >
+      <a
+        href="/tutorials/Networking/Integrated_Services_Digital_Network_ISDN.html"
+        >Integrated Services Digital Network (ISDN)</a
+      >
+      <a href="/tutorials/Networking/PRI.html">PRI</a>
+      <a href="/tutorials/Networking/Fiber_Distributed_Data_Interface_FDDI.html"
+        >Fiber Distributed Data Interface (FDDI)</a
+      >
+      <a href="/tutorials/Networking/T-carrier_Lines.html">T-carrier Lines</a>
+      <a href="/tutorials/Networking/SONET_OC-x_Levels.html"
+        >SONET/OC-x Levels</a
+      >
+      <a href="/tutorials/Networking/X.25.html">X.25</a>
+      <a href="/tutorials/Networking/xDSL_Internet_Access.html"
+        >xDSL Internet Access</a
+      >
+      <a href="/tutorials/Networking/Cable_Internet_Access.html"
+        >Cable Internet Access</a
+      >
+      <a href="/tutorials/Networking/Broadband_Security_Considerations.html"
+        >Broadband Security Considerations</a
+      >
+      <a
+        href="/tutorials/Networking/POTS_PSTN_Plain_Old_Telephone_Service_Public_Switched_Telephone_Network.html"
+        >POTS/PSTN (Plain Old Telephone Service/Public Switched Telephone
+        Network)</a
+      >
+      <a href="/tutorials/Networking/Satellite_Internet_Access.html"
+        >Satellite Internet Access</a
+      >
+      <a href="/tutorials/Networking/Wireless_Internet_Access.html"
+        >Wireless Internet Access</a
+      >
+      <a href="/tutorials/Networking/Remote_Access_Service_RAS.html"
+        >Remote Access Service (RAS)</a
+      >
+      <a href="/tutorials/Networking/SLIP.html">SLIP</a>
+      <a href="/tutorials/Networking/PPP.html">PPP</a>
+      <a href="/tutorials/Networking/PPTP.html">PPTP</a>
+      <a href="/tutorials/Networking/Virtual_Private_Networks.html"
+        >Virtual Private Networks</a
+      >
+      <a href="/tutorials/Networking/Remote_Desktop_Protocol.html"
+        >Remote Desktop Protocol</a
+      >
+      <a href="/tutorials/Networking/Security_Protocols.html"
+        >Security Protocols</a
+      >
+      <a href="/tutorials/Networking/IP_Security_IPSec.html"
+        >IP Security (IPSec)</a
+      >
+      <a href="/tutorials/Networking/Layer_2_Tunneling_Protocol_(L2TP).html"
+        >Layer 2 Tunneling Protocol (L2TP)</a
+      >
+      <a href="/tutorials/Networking/Secure_Sockets_Layer_SSL.html"
+        >Secure Sockets Layer (SSL)</a
+      >
+      <a href="/tutorials/Networking/WEP.html">WEP</a>
+      <a href="/tutorials/Networking/WPA.html">WPA</a>
+      <a href="/tutorials/Networking/802.1x.html">802.1x</a>
+      <a href="/tutorials/Networking/Authentication_Protocols.html"
+        >Authentication Protocols</a
+      >
+      <a
+        href="/tutorials/Networking/Remote_Authentication_Dial-In_User_Service_RADIUS.html"
+        >Remote Authentication Dial-In User Service (RADIUS)</a
+      >
+      <a href="/tutorials/Networking/Kerberos.html">Kerberos</a>
+    </div>
+
+    <script type="text/javascript" style="display: none">
+      var __ez_dims = (function () {
+        var setCookie = function (name, content, expiry) {
+          return (document.cookie =
+            name +
+            "=" +
+            content +
+            (expiry
+              ? ";expires=" +
+                new Date(
+                  Math.floor(new Date().getTime() + expiry * 1000)
+                ).toUTCString()
+              : "") +
+            ";path=/");
+        };
+        var ffid = 1;
+        var oh = window.screen.height;
+        var ow = window.screen.width;
+        var h = ffid === 1 ? oh : oh > ow ? oh : ow;
+        var w = ffid === 1 ? ow : oh > ow ? ow : oh;
+        var uh =
+          window.innerHeight ||
+          document.documentElement.clientHeight ||
+          document.getElementsByTagName("body")[0].clientHeight;
+        var uw =
+          window.innerWidth ||
+          document.documentElement.clientWidth ||
+          document.getElementsByTagName("body")[0].clientWidth;
+        setCookie(
+          "ezds",
+          encodeURIComponent("ffid=" + ffid + ",w=" + w + ",h=" + h),
+          31536e3 * 7
+        );
+        setCookie(
+          "ezohw",
+          encodeURIComponent("w=" + uw + ",h=" + uh),
+          31536e3 * 7
+        );
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "edmonton.php",
+        "/detroitchicago/edmonton.webp?a=a&cb=192-11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "jellyfish.php",
+        "/porpoiseant/jellyfish.webp?a=a&cb=192-11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+</html>

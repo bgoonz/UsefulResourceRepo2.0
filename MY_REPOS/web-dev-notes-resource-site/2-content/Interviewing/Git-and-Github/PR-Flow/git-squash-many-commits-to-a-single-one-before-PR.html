@@ -1,0 +1,107 @@
+<p>One of the feature git, has enabled us to record all changes by the commit. And saved it as our history. So when something unexpected happens, you can rollback to specific commits. But, too many commits may mess your git history. If you have a lot of fixup commits, and you merge all of them directly into master, the git history will be bloated (which is something we don’t want). So, if your change consists of two commits X and Y, we want to squash them into a single commit Z</p>
+<p>Some folks do it by hastily creating a new branch, porting all changes to it with a patch file and creating a separate pull request. But this is headache both for the contributor and project maintainer. There’s an easier way, which is git squash</p>
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-rebase-and-update-a-pull-request">https://www.digitalocean.com/community/tutorials/how-to-rebase-and-update-a-pull-request</a></p>
+<p>So before we start the process of squashing, first find out the number of commits we have made, we can inspect the total number of commits that have been made to the project with the following command:</p>
+<p><code>git log</code></p>
+<p>This will provide you with output that looks similar to this</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1">Output</a>
+<a class="sourceLine" id="cb1-2" title="2">commit 46f196203a16b448bf86e0473246eda1d46d1273</a>
+<a class="sourceLine" id="cb1-3" title="3">Author<span class="op">:</span> username<span class="dv">-2</span> <span class="op">&lt;</span>email<span class="dv">-2</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-4" title="4">Date<span class="op">:</span> Mon Dec <span class="dv">14</span> <span class="dv">07</span><span class="op">:</span><span class="dv">32</span><span class="op">:</span><span class="dv">45</span> <span class="dv">2015</span> <span class="dv">-0400</span></a>
+<a class="sourceLine" id="cb1-5" title="5"></a>
+<a class="sourceLine" id="cb1-6" title="6">    Commit details</a>
+<a class="sourceLine" id="cb1-7" title="7"></a>
+<a class="sourceLine" id="cb1-8" title="8">commit <span class="fl">66e506853</span>b0366c87f4834bb6b39d941cd034fe3</a>
+<a class="sourceLine" id="cb1-9" title="9">Author<span class="op">:</span> username1 <span class="op">&lt;</span>email<span class="dv">-1</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-10" title="10">Date<span class="op">:</span> Fri Nov <span class="dv">27</span> <span class="dv">20</span><span class="op">:</span><span class="dv">24</span><span class="op">:</span><span class="dv">45</span> <span class="dv">2015</span> <span class="dv">-0500</span></a>
+<a class="sourceLine" id="cb1-11" title="11"></a>
+<a class="sourceLine" id="cb1-12" title="12">Commit details</a></code></pre></div>
+<p>The log shows all the commits made to the given project’s repository, so your commits will be mixed it with the commits made by others. For projects that have an extensive history of commits by multiple authors, you’ll want to specify yourself as author in the command:</p>
+<p><code>git log --author=your-username</code></p>
+<p>Now if you know the number of commits you’ve made on the branch (just count it) that you want to rebase, you can simply run the git rebase command like so:</p>
+<p><code>git rebase -i HEAD~x</code></p>
+<p>e.g.</p>
+<p><code>git rebase -i HEAD~8</code></p>
+<p>If, however, you don’t know how many commits you have made on your branch, you’ll need to find which commit is the base of your branch, which you can do by running the following command:</p>
+<p><code>git merge-base new-branch master</code></p>
+<p>This command will return a long string known as a commit hash, something that looks like this:</p>
+<pre><code>Output
+66e506853b0366c87f4834bb6b39d341cd094fe9</code></pre>
+<p>We’ll use this commit hash to pass to the git rebase command:</p>
+<p><code>git rebase -i 66e506853b0366c87f4834bb6b39d341cd094fe9</code></p>
+<p>For either of the above commands, your command-line text editor will open with a file that contains a list of all the commits in your branch, and you can now choose whether to squash commits or reword them.</p>
+<h3 id="now-after-running-git-rebase--i-head8-the-follwoing-editor-will-open-in-the-terminal-and-this-is-where-i-have-to-choose-which-commit-to-squash-and-which-ones-to-pick">Now after running <code>git rebase -i HEAD~8</code> the follwoing editor will open in the Terminal and this is where I have to choose which commit to Squash and which ones to Pick</h3>
+<p>When we squash commit messages, we are squashing or combining several smaller commits into one larger one.</p>
+<p>In front of each commit you’ll see the word “pick,” so your file will look similar to this if you have two commits:</p>
+<pre><code>GNU nano 2.0.6 File: …username/repository/.git/rebase-merge/git-rebase-todo
+pick a1f29a6 Adding a new feature
+pick 79c0e80 Here is another new feature
+
+
+# Rebase 66e5068..79c0e80 onto 66e5068 (2 command(s))
+</code></pre>
+<h4 id="now-for-each-line-of-the-file-you-should-replace-the-word-pick-with-the-word-squash-to-combine-the-commits-and-these-lines-will-be-arranged-top-to-bottom-like-so-the-most-recent-one-i.e.-most-recent-commit-at-the-bottom-most-positon.-and-if-i-want-to-keep-the-lastest-commit-msg-all-i-have-to-do-is-edit-the-top-most-line-as-pick-and-rest-of-all-as-squash.">Now, for each line of the file you should replace the word “pick” with the word “squash” to combine the commits: And these lines will be arranged top to bottom like so, the most recent one (i.e. most recent commit) at the bottom most positon. And if I want to keep the lastest commit msg, all I have to do is edit the top-most line as pick and rest of all as squash.</h4>
+<pre><code>GNU nano 2.0.6 File: …username/repository/.git/rebase-merge/git-rebase-todo
+pick a1f29a6 Adding a new feature
+squash 79c0e80 Here is another new feature</code></pre>
+<p><strong>At this point, you can save and close the file ( Choosing the option shown in the Terminal, Control + O for writing out, then just press Enter for choosing the default file to write to and then finally Control+X to exit). After first exit, it will open the section editor inside Terminal where I should be able to edit and add the comments for my commit. So the same flow here as well. Edit inside Terminal Editor &gt; press Control+O to write out &gt; Press Enter to save to default file &gt; Control+X to Exit</strong></p>
+<h3 id="issue---if-i-get-error---git-cannot-squash-without-a-previous-commit-error-while-rebase">ISSUE - If I get Error - Git: “Cannot ‘squash’ without a previous commit” error while rebase</h3>
+<p><a href="https://stackoverflow.com/a/51516360/1902852">https://stackoverflow.com/a/51516360/1902852</a></p>
+<p>Why it happened in my case was that, you cannot squash older commits onto a new commit. Here is an example say you have 3 commits:</p>
+<pre><code>pick 01mn9h78 The lastest commit
+pick a2b6pcfr A commit before the latest
+pick 093479uf An old commit i made a while back</code></pre>
+<p>Now if you say git rebase -i HEAD~3 and you do something like</p>
+<pre><code>pick 01mn9h78 The lastest commit
+s a2b6pcfr A commit before the latest
+s 093479uf An old commit i made a while back
+</code></pre>
+<p>This will result in the error :</p>
+<pre><code>error: cannot &#39;squash&#39; without a previous commit You can fix this with &#39;git rebase --edit-todo&#39; and then run &#39;git rebase --continue&#39;. Or you can abort the rebase with &#39;git rebase --abort&#39;.</code></pre>
+<p><strong>Solution :</strong></p>
+<h4 id="when-squashing-commits-you-should-squash-recent-commits-to-old-ones-not-vice-versa-thus-in-the-example-it-will-be-something-like-this">When squashing commits , you should squash recent commits to old ones not vice versa thus in the example it will be something like this :</h4>
+<h3 id="so-put-the-squash-or-s-word-before-the-latest-comment-and-pick-word-before-the-oldest-one">So put the ‘squash’ or ‘s’ word before the latest comment and ‘pick’ word before the oldest one</h3>
+<pre><code>s 01mn9h78 The lastest commit
+s a2b6pcfr A commit before the latest
+pick 093479uf An old commit i made a while back</code></pre>
+<h3 id="now-the-final-step-of-actually-pushing-or-updating-the-pr">Now the FINAL step of actually pushing or updating the PR</h3>
+<p><strong>Once you perform a rebase, the history of your branch changes, and you are no longer able to use the git push command because the direct path has been modified.</strong></p>
+<p>And you can check that by doing a <code>git status</code> You will get</p>
+<pre><code>Your branch and &#39;origin/master&#39; have diverged,
+and have 1 and 2 different commits each, respectively.
+  (use &quot;git pull&quot; to merge the remote branch into yours)
+
+nothing to commit, working tree clean</code></pre>
+<p>We will have to instead use the –force or -f flag to force-push the changes, informing Git that you are fully aware of what you are pushing.</p>
+<p>At this point, we should ensure that we are on the correct branch by checking out the branch we are working on:</p>
+<p><code>git checkout new-branch</code></p>
+<pre><code>Output
+Already on &#39;new-branch&#39;</code></pre>
+<p>Now we can perform the force-push:</p>
+<p><code>git push -f</code></p>
+<p>I could also do below, assuming I am in master branch, and all my squashing activities were in master branch</p>
+<p><code>git push origin master --force</code></p>
+<p>And now if I go to the exiting PR in Github, I will see the same PR has got fully updated with my latest changes, with just a single commit.</p>
+<p>Note, all these squashing activities could have been done by the Repo’s Manager as well. The repository’s manager can squash all the commits in a pull request into a single commit by selecting “Squash and merge” on a pull request.</p>
+<h4 id="issue---how-to-squash-commits-after-the-pull-request-has-been-opened-that-is-after-i-have-created-a-pr-then-squash-my-commits-in-my-local-machine-and-then-when-i-go-to-the-pr-of-the-upstream-repo-i-still-see-all-the-committs-that-were-there-previously.">ISSUE - How to squash commits after the pull request has been opened ? That is, after I have created a PR, then squash my commits in my local machine and then when I go to the PR of the upstream Repo, I still see all the committs that were there previously.</h4>
+<h4 id="solution---the-below-will-save-you-many-times">Solution - (the below will save you many times)</h4>
+<p>The easiest way to squash all of these changes is probably start by resetting your current branch back to the upstream master branch:</p>
+<pre><code>$ git reset upstream/master
+</code></pre>
+<h4 id="the-magical-thing-abuout-the-above-command-is-this-will-reset-the-repository-but-not-your-working-directory-to-the-state-of-the-upstreammaster-branch.-since-it-doesnt-modify-the-state-of-your-working-directory-this-means-that-all-your-changes-are-preserved-but-not-the-commit-history.-at-this-point-we-see">The magical thing abuout the above command is, this will reset the repository, but not your working directory, to the state of the upstream/master branch. Since it doesn’t modify the state of your working directory, this means that all your changes are preserved, but not the commit history. At this point, we see:</h4>
+<pre><code>\$ git status
+[...]
+Changes not staged for commit:
+(use &quot;git add &lt;file&gt;...&quot; to update what will be committed)
+(use &quot;git checkout -- &lt;file&gt;...&quot; to discard changes in working directory)
+
+    modified:   app/server.go
+    modified:   smtp.go
+
+no changes added to commit (use &quot;git add&quot; and/or &quot;git commit -a&quot;)
+</code></pre>
+<p>Now we can create a new commit:</p>
+<pre><code>$ git add -u
+$ git commit</code></pre>
+<h4 id="now-you-have-a-single-commit-on-top-of-the-upstream-master-branch.-you-would-then-force-push-this-to-your-own-master-branch-which-would-update-the-pr.">Now you have a single commit on top of the upstream master branch. You would then force push this to your own master branch, which would update the PR.</h4>
+<p>(NB: if you’re worried about screwing something up or losing your changes or anything like that, either work on a new branch, or just make a local copy of your working directory and work on that instead.)</p>

@@ -1,0 +1,1844 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = false;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "/detroitchicago/boise.js",
+        "/detroitchicago/boise.js?gcb=192-11&cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "/detroitchicago/memphis.js",
+        "/detroitchicago/memphis.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/minneapolis.js",
+        "/detroitchicago/minneapolis.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "/detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "/porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("/");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot.getAdUnitPath(adSlot).split("/").pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (ezimKey.split("/").pop() === adUnitName) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "/detroitchicago/raleigh.js",
+        "/detroitchicago/raleigh.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/tampa.js",
+        "/detroitchicago/tampa.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_count_adjustment: 0,
+        ad_lazyload_version: 0,
+        ad_location_ids: "",
+        ad_transform_level: 0,
+        adx_ad_count: 0,
+        bidder_method: 1,
+        bidder_version: 3,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        display_ad_count: 0,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        ds_adsize_opt_id: -1,
+        engaged_time_visit: 0,
+        ezcache_level: 1,
+        ezcache_skip_code: 6,
+        form_factor_id: 1,
+        framework_id: 1,
+        has_bad_image: 0,
+        has_bad_words: 0,
+        iab_category: "",
+        is_from_recommended_pages: false,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        max_ads: 0,
+        metro_code: 501,
+        optimization_version: 1,
+        page_ad_positions: "",
+        page_view_count: 233,
+        page_view_id: "93c19393-2038-482a-534d-5362e637c72b",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 0,
+        response_time_orig: 351,
+        serverid: "54.196.233.176:9235",
+        state: "NJ",
+        sub_page_ad_positions: "",
+        t_epoch: 1613703114,
+        template_id: 0,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/tutorials/ms-office/Word/edmonton.php",
+        user_id: 0,
+        word_count: 0,
+        worst_bad_word_level: 0,
+      };
+      var _ezim_d = null;
+      var _ezat = {
+        domain_id: 83552,
+        form_factor_id: 1,
+        framework_id: 1,
+        pageview_date: "2021-02-18",
+        pageview_id: "93c19393-2038-482a-534d-5362e637c72b",
+        template_id: 0,
+        url: "https://www.brainbell.com/tutorials/ms-office/Word/edmonton.php",
+        visit_uuid: "3b57fc57-4c51-4b3f-6c78-712b82b8f8be",
+      };
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+    >
+      __ez.queue.addFile(
+        "banger.js",
+        "/porpoiseant/banger.js?cb=192-11&bv=3&v=39&PageSpeed=off",
+        true,
+        [],
+        true,
+        false,
+        false,
+        true
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "/detroitchicago/tulsa.js",
+        "/detroitchicago/tulsa.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <title>Article or tutorial not found</title>
+    <link rel="stylesheet" type="text/css" href="/img/404.css" />
+
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base
+      href="https://www.brainbell.com/tutorials/ms-office/Word/edmonton.php"
+    />
+    <script type="text/javascript">
+      var ezoTemplate = "pub_site_noads";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigeneris",
+        "//g.ezoic.net/ezosuigeneris.js",
+        true,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+      var __ez_ezosuigenerisEvt = function () {
+        if (typeof ezosuigeneris != "undefined") {
+          __ez.bit.AddAndFire(_ezaq["page_view_id"], [
+            new __ezDotData("universal_user_id", ezosuigeneris),
+          ]);
+        }
+      };
+      __ez.queue.addFunc(
+        "__ez_ezosuigenerisEvt",
+        "__ez_ezosuigenerisEvt",
+        null,
+        false,
+        [
+          "__ezf_ezosuigeneris",
+          "/detroitchicago/minneapolis.js",
+          "/detroitchicago/memphis.js",
+        ],
+        false,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigenerisc",
+        "//g.ezoic.net/ezosuigenerisc.js?nogen=1",
+        true,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["93c19393-2038-482a-534d-5362e637c72b", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <div>
+      <img src="/img/head_pic1.jpg" border="0" />
+    </div>
+    <div class="toc">
+      <h1>404 page not found</h1>
+      <p>
+        Sorry, the page you requested was not found. Please use the following
+        index to browse related topics.
+      </p>
+    </div>
+
+    <h1 style="text-align: center">MS Word index</h1>
+    <div class="toc">
+      <h2>Installation, Repair, and Configuration</h2>
+      <a
+        href="/tutorials/ms-office/Word/Stop_Word_From_Demanding_The_Installation_CD.htm"
+        >Stop Word from Demanding the Installation CD</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Install_Multiple_Versions_Of_Word_On_The_Same_PC.htm"
+        >Install Multiple Versions of Word on the Same PC</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Keep_Shortcuts_For_Both_Word_2000_And_Word_XP_On_The_Same_Computer.htm"
+        >Keep Shortcuts for Both Word 2000 and Word XP on the Same Computer</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Install_Word_On_Both_OSes_In_A_Dual-Boot_Configuration.htm"
+        >Install Word on Both OSes in a Dual-Boot Configuration</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Install_All_Necessary_Graphics_Filters.htm"
+        >Install All Necessary Graphics Filters</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Make_The_Most_Of_The_Word_Product-Activation_Grace_Period.htm"
+        >Make the Most of the Word Product-Activation Grace Period</a
+      >
+      <a href="/tutorials/ms-office/Word/Install_Word_For_Only_One_User.htm"
+        >Install Word for Only One User</a
+      >
+      <a href="/tutorials/ms-office/Word/Move_Word_To_Another_Computer.htm"
+        >Move Word to Another Computer</a
+      >
+      <a href="/tutorials/ms-office/Word/Reinstall_Word.htm">Reinstall Word</a>
+      <a href="/tutorials/ms-office/Word/Word_Hangs_On_Startup.htm"
+        >Word Hangs on Startup</a
+      >
+      <a href="/tutorials/ms-office/Word/Word_Takes_Forever_To_Start.htm"
+        >Word Takes Forever to Start</a
+      >
+      <a href="/tutorials/ms-office/Word/Word_2003_Runs_Slowly.htm"
+        >Word 2003 Runs Slowly</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Check_That_Your_Computer_Has_Enough_Memory.htm"
+        >Check That Your Computer Has Enough Memory</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Prevent_Word_From_Creating_A_Blank_Document_At_Startup.htm"
+        >Prevent Word from Creating a Blank Document at Startup</a
+      >
+      <a href="/tutorials/ms-office/Word/Control_When_The_Task_Pane_Appears.htm"
+        >Control When the Task Pane Appears</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Word_Asks_Whether_To_Save_Changes_To_Normal.dot.htm"
+        >Word Asks Whether to Save Changes to Normal.dot</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Word_Says_Normal.dot_Is_In_Use_By_Another_Application_Or_User.htm"
+        >Word Says Normal.dot "Is in Use by Another Application or User"</a
+      >
+      <a href="/tutorials/ms-office/Word/Display_Full_Menus.htm"
+        >Display Full Menus</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Prevent_Menu_Items_From_Changing_Position.htm"
+        >Prevent Menu Items from Changing Position</a
+      >
+      <a href="/tutorials/ms-office/Word/Cut_Menus_Down_To_Size.htm"
+        >Cut Menus Down to Size</a
+      >
+      <a href="/tutorials/ms-office/Word/Create_A_Work_Menu.htm"
+        >Create a Work Menu</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Put_A_Close_Document_Button_On_The_Standard_Toolbar.htm"
+        >Put a Close Document Button on the Standard Toolbar</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Consolidate_Your_Toolbars_Into_A_Custom_Toolbar.htm"
+        >Consolidate Your Toolbars into a Custom Toolbar</a
+      >
+      <a href="/tutorials/ms-office/Word/Get_Rid_Of_Proprietary_Toolbars.htm"
+        >Get Rid of Proprietary Toolbars</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Choose_One_Or_Multiple_Word_Buttons_On_The_Taskbar.htm"
+        >Choose One or Multiple Word Buttons on the Taskbar</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Creating and Saving Documents</h2>
+      <a
+        href="/tutorials/ms-office/Word/Get_Rid_Of_Text_In_The_Default_Document.htm"
+        >Get Rid of Text in the Default Document</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Create_A_Template_For_Each_Document_Type_You_Use_Frequently.htm"
+        >Create a Template for Each Document Type You Use Frequently</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Create_A_Document_Based_On_An_Existing_Document.htm"
+        >Create a Document Based on an Existing Document</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Use_A_Template_Outside_Your_Default_Templates_Folder.htm"
+        >Use a Template Outside Your Default Templates Folder</a
+      >
+      <a href="/tutorials/ms-office/Word/Save_Your_Documents_The_Best_Way.htm"
+        >Save Your Documents the Best Way</a
+      >
+      <a href="/tutorials/ms-office/Word/Save_All_Open_Documents_At_Once.htm"
+        >Save All Open Documents at Once</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Change_Words_Default_Folder_For_Saving_Documents.htm"
+        >Change Word's Default Folder for Saving Documents</a
+      >
+      <a href="/tutorials/ms-office/Word/Find_A_Document_Youve_Lost.htm"
+        >Find a Document You've Lost</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Keep_Separate_Versions_Of_The_Same_Document.htm"
+        >Keep Separate Versions of the Same Document</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Remove_Personal_Data_From_A_Document.htm"
+        >Remove Personal Data from a Document</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Remove_Office-Specific_Tags_From_Web_Pages.htm"
+        >Remove Office-Specific Tags from Web Pages</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Use_Application_Recovery_To_Mitigate_A_Crash.htm"
+        >Use Application Recovery to Mitigate a Crash</a
+      >
+      <a href="/tutorials/ms-office/Word/Turn_Off_Error_Reporting.htm"
+        >Turn Off Error Reporting</a
+      >
+      <a href="/tutorials/ms-office/Word/Recover_A_Document_After_A_Crash.htm"
+        >Recover a Document After a Crash</a
+      >
+      <a href="/tutorials/ms-office/Word/Control_Or_Turn_Off_AutoRecover.htm"
+        >Control or Turn Off AutoRecover</a
+      >
+      <a href="/tutorials/ms-office/Word/Open_Files_Saved_In_Another_Format.htm"
+        >Open Files Saved in Another Format</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Batch-Convert_Many_Files_Between_Formats.htm"
+        >Batch-Convert Many Files Between Formats</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Make_Local_Copies_Of_Documents_On_Network_Or_Removable_Drives.htm"
+        >Make Local Copies of Documents on Network or Removable Drives</a
+      >
+      <a href="/tutorials/ms-office/Word/Understand_Document_Locking.htm"
+        >Understand Document Locking</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Deal_With_Spurious_File_In_Use_Messages.htm"
+        >Deal with Spurious "File in Use" Messages</a
+      >
+      <a href="/tutorials/ms-office/Word/Avoid_Master_Documents_If_Possible.htm"
+        >Avoid Master Documents if Possible</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Enable_Multiple_People_To_Edit_A_Document_At_The_Same_Time.htm"
+        >Enable Multiple People to Edit a Document at the Same Time</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Enable_Several_People_To_Edit_A_Document_Simultaneously.htm"
+        >Enable Several People to Edit a Document Simultaneously</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Recover_A_Corrupted_Master_Document.htm"
+        >Recover a Corrupted Master Document</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Text Entry and Editing</h2>
+      <a
+        href="/tutorials/ms-office/Word/Expand_And_Collapse_Outline_View_Quickly.htm"
+        >Expand and Collapse Outline View Quickly</a
+      >
+      <a href="/tutorials/ms-office/Word/Switch_Quickly_Among_Views.htm"
+        >Switch Quickly Among Views</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Turn_Off_Formatting_Display_In_Outline_View.htm"
+        >Turn Off Formatting Display in Outline View</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Change_The_Font_Used_For_Outline_View.htm"
+        >Change the Font Used for Outline View</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Stop_Print_Layout_View_From_Shortening_Pages.htm"
+        >Stop Print Layout View from Shortening Pages</a
+      >
+      <a href="/tutorials/ms-office/Word/Hone_Words_Automatic_Selection.htm"
+        >Hone Word's Automatic Selection</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Control_Smart-Cut-and-Paste_Settings.htm"
+        >Control Smart-Cut-and-Paste Settings</a
+      >
+      <a href="/tutorials/ms-office/Word/Select_Indented_Text_Accurately.htm"
+        >Select Indented Text Accurately</a
+      >
+      <a href="/tutorials/ms-office/Word/Turn_Off_Click_And_Type.htm"
+        >Turn Off "Click and Type"</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Enter_Any_Amount_Of_Text_Quickl-y_In_A_Document.htm"
+        >Enter Any Amount of Text Quickl-y in a Document</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Use_AutoText_Or_DontIts_Your_Choice.htm"
+        >Use AutoText, or Don'tIt's Your Choice</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Transfer_Your_AutoText_Entries_Between_Templates.htm"
+        >Transfer Your AutoText Entries Between Templates</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Remove_Mystery_Lines_From_Your_Documents.htm"
+        >Remove Mystery Lines from Your Documents</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Turn_Off_AutoFormat_As_You_Type_Options.htm"
+        >Turn Off "AutoFormat As You Type" Options</a
+      >
+      <a href="/tutorials/ms-office/Word/Save_Work_And_Time_With_AutoFormat.htm"
+        >Save Work and Time with AutoFormat</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Stop_Word_From_Adjusting_Your_Capitalization.htm"
+        >Stop Word from Adjusting Your Capitalization</a
+      >
+      <a href="/tutorials/ms-office/Word/Escape_Unwanted_Copyright_Symbols.htm"
+        >Escape Unwanted Copyright Symbols</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Transfer_Your_AutoCorrect_Entries_To_Another_Computer.htm"
+        >Transfer Your AutoCorrect Entries to Another Computer</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Insert_Symbols_And_Special_Characters.htm"
+        >Insert Symbols and Special Characters</a
+      >
+      <a href="/tutorials/ms-office/Word/Insert_A_Hard_Space.htm"
+        >Insert a "Hard Space"</a
+      >
+      <a href="/tutorials/ms-office/Word/Find_And_Replace_Quickly.htm"
+        >Find and Replace Quickly</a
+      >
+      <a href="/tutorials/ms-office/Word/Replace_Styles_And_Formatting.htm"
+        >Replace Styles and Formatting</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Replace_Dumb_Quotes_With_Smart_Quotes.htm"
+        >Replace Dumb Quotes with Smart Quotes</a
+      >
+      <a href="/tutorials/ms-office/Word/Replace_With_A_Subscript.htm"
+        >Replace with a Subscript</a
+      >
+      <a href="/tutorials/ms-office/Word/Find_Any_Character_Digit_Or_Letter.htm"
+        >Find Any Character, Digit, or Letter</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Strip_Blank_Paragraphs_From_A_Document.htm"
+        >Strip Blank Paragraphs from a Document</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Change_Firstname_Lastname_To_Lastname_Firstname.htm"
+        >Change "Firstname Lastname" to "Lastname, Firstname"</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Remove_Duplicate_Entries_From_A_List.htm"
+        >Remove Duplicate Entries from a List</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Master_Navigation_Keyboard_Shortcuts.htm"
+        >Master Navigation Keyboard Shortcuts</a
+      >
+      <a href="/tutorials/ms-office/Word/Navigate_With_Bookmarks.htm"
+        >Navigate with Bookmarks</a
+      >
+      <a href="/tutorials/ms-office/Word/Make_Bookmarks_Visible.htm"
+        >Make Bookmarks Visible</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Place_The_Insertion_Point_Outside_A_Bookmark.htm"
+        >Place the Insertion Point Outside a Bookmark</a
+      >
+      <a href="/tutorials/ms-office/Word/Navigate_With_Browse_Objects.htm"
+        >Navigate with Browse Objects</a
+      >
+      <a href="/tutorials/ms-office/Word/Navigate_With_Go_To.htm"
+        >Navigate with Go To</a
+      >
+      <a href="/tutorials/ms-office/Word/Navigate_With_The_Document_Map.htm"
+        >Navigate with the Document Map</a
+      >
+      <a href="/tutorials/ms-office/Word/Customize_The_Document_Map_Style.htm"
+        >Customize the Document Map Style</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Scroll_Automatically_Through_A_Document.htm"
+        >Scroll Automatically Through a Document</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Work_In_Two_Parts_Of_A_Document_At_Once.htm"
+        >Work in Two Parts of a Document at Once</a
+      >
+      <a href="/tutorials/ms-office/Word/Copy_Text_Without_Formatting.htm"
+        >Copy Text Without Formatting</a
+      >
+      <a href="/tutorials/ms-office/Word/Hack_Out_Columns_Of_Tabs_Or_Spaces.htm"
+        >Hack Out Columns of Tabs or Spaces</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Set_Realistic_Expectations_For_AutoSummarize.htm"
+        >Set Realistic Expectations for AutoSummarize</a
+      >
+      <a href="/tutorials/ms-office/Word/Get_An_Instant_Word_Count.htm"
+        >Get an Instant Word Count</a
+      >
+      <a href="/tutorials/ms-office/Word/Correct_A_Way-Off_Page_Count.htm"
+        >Correct a Way-Off Page Count</a
+      >
+      <a href="/tutorials/ms-office/Word/Remove_Useless_Smart_Tags.htm"
+        >Remove Useless Smart Tags</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Stop_Word_From_Searching_The_Web_For_Help.htm"
+        >Stop Word from Searching the Web for Help</a
+      >
+      <a href="/tutorials/ms-office/Word/Get_Rid_Of_The_Office_Assistant.htm"
+        >Get Rid of the Office Assistant</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Use_Cross-References_To_Keep_Text_Updated_In_Different_Parts_Of_The_Document.htm"
+        >Use Cross-References to Keep Text Updated in Different Parts of the
+        Document</a
+      >
+      <a href="/tutorials/ms-office/Word/Insert_A_Date_That_Doesnt_Change.htm"
+        >Insert a Date That Doesn't Change</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Formatting and Layout</h2>
+      <a
+        href="/tutorials/ms-office/Word/Change_The_Default_Layout_In_Normal.dot.htm"
+        >Change the Default Layout in Normal.dot</a
+      >
+      <a href="/tutorials/ms-office/Word/Change_The_Default_Margins.htm"
+        >Change the Default Margins</a
+      >
+      <a href="/tutorials/ms-office/Word/Control_Formatting_When_You_Paste.htm"
+        >Control Formatting When You Paste</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Bring_Spaced-out_Pasted_Text_Down_To_Earth.htm"
+        >Bring Spaced-out Pasted Text Down to Earth</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Copy_Intricate_Formatting_Instantly.htm"
+        >Copy Intricate Formatting Instantly</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Change_Capitalized_Text_To_Small_Caps.htm"
+        >Change Capitalized Text to Small Caps</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Replace_Spaced_Indents_With_Real_Indents.htm"
+        >Replace Spaced Indents with Real Indents</a
+      >
+      <a href="/tutorials/ms-office/Word/Reveal_Formatting_And_Codes.htm"
+        >Reveal Formatting and Codes</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Adjust_The_Conversion_From_WordPerfect.htm"
+        >Adjust the Conversion from WordPerfect</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Embed_Fonts_In_Documents_You_Send_To_Others.htm"
+        >Embed Fonts in Documents You Send to Others</a
+      >
+      <a href="/tutorials/ms-office/Word/Make_Word_Display_All_Your_Fonts.htm"
+        >Make Word Display All Your Fonts</a
+      >
+      <a href="/tutorials/ms-office/Word/Turn_Off_Automatic_Style_Updating.htm"
+        >Turn Off Automatic Style Updating</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Stop_Word_From_Changing_The_Language.htm"
+        >Stop Word from Changing the Language</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Correct_Automatic_Numbering_In_Numbered_Lists.htm"
+        >Correct Automatic Numbering in Numbered Lists</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Watch_Out_For_Revision_Marks_Wrecking_Numbered_Lists.htm"
+        >Watch Out for Revision Marks Wrecking Numbered Lists</a
+      >
+      <a href="/tutorials/ms-office/Word/Fix_Page_X_Of_Y_Numbering.htm"
+        >Fix "Page X of Y" Numbering</a
+      >
+      <a href="/tutorials/ms-office/Word/Make_Outline_Numbering_Work.htm"
+        >Make Outline Numbering Work</a
+      >
+      <a href="/tutorials/ms-office/Word/Create_Custom_Outline_Numbering.htm"
+        >Create Custom Outline Numbering</a
+      >
+      <a href="/tutorials/ms-office/Word/Get_Started_With_Styles.htm"
+        >Get Started with Styles</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Remove_Formatting_With_Default_Paragraph_Font_Clear_Formatting.htm"
+        >Remove Formatting with Default Paragraph Font/Clear Formatting</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Bypass_The_Styles_And_Formatting_Task_Pane.htm"
+        >Bypass the Styles and Formatting Task Pane</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Make_The_Style_Drop-Down_List_Show_The_Styles_You_Want.htm"
+        >Make the Style Drop-Down List Show the Styles You Want</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Quickly_Change_One_Style_To_Another.htm"
+        >Quickly Change One Style to Another</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Stop_A_Style_Change_In_One_Document_From_Affecting_Other_Documents.htm"
+        >Stop a Style Change in One Document from Affecting Other Documents</a
+      >
+      <a href="/tutorials/ms-office/Word/Redefine_The_Normal_Style.htm"
+        >Redefine the Normal Style</a
+      >
+      <a href="/tutorials/ms-office/Word/Control_The_Style_When_You_Paste.htm"
+        >Control the Style When You Paste</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Make_The_Pasted_Text_Take_The_Destinations_Style.htm"
+        >Make the Pasted Text Take the Destination's Style</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Watch_Out_When_Formatting_Starts_To_Slip.htm"
+        >Watch Out When Formatting Starts to "Slip"</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Avoid_Layout_Changes_On_Different_Computers.htm"
+        >Avoid Layout Changes on Different Computers</a
+      >
+      <a href="/tutorials/ms-office/Word/Make_Your_Pictures_Look_Right.htm"
+        >Make Your Pictures Look Right</a
+      >
+      <a href="/tutorials/ms-office/Word/Crop_Pictures_Outside_Word.htm"
+        >Crop Pictures Outside Word</a
+      >
+      <a href="/tutorials/ms-office/Word/Get_Rid_Of_The_Drawing_Canvas.htm"
+        >Get Rid of the Drawing Canvas</a
+      >
+      <a href="/tutorials/ms-office/Word/Rotate_Text_To_The_Angle_You_Want.htm"
+        >Rotate Text to the Angle You Want</a
+      >
+      <a href="/tutorials/ms-office/Word/Wrap_Text_Around_A_Picture.htm"
+        >Wrap Text Around a Picture</a
+      >
+      <a href="/tutorials/ms-office/Word/Display_Object_Anchors.htm"
+        >Display Object Anchors</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Position_The_Graphic_Relative_To_The_Page.htm"
+        >Position the Graphic Relative to the Page</a
+      >
+      <a href="/tutorials/ms-office/Word/Create_A_Watermark.htm"
+        >Create a Watermark</a
+      >
+      <a href="/tutorials/ms-office/Word/Position_Lines_Where_You_Need_Them.htm"
+        >Position Lines Where You Need Them</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/See_Where_A_Hyperlink_Will_Really_Take_You.htm"
+        >See Where a Hyperlink Will Really Take You</a
+      >
+      <a href="/tutorials/ms-office/Word/Bring_Hyperlinks_To_Heel.htm"
+        >Bring Hyperlinks to Heel</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Stop_Word_From_Turning_Tabs_Into_Indents.htm"
+        >Stop Word From Turning Tabs into Indents</a
+      >
+      <a href="/tutorials/ms-office/Word/Use_Tabs_Effectively.htm"
+        >Use Tabs Effectively</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Convert_Tabs_And_Spaces_To_Just_Tabs.htm"
+        >Convert Tabs and Spaces to Just Tabs</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Create_Different_Headers_On_Different_Pages.htm"
+        >Create Different Headers on Different Pages</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Create_A_Header_From_A_Heading_Paragraph.htm"
+        >Create a Header from a Heading Paragraph</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Forms, Revising, Proofing, and Finalizing</h2>
+      <a
+        href="/tutorials/ms-office/Word/Prevent_A_User_From_Accessing_Parts_Of_A_Document.htm"
+        >Prevent a User from Accessing Parts of a Document</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Force_A_User_To_Fill_In_Certain_Fields.htm"
+        >Force a User to Fill In Certain Fields</a
+      >
+      <a href="/tutorials/ms-office/Word/Capture_Only_The_Data_From_A_Form.htm"
+        >Capture Only the Data from a Form</a
+      >
+      <a href="/tutorials/ms-office/Word/Deflate_Comment_Balloons.htm"
+        >Deflate Comment Balloons</a
+      >
+      <a href="/tutorials/ms-office/Word/Turn_On_And_Use_Track_Changes.htm"
+        >Turn On and Use Track Changes</a
+      >
+      <a href="/tutorials/ms-office/Word/Toggle_Revision_Marking_Quickly.htm"
+        >Toggle Revision Marking Quickly</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/See_Only_The_Revision_Marks_For_Some_Reviewers.htm"
+        >See Only the Revision Marks for Some Reviewers</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Get_Rid_Of_The_Reviewing_Pane_Quickly.htm"
+        >Get Rid of the Reviewing Pane Quickly</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Use_Compare_And_Merge_Documents_To_Highlight_Untracked_Changes.htm"
+        >Use "Compare and Merge Documents" to Highlight Untracked Changes</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Prevent_Other_People_From_Turning_Off_Track_Changes.htm"
+        >Prevent Other People from Turning Off "Track Changes"</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Choose_Or_Lose_The_Red_And_Green_Squiggles.htm"
+        >Choose or Lose the Red and Green Squiggles</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Spellcheck_Your_Documents_In_Your_Preferred_Way.htm"
+        >Spellcheck Your Documents in Your Preferred Way</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Watch_Out_For_Mistakes_Missed_On_Porpoise....htm"
+        >Watch Out for Mistakes Missed on Porpoise...</a
+      >
+      <a href="/tutorials/ms-office/Word/...and_Missed_On_Purpose.htm"
+        >...and Missed on Purpose</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Use_Custom_Dictionaries_For_Special_Terms.htm"
+        >Use Custom Dictionaries for Special Terms</a
+      >
+      <a href="/tutorials/ms-office/Word/Remove_Mistakes_From_A_Dictionary.htm"
+        >Remove Mistakes from a Dictionary</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Share_A_Dictionary_With_Other_Users.htm"
+        >Share a Dictionary with Other Users</a
+      >
+      <a href="/tutorials/ms-office/Word/Create_A_Custom_Dictionary_Quickly.htm"
+        >Create a Custom Dictionary Quickly</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Solve_The_Custom_Dictionary_Is_Full_Error.htm"
+        >Solve the "Custom Dictionary Is Full" Error</a
+      >
+      <a href="/tutorials/ms-office/Word/Unstick_The_Spelling_Checker.htm"
+        >Unstick the Spelling Checker</a
+      >
+      <a href="/tutorials/ms-office/Word/Create_An_Exclusion_Dictionary.htm"
+        >Create an Exclusion Dictionary</a
+      >
+      <a href="/tutorials/ms-office/Word/Turn_Off_Grammar_Checking.htm"
+        >Turn Off Grammar Checking</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Make_Sense_Of_Words_Readability_Statistics.htm"
+        >Make Sense of Word's Readability Statistics</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Printing, Faxing, and Scanning</h2>
+      <a
+        href="/tutorials/ms-office/Word/Stop_Word_2003_From_Crashing_When_You_Print.htm"
+        >Stop Word 2003 from Crashing When You Print</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Stop_Word_XP_From_Crashing_When_You_Print.htm"
+        >Stop Word XP from Crashing When You Print</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Troubleshoot_Words_Refusal_To_Print.htm"
+        >Troubleshoot Word's Refusal to Print</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Identify_Fields_That_Change_When_You_Open_And_Print_A_Document.htm"
+        >Identify Fields That Change When You Open and Print a Document</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Make_The_Print_Button_On_The_Standard_Toolbar_Display_The_Print_Dialog_Box.htm"
+        >Make the Print Button on the Standard Toolbar Display the Print Dialog
+        Box</a
+      >
+      <a href="/tutorials/ms-office/Word/Print_A_Range_Of_Pages.htm"
+        >Print a Range of Pages</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Print_Double-Sided_Pages_Without_A_Duplex_Printer.htm"
+        >Print Double-Sided Pages Without a Duplex Printer</a
+      >
+      <a href="/tutorials/ms-office/Word/Turn_Off_Background_Printing.htm"
+        >Turn Off Background Printing</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Print_Colored_Text_As_Black_On_A_Monochrome_Printer.htm"
+        >Print Colored Text as Black on a Monochrome Printer</a
+      >
+      <a href="/tutorials/ms-office/Word/Adjust_Your_Margins_For_Printing.htm"
+        >Adjust Your Margins for Printing</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Stop_The_Printer_From_Cutting_Off_The_Bottom_Of_The_Page.htm"
+        >Stop the Printer from Cutting Off the Bottom of the Page</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Handle_Bizarre_Swelling_Of_The_Right_Margin_Syndrome.htm"
+        >Handle "Bizarre Swelling of the Right Margin Syndrome"</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Create_A_Black_Background_With_White_Text.htm"
+        >Create a Black Background with White Text</a
+      >
+      <a href="/tutorials/ms-office/Word/Print_To_A_File.htm"
+        >Print to a File</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Find_Where_Word_Hides_The_Fax_Command.htm"
+        >Find Where Word Hides the Fax Command</a
+      >
+      <a href="/tutorials/ms-office/Word/Get_A_Fax_Into_A_Word_Document.htm"
+        >Get a Fax into a Word Document</a
+      >
+      <a href="/tutorials/ms-office/Word/Scan_And_OCR_A_Document.htm"
+        >Scan and OCR a Document</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Use_A_Scanned_Picture_In_A_Word_Document.htm"
+        >Use a Scanned Picture in a Word Document</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Tables, Columns, and Text Boxes</h2>
+      <a
+        href="/tutorials/ms-office/Word/Choose_Whether_To_Draw_Tables_Or_Just_Insert_Them.htm"
+        >Choose Whether to Draw Tables or Just Insert Them</a
+      >
+      <a href="/tutorials/ms-office/Word/Prevent_Word_From_Resizing_A_Table.htm"
+        >Prevent Word from Resizing a Table</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Get_A_Table_Away_From_The_Start_Of_A_Document.htm"
+        >Get a Table Away from the Start of a Document</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Position_A_Table_Correctly_On_A_Page....htm"
+        >Position a Table Correctly on a Page...</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/...and_Position_The_Tables_Contents_Correctly.htm"
+        >...and Position the Table's Contents Correctly</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Restore_The_Cell_Height_And_Width_Dialog_Box.htm"
+        >Restore the Cell Height and Width Dialog Box</a
+      >
+      <a href="/tutorials/ms-office/Word/Repeat_A_Header_Row.htm"
+        >Repeat a Header Row</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Delete_A_Table_Not_Just_Its_Contents.htm"
+        >Delete a Table, Not Just Its Contents</a
+      >
+      <a href="/tutorials/ms-office/Word/Work_Smart_With_Table_Columns.htm"
+        >Work Smart with Table Columns</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Use_Different_Cell_Widths_In_Different_Rows.htm"
+        >Use Different Cell Widths in Different Rows</a
+      >
+      <a href="/tutorials/ms-office/Word/Rearrange_Table_Columns.htm"
+        >Rearrange Table Columns</a
+      >
+      <a href="/tutorials/ms-office/Word/Print_Table_Gridlines.htm"
+        >Print Table Gridlines</a
+      >
+      <a href="/tutorials/ms-office/Word/Get_Rid_Of_Table_Gridlines.htm"
+        >Get Rid of Table Gridlines</a
+      >
+      <a href="/tutorials/ms-office/Word/Wrap_Text_Around_A_Table.htm"
+        >Wrap Text Around a Table</a
+      >
+      <a href="/tutorials/ms-office/Word/Create_Formulas_In_Tables.htm"
+        >Create Formulas in Tables</a
+      >
+      <a href="/tutorials/ms-office/Word/Speed_Up_Words_Handling_Of_Tables.htm"
+        >Speed Up Word's Handling of Tables</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Avoid_Vertically_Merged_Cells_In_Word_2000.htm"
+        >Avoid Vertically Merged Cells in Word 2000</a
+      >
+      <a href="/tutorials/ms-office/Word/Create_Newspaper-Style_Columns.htm"
+        >Create Newspaper-Style Columns</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Mix_Different_Numbers_Of_Columns_In_A_Document.htm"
+        >Mix Different Numbers of Columns in a Document</a
+      >
+      <a href="/tutorials/ms-office/Word/Use_Text_Boxes_For_Complex_Layouts.htm"
+        >Use Text Boxes for Complex Layouts</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Create_A_Series_Of_Linked_Text_Boxes.htm"
+        >Create a Series of Linked Text Boxes</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Automate Work with Macros</h2>
+      <a href="/tutorials/ms-office/Word/Record_A_Macro_To_Repeat_A_Task.htm"
+        >Record a Macro to Repeat a Task</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Remove_Unnecessary_Commands_From_A_Recorded_Macro.htm"
+        >Remove Unnecessary Commands from a Recorded Macro</a
+      >
+      <a href="/tutorials/ms-office/Word/Control_A_Macro_With_A_Message_Box.htm"
+        >Control a Macro with a Message Box</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Return_To_The_Last_Editing_Position_When_Opening_A_Document.htm"
+        >Return to the Last Editing Position When Opening a Document</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Make_Print_Preview_Open_In_Editing_Mode.htm"
+        >Make Print Preview Open in Editing Mode</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Make_Outline_View_Open_Expanded_To_A_Specified_Level.htm"
+        >Make Outline View Open Expanded to a Specified Level</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Switch_The_Active_Document_To_Read-Only_Status.htm"
+        >Switch the Active Document to Read-Only Status</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Close_All_Documents_Except_The_Current_One.htm"
+        >Close All Documents Except the Current One</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/See_Which_Keyboard_Shortcuts_Are_Assigned.htm"
+        >See Which Keyboard Shortcuts Are Assigned</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Remove_Typed_Numbering_From_Lists_And_Headings.htm"
+        >Remove Typed Numbering from Lists and Headings</a
+      >
+      <a href="/tutorials/ms-office/Word/Apply_Proper_Capitalization.htm"
+        >Apply Proper Capitalization</a
+      >
+      <a href="/tutorials/ms-office/Word/Double-Save_A_Document.htm"
+        >Double-Save a Document</a
+      >
+      <a href="/tutorials/ms-office/Word/Print_A_Document_In_Monochrome.htm"
+        >Print a Document in Monochrome</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Display_The_Print_Dialog_Box_With_The_Current_Page_Or_Pages_Option_Selected.htm"
+        >Display the Print Dialog Box with the "Current Page" or "Pages" Option
+        Selected</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Perform_Find_And_Replace_Operations_With_Complex_Formatting.htm"
+        >Perform Find and Replace Operations with Complex Formatting</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Print_Samples_Of_Each_Font_Installed_On_Your_PC.htm"
+        >Print Samples of Each Font Installed on Your PC</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Move_A_Macro_From_One_Template_To_Another.htm"
+        >Move a Macro from One Template to Another</a
+      >
+      <a href="/tutorials/ms-office/Word/Find_Out_Why_Word_Wont_Run_A_Macro.htm"
+        >Find Out Why Word Won't Run a Macro</a
+      >
+      <a href="/tutorials/ms-office/Word/Create_An_Add-in.htm"
+        >Create an Add-in</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>OLE, Mail Merge, and Office Applications</h2>
+      <a
+        href="/tutorials/ms-office/Word/Choose_Between_Linking_And_Embedding_Objects.htm"
+        >Choose Between Linking and Embedding Objects</a
+      >
+      <a href="/tutorials/ms-office/Word/Update_Edit_And_Break_Links.htm"
+        >Update, Edit, and Break Links</a
+      >
+      <a href="/tutorials/ms-office/Word/Perform_A_Basic_Mail_Merge.htm"
+        >Perform a Basic Mail Merge</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Create_A_Smart_Mail_Merge_With_Sorting_Filtering_And_If_Fields.htm"
+        >Create a Smart Mail Merge With Sorting, Filtering, and if Fields</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Insert_Data_Source_Fields_Into_A_Merge_Document.htm"
+        >Insert Data Source Fields into a Merge Document</a
+      >
+      <a href="/tutorials/ms-office/Word/Edit_A_Data_Source_Document.htm"
+        >Edit a Data Source Document</a
+      >
+      <a href="/tutorials/ms-office/Word/Filter_Using_A_Numerical_Field.htm"
+        >Filter Using a Numerical Field</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Restore_A_Mail_Merge_Document_To_A_Normal_Word_Document.htm"
+        >Restore a Mail Merge Document to a Normal Word Document</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Keep_An_Excel_Chart_Updated_In_A_Word_Document.htm"
+        >Keep an Excel Chart Updated in a Word Document</a
+      >
+      <a href="/tutorials/ms-office/Word/Transfer_Data_From_Word_To_Excel.htm"
+        >Transfer Data from Word to Excel</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Create_A_Document_From_A_Presentation.htm"
+        >Create a Document from a Presentation</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Create_A_Presentation_From_A_Document.htm"
+        >Create a Presentation from a Document</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Put_A_Word_Table_On_A_PowerPoint_Slide.htm"
+        >Put a Word Table on a PowerPoint Slide</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Convert_A_Word_Table_To_An_Access_Database.htm"
+        >Convert a Word Table to an Access Database</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Move_Data_From_An_Access_Table_To_A_Word_Document.htm"
+        >Move Data from an Access Table to a Word Document</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Mac & Word</h2>
+      <a href="/tutorials/ms-office/Word/Speed_Up_Startup.htm"
+        >Speed Up Startup</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Look_To_Your_Font_Files_When_Word_X_Quits_On_Startup.htm"
+        >Look to Your Font Files When Word X Quits on Startup</a
+      >
+      <a href="/tutorials/ms-office/Word/Repair_Your_Disk_Permissions.htm"
+        >Repair Your Disk Permissions</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Repair_Your_Preferences_Or_Settings_Files.htm"
+        >Repair Your Preferences or Settings Files</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Speed_Up_Words_Performance_When_Scrolling.htm"
+        >Speed Up Word's Performance When Scrolling</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Recover_From_A_Corrupted_Normal_Template.htm"
+        >Recover from a Corrupted Normal Template</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Beware_When_Page_Numbering_Goes_Haywire.htm"
+        >Beware When Page Numbering Goes Haywire</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Wrest_Back_Control_From_Word_2004_Test_Drive.htm"
+        >Wrest Back Control from Word 2004 Test Drive</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Avoid_The_Unable_To_Save_Message_When_Saving_To_A_Server.htm"
+        >Avoid the "Unable to Save" Message When Saving to a Server</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Work_Around_The_Erroneous_Disk_Full_Error.htm"
+        >Work Around the Erroneous "Disk Full" Error</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Insert_Text_At_The_End_Of_A_Document.htm"
+        >Insert Text at the End of a Document</a
+      >
+      <a href="/tutorials/ms-office/Word/Turn_Off_Auto-Capping_In_Tables.htm"
+        >Turn Off Auto-Capping in Tables</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Avoid_Mixing_Orientations_If_You_Want_To_Print_Markup_Balloons.htm"
+        >Avoid Mixing Orientations if You Want to Print Markup Balloons</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Save_Your_Document_When_You_Paste_In_An_OLE_Object.htm"
+        >Save Your Document When You Paste in an OLE Object</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Restore_Page_Setup_To_Your_Preferred_Settings.htm"
+        >Restore Page Setup to Your Preferred Settings</a
+      >
+      <a href="/tutorials/ms-office/Word/Do_Away_With_The_Unknown_Author.htm"
+        >Do Away with the "Unknown Author"</a
+      >
+      <a
+        href="/tutorials/ms-office/Word/Move_Your_Word_X_Normal_Template_To_Safety.htm"
+        >Move Your Word X Normal Template to Safety</a
+      >
+    </div>
+
+    <script type="text/javascript" style="display: none">
+      var __ez_dims = (function () {
+        var setCookie = function (name, content, expiry) {
+          return (document.cookie =
+            name +
+            "=" +
+            content +
+            (expiry
+              ? ";expires=" +
+                new Date(
+                  Math.floor(new Date().getTime() + expiry * 1000)
+                ).toUTCString()
+              : "") +
+            ";path=/");
+        };
+        var ffid = 1;
+        var oh = window.screen.height;
+        var ow = window.screen.width;
+        var h = ffid === 1 ? oh : oh > ow ? oh : ow;
+        var w = ffid === 1 ? ow : oh > ow ? ow : oh;
+        var uh =
+          window.innerHeight ||
+          document.documentElement.clientHeight ||
+          document.getElementsByTagName("body")[0].clientHeight;
+        var uw =
+          window.innerWidth ||
+          document.documentElement.clientWidth ||
+          document.getElementsByTagName("body")[0].clientWidth;
+        setCookie(
+          "ezds",
+          encodeURIComponent("ffid=" + ffid + ",w=" + w + ",h=" + h),
+          31536e3 * 7
+        );
+        setCookie(
+          "ezohw",
+          encodeURIComponent("w=" + uw + ",h=" + uh),
+          31536e3 * 7
+        );
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "edmonton.php",
+        "/detroitchicago/edmonton.webp?a=a&cb=192-11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "jellyfish.php",
+        "/porpoiseant/jellyfish.webp?a=a&cb=192-11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+</html>

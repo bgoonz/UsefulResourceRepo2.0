@@ -1,0 +1,1450 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = false;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "/detroitchicago/boise.js",
+        "/detroitchicago/boise.js?gcb=192-11&cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "/detroitchicago/memphis.js",
+        "/detroitchicago/memphis.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/minneapolis.js",
+        "/detroitchicago/minneapolis.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "/detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "/porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("/");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot.getAdUnitPath(adSlot).split("/").pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (ezimKey.split("/").pop() === adUnitName) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "/detroitchicago/raleigh.js",
+        "/detroitchicago/raleigh.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/tampa.js",
+        "/detroitchicago/tampa.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_count_adjustment: 0,
+        ad_lazyload_version: 0,
+        ad_location_ids: "",
+        ad_transform_level: 0,
+        adx_ad_count: 0,
+        bidder_method: 1,
+        bidder_version: 3,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        display_ad_count: 0,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        ds_adsize_opt_id: -1,
+        engaged_time_visit: 0,
+        ezcache_level: 1,
+        ezcache_skip_code: 6,
+        form_factor_id: 1,
+        framework_id: 1,
+        has_bad_image: 0,
+        has_bad_words: 0,
+        iab_category: "",
+        is_from_recommended_pages: false,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        max_ads: 0,
+        metro_code: 501,
+        optimization_version: 1,
+        page_ad_positions: "",
+        page_view_count: 186,
+        page_view_id: "b603bb1e-6593-4428-4b9a-f85515e50f74",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 0,
+        response_time_orig: 295,
+        serverid: "52.2.190.208:32311",
+        state: "NJ",
+        sub_page_ad_positions: "",
+        t_epoch: 1613703054,
+        template_id: 0,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/tutorials/ms-office/Access_2003/jellyfish.php",
+        user_id: 0,
+        word_count: 0,
+        worst_bad_word_level: 0,
+      };
+      var _ezim_d = null;
+      var _ezat = {
+        domain_id: 83552,
+        form_factor_id: 1,
+        framework_id: 1,
+        pageview_date: "2021-02-18",
+        pageview_id: "b603bb1e-6593-4428-4b9a-f85515e50f74",
+        template_id: 0,
+        url: "https://www.brainbell.com/tutorials/ms-office/Access_2003/jellyfish.php",
+        visit_uuid: "3b57fc57-4c51-4b3f-6c78-712b82b8f8be",
+      };
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+    >
+      __ez.queue.addFile(
+        "banger.js",
+        "/porpoiseant/banger.js?cb=192-11&bv=3&v=39&PageSpeed=off",
+        true,
+        [],
+        true,
+        false,
+        false,
+        true
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "/detroitchicago/tulsa.js",
+        "/detroitchicago/tulsa.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <title>Article or tutorial not found</title>
+    <link rel="stylesheet" type="text/css" href="/img/404.css" />
+
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base
+      href="https://www.brainbell.com/tutorials/ms-office/Access_2003/jellyfish.php"
+    />
+    <script type="text/javascript">
+      var ezoTemplate = "pub_site_noads";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigeneris",
+        "//g.ezoic.net/ezosuigeneris.js",
+        true,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+      var __ez_ezosuigenerisEvt = function () {
+        if (typeof ezosuigeneris != "undefined") {
+          __ez.bit.AddAndFire(_ezaq["page_view_id"], [
+            new __ezDotData("universal_user_id", ezosuigeneris),
+          ]);
+        }
+      };
+      __ez.queue.addFunc(
+        "__ez_ezosuigenerisEvt",
+        "__ez_ezosuigenerisEvt",
+        null,
+        false,
+        [
+          "__ezf_ezosuigeneris",
+          "/detroitchicago/minneapolis.js",
+          "/detroitchicago/memphis.js",
+        ],
+        false,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigenerisc",
+        "//g.ezoic.net/ezosuigenerisc.js?nogen=1",
+        true,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["b603bb1e-6593-4428-4b9a-f85515e50f74", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <div>
+      <img src="/img/head_pic1.jpg" border="0" />
+    </div>
+    <div class="toc">
+      <h1>404 page not found</h1>
+      <p>
+        Sorry, the page you requested was not found. Please use the following
+        index to browse related topics.
+      </p>
+    </div>
+
+    <h1 style="text-align: center">MS Access index</h1>
+    <div class="toc">
+      <h2>The Fundamentals</h2>
+      <a href="/tutorials/ms-office/Access_2003/Introduction_To_Databases.htm"
+        >Introduction to Databases</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Whats_New_In_Access_2003.htm"
+        >What's New in Access 2003</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Starting_Access_And_Opening_A_Database.htm"
+        >Starting Access and Opening a Database</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Understanding_The_Access_Program_Screen.htm"
+        >Understanding the Access Program Screen</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Using_Menus.htm">Using Menus</a>
+      <a href="/tutorials/ms-office/Access_2003/Using_Toolbars.htm"
+        >Using Toolbars</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Filling_Out_Dialog_Boxes.htm"
+        >Filling Out Dialog Boxes</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Keystroke_And_Right_Mouse_Button_Shortcuts.htm"
+        >Keystroke and Right Mouse Button Shortcuts</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Opening_And_Modifying_Database_Objects.htm"
+        >Opening and Modifying Database Objects</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Working_With_Multiple_Windows.htm"
+        >Working with Multiple Windows</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Tour_Of_A_Table.htm"
+        >Tour of a Table</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Adding_Editing_and_Deleting_Records.htm"
+        >Adding, Editing, and Deleting Records</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Tour_Of_A_Form.htm"
+        >Tour of a Form</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Tour_Of_A_Query.htm"
+        >Tour of a Query</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Tour_Of_A_Report.htm"
+        >Tour of a Report</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Previewing_And_Printing_A_Database_Object.htm"
+        >Previewing and Printing a Database Object</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Selecting_Data.htm"
+        >Selecting Data</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Cutting_Copying_and_Pasting_Data.htm"
+        >Cutting, Copying, and Pasting Data</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Using_Undo.htm">Using Undo</a>
+      <a href="/tutorials/ms-office/Access_2003/Checking_Your_Spelling.htm"
+        >Checking Your Spelling</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Getting_Help.htm"
+        >Getting Help</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Changing_The_Office_Assistant_And_Using_The_Button.htm"
+        >Changing the Office Assistant and Using the Button</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Using_The_Zoom_Box.htm"
+        >Using the Zoom Box</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Closing_A_Database_And_Exiting_Access.htm"
+        >Closing a Database and Exiting Access</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Review.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>Creating and Working with a Database</h2>
+      <a href="/tutorials/ms-office/Access_2003/Planning_A_Database.htm"
+        >Planning a Database</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_A_Database_Using_The_Database_Wizard.htm"
+        >Creating a Database Using the Database Wizard</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Creating_A_Blank_Database.htm"
+        >Creating a Blank Database</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_A_Table_Using_The_Table_Wizard.htm"
+        >Creating a Table Using the Table Wizard</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Modifying_A_Table_And_Understanding_Data_Types.htm"
+        >Modifying a Table and Understanding Data Types</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_A_New_Table_From_Scratch.htm"
+        >Creating a New Table from Scratch</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_A_Query_In_Design_View.htm"
+        >Creating a Query in Design View</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Modifying_A_Query.htm"
+        >Modifying a Query</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Sorting_A_Query_Using_Multiple_Fields.htm"
+        >Sorting a Query Using Multiple Fields</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Developing_AND_And_OR_Operators.htm"
+        >Developing AND and OR Operators</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_A_Form_With_The_Form_Wizard.htm"
+        >Creating a Form with the Form Wizard</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_A_Report_With_The_Report_Wizard.htm"
+        >Creating a Report with the Report Wizard</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_Mailing_Labels_With_The_Label_Wizard.htm"
+        >Creating Mailing Labels with the Label Wizard</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Database_Object_Management.htm"
+        >Database Object Management</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/File_Management.htm"
+        >File Management</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Compacting_And_Repairing_A_Database.htm"
+        >Compacting and Repairing a Database</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Converting_An_Access_Database.htm"
+        >Converting an Access Database</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Review_3.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>Finding, Filtering, and Formatting Data</h2>
+      <a
+        href="/tutorials/ms-office/Access_2003/Finding_And_Replacing_Information.htm"
+        >Finding and Replacing Information</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Sorting_Records.htm"
+        >Sorting Records</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Filtering_By_Selection.htm"
+        >Filtering by Selection</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Filtering_By_Form.htm"
+        >Filtering by Form</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Creating_An_Advanced_Filter.htm"
+        >Creating an Advanced Filter</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Adjusting_Row_Height_And_Column_Width.htm"
+        >Adjusting Row Height and Column Width</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Rearranging_Columns.htm"
+        >Rearranging Columns</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Changing_Gridline_And_Cell_Effects.htm"
+        >Changing Gridline and Cell Effects</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Freezing_A_Field.htm"
+        >Freezing a Field</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Hiding_A_Column.htm"
+        >Hiding a Column</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Changing_The_Datasheet_Font.htm"
+        >Changing the Datasheet Font</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Review_4.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>Working with Tables and Fields</h2>
+      <a
+        href="/tutorials/ms-office/Access_2003/Understanding_Field_Properties.htm"
+        >Understanding Field Properties</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Indexing_A_Field.htm"
+        >Indexing a Field</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Adding_A_Primary_Key_To_A_Table.htm"
+        >Adding a Primary Key to a Table</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Inserting_Deleting_and_Reordering_Fields.htm"
+        >Inserting, Deleting, and Reordering Fields</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Changing_A_Fields_Data_Type.htm"
+        >Changing a Field's Data Type</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Using_Field_Descriptions.htm"
+        >Using Field Descriptions</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Adding_A_Caption.htm"
+        >Adding a Caption</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Changing_The_Field_Size.htm"
+        >Changing the Field Size</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Formatting_Number_Currency_and_Date_Time_Fields.htm"
+        >Formatting Number, Currency, and Date/Time Fields</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Formatting_Number_Currency_And_Date_Time_Fields_By_Hand.htm"
+        >Formatting Number, Currency, and Date/Time Fields by Hand</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Formatting_Text_Fields.htm"
+        >Formatting Text Fields</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Setting_A_Default_Value.htm"
+        >Setting a Default Value</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Requiring_Data_Entry.htm"
+        >Requiring Data Entry</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Validating_Data.htm"
+        >Validating Data</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Creating_An_Input_Mask.htm"
+        >Creating an Input Mask</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Creating_A_Lookup_Field.htm"
+        >Creating a Lookup Field</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Creating_A_Value_List.htm"
+        >Creating a Value List</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Modifying_A_Lookup_List.htm"
+        >Modifying a Lookup List</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Creating Relational Databases</h2>
+      <a
+        href="/tutorials/ms-office/Access_2003/Understanding_Table_Relationships.htm"
+        >Understanding Table Relationships</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_Relationships_Between_Tables.htm"
+        >Creating Relationships Between Tables</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Enforcing_Referential_Integrity.htm"
+        >Enforcing Referential Integrity</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Testing_Referential_Integrity_Printing_And_Deleting_Table_Relationships.htm"
+        >Testing Referential Integrity &amp; Printing and Deleting Table
+        Relationships</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Understanding_Relationship_Types.htm"
+        >Understanding Relationship Types</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Review_6.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>Working with Queries</h2>
+      <a href="/tutorials/ms-office/Access_2003/A_Quick_Review.htm"
+        >A Quick Review</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Understanding_The_Different_Types_Of_Queries.htm"
+        >Understanding the Different Types of Queries</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_A_Multiple-Table_Query.htm"
+        >Creating a Multiple-Table Query</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Creating_A_Calculated_Field.htm"
+        >Creating a Calculated Field</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Working_With_Expressions_And_The_Expression_Builder.htm"
+        >Working with Expressions and the Expression Builder</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Using_An_IIf_Function.htm"
+        >Using an IIf Function</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Summarizing_Groups_Of_Records.htm"
+        >Summarizing Groups of Records</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Display_Top_Or_Bottom_Values.htm"
+        >Display Top or Bottom Values</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Parameter_Queries.htm"
+        >Parameter Queries</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Finding_Duplicate_Records.htm"
+        >Finding Duplicate Records</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Finding_Unmatched_Records.htm"
+        >Finding Unmatched Records</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Crosstab_Queries.htm"
+        >Crosstab Queries</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Delete_Queries.htm"
+        >Delete Queries</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Append_Queries.htm"
+        >Append Queries</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Make-Table_Queries.htm"
+        >Make-Table Queries</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Update_Queries.htm"
+        >Update Queries</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Review_7.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>Working with Forms</h2>
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_A_Form_With_AutoForm.htm"
+        >Creating a Form with AutoForm</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Modifying_A_Form.htm"
+        >Modifying a Form</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Adding_And_Deleting_Fields.htm"
+        >Adding and Deleting Fields</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Moving_And_Sizing_Controls.htm"
+        >Moving and Sizing Controls</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Changing_The_Tab_Order.htm"
+        >Changing the Tab Order</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Working_With_Control_Properties.htm"
+        >Working with Control Properties</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Control_Property_Reference.htm"
+        >Control Property Reference</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Working_With_Form_Properties.htm"
+        >Working with Form Properties</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Form_And_Report_Property_Reference.htm"
+        >Form and Report Property Reference</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Working_With_Multiple_Controls.htm"
+        >Working with Multiple Controls</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Adding_Cutting_Copying_And_Pasting_Controls.htm"
+        >Adding, Cutting, Copying, and Pasting Controls</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Changing_A_Controls_Data_Source.htm"
+        >Changing a Control's Data Source</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_A_Calculated_Control.htm"
+        >Creating a Calculated Control</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Changing_A_Controls_Default_Value.htm"
+        >Changing a Control's Default Value</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Using_The_Control_Wizard.htm"
+        >Using the Control Wizard</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Creating_A_Subform.htm"
+        >Creating a Subform</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Modifying_And_Working_With_Subforms.htm"
+        >Modifying and Working with Subforms</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Review_8.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>Working with Reports</h2>
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_A_Report_With_AutoReport.htm"
+        >Creating a Report with AutoReport</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Modifying_A_Report.htm"
+        >Modifying a Report</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Adding_And_Deleting_Fields_10.htm"
+        >Adding and Deleting Fields</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Moving_And_Sizing_Controls_11.htm"
+        >Moving and Sizing Controls</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Adjusting_Page_Margins_And_Orientation.htm"
+        >Adjusting Page Margins and Orientation</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Adding_Page_Numbers_And_Dates.htm"
+        >Adding Page Numbers and Dates</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Understanding_Report_Sections.htm"
+        >Understanding Report Sections</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Grouping_And_Sorting_Records.htm"
+        >Grouping and Sorting Records</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_Calculated_Controls.htm"
+        >Creating Calculated Controls</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Working_With_Section_Properties.htm"
+        >Working with Section Properties</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_Charts_With_The_Chart_Wizard.htm"
+        >Creating Charts with the Chart Wizard</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Review_9.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>Formatting Forms and Reports</h2>
+      <a
+        href="/tutorials/ms-office/Access_2003/Formatting_Fonts_With_The_Formatting_Toolbar.htm"
+        >Formatting Fonts with the Formatting Toolbar</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Changing_Text_Alignment.htm"
+        >Changing Text Alignment</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Using_AutoFormat.htm"
+        >Using AutoFormat</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Changing_Colors.htm"
+        >Changing Colors</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Applying_Special_Effects.htm"
+        >Applying Special Effects</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Using_The_Format_Painter.htm"
+        >Using the Format Painter</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Adding_Pictures_And_Lines.htm"
+        >Adding Pictures and Lines</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Aligning_Controls_With_One_Another.htm"
+        >Aligning Controls with One Another</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Changing_A_Controls_Formatting_Properties.htm"
+        >Changing a Control's Formatting Properties</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Review_12.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>Working with Macros</h2>
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_And_Running_A_Macro.htm"
+      >
+        Creating and Running a Macro</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Editing_A_Macro.htm"
+        >Editing a Macro</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Working_With_Macro_Groups.htm"
+        >Working with Macro Groups</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Assigning_A_Macro_To_An_Event.htm"
+        >Assigning a Macro to an Event</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Creating_Conditional_Expressions.htm"
+        >Creating Conditional Expressions</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Assigning_A_Macro_To_A_Keystroke_Combination.htm"
+        >Assigning a Macro to a Keystroke Combination</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Macro_Action_Reference.htm"
+        >Macro Action Reference</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Review_1.htm">Review</a>
+    </div>
+
+    <div class="toc">
+      <h2>Advanced Topics</h2>
+      <a href="/tutorials/ms-office/Access_2003/Importing_Information.htm"
+        >Importing Information</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Exporting_Information.htm"
+        >Exporting Information</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Importing_Objects_From_Another_Access_Database.htm"
+        >Importing Objects from Another Access Database</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Linking_Information_From_An_External_Source.htm"
+        >Linking Information from an External Source</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Analyzing_Records_With_Microsoft_Excel.htm"
+        >Analyzing Records with Microsoft Excel</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Exporting_Records_To_Microsoft_Word.htm"
+        >Exporting Records to Microsoft Word</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Mail_Merging_Records_To_Microsoft_Word.htm"
+        >Mail Merging Records to Microsoft Word</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Using_Hyperlink_Fields.htm"
+        >Using Hyperlink Fields</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Using_OLE_Object_Fields.htm"
+        >Using OLE Object Fields</a
+      >
+      <a
+        href="/tutorials/ms-office/Access_2003/Displaying_Database_Object_Dependencies.htm"
+        >Displaying Database Object Dependencies</a
+      >
+      <a href="/tutorials/ms-office/Access_2003/Review_2.htm">Review</a>
+    </div>
+    <script type="text/javascript" style="display: none">
+      var __ez_dims = (function () {
+        var setCookie = function (name, content, expiry) {
+          return (document.cookie =
+            name +
+            "=" +
+            content +
+            (expiry
+              ? ";expires=" +
+                new Date(
+                  Math.floor(new Date().getTime() + expiry * 1000)
+                ).toUTCString()
+              : "") +
+            ";path=/");
+        };
+        var ffid = 1;
+        var oh = window.screen.height;
+        var ow = window.screen.width;
+        var h = ffid === 1 ? oh : oh > ow ? oh : ow;
+        var w = ffid === 1 ? ow : oh > ow ? ow : oh;
+        var uh =
+          window.innerHeight ||
+          document.documentElement.clientHeight ||
+          document.getElementsByTagName("body")[0].clientHeight;
+        var uw =
+          window.innerWidth ||
+          document.documentElement.clientWidth ||
+          document.getElementsByTagName("body")[0].clientWidth;
+        setCookie(
+          "ezds",
+          encodeURIComponent("ffid=" + ffid + ",w=" + w + ",h=" + h),
+          31536e3 * 7
+        );
+        setCookie(
+          "ezohw",
+          encodeURIComponent("w=" + uw + ",h=" + uh),
+          31536e3 * 7
+        );
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "edmonton.php",
+        "/detroitchicago/edmonton.webp?a=a&cb=192-11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "jellyfish.php",
+        "/porpoiseant/jellyfish.webp?a=a&cb=192-11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+</html>

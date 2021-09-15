@@ -1,0 +1,2463 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <!-- Mirrored from www.brainbell.com/tutors/c/Advice_and_Warnings_for_C/Simplified_Variable_Declarations.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Feb 2021 02:57:00 GMT -->
+  <!-- Added by HTTrack --><meta
+    http-equiv="content-type"
+    content="text/html;charset=utf-8"
+  /><!-- /Added by HTTrack -->
+  <head>
+    <meta charset="UTF-8" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = true;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/boise.js",
+        "https://www.brainbell.com/detroitchicago/boise.js?gcb=192-11&amp;cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/memphis.js",
+        "https://www.brainbell.com/detroitchicago/memphis.js?gcb=192-11&amp;cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/minneapolis.js",
+        "https://www.brainbell.com/detroitchicago/minneapolis.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "https://www.brainbell.com/detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "https://www.brainbell.com/porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("https://www.brainbell.com/");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot
+            .getAdUnitPath(adSlot)
+            .split("https://www.brainbell.com/")
+            .pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (
+              ezimKey.split("https://www.brainbell.com/").pop() === adUnitName
+            ) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/raleigh.js",
+        "https://www.brainbell.com/detroitchicago/raleigh.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/tampa.js",
+        "https://www.brainbell.com/detroitchicago/tampa.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/tulsa.js",
+        "https://www.brainbell.com/detroitchicago/tulsa.js?gcb=192-11&amp;cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simplified Variable Declarations : C Language</title>
+    <meta
+      name="description"
+      content="An object&#039;s scope is something you can&#039;t C very clearly in source code. Or should I say you can&#039;t code scope clearly in C source? If you can&#039;t quite C where I&#039;m headed, it&#039;s because we&#039;re just beginning a winding tour through the maze of C object visibility. Follow closely, and by the time we exit the maze, you&#039;ll have a simple map for the shortest route out."
+    />
+    <link rel="shortcut icon" href="https://www.brainbell.com/favicon.ico" />
+    <style type="text/css">
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        font-family: sans-serif;
+        line-height: 1.15;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        -ms-overflow-style: scrollbar;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      }
+      @-ms-viewport {
+        width: device-width;
+      }
+      article,
+      aside,
+      figcaption,
+      figure,
+      footer,
+      header,
+      hgroup,
+      main,
+      nav,
+      section {
+        display: block;
+      }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+          "Segoe UI Emoji", "Segoe UI Symbol";
+        font-size: 1.1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        text-align: left;
+        background-color: #fff;
+      }
+      [tabindex="-1"]:focus {
+        outline: 0 !important;
+      }
+      hr {
+        box-sizing: content-box;
+        height: 0;
+        overflow: visible;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        border: 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-family: inherit;
+        font-weight: 500;
+        line-height: 1.2;
+        color: inherit;
+      }
+      h1 {
+        font-size: 2.5rem;
+      }
+      h2 {
+        font-size: 2rem;
+      }
+      h3 {
+        font-size: 1.75rem;
+      }
+      h4 {
+        font-size: 1.5rem;
+      }
+      h5 {
+        font-size: 1.3rem;
+      }
+      h6 {
+        font-size: 1.2rem;
+      }
+      p {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+      abbr[title],
+      abbr[data-original-title] {
+        text-decoration: underline;
+        -webkit-text-decoration: underline dotted;
+        text-decoration: underline dotted;
+        cursor: help;
+        border-bottom: 0;
+      }
+      address {
+        margin-bottom: 1rem;
+        font-style: normal;
+        line-height: inherit;
+      }
+
+      ol,
+      ul,
+      dl {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+      ol ol,
+      ul ul,
+      ol ul,
+      ul ol {
+        margin-bottom: 0;
+      }
+      dt {
+        font-weight: 700;
+      }
+      dd {
+        margin-bottom: 0.5rem;
+        margin-left: 0;
+      }
+
+      blockquote {
+        padding: 1rem 3rem;
+        margin: 3rem 0;
+        position: relative;
+        border-radius: 1rem;
+      }
+
+      blockquote::before {
+        content: "“";
+        left: 0.5rem;
+        top: 1.8rem;
+      }
+      blockquote::after {
+        content: "”";
+        right: 2.5rem;
+        bottom: -1.5rem;
+      }
+
+      blockquote::after,
+      blockquote::before {
+        font-family: georgia;
+        font-size: 5rem;
+        height: 2.5rem;
+        width: 0;
+        display: block;
+        position: absolute;
+      }
+
+      dfn {
+        font-style: italic;
+      }
+      b,
+      strong {
+        font-weight: bolder;
+      }
+      small {
+        font-size: 80%;
+        font-weight: 400;
+      }
+      sub,
+      sup {
+        position: relative;
+        font-size: 75%;
+        line-height: 0;
+        vertical-align: baseline;
+      }
+      sub {
+        bottom: -0.25em;
+      }
+      sup {
+        top: -0.5em;
+      }
+
+      a {
+        color: #0074d9;
+        background-color: transparent;
+        -webkit-text-decoration-skip: objects;
+      }
+      a:hover {
+        color: #002633;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]) {
+        color: inherit;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]):hover,
+      a:not([href]):not([tabindex]):focus {
+        color: inherit;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]):focus {
+        outline: 0;
+      }
+
+      pre,
+      code,
+      kbd,
+      samp,
+      .slog {
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        font-size: 1em;
+      }
+      pre {
+        margin-top: 0;
+        margin-bottom: 2rem;
+        overflow: auto;
+        -ms-overflow-style: scrollbar;
+        display: block;
+        font-size: 87.5%;
+        color: #212529;
+        border: 1px solid #eee !important;
+        padding: 0.8rem !important;
+        border-radius: 8px;
+        line-height: 1.4rem;
+      }
+
+      figure {
+        margin: 0 0 1rem;
+      }
+      img {
+        vertical-align: middle;
+        border-style: none;
+        border: 0;
+        height: auto;
+        max-width: 100%;
+        width: auto;
+      }
+      svg:not(:root) {
+        overflow: hidden;
+        vertical-align: middle;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 2rem;
+      }
+      td,
+      th {
+        padding: 0.25rem;
+        border: 1px solid #dee2e6;
+      }
+      blockquote,
+      code,
+      table tr:nth-of-type(2n) {
+        background: #fbfbfb;
+      }
+      caption {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        color: #6c757d;
+        text-align: left;
+        caption-side: bottom;
+      }
+      th {
+        text-align: inherit;
+      }
+
+      summary {
+        display: list-item;
+        cursor: pointer;
+      }
+      mark {
+        padding: 0.2em;
+        background-color: #fcf8e3;
+      }
+      code {
+        color: #c7254e;
+        word-break: break-word;
+        font-size: 87.5%;
+      }
+      a > code {
+        color: inherit;
+      }
+      kbd {
+        padding: 0.2rem 0.4rem;
+        color: #fff;
+        background-color: #212529;
+        border-radius: 0.2rem;
+      }
+      kbd kbd {
+        padding: 0;
+        font-weight: 700;
+      }
+      pre code {
+        font-size: inherit;
+        color: inherit;
+        word-break: normal;
+      }
+      video {
+        display: block;
+        max-width: 75%;
+      }
+
+      .borderbox {
+        border-left: 3px solid #00f;
+        padding: 1rem 0.5rem 0;
+      }
+      .line {
+        margin: 0 auto;
+        max-width: 71.25rem;
+      }
+      .line:after {
+        display: block;
+        clear: both;
+        content: "";
+      }
+      .fullwidth {
+        width: 100%;
+      }
+
+      .button,
+      #toc a {
+        display: inline-block;
+        cursor: pointer;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        border: 1px solid rgba(50, 205, 50, 0.5);
+        padding: 0.375rem 0.75rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        margin-bottom: 0.3rem;
+        color: #009600;
+        text-decoration: none;
+      }
+      .button ::-moz-focus-inner {
+        padding: 0;
+        border-style: none;
+      }
+      #buttons {
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        padding: 0.5rem;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+      }
+      #navbar-brand {
+        color: #000;
+        display: inline-block;
+        padding-top: 0.3125rem;
+        padding-bottom: 0.3125rem;
+        margin-left: 1rem;
+        white-space: nowrap;
+        -ms-touch-action: manipulation;
+        touch-action: manipulation;
+        text-decoration: none;
+        background-color: transparent;
+        -webkit-text-decoration-skip: objects;
+        line-height: 1rem;
+        font-size: 2.2rem;
+        text-align: center;
+      }
+      #navbar-brand .bell {
+        color: rgba(0, 200, 0, 1);
+      }
+      .slog {
+        font-weight: normal;
+        font-size: 0.85rem;
+      }
+      nav {
+        padding: 0.5rem;
+        margin-top: 0.5rem;
+      }
+      nav a.button {
+        text-decoration: none;
+        margin-left: 0.3rem;
+        flex: 10rem;
+      }
+      #buttons {
+        margin-top: 1rem;
+        display: none;
+      }
+      #menu {
+        font-size: 1.5rem;
+        color: #000;
+        display: block;
+        margin-right: 0.7rem;
+      }
+
+      #heading {
+        padding: 6rem 1.25rem;
+        background-color: #49bf4c;
+        color: #fff;
+        text-align: center;
+      }
+      #heading a {
+        white-space: normal;
+        color: #fff;
+        text-decoration: none;
+        border: 1px solid #fff;
+      }
+      #heading h1 {
+        font-size: 2.5rem;
+        line-height: 2.4rem;
+        margin: 0;
+        margin-bottom: 1rem;
+        font-weight: 400;
+      }
+      #wrapper {
+        padding: 2.5rem 1.25rem;
+      }
+      .leftcol {
+        width: 66.6666%;
+        position: relative;
+      }
+      .rightcol {
+        width: 33.3333%;
+      }
+      .fltright {
+        float: right;
+      }
+      .fltleft {
+        float: left;
+      }
+      .rightcol,
+      .leftcol {
+        padding: 0 0.625rem;
+        position: relative;
+      }
+      .entry-content,
+      .entry-summary {
+        color: #555;
+        line-height: 2rem;
+      }
+      .cat_list {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        margin-bottom: 2.25rem;
+      }
+      .cat_list h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        display: block;
+      }
+      .cat_list a {
+        color: #49bf4c;
+      }
+      .hidden {
+        display: none;
+      }
+      .gsa {
+        text-align: center;
+        margin-bottom: 1.25rem;
+        width: 100%;
+      }
+      #toc a {
+        display: block;
+        font-weight: bold;
+        text-align: left;
+        white-space: normal;
+      }
+      footer {
+        margin-top: 2rem;
+        background: #002633;
+        padding: 0.625rem;
+        text-align: center;
+        font-size: 0.95rem;
+      }
+      footer,
+      footer a,
+      footer a:hover {
+        color: #7697a2;
+      }
+      .next,
+      .prev {
+        display: inline-block;
+        padding: 0.6rem;
+        padding-top: 0.05rem;
+        padding-bottom: 0.25rem;
+        border-radius: 1rem;
+        font-weight: bold;
+        color: #fff;
+        background: #009600;
+      }
+      @media screen and (max-width: 768px) {
+        .leftcol,
+        .rightcol {
+          width: 100%;
+        }
+        video {
+          max-width: 100%;
+        }
+      }
+    </style>
+
+    <script
+      async
+      src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+    ></script>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-1287605604486981",
+        enable_page_level_ads: true,
+      });
+    </script>
+    <link
+      rel="canonical"
+      href="https://brainbell.com/tutors/c/Advice_and_Warnings_for_C/Simplified_Variable_Declarations.html"
+    />
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base />
+    <script type="text/javascript">
+      var ezoTemplate = "old_site_gc";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_lazyload_version: 0,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        engaged_time_visit: 0,
+        ezcache_level: 2,
+        ezcache_skip_code: 0,
+        form_factor_id: 1,
+        framework_id: 1,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        metro_code: 501,
+        page_ad_positions: "",
+        page_view_count: 106,
+        page_view_id: "f2f9a85d-81c1-4b9a-72f0-7f54a4be8ef0",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 39259,
+        response_time_orig: 21,
+        serverid: "52.3.50.134:23945",
+        state: "NJ",
+        t_epoch: 1613702958,
+        template_id: 126,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/tutors/c/Advice_and_Warnings_for_C/Simplified_Variable_Declarations.html",
+        user_id: 0,
+        word_count: 3267,
+        worst_bad_word_level: 0,
+      };
+      var _ezExtraQueries = "&ez_orig=1";
+    </script>
+    <script
+      data-ezscrex="false"
+      data-cfasync="false"
+      type="text/javascript"
+      src="https://www.brainbell.com/detroitchicago/rochester.js?dcb=192-11&amp;cb=2&amp;v=9"
+      async
+    ></script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["f2f9a85d-81c1-4b9a-72f0-7f54a4be8ef0", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <header role="banner">
+      <div class="line">
+        <nav id="navbar" role="navigation" aria-label="Primary Menu">
+          <a
+            id="navbar-brand"
+            href="https://www.brainbell.com/"
+            rel="home"
+            itemprop="url"
+            >Brain<span class="bell">Bell</span><br /><span class="slog"
+              >makes easier to learn</span
+            ></a
+          >
+          <span class="button fltright" id="menu">&#9776;</span>
+          <!--menu-->
+          <div id="buttons">
+            <a
+              class="button"
+              title="A+"
+              href="https://www.brainbell.com/tutors/A+/Hardware/"
+              >A+ Certification</a
+            >
+            <a
+              class="button"
+              title="Android"
+              href="https://www.brainbell.com/android/"
+              >Android</a
+            >
+            <a
+              class="button"
+              title="ASP"
+              href="https://www.brainbell.com/tutorials/ASP/"
+              >ASP</a
+            >
+            <a
+              class="button"
+              title="3D, Blender and Unity"
+              href="https://www.brainbell.com/3d/"
+              >Blender &amp; Unity</a
+            >
+            <a
+              class="button"
+              title="C"
+              href="https://www.brainbell.com/tutors/c/Advice_and_Warnings_for_C/"
+              >C Language</a
+            >
+            <a
+              class="button"
+              title="C#"
+              href="https://www.brainbell.com/tutors/C_Sharp/"
+              >C#</a
+            >
+            <a
+              class="button"
+              title="Flash"
+              href="https://www.brainbell.com/tutorials/Flash/"
+              >Flash</a
+            >
+            <a
+              class="button"
+              title="HTML and CSS"
+              href="https://www.brainbell.com/tutorials/HTML_and_CSS/"
+              >HTML &amp; CSS</a
+            >
+            <a
+              class="button"
+              title="Java"
+              href="https://www.brainbell.com/tutorials/java/"
+              >Java</a
+            >
+            <a
+              class="button"
+              title="JavaScript"
+              href="https://www.brainbell.com/javascript/"
+              >JavaScript</a
+            >
+            <a
+              class="button"
+              title="MS Access"
+              href="https://www.brainbell.com/tutorials/ms-office/Access_2003/"
+              >MS Access</a
+            >
+            <a
+              class="button"
+              title="MS Excel"
+              href="https://www.brainbell.com/tutorials/ms-office/excel/"
+              >MS Excel</a
+            >
+            <a
+              class="button"
+              title="MS FrontPage"
+              href="https://www.brainbell.com/tutorials/ms-office/FrontPage_2003/"
+              >MS FrontPage</a
+            >
+            <a
+              class="button"
+              title="MS PowerPoint"
+              href="https://www.brainbell.com/tutorials/ms-office/PowerPoint/"
+              >MS PowerPoint</a
+            >
+            <a
+              class="button"
+              title="MS Word"
+              href="https://www.brainbell.com/tutorials/ms-office/Word/"
+              >MS Word</a
+            >
+            <a
+              class="button"
+              title="MySQL"
+              href="https://www.brainbell.com/tutorials/MySQL/"
+              >MySQL</a
+            >
+            <a
+              class="button"
+              title="Networking"
+              href="https://www.brainbell.com/tutorials/Networking/"
+              >Networking</a
+            >
+            <a
+              class="button"
+              title="Perl CGI"
+              href="https://www.brainbell.com/tutors/Perl/"
+              >Perl &amp; CGI</a
+            >
+            <a
+              class="button"
+              title="PHP &amp; MySQL"
+              href="https://www.brainbell.com/tutorials/php/"
+              >PHP &amp; MySQL</a
+            >
+            <a
+              class="button"
+              title="Adobe Photoshop"
+              href="https://www.brainbell.com/tutorials/Photoshop/"
+              >Photoshop</a
+            >
+            <a
+              class="button"
+              title="Regex"
+              href="https://www.brainbell.com/regex/"
+              >Regular Expressions</a
+            >
+            <a
+              class="button"
+              title="TypeScript"
+              href="https://www.brainbell.com/typescript/"
+              >TypeScript</a
+            >
+            <a
+              class="button"
+              title="Visual Basic"
+              href="https://www.brainbell.com/tutors/Visual_Basic/"
+              >Visual Basic</a
+            >
+            <a
+              class="button"
+              title="XML"
+              href="https://www.brainbell.com/tutorials/XML/"
+              >XML</a
+            >
+          </div>
+          <!--menu end-->
+        </nav>
+      </div>
+    </header>
+
+    <main role="main">
+      <article class="hentry">
+        <header id="heading">
+          <a
+            class="button"
+            href="https://www.brainbell.com/tutors/c/Advice_and_Warnings_for_C/"
+            rel="category tag"
+            >C Language</a
+          >
+          <h1>Simplified Variable Declarations</h1>
+          <script
+            async
+            src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+          ></script>
+          <!-- link ad -->
+          <ins
+            class="adsbygoogle"
+            style="display: block"
+            data-ad-client="ca-pub-1287605604486981"
+            data-ad-slot="1609644746"
+            data-ad-format="link"
+          ></ins>
+          <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
+        </header>
+
+        <div id="wrapper">
+          <div class="line">
+            <div class="leftcol fltleft">
+              <div class="entry-summary">
+                <p>
+                  An object's scope is something you can't C very clearly in
+                  source code. Or should I say you can't code scope clearly in C
+                  source? If you can't quite C where I'm headed, it's because
+                  we're just beginning a winding tour through the maze of C
+                  object visibility. Follow closely, and by the time we exit the
+                  maze, you'll have a simple map for the shortest route out.
+                </p>
+              </div>
+              <div class="gsa">
+                <script
+                  async
+                  src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+                ></script>
+                <!-- responsive top -->
+                <ins
+                  class="adsbygoogle"
+                  style="display: block"
+                  data-ad-client="ca-pub-1287605604486981"
+                  data-ad-slot="1025731947"
+                  data-ad-format="rectangle"
+                ></ins>
+                <script>
+                  (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+              </div>
+              <div class="entry-content">
+                <p>
+                  C, like many languages, lets an identifier <b>x</b> refer to
+                  different objects (e.g., storage locations for variables) at
+                  different places in the source code. As a simple case, the two
+                  declarations of <b>x</b> below refer to different variables.
+                </p>
+                <pre>
+ int x;
+ main( void ) {
+ int x;
+ ...
+ }
+ void func1( void ) {
+ ...
+ }
+</pre
+                >
+                <p>
+                  Let's say the first <b>x</b> refers to a storage location
+                  we'll call S1, and the second <b>x</b> refers to a storage
+                  location we'll call S2. The scope of the S1 object (storage
+                  location) is simply the region (i.e., lines) of source code
+                  where references to <b>x</b> are references to S1; likewise,
+                  the scope of the S2 object is the region of source code where
+                  references to <b>x</b> are references to S2. In this example,
+                  the scope of S1 (the first <b>x</b>) is everywhere outside the
+                  <b>main</b> function, and the scope of S2 (the second
+                  <b>x</b>) is only within the <b>main</b> function. Obviously,
+                  for the program to be clear, these two regions of the program
+                  can't overlap; each reference to <b>x</b> must refer to just
+                  one of the storage locations. Scope is also called
+                  "visibility" because you can "see" an object (e.g., read or
+                  change a storage location) only within its scope. In this
+                  chapter, I use "visibility" for the general concept and
+                  "scope" to refer to C's specific lexical scope attribute.
+                </p>
+                <p class="c2">The C-nic Route</p>
+                <p>
+                  The concept of visibility is simple and useful. Among other
+                  uses, distinct regions of object visibility let you use
+                  identifiers in different parts of your code without worrying
+                  about whether the same identifier, used for different
+                  purposes, unintentionally refers to the same object. But why
+                  be merely simple and useful when you can be clever and brave,
+                  too? Take your first left turn into the C labyrinth.
+                </p>
+                <p>
+                  C splits the single concept of visibility into
+                  <u>scope</u> and <u>linkage</u>, with scope referring to the
+                  region of program text within which an identifier's
+                  characteristics are understood. C's linkage term refers to the
+                  connection between identifiers in independently compiled
+                  translation units. Expressing visibility with two attributes
+                  instead of one may help C compiler writers, but it makes it
+                  more difficult for programmers to determine which object an
+                  identifier references. I'll try to map out C's rules while
+                  noting some language flaws that lead to C's problems. Then
+                  I'll mark an easy path to declaring variables and functions
+                  with the desired visibility.
+                </p>
+                <p>
+                  C's rules for function visibility are simple: If you specify
+                  <b>static</b> storage class, a function is visible throughout
+                  the source file in which it's defined, but not in other source
+                  files. With <b>extern</b> or no storage class specifier, a
+                  function is visible throughout the program (i.e., across all
+                  files), and you can call it from anywhere. These rules lead to
+                  my first suggestion: <u>Declare functions</u> <b>static</b>
+                  <u
+                    >if you intend to call them only from within the same source
+                    file.</u
+                  >
+                </p>
+                <p>
+                  C's rules for variable visibility are far more complex than
+                  those for function visibility. I've listed these rules in a
+                  table (Figure 5.1) that shows, for any variable declaration,
+                  where that variable is visible. I've also listed C's scope and
+                  linkage attributes and whether the declaration causes storage
+                  to be allocated (in C terminology, whether it is a
+                  <u>definition</u> as well as a <u>declaration</u>). You can
+                  use this guide to help you understand some of the mysterious
+                  changes that can occur when a C variable has unexpected
+                  visibility. You also may need it to follow my next few
+                  examples, but later I'll show you a far more useful table for
+                  C programming.
+                </p>
+                <p class="c3">
+                  Figure 5.1<br />
+                  Visibility of C Variables<br />
+                  DECLARED OR REFERENCED INSIDE A BLOCK (function or nested
+                  block):
+                </p>
+                <table>
+                  <tr>
+                    <th width="15%" align="left">Where</th>
+                    <th width="10%" align="left">Storage</th>
+                    <th width="10%" align="left">Initial</th>
+                    <th width="15%" align="left">Storage</th>
+                    <th width="17%" align="left">Scope/Linkage</th>
+                    <th>Visibility</th>
+                  </tr>
+                  <tr>
+                    <td><b>specified</b></td>
+                    <td><b>class</b></td>
+                    <td><b>value</b></td>
+                    <td><b>allocation</b></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td>1. Declared</td>
+                    <td>(none)</td>
+                    <td>Yes</td>
+                    <td>Yes</td>
+                    <td>Block scope,</td>
+                    <td>Within same block, including all</td>
+                  </tr>
+                  <tr>
+                    <td valign="top">in block</td>
+                    <td valign="top"><b>auto</b></td>
+                    <td valign="top">No</td>
+                    <td valign="top">Yes</td>
+                    <td valign="top">no linkage</td>
+                    <td>nested blocks, except</td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td valign="top"><b>register</b></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>any nested block (and its</td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td valign="top"><b>static</b></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                      nested blocks) with an identical identifier
+                      <u>without</u> <b>extern</b>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td valign="top">2. Declared</td>
+                    <td valign="top"><b>extern</b></td>
+                    <td valign="top">No</td>
+                    <td colspan="3">
+                      CASE A: Enclosing scope has identical, visible
+                    </td>
+                  </tr>
+                  <tr>
+                    <td valign="top">in block</td>
+                    <td></td>
+                    <td></td>
+                    <td colspan="3">
+                      identifier - same scope, linkage, allocation, visibility
+                      as the matching identifier
+                    </td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td colspan="3">
+                      CASE B: Otherwise, same as if declared
+                      <b>extern</b> outside function (see 7, below)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>3. Declared</td>
+                    <td><b>extern</b></td>
+                    <td>Yes</td>
+                    <td>ILLEGAL</td>
+                  </tr>
+                  <tr>
+                    <td valign="top">in block</td>
+                    <td></td>
+                    <td></td>
+                    <td>declaration</td>
+                  </tr>
+                  <tr>
+                    <td valign="top">
+                      4. Not declared but referenced in block
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td colspan="3" valign="top">
+                      CASE A: Enclosing scope has identical, visible identifier
+                      declared in the same source file <u>prior to</u> the
+                      reference - same as if declared <b>extern</b> in block
+                      (see 2, above)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td colspan="3">CASE B: Otherwise, ILLEGAL declaration</td>
+                  </tr>
+                </table>
+                <b>EXTERNAL DECLARATIONS (declared outside any function):</b>
+                <table>
+                  <tr>
+                    <th width="15%" align="left">Which</th>
+                    <th width="10%" align="center">Storage</th>
+                    <th width="10%">Initial</th>
+                    <th width="15%">Storage</th>
+                    <th width="17%">Scope/Linkage</th>
+                    <th>Visibility</th>
+                  </tr>
+                  <tr>
+                    <td align="left"><b>declaration</b></td>
+                    <td><b>class</b></td>
+                    <td><b>value</b></td>
+                    <td><b>allocation</b></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td valign="top">5. First</td>
+                    <td valign="top">(none)</td>
+                    <td valign="top">Yes</td>
+                    <td valign="top">Yes</td>
+                    <td valign="top">File scope</td>
+                    <td>Rest of file except any</td>
+                  </tr>
+                  <tr>
+                    <td valign="top" align="left">declaration</td>
+                    <td></td>
+                    <td valign="top">No</td>
+                    <td></td>
+                    <td valign="top">external</td>
+                    <td>
+                      block (and its nested blocks) with an identical identifier
+                      declared <u>without</u> <b>extern</b>, and blocks it
+                      contains and Other files with an identical
+                      <u>external linkage</u> identifier declared in them (No
+                      other file may allocate (define) an identical
+                      <u>external linkage</u> identifier.)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td valign="top">6. First</td>
+                    <td valign="top"><b>static</b></td>
+                    <td valign="top">Yes</td>
+                    <td valign="top">Yes</td>
+                    <td valign="top">File scope,</td>
+                    <td>Rest of file except any</td>
+                  </tr>
+                  <tr>
+                    <td valign="top" align="center">declaration</td>
+                    <td></td>
+                    <td valign="top">No</td>
+                    <td></td>
+                    <td valign="top">internal linkage</td>
+                    <td>
+                      block (and its nested blocks) with an identical identifier
+                      declared without <b>extern</b>, and blocks it contains
+                    </td>
+                  </tr>
+                  <tr>
+                    <td valign="top">7. First</td>
+                    <td valign="top"><b>extern</b></td>
+                    <td valign="top">Yes</td>
+                    <td valign="top">Yes</td>
+                    <td valign="top">File scope,</td>
+                    <td>Rest of life except any</td>
+                  </tr>
+                  <tr>
+                    <td valign="top">declaration</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td valign="top">external linkage</td>
+                    <td>
+                      block (and its nested blocks) with an identical identifier
+                      declared without <b>extern</b>, and blocks it contains and
+                      Other files with an identical
+                      <u>external linkage</u> identifier declared in them (One
+                      other file must have an identical
+                      <u>external linkage</u> identifier allocated (defined) in
+                      it.)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td valign="top">8. First</td>
+                    <td valign="top"><b>extern</b></td>
+                    <td valign="top">Yes</td>
+                    <td valign="top">Yes</td>
+                    <td colspan="2">Same as if declared outside function</td>
+                  </tr>
+                  <tr>
+                    <td>declaration</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td colspan="2">
+                      without <b>extern</b> or <b>static</b> (see 5, above)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td valign="top">9. Second or</td>
+                    <td colspan="3">Must have same</td>
+                    <td colspan="2">Same scope, linkage, allocation, and</td>
+                  </tr>
+                  <tr>
+                    <td>later</td>
+                    <td colspan="3">type and linkage</td>
+                    <td colspan="2">visibility as first declaration</td>
+                  </tr>
+                  <tr>
+                    <td>declaration</td>
+                    <td colspan="3">as first declaration</td>
+                    <td colspan="2"></td>
+                  </tr>
+                </table>
+                <p class="c2">Feeling a Little C-sick?</p>
+                <p>
+                  C syntax flies in the face of the "say what you mean, mean
+                  what you say" principle of programming. The keyword
+                  <b>extern</b> is simply an abbreviation for "external" - a
+                  word you'd expect to be related to visibility or scope and to
+                  mean something like "outside the current context." And you'd
+                  expect the other relevant keyword, <b>static</b>, to relate to
+                  how storage is managed. Thus, you might read the declaration
+                </p>
+                <pre>
+ extern int x;
+</pre
+                >
+                <p>
+                  to mean the variable <b>x</b> is visible outside the block or
+                  file in which it's declared. Likewise, for a declaration
+                  without <b>extern</b> (C has no <b>intern</b> keyword), such
+                  as
+                </p>
+                <pre>
+ int x;
+</pre
+                >
+                <p>
+                  you'd expect the variable <b>x</b> <u>not</u> to be visible
+                  outside the block or file in which it's declared. For
+                  variables declared within a function or nested block, this
+                  sensible interpretation holds. The problem arises for
+                  variables declared outside any function. (In C, such
+                  declarations are called <u>external declarations</u>.) In most
+                  cases, when the two previous examples appear as external
+                  declarations, <u>both</u> the <b>extern</b> and non-<b
+                    >extern</b
+                  >
+                  declarations mean the variable is visible outside the file in
+                  which it's declared. (If the <b>extern</b> declaration isn't
+                  the first declaration of <b>x</b>, however, and the first
+                  declaration of <b>x</b> isn't visible outside the file, the
+                  <b>extern</b> declaration also specifies that <b>x</b> isn't
+                  visible outside the file - a further complexity in C's
+                  approach to visibility.) Some programmers wise in the ways of
+                  C might argue, "But both declarations are
+                  <u>external</u> declarations, so it <u>is</u> consistent that
+                  they both are visible `externally' to the file." Nice try.
+                  However, when the declaration
+                </p>
+                <pre>
+ static int x;
+</pre
+                >
+                <p>
+                  is outside any function, it also is an external declaration,
+                  yet it defines a variable that is <u>not</u> visible outside
+                  the file.
+                </p>
+                <p>
+                  Not only does C's syntax lack consistency, but it also
+                  confuses things by using the <b>static</b> storage class
+                  keyword to specify visibility. My theory is that Humpty Dumpty
+                  was on the original C design team. As he told Alice, "When
+                  <u>I</u> use a word, it means just what I choose it to mean -
+                  neither more nor less."
+                </p>
+                <p>
+                  There are other confusing cases, as in the second declaration
+                  of <b>x</b> below,
+                </p>
+                <pre>
+ static int x;
+ main( void ) {
+ extern int x;
+ ...
+ }
+</pre
+                >
+                <p>
+                  where the use of <b>extern</b> results in
+                  <u>internal</u> linkage. I'll spare you a diversion down the
+                  cul-de-sac you enter when you have more than one external
+                  declaration for the same variable (which C allows). As we pass
+                  through the maze, however, notice that it matters whether you
+                  initialize a variable in an external declaration when you
+                  specify <b>extern</b>. (With an initializer, the declaration
+                  allocates storage; without one, it doesn't.) Yet when you
+                  specify <b>static</b> or no storage class, initialization
+                  doesn't effect storage allocation.
+                </p>
+                <p>
+                  Although I've wandered repeatedly around the C maze using
+                  guides such as the SAA C reference manual and Kernighan and
+                  Ritchie's description of C (see the Bibliography), I still
+                  can't guarantee that Figure 5.1 is a perfect map of every C
+                  visibility rule. But there are better ways to simplify C
+                  variable declarations and make your programs more readable
+                  than building a mental map of C's visibility labyrinth.
+                </p>
+                <p class="c2">UnC-eemly Solutions</p>
+                <p>
+                  The fastest way out of C's maze is to decide where you want to
+                  go - that is, what kinds of visibility you want to use. I've
+                  found three "classes" of visibility adequate to define most
+                  variables and functions:
+                </p>
+                <ul>
+                  <li>
+                    <u>Local:</u> visible only within a single function or
+                    nested block.
+                  </li>
+                  <li>
+                    <u>Share:</u> visible in all functions in a file, but not
+                    outside the file.
+                  </li>
+                  <li>
+                    <u>Export:</u> visible in all functions in a program (all
+                    files). Export visibility implies share visibility. The file
+                    that "exports" an object allocates its storage.
+                  </li>
+                </ul>
+                <p>
+                  You pick an appropriate one of these visibility classes when
+                  you define a variable. If a variable is local, you generally
+                  are done with your declarations for that object. In C, you
+                  define most local variables at the beginning of a function,
+                  and they are visible throughout that function (but not outside
+                  it).
+                </p>
+                <p>
+                  If a variable has share or export visibility, however, you
+                  need one more concept - <u>import</u> declarations - to
+                  specify you intend to reference the variable in a specific
+                  function. One use of the "import" concept is to specify you
+                  want to use an export variable in a file other than the one
+                  containing its definition. Naturally, a file can't import a
+                  variable that isn't exported by some other file, and a file
+                  doesn't need to import variables that it exports - such
+                  variables already are available for shared use within the
+                  file. Note that in C programs, only one file can export a
+                  particular variable (this isn't true for all languages).
+                  Another use of the import concept is to specify you want to
+                  use a nonlocal variable in a function or block. After covering
+                  a couple of general rules relating to visibility, I'll explain
+                  a simple way to implement local, share, and export visibility,
+                  as well as import declarations.
+                </p>
+                <p>
+                  The most important rule for declarations in C, or any
+                  language, is:
+                  <u
+                    >Use the most restricted visibility possible for variables;
+                    avoid shared variables</u
+                  >. In C, this most often means defining variables used in a
+                  function as local to that function by putting their
+                  declarations at the beginning of the function and using
+                  <b>auto</b> or no storage class specifier. The same rule and
+                  technique apply to nested blocks within a function.
+                </p>
+                <p>
+                  In the special case of references to variables within a
+                  <u>nested</u> block that aren't local to the nested block, I
+                  usually do <u>not</u> declare the variables in the nested
+                  block. This results in implicit <b>extern</b> declarations for
+                  any variable you reference but don't declare in the nested
+                  block. When you follow this and other guidelines I present
+                  below, all references to variables not declared in a nested
+                  block resolve to a local or import declaration in an outer
+                  block. I rarely use nested blocks, except with "loop" macros,
+                  such as those I presented in Chapter 3. And in those cases,
+                  import declarations don't add any real protection or improve
+                  clarity. However, if you prefer to explicitly declare
+                  <u>every</u> variable in a nested block, you can either use
+                  the IMPORT macro (which I'll introduce in a moment) or define
+                  a similar macro to more specifically express your intent.
+                </p>
+                <p>
+                  You should define share and export variables
+                  <u>before the first function definition in a file</u>,
+                  although C permits the confusing and dangerous practice of
+                  placing external declarations <u>between</u> functions, as in
+                  the following example:
+                </p>
+                <pre>
+ void func1( void ) {
+ ...
+ }
+ int x;
+ void func2( void ) {
+ ...
+ }
+ void func3( void ) {
+ ...
+ }
+</pre
+                >
+                <p>
+                  This ordering makes <b>x</b> implicitly visible in
+                  <b>func2</b> and <b>func3</b>, but not visible in
+                  <b>func1</b>, unless <b>x</b> is explicitly declared
+                  <b>extern</b> within <b>func1</b>. The intent of such coding
+                  usually is to declare <b>x</b> as a variable shared only by
+                  some - not all - of the functions in a file. If several
+                  functions are coupled by sharing data you don't want other
+                  functions to access,
+                  <u
+                    >put the coupled functions in a file by themselves, along
+                    with the external declarations for their shared variables</u
+                  >.
+                </p>
+                <p class="c2">C-through Macros</p>
+                <p>
+                  The best way to declare share, export, and import variables is
+                  to define macros for the required C syntax. Figure 5.2 shows
+                  three suggested macro definitions and how to use them (along
+                  with rules for declaring local variables.) For variables you
+                  want visible throughout the file, use the SHARE macro before
+                  the file's first function definition to declare (and define)
+                  each variable. For example,
+                </p>
+                <pre>
+ SHARE int x;
+</pre
+                >
+                <p>This statement expands to</p>
+                <pre>
+ static int x;
+</pre
+                >
+                <p>
+                  which gives <b>x</b> the desired visibility. Note that you
+                  never use SHARE inside a function because it would just define
+                  a local variable.
+                </p>
+                <b
+                  >Figure 5.2<br />
+                  How to Declare C Variables and Functions<br />
+                  "Visibility" Macros</b
+                >
+                <table width="80%">
+                  <tr>
+                    <td width="20%" align="center"><b>#define</b></td>
+                    <td width="40%" align="center"><b>SHARE</b></td>
+                    <td align="center"><b>static</b></td>
+                  </tr>
+                  <tr>
+                    <td align="center"><b>#define</b></td>
+                    <td align="center"><b>EXPORT</b></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td align="center"><b>#define</b></td>
+                    <td align="center"><b>IMPORT</b></td>
+                    <td align="center"><b>extern</b></td>
+                  </tr>
+                </table>
+                <br />
+                <p class="c3">Declaring Variables</p>
+                <table width="100%">
+                  <tr>
+                    <th width="20%" valign="bottom" align="left">Visibility</th>
+                    <th width="20%" valign="bottom" align="left">Storage</th>
+                    <th width="20%" align="left">Where referenced</th>
+                    <th valign="bottom">Storage/visibility specifier(s)</th>
+                  </tr>
+                  <tr>
+                    <td valign="top">Local</td>
+                    <td valign="top">Automatic</td>
+                    <td valign="top">In block</td>
+                    <td valign="top">
+                      Define at beginning of block with no specifier
+                    </td>
+                  </tr>
+                  <tr>
+                    <td valign="top">Local</td>
+                    <td valign="top">Static</td>
+                    <td valign="top">In block</td>
+                    <td valign="top">
+                      Define as <b>static</b> at beginning of block
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Nonlocal</td>
+                    <td>-</td>
+                    <td>In nested block</td>
+                    <td>(No declaration, use implicit <b>extern</b>)</td>
+                  </tr>
+                  <tr>
+                    <td valign="top">File</td>
+                    <td valign="top">Static</td>
+                    <td valign="top">In function</td>
+                    <td>
+                      Define as <b>SHARE</b> before first function in file
+                    </td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                      Declare as <b>IMPORT</b> at beginning of each function
+                      where referenced
+                    </td>
+                  </tr>
+                  <tr>
+                    <td valign="top">Program</td>
+                    <td valign="top">Static</td>
+                    <td valign="top">In function</td>
+                    <td>
+                      Define as <b>EXPORT</b> before first function in file
+                      where variable is to be allocated
+                    </td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                      Declare as <b>IMPORT</b> before first function in file(s)
+                      where variable is used
+                    </td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                      Declare as <b>IMPORT</b> at beginning of each function
+                      where referenced
+                    </td>
+                  </tr>
+                </table>
+                <b>Declaring Functions</b>
+                <table width="60%">
+                  <tr>
+                    <th width="30%" align="left">Callable from</th>
+                    <th>Visibility specifier</th>
+                  </tr>
+                  <tr>
+                    <td>Same file (only)</td>
+                    <td align="center"><b>SHARE</b></td>
+                  </tr>
+                  <tr>
+                    <td>Any file</td>
+                    <td align="center"><b>EXPORT</b></td>
+                  </tr>
+                </table>
+                <br />
+                <p>
+                  The SHARE macro isn't a silver bullet to slay all of C's
+                  visibility monsters, nor does it boost C's visibility features
+                  into a class with Modula 2's. But it makes a lot more sense to
+                  write SHARE rather than <b>static</b> when you're trying to
+                  specify a variable's visibility.
+                </p>
+                <p>
+                  In functions or blocks where you want to use a SHARE variable,
+                  declare the variable with the IMPORT macro:
+                </p>
+                <pre>
+ void func1( void ) {
+ IMPORT x;
+ ...
+ }
+</pre
+                >
+                <p>This declaration expands to</p>
+                <pre>
+ extern int x;
+</pre
+                >
+                <p>
+                  which, although unnecessary given C's default scoping rules,
+                  makes explicit the function's intention to use <b>x</b>.
+                  Unfortunately, C won't protect you against unintentional
+                  references to <b>x</b> in functions that don't declare
+                  <b>x</b>. Reducing the number of nonlocal variables is the
+                  best way to reduce accidental nonlocal references.
+                </p>
+                <p>
+                  You also should specify SHARE for functions you intend to be
+                  callable only from within the same file. Use EXPORT for
+                  functions you intend to be callable from anywhere. Functions
+                  without a visibility specifier default to EXPORT, but I find
+                  explicit visibility reminds me which functions are callable
+                  from anywhere. (I often notice EXPORT functions that don't
+                  need such broad visibility and that are better defined as
+                  SHARE.) In addition, by grouping all SHARE functions after all
+                  EXPORT functions, you can organize your functions better.
+                </p>
+                <p>
+                  For export variables you want visible throughout all source
+                  files (i.e., the entire program), use the EXPORT macro to
+                  declare (and define) the variable before the first function
+                  definition in the file "owning" the variable. In most cases,
+                  this is the file containing the <b>main</b> function.
+                </p>
+                <p>
+                  The following example shows how to define an export variable:
+                </p>
+                <pre>
+ EXPORT int x = 0;
+</pre
+                >
+                <p>This statement expands to</p>
+                <pre>
+ int x = 0;
+</pre
+                >
+                <p>
+                  which gives <b>x</b> the desired visibility and allocates
+                  storage for <b>x</b>. It's good programming practice to
+                  initialize variables in their definitions, especially
+                  variables for which C's default zero initialization is not
+                  within the variable's domain (valid values). I'd also
+                  recommend you place all EXPORT variable declarations before
+                  any IMPORT declarations. Note that, as with SHARE, you never
+                  use EXPORT inside a function.
+                </p>
+                <p>
+                  In functions where you want to use a nonlocal variable,
+                  declare the variable with IMPORT at the beginning of the
+                  function:
+                </p>
+                <pre>
+ void func1( void ) {
+ IMPORT x;
+ ...
+ }
+</pre
+                >
+                <p>
+                  The IMPORT declaration adds the necessary
+                  <b>extern</b> specifier and clearly shows that the function
+                  uses a nonlocal variable. A variable declared as IMPORT in a
+                  function will resolve to one of the file's SHARE or IMPORT
+                  external declarations.
+                </p>
+                <p>
+                  In files where you want to use a variable exported from
+                  another file, declare the variable with IMPORT once at the
+                  beginning of the file and once in each function or block where
+                  you want to use the variable. For example,
+                </p>
+                <pre>
+ | Before first function
+ */
+ IMPORT x;
+ ...
+ void func1( void ) {
+ IMPORT x;
+ ...
+ }
+</pre
+                >
+                <p>
+                  The first IMPORT declaration adds the necessary
+                  <b>extern</b> specifier and clearly indicates that <b>x</b> is
+                  defined in another file and that <b>x</b> may be used in other
+                  files (as well as in the current file and in the one that
+                  defines it). Like the previous example, the second IMPORT
+                  identifies a nonlocal variable used in a function. In this
+                  case, the two IMPORT declarations are clearly warning that
+                  <b>func1</b> uses a variable that functions in other files
+                  also might use.
+                </p>
+                <p class="c2">Finding Your C Legs</p>
+                <p>
+                  SHARE, EXPORT, and IMPORT let your declarations "say what they
+                  mean and mean what they say." You may prefer different macro
+                  names; almost any descriptive names produce clearer code than
+                  C's standard syntax. I picked up the idea for the macros from
+                  Steve Schustack's suggestion in <u>Variations in C</u> for
+                  similar macros he calls GLOBAL, SEMIGLOBAL, and IMPORT. I
+                  think EXPORT indicates better than GLOBAL the role of a
+                  variable allocated in one file and made available to other
+                  files, and SHARE seems more informative than SEMIGLOBAL. But
+                  whatever names you choose, these simple "visibility" macros
+                  and guidelines for declarations will let you, and anyone who
+                  reads your programs, C clearly now.
+                </p>
+                <p class="c2">C Coding Suggestions</p>
+                <ul>
+                  <li>
+                    Declare functions <b>static</b> if you intend to call them
+                    only from within the same source file.
+                  </li>
+                  <li>
+                    Use the most restricted visibility possible for variables;
+                    avoid shared variables.
+                  </li>
+                  <li>
+                    Put all external declarations before the first function
+                    definition in a file.
+                  </li>
+                  <li>
+                    Put functions that must share data and external declarations
+                    for their shared variables in a file by themselves.
+                  </li>
+                  <li>
+                    Use EXPORT, SHARE, and IMPORT macros to clarify the intended
+                    visibility of a variable.
+                  </li>
+                </ul>
+                <div class="hidden">
+                  by
+                  <span class="author vcard"
+                    ><span class="fn">BrainBell</span></span
+                  >updated
+                  <time
+                    class="entry-date updated"
+                    datetime="2016-08-01T20:00:00+00:00"
+                    >Aug 01, 2016</time
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="rightcol fltright">
+              <style type="text/css">
+                .adslot_1 {
+                  display: inline-block;
+                  width: 100%;
+                }
+                @media (max-width: 768px) {
+                  .adslot_1,
+                  .sideadh {
+                    display: none;
+                  }
+                }
+              </style>
+              <div class="gsa">
+                <div class="sideadh">Advertisement:</div>
+                <script
+                  async
+                  src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+                ></script>
+                <!-- responsive banner right -->
+                <ins
+                  class="adsbygoogle adslot_1"
+                  data-ad-client="ca-pub-1287605604486981"
+                  data-ad-slot="2682751945"
+                  data-ad-format="vertical"
+                ></ins>
+                <script>
+                  (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <div class="line">
+        <div class="leftcol fltleft">
+          <div class="gsa">
+            Advertisement:
+            <script
+              async
+              src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+            ></script>
+            <!-- responsive footer -->
+            <ins
+              class="adsbygoogle"
+              style="display: block"
+              data-ad-client="ca-pub-1287605604486981"
+              data-ad-slot="8559331946"
+              data-ad-format="rectangle"
+            ></ins>
+            <script>
+              (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+          </div>
+        </div>
+        <div class="rightcol fltright"></div>
+      </div>
+    </main>
+
+    <footer>
+      <section>
+        <div class="line">
+          <div class="leftcol fltleft">
+            <p>Copyright &copy; 2021 BrainBell.com</p>
+            <p>Contact us: info&#64;brainbell.com</p>
+          </div>
+          <div class="rightcol fltright">
+            <a href="https://www.brainbell.com/privacy/">Privacy policy</a>
+            &nbsp; : &nbsp;
+            <a href="https://www.brainbell.com/terms/">Terms of use</a>
+          </div>
+        </div>
+      </section>
+    </footer>
+    <script>
+      (function () {
+        var m = document.querySelector("#menu"),
+          n = document.querySelector("#buttons"),
+          o = false;
+
+        m.addEventListener("click", function (e) {
+          var d;
+          o = !o;
+          if (o) {
+            m.innerHTML = "X";
+            n.style.display = "block";
+            n.style.display = "flex";
+            m.style.padding = ".375rem .98rem";
+          } else {
+            m.innerHTML = "&#9776;";
+            n.style.display = "none";
+            m.style.padding = ".375rem .75rem";
+          }
+        });
+      })();
+      (function () {
+        var stop = true,
+          p = document.querySelectorAll("pre");
+        for (var i in p) {
+          p[i].className += " prettyprint";
+          stop = false;
+        }
+        if (stop) return;
+        var script = document.createElement("script");
+        script.src =
+          "https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js";
+        document.head.appendChild(script);
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "https://www.brainbell.com/tutors/c/Advice_and_Warnings_for_C/edmonton.php",
+        "/detroitchicago/edmonton.webp?a=a&cb=11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "https://www.brainbell.com/tutors/c/Advice_and_Warnings_for_C/jellyfish.php",
+        "/porpoiseant/jellyfish.webp?a=a&cb=11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script>
+      var _audins_dom = "brainbell_com",
+        _audins_did = 83552;
+      __ez.queue.addDelayFunc(
+        "https://www.brainbell.com/tutors/c/Advice_and_Warnings_for_C/audins.js",
+        "__ez.script.add",
+        "http://go.ezoic.net/detroitchicago/audins.js?cb=192-11"
+      );
+    </script>
+    <noscript
+      ><div style="display: none">
+        <img
+          src="http://pixel.quantserve.com/pixel/p-31iz6hfFutd16.gif?labels=Domain.brainbell_com,DomainId.83552"
+          border="0"
+          height="1"
+          width="1"
+          alt="Quantcast"
+        /></div
+    ></noscript>
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+
+  <!-- Mirrored from www.brainbell.com/tutors/c/Advice_and_Warnings_for_C/Simplified_Variable_Declarations.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Feb 2021 02:57:00 GMT -->
+</html>

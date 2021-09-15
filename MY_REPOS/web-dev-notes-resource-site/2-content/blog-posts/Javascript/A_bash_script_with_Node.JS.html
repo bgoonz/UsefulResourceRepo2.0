@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h1 id="a-bash-script-with-node.js">A bash script with Node.JS</h1>
+<blockquote>
+<p>A personal blog website</p>
+</blockquote>
+<p>JavaScript is a scripting language, therefore you can write scripts to automate your workflow with JavaScript.</p>
+<figure>
+<img src="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/static/b8628a53facfaf2ad0398b2d684b035f/0a47e/bash.png" title="Shell" alt="Shell" /><figcaption>Shell</figcaption>
+</figure>
+<h3 id="the-background-of-the-snippet">The background of the snippet</h3>
+<p>I created a node script recently to automate one workflow that I do repeatedly. Everytime I create a new JavaScript project, I’d create a <code>.prettierrc</code> file and add 4 configurations.</p>
+<p>The file looks something like this,</p>
+<pre><code>{
+    &quot;semi&quot;: true,
+    &quot;singleQuote&quot;: true,
+    &quot;tabWidth&quot;: 2,
+    &quot;useTabs&quot;: false,
+}</code></pre>
+<p>For those who don’t know what this is, it is a configuration file for prettier. You can install it in your code editor to format your source code in a certain way.</p>
+<p>The configuration I created above will make sure that my JS source code will have a semicolon at the end, it will use single quote on strings, it will use 2 spaces for indentation and instead of tabs, the code will use space for indentation.</p>
+<p>It is extremely repetitive. I would do this twice or thrice somedays when I am testing some simple snippets. I care about consistent formatting even in simple snippets that I create to test code because I guess I have OCD.</p>
+<p>This is why I decided to create this script to save me from this trouble and it was a great learning experience.</p>
+<h2 id="the-major-pieces">The major pieces</h2>
+<p>Let’s first understand the pieces that create this script and fit it all in together.</p>
+<h3 id="the-interpreter">The interpreter</h3>
+<p>On the top of your scripts, we have to specify the path to the interpreter we plan to use. In our case, it is node. To do so, we have to use <a href="https://en.wikipedia.org/wiki/Shebang_(Unix)">a shebang line</a>.</p>
+<p>For node</p>
+<p>Some other examples</p>
+<pre><code>- for python
+#!/usr/bin/env python3
+
+- for bash
+#!/bin/bash</code></pre>
+<h3 id="the-working-directory">The working directory</h3>
+<p>For this script to work, it has to know where it is being run at. For example, if I run this script on Projects directory on my home directory (in linux), it should be able to identify that and create a <code>.prettierrc</code> file inside <code>~/Projects</code>.</p>
+<p>For that, we can extract the current working directory from the node’s global process object.</p>
+<p>This gives us the path to the current working directory.</p>
+<h3 id="the-file-system-module">The file system module</h3>
+<p>Node ships a file system module by default. We need to grab the writeFile function from the <code>fs</code> module and write our <code>.prettierrc</code> file to our file system.</p>
+<p>Read the <a href="https://nodejs.org/dist/latest-v14.x/docs/api/fs.html#fs_fs_writefile_file_data_options_callback">official docs</a>.</p>
+<p><strong>Example</strong></p>
+<pre><code>const fs = require(&#39;fs&#39;);
+
+
+
+fs.writeFile(
+  &#39;test.txt&#39;, 
+  &#39;This is the content for the file&#39;, 
+  (error, data) =&gt; {
+    if (error) {
+      console.log(error);
+    }
+
+    console.log(&#39;File written successfully&#39;);
+  }
+);</code></pre>
+<h2 id="fitting-it-all-together">Fitting it all together</h2>
+<p>Now as we have all the background information, we can create the script.</p>
+<p>First create a file called <code>prettier-config</code> or <code>prettier-config.js</code> and paste the following content.</p>
+<p>Note: the extension is not mandatory but remember what you name it because we have to access it later.</p>
+<pre><code>#!/usr/bin/env node
+
+const fs = require(&#39;fs&#39;);
+
+const configs = {
+  semi: true,
+  tabWidth: 2,
+  useTabs: false,
+  singleQuote: true,
+};
+
+fs.writeFile(
+  `${process.cwd()}/.prettierrc`,
+  JSON.stringify(configs),
+  (error, data) =&gt; {
+    if (error) {
+      console.error(&#39;Error creating the configuration file.&#39;, error);
+    }
+    console.log(&#39;Configuration created&#39;);
+  }
+);</code></pre>
+<p>Here, I am just fitting together the information provided above and mixing it to create the .prettierrc file.</p>
+<p>The script stores the configuration file in an object called <code>configs</code>. You can add as more configs as you like in this file.</p>
+<p>JSON and JS objects might seem similar but they have some minor differences. For example, the keys in a JSON have to be wrapped inside double quotes. That is the reason why I have used <code>JSON.stringify(configs)</code> to convert the JS object into a JSON string while writing to the file.</p>
+<h2 id="executable-permission-and-global-access">Executable permission and global access</h2>
+<p>We generally want our scripts to be available everywhere in our system. Also, we have to give executable permission to our scripts.</p>
+<p>Moving our script to <code>/usr/local/bin</code> on our file system will allow us to use the script anywhere on our system. To do so, move the script file,</p>
+<pre><code>mv prettier-config /usr/local/bin/prettier-config
+
+
+
+sudo mv prettier-config /usr/local/bin/prettier-config</code></pre>
+<p>We want our scripts to have executable (x) permission and we want it to provide this permision to the owner/user, group and others (a).</p>
+<pre><code>sudo chmod a+x /usr/local/bin/prettier-config</code></pre>
+<p>Now if you try to run <code>prettier-config</code> command anywhere on your file system, you will get a .prettierrc file with necessary configuration created.</p>
+<figure>
+<img src="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/static/d0ec5cc441912f6f3d0e8d349a45dfad/0a47e/bash-walkthrough.png" title="Walkthrough" alt="Walkthrough" /><figcaption>Walkthrough</figcaption>
+</figure>
+<h2 id="conclusion">Conclusion</h2>
+<p>If you like my content and want to have a chat then please hit me up on <a href="https://twitter.com/dev_prashaant">Twitter</a>.</p>
+<p><a href="https://www.bigomega.dev/bash-script-node">Source</a></p>
+</body></html>

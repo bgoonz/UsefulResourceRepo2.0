@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<script>{
+    "title": "jQuery Event Basics",
+    "level": "beginner",
+    "attribution": [ "jQuery Fundamentals" ]
+}</script>
+<h2 id="jquery-event-basics">jQuery Event Basics</h2>
+<h3 id="setting-up-event-responses-on-dom-elements">Setting Up Event Responses on DOM Elements</h3>
+<p>jQuery makes it straightforward to set up event-driven responses on page elements. These events are often triggered by the end user’s interaction with the page, such as when text is entered into a form element or the mouse pointer is moved. In some cases, such as the page load and unload events, the browser itself will trigger the event.</p>
+<p>jQuery offers convenience methods for most native browser events. These methods — including <code>.click()</code>, <code>.focus()</code>, <code>.blur()</code>, <code>.change()</code>, etc. — are shorthand for jQuery’s <code>.on()</code> method. The on method is useful for binding the same handler function to multiple events, when you want to provide data to the event handler, when you are working with custom events, or when you want to pass an object of multiple events and handlers.</p>
+<pre><code>// Event setup using a convenience method
+$( &quot;p&quot; ).click(function() {
+    console.log( &quot;You clicked a paragraph!&quot; );
+});</code></pre>
+<pre><code>// Equivalent event setup using the `.on()` method
+$( &quot;p&quot; ).on( &quot;click&quot;, function() {
+    console.log( &quot;click&quot; );
+});</code></pre>
+<h3 id="extending-events-to-new-page-elements">Extending Events to New Page Elements</h3>
+<p>It is important to note that <code>.on()</code> can only create event listeners on elements that exist <em>at the time you set up the listeners</em>. Similar elements created after the event listeners are established will not automatically pick up event behaviors you’ve set up previously. For example:</p>
+<pre><code>$( document ).ready(function(){
+
+    // Sets up click behavior on all button elements with the alert class
+    // that exist in the DOM when the instruction was executed
+    $( &quot;button.alert&quot; ).on( &quot;click&quot;, function() {
+        console.log( &quot;A button with the alert class was clicked!&quot; );
+    });
+
+    // Now create a new button element with the alert class. This button
+    // was created after the click listeners were applied above, so it
+    // will not have the same click behavior as its peers
+    $( &quot;&lt;button class=&#39;alert&#39;&gt;Alert!&lt;/button&gt;&quot; ).appendTo( document.body );
+});</code></pre>
+<p>Consult the article on event delegation to see how to use <code>.on()</code> so that event behaviors will be extended to new elements without having to rebind them.</p>
+<h3 id="inside-the-event-handler-function">Inside the Event Handler Function</h3>
+<p>Every event handling function receives an event object, which contains many properties and methods. The event object is most commonly used to prevent the default action of the event via the <code>.preventDefault()</code> method. However, the event object contains a number of other useful properties and methods, including:</p>
+<h4 id="pagex-pagey">pageX, pageY</h4>
+<p>The mouse position at the time the event occurred, relative to the top left corner of the page display area (not the entire browser window).</p>
+<h4 id="type">type</h4>
+<p>The type of the event (e.g., “click”).</p>
+<h4 id="which">which</h4>
+<p>The button or key that was pressed.</p>
+<h4 id="data">data</h4>
+<p>Any data that was passed in when the event was bound. For example:</p>
+<pre><code>// Event setup using the `.on()` method with data
+$( &quot;input&quot; ).on(
+    &quot;change&quot;,
+    { foo: &quot;bar&quot; }, // Associate data with event binding
+    function( eventObject ) {
+        console.log(&quot;An input value has changed! &quot;, eventObject.data.foo);
+    }
+);</code></pre>
+<h4 id="target">target</h4>
+<p>The DOM element that initiated the event.</p>
+<h4 id="namespace">namespace</h4>
+<p>The namespace specified when the event was triggered.</p>
+<h4 id="timestamp">timeStamp</h4>
+<p>The difference in milliseconds between the time the event occurred in the browser and January 1, 1970.</p>
+<h4 id="preventdefault">preventDefault()</h4>
+<p>Prevent the default action of the event (e.g. following a link).</p>
+<h4 id="stoppropagation">stopPropagation()</h4>
+<p>Stop the event from bubbling up to other elements.</p>
+<p>In addition to the event object, the event handling function also has access to the DOM element that the handler was bound to via the keyword <code>this</code>. To turn the DOM element into a jQuery object that we can use jQuery methods on, we simply do <code>$( this )</code>, often following this idiom:</p>
+<pre><code>var element = $( this );</code></pre>
+<p>A fuller example would be:</p>
+<pre><code>// Preventing a link from being followed
+$( &quot;a&quot; ).click(function( eventObject ) {
+    var elem = $( this );
+    if ( elem.attr( &quot;href&quot; ).match( /evil/ ) ) {
+        eventObject.preventDefault();
+        elem.addClass( &quot;evil&quot; );
+    }
+});</code></pre>
+<h3 id="setting-up-multiple-event-responses">Setting Up Multiple Event Responses</h3>
+<p>Quite often elements in your application will be bound to multiple events. If multiple events are to share the same handling function, you can provide the event types as a space-separated list to <code>.on()</code>:</p>
+<pre><code>// Multiple events, same handler
+$( &quot;input&quot; ).on(
+    &quot;click change&quot;, // Bind handlers for multiple events
+    function() {
+        console.log( &quot;An input was clicked or changed!&quot; );
+    }
+);</code></pre>
+<p>When each event has its own handler, you can pass an object into <code>.on()</code> with one or more key/value pairs, with the key being the event name and the value being the function to handle the event.</p>
+<pre><code>// Binding multiple events with different handlers
+$( &quot;p&quot; ).on({
+    &quot;click&quot;: function() { console.log( &quot;clicked!&quot; ); },
+    &quot;mouseover&quot;: function() { console.log( &quot;hovered!&quot; ); }
+});</code></pre>
+<h3 id="namespacing-events">Namespacing Events</h3>
+<p>For complex applications and for plugins you share with others, it can be useful to namespace your events so you don’t unintentionally disconnect events that you didn’t or couldn’t know about.</p>
+<pre><code>// Namespacing events
+$( &quot;p&quot; ).on( &quot;click.myNamespace&quot;, function() { /* ... */ } );
+$( &quot;p&quot; ).off( &quot;click.myNamespace&quot; );
+$( &quot;p&quot; ).off( &quot;.myNamespace&quot; ); // Unbind all events in the namespace</code></pre>
+<h3 id="tearing-down-event-listeners">Tearing Down Event Listeners</h3>
+<p>To remove an event listener, you use the <code>.off()</code> method and pass in the event type to off. If you attached a named function to the event, then you can isolate the event tear down to just that named function by passing it as the second argument.</p>
+<pre><code>// Tearing down all click handlers on a selection
+$( &quot;p&quot; ).off( &quot;click&quot; );</code></pre>
+<pre><code>// Tearing down a particular click handler, using a reference to the function
+var foo = function() { console.log( &quot;foo&quot; ); };
+var bar = function() { console.log( &quot;bar&quot; ); };
+
+$( &quot;p&quot; ).on( &quot;click&quot;, foo ).on( &quot;click&quot;, bar );
+$( &quot;p&quot; ).off( &quot;click&quot;, bar ); // foo is still bound to the click event</code></pre>
+<h3 id="setting-up-events-to-run-only-once">Setting Up Events to Run Only Once</h3>
+<p>Sometimes you need a particular handler to run only once — after that, you may want no handler to run, or you may want a different handler to run. jQuery provides the <code>.one()</code> method for this purpose.</p>
+<pre><code>// Switching handlers using the `.one()` method
+$( &quot;p&quot; ).one( &quot;click&quot;, firstClick );
+
+function firstClick() {
+    console.log( &quot;You just clicked this for the first time!&quot; );
+
+    // Now set up the new handler for subsequent clicks;
+    // omit this step if no further click responses are needed
+    $( this ).click( function() { console.log( &quot;You have clicked this before!&quot; ); } );
+}</code></pre>
+<p>Note that in the code snippet above, the <code>firstClick</code> function will be executed for the first click on <em>each</em> paragraph element rather than the function being removed from <em>all</em> paragraphs when <em>any</em> paragraph is clicked for the first time.</p>
+<p><code>.one()</code> can also be used to bind multiple events:</p>
+<pre><code>// Using .one() to bind several events
+$( &quot;input[id]&quot; ).one( &quot;focus mouseover keydown&quot;, firstEvent);
+
+function firstEvent( eventObject ) {
+    console.log( &quot;A &quot; + eventObject.type + &quot; event occurred for the first time on the input with id &quot; + this.id );
+}</code></pre>
+<p>In this case, the <code>firstEvent</code> function will be executed once <em>for each event</em>. For the snippet above, this means that once an input element gains focus, the handler function will still execute for the first keydown event on that element.</p>
+</body></html>

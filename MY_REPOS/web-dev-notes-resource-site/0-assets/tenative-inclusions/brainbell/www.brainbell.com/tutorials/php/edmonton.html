@@ -1,0 +1,1406 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = false;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "/detroitchicago/boise.js",
+        "/detroitchicago/boise.js?gcb=192-11&cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "/detroitchicago/memphis.js",
+        "/detroitchicago/memphis.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/minneapolis.js",
+        "/detroitchicago/minneapolis.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "/detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "/porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("/");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot.getAdUnitPath(adSlot).split("/").pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (ezimKey.split("/").pop() === adUnitName) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "/detroitchicago/raleigh.js",
+        "/detroitchicago/raleigh.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "/detroitchicago/tampa.js",
+        "/detroitchicago/tampa.js?gcb=192-11&cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_count_adjustment: 0,
+        ad_lazyload_version: 0,
+        ad_location_ids: "",
+        ad_transform_level: 0,
+        adx_ad_count: 0,
+        bidder_method: 1,
+        bidder_version: 3,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        display_ad_count: 0,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        ds_adsize_opt_id: -1,
+        engaged_time_visit: 0,
+        ezcache_level: 1,
+        ezcache_skip_code: 6,
+        form_factor_id: 1,
+        framework_id: 1,
+        has_bad_image: 0,
+        has_bad_words: 0,
+        iab_category: "",
+        is_from_recommended_pages: false,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        max_ads: 0,
+        metro_code: 501,
+        optimization_version: 1,
+        page_ad_positions: "",
+        page_view_count: 428,
+        page_view_id: "5866bfed-93ee-4f1d-78d0-9b90c698a53c",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 0,
+        response_time_orig: 309,
+        serverid: "52.205.185.101:22974",
+        state: "NJ",
+        sub_page_ad_positions: "",
+        t_epoch: 1613703321,
+        template_id: 0,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/tutorials/php/edmonton.php",
+        user_id: 0,
+        word_count: 0,
+        worst_bad_word_level: 0,
+      };
+      var _ezim_d = null;
+      var _ezat = {
+        domain_id: 83552,
+        form_factor_id: 1,
+        framework_id: 1,
+        pageview_date: "2021-02-18",
+        pageview_id: "5866bfed-93ee-4f1d-78d0-9b90c698a53c",
+        template_id: 0,
+        url: "https://www.brainbell.com/tutorials/php/edmonton.php",
+        visit_uuid: "3b57fc57-4c51-4b3f-6c78-712b82b8f8be",
+      };
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+    >
+      __ez.queue.addFile(
+        "banger.js",
+        "/porpoiseant/banger.js?cb=192-11&bv=3&v=39&PageSpeed=off",
+        true,
+        [],
+        true,
+        false,
+        false,
+        true
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "/detroitchicago/tulsa.js",
+        "/detroitchicago/tulsa.js?gcb=192-11&cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <title>Article or tutorial not found</title>
+    <link rel="stylesheet" type="text/css" href="/img/404.css" />
+
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base href="https://www.brainbell.com/tutorials/php/edmonton.php" />
+    <script type="text/javascript">
+      var ezoTemplate = "pub_site_noads";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigeneris",
+        "//g.ezoic.net/ezosuigeneris.js",
+        true,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+      var __ez_ezosuigenerisEvt = function () {
+        if (typeof ezosuigeneris != "undefined") {
+          __ez.bit.AddAndFire(_ezaq["page_view_id"], [
+            new __ezDotData("universal_user_id", ezosuigeneris),
+          ]);
+        }
+      };
+      __ez.queue.addFunc(
+        "__ez_ezosuigenerisEvt",
+        "__ez_ezosuigenerisEvt",
+        null,
+        false,
+        [
+          "__ezf_ezosuigeneris",
+          "/detroitchicago/minneapolis.js",
+          "/detroitchicago/memphis.js",
+        ],
+        false,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script
+      data-ezscrex="false"
+      data-pagespeed-no-defer
+      data-cfasync="false"
+      type="text/javascript"
+      style="display: none"
+    >
+      __ez.queue.addFile(
+        "__ezf_ezosuigenerisc",
+        "//g.ezoic.net/ezosuigenerisc.js?nogen=1",
+        true,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["5866bfed-93ee-4f1d-78d0-9b90c698a53c", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <div>
+      <img src="/img/head_pic1.jpg" border="0" />
+    </div>
+    <div class="toc">
+      <h1>404 page not found</h1>
+      <p>
+        Sorry, the page you requested was not found. Please use the following
+        index to browse related topics.
+      </p>
+    </div>
+
+    <h1 style="text-align: center">PHP index</h1>
+    <div class="toc">
+      <h2>Object Oriented Programming</h2>
+      <a href="/tutorials/php/Moving_Beyond_Libraries.html"
+        >Moving Beyond Libraries</a
+      >
+      <a href="/tutorials/php/Some_Basic_Terminology.html"
+        >Some Basic Terminology</a
+      >
+      <a href="/tutorials/php/The_Basics_Of_Objects_In_PHP.html"
+        >The Basics of Objects in PHP</a
+      >
+      <a href="/tutorials/php/Initializing_And_Cleaning_Up_Objects.html"
+        >Initializing and Cleaning Up Objects</a
+      >
+      <a href="/tutorials/php/Visibility_Controlling_Who_Sees_Things.html"
+        >Visibility: Controlling Who Sees Things</a
+      >
+      <a href="/tutorials/php/Class_Constants.html">Class Constants</a>
+      <a href="/tutorials/php/Static_Member_Variables.html"
+        >Static Member Variables</a
+      >
+      <a href="/tutorials/php/Static_Methods.html">Static Methods</a>
+      <a href="/tutorials/php/Extending_Existing_Classes.html"
+        >Extending Existing Classes</a
+      >
+      <a href="/tutorials/php/Visibility_Revisited.html"
+        >Visibility Revisited</a
+      >
+      <a href="/tutorials/php/Reimplementing_Methods_From_Our_Base_Class.html"
+        >Reimplementing Methods from My Base Class</a
+      >
+      <a href="/tutorials/php/Class_Hierarchies.html">Class Hierarchies</a>
+      <a href="/tutorials/php/Preventing_Inheritance_And_Overriding.html"
+        >Preventing Inheritance and Overriding</a
+      >
+      <a href="/tutorials/php/Exposing_A_Common_Interface.html"
+        >Exposing a Common Interface</a
+      >
+      <a href="/tutorials/php/Cloning_Objects.html">Cloning Objects</a>
+      <a href="/tutorials/php/User-Friendly_Output.html"
+        >User-Friendly Output</a
+      >
+      <a href="/tutorials/php/Type_Hinting.html">Type Hinting</a>
+      <a href="/tutorials/php/Autoloading.html">Autoloading</a>
+      <a href="/tutorials/php/TOC_Manipulating_Strings.html"
+        >Working with Strings</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Regular Expressions</h2>
+      <a href="/tutorials/php/What_Are_Regular_Expressions.html"
+        >What Are Regular Expressions?</a
+      >
+      <a href="/tutorials/php/Testing_Your_Expressions.html"
+        >Testing Your Expressions</a
+      >
+      <a href="/tutorials/php/Basic_Searches.html">Basic Searches</a>
+      <a href="/tutorials/php/Character_Classes.html">Character Classes</a>
+      <a href="/tutorials/php/Boundaries.html">Boundaries</a>
+      <a href="/tutorials/php/Repeating_Patterns.html">Repeating Patterns</a>
+      <a href="/tutorials/php/Tricks_And_Traps.html">Tricks and Traps</a>
+      <a href="/tutorials/php/Validating_Usernames.html"
+        >Validating Usernames</a
+      >
+      <a href="/tutorials/php/Matching_Phone_Numbers.html"
+        >Matching Phone Numbers</a
+      >
+      <a href="/tutorials/php/Matching_Postal_Codes.html"
+        >Matching Postal Codes</a
+      >
+      <a href="/tutorials/php/Matching_E-Mail_Addresses.html"
+        >Matching E-Mail Addresses</a
+      >
+      <a href="/tutorials/php/ereg_replace.html"><tt>ereg_replace</tt></a>
+      <a href="/tutorials/php/Split.html">Split</a>
+    </div>
+
+    <div class="toc">
+      <h2>Manipulating Strings</h2>
+      <a href="/tutorials/php/Comparing_Strings.htm">Comparing Strings</a>
+      <a href="/tutorials/php/Checking_Usernames_And_Passwords.htm"
+        >Checking Usernames and Passwords</a
+      >
+      <a
+        href="/tutorials/php/Converting_Strings_Into_Hypertext_Markup_Language_HTML.htm"
+        >Converting Strings into Hypertext Markup Language (HTML)</a
+      >
+      <a href="/tutorials/php/Using_Line_Breaks.htm">Using Line Breaks</a>
+      <a href="/tutorials/php/Encrypting_Strings.htm">Encrypting Strings</a>
+      <a href="/tutorials/php/Checksumming_Strings.htm">Checksumming Strings</a>
+      <a href="/tutorials/php/Extracting_Substrings.htm"
+        >Extracting Substrings</a
+      >
+      <a href="/tutorials/php/Protecting_Email_Addresses_Using_ASCII_Codes.htm"
+        >Protecting Email Addresses Using ASCII Codes</a
+      >
+      <a href="/tutorials/php/Scanning_Formatted_Strings.htm"
+        >Scanning Formatted Strings</a
+      >
+      <a href="/tutorials/php/Getting_Detailed_Information_About_Variables.htm"
+        >Getting Detailed Information About Variables</a
+      >
+      <a href="/tutorials/php/Searching_In_Strings.htm">Searching in Strings</a>
+      <a href="/tutorials/php/Using_POSIX_Regular_Expressions.htm"
+        >Using POSIX Regular Expressions</a
+      >
+      <a href="/tutorials/php/Using_Perl-Compatible_Regular_Expressions.htm"
+        >Using Perl-Compatible Regular Expressions</a
+      >
+      <a href="/tutorials/php/Finding_Tags_With_Regular_Expressions.htm"
+        >Finding Tags with Regular Expressions</a
+      >
+      <a href="/tutorials/php/Validating_Mandatory_Input.htm"
+        >Validating Mandatory Input</a
+      >
+      <a href="/tutorials/php/Validating_Numbers_and_Other_Data_Types.htm"
+        >Validating Numbers (and Other Data Types)</a
+      >
+      <a href="/tutorials/php/Validating_Email_Addresses.htm"
+        >Validating Email Addresses</a
+      >
+      <a href="/tutorials/php/Search_And_Replace.htm">Search and Replace</a>
+      <a href="/tutorials/php/TOC_Working_With_Arrays.html"
+        >Working with Arrays</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Working with Arrays</h2>
+      <a href="/tutorials/php/Working_With_Arrays.htm">Working with Arrays</a>
+      <a href="/tutorials/php/Accessing_All_Elements_Of_Numerical_Arrays.htm"
+        >Accessing All Elements of Numerical Arrays</a
+      >
+      <a href="/tutorials/php/Accessing_All_Elements_Of_Associative_Arrays.htm"
+        >Accessing All Elements of Associative Arrays</a
+      >
+      <a href="/tutorials/php/Accessing_All_Array_Elements_In_Nested_Arrays.htm"
+        >Accessing All Array Elements in Nested Arrays</a
+      >
+      <a href="/tutorials/php/Turning_An_Array_Into_Variables.htm"
+        >Turning an Array into Variables</a
+      >
+      <a href="/tutorials/php/Converting_Strings_To_Arrays.htm"
+        >Converting Strings to Arrays</a
+      >
+      <a href="/tutorials/php/Converting_Arrays_To_Strings.htm"
+        >Converting Arrays to Strings</a
+      >
+      <a href="/tutorials/php/Sorting_Arrays_Alphabetically.htm"
+        >Sorting Arrays Alphabetically</a
+      >
+      <a href="/tutorials/php/Sorting_Associative_Arrays_Alphabetically.htm"
+        >Sorting Associative Arrays Alphabetically</a
+      >
+      <a href="/tutorials/php/Sorting_Nested_Arrays.htm"
+        >Sorting Nested Arrays</a
+      >
+      <a href="/tutorials/php/Sorting_Nested_Associative_Arrays.htm"
+        >Sorting Nested Associative Arrays</a
+      >
+      <a href="/tutorials/php/Sorting_IP_Addresses_as_A_Human_Would.htm"
+        >Sorting IP Addresses (as a Human Would)</a
+      >
+      <a href="/tutorials/php/Sorting_Anything.htm">Sorting Anything</a>
+      <a href="/tutorials/php/Sorting_With_Foreign_Languages.htm"
+        >Sorting with Foreign Languages</a
+      >
+      <a href="/tutorials/php/Applying_An_Effect_To_All_Array_Elements.htm"
+        >Applying an Effect to All Array Elements</a
+      >
+      <a href="/tutorials/php/Filtering_Arrays.htm">Filtering Arrays</a>
+      <a href="/tutorials/php/Getting_Random_Elements_Out_Of_Arrays.htm"
+        >Getting Random Elements Out of Arrays</a
+      >
+      <a href="/tutorials/php/TOC_Date_And_Time.html">Date and Time</a>
+    </div>
+
+    <div class="toc">
+      <h2>Date and Time</h2>
+      <a href="/tutorials/php/Date_And_Time.htm">Date and Time</a>
+      <a href="/tutorials/php/Using_Text_Within_date.htm"
+        >Using Text Within date()</a
+      >
+      <a href="/tutorials/php/Automatically_Localizing_Dates.htm"
+        >Automatically Localizing Dates</a
+      >
+      <a href="/tutorials/php/Manually_Localizing_Dates.htm"
+        >Manually Localizing Dates</a
+      >
+      <a
+        href="/tutorials/php/Using_The_Current_Date_The_U.S._U.K._European_Way.htm"
+        >Using the Current Date the U.S./U.K./European Way</a
+      >
+      <a href="/tutorials/php/Formatting_A_Specific_Date.htm"
+        >Formatting a Specific Date</a
+      >
+      <a href="/tutorials/php/Validating_A_Date.htm">Validating a Date</a>
+      <a href="/tutorials/php/Calculating_A_Relative_Date.htm"
+        >Calculating a Relative Date</a
+      >
+      <a href="/tutorials/php/Creating_A_Sortable_Time_Stamp.htm"
+        >Creating a Sortable Time Stamp</a
+      >
+      <a href="/tutorials/php/Converting_A_String_Into_A_Date.htm"
+        >Converting a String into a Date</a
+      >
+      <a href="/tutorials/php/Determining_Sunrise_And_Sunset.htm"
+        >Determining Sunrise and Sunset</a
+      >
+      <a href="/tutorials/php/Using_Date_And_Time_For_Benchmarks.htm"
+        >Using Date and Time for Benchmarks</a
+      >
+      <a href="/tutorials/php/Using_Form_Fields_For_Date_Selection.htm"
+        >Using Form Fields for Date Selection</a
+      >
+      <a
+        href="/tutorials/php/Create_Self-updating_Form_Fields_For_Date_Selection.htm"
+        >Create Self-updating Form Fields for Date Selection</a
+      >
+      <a href="/tutorials/php/Calculating_The_Difference_Between_Two_Dates.htm"
+        >Calculating the Difference Between Two Dates</a
+      >
+      <a href="/tutorials/php/Using_GMT_Date_Time_Information.htm"
+        >Using GMT Date/Time Information</a
+      >
+      <a href="/tutorials/php/TOC_Interacting_With_Web_Forms.html">Web Forms</a>
+    </div>
+
+    <div class="toc">
+      <h2>Web Forms</h2>
+      <a href="/tutorials/php/Reading_Out_Form_Data.htm"
+        >Reading Out Form Data</a
+      >
+      <a href="/tutorials/php/Coping_With_Magic_Quotes.htm"
+        >Coping with &quot;Magic Quotes&quot;</a
+      >
+      <a href="/tutorials/php/Checking_Whether_A_Form_Has_Been_Submitted.htm"
+        >Checking Whether a Form Has Been Submitted</a
+      >
+      <a href="/tutorials/php/Saving_Form_Data_Into_A_Cookie.htm"
+        >Saving Form Data into a Cookie</a
+      >
+      <a href="/tutorials/php/Prefilling_Text_Fields_And_Password_Fields.htm"
+        >Prefilling Text Fields and Password Fields</a
+      >
+      <a href="/tutorials/php/Prefilling_Multiline_Text_Fields.htm"
+        >Prefilling Multiline Text Fields</a
+      >
+      <a href="/tutorials/php/Preselecting_Radio_Buttons.htm"
+        >Preselecting Radio Buttons</a
+      >
+      <a href="/tutorials/php/Preselecting_Check_Boxes.htm"
+        >Preselecting Check Boxes</a
+      >
+      <a href="/tutorials/php/Preselecting_Selection_Lists.htm"
+        >Preselecting Selection Lists</a
+      >
+      <a href="/tutorials/php/Preselecting_Multiple_Selection_Lists.htm"
+        >Preselecting Multiple Selection Lists</a
+      >
+      <a href="/tutorials/php/Processing_Graphical_Submit_Buttons.htm"
+        >Processing Graphical Submit Buttons</a
+      >
+      <a href="/tutorials/php/Checking_Mandatory_Fields.htm"
+        >Checking Mandatory Fields</a
+      >
+      <a href="/tutorials/php/Checking_Selection_Lists.htm"
+        >Checking Selection Lists</a
+      >
+      <a href="/tutorials/php/Writing_All_Form_Data_Into_A_File.htm"
+        >Writing All Form Data into a File</a
+      >
+      <a href="/tutorials/php/Sending_All_Form_Data_Via_Email.htm"
+        >Sending All Form Data Via Email</a
+      >
+      <a href="/tutorials/php/Getting_Information_About_File_Uploads.htm"
+        >Getting Information About File Uploads</a
+      >
+      <a href="/tutorials/php/Moving_Uploaded_Files_To_A_Safe_Location.htm"
+        >Moving Uploaded Files to a Safe Location</a
+      >
+      <a href="/tutorials/php/TOC_Remembering_Users_Cookies_And_Sessions.html"
+        >Sessions and Cookies</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Cookies and Sessions</h2>
+      <a href="/tutorials/php/Understanding_Cookies.htm"
+        >Understanding Cookies</a
+      >
+      <a href="/tutorials/php/Creating_A_Cookie.htm">Creating a Cookie</a>
+      <a href="/tutorials/php/Reading_Out_Cookies.htm">Reading Out Cookies</a>
+      <a href="/tutorials/php/Getting_Rid_Of_Magic_Quotes_In_Cookies.htm"
+        >Getting Rid of &quot;Magic Quotes&quot; in Cookies</a
+      >
+      <a href="/tutorials/php/Setting_A_(Reasonable)_Expiry_Date.htm"
+        >Setting a (Reasonable) Expiry Date</a
+      >
+      <a href="/tutorials/php/Setting_A_Client-Specific_Expiry_Date.htm"
+        >Setting a Client-Specific Expiry Date</a
+      >
+      <a href="/tutorials/php/Deleting_A_Cookie.htm">Deleting a Cookie</a>
+      <a href="/tutorials/php/Making_Cookies_Accessible_For_Several_Domains.htm"
+        >Making Cookies Accessible for Several Domains</a
+      >
+      <a href="/tutorials/php/Checking_Whether_The_Client_Supports_Cookies.htm"
+        >Checking Whether the Client Supports Cookies</a
+      >
+      <a href="/tutorials/php/Saving_Multiple_Data_In_One_Cookie.htm"
+        >Saving Multiple Data in One Cookie</a
+      >
+      <a href="/tutorials/php/Saving_The_Users_Language_Preference.htm"
+        >Saving the User's Language Preference</a
+      >
+      <a href="/tutorials/php/Understanding_Sessions.htm"
+        >Understanding Sessions</a
+      >
+      <a href="/tutorials/php/Where_To_Store_The_Sessions.htm"
+        >Where to Store the Sessions</a
+      >
+      <a href="/tutorials/php/How_To_Maintain_The_Session_State.htm"
+        >How to Maintain the Session State</a
+      >
+      <a href="/tutorials/php/Activating_Sessions.htm">Activating Sessions</a>
+      <a href="/tutorials/php/Reading_And_Writing_Sessions.htm"
+        >Reading and Writing Sessions</a
+      >
+      <a href="/tutorials/php/Closing_Sessions.htm">Closing Sessions</a>
+      <a href="/tutorials/php/Changing_The_Session_ID.htm"
+        >Changing the Session ID</a
+      >
+      <a href="/tutorials/php/Creating_Dynamic_Session-Aware_Links.htm"
+        >Creating Dynamic, Session-Aware Links</a
+      >
+      <a href="/tutorials/php/Implementing_A_Custom_Session_Management.htm"
+        >Implementing a Custom Session Management</a
+      >
+      <a href="/tutorials/php/Creating_A_Secured_Area_With_Sessions.htm"
+        >Creating a Secured Area with Sessions</a
+      >
+      <a href="/tutorials/php/Creating_A_Secured_Area_Without_Sessions.htm"
+        >Creating a Secured Area Without Sessions</a
+      >
+      <a href="/tutorials/php/TOC_Using_Files_On_The_Server_File_System.html"
+        >Files on Server File System</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Using Files On The Server File System</h2>
+      <a href="/tutorials/php/Opening_And_Closing_Files.htm"
+        >Opening and Closing Files</a
+      >
+      <a href="/tutorials/php/Reading_From_Files.htm">Reading from Files</a>
+      <a href="/tutorials/php/Writing_To_Files.htm">Writing to Files</a>
+      <a href="/tutorials/php/Locking_Files.htm">Locking Files</a>
+      <a href="/tutorials/php/Using_Relative_Paths_For_File_Access.htm"
+        >Using Relative Paths for File Access</a
+      >
+      <a href="/tutorials/php/Avoiding_Security_Traps_With_File_Access.htm"
+        >Avoiding Security Traps with File Access</a
+      >
+      <a href="/tutorials/php/Working_With_CSV_Data.htm"
+        >Working with CSV Data</a
+      >
+      <a href="/tutorials/php/Parsing_INI_Files.htm">Parsing INI Files</a>
+      <a href="/tutorials/php/Retrieving_File_Information.htm"
+        >Retrieving File Information</a
+      >
+      <a href="/tutorials/php/Copying_Moving_And_Deleting_Files.htm"
+        >Copying, Moving, and Deleting Files</a
+      >
+      <a href="/tutorials/php/Browsing_The_File_System.htm"
+        >Browsing the File System</a
+      >
+      <a href="/tutorials/php/Using_PHP_Streams.htm">Using PHP Streams</a>
+      <a href="/tutorials/php/Using_Bzip2_Archives.htm">Using Bzip2 Archives</a>
+      <a href="/tutorials/php/Returning_Files_With_An_HTTP_Request.htm"
+        >Returning Files with an HTTP Request</a
+      >
+      <a href="/tutorials/php/TOC_Making_Data_Dynamic.html">Databases</a>
+    </div>
+
+    <div class="toc">
+      <h2>Making Data Dynamic</h2>
+      <a href="/tutorials/php/Connecting_To_MySQL.htm">Connecting to MySQL</a>
+      <a href="/tutorials/php/Connecting_To_MySQLi.htm">Connecting to MySQLi</a>
+      <a href="/tutorials/php/Sending_SQL_To_MySQL.htm">Sending SQL to MySQL</a>
+      <a href="/tutorials/php/Prepared_Statements_With_MySQL.htm"
+        >Prepared Statements with MySQL</a
+      >
+      <a href="/tutorials/php/Retrieving_Results_Of_A_Query_To_MySQL.htm"
+        >Retrieving Results of a Query to MySQL</a
+      >
+      <a href="/tutorials/php/Connecting_To_SQLite.htm">Connecting to SQLite</a>
+      <a href="/tutorials/php/Sending_SQL_To_SQLite.htm"
+        >Sending SQL to SQLite</a
+      >
+      <a href="/tutorials/php/Retrieving_Results_Of_A_Query_To_SQLite.htm"
+        >Retrieving Results of a Query to SQLite</a
+      >
+      <a href="/tutorials/php/Connecting_To_PostgreSQL.htm"
+        >Connecting to PostgreSQL</a
+      >
+      <a href="/tutorials/php/Sending_SQL_To_PostgreSQL.htm"
+        >Sending SQL to PostgreSQL</a
+      >
+      <a href="/tutorials/php/Updating_Data_In_PostgreSQL.htm"
+        >Updating Data in PostgreSQL</a
+      >
+      <a href="/tutorials/php/Retrieving_Results_Of_A_Query_To_PostgreSQL.htm"
+        >Retrieving Results of a Query to PostgreSQL</a
+      >
+      <a href="/tutorials/php/Connecting_To_Oracle.htm">Connecting to Oracle</a>
+      <a href="/tutorials/php/Sending_SQL_To_Oracle.htm"
+        >Sending SQL to Oracle</a
+      >
+      <a href="/tutorials/php/Retrieving_Results_Of_A_Query_To_Oracle.htm"
+        >Retrieving Results of a Query to Oracle</a
+      >
+      <a href="/tutorials/php/Connecting_To_MSSQL.htm">Connecting to MSSQL</a>
+      <a href="/tutorials/php/Sending_SQL_To_MSSQL.htm">Sending SQL to MSSQL</a>
+      <a href="/tutorials/php/Retrieving_Results_Of_A_Query_To_MSSQL.htm"
+        >Retrieving Results of a Query to MSSQL</a
+      >
+      <a href="/tutorials/php/Connecting_To_Firebird.htm"
+        >Connecting to Firebird</a
+      >
+      <a href="/tutorials/php/Sending_SQL_To_Firebird.htm"
+        >Sending SQL to Firebird</a
+      >
+      <a href="/tutorials/php/Retrieving_Results_Of_A_Query_To_Firebird.htm"
+        >Retrieving Results of a Query to Firebird</a
+      >
+      <a href="/tutorials/php/Connecting_Via_PDO.htm">Connecting Via PDO</a>
+      <a href="/tutorials/php/Sending_SQL_Via_PDO.htm">Sending SQL Via PDO</a>
+      <a href="/tutorials/php/Retrieving_Results_Of_A_Query_Via_PDO.htm"
+        >Retrieving Results of a Query Via PDO</a
+      >
+      <a href="/tutorials/php/TOC_Using_XML.html">XML and PHP </a>
+    </div>
+
+    <div class="toc">
+      <h2>Using XML</h2>
+      <a href="/tutorials/php/Parsing_XML_With_SAX.htm">Parsing XML with SAX</a>
+      <a href="/tutorials/php/Using_DOM_In_PHP_4_To_Read_XML.htm"
+        >Using DOM in PHP 4 to Read XML</a
+      >
+      <a href="/tutorials/php/Using_DOM_In_PHP_5_To_Read_XML.htm"
+        >Using DOM in PHP 5 to Read XML</a
+      >
+      <a href="/tutorials/php/Using_DOM_In_PHP_4_To_Write_XML.htm"
+        >Using DOM in PHP 4 to Write XML</a
+      >
+      <a href="/tutorials/php/Using_DOM_In_PHP_5_To_Write_XML.htm"
+        >Using DOM in PHP 5 to Write XML</a
+      >
+      <a href="/tutorials/php/Using_SimpleXML.htm">Using SimpleXML</a>
+      <a href="/tutorials/php/Transforming_XML_With_XSL_And_PHP_4.htm"
+        >Transforming XML with XSL and PHP 4</a
+      >
+      <a href="/tutorials/php/Transforming_XML_With_XSL_And_PHP_5.htm"
+        >Transforming XML with XSL and PHP 5</a
+      >
+      <a href="/tutorials/php/Validating_XML.htm">Validating XML</a>
+      <a href="/tutorials/php/TOC_Communicating_With_Others.html"
+        >Communicating with Others</a
+      >
+    </div>
+
+    <div class="toc">
+      <h2>Communicating with Others</h2>
+      <a href="/tutorials/php/Connecting_With_HTTP_Servers.htm"
+        >Connecting with HTTP Servers</a
+      >
+      <a href="/tutorials/php/Connecting_With_FTP_Servers.htm"
+        >Connecting with FTP Servers</a
+      >
+      <a href="/tutorials/php/Checking_Whether_A_Server_Is_Still_Reacting.htm"
+        >Checking Whether a Server Is Still Reacting</a
+      >
+      <a href="/tutorials/php/Creating_A_Web_Service_With_PEAR_XML-RPC.htm"
+        >Creating a Web Service with PEAR::XML-RPC</a
+      >
+      <a href="/tutorials/php/Consuming_A_Web_Service_With_PEAR_XML-RPC.htm"
+        >Consuming a Web Service with PEAR::XML-RPC</a
+      >
+      <a href="/tutorials/php/Creating_A_Web_Service_With_NuSOAP.htm"
+        >Creating a Web Service with NuSOAP</a
+      >
+      <a href="/tutorials/php/Automatically_Generating_WSDL_With_NuSOAP.htm"
+        >Automatically Generating WSDL with NuSOAP</a
+      >
+      <a href="/tutorials/php/Consuming_A_Web_Service_With_NuSOAP.htm"
+        >Consuming a Web Service with NuSOAP</a
+      >
+      <a href="/tutorials/php/Creating_A_Web_Service_With_PEAR_SOAP.htm"
+        >Creating a Web Service with PEAR::SOAP</a
+      >
+      <a href="/tutorials/php/Automatically_Generating_WSDL_With_PEAR_SOAP.htm"
+        >Automatically Generating WSDL with PEAR::SOAP</a
+      >
+      <a href="/tutorials/php/Consuming_A_Web_Service_With_PEAR_SOAP.htm"
+        >Consuming a Web Service with PEAR::SOAP</a
+      >
+      <a
+        href="/tutorials/php/Creating_A_Web_Service_With_PHP_5s_SOAP_Extension.htm"
+        >Creating a Web Service with PHP 5's SOAP Extension</a
+      >
+      <a
+        href="/tutorials/php/Consuming_A_Web_Service_With_PHP_5s_SOAP_Extension.htm"
+        >Consuming a Web Service with PHP 5's SOAP Extension</a
+      >
+    </div>
+
+    <script type="text/javascript" style="display: none">
+      var __ez_dims = (function () {
+        var setCookie = function (name, content, expiry) {
+          return (document.cookie =
+            name +
+            "=" +
+            content +
+            (expiry
+              ? ";expires=" +
+                new Date(
+                  Math.floor(new Date().getTime() + expiry * 1000)
+                ).toUTCString()
+              : "") +
+            ";path=/");
+        };
+        var ffid = 1;
+        var oh = window.screen.height;
+        var ow = window.screen.width;
+        var h = ffid === 1 ? oh : oh > ow ? oh : ow;
+        var w = ffid === 1 ? ow : oh > ow ? ow : oh;
+        var uh =
+          window.innerHeight ||
+          document.documentElement.clientHeight ||
+          document.getElementsByTagName("body")[0].clientHeight;
+        var uw =
+          window.innerWidth ||
+          document.documentElement.clientWidth ||
+          document.getElementsByTagName("body")[0].clientWidth;
+        setCookie(
+          "ezds",
+          encodeURIComponent("ffid=" + ffid + ",w=" + w + ",h=" + h),
+          31536e3 * 7
+        );
+        setCookie(
+          "ezohw",
+          encodeURIComponent("w=" + uw + ",h=" + uh),
+          31536e3 * 7
+        );
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "edmonton.php",
+        "/detroitchicago/edmonton.webp?a=a&cb=192-11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "jellyfish.php",
+        "/porpoiseant/jellyfish.webp?a=a&cb=192-11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+</html>

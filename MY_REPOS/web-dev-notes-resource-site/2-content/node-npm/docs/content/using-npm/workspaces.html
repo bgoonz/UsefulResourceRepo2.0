@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="./prism.css">
+    <script async defer src="./prism.js"></script>
+</head>
+
+<body>;
+    <h3 id="description">Description</h3>
+    <p><strong>Workspaces</strong> is a generic term that refers to the set of features in the npm cli that provides
+        support to managing multiple packages from your local files system from within a singular top-level, root
+        package.</p>
+    <p>This set of features makes up for a much more streamlined workflow handling linked packages from the local file
+        system. Automating the linking process as part of <code>npm install</code> and avoiding manually having to use
+        <code>npm link</code> in order to add references to packages that should be symlinked into the current
+        <code>node_modules</code> folder.
+    </p>
+    <p>We also refer to these packages being auto-symlinked during <code>npm install</code> as a single
+        <strong>workspace</strong>, meaning it’s a nested package within the current local file system that is
+        explicitly defined in the <a href="/configuring-npm/package-json#workspaces"><code>package.json</code></a>
+        <code>workspaces</code> configuration.
+    </p>
+    <h3 id="installing-workspaces">Installing workspaces</h3>
+    <p>Workspaces are usually defined via the <code>workspaces</code> property of the <a
+            href="/configuring-npm/package-json#workspaces"><code>package.json</code></a> file, e.g:</p>
+    <div class="sourceCode" id="cb1">
+        <pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;my-workspaces-powered-project&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="dt">&quot;workspaces&quot;</span><span class="fu">:</span> <span class="ot">[</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="st">&quot;workspace-a&quot;</span></a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="ot">]</span></a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="fu">}</span></a></code></pre>
+    </div>
+    <p>Given the above <code>package.json</code> example living at a current working directory <code>.</code> that
+        contains a folder named <code>workspace-a</code> that disposes of a <code>package.json</code> inside it,
+        defining a nodejs package, e.g:</p>
+    <pre><code>.
++-- package.json
+`-- workspace-a
+   `-- package.json</code></pre>
+    <p>The expected result once running <code>npm install</code> in this current working directory <code>.</code> is
+        that the folder <code>workspace-a</code> will get symlinked to the <code>node_modules</code> folder of the
+        current working dir.</p>
+    <p>Below is a post <code>npm install</code> example, given that same previous example structure of files and
+        folders:</p>
+    <pre><code>.
++-- node_modules
+|  `-- workspace-a -&gt; ../workspace-a
++-- package-lock.json
++-- package.json
+`-- workspace-a
+   `-- package.json</code></pre>
+    <h3 id="using-workspaces">Using workspaces</h3>
+    <p>Given the <a href="https://nodejs.org/dist/latest-v14.x/docs/api/modules.html#modules_all_together">specifities
+            of how Node.js handles module resolution</a> it’s possible to consume any defined workspace by it’s declared
+        <code>package.json</code> <code>name</code>. Continuing from the example defined above, let’s also create a
+        Node.js script that will require the <code>workspace-a</code> example module, e.g:
+    </p>
+    <pre><code>// ./workspace-a/index.js
+module.exports = &#39;a&#39;
+
+// ./lib/index.js
+const moduleA = require(&#39;workspace-a&#39;)
+console.log(moduleA) // -&gt; a</code></pre>
+    <p>When running it with:</p>
+    <p><code>node lib/index.js</code></p>
+    <p>This demonstrates how the nature of <code>node_modules</code> resolution allows for <strong>workspaces</strong>
+        to enable a portable workflow for requiring each <strong>workspace</strong> in such a way that is also easy to
+        <a href="/commands/npm-publish">publish</a> these nested workspaces to be consumed elsewhere.
+    </p>
+    <h3 id="see-also">See also</h3>
+    <ul>
+        <li><a href="/commands/npm-install">npm install</a></li>
+        <li><a href="/commands/npm-publish">npm publish</a></li>
+    </ul>
+</body>
+
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>txtmode | convert files to txt and back</title>
+<script src="words.js"></script>
+<script src="b64order.js"></script>
+<script src="toWords.js"></script>
+<script src="fromWords.js"></script>
+<style>
+  :root {
+    font-size: 11pt;
+  }
+
+  body {
+    background: #eee;
+  }
+
+  main {
+    background: white;
+    display: table;
+    margin: 1rem auto;
+    border: 1px solid silver;
+    padding: 1rem;
+  }
+
+  button.cta {
+    font-size: 1.7rem;
+    color: white;
+    background: dodgerblue;
+    font-style: italic;
+    padding: 0.25rem;
+  }
+
+  .txcent {
+    text-align: center;
+  }
+
+  .consent {
+    font-size: 0.8rem;
+    font-style: italic;
+  }
+
+  .narrow {
+    width: 60%;
+    min-width: 150px;
+    display: inline-block;
+  }
+
+  header {
+    background: dodgerblue;
+  }
+
+  h1.banner {
+    font-family: monospace;
+  }
+
+  h1 {
+    font-family: sans-serif;
+  }
+
+  label {
+    -webkit-touch-callout: none;
+    -ms-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+
+  footer {
+    font-size: 0.67rem;
+  }
+
+  .warning:hover,
+  .warning:active {
+    color: red;
+  }
+
+  .warning {
+    color: grey;
+  }
+</style>
+<script>
+  "use strict";
+  {
+    // function to size a file
+
+    const b64expand = (b64size) => Math.ceil(b64size / 3) * 4;
+    const humanize = (size) => (size / (1024 * 1024)).toFixed(2) + "Mb";
+
+    Object.assign(self, {
+      sizeIt,
+    });
+
+    function sizeIt(b64size) {
+      return humanize(b64expand(b64size));
+    }
+  }
+</script>
+<main>
+  <header>
+    <h1 class="banner">txtmode &mdash; convert files to txt and back</h1>
+  </header>
+  <form>
+    <label>
+      <fieldset>
+        <legend>Add file</legend>
+        <p>
+          Add a file here to convert to txt
+          <br />
+          <input required type="file" id="file" name="file" />
+          <br />
+          <i
+            >Note: you can also add your txt files here to convert
+            <strong>back to the original</strong></i
+          >
+        </p>
+
+        <p>
+          <strong
+            >This is a STATIC SITE. No thing is sent to any server. This is a
+            GitHub pages site.</strong
+          >
+        </p>
+      </fieldset>
+    </label>
+    <p class="txcent">
+      <label class="narrow consent">
+        <input required type="checkbox" />
+        I agree this tool is provided as is, and I am responsible for my use of
+        it. The provider is not responsible for any damage incurred as a result
+        of its use.
+      </label>
+    </p>
+
+    <p class="txcent">
+      <button class="cta">Process</button>
+      <script>
+        "use strict";
+        {
+          Object.assign(self, {
+            processFile,
+          });
+
+          const form = document.currentScript.closest("form");
+          const file = form.querySelector("#file");
+
+          form.addEventListener("submit", (e) => processFile(e));
+
+          function processFile(e) {
+            e.preventDefault();
+            const fileNode = file.files[0];
+            if (
+              fileNode.name.includes("_txtmode_") &&
+              fileNode.name.endsWith(".txt")
+            ) {
+              return processTxt(fileNode);
+            }
+            if (fileNode.size > 1000000) {
+              const proceed = confirm(
+                "Whoa slow down there. Sorry, that file is too big for us. Are you sure you want to proceed? Your browser may crash because it runs out of memory."
+              );
+              if (!proceed) {
+                throw new TypeError("File too big");
+              }
+            }
+            const reader = new FileReader();
+            form.querySelector("button").disabled = true;
+            form.querySelector("button").innerText = "processing...";
+            reader.addEventListener("load", () => {
+              const [mimeDataPrefix, content] = reader.result.split(",");
+              const encodedName = toWords(
+                btoa(unescape(encodeURIComponent(fileNode.name)))
+              );
+              const encodedMimeDataPrefix = toWords(btoa(mimeDataPrefix));
+              const encodedContent = toWords(content);
+              const fileContent = `${encodedName}\n\n${encodedMimeDataPrefix}\n\n${encodedContent}\n\n`;
+              const txtMode = `data:text/plain;base64,${btoa(fileContent)}`;
+              const anchor = document.createElement("a");
+              anchor.target = "_new";
+              anchor.download = `${fileNode.name}._txtmode_.txt`;
+              // name hiding
+              // anchor.download = `${+ new Date}._txtmode_.txt`;
+              anchor.innerText = `Download ${anchor.download} [${sizeIt(
+                txtMode.length
+              )}]`;
+              anchor.href = txtMode;
+              document
+                .querySelector("section.downloads ol")
+                .insertAdjacentHTML("afterbegin", "<li></li>");
+              document
+                .querySelector("section.downloads ol li")
+                .insertAdjacentElement("afterbegin", anchor);
+              form.querySelector("button").disabled = false;
+              form.querySelector("button").innerText = "Process";
+            });
+            reader.readAsDataURL(fileNode);
+          }
+
+          function processTxt(file) {
+            const reader = new FileReader();
+            form.querySelector("button").disabled = true;
+            form.querySelector("button").innerText = "processing...";
+            reader.addEventListener("load", () => {
+              const [encodedName, encodedMimeDataPrefix, encodedContent] =
+                reader.result.split("\n\n");
+              const name = decodeURIComponent(
+                escape(atob(fromWords(encodedName)))
+              );
+              const mimeDataPrefix = atob(fromWords(encodedMimeDataPrefix));
+              const content = fromWords(encodedContent);
+              const originalMode = `${mimeDataPrefix},${content}`;
+              const anchor = document.createElement("a");
+              anchor.target = "_new";
+              anchor.download = `${name}`;
+              anchor.innerText = `Download ${anchor.download} [${sizeIt(
+                originalMode.length
+              )}]`;
+              anchor.href = originalMode;
+              document
+                .querySelector("section.downloads ol")
+                .insertAdjacentHTML("afterbegin", "<li></li>");
+              document
+                .querySelector("section.downloads ol li")
+                .insertAdjacentElement("afterbegin", anchor);
+              form.querySelector("button").disabled = false;
+              form.querySelector("button").innerText = "Process";
+            });
+            reader.readAsText(file);
+          }
+        }
+      </script>
+    </p>
+  </form>
+
+  <fieldset>
+    <legend>Download files</legend>
+    <section class="downloads">
+      <h1>
+        Note: any files for download here will not persist beyond page reload.
+      </h1>
+      <ol></ol>
+      <p>
+        <span class="nothing-yet"
+          >Upload a file to create more txt files to download.</span
+        >
+        <br />
+        You can also upload your txt files to convert them back to the original.
+      </p>
+    </section>
+  </fieldset>
+  <footer>
+    <p class="warning">
+      <i
+        >Note: files that are too big result in issues as the browser runs out
+        of memory. For this reason I have limited file size to 1Mb.</i
+      >
+    </p>
+  </footer>
+</main>

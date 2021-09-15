@@ -1,0 +1,45 @@
+<h4 id="real-app-use-case">Real App Use case</h4>
+<p>This is an example of the best-practice - <strong>which is to always use async pipe when possible and only use .subscribe when side effect is an absolute necessity.</strong></p>
+<p>So in the below case, <code>arrayListFromSelector$</code> is comding from selector (using reselect package and which cosumes the reducer state)</p>
+<p>Initially I was subscribing to a selector coming from reselect/redux. And the below code was perfectly working and I was getting <code>arrayListFromSelector$</code> in the child component to be consumed.</p>
+<h3 id="inital-working-code-with-.subscribe">Inital working code with .subscribe()</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  mySelector</a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="op">}</span> <span class="im">from</span> <span class="st">&quot;../selectors/roles-selectors.selector&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-4" title="4"></a>
+<a class="sourceLine" id="cb1-5" title="5">  @<span class="fu">select</span>(mySelector)</a>
+<a class="sourceLine" id="cb1-6" title="6">  arrayListFromSelector$<span class="op">:</span> Observable<span class="op">&lt;</span>Role<span class="op">[]&gt;;</span></a>
+<a class="sourceLine" id="cb1-7" title="7">  arrayListFromSelector<span class="op">:</span> Role<span class="op">[];</span></a>
+<a class="sourceLine" id="cb1-8" title="8"></a>
+<a class="sourceLine" id="cb1-9" title="9">      <span class="va">this</span><span class="op">.</span><span class="at">arrayListFromSelector$</span></a>
+<a class="sourceLine" id="cb1-10" title="10">        .<span class="fu">pipe</span>(<span class="fu">map</span>(value <span class="kw">=&gt;</span> value))</a>
+<a class="sourceLine" id="cb1-11" title="11">        .<span class="fu">subscribe</span>(roles <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-12" title="12">          <span class="va">this</span><span class="op">.</span><span class="at">arrayListFromSelector</span> <span class="op">=</span> roles<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-13" title="13">        <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb1-14" title="14"></a>
+<a class="sourceLine" id="cb1-15" title="15"></a>
+<a class="sourceLine" id="cb1-16" title="16"><span class="co">// And then in .html template passing to the Child as below</span></a>
+<a class="sourceLine" id="cb1-17" title="17"><span class="op">&lt;</span>some<span class="op">-</span>child<span class="op">-</span>component</a>
+<a class="sourceLine" id="cb1-18" title="18">   <span class="op">[</span>arrayListFromSelector<span class="op">]=</span><span class="st">&quot;arrayListFromSelector&quot;</span></a>
+<a class="sourceLine" id="cb1-19" title="19"><span class="op">&gt;&lt;</span>some<span class="op">-</span>child<span class="op">-</span>component</a></code></pre></div>
+<p>And then, passing that subscribed data <code>arrayListFromSelector</code> down to the Child Component, where I will, in turn, just passing that data as it is is ultimately to be consumed by an <code>ng-select</code> to be fed to to a dropdown-list.</p>
+<p>However, the recommended approach is - Your child component does not need to know anything about the observable</p>
+<p>It should look like - In parent</p>
+<h3 id="final-working-code-without-.subscribe">Final working code WITHOUT .subscribe()</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// in the component.ts file</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="im">import</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-3" title="3">  mySelector</a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="op">}</span> <span class="im">from</span> <span class="st">&quot;../selectors/roles-selectors.selector&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-5" title="5"></a>
+<a class="sourceLine" id="cb2-6" title="6">  @<span class="fu">select</span>(mySelector)</a>
+<a class="sourceLine" id="cb2-7" title="7">  arrayListFromSelector$<span class="op">:</span> Observable<span class="op">&lt;</span>Role<span class="op">[]&gt;;</span></a>
+<a class="sourceLine" id="cb2-8" title="8">  arrayListFromSelector<span class="op">:</span> Role<span class="op">[];</span></a>
+<a class="sourceLine" id="cb2-9" title="9"></a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="co">// And thats all its needed in the component.ts file</span></a>
+<a class="sourceLine" id="cb2-11" title="11"></a>
+<a class="sourceLine" id="cb2-12" title="12"><span class="co">// And then below is component.html</span></a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="co">// and here directly consume it in the template - component.html  file</span></a>
+<a class="sourceLine" id="cb2-14" title="14"><span class="op">&lt;</span>some<span class="op">-</span>child<span class="op">-</span>component</a>
+<a class="sourceLine" id="cb2-15" title="15"><span class="op">[</span>arrayListFromSelector<span class="op">]=</span><span class="st">&quot;arrayListFromSelector$ | async&quot;</span></a>
+<a class="sourceLine" id="cb2-16" title="16"><span class="op">&gt;&lt;</span>some<span class="op">-</span>child<span class="op">-</span></a></code></pre></div>
+<p>And now <code>arrayListFromSelector</code> is available in the child, just as a local state variable.</p>

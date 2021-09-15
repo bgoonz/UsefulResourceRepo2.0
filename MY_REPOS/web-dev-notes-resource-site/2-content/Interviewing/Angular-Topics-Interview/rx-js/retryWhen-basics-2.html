@@ -1,0 +1,30 @@
+<p>An example of retryWhen while making sure that the last error is the one that gets thrown. The answer is a bit less clean but no less powerful, just use one of the flattening map operators (concatMap, mergeMap, switchMap) to check which index you are at.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="at">loadSomething</span>()<span class="op">:</span> Observable<span class="op">&lt;</span>SomeInterface<span class="op">&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="kw">const</span> retryPipeline <span class="op">=</span></a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="co">// Still using retryWhen to handle errors</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="at">retryWhen</span>(errors <span class="kw">=&gt;</span> <span class="va">errors</span>.<span class="at">pipe</span>(</a>
+<a class="sourceLine" id="cb1-5" title="5">      <span class="co">// Use concat map to keep the errors in order and make sure they</span></a>
+<a class="sourceLine" id="cb1-6" title="6">      <span class="co">// aren&#39;t executed in parallel</span></a>
+<a class="sourceLine" id="cb1-7" title="7">      <span class="at">concatMap</span>((e<span class="op">,</span> i) <span class="kw">=&gt;</span></a>
+<a class="sourceLine" id="cb1-8" title="8">        <span class="co">// Executes a conditional Observable depending on the result</span></a>
+<a class="sourceLine" id="cb1-9" title="9">        <span class="co">// of the first argument</span></a>
+<a class="sourceLine" id="cb1-10" title="10">        <span class="co">// here the role of iif is not to execute one path over the other,</span></a>
+<a class="sourceLine" id="cb1-11" title="11">        <span class="co">// but to subscribe to one Observable or the other</span></a>
+<a class="sourceLine" id="cb1-12" title="12">        <span class="at">iif</span>(</a>
+<a class="sourceLine" id="cb1-13" title="13">          () <span class="kw">=&gt;</span> i <span class="op">&gt;</span> <span class="dv">10</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-14" title="14">          <span class="co">// If the condition is true we throw the error (the last error)</span></a>
+<a class="sourceLine" id="cb1-15" title="15">          <span class="at">throwError</span>(e)<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-16" title="16">          <span class="co">// Otherwise we pipe this back into our stream and delay the retry</span></a>
+<a class="sourceLine" id="cb1-17" title="17">          <span class="kw">of</span>(e).<span class="at">pipe</span>(<span class="at">delay</span>(<span class="dv">500</span>))</a>
+<a class="sourceLine" id="cb1-18" title="18">        )</a>
+<a class="sourceLine" id="cb1-19" title="19">      )</a>
+<a class="sourceLine" id="cb1-20" title="20"></a>
+<a class="sourceLine" id="cb1-21" title="21">  <span class="cf">return</span> <span class="kw">this</span>.<span class="va">http</span>.<span class="at">get</span>(<span class="kw">this</span>.<span class="at">someEndpoint</span><span class="op">,</span> <span class="at">commonHttpHeaders</span>())</a>
+<a class="sourceLine" id="cb1-22" title="22">    <span class="co">// With the new syntax you can now share this pipeline between uses</span></a>
+<a class="sourceLine" id="cb1-23" title="23">    .<span class="at">pipe</span>(retryPipeline)</a>
+<a class="sourceLine" id="cb1-24" title="24"><span class="op">}</span></a></code></pre></div>
+<h4 id="further-reading">Further Reading</h4>
+<ol type="1">
+<li><a href="https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/retryWhen.ts">Source Code</a></li>
+<li><a href="https://rxjs.dev/api/operators/retryWhen">Official Doc</a></li>
+</ol>

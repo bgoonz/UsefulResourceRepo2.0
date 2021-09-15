@@ -1,0 +1,107 @@
+<h2 id="mounting">Mounting</h2>
+<h5 id="componentwillmount">componentWillMount</h5>
+<p>componentWillMount is called before the render method is executed. It is important to note that setting the state in this phase <strong>WILL NOT TRIGGER a RE-RENDERING</strong>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="at">componentWillMount</span>()<span class="op">;</span></a></code></pre></div>
+<ul>
+<li><code>setState()</code> can be called here and won’t cause a rerender</li>
+</ul>
+<hr />
+<h5 id="componentdidmount">componentDidMount</h5>
+<p>As soon as the render method has been executed the componentDidMount function is called. The DOM can be accessed in this method, enabling to define DOM manipulations or data fetching operations. Any DOM interactions should always happen in this phase not inside the render method.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="at">componentDidMount</span>()<span class="op">;</span></a></code></pre></div>
+<ul>
+<li>Access self and child <code>ref</code>s (<code>componentDidMount()</code> bubbles up)</li>
+<li>Set listeners and timers</li>
+<li>Make AJAX requests</li>
+</ul>
+<hr />
+<h4 id="componentdidmount-is-the-best-place-to-put-calls-to-fetch-data-as-against-componentwillmount-for-two-reasons">componentDidMount() is the best place to put calls to fetch data (as against componentWillMount ), for two reasons:</h4>
+<ul>
+<li>Using DidMount makes it clear that data won’t be loaded until after the initial render. This reminds you to set up initial state properly, so you don’t end up with undefined state that causes errors.</li>
+<li><p>If on the other hand, I put a fetch network call inside componentWillMount - then a situation may arise when an asynchronous call to fetch data will not return before the render happens. This means the component will render with empty data at least once. There is no way to “pause” rendering to wait for data to arrive.</p></li>
+<li><p>If you ever need to render your app on the server (SSR/isomorphic/other buzzwords), componentWillMount will actually be called twice – once on the server, and again on the client – which is probably not what you want. Putting the data loading code in componentDidMount will ensure that data is only fetched from the client.</p></li>
+</ul>
+<h2 id="updating">Updating</h2>
+<h5 id="componentwillreceiveprops">componentWillReceiveProps</h5>
+<p><strong>componentWillReceiveProps</strong> gets executed when the props have changed and is not first render. Sometimes state depends on the props, hence whenever props changes the state should also be synced. This is the method where it should be done. The similar method for the state doesn’t exist before state change because the props are read only within a component and can never be dependent on the state. Usage: This is how the state can be kept synced with the new props.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="at">componentWillReceiveProps</span>(nextProps) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">    <span class="cf">if</span> (<span class="kw">this</span>.<span class="va">props</span>.<span class="at">status</span> <span class="op">!==</span> <span class="kw">this</span>.<span class="va">props</span>.<span class="at">nextProps</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-3" title="3">        <span class="kw">this</span>.<span class="at">setState</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb3-4" title="4">            <span class="dt">state</span><span class="op">:</span> <span class="va">nextProps</span>.<span class="at">status</span></a>
+<a class="sourceLine" id="cb3-5" title="5">        <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb3-6" title="6">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="op">}</span></a></code></pre></div>
+<ul>
+<li>Use to compare upcoming, new props (<code>nextProps.prop</code>) with old (<code>this.props.prop</code>)</li>
+<li><code>setState()</code> (especially in response to a prop change) can be called here and won’t cause a re-render</li>
+</ul>
+<h5 id="shouldcomponentupdate">shouldComponentUpdate</h5>
+<h3 id="this-method-should-return-true-or-false-and-accordingly-the-component-would-be-re-rendered-or-skipped.">This method should return true or false, and accordingly the component would be re-rendered or skipped.</h3>
+<p><code>shouldComponentUpdate</code> is always called before the render method and enables to define if a re-rendering is needed or can be skipped. So it is called after props or state are changed (and after componentWillReceiveProps), but before it renders. It’s unique among lifecycle functions in that it is expected to return a boolean value. If false, render will not be called. This can be very useful for skipping unnecessary renders and save some CPU. Obviously this method is never called on initial rendering. A boolean value must be returned. Access to the upcoming as well as the current props and state ensure that possible changes can be detected to determine if a rendering is needed or not.</p>
+<p>This method is generally used when rendering is a very heavy method, then you should avoid render every now and then. For example, suppose for every render, the component generates thousand prime numbers, let’s consider some app has this kind of logic, then we can control when it is required then only the component is rendered.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1">boolean <span class="at">shouldComponentUpdate</span>(</a>
+<a class="sourceLine" id="cb4-2" title="2">  object nextProps<span class="op">,</span> object nextState</a>
+<a class="sourceLine" id="cb4-3" title="3">) <span class="op">{</span> <span class="cf">return</span> statement <span class="op">}</span></a></code></pre></div>
+<h4 id="a-code-example-of-shouldcomponentupdate">A code example of shouldComponentUpdate</h4>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">class</span> Scorecard <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="co">// Other functions omitted for brevity.</span></a>
+<a class="sourceLine" id="cb5-3" title="3">  <span class="at">shouldComponentUpdate</span>(nextProps<span class="op">,</span> nextState) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-4" title="4">    <span class="co">// Same as `componentWillReceiveProps`, `nextProps` is the</span></a>
+<a class="sourceLine" id="cb5-5" title="5">    <span class="co">// new props and `this.props` is the old.</span></a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="kw">const</span> <span class="op">{</span> playerName <span class="op">}</span> <span class="op">=</span> <span class="kw">this</span>.<span class="at">props</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-7" title="7">    <span class="co">// Ditto for `nextState` and `this.state`.</span></a>
+<a class="sourceLine" id="cb5-8" title="8">    <span class="kw">const</span> <span class="op">{</span> score <span class="op">}</span> <span class="op">=</span> <span class="kw">this</span>.<span class="at">state</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-9" title="9">    <span class="co">// Only `playerName` and `score` affect the display.</span></a>
+<a class="sourceLine" id="cb5-10" title="10">    <span class="co">// If something else changes, re-rendering would be a waste.</span></a>
+<a class="sourceLine" id="cb5-11" title="11">    <span class="cf">return</span> <span class="op">!</span>(<span class="va">nextProps</span>.<span class="at">playerName</span> <span class="op">===</span> playerName <span class="op">&amp;&amp;</span> <span class="va">nextState</span>.<span class="at">score</span> <span class="op">===</span> score)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-12" title="12">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-13" title="13"><span class="op">}</span></a></code></pre></div>
+<h4 id="another-code-example-of-shouldcomponentupdate">Another code example of shouldComponentUpdate</h4>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="at">shouldComponentUpdate</span>(nextProps<span class="op">,</span> nextState) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="kw">let</span> shouldUpdate <span class="op">=</span> <span class="kw">this</span>.<span class="va">props</span>.<span class="at">status</span> <span class="op">!==</span> <span class="va">nextProps</span>.<span class="at">status</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-3" title="3">  <span class="cf">return</span> shouldUpdate<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="op">}</span></a></code></pre></div>
+<ul>
+<li>Unless <code>forceUpdate</code> is used, can be used to block a render cycle. <code>componentWillUpdate</code> and <code>componentDidUpdate</code> will not be called - Use to increase performance.</li>
+</ul>
+<hr />
+<h5 id="componentwillupdate">componentWillUpdate</h5>
+<p>componentWillUpdate gets called as soon as the the shouldComponentUpdate returned true. Any state changes via this.setState are not allowed as this method should be strictly used to prepare for an upcoming update not trigger an update itself.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">void</span> <span class="at">componentWillUpdate</span>(</a>
+<a class="sourceLine" id="cb7-2" title="2">  object nextProps<span class="op">,</span> object nextState</a>
+<a class="sourceLine" id="cb7-3" title="3">)</a></code></pre></div>
+<ul>
+<li>Cannot use this.setState() in this method</li>
+<li>Opportunity to perform preparation before an update occurs</li>
+</ul>
+<h5 id="componentdidupdate">componentDidUpdate</h5>
+<p>componentDidUpdate is called after the render method. Similar to the componentDidMount, this method can be used to perform DOM operations after the data has been updated.</p>
+<p>componentDidUpdate: function(prevProps, prevState){ // }</p>
+<hr />
+<h3 id="render">render</h3>
+<p>The render method returns the needed component markup, which can be a single child component or null or false (in case you don’t want any rendering).</p>
+<p>This is the part of the lifecycle where props and state values are interpreted to create the correct output. Neither props nor state should should be modified inside this function. This is important to remember, as by definition the render function has to be pure, meaning that the same result is returned every time the method is invoked.</p>
+<p>As soon as the render method has been executed the componentDidMount function is called.</p>
+<pre><code>render()</code></pre>
+<ul>
+<li>The update method.</li>
+<li>Safely read from <code>props</code> and <code>state</code> here</li>
+</ul>
+<hr />
+<pre><code>componentDidUpdate(prevProps = {},  prevState = {})</code></pre>
+<ul>
+<li>Operate on the DOM after an update in this Method</li>
+</ul>
+<hr />
+<h2 id="unmounting">Unmounting</h2>
+<h4 id="componentwillunmount">componentWillUnmount</h4>
+<p>This method is the last method in the lifecycle. This is executed just before the component gets removed from the DOM. Usage: In this method, we do all the cleanups related to the component. For example, on logout, the user details and all the auth tokens can be cleared before unmounting the main component.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1"><span class="at">componentWillUnmount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-2" title="2">    <span class="kw">this</span>.<span class="va">chart</span>.<span class="at">destroy</span>()</a>
+<a class="sourceLine" id="cb10-3" title="3">    <span class="kw">this</span>.<span class="at">resetLocalStorage</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-4" title="4">    <span class="kw">this</span>.<span class="at">clearSession</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-5" title="5"><span class="op">}</span></a></code></pre></div>
+<ul>
+<li>DOM cleanup</li>
+<li>listener removal &amp; timer removal</li>
+</ul>

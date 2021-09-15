@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="./prism.css">
+    <script async defer src="./prism.js"></script>
+</head>
+
+<body>;
+    <h3 id="description">Description</h3>
+    <p>The <code>"scripts"</code> property of your <code>package.json</code> file supports a number of built-in scripts
+        and their preset life cycle events as well as arbitrary scripts. These all can be executed by running <code>npm
+            run-script &lt;stage&gt;</code> or <code>npm run &lt;stage&gt;</code> for short. <em>Pre</em> and
+        <em>post</em> commands with matching names will be run for those as well (e.g. <code>premyscript</code>,
+        <code>myscript</code>, <code>postmyscript</code>). Scripts from dependencies can be run with <code>npm explore
+            &lt;pkg&gt; -- npm run &lt;stage&gt;</code>.
+    </p>
+    <h3 id="pre-post-scripts">Pre &amp; Post Scripts</h3>
+    <p>To create "pre" or "post" scripts for any scripts defined in the <code>"scripts"</code> section of the
+        <code>package.json</code>, simply create another script <em>with a matching name</em> and add "pre" or "post" to
+        the beginning of them.
+    </p>
+    <div class="sourceCode" id="cb1">
+        <pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">&quot;scripts&quot;</span><span class="fu">:</span> <span class="fu">{</span></a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="dt">&quot;precompress&quot;</span><span class="fu">:</span> <span class="st">&quot;{{ executes BEFORE the `compress` script }}&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="dt">&quot;compress&quot;</span><span class="fu">:</span> <span class="st">&quot;{{ run command to compress files }}&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="dt">&quot;postcompress&quot;</span><span class="fu">:</span> <span class="st">&quot;{{ executes AFTER `compress` script }}&quot;</span></a>
+<a class="sourceLine" id="cb1-6" title="6">  <span class="fu">}</span></a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="fu">}</span></a></code></pre>
+    </div>
+    <h3 id="life-cycle-scripts">Life Cycle Scripts</h3>
+    <p>There are some special life cycle scripts that happen only in certain situations. These scripts happen in
+        addition to the "pre" and "post" script. * <code>prepare</code>, <code>prepublish</code>,
+        <code>prepublishOnly</code>, <code>prepack</code>, <code>postpack</code>
+    </p>
+    <p><strong>prepare</strong> (since <code>npm@4.0.0</code>) * Runs BEFORE the package is packed * Runs BEFORE the
+        package is published * Runs on local <code>npm install</code> without any arguments * Run AFTER
+        <code>prepublish</code>, but BEFORE <code>prepublishOnly</code> * NOTE: If a package being installed through git
+        contains a <code>prepare</code> script, its <code>dependencies</code> and <code>devDependencies</code> will be
+        installed, and the prepare script will be run, before the package is packaged and installed.
+    </p>
+    <p><strong>prepublish</strong> (DEPRECATED) * Same as <code>prepare</code></p>
+    <p><strong>prepublishOnly</strong> * Runs BEFORE the package is prepared and packed, ONLY on <code>npm
+            publish</code>.</p>
+    <p><strong>prepack</strong> * Runs BEFORE a tarball is packed (on "<code>npm pack</code>", "<code>npm
+            publish</code>", and when installing a git dependencies). * NOTE: "<code>npm run pack</code>" is NOT the
+        same as "<code>npm pack</code>". "<code>npm run pack</code>" is an arbitrary user defined script name, where as,
+        "<code>npm pack</code>" is a CLI defined command.</p>
+    <p><strong>postpack</strong> * Runs AFTER the tarball has been generated and moved to its final destination.</p>
+    <h4 id="prepare-and-prepublish">Prepare and Prepublish</h4>
+    <p><strong>Deprecation Note: prepublish</strong></p>
+    <p>Since <code>npm@1.1.71</code>, the npm CLI has run the <code>prepublish</code> script for both <code>npm
+            publish</code> and <code>npm install</code>, because it’s a convenient way to prepare a package for use
+        (some common use cases are described in the section below). It has also turned out to be, in practice, <a
+            href="https://github.com/npm/npm/issues/10074">very confusing</a>. As of <code>npm@4.0.0</code>, a new event
+        has been introduced, <code>prepare</code>, that preserves this existing behavior. A <em>new</em> event,
+        <code>prepublishOnly</code> has been added as a transitional strategy to allow users to avoid the confusing
+        behavior of existing npm versions and only run on <code>npm publish</code> (for instance, running the tests one
+        last time to ensure they’re in good shape).
+    </p>
+    <p>See <a href="https://github.com/npm/npm/issues/10074" class="uri">https://github.com/npm/npm/issues/10074</a> for
+        a much lengthier justification, with further reading, for this change.</p>
+    <p><strong>Use Cases</strong></p>
+    <p>If you need to perform operations on your package before it is used, in a way that is not dependent on the
+        operating system or architecture of the target system, use a <code>prepublish</code> script. This includes tasks
+        such as:</p>
+    <ul>
+        <li>Compiling CoffeeScript source code into JavaScript.</li>
+        <li>Creating minified versions of JavaScript source code.</li>
+        <li>Fetching remote resources that your package will use.</li>
+    </ul>
+    <p>The advantage of doing these things at <code>prepublish</code> time is that they can be done once, in a single
+        place, thus reducing complexity and variability. Additionally, this means that:</p>
+    <ul>
+        <li>You can depend on <code>coffee-script</code> as a <code>devDependency</code>, and thus your users don’t need
+            to have it installed.</li>
+        <li>You don’t need to include minifiers in your package, reducing the size for your users.</li>
+        <li>You don’t need to rely on your users having <code>curl</code> or <code>wget</code> or other system tools on
+            the target machines.</li>
+    </ul>
+    <h3 id="life-cycle-operation-order">Life Cycle Operation Order</h3>
+    <h4 id="npm-publish"><a href="/commands/npm-publish"><code>npm publish</code></a></h4>
+    <ul>
+        <li><code>prepublishOnly</code></li>
+        <li><code>prepare</code></li>
+        <li><code>prepublish</code></li>
+        <li><code>publish</code></li>
+        <li><code>postpublish</code></li>
+    </ul>
+    <h4 id="npm-pack"><a href="/commands/npm-pack"><code>npm pack</code></a></h4>
+    <ul>
+        <li><code>prepack</code></li>
+        <li><code>postpack</code></li>
+    </ul>
+    <h4 id="npm-install"><a href="/commands/npm-install"><code>npm install</code></a></h4>
+    <ul>
+        <li><code>preinstall</code></li>
+        <li><code>install</code></li>
+        <li><code>postinstall</code></li>
+    </ul>
+    <p>Also triggers</p>
+    <ul>
+        <li><code>prepublish</code> (when on local)</li>
+        <li><code>prepare</code> (when on local or workspaces)</li>
+    </ul>
+    <h4 id="npm-start"><a href="/commands/npm-start"><code>npm start</code></a></h4>
+    <p><code>npm run start</code> has an <code>npm start</code> shorthand.</p>
+    <ul>
+        <li><code>prestart</code></li>
+        <li><code>start</code></li>
+        <li><code>poststart</code></li>
+    </ul>
+    <h3 id="default-values">Default Values</h3>
+    <p>npm will default some script values based on package contents.</p>
+    <ul>
+        <li>
+            <p><code>"start": "node server.js"</code>:</p>
+            <p>If there is a <code>server.js</code> file in the root of your package, then npm will default the
+                <code>start</code> command to <code>node server.js</code>.
+            </p>
+        </li>
+        <li>
+            <p><code>"install": "node-gyp rebuild"</code>:</p>
+            <p>If there is a <code>binding.gyp</code> file in the root of your package and you haven’t defined your own
+                <code>install</code> or <code>preinstall</code> scripts, npm will default the <code>install</code>
+                command to compile using node-gyp.
+            </p>
+        </li>
+    </ul>
+    <h3 id="user">User</h3>
+    <p>When npm is run as root, scripts are always run with the effective uid and gid of the working directory owner.
+    </p>
+    <h3 id="environment">Environment</h3>
+    <p>Package scripts run in an environment where many pieces of information are made available regarding the setup of
+        npm and the current state of the process.</p>
+    <h4 id="path">path</h4>
+    <p>If you depend on modules that define executable scripts, like test suites, then those executables will be added
+        to the <code>PATH</code> for executing the scripts. So, if your package.json has this:</p>
+    <div class="sourceCode" id="cb2">
+        <pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb2-1" title="1"><span class="fu">{</span> </a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="dt">&quot;name&quot;</span> <span class="fu">:</span> <span class="st">&quot;foo&quot;</span><span class="fu">,</span> </a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="dt">&quot;dependencies&quot;</span> <span class="fu">:</span> <span class="fu">{</span> </a>
+<a class="sourceLine" id="cb2-4" title="4">    <span class="dt">&quot;bar&quot;</span> <span class="fu">:</span> <span class="st">&quot;0.1.x&quot;</span> </a>
+<a class="sourceLine" id="cb2-5" title="5">  <span class="fu">},</span> </a>
+<a class="sourceLine" id="cb2-6" title="6">  <span class="dt">&quot;scripts&quot;</span><span class="fu">:</span> <span class="fu">{</span> </a>
+<a class="sourceLine" id="cb2-7" title="7">    <span class="dt">&quot;start&quot;</span> <span class="fu">:</span> <span class="st">&quot;bar ./test&quot;</span> </a>
+<a class="sourceLine" id="cb2-8" title="8">  <span class="fu">}</span> </a>
+<a class="sourceLine" id="cb2-9" title="9"><span class="fu">}</span></a></code></pre>
+    </div>
+    <p>then you could run <code>npm start</code> to execute the <code>bar</code> script, which is exported into the
+        <code>node_modules/.bin</code> directory on <code>npm install</code>.
+    </p>
+    <h4 id="package.json-vars">package.json vars</h4>
+    <p>The package.json fields are tacked onto the <code>npm_package_</code> prefix. So, for instance, if you had
+        <code>{"name":"foo", "version":"1.2.5"}</code> in your package.json file, then your package scripts would have
+        the <code>npm_package_name</code> environment variable set to "foo", and the <code>npm_package_version</code>
+        set to "1.2.5". You can access these variables in your code with <code>process.env.npm_package_name</code> and
+        <code>process.env.npm_package_version</code>, and so on for other fields.
+    </p>
+    <h4 id="configuration">configuration</h4>
+    <p>Configuration parameters are put in the environment with the <code>npm_config_</code> prefix. For instance, you
+        can view the effective <code>root</code> config by checking the <code>npm_config_root</code> environment
+        variable.</p>
+    <h4 id="special-package.json-config-object">Special: package.json "config" object</h4>
+    <p>The package.json "config" keys are overwritten in the environment if there is a config param of
+        <code>&lt;name&gt;[@&lt;version&gt;]:&lt;key&gt;</code>. For example, if the package.json has this:
+    </p>
+    <div class="sourceCode" id="cb3">
+        <pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb3-1" title="1"><span class="fu">{</span> </a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="dt">&quot;name&quot;</span> <span class="fu">:</span> <span class="st">&quot;foo&quot;</span><span class="fu">,</span> </a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="dt">&quot;config&quot;</span> <span class="fu">:</span> <span class="fu">{</span> </a>
+<a class="sourceLine" id="cb3-4" title="4">    <span class="dt">&quot;port&quot;</span> <span class="fu">:</span> <span class="st">&quot;8080&quot;</span> </a>
+<a class="sourceLine" id="cb3-5" title="5">  <span class="fu">},</span> </a>
+<a class="sourceLine" id="cb3-6" title="6">  <span class="dt">&quot;scripts&quot;</span> <span class="fu">:</span> <span class="fu">{</span> </a>
+<a class="sourceLine" id="cb3-7" title="7">    <span class="dt">&quot;start&quot;</span> <span class="fu">:</span> <span class="st">&quot;node server.js&quot;</span> </a>
+<a class="sourceLine" id="cb3-8" title="8">  <span class="fu">}</span> </a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="fu">}</span></a></code></pre>
+    </div>
+    <p>and the server.js is this:</p>
+    <div class="sourceCode" id="cb4">
+        <pre
+            class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="va">http</span>.<span class="at">createServer</span>(...).<span class="at">listen</span>(<span class="va">process</span>.<span class="va">env</span>.<span class="at">npm_package_config_port</span>)</a></code></pre>
+    </div>
+    <p>then the user could change the behavior by doing:</p>
+    <div class="sourceCode" id="cb5">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" title="1">  <span class="ex">npm</span> config set foo:port 80</a></code></pre>
+    </div>
+    <h4 id="current-lifecycle-event">current lifecycle event</h4>
+    <p>Lastly, the <code>npm_lifecycle_event</code> environment variable is set to whichever stage of the cycle is being
+        executed. So, you could have a single script used for different parts of the process which switches based on
+        what’s currently happening.</p>
+    <p>Objects are flattened following this format, so if you had <code>{"scripts":{"install":"foo.js"}}</code> in your
+        package.json, then you’d see this in the script:</p>
+    <div class="sourceCode" id="cb6">
+        <pre
+            class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1"><span class="ex">process.env.npm_package_scripts_install</span> === <span class="st">&quot;foo.js&quot;</span></a></code></pre>
+    </div>
+    <h3 id="examples">Examples</h3>
+    <p>For example, if your package.json contains this:</p>
+    <div class="sourceCode" id="cb7">
+        <pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb7-1" title="1"><span class="fu">{</span> </a>
+<a class="sourceLine" id="cb7-2" title="2">  <span class="dt">&quot;scripts&quot;</span> <span class="fu">:</span> <span class="fu">{</span> </a>
+<a class="sourceLine" id="cb7-3" title="3">    <span class="dt">&quot;install&quot;</span> <span class="fu">:</span> <span class="st">&quot;scripts/install.js&quot;</span><span class="fu">,</span> </a>
+<a class="sourceLine" id="cb7-4" title="4">    <span class="dt">&quot;postinstall&quot;</span> <span class="fu">:</span> <span class="st">&quot;scripts/postinstall.js&quot;</span><span class="fu">,</span> </a>
+<a class="sourceLine" id="cb7-5" title="5">    <span class="dt">&quot;uninstall&quot;</span> <span class="fu">:</span> <span class="st">&quot;scripts/uninstall.js&quot;</span></a>
+<a class="sourceLine" id="cb7-6" title="6">  <span class="fu">}</span></a>
+<a class="sourceLine" id="cb7-7" title="7"><span class="fu">}</span></a></code></pre>
+    </div>
+    <p>then <code>scripts/install.js</code> will be called for the install and post-install stages of the lifecycle, and
+        <code>scripts/uninstall.js</code> will be called when the package is uninstalled. Since
+        <code>scripts/install.js</code> is running for two different phases, it would be wise in this case to look at
+        the <code>npm_lifecycle_event</code> environment variable.
+    </p>
+    <p>If you want to run a make command, you can do so. This works just fine:</p>
+    <div class="sourceCode" id="cb8">
+        <pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb8-1" title="1"><span class="fu">{</span> </a>
+<a class="sourceLine" id="cb8-2" title="2">  <span class="dt">&quot;scripts&quot;</span> <span class="fu">:</span> <span class="fu">{</span> </a>
+<a class="sourceLine" id="cb8-3" title="3">    <span class="dt">&quot;preinstall&quot;</span> <span class="fu">:</span> <span class="st">&quot;./configure&quot;</span><span class="fu">,</span> </a>
+<a class="sourceLine" id="cb8-4" title="4">    <span class="dt">&quot;install&quot;</span> <span class="fu">:</span> <span class="st">&quot;make &amp;&amp; make install&quot;</span><span class="fu">,</span> </a>
+<a class="sourceLine" id="cb8-5" title="5">    <span class="dt">&quot;test&quot;</span> <span class="fu">:</span> <span class="st">&quot;make test&quot;</span></a>
+<a class="sourceLine" id="cb8-6" title="6">  <span class="fu">}</span></a>
+<a class="sourceLine" id="cb8-7" title="7"><span class="fu">}</span></a></code></pre>
+    </div>
+    <h3 id="exiting">Exiting</h3>
+    <p>Scripts are run by passing the line as a script argument to <code>sh</code>.</p>
+    <p>If the script exits with a code other than 0, then this will abort the process.</p>
+    <p>Note that these script files don’t have to be nodejs or even javascript programs. They just have to be some kind
+        of executable file.</p>
+    <h3 id="hook-scripts">Hook Scripts</h3>
+    <p>If you want to run a specific script at a specific lifecycle event for ALL packages, then you can use a hook
+        script.</p>
+    <p>Place an executable file at <code>node_modules/.hooks/{eventname}</code>, and it’ll get run for all packages when
+        they are going through that point in the package lifecycle for any packages installed in that root.</p>
+    <p>Hook scripts are run exactly the same way as package.json scripts. That is, they are in a separate child process,
+        with the env described above.</p>
+    <h3 id="best-practices">Best Practices</h3>
+    <ul>
+        <li>Don’t exit with a non-zero error code unless you <em>really</em> mean it. Except for uninstall scripts, this
+            will cause the npm action to fail, and potentially be rolled back. If the failure is minor or only will
+            prevent some optional features, then it’s better to just print a warning and exit successfully.</li>
+        <li>Try not to use scripts to do what npm can do for you. Read through <a
+                href="/configuring-npm/package-json"><code>package.json</code></a> to see all the things that you can
+            specify and enable by simply describing your package appropriately. In general, this will lead to a more
+            robust and consistent state.</li>
+        <li>Inspect the env to determine where to put things. For instance, if the <code>npm_config_binroot</code>
+            environment variable is set to <code>/home/user/bin</code>, then don’t try to install executables into
+            <code>/usr/local/bin</code>. The user probably set it up that way for a reason.
+        </li>
+        <li>Don’t prefix your script commands with "sudo". If root permissions are required for some reason, then it’ll
+            fail with that error, and the user will sudo the npm command in question.</li>
+        <li>Don’t use <code>install</code>. Use a <code>.gyp</code> file for compilation, and <code>prepublish</code>
+            for anything else. You should almost never have to explicitly set a preinstall or install script. If you are
+            doing this, please consider if there is another option. The only valid use of <code>install</code> or
+            <code>preinstall</code> scripts is for compilation which must be done on the target architecture.
+        </li>
+    </ul>
+    <h3 id="see-also">See Also</h3>
+    <ul>
+        <li><a href="/commands/npm-run-script">npm run-script</a></li>
+        <li><a href="/configuring-npm/package-json">package.json</a></li>
+        <li><a href="/using-npm/developers">npm developers</a></li>
+        <li><a href="/commands/npm-install">npm install</a></li>
+    </ul>
+</body>
+
+</html>

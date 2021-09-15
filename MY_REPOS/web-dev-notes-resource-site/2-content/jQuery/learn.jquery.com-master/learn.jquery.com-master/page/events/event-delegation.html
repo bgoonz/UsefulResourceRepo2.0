@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<script>{
+    "title": "Understanding Event Delegation",
+    "level": "intermediate",
+    "source": "http://jqfundamentals.com/legacy",
+    "attribution": [ "jQuery Fundamentals" ]
+}</script>
+<h2 id="introduction">Introduction</h2>
+<p>Event delegation allows us to attach a single event listener, to a parent element, that will fire for all descendants matching a selector, whether those descendants exist now or are added in the future.</p>
+<h2 id="example">Example</h2>
+<p>For the remainder of the lesson, we will reference the following HTML structure:</p>
+<pre><code>&lt;html&gt;
+&lt;body&gt;
+&lt;div id=&quot;container&quot;&gt;
+    &lt;ul id=&quot;list&quot;&gt;
+        &lt;li&gt;&lt;a href=&quot;http://domain1.com&quot;&gt;Item #1&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;/local/path/1&quot;&gt;Item #2&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;/local/path/2&quot;&gt;Item #3&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;http://domain4.com&quot;&gt;Item #4&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<p>When an anchor in our <code>#list</code> group is clicked, we want to log its text to the console. Normally we could directly bind to the click event of each anchor using the <code>.on()</code> method:</p>
+<pre><code>// Attach a directly bound event handler
+$( &quot;#list a&quot; ).on( &quot;click&quot;, function( event ) {
+    event.preventDefault();
+    console.log( $( this ).text() );
+});</code></pre>
+<p>While this works perfectly fine, there are drawbacks. Consider what happens when we add a new anchor after having already bound the above listener:</p>
+<pre><code>// Add a new element on to our existing list
+$( &quot;#list&quot; ).append( &quot;&lt;li&gt;&lt;a href=&#39;http://newdomain.com&#39;&gt;Item #5&lt;/a&gt;&lt;/li&gt;&quot; );</code></pre>
+<p>If we were to click our newly added item, nothing would happen. This is because of the directly bound event handler that we attached previously. Direct events are only attached to elements at the time the <code>.on()</code> method is called. In this case, since our new anchor did not exist when <code>.on()</code> was called, it does not get the event handler.</p>
+<h2 id="event-propagation">Event Propagation</h2>
+<p>Understanding how events propagate is an important factor in being able to leverage Event Delegation. Any time one of our anchor tags is clicked, a <em>click</em> event is fired for that anchor, and then bubbles up the DOM tree, triggering each of its parent click event handlers:</p>
+<ul>
+<li><code>&lt;a&gt;</code></li>
+<li><code>&lt;li&gt;</code></li>
+<li><code>&lt;ul #list&gt;</code></li>
+<li><code>&lt;div #container&gt;</code></li>
+<li><code>&lt;body&gt;</code></li>
+<li><code>&lt;html&gt;</code></li>
+<li><em>document</em> root</li>
+</ul>
+<p>This means that anytime you click one of our bound anchor tags, you are effectively clicking the entire document body! This is called <em>event bubbling</em> or <em>event propagation</em>.</p>
+<p>Since we know how events bubble, we can create a <em>delegated</em> event:</p>
+<pre><code>// Attach a delegated event handler
+$( &quot;#list&quot; ).on( &quot;click&quot;, &quot;a&quot;, function( event ) {
+    event.preventDefault();
+    console.log( $( this ).text() );
+});</code></pre>
+<p>Notice how we have moved the <code>a</code> part from the selector to the second parameter position of the <code>.on()</code> method. This second, selector parameter tells the handler to listen for the specified event, and when it hears it, check to see if the triggering element for that event matches the second parameter. In this case, the triggering event is our anchor tag, which matches that parameter. Since it matches, our anonymous function will execute. We have now attached a single <em>click</em> event listener to our <code>&lt;ul&gt;</code> that will listen for clicks on its descendant anchors, instead of attaching an unknown number of directly bound events to the existing anchor tags only.</p>
+<h3 id="using-the-triggering-element">Using the Triggering Element</h3>
+<p>What if we wanted to open the link in a new window if that link is an external one (as denoted here by beginning with “http”)?</p>
+<pre><code>// Attach a delegated event handler
+$( &quot;#list&quot; ).on( &quot;click&quot;, &quot;a&quot;, function( event ) {
+    var elem = $( this );
+    if ( elem.is( &quot;[href^=&#39;http&#39;]&quot; ) ) {
+        elem.attr( &quot;target&quot;, &quot;_blank&quot; );
+    }
+});</code></pre>
+<p>This simply passes the <code>.is()</code> method a selector to see if the <code>href</code> attribute of the element starts with “http”. We have also removed the <code>event.preventDefault();</code> statement as we want the default action to happen (which is to follow the <code>href</code>).</p>
+<p>We can actually simplify our code by allowing the selector parameter of <code>.on()</code> do our logic for us:</p>
+<pre><code>// Attach a delegated event handler with a more refined selector
+$( &quot;#list&quot; ).on( &quot;click&quot;, &quot;a[href^=&#39;http&#39;]&quot;, function( event ) {
+    $( this ).attr( &quot;target&quot;, &quot;_blank&quot; );
+});</code></pre>
+<h2 id="summary">Summary</h2>
+<p>Event delegation refers to the process of using event propagation (bubbling) to handle events at a higher level in the DOM than the element on which the event originated. It allows us to attach a single event listener for elements that exist now or in the future.</p>
+</body></html>

@@ -1,0 +1,2293 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <!-- Mirrored from www.brainbell.com/tutors/Perl/Listing_5_1_Using_CGI_pm_with_forms.htm by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Feb 2021 02:57:51 GMT -->
+  <!-- Added by HTTrack --><meta
+    http-equiv="content-type"
+    content="text/html;charset=utf-8"
+  /><!-- /Added by HTTrack -->
+  <head>
+    <meta charset="UTF-8" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = true;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/boise.js",
+        "https://www.brainbell.com/detroitchicago/boise.js?gcb=192-11&amp;cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/memphis.js",
+        "https://www.brainbell.com/detroitchicago/memphis.js?gcb=192-11&amp;cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/minneapolis.js",
+        "https://www.brainbell.com/detroitchicago/minneapolis.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "https://www.brainbell.com/detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "https://www.brainbell.com/porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("https://www.brainbell.com/");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot
+            .getAdUnitPath(adSlot)
+            .split("https://www.brainbell.com/")
+            .pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (
+              ezimKey.split("https://www.brainbell.com/").pop() === adUnitName
+            ) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/raleigh.js",
+        "https://www.brainbell.com/detroitchicago/raleigh.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/tampa.js",
+        "https://www.brainbell.com/detroitchicago/tampa.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/tulsa.js",
+        "https://www.brainbell.com/detroitchicago/tulsa.js?gcb=192-11&amp;cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Example 1: Creating Forms with CGI.pm : CGI and Perl</title>
+    <meta
+      name="description"
+      content="The example in Listing 5.1 introduces the usage of CGI.pm in a typical script that generates and displays an HTML form. When run, the script parses the input from GET and POST methods, then prints the HTML output for a Web page with a form on it. If the script finds any data in the input stream (a previously filled-out form), it will be printed at the bottom of the page. The output is shown in Figure 5.3."
+    />
+    <link rel="shortcut icon" href="https://www.brainbell.com/favicon.ico" />
+    <style type="text/css">
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        font-family: sans-serif;
+        line-height: 1.15;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        -ms-overflow-style: scrollbar;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      }
+      @-ms-viewport {
+        width: device-width;
+      }
+      article,
+      aside,
+      figcaption,
+      figure,
+      footer,
+      header,
+      hgroup,
+      main,
+      nav,
+      section {
+        display: block;
+      }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+          "Segoe UI Emoji", "Segoe UI Symbol";
+        font-size: 1.1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        text-align: left;
+        background-color: #fff;
+      }
+      [tabindex="-1"]:focus {
+        outline: 0 !important;
+      }
+      hr {
+        box-sizing: content-box;
+        height: 0;
+        overflow: visible;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        border: 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-family: inherit;
+        font-weight: 500;
+        line-height: 1.2;
+        color: inherit;
+      }
+      h1 {
+        font-size: 2.5rem;
+      }
+      h2 {
+        font-size: 2rem;
+      }
+      h3 {
+        font-size: 1.75rem;
+      }
+      h4 {
+        font-size: 1.5rem;
+      }
+      h5 {
+        font-size: 1.3rem;
+      }
+      h6 {
+        font-size: 1.2rem;
+      }
+      p {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+      abbr[title],
+      abbr[data-original-title] {
+        text-decoration: underline;
+        -webkit-text-decoration: underline dotted;
+        text-decoration: underline dotted;
+        cursor: help;
+        border-bottom: 0;
+      }
+      address {
+        margin-bottom: 1rem;
+        font-style: normal;
+        line-height: inherit;
+      }
+
+      ol,
+      ul,
+      dl {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+      ol ol,
+      ul ul,
+      ol ul,
+      ul ol {
+        margin-bottom: 0;
+      }
+      dt {
+        font-weight: 700;
+      }
+      dd {
+        margin-bottom: 0.5rem;
+        margin-left: 0;
+      }
+
+      blockquote {
+        padding: 1rem 3rem;
+        margin: 3rem 0;
+        position: relative;
+        border-radius: 1rem;
+      }
+
+      blockquote::before {
+        content: "“";
+        left: 0.5rem;
+        top: 1.8rem;
+      }
+      blockquote::after {
+        content: "”";
+        right: 2.5rem;
+        bottom: -1.5rem;
+      }
+
+      blockquote::after,
+      blockquote::before {
+        font-family: georgia;
+        font-size: 5rem;
+        height: 2.5rem;
+        width: 0;
+        display: block;
+        position: absolute;
+      }
+
+      dfn {
+        font-style: italic;
+      }
+      b,
+      strong {
+        font-weight: bolder;
+      }
+      small {
+        font-size: 80%;
+        font-weight: 400;
+      }
+      sub,
+      sup {
+        position: relative;
+        font-size: 75%;
+        line-height: 0;
+        vertical-align: baseline;
+      }
+      sub {
+        bottom: -0.25em;
+      }
+      sup {
+        top: -0.5em;
+      }
+
+      a {
+        color: #0074d9;
+        background-color: transparent;
+        -webkit-text-decoration-skip: objects;
+      }
+      a:hover {
+        color: #002633;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]) {
+        color: inherit;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]):hover,
+      a:not([href]):not([tabindex]):focus {
+        color: inherit;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]):focus {
+        outline: 0;
+      }
+
+      pre,
+      code,
+      kbd,
+      samp,
+      .slog {
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        font-size: 1em;
+      }
+      pre {
+        margin-top: 0;
+        margin-bottom: 2rem;
+        overflow: auto;
+        -ms-overflow-style: scrollbar;
+        display: block;
+        font-size: 87.5%;
+        color: #212529;
+        border: 1px solid #eee !important;
+        padding: 0.8rem !important;
+        border-radius: 8px;
+        line-height: 1.4rem;
+      }
+
+      figure {
+        margin: 0 0 1rem;
+      }
+      img {
+        vertical-align: middle;
+        border-style: none;
+        border: 0;
+        height: auto;
+        max-width: 100%;
+        width: auto;
+      }
+      svg:not(:root) {
+        overflow: hidden;
+        vertical-align: middle;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 2rem;
+      }
+      td,
+      th {
+        padding: 0.25rem;
+        border: 1px solid #dee2e6;
+      }
+      blockquote,
+      code,
+      table tr:nth-of-type(2n) {
+        background: #fbfbfb;
+      }
+      caption {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        color: #6c757d;
+        text-align: left;
+        caption-side: bottom;
+      }
+      th {
+        text-align: inherit;
+      }
+
+      summary {
+        display: list-item;
+        cursor: pointer;
+      }
+      mark {
+        padding: 0.2em;
+        background-color: #fcf8e3;
+      }
+      code {
+        color: #c7254e;
+        word-break: break-word;
+        font-size: 87.5%;
+      }
+      a > code {
+        color: inherit;
+      }
+      kbd {
+        padding: 0.2rem 0.4rem;
+        color: #fff;
+        background-color: #212529;
+        border-radius: 0.2rem;
+      }
+      kbd kbd {
+        padding: 0;
+        font-weight: 700;
+      }
+      pre code {
+        font-size: inherit;
+        color: inherit;
+        word-break: normal;
+      }
+      video {
+        display: block;
+        max-width: 75%;
+      }
+
+      .borderbox {
+        border-left: 3px solid #00f;
+        padding: 1rem 0.5rem 0;
+      }
+      .line {
+        margin: 0 auto;
+        max-width: 71.25rem;
+      }
+      .line:after {
+        display: block;
+        clear: both;
+        content: "";
+      }
+      .fullwidth {
+        width: 100%;
+      }
+
+      .button,
+      #toc a {
+        display: inline-block;
+        cursor: pointer;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        border: 1px solid rgba(50, 205, 50, 0.5);
+        padding: 0.375rem 0.75rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        margin-bottom: 0.3rem;
+        color: #009600;
+        text-decoration: none;
+      }
+      .button ::-moz-focus-inner {
+        padding: 0;
+        border-style: none;
+      }
+      #buttons {
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        padding: 0.5rem;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+      }
+      #navbar-brand {
+        color: #000;
+        display: inline-block;
+        padding-top: 0.3125rem;
+        padding-bottom: 0.3125rem;
+        margin-left: 1rem;
+        white-space: nowrap;
+        -ms-touch-action: manipulation;
+        touch-action: manipulation;
+        text-decoration: none;
+        background-color: transparent;
+        -webkit-text-decoration-skip: objects;
+        line-height: 1rem;
+        font-size: 2.2rem;
+        text-align: center;
+      }
+      #navbar-brand .bell {
+        color: rgba(0, 200, 0, 1);
+      }
+      .slog {
+        font-weight: normal;
+        font-size: 0.85rem;
+      }
+      nav {
+        padding: 0.5rem;
+        margin-top: 0.5rem;
+      }
+      nav a.button {
+        text-decoration: none;
+        margin-left: 0.3rem;
+        flex: 10rem;
+      }
+      #buttons {
+        margin-top: 1rem;
+        display: none;
+      }
+      #menu {
+        font-size: 1.5rem;
+        color: #000;
+        display: block;
+        margin-right: 0.7rem;
+      }
+
+      #heading {
+        padding: 6rem 1.25rem;
+        background-color: #49bf4c;
+        color: #fff;
+        text-align: center;
+      }
+      #heading a {
+        white-space: normal;
+        color: #fff;
+        text-decoration: none;
+        border: 1px solid #fff;
+      }
+      #heading h1 {
+        font-size: 2.5rem;
+        line-height: 2.4rem;
+        margin: 0;
+        margin-bottom: 1rem;
+        font-weight: 400;
+      }
+      #wrapper {
+        padding: 2.5rem 1.25rem;
+      }
+      .leftcol {
+        width: 66.6666%;
+        position: relative;
+      }
+      .rightcol {
+        width: 33.3333%;
+      }
+      .fltright {
+        float: right;
+      }
+      .fltleft {
+        float: left;
+      }
+      .rightcol,
+      .leftcol {
+        padding: 0 0.625rem;
+        position: relative;
+      }
+      .entry-content,
+      .entry-summary {
+        color: #555;
+        line-height: 2rem;
+      }
+      .cat_list {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        margin-bottom: 2.25rem;
+      }
+      .cat_list h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        display: block;
+      }
+      .cat_list a {
+        color: #49bf4c;
+      }
+      .hidden {
+        display: none;
+      }
+      .gsa {
+        text-align: center;
+        margin-bottom: 1.25rem;
+        width: 100%;
+      }
+      #toc a {
+        display: block;
+        font-weight: bold;
+        text-align: left;
+        white-space: normal;
+      }
+      footer {
+        margin-top: 2rem;
+        background: #002633;
+        padding: 0.625rem;
+        text-align: center;
+        font-size: 0.95rem;
+      }
+      footer,
+      footer a,
+      footer a:hover {
+        color: #7697a2;
+      }
+      .next,
+      .prev {
+        display: inline-block;
+        padding: 0.6rem;
+        padding-top: 0.05rem;
+        padding-bottom: 0.25rem;
+        border-radius: 1rem;
+        font-weight: bold;
+        color: #fff;
+        background: #009600;
+      }
+      @media screen and (max-width: 768px) {
+        .leftcol,
+        .rightcol {
+          width: 100%;
+        }
+        video {
+          max-width: 100%;
+        }
+      }
+    </style>
+
+    <script
+      async
+      src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+    ></script>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-1287605604486981",
+        enable_page_level_ads: true,
+      });
+    </script>
+    <link
+      rel="canonical"
+      href="https://brainbell.com/tutors/Perl/Listing_5_1_Using_CGI_pm_with_forms.htm"
+    />
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base />
+    <script type="text/javascript">
+      var ezoTemplate = "old_site_gc";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_lazyload_version: 0,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        engaged_time_visit: 0,
+        ezcache_level: 2,
+        ezcache_skip_code: 0,
+        form_factor_id: 1,
+        framework_id: 1,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        metro_code: 501,
+        page_ad_positions: "",
+        page_view_count: 309,
+        page_view_id: "a3ef8ed2-feb6-4c29-5dba-3b05e9cb1eb4",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 35489,
+        response_time_orig: 26,
+        serverid: "52.91.144.24:18176",
+        state: "NJ",
+        t_epoch: 1613703199,
+        template_id: 126,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/tutors/Perl/Listing_5_1_Using_CGI_pm_with_forms.htm",
+        user_id: 0,
+        weather_precipitation: 0,
+        weather_summary: "",
+        weather_temperature: 0,
+        word_count: 2305,
+        worst_bad_word_level: 0,
+      };
+      var _ezExtraQueries = "&ez_orig=1";
+    </script>
+    <script
+      data-ezscrex="false"
+      data-cfasync="false"
+      type="text/javascript"
+      src="https://www.brainbell.com/detroitchicago/rochester.js?dcb=192-11&amp;cb=2&amp;v=9"
+      async
+    ></script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["a3ef8ed2-feb6-4c29-5dba-3b05e9cb1eb4", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <header role="banner">
+      <div class="line">
+        <nav id="navbar" role="navigation" aria-label="Primary Menu">
+          <a
+            id="navbar-brand"
+            href="https://www.brainbell.com/"
+            rel="home"
+            itemprop="url"
+            >Brain<span class="bell">Bell</span><br /><span class="slog"
+              >makes easier to learn</span
+            ></a
+          >
+          <span class="button fltright" id="menu">&#9776;</span>
+          <!--menu-->
+          <div id="buttons">
+            <a
+              class="button"
+              title="A+"
+              href="https://www.brainbell.com/tutors/A+/Hardware/"
+              >A+ Certification</a
+            >
+            <a
+              class="button"
+              title="Android"
+              href="https://www.brainbell.com/android/"
+              >Android</a
+            >
+            <a
+              class="button"
+              title="ASP"
+              href="https://www.brainbell.com/tutorials/ASP/"
+              >ASP</a
+            >
+            <a
+              class="button"
+              title="3D, Blender and Unity"
+              href="https://www.brainbell.com/3d/"
+              >Blender &amp; Unity</a
+            >
+            <a
+              class="button"
+              title="C"
+              href="https://www.brainbell.com/tutors/c/Advice_and_Warnings_for_C/"
+              >C Language</a
+            >
+            <a
+              class="button"
+              title="C#"
+              href="https://www.brainbell.com/tutors/C_Sharp/"
+              >C#</a
+            >
+            <a
+              class="button"
+              title="Flash"
+              href="https://www.brainbell.com/tutorials/Flash/"
+              >Flash</a
+            >
+            <a
+              class="button"
+              title="HTML and CSS"
+              href="https://www.brainbell.com/tutorials/HTML_and_CSS/"
+              >HTML &amp; CSS</a
+            >
+            <a
+              class="button"
+              title="Java"
+              href="https://www.brainbell.com/tutorials/java/"
+              >Java</a
+            >
+            <a
+              class="button"
+              title="JavaScript"
+              href="https://www.brainbell.com/javascript/"
+              >JavaScript</a
+            >
+            <a
+              class="button"
+              title="MS Access"
+              href="https://www.brainbell.com/tutorials/ms-office/Access_2003/"
+              >MS Access</a
+            >
+            <a
+              class="button"
+              title="MS Excel"
+              href="https://www.brainbell.com/tutorials/ms-office/excel/"
+              >MS Excel</a
+            >
+            <a
+              class="button"
+              title="MS FrontPage"
+              href="https://www.brainbell.com/tutorials/ms-office/FrontPage_2003/"
+              >MS FrontPage</a
+            >
+            <a
+              class="button"
+              title="MS PowerPoint"
+              href="https://www.brainbell.com/tutorials/ms-office/PowerPoint/"
+              >MS PowerPoint</a
+            >
+            <a
+              class="button"
+              title="MS Word"
+              href="https://www.brainbell.com/tutorials/ms-office/Word/"
+              >MS Word</a
+            >
+            <a
+              class="button"
+              title="MySQL"
+              href="https://www.brainbell.com/tutorials/MySQL/"
+              >MySQL</a
+            >
+            <a
+              class="button"
+              title="Networking"
+              href="https://www.brainbell.com/tutorials/Networking/"
+              >Networking</a
+            >
+            <a
+              class="button"
+              title="Perl CGI"
+              href="https://www.brainbell.com/tutors/Perl/"
+              >Perl &amp; CGI</a
+            >
+            <a
+              class="button"
+              title="PHP &amp; MySQL"
+              href="https://www.brainbell.com/tutorials/php/"
+              >PHP &amp; MySQL</a
+            >
+            <a
+              class="button"
+              title="Adobe Photoshop"
+              href="https://www.brainbell.com/tutorials/Photoshop/"
+              >Photoshop</a
+            >
+            <a
+              class="button"
+              title="Regex"
+              href="https://www.brainbell.com/regex/"
+              >Regular Expressions</a
+            >
+            <a
+              class="button"
+              title="TypeScript"
+              href="https://www.brainbell.com/typescript/"
+              >TypeScript</a
+            >
+            <a
+              class="button"
+              title="Visual Basic"
+              href="https://www.brainbell.com/tutors/Visual_Basic/"
+              >Visual Basic</a
+            >
+            <a
+              class="button"
+              title="XML"
+              href="https://www.brainbell.com/tutorials/XML/"
+              >XML</a
+            >
+          </div>
+          <!--menu end-->
+        </nav>
+      </div>
+    </header>
+
+    <main role="main">
+      <article class="hentry">
+        <header id="heading">
+          <a
+            class="button"
+            href="https://www.brainbell.com/tutors/Perl/"
+            rel="category tag"
+            >CGI and Perl</a
+          >
+          <h1>Example 1: Creating Forms with CGI.pm</h1>
+          <script
+            async
+            src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+          ></script>
+          <!-- link ad -->
+          <ins
+            class="adsbygoogle"
+            style="display: block"
+            data-ad-client="ca-pub-1287605604486981"
+            data-ad-slot="1609644746"
+            data-ad-format="link"
+          ></ins>
+          <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
+        </header>
+
+        <div id="wrapper">
+          <div class="line">
+            <div class="leftcol fltleft">
+              <div class="entry-summary">
+                <p>
+                  The example in Listing 5.1 introduces the usage of CGI.pm in a
+                  typical script that generates and displays an HTML form. When
+                  run, the script parses the input from <code>GET</code> and
+                  <code>POST</code> methods, then prints the HTML output for a
+                  Web page with a form on it. If the script finds any data in
+                  the input stream (a previously filled-out form), it will be
+                  printed at the bottom of the page. The output is shown in
+                  Figure 5.3.
+                </p>
+              </div>
+              <div class="gsa">
+                <script
+                  async
+                  src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+                ></script>
+                <!-- responsive top -->
+                <ins
+                  class="adsbygoogle"
+                  style="display: block"
+                  data-ad-client="ca-pub-1287605604486981"
+                  data-ad-slot="1025731947"
+                  data-ad-format="rectangle"
+                ></ins>
+                <script>
+                  (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+              </div>
+              <div class="entry-content">
+                <h2>Note:</h2>
+                <blockquote>
+                  <p>
+                    The line numbers in Listing 5.1 are for reference only and
+                    are not to be typed in.<br />
+                  </p>
+                  <hr />
+                </blockquote>
+                <br />
+                <h2>Listing 5.1. Using CGI.pm with forms</h2>
+                <pre>
+1   #!/usr/local/bin/perl
+ 2   use CGI;
+ 3   $query = new CGI;
+ 4
+ 5   print $query-&gt;header;
+ 6
+ 7   print $query-&gt;start_html("Using CGI.pm with Forms");
+ 8   print "&lt;H2&gt; Example 1: Using CGI.pm with Forms&lt;/H2&gt;
+ 9         &lt;HR&gt;\n";
+ 10
+ 11  &amp;print_prompt($query);
+ 12  &amp;do_work($query);
+ 13  print $query-&gt;end_html;
+ 14
+ 15  # Subroutines ###
+ 16
+ 17  sub print_prompt {
+ 18  my($query) = @_;
+ 19  print $query-&gt;start_multipart_form;
+ 20
+ 21  print "
+ 22  &lt;table border=0 cellpadding=0 cellspacing=0 width=550&gt;
+ 23  &lt;tr&gt;&lt;td&gt;",
+ 24  $query-&gt;textfield(-name=&gt;`first_name',
+ 25                    -default=&gt;`John',
+ 26                    -size=&gt;25),
+ 27  "&lt;BR&gt;First Name&lt;/td&gt;&lt;td&gt;",
+ 28  $query-&gt;textfield(-name=&gt;`mi', -size=&gt;2, -default=&gt;`A'),
+ 29  "&lt;BR&gt;M.I.&lt;/td&gt;&lt;td&gt;",
+ 30  $query-&gt;textfield(-name=&gt;`last_name',
+ 31                    -default=&gt;`Doe',
+ 32                    -size=&gt;25),
+ 33  "&lt;BR&gt;Last Name&lt;/tr&gt;&lt;/td&gt;
+ 34  &lt;tr&gt;&lt;td colspan=3&gt;",
+ 35  $query-&gt;textfield(-name=&gt;`address', -size=&gt;55),
+ 36  "&lt;BR&gt;Street Address&lt;/td&gt;&lt;/tr&gt;
+ 37  &lt;tr&gt;&lt;td&gt;",
+ 38  $query-&gt;textfield(-name=&gt;`city',
+ 39                    -size=&gt;25),
+ 40  "&lt;BR&gt;City&lt;/td&gt;&lt;td&gt;",
+ 41  $query-&gt;textfield(-name=&gt;`state', -size=&gt;2),
+ 42  "&lt;BR&gt;State&lt;/td&gt;&lt;td&gt;",
+ 43  $query-&gt;textfield(-name=&gt;`zip',
+ 44                    -size=&gt;10),
+ 45  "&lt;BR&gt;Zip Code&lt;/tr&gt;&lt;/td&gt;
+ 46   &lt;/table&gt;";
+ 47
+ 48  print "&lt;HR&gt;&lt;table border=0 cellspacing=0
+ 49              cellpadding=0 width=550&gt;
+ 50        &lt;tr&gt;&lt;td&gt;&lt;EM&gt;What Operating Systems Do You Use?&lt;/EM&gt;
+ 51        &lt;BR&gt;";
+ 52  print $query-&gt;checkbox_group(
+ 53         -name=&gt;`Operating Systems',
+ 54         -values=&gt;[Mac, `DOS', `SiliconGraphics IRIX', `NT 4.0'],
+ 55         -linebreak=&gt;`yes',
+ 56         -defaults=&gt;[`SiliconGraphics IRIX',Macintosh]);
+ 57
+ 58  print "&lt;/td&gt;&lt;td&gt;&lt;P&gt;&lt;EM&gt;What Platform is used most?&lt;/EM&gt;&lt;BR&gt;",
+ 59  $query-&gt;radio_group(
+ 60                     -name=&gt;`platform',
+ 61                     -values=&gt;[SiliconGraphics,Sun,Digital,Macintosh],
+ 62                     -linebreak=&gt;`yes',
+ 63                     -default=&gt;`SiliconGraphics');
+ 64
+ 65  print "&lt;/tr&gt;&lt;/td&gt;&lt;/table&gt;";
+ 66  print "&lt;HR&gt;&lt;P&gt;&lt;EM&gt;How are you connected to the Internet?&lt;/EM&gt;&lt;BR&gt;";
+ 67  print $query-&gt;popup_menu(
+ 68        -name=&gt;`Connection',
+ 69        -values=&gt;[`ISDN','T-1','Direct Ethernet','Phone','Satellite'],
+ 70        -default=&gt;`Phone');
+ 71
+ 72  print $query-&gt;hidden(`Hidden Reference','Bet you did not see me');
+ 73
+ 74  print "&lt;P&gt;&lt;EM&gt;What Peripherals are
+ 75         connected to your computer?&lt;/EM&gt;&lt;BR&gt;";
+ 76  print $query-&gt;scrolling_list(
+ 77         -name=&gt;`configuration',
+ 78         -values=&gt;[`CDROM','Sound Card','Video Camera','3D Graphics'],
+ 79         -size=&gt;4,
+ 80         -multiple=&gt;`true');
+ 81
+ 82  print "&lt;P&gt;&lt;EM&gt;What do you like about the World Wide Web?&lt;/EM&gt;&lt;BR&gt;";
+ 83  print $query-&gt;textarea(-name=&gt;`Comments',
+ 84                         -rows=&gt;8,
+ 85                         -columns=&gt;60);
+ 86
+ 87  print "&lt;p&gt;";
+ 88  print $query-&gt;checkbox(`Add me to your mailing list');
+ 89  print "&lt;P&gt;",$query-&gt;reset;
+ 90  print $query-&gt;submit(`Action','Send Free Catalog');
+ 91  print $query-&gt;submit(`Action','No Free Catalog');
+ 92  print $query-&gt;endform;
+ 93  print "&lt;HR&gt;\n";
+ 94      }
+ 95
+ 96  sub do_work {
+ 97
+ 98  unless ($query-&gt;param) {
+ 99      print "&lt;b&gt;No query submitted yet.&lt;/b&gt;";
+ 100     return;
+ 101     }
+ 102  my($query) = @_;
+ 103  my(@values,$key);
+ 104  print "&lt;H2&gt;Here are the current settings:&lt;/H2&gt;";
+ 105  foreach $key ($query-&gt;param) {
+ 106     print "&lt;b&gt;$key&lt;/b&gt; -&gt; ";
+ 107     @values = $query-&gt;param($key);
+ 108     print join(", ",@values),"&lt;BR&gt;\n";
+ 109     }
+ 110  print "&lt;HR&gt;&lt;/body&gt;&lt;/html&gt;";
+ 111  }
+</pre
+                >
+                <p>
+                  <a
+                    href="https://www.brainbell.com/tutors/Perl/art/05/06wpp03.jpg"
+                    ><code><b>Figure 5.3.</b></code></a
+                  >
+                  The output from Example 1.<br />
+                  <br />
+                  This program is a nice demonstration of using CGI.pm to
+                  generate a form and then using the variables entered by the
+                  user. Lines 1 and 2 define the script as Perl and include the
+                  CGI.pm module. Starting with line 4, CGI.pm is introduced into
+                  the script. Let's take a closer look at the different elements
+                  from CGI.pm used in this script.
+                  <b><code>Parsing the Input</code></b> Take a look at line 3:
+                </p>
+                <pre>
+$query = new CGI;
+</pre
+                >
+                <p>
+                  Line 3 calls the <code>new()</code> method of the CGI class.
+                  The <code>new()</code> method parses <code>GET</code> and
+                  <code>POST</code> method variables and all of the parameters
+                  from the input stream, does all URI decoding, and then stores
+                  the results as a new CGI object into the variable named
+                  <code>$query</code>. Yes, this one little line does all that.
+                  Though this sounds complicated, it greatly simplifies
+                  programming a CGI. You can now make simple method calls to
+                  this <code>$query</code> object to get environment variables,
+                  make forms, and do many other useful things. For example, in
+                  line 5, the <code>$query-&gt;header</code> method generates a
+                  <code
+                    ><br />
+                    Content-type:</code
+                  >
+                  <code>/text/html\n\n</code> MIME header. In other words, by
+                  simply printing <code>$query-&gt;header</code>, CGI.pm
+                  interprets this statement and prints the default HTTP header
+                  for you. In fact, all of the HTML form elements in this
+                  example are generated in this way by calling methods such as
+                  <code>$query-&gt;textfield()</code>,
+                  <code>$query-&gt;checkbox_group()</code>, and
+                  <code>$query-&gt;radio_group()</code>, which take certain
+                  arguments and automatically generate all of the HTML that make
+                  up these HTML form elements. We'll take a look at the methods
+                  that automatically generate HTTP headers and HTML form
+                  elements next. <b><code>Generating HTTP Headers</code></b> If
+                  you recall from the beginning of the chapter, the first thing
+                  a CGI script must send back to the browser (especially a NPH
+                  CGI) is a <code>Content-type</code> header that describes the
+                  contents (MIME type) of the document that follows.
+                </p>
+                <p>
+                  The <code>$query-&gt;header()</code> method returns the
+                  required <code>Content-type:</code> MIME header discussed
+                  earlier in this chapter. In line 5 of Example 1,
+                  <code>$query-&gt;header()</code> was called without any
+                  arguments, which caused it to default to
+                  <code>text/html</code>. Status codes and other HTTP headers
+                  can be passed<br />
+                  using the <code>$query-&gt;header()</code> method as well.
+                  Let's generate an HTTP header that returns a few different
+                  parameters. This requires that we give
+                  <code>$query-&gt;header()</code> a few different arguments.
+                  Passing multiple arguments to a function is quite simple;
+                  here's an example that generates an HTTP<br />
+                  response header with a MIME type and one of the status codes
+                  we discussed earlier in the chapter:
+                </p>
+                <pre>
+print $query-&gt;header(-type=&gt;`/text/html',
+                      -status=&gt;`204 No Response');
+</pre
+                >
+                <p>
+                  If your CGI contained this line as the first thing it printed,
+                  a well-behaved browser such as Netscape should receive the
+                  <code>204 No Response</code> header and do absolutely nothing.
+                </p>
+                <p>
+                  If you wanted to use a redirect to send the browser to some
+                  other URL, a <code>redirect()</code> method exists to
+                  facilitate this:
+                </p>
+                <pre>
+print $query-&gt;redirect(`http://somewhere.else/');
+</pre
+                >
+                <p>
+                  <b><code>Generating HTML Headers</code></b>
+                  <code>$query-&gt;start_html</code> generates all necessary
+                  HTML headers to begin a web page, as demonstrated in line 7 of
+                  example 1.
+                </p>
+                <pre>
+print $query-&gt;start_html(-title=&gt;`My Online Storefront,
+                          -author=&gt;`ckemp@ro.com',
+                          -base=&gt;`true',
+                          -BGCOLOR=&gt;"#ffffff"',
+                  -NEWHEADER=&gt;`whatever');
+</pre
+                >
+                <p>
+                  Adding additional HTML tags to this method is as easy as
+                  specifying them. For example, <code>NEWHEADER</code> in the
+                  preceding example could be anything. The base tag, if set to
+                  true, will resolve relative URLs in the document.
+                </p>
+                <p>
+                  To end the HTML document, use the
+                  <code>end_html()</code> method:
+                </p>
+                <pre>
+print $query-&gt;end_html;
+</pre
+                >
+                <p class="c2"><code>Generating HTML Form Elements</code></p>
+                <pre>
+print $query-&gt;startform(-method=&gt;$method,
+                         -action=&gt;$action,
+                         -encoding=&gt;$encoding);
+ &lt;... form stuff  ...&gt;
+ print $query-&gt;endform;
+</pre
+                >
+                <p>The defaults are</p>
+                <pre>
+method: POST
+ action: this script
+ encoding: application/x-www-form-urlencoded
+</pre
+                >
+                <p>
+                  In all of the following methods that generate HTML form
+                  elements using CGI.pm, the field will be initialized with its
+                  previous contents from earlier invocations of the script. When
+                  the script is first called, or if the value was not set upon
+                  the last invocation, the field will have no value.
+                </p>
+                <p>
+                  Many of the parameters for the following methods are
+                  identical. The <code>-name</code> parameter is a required
+                  parameter for all of the methods and has the same function in
+                  all methods except where noted. Parameters will be introduced
+                  only once unless their meaning changes in a particular method,
+                  in which case, the differences will be noted.
+                  <b><code>Textfields</code></b>
+                  <code>$query-&gt;textfield()</code>will return an HTML
+                  textfield form element, as demonstrated in several instances
+                  in lines 24-44 in example 1. The
+                  <code>textfield()</code> method accepts the following
+                  parameters:
+                </p>
+                <pre>
+print $query-&gt;textfield(-name=&gt;`field_name',
+                         -default=&gt;`starting value',
+                         -size=&gt;50,
+                         -maxlength=&gt;80);
+</pre
+                >
+                <table border="0">
+                  <tr align="left">
+                    <td align="left"><code>name</code></td>
+                    <td align="left">The required name for the field.</td>
+                  </tr>
+                  <tr align="left">
+                    <td align="left"><code>default</code></td>
+                    <td align="left">
+                      The default starting value for the field contents
+                      (optional).
+                    </td>
+                  </tr>
+                  <tr align="left">
+                    <td align="left"><code>size</code></td>
+                    <td align="left">
+                      The size of the field in characters (optional).
+                    </td>
+                  </tr>
+                  <tr align="left">
+                    <td align="left"><code>maxlength</code></td>
+                    <td align="left">
+                      The maximum number of characters the field will accept
+                      (optional).
+                    </td>
+                  </tr>
+                </table>
+                <b><code>Textareas</code></b>
+                <code>$query-&gt;textarea()</code>will return an HTML textarea
+                form element, as demonstrated in lines 83-85 in Example 1. A
+                textarea is similar to a textfield, but it allows you to specify
+                rows and columns for a multiline text entry box. The starting
+                value for the field can be long and contain multiple lines. The
+                <code>textfield()</code> method accepts the following
+                parameters:
+                <pre>
+print $query-&gt;textarea(-name=&gt;`field_name',
+                        -default=&gt;`starting value',
+                        -rows=&gt;10,
+                        -columns=&gt;50);
+</pre
+                >
+                <p>
+                  <code>-rows</code> The height in number of lines of text the
+                  field will occupy.
+                </p>
+                <pre>
+-columns  The width in number of fixed-width characters the field will occupy.
+</pre
+                >
+                <p>
+                  <b><code>Standalone Checkboxes</code></b>
+                  <code>$query-&gt;checkbox()</code>will return an HTML checkbox
+                  form element, as demonstrated in line 88 in Example 1. The
+                  <code>checkbox()</code> method is used to create an isolated
+                  checkbox that isn't logically related to any other checkboxes.
+                  The <code>checkbox()</code> method accepts the following
+                  parameters:
+                </p>
+                <pre>
+print $query-&gt;checkbox(-name=&gt;`checkbox_name',
+                        -checked=&gt;`checked',
+                        -value=&gt;`ON',
+                        -label=&gt;`CLICK ME');
+</pre
+                >
+                <table border="0">
+                  <tr align="left">
+                    <td align="left" valign="top"><code>-name</code></td>
+                    <td align="left">
+                      In addition to being the required name for the checkbox,
+                      this value will also be used for the user-readable label
+                      printed next to the checkbox.
+                    </td>
+                  </tr>
+                  <tr align="left">
+                    <td align="left" valign="top"><code>-checked</code></td>
+                    <td align="left">
+                      Specifies that the checkbox is turned on by default
+                      (optional).
+                    </td>
+                  </tr>
+                  <tr align="left">
+                    <td align="left" valign="top"><code>-value</code></td>
+                    <td align="left">
+                      Specifies the value of the checkbox when it is checked. If
+                      not provided, the word <code>on</code> is assumed
+                      (optional).
+                    </td>
+                  </tr>
+                  <tr align="left">
+                    <td align="left" valign="top">-label</td>
+                    <td align="left">
+                      The user-readable label to be attached to the checkbox. If
+                      not provided, the checkbox name is used (optional).
+                    </td>
+                  </tr>
+                </table>
+                <p>
+                  <b><code>Checkbox Groups</code></b>
+                  <code>$query-&gt;checkbox_group()</code> will return an HTML
+                  checkbox group form element, as demonstrated in lines 52-56 in
+                  Example 1. The <code>checkbox_group()</code> method creates a
+                  list of checkboxes that are related by the same name. The
+                  <code>checkbox_group()</code>method accepts the following
+                  parameters:
+                </p>
+                <pre>
+print $query-&gt;checkbox_group(-name=&gt;`group_name',
+                              -values=&gt;[`eenie','meenie','minie','moe'],
+                              -default=&gt;[`eenie','moe'],
+                              -linebreak=&gt;`true',
+                              -labels=&gt;\%labels);
+</pre
+                >
+                <table border="0">
+                  <tr align="left">
+                    <td align="left"><code>-values</code></td>
+                    <td align="left">
+                      An array reference used for the user-readable labels
+                      printed next to the checkboxes as well as for the values
+                      passed to your script in the query string.
+                    </td>
+                  </tr>
+                  <tr align="left">
+                    <td align="left"><code>-default</code></td>
+                    <td align="left">
+                      Can be either a reference to a list containing the values
+                      to be checked by default or can be a single value to be
+                      checked. If this argument is missing or undefined, then
+                      nothing is selected when the list first appears
+                      (optional).
+                    </td>
+                  </tr>
+                  <tr align="left">
+                    <td align="left"><code>-linebreak</code></td>
+                    <td align="left">
+                      Can be set to true to place line breaks between the
+                      checkboxes so that they appear as a vertical list.
+                      Otherwise, they will be strung together on a horizontal
+                      line (optional).
+                    </td>
+                  </tr>
+                  <tr align="left">
+                    <td align="left">-labels</td>
+                    <td align="left">
+                      A pointer to an associative array relating the checkbox
+                      values to the user-visible labels that will be printed
+                      next to them. If not provided, the values will be used as
+                      the default (optional).
+                    </td>
+                  </tr>
+                </table>
+                <p>
+                  <b><code>Radio Groups</code></b>
+                  <code>$query-&gt;radio_group()</code> will return a radio
+                  button group, as demonstrated in lines 59-63 in Example 1. The
+                  <code>radio_group()</code> method creates a set of logically
+                  related radio buttons. Unlike the checkbox group, turning one
+                  member of the radio group on turns the others off. The only
+                  difference in the parameters between the
+                  <code>radio_group</code> and the
+                  <code>checkbox_group</code> is the
+                  <code>-default</code> parameter. The
+                  <code>radio_group()</code> method accepts the following
+                  parameters:
+                </p>
+                <pre>
+print $query-&gt;radio_group(-name=&gt;`group_name',
+   -values=&gt;[`eenie','meenie','minie'],
+                           -default=&gt;`meenie',
+                           -linebreak=&gt;`true',
+                           -labels=&gt;\%labels);
+</pre
+                >
+                <table border="0">
+                  <tr align="left">
+                    <td align="left" valign="top">-default</td>
+                    <td align="left">
+                      The name of the default button to turn on. If not
+                      specified, the first item will be the default. You can
+                      provide a nonexistent button name such as -default
+                      =&gt;`-' to start up with no buttons selected
+                    </td>
+                  </tr>
+                </table>
+                <p>
+                  <b><code>Popup Menus</code></b>
+                  <code>$query-&gt;popup_menu()</code> will return an HTML popup
+                  menu form element, as demonstrated in lines 67-70 in Example
+                  1. The <code>popup_menu()</code> method creates an HTML menu
+                  the user can select from. The <code>popup_menu()</code> method
+                  accepts the following parameters:
+                </p>
+                <pre>
+print $query-&gt;popup_menu(-name=&gt;`menu_name',
+                          -values=&gt;[`eenie','meenie','minie'],
+                          -default=&gt;`meenie',
+                          -labels=&gt;\%labels);
+</pre
+                >
+                <table border="0">
+                  <tr align="left">
+                    <td align="left" valign="top">-default</td>
+                    <td align="left">
+                      The name of the default menu choice. If not specified, the
+                      first item will be the default. The values of the previous
+                      choice will be maintained across queries.
+                    </td>
+                  </tr>
+                </table>
+                <p>
+                  <b><code>Scrolling Lists</code></b>
+                  <code>$query-&gt;scrolling_list()</code> will return an HTML
+                  scrolling list form element, as demonstrated in lines 76-80 in
+                  Example 1. The <code>scrolling_list()</code> method creates an
+                  HTML scrolling list. The <code>scrolling_list()</code> method
+                  accepts the following parameters:
+                </p>
+                <pre>
+print $query-&gt;scrolling_list(-name=&gt;`list_name',
+                              -values=&gt;[`eenie','meenie','minie','moe'],
+                              -default=&gt;[`eenie','moe'],
+                              -size=&gt;5,
+                              -multiple=&gt;`true',
+                              -labels=&gt;\%labels);
+</pre
+                >
+                <table border="0">
+                  <tr align="left">
+                    <td align="left" valign="top"><code>-default</code></td>
+                    <td align="left">
+                      Either a reference to a list containing the values to be
+                      selected by default or can be a single value to select. If
+                      this argument is missing or undefined, then nothing is
+                      selected when the list first appears optional).
+                    </td>
+                  </tr>
+                  <tr align="left">
+                    <td align="left" valign="top"><code>-size</code></td>
+                    <td align="left">
+                      The number of vertical rows to be displayed in the list
+                      (optional).
+                    </td>
+                  </tr>
+                  <tr align="left">
+                    <td align="left" valign="top">-multiple</td>
+                    <td align="left">
+                      If set to true, allows multiple simultaneous selections;
+                      otherwise only one selection will be allowed at a time.
+                    </td>
+                  </tr>
+                </table>
+                <p>
+                  <b><code>Hidden Fields</code></b>
+                  <code>$query-&gt;hidden()</code> will return an invisible HTML
+                  form element, as demonstrated in line 72 in Example 1. The
+                  <code>hidden()</code> method produces a text field that can't
+                  be seen by the user. It is useful for passing state variable
+                  information from one invocation of the script to the next. The
+                  <code>hidden()</code> method accepts the following parameters:
+                </p>
+                <pre>
+print $query-&gt;hidden(-name=&gt;`hidden_name',
+                      -default=&gt;[`value1','value2'...]);
+</pre
+                >
+                <p>
+                  <b><code>Password Field</code></b>
+                  <code>$query-&gt;password_field()</code> will return a
+                  password HTML form element. The
+                  <code>password_field()</code> method is identical to
+                  <code>textfield()</code>, except that its contents will be
+                  starred out on the Web page. The
+                  <code>password_field()</code> method accepts the following
+                  parameters:
+                </p>
+                <pre>
+print $query-&gt;password_field(-name=&gt;`secret',
+                              -value=&gt;`starting value',
+                              -size=&gt;50,
+                              -maxlength=&gt;80);
+</pre
+                >
+                <p>
+                  <b><code>Submit/Reset/Default Buttons</code></b>
+                  <code>$query-&gt;submit()</code> will return the submit button
+                  form element, as demonstrated in lines 90 and 91 in Example 1.
+                  Every form should have one of these. The
+                  <code>submit()</code> method accepts the following parameters:
+                </p>
+                <pre>
+print $query-&gt;submit(-name=&gt;`button_name',
+                      -value=&gt;`value');
+</pre
+                >
+                <p>
+                  <code>$query-&gt;reset()</code> will return the reset button
+                  form element, as demonstrated in line 89 in Example 1. The
+                  reset button restores the form to its values from the last
+                  time the script was called, not necessarily to the defaults.
+                  Every form should have one of these. The
+                  <code>reset()</code> method has no parameters:
+                </p>
+                <pre>
+print $query-&gt;reset
+</pre
+                >
+                <p>
+                  <code>$query-&gt;defaults()</code>will return a button that,
+                  when pressed, will cause the form to be completely reset to
+                  its defaults, wiping out all the changes the user ever made.
+                  The <code>defaults()</code> method accepts the following
+                  parameters:
+                </p>
+                <pre>
+print $query-&gt;defaults(`button_label')
+</pre
+                >
+                <p>
+                  <b><code>Retrieving Data from HTML Form Fields</code></b> When
+                  the form is processed, the value of the text field can be
+                  retrieved with
+                </p>
+                <pre>
+$value = $query-&gt;param(`field_name');
+</pre
+                >
+                <p>
+                  For fields that may contain multiple values, such as multiple
+                  selections from a scrolling list, an array can be returned:
+                </p>
+                <pre>
+@values = $query-&gt;param(`field_name');
+</pre
+                >
+                <p>
+                  If you want to change a field from its initial value after the
+                  script has been called once, you can do so like this:
+                </p>
+                <pre>
+$query-&gt;param(`field_name',"I'm the new value of field_name")
+</pre
+                >
+                <p>
+                  Likewise, an array of values could also be stored to a
+                  variable.<br />
+                </p>
+                <div class="hidden">
+                  by
+                  <span class="author vcard"
+                    ><span class="fn">BrainBell</span></span
+                  >updated
+                  <time
+                    class="entry-date updated"
+                    datetime="2016-08-01T20:00:00+00:00"
+                    >Aug 01, 2016</time
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="rightcol fltright">
+              <style type="text/css">
+                .adslot_1 {
+                  display: inline-block;
+                  width: 100%;
+                }
+                @media (max-width: 768px) {
+                  .adslot_1,
+                  .sideadh {
+                    display: none;
+                  }
+                }
+              </style>
+              <div class="gsa">
+                <div class="sideadh">Advertisement:</div>
+                <script
+                  async
+                  src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+                ></script>
+                <!-- responsive banner right -->
+                <ins
+                  class="adsbygoogle adslot_1"
+                  data-ad-client="ca-pub-1287605604486981"
+                  data-ad-slot="2682751945"
+                  data-ad-format="vertical"
+                ></ins>
+                <script>
+                  (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <div class="line">
+        <div class="leftcol fltleft">
+          <div class="gsa">
+            Advertisement:
+            <script
+              async
+              src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+            ></script>
+            <!-- responsive footer -->
+            <ins
+              class="adsbygoogle"
+              style="display: block"
+              data-ad-client="ca-pub-1287605604486981"
+              data-ad-slot="8559331946"
+              data-ad-format="rectangle"
+            ></ins>
+            <script>
+              (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+          </div>
+          <nav>
+            <div class="line">
+              <a
+                rel="next"
+                class="button fltright"
+                href="https://www.brainbell.com/tutors/Perl/Listing_5_2_Open_a_new_browser_window.htm"
+                >Next <span class="next">&gt;</span></a
+              ><a
+                rel="prev"
+                class="button fltleft"
+                href="https://www.brainbell.com/tutors/Perl/CGI_pm_versus_Individual_libwww_Modules.htm"
+                ><span class="prev">&lt;</span> Prev</a
+              >
+            </div>
+          </nav>
+        </div>
+        <div class="rightcol fltright"></div>
+      </div>
+    </main>
+
+    <footer>
+      <section>
+        <div class="line">
+          <div class="leftcol fltleft">
+            <p>Copyright &copy; 2021 BrainBell.com</p>
+            <p>Contact us: info&#64;brainbell.com</p>
+          </div>
+          <div class="rightcol fltright">
+            <a href="https://www.brainbell.com/privacy/">Privacy policy</a>
+            &nbsp; : &nbsp;
+            <a href="https://www.brainbell.com/terms/">Terms of use</a>
+          </div>
+        </div>
+      </section>
+    </footer>
+    <script>
+      (function () {
+        var m = document.querySelector("#menu"),
+          n = document.querySelector("#buttons"),
+          o = false;
+
+        m.addEventListener("click", function (e) {
+          var d;
+          o = !o;
+          if (o) {
+            m.innerHTML = "X";
+            n.style.display = "block";
+            n.style.display = "flex";
+            m.style.padding = ".375rem .98rem";
+          } else {
+            m.innerHTML = "&#9776;";
+            n.style.display = "none";
+            m.style.padding = ".375rem .75rem";
+          }
+        });
+      })();
+      (function () {
+        var stop = true,
+          p = document.querySelectorAll("pre");
+        for (var i in p) {
+          p[i].className += " prettyprint";
+          stop = false;
+        }
+        if (stop) return;
+        var script = document.createElement("script");
+        script.src =
+          "https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js";
+        document.head.appendChild(script);
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "https://www.brainbell.com/tutors/Perl/edmonton.php",
+        "/detroitchicago/edmonton.webp?a=a&cb=11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "https://www.brainbell.com/tutors/Perl/jellyfish.php",
+        "/porpoiseant/jellyfish.webp?a=a&cb=11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script>
+      var _audins_dom = "brainbell_com",
+        _audins_did = 83552;
+      __ez.queue.addDelayFunc(
+        "https://www.brainbell.com/tutors/Perl/audins.js",
+        "__ez.script.add",
+        "http://go.ezoic.net/detroitchicago/audins.js?cb=192-11"
+      );
+    </script>
+    <noscript
+      ><div style="display: none">
+        <img
+          src="http://pixel.quantserve.com/pixel/p-31iz6hfFutd16.gif?labels=Domain.brainbell_com,DomainId.83552"
+          border="0"
+          height="1"
+          width="1"
+          alt="Quantcast"
+        /></div
+    ></noscript>
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+
+  <!-- Mirrored from www.brainbell.com/tutors/Perl/Listing_5_1_Using_CGI_pm_with_forms.htm by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Feb 2021 02:57:51 GMT -->
+</html>

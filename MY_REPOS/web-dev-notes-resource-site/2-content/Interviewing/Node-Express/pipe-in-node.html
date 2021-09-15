@@ -1,0 +1,42 @@
+<h3 id="pipe-in-nodejs---what-do-they-do">Pipe in nodejs - what do they do</h3>
+<p>The pipe() function reads data from a readable stream as it becomes available, and writes it to a destination writable stream. It does all “reasonable” things along the way with errors, end of files, if one side falls behind etc.</p>
+<h3 id="what-are-streams">What are Streams</h3>
+<p>Streams are collections of data — just like arrays or strings. The difference is that streams might not be available all at once, and they don’t have to fit in memory. This makes streams really powerful when working with large amounts of data, or data that’s coming from an external source one chunk at a time.</p>
+<p>However, streams are not only about working with big data. They also give us the power of composability in our code. Just like we can compose powerful linux commands by piping other smaller Linux commands, we can do exactly the same in Node with streams.</p>
+<p>Streams are unix pipes that let you easily read data from a source and pipe it to a destination. Simply put, a stream is nothing but an EventEmitter and implements some specials methods. Depending on the methods implemented, a stream becomes Readable, Writable, or Duplex (both readable and writable). Readable streams let you read data from a source while writable streams let you write data to a destination.</p>
+<h4 id="an-implementation-for-a-functionality-of-uploading-image-to-mongodb-where-i-am-using-grid-stream-packages-to-read-and-write-directly-to-mongodb-and-then-making-it-available-to-the-write-stream">An implementation, for a functionality of uploading image to mongodb, where I am using grid-stream packages to read and write directly to mongodb and then making it available to the write-stream</h4>
+<p><a href="https://github.com/rohan-paul/mongo_file_uploads/blob/master/app.js">https://github.com/rohan-paul/mongo_file_uploads/blob/master/app.js</a></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="co">// Init gridfs-stream</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw">let</span> gfs<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-4" title="4"></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="cf">if</span> (<span class="va">file</span>.<span class="at">contentType</span> <span class="op">===</span> <span class="st">&#39;image/jpeg&#39;</span> <span class="op">||</span> <span class="va">file</span>.<span class="at">contentType</span> <span class="op">===</span> <span class="st">&#39;image/png&#39;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-6" title="6">            <span class="kw">const</span> readStream <span class="op">=</span> <span class="va">gfs</span>.<span class="at">createReadStream</span>(<span class="va">file</span>.<span class="at">filename</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-7" title="7">            <span class="va">readStream</span>.<span class="at">pipe</span>(res)</a>
+<a class="sourceLine" id="cb1-8" title="8">        <span class="op">}</span></a></code></pre></div>
+<h4 id="piping-is-a-great-mechanism-in-which-you-can-read-data-from-the-source-and-write-to-destination-without-managing-the-flow-yourself.-take-a-look-at-the-following-snippet">Piping is a great mechanism in which you can read data from the source and write to destination without managing the flow yourself. Take a look at the following snippet:</h4>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">var</span> fs <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;fs&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="kw">var</span> readableStream <span class="op">=</span> <span class="va">fs</span>.<span class="at">createReadStream</span>(<span class="st">&#39;file1.txt&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">var</span> writableStream <span class="op">=</span> <span class="va">fs</span>.<span class="at">createWriteStream</span>(<span class="st">&#39;file2.txt&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="va">readableStream</span>.<span class="at">pipe</span>(writableStream)<span class="op">;</span></a></code></pre></div>
+<p>The above snippet makes use of the pipe() function to write the content of file1 to file2. As pipe() manages the data flow for you, you should not worry about slow or fast data flow. This makes pipe() a neat tool to read and write data. You should also note that pipe() returns the destination stream. So, you can easily utilize this to chain multiple streams together. Let’s see how!</p>
+<h4 id="heres-the-magic-line-about-pipe-that-you-need-to-remember">Here’s the magic line about pipe() that you need to remember:</h4>
+<p><code>readableSrc.pipe(writableDest)</code></p>
+<p>In this simple line, we’re piping the output of a readable stream — the source of data, as the input of a writable stream — the destination. The source has to be a readable stream and the destination has to be a writable one. Of course, they can both be duplex/transform streams as well. In fact, if we’re piping into a duplex stream, we can chain pipe calls just like we do in Linux:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1">readableSrc</a>
+<a class="sourceLine" id="cb3-2" title="2">  .<span class="at">pipe</span>(transformStream1)</a>
+<a class="sourceLine" id="cb3-3" title="3">  .<span class="at">pipe</span>(transformStream2)</a>
+<a class="sourceLine" id="cb3-4" title="4">  .<span class="at">pipe</span>(finalWrtitableDest)</a></code></pre></div>
+<p>The pipe method returns the destination stream, which enabled us to do the chaining above. For streams a (readable), b and c (duplex), and d (writable), we can:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="va">a</span>.<span class="at">pipe</span>(b).<span class="at">pipe</span>(c).<span class="at">pipe</span>(d)</a>
+<a class="sourceLine" id="cb4-2" title="2"># Which is equivalent to<span class="op">:</span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="va">a</span>.<span class="at">pipe</span>(b)</a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="va">b</span>.<span class="at">pipe</span>(c)</a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="va">c</span>.<span class="at">pipe</span>(d)</a></code></pre></div>
+<h3 id="which-in-linux-is-equivalent-to">Which, in Linux, is equivalent to:</h3>
+<p><code>$ a | b | c | d</code></p>
+<p>The pipe method is the easiest way to consume streams. It’s generally recommended to either use the pipe method or consume streams with events, but avoid mixing these two. Usually when you’re using the pipe method you don’t need to use events, but if you need to consume the streams in more custom ways, events would be the way to go.</p>
+<h3 id="good-reference">Good Reference</h3>
+<p>1&gt; https://www.sitepoint.com/basics-node-js-streams/</p>
+<p>2&gt; https://medium.freecodecamp.org/node-js-streams-everything-you-need-to-know-c9141306be93</p>

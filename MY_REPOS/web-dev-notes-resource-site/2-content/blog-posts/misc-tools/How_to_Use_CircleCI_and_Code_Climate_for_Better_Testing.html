@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h1 id="how-to-use-circleci-and-code-climate-for-better-testing">How to Use CircleCI and Code Climate for Better Testing</h1>
+<blockquote>
+<p>How CircleCI and Code Climate have given us the tools we need to better use our test results.</p>
+</blockquote>
+<p>Over the past few years, we’ve spent a lot of time working to improve our testing tools. Lately, we’ve been using Jasmine to write tests for our JavaScript and have added additional metrics for greater visibility into our projects—but we were lacking code quality and test-coverage monitoring. That’s where CircleCI and Code Climate save the day. This post will show you what these services offer and how to use them within your Gulp and GitHub workflow.</p>
+<h2 id="circleci">CircleCI</h2>
+<p><a href="https://circleci.com/">CircleCI</a> aims to help developers “ship better code, faster" with continuous
+  integrations and deployments. I love that CircleCI integrates so nicely with GitHub. I can see right there in a pull
+  request whether the tests for that code are passing, and the setup is pretty simple too.</p>
+<h3 id="setup">Setup</h3>
+<h4 id="step-1">Step 1:</h4>
+<p>CircleCI will watch for updates to your GitHub repo by default, so you simply need to include a circle.yml file in the root of your project, and you should be good to go:</p>
+<pre><code>test:
+ override:
+   - ./node_modules/.bin/gulp ci</code></pre>
+<h4 id="step-2">Step 2:</h4>
+<p>Your gulpfile.coffee also gets a new task:</p>
+<pre><code>gulp.task(&quot;ci&quot;, [&#39;build&#39;, &#39;test&#39;])</code></pre>
+<h4 id="step-3">Step 3:</h4>
+<p>Log in to <a href="https://circleci.com/">CircleCI.com</a>, click the “Add Projects" link in the left-hand nav. You should now see a list of your GitHub repos on the page, each with a button to tell CircleCI to follow that repo.</p>
+<h3 id="success">Success</h3>
+<p>Now, whenever code gets pushed to the GitHub repo, CircleCI will run the test suite and insert a message on any pull requests to let us know if everything is passing.</p>
+<h2 id="code-climate">Code Climate</h2>
+<p><a href="https://codeclimate.com/">Code Climate</a> offers “hosted static analysis for Ruby, PHP, and JavaScript source code." I like Code Climate because it provides a quick, easy-to-read grade of our code and identifies areas that need more attention. Grades are assigned to code using a scale similar to a standard <a href="https://en.wikipedia.org/wiki/Academic_grading_in_the_United_States#Grade_point_average">US grading system</a>.</p>
+<p><img src="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/uploads/article_uploads/code_grade.gif" /></p>
+<h3 id="setup-1">Setup</h3>
+<h4 id="step-1-1">Step 1:</h4>
+<p>The first thing to do is to log into <a href="https://codeclimate.com/">codeclimate.com</a> and click the “Add a Repo" button in the top right.</p>
+<p><img src="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/uploads/article_uploads/add_repo_button.gif" /></p>
+<h4 id="step-2-1">Step 2:</h4>
+<p>Select your repo and then give it a minute to process.</p>
+<h4 id="step-3-1">Step 3:</h4>
+<p>Once it’s ready, click on the “Settings" link (gear icon) next to the repo name (#1) and then select Analysis (#2).</p>
+<p><img src="https://lh6.googleusercontent.com/2K0QkpORhEyaKwLcFGQ_iWs47SSOlJyMDSmO4YzMNfQK1iISbdDKPLBNzaQwNeGTR3ANInAJjEKkXWULWz91p2FtQiDc7UfQ4MFeoP0gGGWHeaf-kIGbSnLzAlcrSXHTyKbI_pc" /></p>
+<h4 id="step-4">Step 4:</h4>
+<p>Select which languages you want to test (#3).</p>
+<h4 id="step-5">Step 5:</h4>
+<p>Under Analysis, you’ll also find the ability to exclude third-party libraries and code that should not be evaluated (#4). Something like this is probably appropriate to be ignored:</p>
+<pre><code>Exclude patterns
+ js/lib/*
+ specs/lib/*</code></pre>
+<h4 id="step-6">Step 6:</h4>
+<p>Now you can click on Integrations and select GitHub Pull Requests. This will add a message from CodeClimate into your pull request. If you use Slack to communicate amongst your team, you can also turn on the Slack notification to drop messages into a project chat room.</p>
+<h4 id="step-7">Step 7:</h4>
+<p>Next, you can grab the code from the Badges section and drop a nifty little badge into your project’s README.md file.</p>
+<h3 id="success-1">Success</h3>
+<p>You’re now grading our JavaScript. Bask in the glory of your good grades.</p>
+<h2 id="test-coverage-report">Test Coverage Report</h2>
+<p>It’s nice to know how much of your code you are testing. To do this, we’re going to set up CircleCI to work with Code Climate.</p>
+<h3 id="setup-2">Setup</h3>
+<p>I like using <a href="https://www.npmjs.com/package/karma">Karma</a> and <a href="https://www.npmjs.com/package/karma-coverage">karma-coverage</a> for a really easy way to get a code coverage report.</p>
+<h4 id="step-1-2">Step 1:</h4>
+<pre><code>module.exports = (gulp, cfg, env) -&gt;
+ karma = require(&#39;karma&#39;).server
+ gulp.task &#39;karma&#39;, (done) -&gt;
+   karma.start
+     configFile: cfg.karmaConfig
+     singleRun: true
+   , done</code></pre>
+<h4 id="step-2-2">Step 2:</h4>
+<p>You’ll also need to update the <code>ci</code> task in <code>gulpfile.coffee</code> to use Karma:</p>
+<pre><code>gulp.task(&quot;ci&quot;, [&#39;build&#39;, &#39;karma&#39;])</code></pre>
+<h4 id="step-3-2">Step 3:</h4>
+<p>Updating the circle.yml file to also send the lcov file to Code Climate.</p>
+<pre><code>test:
+ override:
+   - ./node_modules/.bin/gulp ci
+   - CODECLIMATE_REPO_TOKEN=$CodeClimateToken ./node_modules/.bin/codeclimate &lt; reports/coverage/lcov.info</code></pre>
+<h4 id="step-4-1">Step 4:</h4>
+<p>You probably noticed the <code>$CodeClimateToken</code> in circle.yml. We don’t want to store our token in plain text, or check it into GitHub. So, CircleCI gives us the ability to store environment variables that we can access from our tasks—+1 for security.</p>
+<p>CircleCI will now send our code coverage numbers to Code Climate, so we can see our coverage numbers on the dashboard.</p>
+<h4 id="step-5-1">Step 5:</h4>
+<p>Click on the Code tab at the top, and then find a file that has a coverage number listed on the right. Click on the file name, then Source, and finally select Coverage at the top right.</p>
+<h3 id="success-2">Success</h3>
+<p>Now you can see what parts of your code aren’t being hit by your tests.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Adding these services has given us greater visibility into the quality of the code that we are creating. It has also given our project managers and other stakeholders greater confidence in what we are producing using proven tools to track code quality. I don’t know about you, but I consider helping us stay on top of writing the best possible code a major win.</p>
+<p>I’m really excited about the direction that these services are moving in. If you’re looking for more ways to up your build process game, check out this article from Adam about <a href="chrome-extension://cjedbglnccaioiolemnfhjncicchinao/foundry/we_heart_good_tools_an_update_on_our_build_process">some other tools that we have added to our toolchain</a>.</p>
+<p><a href="https://sparkbox.com/foundry/code_quality_tools">Source</a></p>
+</body></html>

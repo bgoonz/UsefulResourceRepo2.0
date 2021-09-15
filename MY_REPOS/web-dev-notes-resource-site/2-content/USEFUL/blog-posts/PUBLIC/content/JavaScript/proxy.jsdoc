@@ -1,0 +1,77 @@
+Proxy : Object
+
+The Proxy allows you to wrap an Object (called the **target**) and 
+modify the behavior of that Object. 
+
+Version:
+ECMAScript 2015
+
+Spec:
+http://www.ecma-international.org/ecma-262/6.0/#sec-proxy-objects
+
+----
+new Proxy(target : Object, handler : ProxyHandler) : Proxy
+
+Creates a new Proxy for the **target** where **handler**
+allows you to modify the behavior of **target**.
+
+<example>
+// Create a Proxy for Map that only allows even number keys 
+var evenMap = new Proxy(new Map(), {
+  // The 'get' function allows you to modify the value returned
+  // when accessing properties on the proxy
+  get: function(target, name) {
+    // Return a custom function for Map.set that checks
+    // that the keys are even numbers
+    if (name === 'set') {
+      return function(key, value) {
+        if (Number.isInteger(key) && (key % 2 === 0)) {
+          return target.set(key, value);
+        }
+        else {
+          throw Error('key "' + key + '" is not even');
+        }
+      };
+    }
+    else {
+      var value = target[name];
+
+      // If the value is a function, return a function that
+      // is bound to the original target. Otherwise the function
+      // would be called with the Proxy as 'this' and Map
+      // functions do not work unless the 'this' is the Map.
+      if (value instanceof Function) {
+        return value.bind(target);
+      }
+
+      // Return the normal property value for everything else
+      return value;
+    }
+  }
+});
+
+evenMap.set(0, 'foo');
+console.log(evenMap.get(0));
+
+evenMap.set(2, 'bar');
+console.log(evenMap.get(2));
+
+try
+{
+  evenMap.set(3, 'baz');
+  console.log(evenMap.get(3));
+}
+catch (e)
+{
+  console.log(e);
+}
+</example>
+
+Spec:
+http://www.ecma-international.org/ecma-262/6.0/#sec-proxy-target-handler
+
+----
+revocable(target : Object, handler : Proxyhandler) : Proxy
+
+Spec:
+http://www.ecma-international.org/ecma-262/6.0/#sec-proxy.revocable

@@ -1,0 +1,1946 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <!-- Mirrored from www.brainbell.com/javascript/data-structure-storage.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Feb 2021 02:56:18 GMT -->
+  <!-- Added by HTTrack --><meta
+    http-equiv="content-type"
+    content="text/html;charset=utf-8"
+  /><!-- /Added by HTTrack -->
+  <head>
+    <meta charset="UTF-8" />
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      var __ez = __ez || {};
+      __ez.stms = Date.now();
+      __ez.evt = {};
+      __ez.script = {};
+      __ez.ck = __ez.ck || {};
+      __ez.template = {};
+      __ez.template.isOrig = true;
+      __ez.queue = (function () {
+        var count = 0,
+          incr = 0,
+          items = [],
+          timeDelayFired = false,
+          hpItems = [],
+          lpItems = [],
+          allowLoad = true;
+        var obj = {
+          func: function (
+            name,
+            funcName,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.funcName = funcName;
+            this.parameters =
+              parameters === null
+                ? null
+                : parameters instanceof Array
+                ? parameters
+                : [parameters];
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.deleteWhenComplete = deleteWhenComplete;
+            this.isError = false;
+            this.isComplete = false;
+            this.isInitialized = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              log("... func = " + name);
+              self.isInitialized = true;
+              self.isComplete = true;
+              log("... func.apply: " + name);
+              var funcs = self.funcName.split(".");
+              var func = null;
+              if (funcs.length > 3) {
+              } else if (funcs.length === 3) {
+                func = window[funcs[0]][funcs[1]][funcs[2]];
+              } else if (funcs.length === 2) {
+                func = window[funcs[0]][funcs[1]];
+              } else {
+                func = window[self.funcName];
+              }
+              if (typeof func !== "undefined" && func !== null) {
+                func.apply(null, this.parameters);
+              }
+              if (self.deleteWhenComplete === true) delete items[name];
+              if (self.isBlock === true) {
+                log("----- F'D: " + self.name);
+                processAll();
+              }
+            };
+          },
+          file: function (
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          ) {
+            var self = this;
+            this.name = name;
+            this.path = path;
+            this.async = async;
+            this.defer = defer;
+            this.isBlock = isBlock;
+            this.blockedBy = blockedBy;
+            this.isInitialized = false;
+            this.isError = false;
+            this.isComplete = false;
+            this.proceedIfError = proceedIfError;
+            this.isTimeDelay = false;
+            this.process = function () {
+              self.isInitialized = true;
+              log("... file = " + name);
+              var scr = document.createElement("script");
+              scr.src = path;
+              if (async === true) scr.async = true;
+              else if (defer === true) scr.defer = true;
+              scr.onerror = function () {
+                log("----- ERR'D: " + self.name);
+                self.isError = true;
+                if (self.isBlock === true) {
+                  processAll();
+                }
+              };
+              scr.onreadystatechange = scr.onload = function () {
+                var state = scr.readyState;
+                log("----- F'D: " + self.name);
+                if (!state || /loaded|complete/.test(state)) {
+                  self.isComplete = true;
+                  if (self.isBlock === true) {
+                    processAll();
+                  }
+                }
+              };
+              document.getElementsByTagName("head")[0].appendChild(scr);
+            };
+          },
+        };
+        function init() {
+          window.addEventListener(
+            "load",
+            function () {
+              setTimeout(function () {
+                timeDelayFired = true;
+                log("TDELAY -----");
+                processAll();
+              }, 5000);
+            },
+            false
+          );
+        }
+        function addFile(
+          name,
+          path,
+          isBlock,
+          blockedBy,
+          async,
+          defer,
+          proceedIfError,
+          priority
+        ) {
+          var item = new obj.file(
+            name,
+            path,
+            isBlock,
+            blockedBy,
+            async,
+            defer,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function setallowLoad(settobool) {
+          allowLoad = settobool;
+        }
+        function addFunc(
+          name,
+          func,
+          parameters,
+          isBlock,
+          blockedBy,
+          autoInc,
+          deleteWhenComplete,
+          proceedIfError,
+          priority
+        ) {
+          if (autoInc === true) name = name + "_" + incr++;
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            isBlock,
+            blockedBy,
+            deleteWhenComplete,
+            proceedIfError
+          );
+          if (priority === true) {
+            hpItems[name] = item;
+          } else {
+            lpItems[name] = item;
+          }
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFile(name, path) {
+          var item = new obj.file(name, path, false, [], false, false, true);
+          item.isTimeDelay = true;
+          log(name + " ... " + " FILE! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function addTimeDelayFunc(name, func, parameters) {
+          var item = new obj.func(
+            name,
+            func,
+            parameters,
+            false,
+            [],
+            true,
+            true
+          );
+          item.isTimeDelay = true;
+          log(name + " ... " + " FUNCTION! TDELAY");
+          lpItems[name] = item;
+          items[name] = item;
+          checkIfBlocked(item);
+        }
+        function checkIfBlocked(item) {
+          if (isBlocked(item) === true || allowLoad == false) return;
+          item.process();
+        }
+        function isBlocked(item) {
+          if (item.isTimeDelay === true && timeDelayFired === false) {
+            log(item.name + " blocked = TIME DELAY!");
+            return true;
+          }
+          if (item.blockedBy instanceof Array) {
+            for (var i = 0; i < item.blockedBy.length; i++) {
+              var block = item.blockedBy[i];
+              if (items.hasOwnProperty(block) === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              } else if (
+                item.proceedIfError === true &&
+                items[block].isError === true
+              ) {
+                return false;
+              } else if (items[block].isComplete === false) {
+                log(item.name + " blocked = " + block);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        function log(msg) {
+          var href = window.location.href;
+          var reg = new RegExp("[?&]ezq=([^&#]*)", "i");
+          var string = reg.exec(href);
+          var res = string ? string[1] : null;
+          if (res === "1") console.debug(msg);
+        }
+        function processAll() {
+          count++;
+          if (count > 200) return;
+          log("let's go");
+          processItems(hpItems);
+          processItems(lpItems);
+        }
+        function processItems(list) {
+          for (var i in list) {
+            if (list.hasOwnProperty(i) === false) continue;
+            var item = list[i];
+            if (
+              item.isComplete === true ||
+              isBlocked(item) ||
+              item.isInitialized === true ||
+              item.isError === true
+            ) {
+              if (item.isError === true) {
+                log(item.name + ": error");
+              } else if (item.isComplete === true) {
+                log(item.name + ": complete already");
+              } else if (item.isInitialized === true) {
+                log(item.name + ": initialized already");
+              }
+            } else {
+              item.process();
+            }
+          }
+        }
+        init();
+        return {
+          addFile: addFile,
+          addDelayFile: addTimeDelayFile,
+          addFunc: addFunc,
+          addDelayFunc: addTimeDelayFunc,
+          items: items,
+          processAll: processAll,
+          setallowLoad: setallowLoad,
+        };
+      })();
+      (__ez.evt.add = function (e, t, n) {
+        e.addEventListener
+          ? e.addEventListener(t, n, !1)
+          : e.attachEvent
+          ? e.attachEvent("on" + t, n)
+          : (e["on" + t] = n());
+      }),
+        (__ez.evt.remove = function (e, t, n) {
+          e.removeEventListener
+            ? e.removeEventListener(t, n, !1)
+            : e.detachEvent
+            ? e.detachEvent("on" + t, n)
+            : delete e["on" + t];
+        });
+      __ez.script.add = function (e) {
+        var t = document.createElement("script");
+        (t.src = e),
+          (t.async = !0),
+          (t.type = "text/javascript"),
+          document.getElementsByTagName("head")[0].appendChild(t);
+      };
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/boise.js",
+        "https://www.brainbell.com/detroitchicago/boise.js?gcb=192-11&amp;cb=1",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.dot = {};
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/memphis.js",
+        "https://www.brainbell.com/detroitchicago/memphis.js?gcb=192-11&amp;cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/minneapolis.js",
+        "https://www.brainbell.com/detroitchicago/minneapolis.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.vep = (function () {
+        var pixels = [],
+          pxURL = "https://www.brainbell.com/detroitchicago/grapefruit.gif";
+        function AddPixel(vID, pixelData) {
+          if (__ez.dot.isDefined(vID) && __ez.dot.isValid(pixelData)) {
+            pixels.push({
+              type: "video",
+              video_impression_id: vID,
+              domain_id: __ez.dot.getDID(),
+              t_epoch: __ez.dot.getEpoch(0),
+              data: __ez.dot.dataToStr(pixelData),
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          ) {
+            return;
+          }
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            while (pixels.length > 0) {
+              var j = 5;
+              if (j > pixels.length) {
+                j = pixels.length;
+              }
+              var pushPixels = pixels.splice(0, j);
+              var pixelURL =
+                __ez.dot.getURL(pxURL) +
+                "?orig=" +
+                (__ez.template.isOrig === true ? 1 : 0) +
+                "&v=" +
+                btoa(JSON.stringify(pushPixels));
+              __ez.dot.Fire(pixelURL);
+            }
+          }
+          pixels = [];
+        }
+        return { Add: AddPixel, Fire: Fire };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false" data-pagespeed-no-defer>
+      __ez.pel = (function () {
+        var pixels = [],
+          pxURL = "https://www.brainbell.com/porpoiseant/army.gif";
+        function AddAndFirePixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0);
+          Fire();
+        }
+        function AddAndFireOrigPixel(adSlot, pixelData) {
+          AddPixel(adSlot, pixelData, 0, 0, 0, 0, 0, true);
+          Fire();
+        }
+        function GetCurrentPixels() {
+          return pixels;
+        }
+        function AddPixel(
+          adSlot,
+          pixelData,
+          revenue,
+          est_revenue,
+          bid_floor_filled,
+          bid_floor_prev,
+          stat_source_id,
+          isOrig
+        ) {
+          if (
+            !__ez.dot.isDefined(adSlot) ||
+            __ez.dot.isAnyDefined(adSlot.getSlotElementId, adSlot.ElementId) ==
+              false
+          ) {
+            return;
+          }
+          var ad_position_id = parseInt(__ez.dot.getTargeting(adSlot, "ap"));
+          var impId = __ez.dot.getSlotIID(adSlot),
+            adUnit = __ez.dot.getAdUnit(adSlot, isOrig);
+          var compId = parseInt(__ez.dot.getTargeting(adSlot, "compid"));
+          var lineItemId = 0;
+          var creativeId = 0;
+          var ezimData = getEzimData(adSlot);
+          if (typeof ezimData == "object") {
+            if (ezimData.creative_id !== undefined) {
+              creativeId = ezimData.creative_id;
+            }
+            if (ezimData.line_item_id !== undefined) {
+              lineItemId = ezimData.line_item_id;
+            }
+          }
+          if (
+            __ez.dot.isDefined(impId, adUnit) &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              revenue: revenue,
+              est_revenue: est_revenue,
+              ad_position: ad_position_id,
+              ad_size: "",
+              bid_floor_filled: bid_floor_filled,
+              bid_floor_prev: bid_floor_prev,
+              stat_source_id: stat_source_id,
+              country_code: __ez.dot.getCC(),
+              pageview_id: __ez.dot.getPageviewId(),
+              comp_id: compId,
+              line_item_id: lineItemId,
+              creative_id: creativeId,
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function AddPixelById(impFullId, pixelData, isOrig) {
+          var vals = impFullId.split("https://www.brainbell.com/");
+          if (
+            __ez.dot.isDefined(impFullId) &&
+            vals.length === 3 &&
+            __ez.dot.isValid(pixelData)
+          ) {
+            var adUnit = vals[0],
+              impId = vals[2];
+            pixels.push({
+              type: "impression",
+              impression_id: impId,
+              domain_id: __ez.dot.getDID(),
+              unit: adUnit,
+              t_epoch: __ez.dot.getEpoch(0),
+              pageview_id: __ez.dot.getPageviewId(),
+              data: __ez.dot.dataToStr(pixelData),
+              is_orig: isOrig || __ez.template.isOrig,
+            });
+          }
+        }
+        function Fire() {
+          if (
+            typeof document.visibilityState !== "undefined" &&
+            document.visibilityState === "prerender"
+          )
+            return;
+          if (__ez.dot.isDefined(pixels) && pixels.length > 0) {
+            var allPixels = [
+              pixels.filter(function (pixel) {
+                return pixel.is_orig;
+              }),
+              pixels.filter(function (pixel) {
+                return !pixel.is_orig;
+              }),
+            ];
+            allPixels.forEach(function (pixels) {
+              while (pixels.length > 0) {
+                var isOrig = pixels[0].is_orig || false;
+                var j = 5;
+                if (j > pixels.length) {
+                  j = pixels.length;
+                }
+                var pushPixels = pixels.splice(0, j);
+                var pixelURL =
+                  __ez.dot.getURL(pxURL) +
+                  "?orig=" +
+                  (isOrig === true ? 1 : 0) +
+                  "&sts=" +
+                  btoa(JSON.stringify(pushPixels));
+                if (
+                  typeof window.isAmp !== "undefined" &&
+                  isAmp &&
+                  typeof window._ezaq !== "undefined" &&
+                  _ezaq.hasOwnProperty("domain_id")
+                ) {
+                  pixelURL += "&visit_uuid=" + _ezaq["visit_uuid"];
+                }
+                __ez.dot.Fire(pixelURL);
+              }
+            });
+          }
+          pixels = [];
+        }
+        function getEzimData(adSlot) {
+          if (typeof _ezim_d == "undefined") {
+            return false;
+          }
+          var adUnitName = __ez.dot
+            .getAdUnitPath(adSlot)
+            .split("https://www.brainbell.com/")
+            .pop();
+          if (
+            typeof _ezim_d === "object" &&
+            _ezim_d.hasOwnProperty(adUnitName)
+          ) {
+            return _ezim_d[adUnitName];
+          }
+          for (var ezimKey in _ezim_d) {
+            if (
+              ezimKey.split("https://www.brainbell.com/").pop() === adUnitName
+            ) {
+              return _ezim_d[ezimKey];
+            }
+          }
+          return false;
+        }
+        return {
+          Add: AddPixel,
+          AddAndFire: AddAndFirePixel,
+          AddAndFireOrig: AddAndFireOrigPixel,
+          AddById: AddPixelById,
+          Fire: Fire,
+          GetPixels: GetCurrentPixels,
+        };
+      })();
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/raleigh.js",
+        "https://www.brainbell.com/detroitchicago/raleigh.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/tampa.js",
+        "https://www.brainbell.com/detroitchicago/tampa.js?gcb=192-11&amp;cb=3",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      (function () {
+        if ("function" === typeof window.CustomEvent) return !1;
+        window.CustomEvent = function (c, a) {
+          a = a || { bubbles: !1, cancelable: !1, detail: null };
+          var b = document.createEvent("CustomEvent");
+          b.initCustomEvent(c, a.bubbles, a.cancelable, a.detail);
+          return b;
+        };
+      })();
+    </script>
+    <script data-ezscrex="false" data-cfasync="false">
+      __ez.queue.addFile(
+        "https://www.brainbell.com/detroitchicago/tulsa.js",
+        "https://www.brainbell.com/detroitchicago/tulsa.js?gcb=192-11&amp;cb=5",
+        false,
+        [],
+        true,
+        false,
+        true,
+        false
+      );
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Create a data structure to find and store duplicate files in Node.js
+    </title>
+    <meta
+      name="description"
+      content="A data structure is a particular way of storing and organizing data in a computer so that it can be used efficiently. We&#8217;ll create a data class  for our Duplicate File Finder app to store the results of FileWalker class."
+    />
+    <link rel="shortcut icon" href="https://www.brainbell.com/favicon.ico" />
+    <style type="text/css">
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        font-family: sans-serif;
+        line-height: 1.15;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        -ms-overflow-style: scrollbar;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      }
+      @-ms-viewport {
+        width: device-width;
+      }
+      article,
+      aside,
+      figcaption,
+      figure,
+      footer,
+      header,
+      hgroup,
+      main,
+      nav,
+      section {
+        display: block;
+      }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+          "Segoe UI Emoji", "Segoe UI Symbol";
+        font-size: 1.1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        text-align: left;
+        background-color: #fff;
+      }
+      [tabindex="-1"]:focus {
+        outline: 0 !important;
+      }
+      hr {
+        box-sizing: content-box;
+        height: 0;
+        overflow: visible;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        border: 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-family: inherit;
+        font-weight: 500;
+        line-height: 1.2;
+        color: inherit;
+      }
+      h1 {
+        font-size: 2.5rem;
+      }
+      h2 {
+        font-size: 2rem;
+      }
+      h3 {
+        font-size: 1.75rem;
+      }
+      h4 {
+        font-size: 1.5rem;
+      }
+      h5 {
+        font-size: 1.3rem;
+      }
+      h6 {
+        font-size: 1.2rem;
+      }
+      p {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+      abbr[title],
+      abbr[data-original-title] {
+        text-decoration: underline;
+        -webkit-text-decoration: underline dotted;
+        text-decoration: underline dotted;
+        cursor: help;
+        border-bottom: 0;
+      }
+      address {
+        margin-bottom: 1rem;
+        font-style: normal;
+        line-height: inherit;
+      }
+
+      ol,
+      ul,
+      dl {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+      ol ol,
+      ul ul,
+      ol ul,
+      ul ol {
+        margin-bottom: 0;
+      }
+      dt {
+        font-weight: 700;
+      }
+      dd {
+        margin-bottom: 0.5rem;
+        margin-left: 0;
+      }
+
+      blockquote {
+        padding: 1rem 3rem;
+        margin: 3rem 0;
+        position: relative;
+        border-radius: 1rem;
+      }
+
+      blockquote::before {
+        content: "“";
+        left: 0.5rem;
+        top: 1.8rem;
+      }
+      blockquote::after {
+        content: "”";
+        right: 2.5rem;
+        bottom: -1.5rem;
+      }
+
+      blockquote::after,
+      blockquote::before {
+        font-family: georgia;
+        font-size: 5rem;
+        height: 2.5rem;
+        width: 0;
+        display: block;
+        position: absolute;
+      }
+
+      dfn {
+        font-style: italic;
+      }
+      b,
+      strong {
+        font-weight: bolder;
+      }
+      small {
+        font-size: 80%;
+        font-weight: 400;
+      }
+      sub,
+      sup {
+        position: relative;
+        font-size: 75%;
+        line-height: 0;
+        vertical-align: baseline;
+      }
+      sub {
+        bottom: -0.25em;
+      }
+      sup {
+        top: -0.5em;
+      }
+
+      a {
+        color: #0074d9;
+        background-color: transparent;
+        -webkit-text-decoration-skip: objects;
+      }
+      a:hover {
+        color: #002633;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]) {
+        color: inherit;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]):hover,
+      a:not([href]):not([tabindex]):focus {
+        color: inherit;
+        text-decoration: none;
+      }
+      a:not([href]):not([tabindex]):focus {
+        outline: 0;
+      }
+
+      pre,
+      code,
+      kbd,
+      samp,
+      .slog {
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        font-size: 1em;
+      }
+      pre {
+        margin-top: 0;
+        margin-bottom: 2rem;
+        overflow: auto;
+        -ms-overflow-style: scrollbar;
+        display: block;
+        font-size: 87.5%;
+        color: #212529;
+        border: 1px solid #eee !important;
+        padding: 0.8rem !important;
+        border-radius: 8px;
+        line-height: 1.4rem;
+      }
+
+      figure {
+        margin: 0 0 1rem;
+      }
+      img {
+        vertical-align: middle;
+        border-style: none;
+        border: 0;
+        height: auto;
+        max-width: 100%;
+        width: auto;
+      }
+      svg:not(:root) {
+        overflow: hidden;
+        vertical-align: middle;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 2rem;
+      }
+      td,
+      th {
+        padding: 0.25rem;
+        border: 1px solid #dee2e6;
+      }
+      blockquote,
+      code,
+      table tr:nth-of-type(2n) {
+        background: #fbfbfb;
+      }
+      caption {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        color: #6c757d;
+        text-align: left;
+        caption-side: bottom;
+      }
+      th {
+        text-align: inherit;
+      }
+
+      summary {
+        display: list-item;
+        cursor: pointer;
+      }
+      mark {
+        padding: 0.2em;
+        background-color: #fcf8e3;
+      }
+      code {
+        color: #c7254e;
+        word-break: break-word;
+        font-size: 87.5%;
+      }
+      a > code {
+        color: inherit;
+      }
+      kbd {
+        padding: 0.2rem 0.4rem;
+        color: #fff;
+        background-color: #212529;
+        border-radius: 0.2rem;
+      }
+      kbd kbd {
+        padding: 0;
+        font-weight: 700;
+      }
+      pre code {
+        font-size: inherit;
+        color: inherit;
+        word-break: normal;
+      }
+      video {
+        display: block;
+        max-width: 75%;
+      }
+
+      .borderbox {
+        border-left: 3px solid #00f;
+        padding: 1rem 0.5rem 0;
+      }
+      .line {
+        margin: 0 auto;
+        max-width: 71.25rem;
+      }
+      .line:after {
+        display: block;
+        clear: both;
+        content: "";
+      }
+      .fullwidth {
+        width: 100%;
+      }
+
+      .button,
+      #toc a {
+        display: inline-block;
+        cursor: pointer;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        border: 1px solid rgba(50, 205, 50, 0.5);
+        padding: 0.375rem 0.75rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        margin-bottom: 0.3rem;
+        color: #009600;
+        text-decoration: none;
+      }
+      .button ::-moz-focus-inner {
+        padding: 0;
+        border-style: none;
+      }
+      #buttons {
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        padding: 0.5rem;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+      }
+      #navbar-brand {
+        color: #000;
+        display: inline-block;
+        padding-top: 0.3125rem;
+        padding-bottom: 0.3125rem;
+        margin-left: 1rem;
+        white-space: nowrap;
+        -ms-touch-action: manipulation;
+        touch-action: manipulation;
+        text-decoration: none;
+        background-color: transparent;
+        -webkit-text-decoration-skip: objects;
+        line-height: 1rem;
+        font-size: 2.2rem;
+        text-align: center;
+      }
+      #navbar-brand .bell {
+        color: rgba(0, 200, 0, 1);
+      }
+      .slog {
+        font-weight: normal;
+        font-size: 0.85rem;
+      }
+      nav {
+        padding: 0.5rem;
+        margin-top: 0.5rem;
+      }
+      nav a.button {
+        text-decoration: none;
+        margin-left: 0.3rem;
+        flex: 10rem;
+      }
+      #buttons {
+        margin-top: 1rem;
+        display: none;
+      }
+      #menu {
+        font-size: 1.5rem;
+        color: #000;
+        display: block;
+        margin-right: 0.7rem;
+      }
+
+      #heading {
+        padding: 6rem 1.25rem;
+        background-color: #49bf4c;
+        color: #fff;
+        text-align: center;
+      }
+      #heading a {
+        white-space: normal;
+        color: #fff;
+        text-decoration: none;
+        border: 1px solid #fff;
+      }
+      #heading h1 {
+        font-size: 2.5rem;
+        line-height: 2.4rem;
+        margin: 0;
+        margin-bottom: 1rem;
+        font-weight: 400;
+      }
+      #wrapper {
+        padding: 2.5rem 1.25rem;
+      }
+      .leftcol {
+        width: 66.6666%;
+        position: relative;
+      }
+      .rightcol {
+        width: 33.3333%;
+      }
+      .fltright {
+        float: right;
+      }
+      .fltleft {
+        float: left;
+      }
+      .rightcol,
+      .leftcol {
+        padding: 0 0.625rem;
+        position: relative;
+      }
+      .entry-content,
+      .entry-summary {
+        color: #555;
+        line-height: 2rem;
+      }
+      .cat_list {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        margin-bottom: 2.25rem;
+      }
+      .cat_list h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        display: block;
+      }
+      .cat_list a {
+        color: #49bf4c;
+      }
+      .hidden {
+        display: none;
+      }
+      .gsa {
+        text-align: center;
+        margin-bottom: 1.25rem;
+        width: 100%;
+      }
+      #toc a {
+        display: block;
+        font-weight: bold;
+        text-align: left;
+        white-space: normal;
+      }
+      footer {
+        margin-top: 2rem;
+        background: #002633;
+        padding: 0.625rem;
+        text-align: center;
+        font-size: 0.95rem;
+      }
+      footer,
+      footer a,
+      footer a:hover {
+        color: #7697a2;
+      }
+      .next,
+      .prev {
+        display: inline-block;
+        padding: 0.6rem;
+        padding-top: 0.05rem;
+        padding-bottom: 0.25rem;
+        border-radius: 1rem;
+        font-weight: bold;
+        color: #fff;
+        background: #009600;
+      }
+      @media screen and (max-width: 768px) {
+        .leftcol,
+        .rightcol {
+          width: 100%;
+        }
+        video {
+          max-width: 100%;
+        }
+      }
+    </style>
+    <link
+      rel="canonical"
+      href="https://brainbell.com/javascript/data-structure-storage.html"
+    />
+    <script type="text/javascript">
+      var ezouid = "1";
+    </script>
+    <base />
+    <script type="text/javascript">
+      var ezoTemplate = "old_site_gc";
+      if (typeof ezouid == "undefined") {
+        var ezouid = "none";
+      }
+      var ezoFormfactor = "1";
+      var ezo_elements_to_check = Array();
+    </script>
+    <!-- START EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript">
+      var soc_app_id = "0";
+      var did = 83552;
+      var ezdomain = "brainbell.com";
+      var ezoicSearchable = 1;
+    </script>
+    <!--{jquery}-->
+    <!-- END EZHEAD -->
+    <script data-ezscrex="false" type="text/javascript" data-cfasync="false">
+      var _ezaq = {
+        ad_cache_level: 0,
+        ad_lazyload_version: 0,
+        city: "Union City",
+        country: "US",
+        days_since_last_visit: -1,
+        domain_id: 83552,
+        domain_test_group: 20200401,
+        engaged_time_visit: 0,
+        ezcache_level: 2,
+        ezcache_skip_code: 0,
+        form_factor_id: 1,
+        framework_id: 1,
+        is_return_visitor: false,
+        is_sitespeed: 0,
+        last_page_load: "",
+        last_pageview_id: "",
+        lt_cache_level: 0,
+        metro_code: 501,
+        page_ad_positions: "",
+        page_view_count: 20,
+        page_view_id: "d6b31594-f2c9-4262-7104-e7fc4794d133",
+        position_selection_id: 0,
+        postal_code: "07087",
+        pv_event_count: 0,
+        response_size_orig: 21209,
+        response_time_orig: 11,
+        serverid: "52.91.144.24:18176",
+        state: "NJ",
+        t_epoch: 1613702843,
+        template_id: 126,
+        time_on_site_visit: 0,
+        url: "https://www.brainbell.com/javascript/data-structure-storage.html",
+        user_id: 0,
+        word_count: 1152,
+        worst_bad_word_level: 0,
+      };
+      var _ezExtraQueries = "&ez_orig=1";
+    </script>
+    <script
+      data-ezscrex="false"
+      data-cfasync="false"
+      type="text/javascript"
+      src="https://www.brainbell.com/detroitchicago/rochester.js?dcb=192-11&amp;cb=2&amp;v=9"
+      async
+    ></script>
+    <script data-ezscrex="false" data-pagespeed-no-defer data-cfasync="false">
+      function create_ezolpl(pvID, rv) {
+        var d = new Date();
+        d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+        var expires = "expires=" + d.toUTCString();
+        __ez.ck.setByCat(
+          "ezux_lpl_83552=" +
+            new Date().getTime() +
+            "|" +
+            pvID +
+            "|" +
+            rv +
+            "; " +
+            expires,
+          3
+        );
+      }
+      function attach_ezolpl(pvID, rv) {
+        if (document.readyState === "complete") {
+          create_ezolpl(pvID, rv);
+        }
+        if (window.attachEvent) {
+          window.attachEvent("onload", create_ezolpl, pvID, rv);
+        } else {
+          if (window.onload) {
+            var curronload = window.onload;
+            var newonload = function (evt) {
+              curronload(evt);
+              create_ezolpl(pvID, rv);
+            };
+            window.onload = newonload;
+          } else {
+            window.onload = create_ezolpl.bind(null, pvID, rv);
+          }
+        }
+      }
+
+      __ez.queue.addFunc(
+        "attach_ezolpl",
+        "attach_ezolpl",
+        ["d6b31594-f2c9-4262-7104-e7fc4794d133", "false"],
+        false,
+        ["/detroitchicago/boise.js"],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+  </head>
+  <body>
+    <header role="banner">
+      <div class="line">
+        <nav id="navbar" role="navigation" aria-label="Primary Menu">
+          <a
+            id="navbar-brand"
+            href="https://www.brainbell.com/"
+            rel="home"
+            itemprop="url"
+            >Brain<span class="bell">Bell</span><br /><span class="slog"
+              >makes easier to learn</span
+            ></a
+          >
+          <span class="button fltright" id="menu">&#9776;</span>
+          <!--menu-->
+          <div id="buttons">
+            <a
+              class="button"
+              title="A+"
+              href="https://www.brainbell.com/tutors/A+/Hardware/"
+              >A+ Certification</a
+            >
+            <a
+              class="button"
+              title="Android"
+              href="https://www.brainbell.com/android/"
+              >Android</a
+            >
+            <a
+              class="button"
+              title="ASP"
+              href="https://www.brainbell.com/tutorials/ASP/"
+              >ASP</a
+            >
+            <a
+              class="button"
+              title="3D, Blender and Unity"
+              href="https://www.brainbell.com/3d/"
+              >Blender &amp; Unity</a
+            >
+            <a
+              class="button"
+              title="C"
+              href="https://www.brainbell.com/tutors/c/Advice_and_Warnings_for_C/"
+              >C Language</a
+            >
+            <a
+              class="button"
+              title="C#"
+              href="https://www.brainbell.com/tutors/C_Sharp/"
+              >C#</a
+            >
+            <a
+              class="button"
+              title="Flash"
+              href="https://www.brainbell.com/tutorials/Flash/"
+              >Flash</a
+            >
+            <a
+              class="button"
+              title="HTML and CSS"
+              href="https://www.brainbell.com/tutorials/HTML_and_CSS/"
+              >HTML &amp; CSS</a
+            >
+            <a
+              class="button"
+              title="Java"
+              href="https://www.brainbell.com/tutorials/java/"
+              >Java</a
+            >
+            <a
+              class="button"
+              title="JavaScript"
+              href="https://www.brainbell.com/javascript/"
+              >JavaScript</a
+            >
+            <a
+              class="button"
+              title="MS Access"
+              href="https://www.brainbell.com/tutorials/ms-office/Access_2003/"
+              >MS Access</a
+            >
+            <a
+              class="button"
+              title="MS Excel"
+              href="https://www.brainbell.com/tutorials/ms-office/excel/"
+              >MS Excel</a
+            >
+            <a
+              class="button"
+              title="MS FrontPage"
+              href="https://www.brainbell.com/tutorials/ms-office/FrontPage_2003/"
+              >MS FrontPage</a
+            >
+            <a
+              class="button"
+              title="MS PowerPoint"
+              href="https://www.brainbell.com/tutorials/ms-office/PowerPoint/"
+              >MS PowerPoint</a
+            >
+            <a
+              class="button"
+              title="MS Word"
+              href="https://www.brainbell.com/tutorials/ms-office/Word/"
+              >MS Word</a
+            >
+            <a
+              class="button"
+              title="MySQL"
+              href="https://www.brainbell.com/tutorials/MySQL/"
+              >MySQL</a
+            >
+            <a
+              class="button"
+              title="Networking"
+              href="https://www.brainbell.com/tutorials/Networking/"
+              >Networking</a
+            >
+            <a
+              class="button"
+              title="Perl CGI"
+              href="https://www.brainbell.com/tutors/Perl/"
+              >Perl &amp; CGI</a
+            >
+            <a
+              class="button"
+              title="PHP &amp; MySQL"
+              href="https://www.brainbell.com/tutorials/php/"
+              >PHP &amp; MySQL</a
+            >
+            <a
+              class="button"
+              title="Adobe Photoshop"
+              href="https://www.brainbell.com/tutorials/Photoshop/"
+              >Photoshop</a
+            >
+            <a
+              class="button"
+              title="Regex"
+              href="https://www.brainbell.com/regex/"
+              >Regular Expressions</a
+            >
+            <a
+              class="button"
+              title="TypeScript"
+              href="https://www.brainbell.com/typescript/"
+              >TypeScript</a
+            >
+            <a
+              class="button"
+              title="Visual Basic"
+              href="https://www.brainbell.com/tutors/Visual_Basic/"
+              >Visual Basic</a
+            >
+            <a
+              class="button"
+              title="XML"
+              href="https://www.brainbell.com/tutorials/XML/"
+              >XML</a
+            >
+          </div>
+          <!--menu end-->
+        </nav>
+      </div>
+    </header>
+
+    <main role="main">
+      <article class="hentry">
+        <header id="heading">
+          <a
+            class="button"
+            href="https://www.brainbell.com/javascript/"
+            rel="category tag"
+            >JavaScript</a
+          >
+          &mdash;
+          <a
+            class="button"
+            href="https://www.brainbell.com/javascript/node.html"
+            rel="tag"
+            >Node</a
+          >
+          <h1>
+            Data structure: creating Storage class to store duplicate files
+          </h1>
+        </header>
+
+        <div id="wrapper">
+          <div class="line">
+            <div class="leftcol fltleft">
+              <div class="entry-summary">
+                <p>
+                  A data structure is a particular way of storing and organizing
+                  data in a computer so that it can be used efficiently. In
+                  JavaScript, data structure is a value that refers to zero or
+                  more other values that represent data. The Arrays and Objects
+                  are built-in data structures and can be use to build other
+                  complex data structures.
+                </p>
+              </div>
+              <div class="entry-content">
+                <p>
+                  We&#8217;ll create a data class for our Duplicate File Finder
+                  app to store the results of FileWalker class.
+                </p>
+                <p>
+                  Before creating the data class, we need to know, if the
+                  received file is the duplicate of another file or not. We
+                  consider a file duplicate if the following properties are
+                  match to another file:
+                </p>
+                <ul>
+                  <li>File size</li>
+                  <li>File extension</li>
+                  <li>File type</li>
+                </ul>
+                <pre>
+/* We'll compare following file properties
+   to find duplicate files */
+if (size  == anotherFile.size &amp;&amp; 
+    type == anotherFile.type &amp;&amp;
+    ext == anotherFile.ext)
+  
+Note: it is not the actual code</pre
+                >
+                <p>
+                  Lets start creating our data class <code>Storage</code> to
+                  store files :
+                </p>
+                <pre>
+const path = require('path');
+
+class Storage {
+ constructor () {
+  this.files = {};
+  this.dupFiles = {};
+ }
+}</pre
+                >
+                <p>The Storage class has two properties:</p>
+                <ul>
+                  <li>
+                    <code>this.files</code> stores &#8220;not duplicate&#8221;
+                    files
+                  </li>
+                  <li><code>this.dupFiles</code> stores duplicate files</li>
+                </ul>
+                <p>Next, we&#8217;ll create add method:</p>
+                <pre>
+add (file, stat, hash){
+ 
+}</pre
+                >
+                <p>
+                  The add method has three parameters: <code>file</code>,
+                  <code>stat</code> and <code>hash</code>. Back to our
+                  FileWalker class, the <code>hash</code> event returns us
+                  following:
+                </p>
+                <ul>
+                  <li>
+                    <code>file </code> The full path of file i.e.
+                    <code>D:\&gt;BrainBell\file.txt</code>
+                  </li>
+                  <li><code>stat </code> Stat object of <code>file</code></li>
+                  <li><code>buffer</code> The 4Kb <code>file</code> chunk</li>
+                  <li>
+                    <code>hash </code> The 512bit whirlpool hash of
+                    <code>buffer</code>
+                  </li>
+                </ul>
+                <p>
+                  The FileWalker class doesn&#8217;t provide us the file type.
+                  Usually files stores their information, like file type, in
+                  their header. We&#8217;ll use the received
+                  <code>hash</code> for file type as it is the Hashed buffer of
+                  file header.
+                </p>
+
+                <p>
+                  We&#8217;ll create a JavaScript object called &#8220;literal
+                  object expression&#8221;:
+                  <code>{hash:{extension:{size:file}}}</code>. Following is an
+                  example that shows how we'll structure the received files:
+                </p>
+                <pre><strong>Example: dupFiles data structure:</strong>
+
+hash1:{
+ txt:{
+  1024:["D:\&gt;a.txt","D:\&gt;b.txt"]
+ },
+ php:{
+  1024:["D:\&gt;a.php","D:\&gt;b.php"]
+  }
+ }
+}
+
+<strong>Example:  files data structure</strong>
+{
+ hash1:{
+  txt:{
+   1024:"D:\&gt;a.txt"
+  },
+  php:{
+   1024:"D:\&gt;a.php"
+  }
+ },
+ hash2:{
+  txt:{
+   1034:"D:\&gt;c.txt",
+   1029:"D:\&gt;d.txt"
+  }
+ }
+}
+</pre>
+                <p>
+                  In JavaScript, this object is a data structure that provide a
+                  map from names to values, also called Dictionary data
+                  structure. We&#8217;ll use the following technique to create
+                  the above data structure for finding the duplicate files.
+                </p>
+                <p>The <code>files</code> object structure is:</p>
+                <ul>
+                  <li>
+                    <strong><code>files[hash]</code></strong
+                    ><br />
+                    The <code>files</code> object stores unique
+                    <code>hash</code>
+                  </li>
+                  <li>
+                    <code><strong>files[hash][ext]</strong></code
+                    ><br />
+                    The <code>hash</code> object stores unique file extension
+                    <code>ext</code>
+                  </li>
+                  <li>
+                    <strong><code>files[hash][ext][size]</code></strong
+                    ><br />
+                    The <code>ext</code> object stores unique file size
+                    <code>size</code>
+                  </li>
+                  <li>
+                    <strong><code>files[hash][ext][size] = file</code></strong
+                    ><br />
+                    The <code>size</code> object stores a single
+                    <code>file</code> for comparison, for example, a file,
+                    <code>file1.txt</code> stored in files array:
+                    <code>{hash:{txt:{430:file1.txt}}}</code> and the other
+                    file, <code>file2.txt</code>, has similar hash, extension
+                    and size <code>{hash:{txt:{430:file2.txt}}}</code>, we
+                    consider the <code>file2.txt</code> as the duplicate of
+                    <code>file1.txt</code>.
+                  </li>
+                </ul>
+                <p>
+                  Let&#8217;s start creating the add method to implement the
+                  above technique for the <code>Storage</code> class:
+                </p>
+                <pre>
+add (file, stat, hash){
+ let ext  = path.extname(file),
+ size = stat.size,
+ hashExist = this.files[hash];
+ 
+ if (hashExist === undefined){
+  this.files[hash] = {};
+  this.files[hash][ext] = {};
+  this.files[hash][ext][size] = file;
+  return
+ }
+}</pre
+                >
+                <p>
+                  The add function extract the file extension and its size. Then
+                  it retrieves the <code>hash</code> value from the
+                  <code>files</code> object. If <code>hash</code> value not
+                  exist, crate a new one by providing the file properties:
+                  <code>hash</code>, <code>ext</code> and <code>size</code> as
+                  keys.
+                </p>
+                <p>
+                  Next, if the <code>hash</code> already exist in the files
+                  array then we retrieve the file extension:
+                </p>
+                <pre>...
+if (hashExist === undefined){
+ this.files[hash] = {};
+ this.files[hash][ext] = {};
+ this.files[hash][ext][size] = file;
+ return
+}
+
+<strong>let extExist = hashExist[ext]; </strong>
+<strong>if (extExist === undefined) {</strong>
+<strong> hashExist[ext] = {};</strong>
+<strong> hashExist[ext][size] = file;</strong>
+<strong> return;</strong>
+<strong>}</strong>
+...</pre>
+                <p>
+                  The add method retrieves the extension <code>ext</code> from
+                  the existing <code>hash</code> and store the remaining
+                  information to existing <code>hash</code> object if the
+                  <code>ext</code> not exist.
+                </p>
+                <p>
+                  Next, If the <code>ext</code> already exist then we retrieve
+                  the file size:
+                </p>
+                <pre>...
+if (extExist === undefined) {
+ hashExist[ext] = {};
+ hashExist[ext][size] = file;
+ return;
+}
+<strong>let sizeExist = extExist[size];</strong>
+<strong>if (sizeExist === undefined){</strong>
+<strong> extExist[size] = file;</strong>
+<strong> return;</strong>
+<strong>}
+...</strong></pre>
+                <p>
+                  The add method retrieves the <code>size</code> value and
+                  assign <code>file</code> as if the <code>size</code> value not
+                  exist.
+                </p>
+                <p>
+                  Now, we consider the received file as duplicate of existing
+                  file because it matches all the three properties
+                  <code>hashExist</code>, <code>extExist</code> and
+                  <code>sizeExist</code>. We&#8217;ll add this duplicate file to
+                  <code>dupFiles</code>. Let&#8217;s see the
+                  <code>dupFiles</code> object structure:
+                </p>
+                <ul>
+                  <li>
+                    <strong><code>files[hash]</code></strong
+                    ><br />
+                    The <code>files</code> object stores unique
+                    <code>hash</code>
+                  </li>
+                  <li>
+                    <code><strong>files[hash][ext]</strong></code
+                    ><br />
+                    The <code>hash</code> object stores unique file extension
+                    <code>ext</code>
+                  </li>
+                  <li>
+                    <strong><code>files[hash][ext][size]</code></strong
+                    ><br />
+                    The <code>ext</code> object stores unique file size
+                    <code>size</code>
+                  </li>
+                  <li>
+                    <strong><code>files[hash][ext][size] = [file]</code></strong
+                    ><br />
+                    Unlike the <code>files</code> object the dupFiles&#8217;
+                    <code>size</code> object stores multiple similar files, for
+                    example:
+                    <code
+                      >{hash:{txt:{430:file1.txt,430:file2.txt,430:file3.txt}}}</code
+                    >.
+                  </li>
+                </ul>
+                <p>
+                  Now we&#8217;ve the similar file <code>sizeExist</code> and
+                  received <code>file</code>, we&#8217;ll add the
+                  <code>sizeExist</code> file in the <code>dupFiles</code> if it
+                  not already exist in it and also add the received file .
+                  Let&#8217;s complete the remaining part of the
+                  <code>add</code> method by adding the duplicate files in the
+                  <code>dupFiles</code>:
+                </p>
+                <pre>
+var hashDExist = dupFiles[hash];
+ if (hashDExist === undefined){
+ dupFiles[hash] = {}
+ dupFiles[hash][ext] = {}
+ dupFiles[hash][ext][size] = [sizeExist,file];
+ return;
+ }
+var extDExist = dupFiles[ext];
+ if (extDExist === undefined){
+ hashDExist[ext] = {}
+ hashDExist[ext][size] = [sizeExist,file];
+ return;
+ }
+var sizeDExist = dupFiles[size];
+ if (sizeDExist === undefined){
+ extDExist[size] = [sizeExist,file];
+ return;
+ }
+sizeDExist.push(file);</pre
+                >
+                <p>
+                  That&#8217;s it. We&#8217;ve created the Storage class,
+                  let&#8217;s combine the code chunks:
+                </p>
+                <h2>The Storage class</h2>
+                <pre>//Storage.js
+const path = require('path');
+
+module exports = class Storage {
+ constructor () {
+  this.files = {};
+  this.dupFiles = {};
+ }
+ add (file, stat, hash){
+  let ext  = path.extname(file),
+  size = stat.size,
+  hashExist = this.files[hash];  
+  if (hashExist === undefined){
+   this.files[hash] = {};
+   this.files[hash][ext] = {};
+   this.files[hash][ext][size] = file;
+   return
+  }
+
+  let extExist = hashExist[ext]; 
+  if (extExist === undefined) {
+   hashExist[ext] = {};
+   hashExist[ext][size] = file;
+   return;
+  }
+
+  let sizeExist = extExist[size];
+  if (sizeExist === undefined){
+   extExist[size] = file;
+   return;
+  }
+  
+  let hashDExist = this.dupFiles[hash];
+  if (hashDExist === undefined){
+   this.dupFiles[hash] = {}
+   this.dupFiles[hash][ext] = {}
+   this.dupFiles[hash][ext][size] = [sizeExist,file];
+   return;
+  }
+
+  let extDExist = hashDExist[ext];
+  if (extDExist === undefined){
+   hashDExist[ext] = {}
+   hashDExist[ext][size] = [sizeExist,file];
+   return;
+  }
+
+  let sizeDExist = extDExist[size];
+  if (sizeDExist === undefined){
+   extDExist[size] = [sizeExist,file];
+   return ;
+  }
+  sizeDExist.push(file); 
+ }
+ <strong>getDuplicateFiles(){</strong>
+<strong>  return dupFiles;</strong>
+<strong> }</strong>
+<strong> getFiles(){</strong>
+<strong>  return files;</strong>
+<strong> }</strong> 
+}
+</pre>
+                <p>
+                  The complete Storage class code. We&#8217;ve added two more
+                  method to return <code>files</code> and
+                  <code>dupFiles</code> objects. In next tutorial, I&#8217;ll
+                  show you how to use this class in our Duplicate File Finder
+                  app, inside the <code>walkerHelper.js</code> file, and how to
+                  display result on app&#8217;s user interface.
+                </p>
+
+                <div class="hidden">
+                  by
+                  <span class="author vcard"
+                    ><span class="fn">BrainBell</span></span
+                  >updated
+                  <time
+                    class="entry-date updated"
+                    datetime="2018-12-19T21:30:00+00:00"
+                    >Dec 19, 2018</time
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="rightcol fltright"></div>
+          </div>
+        </div>
+      </article>
+
+      <div class="line">
+        <div class="leftcol fltleft">
+          <nav>
+            <div class="line">
+              <a
+                rel="next"
+                class="button fltright"
+                href="https://www.brainbell.com/javascript/async-file-walker-event-driven.html"
+                >Next <span class="next">&gt;</span></a
+              ><a
+                rel="prev"
+                class="button fltleft"
+                href="https://www.brainbell.com/javascript/child-process.html"
+                ><span class="prev">&lt;</span> Prev</a
+              >
+            </div>
+          </nav>
+        </div>
+        <div class="rightcol fltright"></div>
+      </div>
+    </main>
+
+    <footer>
+      <section>
+        <div class="line">
+          <div class="leftcol fltleft">
+            <p>Copyright &copy; 2021 BrainBell.com</p>
+            <p>Contact us: info&#64;brainbell.com</p>
+          </div>
+          <div class="rightcol fltright">
+            <a href="https://www.brainbell.com/privacy/">Privacy policy</a>
+            &nbsp; : &nbsp;
+            <a href="https://www.brainbell.com/terms/">Terms of use</a>
+          </div>
+        </div>
+      </section>
+    </footer>
+    <script>
+      (function () {
+        var m = document.querySelector("#menu"),
+          n = document.querySelector("#buttons"),
+          o = false;
+
+        m.addEventListener("click", function (e) {
+          var d;
+          o = !o;
+          if (o) {
+            m.innerHTML = "X";
+            n.style.display = "block";
+            n.style.display = "flex";
+            m.style.padding = ".375rem .98rem";
+          } else {
+            m.innerHTML = "&#9776;";
+            n.style.display = "none";
+            m.style.padding = ".375rem .75rem";
+          }
+        });
+      })();
+      (function () {
+        var stop = true,
+          p = document.querySelectorAll("pre");
+        for (var i in p) {
+          p[i].className += " prettyprint";
+          stop = false;
+        }
+        if (stop) return;
+        var script = document.createElement("script");
+        script.src =
+          "https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js";
+        document.head.appendChild(script);
+      })();
+    </script>
+    <script type="text/javascript" style="display: none" async>
+      __ez.queue.addFile(
+        "https://www.brainbell.com/javascript/edmonton.php",
+        "/detroitchicago/edmonton.webp?a=a&cb=11&shcb=34",
+        true,
+        ["/detroitchicago/minneapolis.js"],
+        true,
+        false,
+        false,
+        false
+      );
+      __ez.queue.addFile(
+        "https://www.brainbell.com/javascript/jellyfish.php",
+        "/porpoiseant/jellyfish.webp?a=a&cb=11&shcb=34",
+        false,
+        [],
+        true,
+        false,
+        false,
+        false
+      );
+    </script>
+
+    <script>
+      var _audins_dom = "brainbell_com",
+        _audins_did = 83552;
+      __ez.queue.addDelayFunc(
+        "https://www.brainbell.com/javascript/audins.js",
+        "__ez.script.add",
+        "http://go.ezoic.net/detroitchicago/audins.js?cb=192-11"
+      );
+    </script>
+    <noscript
+      ><div style="display: none">
+        <img
+          src="http://pixel.quantserve.com/pixel/p-31iz6hfFutd16.gif?labels=Domain.brainbell_com,DomainId.83552"
+          border="0"
+          height="1"
+          width="1"
+          alt="Quantcast"
+        /></div
+    ></noscript>
+    <script type="text/javascript" data-cfasync="false"></script>
+  </body>
+
+  <!-- Mirrored from www.brainbell.com/javascript/data-structure-storage.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Feb 2021 02:56:18 GMT -->
+</html>

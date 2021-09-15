@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<script>{
+    "title": "Feature & Browser Detection",
+    "level": "beginner"
+}</script>
+<h3 id="can-i-use-this-browser-feature">Can I Use This Browser Feature?</h3>
+<p>There are a couple of common ways to check whether or not a particular feature is supported by a user’s browser:</p>
+<ul>
+<li>Browser Detection</li>
+<li>Specific Feature Detection</li>
+</ul>
+<p>In general, we recommend specific feature detection. Let’s look at why.</p>
+<h3 id="browser-detection">Browser Detection</h3>
+<p>Browser detection is a method where the browser’s User Agent (UA) string is checked for a particular pattern unique to a browser family or version. For example, this is Chrome 39’s UA string on Mac OS X Yosemite:</p>
+<pre><code>Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36</code></pre>
+<p>Browser UA detection may check this string for something like “Chrome” or “Chrome/39” or any other part the developer feels identifies the browser they intend to target.</p>
+<p>While this seems to be an easy solution, there are several problems:</p>
+<h4 id="other-browsers-other-than-your-target-may-have-the-same-issue.">Other browsers other than your target may have the same issue.</h4>
+<p>If we target a specific browser for different functionality, we implicitly exclude any browser we did not account for. This is also not future-proof. If the browser we target receives a bug fix or change, we may not be able to discern between a “working” and “non-working” UA string. We may also need to update our test for each new release. This isn’t a maintainable solution.</p>
+<h4 id="user-agents-are-unreliable.">User Agents are unreliable.</h4>
+<p>User Agents are set by the client browser. In the early days of the web, browsers would mimic each others’ UA strings in order to bypass exactly this type of detection. It is still possible that a browser with very different capabilities may mimic just the portion of the UA string you’re targeting.</p>
+<p>The UA string is also user-configurable. While the user may change this string, the browser’s feature support remains the same.</p>
+<p>In general, we do not recommend UA string-based feature detection.</p>
+<h3 id="specific-feature-detection">Specific Feature Detection</h3>
+<p>Specific feature detection checks if a specific feature is available, instead of developing against a specific browser. This way, developers can write their code for two cases: the browser <strong>does</strong> support said feature, or the browser <strong>does not</strong> support said feature.</p>
+<p>Developing against specific features, instead of developing against a specific browser, not only clears up the peripheral logic of your application, but also makes your job easier as a developer.</p>
+<p>We recommend specific feature detection over UA string detection.</p>
+<p>Now how would you go about doing that?</p>
+<h3 id="how-to-go-about-feature-detection">How to go about feature detection</h3>
+<p>There are several ways to go about feature detection:</p>
+<ul>
+<li>Straight JavaScript</li>
+<li>A Helper Library</li>
+</ul>
+<h4 id="straight-javascript">Straight JavaScript</h4>
+<p>Let’s take a look at how to check whether or not a <code>&lt;canvas&gt;</code> element exists in a specific browser, without using a helper library. We do this by specifically querying whether the method or property exists:</p>
+<pre><code>// We want to show a graph in browsers that support canvas,
+// but a data table in browsers that don&#39;t.
+var elem = document.createElement( &quot;canvas&quot; );
+
+if ( elem.getContext &amp;&amp; elem.getContext( &quot;2d&quot; ) ) {
+    showGraph();
+} else {
+    showTable();
+}</code></pre>
+<p>This is a very simple way to provide conditional experiences, depending on the features present in the user’s browser. We can extract this into a helper function for reuse, but still have to write a test for every feature we’re concerned about. This can be time-consuming and error-prone. Instead you might be interested in using a helper library.</p>
+<h4 id="a-helper-library">A Helper Library</h4>
+<p>Thankfully, there are some great helper libraries (like <a href="http://modernizr.com/">Modernizr</a>) that provide a simple, high-level API for determining if a browser has a specific feature available or not.</p>
+<p>For example, utilizing Modernizr, we are able to do the same canvas detection test with this code:</p>
+<pre><code>if ( Modernizr.canvas ) {
+    showGraphWithCanvas();
+} else {
+    showTable();
+}</code></pre>
+<p>For more in-depth information on Modernizr, feel free to check out their <a href="http://modernizr.com/docs/">documentation</a>.</p>
+<h3 id="performance-considerations">Performance Considerations</h3>
+<p>So, while the Modernizr syntax is great, it can end up being quite cumbersome to have several conditionals. Secondly, we’re sending the code for both conditions to every browser, regardless if we’ll need it or not.</p>
+<p>If you’re using Modernizr, we highly encourage you to use the <a href="http://modernizr.com/download/">build configurator</a>, a tool that allows you to create custom builds of the library. You can exclude checks you don’t need, which will save bytes and reduce the time it takes the page to load. Running every check that Modernizr can do, even when you don’t need them, can slow down the page load.</p>
+<h3 id="other-resources">Other Resources</h3>
+<h4 id="feature-detection-tools">Feature Detection Tools</h4>
+<ul>
+<li><a href="http://modernizr.com/">modernizr</a> — Conditionally check to see if a specific feature is available in a browser.</li>
+<li><a href="http://html5please.com/">html5please</a> — Use the new and shiny responsibly.</li>
+<li><a href="http://api.html5please.com/">html5please API</a> — An API you can query to see how good (or bad) support for a specific feature is.</li>
+<li><a href="http://caniuse.com/">caniuse</a> — Browser compatibility tables for HTML5, CSS3, SVG, etc.</li>
+</ul>
+<h4 id="helpful-articles">Helpful Articles</h4>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Browser_Feature_Detection">Browser Feature Detection</a></li>
+<li><a href="http://www.adobe.com/devnet/dreamweaver/articles/using-modernizr.html">Using Modernizr to detect HTML5 and CSS3 browser support</a></li>
+<li><a href="http://addyosmani.com/polyfillthehtml5gaps/slides/#1">Polyfilling the HTML5 gaps</a> by Addy Osmani</li>
+<li><a href="http://www.html5rocks.com/en/tutorials/detection/index.html">Feature, Browser, and Form Factor Detection: It’s Good for the Environment</a> by Michael Mahemoff</li>
+</ul>
+</body></html>

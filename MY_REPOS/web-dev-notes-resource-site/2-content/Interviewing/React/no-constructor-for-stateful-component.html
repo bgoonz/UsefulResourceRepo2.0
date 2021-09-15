@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h3 id="an-example-where-for-my-state-full-component-where-i-am-indeed-changing-the-state-of-the-component-but-not-using-the-constructor.">An example where, for my state-full component, where I am indeed changing the state of the component, but NOT using the constructor.</h3>
+<p>We’ve all been taught that the constructor is where we initialize our instance properties, state in this case. And thats true till ES-6. However, that is no more true, for the upcoming ES.next class properties proposal.</p>
+<p>With it we can now define class properties directly, like this.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">class</span> Foo <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  state <span class="op">=</span> <span class="op">{</span> <span class="dt">loading</span><span class="op">:</span> <span class="kw">true</span> <span class="op">};</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  ...</a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="op">}</span></a></code></pre></div>
+<h3 id="babel-will-transpile-your-code-and-add-a-constructor-for-you-behind-the-scenes.-here-is-the-output-from-babel-when-we-transpile-the-code-snippet-above.">Babel will transpile your code and add a constructor for you behind the scenes. Here is the output from Babel when we transpile the code snippet above.</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">class</span> Foo <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">    <span class="at">constructor</span> (...<span class="at">args</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-3" title="3">        <span class="kw">var</span> _temp<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5">        <span class="cf">return</span> (_temp <span class="op">=</span> <span class="kw">super</span>(...<span class="at">args</span>)<span class="op">,</span> (<span class="kw">this</span>.<span class="at">state</span> <span class="op">=</span> <span class="op">{</span> <span class="dt">loading</span><span class="op">:</span> <span class="kw">true</span><span class="op">}</span>)<span class="op">,</span> _temp )</a>
+<a class="sourceLine" id="cb2-6" title="6">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="op">}</span></a></code></pre></div>
+<h4 id="note-that-babel-is-actually-passing-all-args-not-just-props-down-to-super.-it-is-also-taking-supers-return-value-and-passing-it-back-to-the-caller.">Note that Babel is actually passing all args — not just props — down to super. It is also taking super’s return value and passing it back to the caller.</h4>
+<h3 id="a-hypothetical-es6-class-component-might-look-something-like-this-over-simplified-without-error-checking-of-course.">A hypothetical ES6 Class Component might look something like this (over-simplified without error checking, of course).</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">class</span> Foo <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="at">constructor</span>(props) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-3" title="3">    <span class="kw">super</span>(props)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-4" title="4">    <span class="kw">this</span>.<span class="at">state</span> <span class="op">=</span> <span class="op">{</span> <span class="dt">loading</span><span class="op">:</span> <span class="kw">true</span> <span class="op">};</span></a>
+<a class="sourceLine" id="cb3-5" title="5">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-6" title="6"></a>
+<a class="sourceLine" id="cb3-7" title="7">  <span class="kw">async</span> <span class="at">componentDidMount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-8" title="8">    <span class="kw">const</span> data <span class="op">=</span> <span class="cf">await</span> <span class="at">loadStuff</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-9" title="9">    <span class="kw">this</span>.<span class="at">setState</span>(<span class="op">{</span> <span class="dt">loading</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> data <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-10" title="10">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-11" title="11">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-12" title="12">    <span class="kw">const</span> <span class="op">{</span> loading<span class="op">,</span> data <span class="op">}</span> <span class="op">=</span> <span class="kw">this</span>.<span class="at">state</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-13" title="13">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb3-14" title="14">      <span class="op">{</span>loading <span class="op">?</span> <span class="op">&lt;</span>Loading /<span class="op">&gt;</span> : <span class="op">&lt;</span>View <span class="op">{</span>...<span class="at">data</span><span class="op">}</span> /&gt;<span class="op">}</span></a>
+<a class="sourceLine" id="cb3-15" title="15">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-16" title="16">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-17" title="17"><span class="op">}</span></a></code></pre></div>
+<p>We initialize our state in the constructor, asynchronously load our data in componentDidMount, and render our View component based on the loading state.</p>
+<h4 id="now-without-the-constructor-using-es-7-i-can-shorten-it-like-below.">Now without the constructor (using ES-7) I can shorten it like below.</h4>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">class</span> Foo <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  state <span class="op">=</span> <span class="op">{</span> <span class="dt">loading</span><span class="op">:</span> <span class="kw">true</span> <span class="op">};</span></a>
+<a class="sourceLine" id="cb4-3" title="3"></a>
+<a class="sourceLine" id="cb4-4" title="4">  <span class="kw">async</span> <span class="at">componentDidMount</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-5" title="5">    <span class="kw">const</span> data <span class="op">=</span> <span class="cf">await</span> <span class="at">loadStuff</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-6" title="6">    <span class="kw">this</span>.<span class="at">setState</span>(<span class="op">{</span> <span class="dt">loading</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> data <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-7" title="7">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-8" title="8">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-9" title="9">    <span class="kw">const</span> <span class="op">{</span> loading<span class="op">,</span> data <span class="op">}</span> <span class="op">=</span> <span class="kw">this</span>.<span class="at">state</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-10" title="10">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb4-11" title="11">      <span class="op">{</span>loading <span class="op">?</span> <span class="op">&lt;</span>Loading /<span class="op">&gt;</span> : <span class="op">&lt;</span>View <span class="op">{</span>...<span class="at">data</span><span class="op">}</span> /&gt;<span class="op">}</span></a>
+<a class="sourceLine" id="cb4-12" title="12">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-13" title="13">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-14" title="14"><span class="op">}</span></a></code></pre></div>
+<h3 id="initializing-state-with-props---what-about-when-you-need-to-derive-your-initial-state-from-props-say-for-initializing-a-default-value-surely-we-need-the-constructor-for-that">Initializing state with props - What about when you need to derive your initial state from props, say for initializing a default value? Surely we need the constructor for that?</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">class</span> Foo <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3">  <span class="at">constructor</span>(props) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-4" title="4">    <span class="kw">super</span>(props)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-5" title="5">    <span class="kw">this</span>.<span class="at">state</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-6" title="6">      <span class="dt">color</span><span class="op">:</span> <span class="kw">this</span>.<span class="va">props</span>.<span class="at">initialColor</span></a>
+<a class="sourceLine" id="cb5-7" title="7">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb5-8" title="8">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-9" title="9">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-10" title="10">    <span class="kw">const</span> <span class="op">{</span> color <span class="op">}</span> <span class="op">=</span> <span class="kw">this</span>.<span class="at">state</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-11" title="11">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb5-12" title="12">      <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-13" title="13">       <span class="op">{</span>color<span class="op">}</span></a>
+<a class="sourceLine" id="cb5-14" title="14">      &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-15" title="15">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-16" title="16">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-17" title="17"><span class="op">}</span></a></code></pre></div>
+<p>Nope! Again, class properties to the rescue! We have access to both this and props.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">class</span> Foo <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-2" title="2">  state <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-3" title="3">    <span class="dt">color</span><span class="op">:</span> <span class="kw">this</span>.<span class="va">props</span>.<span class="at">initialColor</span></a>
+<a class="sourceLine" id="cb6-4" title="4">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb6-5" title="5"></a>
+<a class="sourceLine" id="cb6-6" title="6">  ...</a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="op">}</span></a></code></pre></div>
+<h3 id="conclusion">Conclusion</h3>
+<p>We’ve seen that for setting our initial state, we no longer need a constructor (or any other instance property for that matter). We also don’t need it for binding methods to this. Same for setting initial state from props. And we would most definitely never fetch data in the constructor.</p>
+<p>Why then would we ever need the constructor in a React component?</p>
+<p>Well… you don’t.</p>
+</body></html>

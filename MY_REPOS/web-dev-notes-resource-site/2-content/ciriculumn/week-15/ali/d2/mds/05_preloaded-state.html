@@ -1,0 +1,124 @@
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<hr />
+<h1 id="preloaded-state">Preloaded State</h1>
+<p>Currently, when the page in the browser is reloaded, any state data stored in the Redux store is lost. Later in this lesson, you’ll learn how to use Redux to interact with an API to persist state data. Until then (or if your React application doesn’t use an API), you can use the combination of Redux’s ability to create a store with <em>preloaded state</em> with the browser’s local storage to persist store state across page reloads.</p>
+<p>When you finish this article, you should be able to:</p>
+<ul>
+<li>Create a Redux store with preloaded state</li>
+<li>Use the browser’s local storage to persist a Redux store’s state across page reloads</li>
+</ul>
+<h2 id="creating-a-store-with-preloaded-state">Creating a store with preloaded state</h2>
+<p>So far, your Redux stores have initialized with no initial state. Sometimes, though, you may want to take pre-existing data and pass it into the store upon initialization. Such data can be passed to the <code>createStore</code> method using the <code>preloadedState</code> argument:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">const</span> preloadedState <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">fruit</span><span class="op">:</span> [</a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="st">&#39;APPLE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="st">&#39;ORANGE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-5" title="5">  ]<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-6" title="6">  <span class="dt">farmers</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-7" title="7">    <span class="dv">1</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-8" title="8">      <span class="dt">id</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-9" title="9">      <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;John Smith&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-10" title="10">      <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-11" title="11">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb1-12" title="12">    <span class="dv">2</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-13" title="13">      <span class="dt">id</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-14" title="14">      <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;Sally Jones&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-15" title="15">      <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-16" title="16">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb1-17" title="17">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-18" title="18"><span class="op">};</span></a>
+<a class="sourceLine" id="cb1-19" title="19"></a>
+<a class="sourceLine" id="cb1-20" title="20"><span class="kw">const</span> store <span class="op">=</span> <span class="at">createStore</span>(rootReducer<span class="op">,</span> preloadedState)<span class="op">;</span></a></code></pre></div>
+<p>A couple of things to note about preloading state:</p>
+<ul>
+<li>The <code>preloadedState</code> must match the state shape (as produced by the reducers).</li>
+<li><code>preloadedState</code> is not the same as default state. Default state should always be set in your reducers themselves.</li>
+</ul>
+<h2 id="creating-local-storage-helper-functions">Creating local storage helper functions</h2>
+<p>To assist with using the browser’s local storage to persist a Redux store’s state across page reloads, start with creating a set of helper functions:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// localStorage.js</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">const</span> STATE_KEY <span class="op">=</span> <span class="st">&#39;fruitstand&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="im">export</span> <span class="kw">const</span> loadState <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-6" title="6">  <span class="cf">try</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-7" title="7">    <span class="kw">const</span> stateJSON <span class="op">=</span> <span class="va">localStorage</span>.<span class="at">getItem</span>(STATE_KEY)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-8" title="8">    <span class="cf">if</span> (stateJSON <span class="op">===</span> <span class="kw">null</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-9" title="9">      <span class="cf">return</span> <span class="kw">undefined</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-10" title="10">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-11" title="11">    <span class="cf">return</span> <span class="va">JSON</span>.<span class="at">parse</span>(stateJSON)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-12" title="12">  <span class="op">}</span> <span class="cf">catch</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-13" title="13">    <span class="va">console</span>.<span class="at">warn</span>(err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-14" title="14">    <span class="cf">return</span> <span class="kw">undefined</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-15" title="15">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-16" title="16"><span class="op">};</span></a>
+<a class="sourceLine" id="cb2-17" title="17"></a>
+<a class="sourceLine" id="cb2-18" title="18"><span class="im">export</span> <span class="kw">const</span> saveState <span class="op">=</span> (state) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-19" title="19">  <span class="cf">try</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-20" title="20">    <span class="kw">const</span> stateJSON <span class="op">=</span> <span class="va">JSON</span>.<span class="at">stringify</span>(state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-21" title="21">    <span class="va">localStorage</span>.<span class="at">setItem</span>(STATE_KEY<span class="op">,</span> stateJSON)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-22" title="22">  <span class="op">}</span> <span class="cf">catch</span> (err) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-23" title="23">    <span class="va">console</span>.<span class="at">warn</span>(err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-24" title="24">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-25" title="25"><span class="op">};</span></a></code></pre></div>
+<p>The <code>saveState</code> function is responsible for converting the <code>state</code> parameter value into JSON (using the <code>JSON.stringify</code> method) and saving the state JSON string to the browser’s local storage (using the <code>localStorage.setItem</code> method). A <code>try...catch</code> statement is used to catch and log any errors.</p>
+<p>The <code>loadState</code> function is responsible for loading the state JSON from the browser’s local storage (using the <code>localStorage.getItem</code> method). If the state JSON isn’t stored in local storage, <code>undefined</code> is returned so the store’s reducer function can initialize the state to its default value. If the state JSON is successfully retrieved from local storage, it’s parsed into JavaScript objects (using the <code>JSON.parse</code> method) and returned to the caller. A <code>try...catch</code> statement is used to catch and log any errors.</p>
+<h2 id="saving-state-to-local-storage">Saving state to local storage</h2>
+<p>To ensure that the persisted state in local storage doesn’t get out of sync with the store, you want to persist the state whenever it’s updated. Knowing that the store’s reducer is called whenever there’s an action dispatched to update the state, you might be tempted to update your reducer like this:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="im">import</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  ADD_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  ADD_FRUITS<span class="op">,</span></a>
+<a class="sourceLine" id="cb3-4" title="4">  SELL_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb3-5" title="5">  SELL_OUT<span class="op">,</span></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/fruitActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="im">import</span> <span class="op">{</span> saveState <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../localStorage&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-8" title="8"></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-10" title="10">  <span class="va">Object</span>.<span class="at">freeze</span>(state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-11" title="11">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-12" title="12">    <span class="cf">case</span> <span class="dt">ADD_FRUIT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb3-13" title="13">      <span class="kw">const</span> nextState <span class="op">=</span> [...<span class="at">state</span><span class="op">,</span> <span class="va">action</span>.<span class="at">fruit</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-14" title="14">      <span class="at">saveState</span>(nextState)<span class="op">;</span>  <span class="co">// Persist state data to local storage</span></a>
+<a class="sourceLine" id="cb3-15" title="15">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-16" title="16"></a>
+<a class="sourceLine" id="cb3-17" title="17">    <span class="co">// Case clauses removed for brevity.</span></a>
+<a class="sourceLine" id="cb3-18" title="18"></a>
+<a class="sourceLine" id="cb3-19" title="19">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb3-20" title="20">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-21" title="21">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-22" title="22"><span class="op">};</span></a>
+<a class="sourceLine" id="cb3-23" title="23"></a>
+<a class="sourceLine" id="cb3-24" title="24"><span class="im">export</span> <span class="im">default</span> fruitReducer<span class="op">;</span></a></code></pre></div>
+<p><strong>But don’t do this!</strong> Per the <a href="https://redux.js.org/basics/reducers#handling-actions">official Redux docs on reducers</a>, reducers should stay <em>pure</em> and not cause <em>side effects</em> (like calling APIs or persisting data to local storage).</p>
+<p>To keep your reducers pure, handle persisting state to local storage in the module where you create your store (<code>store.js</code>) by subscribing to listen for state changes:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="im">import</span> <span class="op">{</span> createStore <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="im">import</span> rootReducer <span class="im">from</span> <span class="st">&#39;./reducers/rootReducer&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="im">import</span> <span class="op">{</span> saveState <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;./localStorage&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" title="4"></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="kw">const</span> store <span class="op">=</span> <span class="at">createStore</span>(rootReducer)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-6" title="6"></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="va">store</span>.<span class="at">subscribe</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-8" title="8">  <span class="at">saveState</span>(<span class="va">store</span>.<span class="at">getState</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-10" title="10"></a>
+<a class="sourceLine" id="cb4-11" title="11"><span class="im">export</span> <span class="im">default</span> store<span class="op">;</span></a></code></pre></div>
+<p>Now whenever the store’s state is updated, the <code>store.getState</code> method is called to get and pass the current state to the <code>saveState</code> method.</p>
+<h2 id="loading-state-from-local-storage">Loading state from local storage</h2>
+<p>Now that you’re persisting state to local storage, you can load state from local storage and pass it to the <code>createStore</code> method as preloaded state:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="im">import</span> <span class="op">{</span> createStore <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="im">import</span> rootReducer <span class="im">from</span> <span class="st">&#39;./reducers/rootReducer&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="im">import</span> <span class="op">{</span> loadState<span class="op">,</span> saveState <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;./localStorage&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-4" title="4"></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="kw">const</span> preloadedState <span class="op">=</span> <span class="at">loadState</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-6" title="6"></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="kw">const</span> store <span class="op">=</span> <span class="at">createStore</span>(rootReducer<span class="op">,</span> preloadedState)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-8" title="8"></a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="va">store</span>.<span class="at">subscribe</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-10" title="10">  <span class="at">saveState</span>(<span class="va">store</span>.<span class="at">getState</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-11" title="11"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-12" title="12"></a>
+<a class="sourceLine" id="cb5-13" title="13"><span class="im">export</span> <span class="im">default</span> store<span class="op">;</span></a></code></pre></div>
+<p>With these updates in place, your Redux store’s state will persist across page reloads.</p>
+<h2 id="what-you-learned">What you learned</h2>
+<p>In this article, you learned how to create a Redux store with preloaded state. You also learned how to use the browser’s local storage to persist a Redux store’s state across page reloads.</p>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="./prism.css">
+<script async defer src="./prism.js"></script>
+</head>
+<body>;
+<h2 id="q-how-can-i-see-what-databasescollections-is-available">Q: How can I see what databases/collections is available?</h2>
+<p>First run</p>
+<h2 id="sudo-service-mongod-start">sudo service mongod start</h2>
+<p>Launch the Mongo DB shell by running <code>mongo</code> (for localhost, or specify some custom host/port along with -u USERNAME -p etc). Once inside the shell, run:</p>
+<h2 id="show-dbs">show dbs</h2>
+<h2 id="use-some_database">use some_database</h2>
+<h2 id="show-collections">show collections</h2>
+<h2 id="how-can-i-find-documents">How can I find documents?</h2>
+<p>// The ‘use’ command works even if the database doesn’t exist yet</p>
+<p><code>use my_database</code></p>
+<p>// Use Javascript regex syntax to find documents where the name contains “Ma”, // so that it finds for example documents with names “Martin”, “Maxwell” and “iMac”.</p>
+<p><code>db.persons.find({ name: /Ma/ })</code></p>
+<p>// Find documents where the name starts with “Ma”</p>
+<p><code>db.persons.find({ name: /^Ma/ })</code></p>
+<p>// Find documents where nicknames is an array that contains the element “foo”</p>
+<p><code>db.persons.find({ nicknames: "foo" })</code></p>
+<p>// Find persons who have exactly 14 nicknames</p>
+<p><code>db.persons.find({ nicknames: { $size: 14 }})</code></p>
+<p>// Find persons whose name is not “Susan”</p>
+<p><code>db.persons.find({ name: { $ne: "Susan" }})</code></p>
+<p>// Find persons whose name is not “Susan” nor “Whitney”</p>
+<p><code>db.persons.find({ name: { $nin: ["Susan", "Whitney"] }})</code></p>
+<p>// Find persons that is either born 1953 or named “Cait”</p>
+<p><code>db.persons.find({ $or: [{ birthYear: 1953 }, { fullname: "Cait" }]})</code></p>
+<p>// Find persons aged 30 to 35</p>
+<p><code>db.persons.find({ age: { $gt: 30, $lt: 35 }})</code></p>
+<p>// Find persons named “Earl” whose age is &lt;= 30</p>
+<p><code>db.persons.find({ $and: [{ name: "Earl" }, { age: { $lte: 30 }}]})</code></p>
+<p>// Find persons named “Earl” whose age is &lt;= 30 (using $where and JS expression) // NOTE: Slow because A) JS is evaluated once per doc, and B) index is not used.</p>
+<p><code>db.persons.find({ $where: 'this.name == "Earl" &amp;&amp; this.age &lt;= 30'})</code></p>
+<p>// Find persons where the age is not set (returns persons with “age: null” though)</p>
+<p><code>db.persons.find({ age: { $exists: false }})</code></p>
+<p>// Find persons where the age is a number</p>
+<p><code>db.persons.find({ age: { $type: "double" }})</code></p>
+<p>// Find persons where the age is a string</p>
+<p><code>db.persons.find({ age: { $type: "string" }})</code></p>
+<p>// Find persons born 2010 or later, given that “born” is ISODate field</p>
+<p><code>db.persons.find({ born: { $gte : ISODate("2010-01-01") }})</code></p>
+<p>// Find persons born 2010 or later, given that “born” is NumberLong(unix_millis)</p>
+<pre><code>db.persons.aggregate([
+  { $match: { born: { $gte : ISODate(&quot;2005-01-01&quot;).getTime() }}},
+  { $project: { born: { $add: [new Date(0), &quot;$born&quot;] } }}
+])</code></pre>
+</body></html>

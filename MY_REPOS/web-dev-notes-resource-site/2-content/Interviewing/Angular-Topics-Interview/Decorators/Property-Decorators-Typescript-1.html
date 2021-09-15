@@ -1,0 +1,55 @@
+<h4 id="property-decorator">Property Decorator</h4>
+<p><strong>With a property decorator, you can change the value that is in a property at runtime. The property decorator is declared before the property declaration. It cannot be used in a declaration file or used in combination with a declare statement. The property decorators can change the value that comes out of the class properties.</strong></p>
+<h4 id="how-to-create-a-property-decorator">How To Create a Property Decorator</h4>
+<p>When you create a property decorator function, you need to have two arguments.</p>
+<p><strong>target, which refers to the constructor or prototype of the class you’re using the decorator on.</strong></p>
+<p><strong>key, which refers to the class property you’re using the decorator on.When using target[key], you will get the value (of that instance of the class) inside the property. This is super useful!</strong></p>
+<p>The Class decorator function has no access to any property value. That’s why the class decorator is better for adding properties. It’s not so useful for modifying property values. It is possible but introduces side effects.</p>
+<h4 id="then-you-also-need-following">Then you also need following</h4>
+<p><strong>Getter</strong> The getter function is for getting the property value of the class where you used the property decorator. Inside this function, we have access to the instance of the class. In the return statement, we return the label, which includes the value of that property.</p>
+<p><strong>defineProperty</strong></p>
+<p>Finally, we have an accessor descriptor <strong>Object.defineProperty()</strong> in the property decorator.</p>
+<p>According to MDN web docs, <strong>“An accessor descriptor is a property described by a getter-setter pair of functions.”</strong></p>
+<p>This descriptor will describe how our property will behave inside a class.</p>
+<p>Inside the descriptor, we can have a getter and setter method. They will be executed when you want to get the value or change (i.e. set) it.</p>
+<p>The static method <strong>Object.defineProperty()</strong> defines a new property directly on an object, or modifies an existing property on an object, and returns the object.</p>
+<h4 id="syntax---object.definepropertyobj-prop-descriptor">Syntax - Object.defineProperty(obj, prop, descriptor)</h4>
+<p><strong>obj</strong> - The object on which to define the property.</p>
+<p><strong>prop</strong> - The name or Symbol of the property to be defined or modified.</p>
+<p><strong>descriptor</strong> - The descriptor for the property being defined or modified.</p>
+<p>A type script example</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">function</span> <span class="fu">Override</span>(label<span class="op">:</span> <span class="dt">string</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="cf">return</span> <span class="fu">function</span> (target<span class="op">:</span> <span class="dt">any</span><span class="op">,</span> key<span class="op">:</span> <span class="dt">string</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="bu">Object</span>.<span class="fu">defineProperty</span>(target<span class="op">,</span> key<span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-4" title="4">      configurable<span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-5" title="5">      get<span class="op">:</span> () <span class="kw">=&gt;</span> label<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-6" title="6">    <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb1-7" title="7">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="op">}</span></a>
+<a class="sourceLine" id="cb1-9" title="9"></a>
+<a class="sourceLine" id="cb1-10" title="10"><span class="kw">class</span> Test <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-11" title="11">  @<span class="fu">Override</span>(<span class="st">&quot;test&quot;</span>) <span class="co">// invokes Override, which returns the decorator</span></a>
+<a class="sourceLine" id="cb1-12" title="12">  name<span class="op">:</span> <span class="dt">string</span> <span class="op">=</span> <span class="st">&quot;pat&quot;</span></a>
+<a class="sourceLine" id="cb1-13" title="13"><span class="op">}</span></a>
+<a class="sourceLine" id="cb1-14" title="14"></a>
+<a class="sourceLine" id="cb1-15" title="15"><span class="kw">let</span> t <span class="op">=</span> <span class="kw">new</span> <span class="fu">Test</span>()</a>
+<a class="sourceLine" id="cb1-16" title="16"><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="va">t</span><span class="op">.</span><span class="at">name</span>) <span class="co">// &#39;test&#39;</span></a></code></pre></div>
+<p>The above example must be compiled with both the –experimentalDecorators and –emitDecoratorMetadata flags.</p>
+<p>In this case the decorated property is replaced by the label passed to the decorator. It’s important to note that property values cannot be directly manipulated by the decorator; instead an accessor is used. Here’s a classic property example that uses a plain decorator</p>
+<p>Here’s a classic property example that uses a plain decorator</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode ts"><code class="sourceCode typescript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">function</span> <span class="fu">ReadOnly</span>(target<span class="op">:</span> <span class="dt">any</span><span class="op">,</span> key<span class="op">:</span> <span class="dt">string</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="bu">Object</span>.<span class="fu">defineProperty</span>(target<span class="op">,</span> key<span class="op">,</span> <span class="op">{</span> writable<span class="op">:</span> <span class="kw">false</span> <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="op">}</span></a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="kw">class</span> Test <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-6" title="6">  @ReadOnly <span class="co">// notice there are no `()`</span></a>
+<a class="sourceLine" id="cb2-7" title="7">  name<span class="op">:</span> <span class="dt">string</span></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="op">}</span></a>
+<a class="sourceLine" id="cb2-9" title="9"></a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="kw">const</span> t <span class="op">=</span> <span class="kw">new</span> <span class="fu">Test</span>()</a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="va">t</span><span class="op">.</span><span class="at">name</span> <span class="op">=</span> <span class="st">&quot;jan&quot;</span></a>
+<a class="sourceLine" id="cb2-12" title="12"><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="va">t</span><span class="op">.</span><span class="at">name</span>) <span class="co">// &#39;undefined&#39;</span></a></code></pre></div>
+<p>In this case the name property is not writable, and remains undefined.</p>
+<h4 id="further-reading">Further Reading</h4>
+<p><a href="https://angular-2-training-book.rangle.io/features/typescript/property_decorators">https://angular-2-training-book.rangle.io/features/typescript/property_decorators</a></p>
+<p><a href="https://medium.com/better-programming/an-introduction-to-typescript-property-decorators-1c9db23b6ca1">https://medium.com/better-programming/an-introduction-to-typescript-property-decorators-1c9db23b6ca1</a></p>
