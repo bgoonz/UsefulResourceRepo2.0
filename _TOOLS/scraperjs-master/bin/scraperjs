@@ -1,0 +1,86 @@
+#!/usr/bin/env node
+
+/*
+scraperjs http://example.com --text #title-id // returns array with text of #title-id's
+scraperjs http://example.com --html #title-id // returns the html
+scraperjs http://example.com --text #title-id -D // uses dynamic scraper
+scraperjs http://example.com --text #title-id -S // uses static scraper
+scraperjs http://example.com --eval "function($) { return $('#title-id').map(function() { return $(this).text(); }).get(); }"
+scraperjs http://example.com http://example.org ... --text #title-id
+
+
+
+scraperjs http://example.com --delay 15 --text #title-id -D
+scraperjs http://example.com --text #title-id --then "function(utils) { return utils.lastResult; }" --delay 15 -D
+*/
+
+var program = require('commander'),
+	sjs = require('../'),
+	async = require('async');
+
+program
+	.version(require('../package.json').version)
+	.usage(['url [url ...] --text --selector <selector> -s',
+		'url [url ...] --html --selector <selector> -s',
+		'url [url ...] --attr <attribute> --selector <selector> -s',
+		'url [url ...] --eval <functionBody> -s'].join('\n\t\t'))
+	.option('--selector <selector>', 'Selects an element')
+	.option('--text', 'Extracts the text from the selector element.')
+	.option('--html', 'Extracts the html from the selector element.')
+	.option('--attr <attribute>', 'Extracts an atribute of the selector element.')
+	.option('--eval <functionBody>', 'Uses a function to scrape, providing only it\'s body.')
+	.option('-s, --static', 'Uses the static scraper. Used by default.', true)
+	.option('-d, --dynamic', 'Uses the dynamic scraper.', false)
+	.parse(process.argv);
+
+var urls = program.args;
+var ScraperType = (program.dynamic ? 'Dynamic' : 'Static' ) + 'Scraper';
+var fn, args;
+
+if(program.selector && (program.text || program.html || program.attr)) {
+	fn = function athScraper($, obj) {
+		return $(obj.selector).map(function(){
+			return obj.which?$(this)[obj.what](obj.which):$(this)[obj.what]();
+		}).get();
+	};
+	args = {
+		selector: program.selector,
+		what: undefined,
+		which: undefined
+	};
+
+	var temp;
+	if(program.attr) {
+		args.what = 'attr';
+		args.which = program.attr;
+	}else if(program.html) {
+		args.what = 'html';
+	}else if(program.text){
+		args.what = 'text';
+	}
+} else if (program.eval) {
+	fn = new Function("$", "obj", program.eval);
+	args = {};
+} else {
+	console.error('Invalid usage. Run scraperjs --help for help');
+	return;
+}
+
+var scraper = sjs[ScraperType].create();
+scraper.scrape.apply(scraper, [fn, function(result) {
+	console.log(JSON.stringify(result));
+}, args]);
+async.eachSeries(urls, function(url, done) {
+	scraper
+		.get(url)
+		.catch(function(err) {
+			done(err);
+		})
+		.done(function() {
+			done();
+		});
+}, function(err) {
+	if(err) {
+		console.error(err.stack);
+	}
+});
