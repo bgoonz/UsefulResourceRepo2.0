@@ -1,4 +1,3 @@
-
 def commonCharacterCount(s1, s2):
     count = 0
     word2 = list(s2)

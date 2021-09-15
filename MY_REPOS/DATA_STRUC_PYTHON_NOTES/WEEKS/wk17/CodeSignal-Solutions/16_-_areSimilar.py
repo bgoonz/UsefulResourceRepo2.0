@@ -1,4 +1,3 @@
-
 def areSimilar(a, b):
     diff = [i for i in range(len(a)) if a[i] != b[i]]
     if len(diff) == 2:
