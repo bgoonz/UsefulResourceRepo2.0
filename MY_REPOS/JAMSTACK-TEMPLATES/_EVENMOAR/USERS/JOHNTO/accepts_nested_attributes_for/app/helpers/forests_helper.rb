@@ -1,0 +1,2 @@
+module ForestsHelper
+end

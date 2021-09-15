@@ -1,0 +1,194 @@
+---
+menu: API
+title: '@loadable/server'
+order: 20
+---
+
+# @loadable/server
+
+## ChunkExtractor
+
+Used to collect chunks server-side and get them as script tags or script elements.
+
+| Arguments                 | Description                                                                               |
+| ------------------------- | ----------------------------------------------------------------------------------------- |
+| `options`                 | An object options.                                                                        |
+| `options.statsFile`       | Stats file path generated using `@loadable/webpack-plugin`.                               |
+| `options.stats`           | Stats generated using `@loadable/webpack-plugin`.                                         |
+| `options.entrypoints`     | Webpack entrypoints to load (default to `["main"]`).                                      |
+| `options.outputPath`      | Optional output path (for functions using the file system, like `requireEntrypoint`).     |
+| `options.namespace`       | Namespace of your application (use only if you have several React apps on the same page). |
+| `options.inputFileSystem` | File system used to read files (default to `fs`).                                         |
+| `options.publicPath`      | The public path used at runtime.                                                          |
+
+You must specify either `statsFile` or `stats` to be able to use `ChunkExtractor`.
+
+Using `statsFile` will automatically reload stats for you if they change.
+
+```js
+import { ChunkExtractor } from '@loadable/server'
+
+const statsFile = path.resolve('..', 'dist', 'loadable-stats.json')
+const chunkExtractor = new ChunkExtractor({ statsFile })
+```
+
+## chunkExtractor.collectChunks
+
+Wrap your application in a `ChunkExtractorManager`.
+
+| Arguments | Description                                                  |
+| --------- | ------------------------------------------------------------ |
+| `element` | JSX element that will be wrapped in `ChunkExtractorManager`. |
+
+```js
+const app = chunkExtractor.collectChunks(<YourApp />)
+```
+
+## chunkExtractor.requireEntrypoint
+
+Require the entrypoint of your application as a commonjs module.
+
+| Arguments | Description                                                      |
+| --------- | ---------------------------------------------------------------- |
+| `name`    | Optional name the entrypoint, default to the first one (`main`). |
+
+```js
+const { default: App } = chunkExtractor.requireEntrypoint()
+const app = <App />
+```
+
+## chunkExtractor.getScriptTags
+
+Get scripts as a string of `<script>` tags.
+
+| Arguments                | Description                                                                                                 |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `attributes` or `attrFn` | Optional attributes added to script tags, or a function that receives a `chunk` and returns the attributes. |
+
+```js
+const body = `<body><div id="root">${html}</div>${chunkExtractor.getScriptTags()}</body>`
+```
+
+## chunkExtractor.getScriptElements
+
+Get scripts as an array of React `<script>` elements.
+
+| Arguments                | Description                                                                                                     |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `attributes` or `attrFn` | Optional attributes added to script elements, or a function that receives a `chunk` and returns the attributes. |
+
+```js
+const body = renderToString(
+  <body>
+    <div id="root" dangerouslySetInnerHtml={{ __html: html }} />
+    {chunkExtractor.getScriptElements()}
+  </body>,
+)
+```
+
+## chunkExtractor.getLinkTags
+
+Get "prefetch" and "preload" links as a string of `<link>` tags.
+
+| Arguments                | Description                                                                                               |
+| ------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `attributes` or `attrFn` | Optional attributes added to link tags, or a function that receives a `chunk` and returns the attributes. |
+
+```js
+const head = `<head>${chunkExtractor.getLinkTags()}</head>`
+```
+
+## chunkExtractor.getLinkElements
+
+Get "prefetch" and "preload" links as an array of React `<link>` elements.
+
+| Arguments                | Description                                                                                                   |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `attributes` or `attrFn` | Optional attributes added to link elements, or a function that receives a `chunk` and returns the attributes. |
+
+```js
+const head = renderToString(<head>{chunkExtractor.getLinkElements()}</head>)
+```
+
+## chunkExtractor.getStyleTags
+
+Get style links as a string of `<link>` tags.
+
+| Arguments                | Description                                                                                                |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `attributes` or `attrFn` | Optional attributes added to style tags, or a function that receives a `chunk` and returns the attributes. |
+
+```js
+const head = `<head>${chunkExtractor.getStyleTags()}</head>`
+```
+
+## chunkExtractor.getStyleElements
+
+Get style links as an array of React `<link>` elements.
+
+```js
+const head = renderToString(<head>{chunkExtractor.getStyleElements()}</head>)
+```
+
+## chunkExtractor.getInlineStyleTags
+
+Get inline style links as a string of `<link>` tags (returns a promise).
+
+| Arguments                | Description                                                                                                |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `attributes` or `attrFn` | Optional attributes added to style tags, or a function that receives a `chunk` and returns the attributes. |
+
+```js
+chunkExtractor.getInlineStyleTags()
+.then((styleTags) => {
+  const head = `<head>${styleTags}</head>`
+}
+```
+
+## chunkExtractor.getInlineStyleElements
+
+Get inline style links as an array of React `<link>` elements (returns a promise).
+
+| Arguments                | Description                                                                                                    |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `attributes` or `attrFn` | Optional attributes added to style elements, or a function that receives a `chunk` and returns the attributes. |
+
+```js
+chunkExtractor.getInlineStyleElements()
+.then((styleElements) => {
+  const head = renderToString(<head>{styleElements}</head>)
+}
+```
+
+## chunkExtractor.getCssString
+
+Get css as a raw string for using directly within app (e.g. in custom AMP style tag)
+
+```js
+chunkExtractor.getCssString()
+.then((cssString) => {
+  const head = renderToString(
+    <head>
+      <style
+        dangerouslySetInnerHTML={{ __html: cssString }}
+      />
+    </head>
+  )
+}
+```
+
+## ChunkExtractorManager
+
+Used to inject a `ChunkExtractor` in the context of your application.
+
+```js
+import { ChunkExtractor, ChunkExtractorManager } from '@loadable/server'
+
+const extractor = new ChunkExtractor()
+
+const app = (
+  <ChunkExtractorManager extractor={extractor}>
+    <YourApp />
+  </ChunkExtractorManager>
+)
+```

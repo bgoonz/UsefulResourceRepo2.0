@@ -1,0 +1,558 @@
+{{ $js := .Site.Data.lib.js }} {{ $css := .Site.Data.lib.css }} {{ $getParents
+:= resources.Get "js/helper/getParents.js" | resources.Minify }}
+<script defer src="{{ $getParents.RelPermalink }}"></script>
+{{ $closest := resources.Get "js/helper/closest.js" | resources.Minify }}
+<script defer src="{{ $closest.RelPermalink }}"></script>
+{{ $prev := resources.Get "js/helper/prev.js" | resources.Minify }}
+<script defer src="{{ $prev.RelPermalink }}"></script>
+{{ $prop := resources.Get "js/helper/prop.js" | resources.Minify }}
+<script defer src="{{ $prop.RelPermalink }}"></script>
+{{ $fadeinout := resources.Get "js/helper/fadeinout.js" | resources.Minify }}
+<script defer src="{{ $fadeinout.RelPermalink }}"></script>
+
+{{ if in .Params.Libraries "mermaid" }}
+<script
+  defer
+  src="{{ $js.mermaid.url }}"
+  integrity="{{ $js.mermaid.sri }}"
+  crossorigin="anonymous"
+></script>
+{{ end }} {{ if in .Params.Libraries "katex" }}
+<link
+  rel="stylesheet"
+  href="{{ $css.katex.url }}"
+  integrity="{{$css.katex.sri }}"
+  crossorigin="anonymous"
+/>
+<script
+  defer
+  src="{{ $js.katex.url }}"
+  integrity="{{ $js.katex.sri }}"
+  crossorigin="anonymous"
+></script>
+<script
+  defer
+  src="{{ $js.katex_auto_render.url }}"
+  integrity="{{ $js.katex_auto_render.sri }}"
+  crossorigin="anonymous"
+></script>
+{{ end }} {{ if in .Params.Libraries "flowchartjs" }}
+<script
+  defer
+  src="{{ $js.raphael.url }}"
+  integrity="{{ $js.raphael.sri }}"
+  crossorigin="anonymous"
+></script>
+<script
+  defer
+  src="{{ $js.flowchartjs.url }}"
+  integrity="{{ $js.flowchartjs.sri }}"
+  crossorigin="anonymous"
+></script>
+{{ end }} {{ if in .Params.Libraries "mathjax" }}
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [
+        ["$", "$"],
+        ["\\(", "\\)"],
+      ],
+      displayMath: [
+        ["$$", "$$"],
+        ["\\[", "\\]"],
+      ],
+      processEscapes: true,
+      processEnvironments: true,
+    },
+    options: {
+      skipHtmlTags: ["script", "noscript", "style", "textarea", "pre"],
+      ignoreHtmlClass: "tex2jax_ignore",
+      processHtmlClass: "tex2jax_process",
+    },
+  };
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script async src="{{ $js.mathjax.url }}" id="MathJax-script"></script>
+{{ end }} {{ if in .Params.Libraries "msc" }}
+<script defer src="{{ $js.webfont.url }}"></script>
+<script defer src="{{ $js.snap_svg.url }}"></script>
+<script
+  defer
+  src="{{ $js.lodash.url }}"
+  integrity="{{ $js.lodash.sri }}"
+  crossorigin="anonymous"
+></script>
+<script
+  defer
+  src="{{ $js.sequence_diagram.url }}"
+  integrity="{{ $js.sequence_diagram.sri }}"
+  crossorigin="anonymous"
+></script>
+<link
+  rel="stylesheet"
+  href="{{ $css.sequence_diagram.url }}"
+  integrity="{{ $css.sequence_diagram.sri }}"
+  crossorigin="anonymous"
+/>
+{{ end }} {{ if in .Params.Libraries "chart" }}
+<script
+  defer
+  src="{{ $js.chart.url }}"
+  integrity="{{ $js.chart.sri }}"
+  crossorigin="anonymous"
+></script>
+{{ end }} {{ if in .Params.Libraries "wavedrom" }}
+<script
+  defer
+  src="{{ $js.wavedrom.url }}"
+  integrity="{{ $js.wavedrom.sri }}"
+  crossorigin="anonymous"
+></script>
+<script
+  defer
+  src="{{ $js.wavedrom_skin.url }}"
+  integrity="{{ $js.wavedrom_skin.sri }}"
+  crossorigin="anonymous"
+></script>
+{{ end }} {{ if in .Params.Libraries "viz" }}
+<script defer src="{{ $js.viz.url }}" crossorigin="anonymous"></script>
+<script
+  defer
+  src="{{ $js.viz_render.url }}"
+  integrity="{{ $js.viz_render.sri }}"
+  crossorigin="anonymous"
+></script>
+{{ end }}
+
+<script>
+    'use strict';
+
+    window.onload = function() {
+      var navbar = document.querySelector('.navbar');
+      var singleContentsElem = document.querySelector('.single__contents');
+
+      // ======================= busuanzi counter ========================
+      {{ $enableBusuanzi := .Site.Params.enableBusuanzi }}
+      {{ $busuanziPagePV := .Site.Params.busuanziPagePV }}
+      var enableBusuanzi = JSON.parse({{ $enableBusuanzi | jsonify }});
+      var busuanziPagePV = JSON.parse({{ $busuanziPagePV | jsonify }});
+
+      if (enableBusuanzi && busuanziPagePV) {
+        var pagePvElem = document.querySelector('#busuanzi_value_page_pv');
+        pagePvElem.textContent = pagePvElem.textContent.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+      }
+      // =================================================================
+
+
+
+      // ============================== toc ==============================
+      {{ $enableToc := ($.Param "enableToc") }}
+      {{ $toc := ($.Param "toc") }}
+      {{ $hideToc := ($.Param "hideToc") }}
+      {{ $tocFolding := $.Param "tocFolding" }}
+
+      var enableToc = JSON.parse({{ $enableToc | jsonify }});
+      var toc = JSON.parse({{ $toc | jsonify }});
+      var hideToc = JSON.parse({{ $hideToc | jsonify }});
+      var tocFlexbox = document.querySelector('.toc__flexbox');
+      var tocFlexboxOuter = document.querySelector('.toc__flexbox--outer');
+      var tocFolding = JSON.parse({{ $tocFolding | jsonify }});
+
+      if ((enableToc || toc) && document.querySelector('.toc')) {
+        var tableOfContentsElem = document.querySelector('.toc').querySelector('#TableOfContents');
+
+        tableOfContentsElem.onmouseenter = function() {
+          if (navbar.classList.contains('scrolling')) {
+            navbar.classList.remove('scrolling');
+          }
+        }
+
+        tableOfContentsElem.onmouseleave = function() {
+          if (!navbar.classList.contains('scrolling')) {
+            navbar.classList.add('scrolling');
+          }
+        }
+
+        if (false === tocFolding) {
+
+        } else {
+          tableOfContentsElem.querySelectorAll('ul') ?
+            tableOfContentsElem.querySelectorAll('ul').forEach(function (rootUl) {
+              rootUl.querySelectorAll('li').forEach(function (liElem) {
+                liElem.querySelectorAll('ul').forEach(function (ulElem) {
+                  ulElem.style.display = 'none';
+                });
+              });
+            }) : null;
+        }
+
+        if (tableOfContentsElem) {
+          if (tableOfContentsElem.querySelectorAll('a').length > 0) {
+            tableOfContentsElem.querySelectorAll('a').forEach(function (elem) {
+              elem.addEventListener('click', function () {
+                var id = elem.getAttribute('id');
+
+                if (!navbar.classList.contains('scrolling')) {
+                  navbar.classList.remove('navbar--show');
+                  navbar.classList.remove('navbar--hide');
+                  navbar.classList.add('navbar--hide');
+                }
+
+                document.querySelector('.toc').querySelectorAll('a').forEach(function (elem) {
+                  elem.classList.remove('active');
+                });
+                elem.classList.add('active');
+
+                var curElem = tableOfContentsElem.querySelector('[href="#' + id + '"]');
+                if (curElem && curElem.nextElementSibling) {
+                  curElem.nextElementSibling.style.display = 'block';
+                }
+                if (curElem) {
+                  getParents(curElem, 'ul') ?
+                    getParents(curElem, 'ul').forEach(function (elem) {
+                      elem.style.display = 'block';
+                    }) : null;
+                }
+              });
+            });
+          } else {
+            if (tocFlexbox) {
+              tocFlexbox.setAttribute('data-position', '');
+              if (!tocFlexbox.classList.contains('hide')) {
+                tocFlexbox.classList.add('hide');
+              }
+            }
+            if (tocFlexboxOuter) {
+              tocFlexboxOuter.setAttribute('data-position', '');
+              if (!tocFlexboxOuter.classList.contains('hide')) {
+                tocFlexboxOuter.classList.add('hide');
+              }
+            }
+          }
+        }
+
+        // toc visibility
+        var toggleTocElem = document.getElementById("toggle-toc");
+        var visibleTocElem = document.getElementById('visible-toc');
+        var tocElem = document.querySelector('.toc');
+        var mainElem = document.querySelector('main');
+        var sideElem = document.querySelector('side');
+        var tocFlexboxElem = document.querySelector('.toc__flexbox');
+
+        toggleTocElem ?
+        toggleTocElem.addEventListener('change', function(e) {
+          if (e.target.checked) {
+            if (tocElem) {
+              fadeIn(tocElem, 200);
+            }
+            if (tocFlexboxElem) {
+              tocFlexboxElem.setAttribute('data-position', 'fixed');
+            }
+
+            if (mainElem) {
+              mainElem.classList.remove('main-main');
+              mainElem.classList.remove('main');
+              mainElem.classList.add('main-main');
+            }
+            if (sideElem) {
+              sideElem.classList.remove('main-side');
+            }
+          } else {
+            if (tocElem) {
+              fadeOut(tocElem, 200);
+            }
+            if (tocFlexboxElem) {
+              tocFlexboxElem.setAttribute('data-position', 'absolute');
+            }
+
+            if (mainElem) {
+              mainElem.classList.remove('main-main');
+              mainElem.classList.remove('main');
+              mainElem.classList.add('main');
+            }
+            if (sideElem) {
+              sideElem.classList.remove('main-side');
+            }
+          }
+        }) : null;
+
+        visibleTocElem ?
+        visibleTocElem.addEventListener('change', function(e) {
+          if (e.target.checked) {
+            if (tocElem) {
+              fadeIn(tocElem, 200);
+            }
+          } else {
+            if (tocElem) {
+              fadeOut(tocElem, 200);
+            }
+          }
+        }) : null;
+      }
+      // =================================================================
+
+
+
+      // ==================== add links in all titles ====================
+      var text, clip = new ClipboardJS('.anchor');
+      var headers = singleContentsElem.querySelectorAll("h1, h2, h3, h4");
+
+      {{ $languagedir := ($.Param "languagedir" | default "ltr") }}
+      var languagedir = JSON.parse({{ $languagedir | jsonify }});
+
+      headers ?
+      headers.forEach(function (elem) {
+        var size = parseInt(elem.tagName.substr(1), 10) * 2;
+        var url = encodeURI(document.location.origin + document.location.pathname);
+        var link = url + "#" + elem.getAttribute('id');
+        var newElemOuter = document.createElement('span');
+        newElemOuter.classList.add('anchor');
+        newElemOuter.classList.add('hide');
+        newElemOuter.setAttribute('data-clipboard-text', link);
+        newElemOuter.style.position = 'relative';
+
+        var newElemInner = document.createElement('span');
+        newElemInner.style.position = 'absolute';
+        newElemInner.style.top = '50%';
+        newElemInner.style.left = '0.75rem';
+        newElemInner.style.transform = 'translateY(-50%)';
+        newElemInner.innerHTML = `
+  <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${32 - size}px" height="${32 - size}px"><path d="M 5.5625 0 C 4.136719 0 2.707031 0.542969 1.625 1.625 C -0.539063 3.789063 -0.539063 7.335938 1.625 9.5 L 5.28125 13.15625 C 5.667969 13.554688 6.304688 13.558594 6.703125 13.171875 C 7.101563 12.785156 7.105469 12.148438 6.71875 11.75 L 3.03125 8.0625 C 1.632813 6.664063 1.632813 4.429688 3.03125 3.03125 C 4.429688 1.632813 6.664063 1.632813 8.0625 3.03125 L 12.96875 7.9375 C 14.367188 9.335938 14.367188 11.570313 12.96875 12.96875 C 12.804688 13.132813 12.621094 13.25 12.4375 13.375 C 11.980469 13.6875 11.859375 14.308594 12.171875 14.765625 C 12.484375 15.222656 13.105469 15.34375 13.5625 15.03125 C 13.847656 14.835938 14.125 14.625 14.375 14.375 C 16.539063 12.210938 16.539063 8.664063 14.375 6.5 L 9.5 1.625 C 8.417969 0.542969 6.988281 0 5.5625 0 Z M 10.78125 8.875 C 10.738281 8.882813 10.695313 8.894531 10.65625 8.90625 C 10.507813 8.9375 10.371094 9 10.25 9.09375 C 10.039063 9.253906 9.820313 9.429688 9.625 9.625 C 7.460938 11.789063 7.460938 15.335938 9.625 17.5 L 14.5 22.375 C 16.664063 24.539063 20.210938 24.539063 22.375 22.375 C 24.539063 20.210938 24.539063 16.664063 22.375 14.5 L 18.71875 10.875 C 18.476563 10.578125 18.089844 10.441406 17.714844 10.527344 C 17.34375 10.613281 17.050781 10.90625 16.964844 11.277344 C 16.878906 11.652344 17.015625 12.039063 17.3125 12.28125 L 20.96875 15.9375 C 22.367188 17.335938 22.367188 19.570313 20.96875 20.96875 C 19.570313 22.367188 17.335938 22.367188 15.9375 20.96875 L 11.03125 16.0625 C 9.632813 14.664063 9.632813 12.429688 11.03125 11.03125 C 11.152344 10.90625 11.300781 10.820313 11.4375 10.71875 C 11.839844 10.472656 12.015625 9.976563 11.855469 9.53125 C 11.699219 9.085938 11.25 8.8125 10.78125 8.875 Z"/></svg>`;
+
+        if (languagedir === "rtl") {
+          newElemInner.style.left = '-2rem';
+        } else {
+          newElemInner.style.right = '-2rem';
+        }
+
+        newElemOuter.append(newElemInner);
+        elem.append(newElemOuter);
+
+        elem.addEventListener('mouseenter', function() {
+          this.querySelector('.anchor').classList.remove('hide');
+        });
+        elem.addEventListener('mouseleave', function () {
+          this.querySelector('.anchor').classList.add('hide');
+        });
+      }) : null;
+
+      document.querySelectorAll('.anchor').forEach(function(elem) {
+        elem.addEventListener('mouseleave', function() {
+          elem.setAttribute('aria-label', null);
+          elem.classList.remove('tooltipped');
+          elem.classList.remove('tooltipped-s');
+          elem.classList.remove('tooltipped-w');
+        });
+      });
+
+      clip.on('success', function (e) {
+        e.clearSelection();
+        e.trigger.setAttribute('aria-label', 'Link copied to clipboard!');
+        e.trigger.classList.add('tooltipped');
+        e.trigger.classList.add('tooltipped-s');
+      });
+      // =================================================================
+
+
+
+      // ============================ mermaid ============================
+      {{ $lib := .Params.libraries }}
+      var lib = JSON.parse({{ $lib | jsonify }});
+
+      if (lib && lib.includes('mermaid')) {
+        {{ $themeVariant := (index .Site.Params.themeOptions 0) }}
+        var themeVariant = localStorage.getItem('theme') || JSON.parse({{ $themeVariant | jsonify }});
+
+        if (themeVariant === "dark" || themeVariant === "hacker") {
+          mermaid.initialize({ theme: 'dark' });
+        } else {
+          mermaid.initialize({ theme: 'default' });
+        }
+
+        var mermaids = [];
+        [].push.apply(mermaids, document.getElementsByClassName('language-mermaid'));
+        mermaids.forEach(function(elem) {
+          var elemParentNode = elem.parentNode;
+
+          if (elemParentNode !== document.body) {
+            elemParentNode.parentNode.insertBefore(elem, elemParentNode);
+            elemParentNode.parentNode.removeChild(elemParentNode);
+          }
+
+          var newElemWrapper = document.createElement('div');
+          newElemWrapper.classList.add('mermaid');
+          newElemWrapper.style.padding = '34px 4px 6px';
+          newElemWrapper.innerHTML = elem.innerHTML;
+          elem.replaceWith(newElemWrapper);
+        });
+      }
+      // =================================================================
+
+
+
+      // ============================= katex =============================
+      if (lib && lib.includes('katex')) {
+        var mathElements = document.getElementsByClassName('math');
+        var options = {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "\\[", right: "\\]", display: true },
+            { left: "$", right: "$", display: false },
+            { left: "\\(", right: "\\)", display: false }
+          ],
+        };
+
+        renderMathInElement(document.querySelector('.single__contents'), options);
+      }
+      // =================================================================
+
+
+
+      // ========================= flowchart.js ==========================
+      if (lib && lib.includes('flowchartjs')) {
+        {{ $flowchartjs := .Site.Data.flowchartjs }}
+        var options = JSON.parse({{ $flowchartjs | jsonify }});
+        var jsonContent = null;
+
+        var flowchartPrefix = "language-flowchart";
+        var index = 0;
+        Array.prototype.forEach.call(document.querySelectorAll("[class^=" + flowchartPrefix + "]"), function(x){
+            x.style.display = 'none'
+            x.parentNode.style.backgroundColor = "transparent"
+            jsonContent = x.innerText;
+
+            var node0 = document.createElement('div');
+            node0.id = 'flowchart' + index;
+            x.parentNode.insertBefore(node0, x);
+
+            var diagram = flowchart.parse(jsonContent);
+            diagram.drawSVG("flowchart"+index, options);
+
+            index +=1;
+        });
+      }
+      // =================================================================
+
+
+
+      // ============================ mathjax ============================
+      document.querySelectorAll("mjx-container").forEach(function (x) {
+        x.parentElement.classList += 'has-jax'
+      });
+      // =================================================================
+
+
+
+      // ====================== js-sequence-diagram ======================
+      if (lib && lib.includes('msc')) {
+        {{ $msc := .Site.Data.msc }}
+        var options = JSON.parse({{ $msc | jsonify }});
+        var jsonContent = null;
+
+        var index = 0;
+        var chartPrefix = "language-msc";
+        Array.prototype.forEach.call(document.querySelectorAll("[class^=" + chartPrefix + "]"), function (x) {
+          x.style.display = 'none'
+          x.parentNode.style.backgroundColor = "transparent"
+          jsonContent = x.innerText;
+          var node0 = document.createElement('div');
+          node0.id = 'msc' + index;
+          x.parentNode.insertBefore(node0, x);
+          var diagram = Diagram.parse(jsonContent);
+          diagram.drawSVG("msc" + index, options);
+          index += 1;
+        });
+      }
+      // =================================================================
+
+
+
+      // =========================== chart.js ============================
+      if (lib && lib.includes('chart')) {
+        var borderColor = "#666";
+        var bgColor = "#ddd";
+        var borderWidth = 2;
+
+        Chart.defaults.global.elements.rectangle.borderWidth = borderWidth;
+        Chart.defaults.global.elements.rectangle.borderColor = borderColor;
+        Chart.defaults.global.elements.rectangle.backgroundColor = bgColor;
+
+        Chart.defaults.global.elements.line.borderWidth = borderWidth;
+        Chart.defaults.global.elements.line.borderColor = borderColor;
+        Chart.defaults.global.elements.line.backgroundColor = bgColor;
+
+        Chart.defaults.global.elements.point.borderWidth = borderWidth;
+        Chart.defaults.global.elements.point.borderColor = borderColor;
+        Chart.defaults.global.elements.point.backgroundColor = bgColor;
+
+        var chartPrefix = "language-chart";
+        var index = 0;
+        var jsonContent = null;
+
+        Array.prototype.forEach.call(document.querySelectorAll("[class^=" + chartPrefix + "]"), function (x) {
+          x.style.display = 'none'
+          x.parentNode.style.backgroundColor = "transparent"
+          jsonContent = x.innerText;
+          var node0 = document.createElement('canvas');
+          var source = null;
+          node0.height = 200;
+          node0.style.height = 200;
+          node0.id = 'myChart' + index;
+          source = JSON.parse(jsonContent);
+          x.parentNode.insertBefore(node0, x);
+          var ctx = document.getElementById('myChart' + index).getContext('2d');
+          var myChart = new Chart(ctx, source);
+          index += 1;
+        });
+      }
+      // =================================================================
+
+
+
+      // =========================== wavedrom ============================
+      if (lib && lib.includes('wavedrom')) {
+        var wavePrefix = "language-wave";
+        var index = 0;
+        var jsonContent = null;
+
+        Array.prototype.forEach.call(document.querySelectorAll("[class^=" + wavePrefix + "]"), function (x) {
+          x.style.display = 'none'
+          x.parentNode.style.backgroundColor = "transparent"
+          jsonContent = x.innerText;
+          var node0 = document.createElement('div');
+          var source = null;
+          node0.id = 'WaveDrom_Display_' + index;
+          source = JSON.parse(jsonContent);
+          x.parentNode.insertBefore(node0, x);
+          WaveDrom.RenderWaveForm(index, source, "WaveDrom_Display_");
+          index += 1;
+        });
+      }
+      // =================================================================
+
+
+
+      // ========================== viz diagram ==========================
+      if (lib && lib.includes('viz')) {
+        var vizPrefix = "language-viz-";
+        Array.prototype.forEach.call(document.querySelectorAll("[class^=" + vizPrefix + "]"), function (x) {
+          x.style.display = 'none'
+          x.parentNode.style.backgroundColor = "transparent"
+          var engine;
+          x.getAttribute("class").split(" ").forEach(function (cls) {
+            if (cls.startsWith(vizPrefix)) {
+              engine = cls.substr(vizPrefix.length);
+            }
+          });
+          var viz = new Viz();
+          viz.renderSVGElement(x.innerText, { engine: engine })
+            .then(function (element) {
+              element.style.width = "100%";
+              x.parentNode.insertBefore(element, x);
+            })
+        });
+      }
+      // =================================================================
+
+    }
+</script>

@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+
+TRACKPAD_ID = `xinput | grep Trackpad`.split("\t")[1].split('=')[1].to_i
+
+def mouse_present?
+  `lsusb | grep Logitech | wc -l`.to_i > 0
+end
+
+def disable_trackpad
+  `xinput set-prop #{TRACKPAD_ID} 'Device Enabled' 0`
+end
+
+def enable_trackpad
+  `xinput set-prop #{TRACKPAD_ID} 'Device Enabled' 1`
+end
+
+def trackpad_enabled?
+  `xinput list-props #{TRACKPAD_ID} | grep Enabled`.strip[-1].to_i == 1
+end
+
+def trackpad_status
+  trackpad_enabled? ? "Trackpad is enabled" : "Trackpad is disabled"
+end
+
+def notify msg
+  `notify-send '#{msg}'`
+end
+
+def toggle_trackpad
+  trackpad_enabled? ? disable_trackpad : enable_trackpad
+end
+
+toggle_trackpad
+puts trackpad_status
+notify trackpad_status
+

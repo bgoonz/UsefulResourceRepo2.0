@@ -1,0 +1,38 @@
+angular.module("NewsApp")
+  .controller "NewsItemsCtrl", [ "$scope", "$window", "NewsItem", "NewsItemsLoader",  ($scope, $window, NewsItem, NewsItemsLoader) ->
+
+    $scope.news_items_loader = new NewsItemsLoader()
+
+    $scope.$watch 'news_items_loader.items', (value) ->
+      $scope.items = value
+
+    $scope.load = ->
+      $scope.mode = 'add'
+      $scope.reset_form()
+
+
+    $scope.reset_form = ->
+      $scope.mode = 'add'
+      $scope.news_item = new NewsItem( language: '<%= News::Item::LANGUAGES.first %>')
+
+    $scope.addItem = (data) ->
+      NewsItem.save data, (news_item) ->
+        $scope.news_items_loader.items.unshift(new NewsItem(news_item))
+        $scope.reset_form()
+
+    $scope.destroyItem = (news_item) ->
+      if $window.confirm('Are you sure ?')
+        NewsItem.delete news_item, (success) ->
+          $scope.news_items_loader.items.splice($scope.news_items_loader.items.indexOf(news_item),1)
+          $scope.reset_form()
+
+    $scope.saveItem = (news_item) ->
+      NewsItem.update({ id: news_item.id }, news_item)
+      $scope.reset_form()
+
+    $scope.editItem = (news_item) ->
+      $scope.news_item = news_item
+      $scope.mode = 'edit'
+
+    $scope.load()
+  ]

@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8">
+
+<title>Tidying Up Your Views with Decorators</title>
+
+<meta name="description" content="A lightening talk on tidying up your views in Rails with decorators.">
+<meta name="author" content="John Otander">
+
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<link rel="stylesheet" href="css/reveal.min.css">
+<link rel="stylesheet" href="css/custom.css">
+<link rel="stylesheet" href="css/theme/simple.css" id="theme">
+
+<!-- For syntax highlighting -->
+<link rel="stylesheet" href="lib/css/hemisu.css">
+
+<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+<script>
+	document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+</script>
+
+<!--[if lt IE 9]>
+<script src="lib/js/html5shiv.js"></script>
+<![endif]-->
+</head>
+
+<body>
+<div class="reveal">
+<div class="slides">
+
+
+<section data-markdown>
+	<script type="text/template">
+		## Decorators on Rails
+
+		#### John Otander / [johnotander.com](http://www.johnotander.com)
+		<br>
+		<https://github.com/johnotander/draper_example>
+		<https://github.com/drapergem/draper>
+		<http://johnotander.com/rails/2014/03/07/decorators-on-rails/>
+	</script>
+</section>
+
+
+<section data-markdown>
+	<script type="text/template">
+	# What is a Decorator?
+	</script>
+</section>
+
+
+<section style="text-align:left;" data-markdown>
+  <script type="text/template">
+  #### A Decorator is:
+  <br>
+  
+  A design pattern that allows behavior to be added to an individual object without affecting the behavior of other objects from the same class.
+  </script>
+</section>
+
+
+<section data-markdown>
+  <script type='text/template'>
+  # A disclaimer
+  <br>
+
+  Don't use Decorators, or Presenters, until you're in pain. Your models should be
+  bursting at the seams.
+  </script>
+</section>
+
+
+<section data-markdown>
+  <script type="text/template">
+  # Why do we care?
+  </script>
+</section>
+
+
+<section data-markdown>
+	<script type='text/template'>
+	# Your views should be stupid.
+	</script>
+</section>
+
+
+<section style="text-align:left;" data-markdown>
+  <script type='text/template'>
+#### Steve Klabnik said it perfectly:
+<br>
+
+The whole idea of logic in templates leads to all kinds of problems. They're hard to test, they're hard to read, and it's not just a slippery slope, but a steep one. Things go downhill rapidly.
+  </script>
+</section>
+
+
+<section class="code">
+  <h2>Some view code.</h2>
+	<pre>
+	  <code data-trim>
+<h1>Show user</h1>
+
+<dl class="dl-horizontal">
+  <% if @user.public_email %>
+    <dt>Email:</dt>
+    <dd><%= @user.email %></dd>
+  <% else %>
+    <dt>Email Unavailable:</dt>
+    <dd><%= link_to 'Request Email', '#', class: 'btn btn-default btn-xs' %></dd>
+  <% end %>
+
+  <dt>Name:</dt>
+  <dd>
+    <% if @user.first_name || @user.last_name %>
+      <%= "#{ @user.first_name } #{ @user.last_name }".strip %>
+    <% else %>
+      No name provided.
+    <% end %>
+  </dd>
+  
+  <dt>Joined:</dt>
+  <dd><%= @user.created_at.strftime("%A, %B %e") %></dd>
+  
+  <!-- ... -->
+  
+</dl>
+		</code>
+	</pre>
+</section>
+
+
+<section>
+  <h2>Some model code.</h2>
+  <pre>
+    <code data-trim>
+class User < ActiveRecord::Base
+  before_create :setup_analytics
+  after_create :send_welcome_email
+  after_save :send_confirmation_email, if: :email_changed?
+
+  validates :website, url_format: true
+  validates :email, email_format: true, 
+                    presence: { message: "Please specify an email." }, 
+                    uniqueness: { case_sensitive: false, 
+                                  message: "That email has already been registered." }
+
+  validates_presence_of :password
+
+  default_scope -> { order(:last_name, :first_name) }
+
+  def full_name
+    if first_name.blank? && last_name.blank?
+      'No name provided.'
+    else
+      "#{ first_name } #{ last_name }".strip
+    end
+  end
+
+  def as_json(options = {})
+    json_blob = super
+    json_blob.delete(:email) unless public_email
+    json_blob
+  end
+
+  def email_domain
+    email.split(/@/).second
+  end
+
+  def website_domain
+    UrlFormat.get_domain(url)
+  end
+
+  private
+
+    def send_confirmation_email
+      # ...
+    end
+
+    def send_welcome_email
+      # ...
+    end
+
+    def setup_analytics
+      # ...
+    end
+end
+    </code>
+  </pre>
+</section>
+
+
+<section style="text-align:left;" data-markdown>
+  <script type="text/template">
+  ## Draper to the rescue.
+  <br>
+
+  `gem 'draper'`  
+  `$ bundle install`   
+  `$ rails generate decorator User`   
+
+  </script>
+</section>
+
+
+<section>
+  <h2>The default decorator.</h2>
+  <h4>Found in app/decorators/user_decorator.rb</h4>
+  <pre>
+    <code data-trim>
+class UserDecorator < Draper::Decorator
+  delegate_all
+end
+    </code>
+  </pre>
+</section>
+
+
+<section>
+  <h2>Let's add some specs.</h2>
+  <pre>
+    <code data-trim>
+require 'spec_helper'
+
+describe UserDecorator do
+
+  let(:first_name) { 'John'  }
+  let(:last_name)  { 'Smith' }
+
+  let(:user) { FactoryGirl.build(:user, 
+                                 first_name: first_name, 
+                                 last_name: last_name) }
+  
+  let(:decorator) { user.decorate }
+
+  describe '.full_name' do
+
+    context 'without a first name' do
+
+      before { user.first_name = '' }
+
+      it 'should return the last name' do
+        expect(decorator.full_name).to eq(last_name)
+      end
+    end
+
+    context 'with a first and last name' do
+
+      it 'should return the full name' do
+        expect(decorator.full_name).to eq("#{ first_name } #{ last_name }")
+      end
+    end
+
+    context 'without a first or last name' do
+
+      before do
+        user.first_name = ''
+        user.last_name = ''
+      end
+
+      it 'should return no name provided' do
+        expect(decorator.full_name).to eq('No name provided.')
+      end
+    end
+  end
+end
+    </code>
+  </pre>
+</section>
+
+
+<section>
+  <h2>Implementing the decorator.</h2>
+  <pre>
+    <code data-trim>
+class UserDecorator < Draper::Decorator
+  delegate_all
+
+  def email_or_request_button
+    public_email ? email : h.link_to('Request Email', '#', class: 'btn btn-default btn-xs').html_safe
+  end
+
+  def full_name
+    if first_name.blank? && last_name.blank?
+      'No name provided.'
+    else
+      "#{ first_name } #{ last_name }".strip
+    end
+  end
+
+  def joined_at
+    created_at.strftime("%B %Y")
+  end
+end
+    </code>
+  </pre>
+</section>
+
+
+<section>
+  <h2>Now we need to decorate.</h2>
+  <pre>
+    <code data-trim>
+class UsersController < ApplicationController
+  before_action :do_stuff
+
+  # GET /users
+  # GET /users.json
+  def index
+    @users = User.all.decorate
+  end
+
+  # GET /users/1
+  # GET /users/1.json
+  def show
+    @user = User.find(params[:id]).decorate
+  end
+end
+    </code>
+  </pre>
+</section>
+
+
+<section class="code">
+  <h2>The original view.</h2>
+  <pre>
+    <code data-trim>
+<h1>Show user</h1>
+
+<dl class="dl-horizontal">
+  <% if @user.public_email %>
+    <dt>Email:</dt>
+    <dd><%= @user.email %></dd>
+  <% else %>
+    <dt>Email Unavailable:</dt>
+    <dd><%= link_to 'Request Email', '#', class: 'btn btn-default btn-xs' %></dd>
+  <% end %>
+
+  <dt>Name:</dt>
+  <dd>
+    <% if @user.first_name || @user.last_name %>
+      <%= "#{ @user.first_name } #{ @user.last_name }".strip %>
+    <% else %>
+      No name provided.
+    <% end %>
+  </dd>
+  
+  <dt>Joined:</dt>
+  <dd><%= @user.created_at.strftime("%A, %B %e") %></dd>
+  
+  <!-- ... -->
+  
+</dl>
+    </code>
+  </pre>
+</section>
+
+
+<section class="code">
+  <h2>The new, decorated view.</h2>
+  <pre>
+    <code data-trim>
+<h1><%= @user.full_name %></h1>
+
+<dl class="dl-horizontal">
+  <dt><%= @user.email_attr_text %></dt>
+  <dd><%= @user.email_or_request_button %></dd>
+
+  <dt>Name:</dt>
+  <dd><%= @user.full_name %></dd>
+  
+  <dt>Joined:</dt>
+  <dd><%= @user.joined_at %></dd>
+  
+  <!-- ... -->
+  
+</dl>
+    </code>
+  </pre>
+</section>
+
+
+<section data-markdown>
+	<script type="text/template">
+		# Kthxbai.
+		### John Otander / [johnotander.com](http://www.johnotander.com)
+	</script>
+</section>
+
+
+<section style="text-align:left;" data-markdown>
+	<script type='text/template'>
+	## Resources
+		
+		<br>
+
+		- <http://robots.thoughtbot.com/evaluating-alternative-decorator-implementations-in>
+		- <http://railscasts.com/episodes/286-draper>
+		- <http://www.confreaks.com/videos/884-railsconf2012-presenters-and-decorators-a-code-tour>
+		- <https://github.com/drapergem/draper>
+		- <http://robots.thoughtbot.com/using-the-draper-gem-round-one>
+		- <http://blog.codeclimate.com/blog/2012/10/17/7-ways-to-decompose-fat-activerecord-models/>
+		- <http://blog.steveklabnik.com/posts/2011-12-30-active-record-considered-harmful>
+		- <https://github.com/hakimel/reveal.js/>
+	</script>
+</section>
+
+</div>
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.min.js"></script>
+
+<script>
+
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+	controls: true,
+	progress: true,
+	history: true,
+	center: true,
+	fragments: true,
+
+	theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+	transition: Reveal.getQueryHash().transition || 'fade', // default/cube/page/concave/zoom/linear/fade/none
+
+	// Parallax scrolling
+	// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+	// parallaxBackgroundSize: '2100px 900px',
+
+	// Optional libraries used to extend on reveal.js
+	dependencies: [
+		{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+		{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+		{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+		{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+	]
+});
+
+</script>
+
+</body>
+</html>

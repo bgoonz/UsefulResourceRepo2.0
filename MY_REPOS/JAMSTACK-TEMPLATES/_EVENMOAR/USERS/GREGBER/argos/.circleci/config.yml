@@ -1,0 +1,92 @@
+defaults: &defaults
+  working_directory: /tmp/argos
+  docker:
+    - image: circleci/node:9.10
+    - image: postgres:9.6
+      environment:
+        POSTGRES_USER: argos
+      ports:
+        - '5432:5432'
+restore_repo: &restore_repo
+  restore_cache:
+    keys:
+      - v1-repo-{{ .Branch }}-{{ .Revision }}
+version: 2
+jobs:
+  checkout:
+    <<: *defaults
+    steps:
+      - *restore_repo
+      - checkout
+      - run:
+          name: Check versions and env
+          command: |
+            yarn --version
+            node --version
+            docker --version
+            docker-compose --version
+            yarn cache dir
+      - restore_cache:
+          key: yarn-sha-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install js dependencies
+          command: |
+            yarn install --frozen-lockfile
+      - save_cache:
+          key: yarn-sha-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn/v1
+      - save_cache:
+          key: v1-repo-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - /tmp/argos
+  test_unit:
+    <<: *defaults
+    steps:
+      - *restore_repo
+      - run:
+          name: postgres
+          command: |
+            sudo apt-get update
+            sudo apt-get install postgresql postgresql-contrib
+      - run:
+          name: Unit
+          environment:
+            NODE_ENV: test
+          command: |
+            yarn api:db:reset
+            yarn test:unit
+  test_misc:
+    <<: *defaults
+    steps:
+      - *restore_repo
+      - run:
+          name: Lint
+          command: yarn lint
+      - run:
+          name: postgres
+          command: |
+            sudo apt-get update
+            sudo apt-get install postgresql postgresql-contrib
+      - run:
+          name: Can run the seeds
+          environment:
+            NODE_ENV: test
+          command: |
+            yarn api:db:reset
+            yarn knex seed:run
+            yarn api:db:truncate
+      - run:
+          name: Can run argos
+          command: yarn argos
+workflows:
+  version: 2
+  pipeline:
+    jobs:
+      - checkout
+      - test_unit:
+          requires:
+            - checkout
+      - test_misc:
+          requires:
+            - checkout

@@ -1,0 +1,49 @@
+{{ partial "navbar/select-theme-mobile" . }}
+{{ partial "search/site-search-mobile" . }}
+
+<a role="button" class="navbar__burger" aria-label="menu" aria-expanded="false"
+  data-ani="{{ $.Site.Params.enableUiAnimation | default "true" }}">
+  <span aria-hidden="true"></span>
+  <span aria-hidden="true"></span>
+  <span aria-hidden="true"></span>
+</a>
+<div class="navbarm__collapse" data-open="false">
+  <ul dir="{{ $.Param "languagedir" | default "ltr" }}">
+    {{ $current := . }}
+    {{ range $index, $menu := .Site.Menus.main }}
+      {{ $active := or ($current.IsMenuCurrent "main" $menu) ($current.HasMenuCurrent "main" $menu) }}
+      {{ $active = or $active (eq $menu.Name $current.Title) }}
+      {{ $active = or $active (eq (lower $menu.URL) (lower $current.Title)) }}
+      {{ $active = or $active (eq (lower $menu.URL) (lower $current.Type)) }}
+
+      {{ if $menu.HasChildren }}
+        <li class="navbarm__menu--item {{ if $active }}active{{ end }}">
+          <a href="{{ $menu.URL | relLangURL }}">
+            {{ safeHTML $menu.Name }}
+            {{ partial "svgs/arrow/keyboard-arrow-down.svg" (dict "width" 18 "height" 18) }}
+          </a>
+        </li>
+
+        {{ range .Children }}
+          <li class="navbarm__menu--item navbarm__menu--subitem">
+            <a href="{{ .URL | relLangURL }}">{{ safeHTML .Name }}</a>
+          </li>
+        {{ end }}
+
+      {{ else }}
+        <li class="navbarm__menu--item {{ if $active }}active{{ end }}">
+          <a href="{{ $menu.URL | relLangURL }}">{{ safeHTML $menu.Name }}</a>
+        </li>
+      {{ end }}
+      
+    {{ end }}
+
+    {{ range $index, $term := $.Site.Params.showMobileMenuTerms }}
+      <li class="navbarm__menu--item {{ if (in $current.Permalink $term) }}active{{ end }}">
+        <a href="{{ $term | relLangURL }}" class="navbarm__menu--term" data-index="{{ $index }}">
+          {{ i18n $term }}
+        </a>
+      </li>
+    {{ end }}
+  </ul>
+</div>

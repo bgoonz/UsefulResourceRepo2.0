@@ -1,0 +1,43 @@
+- state ||= :individual
+
+- avatar_modal = capture do
+  #modal-avatar.modal.hide.fade
+    = simple_form_for user do |f|
+      .modal-header
+        %button.close{:'data-dismiss'=>:modal, type: :button} x
+        %h2= t('.choose_your_avatar').capitalize
+      .modal-body
+        = f.input :avatar_type, collection: Expression::AVATAR_TYPES, label: '',
+          as: :radio_buttons, item_wrapper_class: 'inline',
+          label_method: lambda { |type| gravatar_image_tag(user.email+type.to_s, alt: user.name, gravatar: { default: type, size: 64 }) }
+        %hr
+        %h4= t('.how_to_add_your_own_photo').capitalize
+        %p= t('.just_create_an_account_at_gravatar',
+          default: 'Just create an account at <a href="http://www.gravatar.com/">Gravatar</a> to associate a picture with your email address.' ).html_safe
+
+        %p= t('.then_come_back_here_and_it_will_be_shown',
+          default: 'Then come back here, and it will be shown in the list above.')
+      .modal-footer
+        = f.button :submit, value: t('.apply', default: 'Apply')
+        -#%input.btn{type: :button,value: :cancel, :'data-dismiss'=> :modal}
+
+
+- case state
+
+  - when :individual
+    = avatar_modal
+    = content_tag_for :div, user do
+      .avatar.pull-right
+        = link_to_if( can?(:update,user), avatar_image_for(user), '#modal-avatar', :"data-toggle"=>:modal )
+      %h2.name= user.name
+      - if user.expressions.present?
+        - user.expressions.group_by(&:language).each do |language, expressions|
+          - expressions_paginated = Kaminari.paginate_array(expressions).page(params["page_#{language.code}".to_sym]).per(10)
+          %h3.expressions= t(:expressions_added_by_in, count: expressions.count, user: user.name, language: t(l=language.name.downcase, default: l))
+          = paginate(expressions_paginated, param_name: "page_#{language.code}")
+          .page_entries_info= raw page_entries_info expressions_paginated
+          %ul.expressions
+            = expressions_paginated.map{ |expression| ExpressionPresenter.new(self, expression).to_html(:list_item) }.join.html_safe
+      - else
+        %p.muted=t('.user_has_not_added_expressions_yet', user: user, default: "This user hasn't contributed any expression yet." )
+

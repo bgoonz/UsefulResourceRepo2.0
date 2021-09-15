@@ -1,0 +1,2 @@
+class ActionForbiddenError < StandardError
+end

@@ -1,0 +1,34 @@
+{{ $isPad := or (in (slice "archive" "posts" "page") .Type) }}
+{{ $isPad = or $isPad (and (eq .Kind "page") (not (in (slice "about" "contact" "publication") .Type))) }}
+{{ $isPad = or $isPad (and (eq .Kind "section") (eq .Type "publication")) }}
+{{ $isPad = or $isPad (and (eq .Type "tags") (ne .Kind "taxonomyTerm")) }}
+
+{{ if eq ($.Param "languagedir") "rtl" }}
+<div class="wrapper__left hide" data-pad="{{ $isPad }}" dir="rtl">
+  <script>document.querySelector('.wrapper__left').classList.remove('hide')</script>
+  {{ if and (eq ($.Param "tocPosition") "outer") .IsPage }}
+    {{ if and (ne .Type "about") (ne .Type "contact") (ne .Type "gallery") }}
+      {{ if or ($.Param "enableToc") ($.Param "toc") }}
+        <div class="toc__flexbox--outer" data-position="fixed" data-dir="rtl" data-ani="{{ $.Site.Params.enableUiAnimation | default "true" }}">
+          <h6 class="toc__title toc__title--outer" data-ani="{{ $.Site.Params.enableUiAnimation | default "true" }}">{{ i18n "toc-label" }}</h6>
+          {{ if $.Param "enableTocSwitch" }}
+          <label class="switch" data-ani="{{ $.Site.Params.enableUiAnimation | default "true" }}">
+            <input id="visible-toc" aria-label="Visible TOC" type="checkbox" {{ if $.Param "hideToc" }}{{ else }}checked{{ end }}>
+            <span class="slider round"></span>
+          </label>
+          {{ end }}
+        </div>
+        <div class="toc toc__outer {{ if $.Param "hideToc" }}hide{{ end }}" data-dir="rtl" data-folding="{{ if $.Param "tocFolding" }}true{{ else }}false{{ end }}" data-ani="{{ $.Site.Params.enableUiAnimation | default "true" }}">
+          {{ .TableOfContents }}
+        </div>
+      {{ end }}
+    {{ end }}
+  {{ end }}
+</div>
+{{ else if and (eq ($.Param "languagedir") "ltr") ($.Param "enableSidebarMenu") }}
+  <div class="wrapper__left" data-pad="{{ $isPad }}" dir="ltr">
+    <div class="sidebar__menu">
+      {{ partial "sidebar/sidebar-menu" . }}
+    </div>
+  </div>
+{{ end }}

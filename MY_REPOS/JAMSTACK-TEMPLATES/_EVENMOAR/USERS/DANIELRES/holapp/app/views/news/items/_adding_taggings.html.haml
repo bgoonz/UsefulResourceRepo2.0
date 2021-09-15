@@ -1,0 +1,41 @@
+- random_value = (rand * 10000).to_i
+= simple_form_for(Tagging.new, html: { id: "add_#{ tag_field }", data: { purpose: "#{ tag_field }-adder" } }) do |f|
+  = f.input_field :taggable_id  , 'ng-show' => 'false', 'ng-model' => 'news_item.id'
+  = f.input_field :taggable_type, 'ng-show' => 'false', value: 'News::Item'
+  = f.input_field :tag_field    , 'ng-show' => 'false', value: "#{ tag_field }"
+  %div= f.label :tags
+  = f.input_field 'tagging[tag_list]', 'ng-model' => 'news_item.tag_list', label: "#{ tag_field }", as: :fake, id: "tagging_tag_list#{ random_value }"
+  = f.button :submit, value: 'Add'
+
+:javascript
+
+  // TAGSMANAGER
+  var tagApi#{ random_value } = jQuery("#tagging_tag_list#{ random_value }").tagsManager({
+    delimiters: [9, 13, 44], // tab, enter, comma
+    hiddenTagListName: 'tagging[tag_list]'
+  });
+
+  // BLOODHOUND
+  var engine = new Bloodhound({
+    remote: '/tags/autocomplete/results.json?q=%QUERY',
+    datumTokenizer: function(d) {
+      return Bloodhound.tokenizers.whitespace(d.val);
+    },
+    queryTokenizer: Bloodhound.tokenizers.whitespace
+  });
+
+  engine.initialize();
+
+  // TYPEAHEAD
+  $("#tagging_tag_list#{ random_value }").typeahead({
+      hint: false,
+      highlight: true,
+      minLength: 1
+    },
+    {
+      displayKey: 'val',
+      source: engine.ttAdapter()
+    }).on('typeahead:selected', function (e, d) {
+      tagApi#{ random_value }.tagsManager("pushTag", d.value);
+  });
+

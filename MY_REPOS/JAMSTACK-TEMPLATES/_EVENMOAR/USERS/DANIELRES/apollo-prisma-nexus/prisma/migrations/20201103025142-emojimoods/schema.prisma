@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = "***"
+}
+
+model User {
+  email               String                @unique
+  id                  Int                   @id @default(autoincrement())
+  name                String?
+  profile             Profile?
+  venues              Venue[]
+  VenueAdministration VenueAdministration[] @relation("UserToVenueAdministrationManyToMany")
+  createdAt           DateTime              @default(now())
+}
+
+model Profile {
+  id          Int       @id @default(autoincrement())
+  bio         String?
+  emojimoodId Int?
+  emojimood   Emojimood? @relation(fields: [emojimoodId], references: [id])
+  user        Int       @unique
+  userId      Int?      @unique
+  User        User?     @relation(fields: [userId], references: [id])
+}
+
+model Emojimood {
+  id       Int    @id @default(autoincrement())
+  colorOne String
+  colorTwo String
+
+}
+
+model Venue {
+  id                    Int                 @id @default(autoincrement())
+  venueDetailsId        Int                 @unique
+  userId                Int
+  venueAdministrationId Int                 @unique
+  User                  User                @relation(fields: [userId], references: [id])
+  VenueAdministration   VenueAdministration @relation(fields: [venueAdministrationId], references: [id])
+  VenueDetails          VenueDetails        @relation(fields: [venueDetailsId], references: [id])
+  createdAt             DateTime            @default(now())
+}
+
+model VenueDetails {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+  Venue       Venue?
+}
+
+model VenueAdministration {
+  id     Int    @id @default(autoincrement())
+  venue  Venue?
+  admins User[] @relation("UserToVenueAdministrationManyToMany")
+}

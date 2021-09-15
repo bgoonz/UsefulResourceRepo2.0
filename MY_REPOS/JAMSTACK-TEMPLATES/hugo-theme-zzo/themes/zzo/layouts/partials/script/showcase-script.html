@@ -1,0 +1,78 @@
+{{ $shave := resources.Get "js/shave.min.js" | resources.Fingerprint }}
+<script defer src="{{ $shave.RelPermalink }}"></script>
+
+<script>
+  {{ $enableBio:= $.Param "enableBio" }}
+  {{ $sidebarPosition:= $.Param "sidebarPosition" }}
+  var enableBio = JSON.parse({{ $enableBio | jsonify }});
+  var sidebarPosition = JSON.parse({{ $sidebarPosition | jsonify }});
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var bioElem = document.querySelector('.showcase__bio');
+    var sectionElem = document.querySelector('.showcase__section');
+    var bioMobileElem = document.querySelector('.showcase__bio--mobile');
+
+    var gridSmall = 'l';
+    var gridBig = 'mr';
+    var gridFull = 'lmr'
+
+    if (sidebarPosition === "right") {
+      gridSmall = 'r';
+      gridBig = 'lm'
+    }
+
+    enquire.register("screen and (max-width: 600px)", {
+      match: function () {
+        if (enableBio) {
+          if (bioElem) {
+            bioElem.classList.remove(gridSmall);
+          }
+          if (sectionElem) {
+            sectionElem.classList.remove(gridBig);
+            sectionElem.classList.add(gridFull);
+          }
+          if (bioMobileElem) {
+            bioMobileElem.classList.remove('hide');
+          }
+        } else {
+          if (sectionElem) {
+            sectionElem.classList.remove(gridBig);
+            sectionElem.classList.remove(gridFull);
+            sectionElem.classList.add(gridFull);
+          }
+        }
+      },
+      unmatch: function () {
+        if (enableBio) {
+          if (bioElem) {
+            bioElem.classList.add(gridSmall);
+          }
+          if (sectionElem) {
+            sectionElem.classList.remove(gridFull);
+            sectionElem.classList.add(gridBig);
+          }
+          if (bioMobileElem) {
+            bioMobileElem.classList.add('hide');
+          }
+        } else {
+          sectionElem.classList.remove(gridBig);
+          sectionElem.classList.remove(gridFull);
+          sectionElem.classList.add(gridFull);
+        }
+
+        var navCollapseBtn = document.querySelector('.navbar__burger');
+        var navCollapse = document.getElementsByClassName('navbarm__collapse')[0];
+        if (navCollapse) {
+          navCollapse.setAttribute('data-open', false);
+          navCollapse.style.maxHeight = 0;
+          navCollapseBtn.classList.remove('is-active');
+        }
+      },
+      setup: function () { },
+      deferSetup: true,
+      destroy: function () { },
+    });
+
+    shave('.showcase__box--desc', 70);
+  });
+</script>

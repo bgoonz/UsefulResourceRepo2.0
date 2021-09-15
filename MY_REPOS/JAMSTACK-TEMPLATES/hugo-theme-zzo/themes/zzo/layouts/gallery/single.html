@@ -1,0 +1,66 @@
+{{ define "main" }}
+<header class="header basicflex-column">
+  <h3 class="terms__title h3">{{ .Title }}</h3>
+  <div class="px py p2 single__contents">{{ .Content }}</div>
+</header>
+
+{{ if in (lower .Params.Mode) "one" }}
+<main class="gallery main">
+  <div class="grid gallery__container">
+    <div class="grid-sizer"></div>
+    {{ $basename := (replace .File.Dir "\\" "/") }} {{ range .Params.Images }}
+    <div class="grid-item">
+      <img
+        src="{{ $basename | relURL }}{{ .image }}"
+        alt="{{ print .caption }}"
+      />
+      <div class="grid-item__desc hide">
+        <span class="grid-item__desc--text"> {{ .caption }} </span>
+      </div>
+    </div>
+    {{ end }}
+  </div>
+</main>
+
+{{ else if eq (lower .Params.mode) "remote" }}
+<main class="gallery main">
+  <div class="grid gallery__container">
+    <div class="grid-sizer"></div>
+    {{ range .Params.Images }}
+    <div class="grid-item">
+      <img src="{{ .image }}" alt="{{ print .caption }}" />
+      <div class="grid-item__desc hide">
+        <span class="grid-item__desc--text"> {{ .caption }} </span>
+      </div>
+    </div>
+    {{ end }}
+  </div>
+</main>
+
+{{ else }}
+<main class="gallery main">
+  <div class="grid gallery__container">
+    <div class="grid-sizer"></div>
+    {{ $basename := (replace .File.Dir "\\" "/") }} {{ $galleryFolderPath :=
+    (print "./static/" $basename) }} {{ if (fileExists $galleryFolderPath) }} {{
+    range readDir $galleryFolderPath }}
+    <div class="grid-item">
+      <img src="{{ $basename | relURL }}{{ .Name }}" alt="{{ index (split .Name
+      ".") 0 }}" />
+      <div class="grid-item__desc hide">
+        <span class="grid-item__desc--text">
+          {{ index (split .Name ".") 0 }}
+        </span>
+      </div>
+    </div>
+    {{ end }} {{ else }}
+    <div class="basicflex">Make a gallery folder first.</div>
+    {{ end }}
+  </div>
+</main>
+
+{{ end }}
+
+<div class="hide">{{ partial "search/site-search" . }}</div>
+{{ partial "body/photoswipe" . }} {{ partial "script/gallery-script" . }} {{ end
+}}

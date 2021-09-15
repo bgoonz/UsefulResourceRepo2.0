@@ -1,0 +1,116 @@
+#!/usr/bin/env ruby
+
+# sync output
+$stdout.sync = true
+
+$:.unshift File.expand_path("../../lib", __FILE__)
+require "language_pack"
+require "fileutils"
+
+if pack = LanguagePack.detect(ARGV[0], ARGV[1])
+  pack.log("compile") do
+    pack.compile
+  end
+end
+
+BUILD_DIR = ARGV[0]
+NODE_PATH = "#{BUILD_DIR}/bin/node"
+CACHE_DIR = ARGV[1]
+
+#Lineman stuff
+require 'json'
+
+class BuildLinemanApps
+  include LanguagePack::ShellHelpers
+
+  def build
+    if File.exist?('lineman.json')
+      puts "Reading lineman.json configuration"
+      config = JSON.parse(File.read('lineman.json'))
+      puts "Config is: #{config}"
+      puts "Installing Node"
+      node_curl = "curl http://heroku-buildpack-nodejs.s3.amazonaws.com/nodejs-0.10.12.tgz -s -o - | tar xzf -"
+      run(node_curl)
+      npm_curl = "curl http://heroku-buildpack-nodejs.s3.amazonaws.com/npm-1.2.30.tgz -s -o - | tar xzf -"
+      run(npm_curl)
+      run_npm("--version")
+      linemen(config)
+    else
+      puts "no lineman.json configuration found"
+    end
+  end
+
+  def run_npm command
+    cmd = "#{NODE_PATH} #{BUILD_DIR}/bin/npm-cli.js #{command}"
+    puts cmd
+    puts run cmd
+  end
+
+  def linemen(config)
+    config.fetch("linemanApps").each do |app|
+      location = app.fetch("location")
+      filesToDeploy = app.fetch("filesToDeploy", ["*"])
+      overwriteFiles= app.fetch("overwriteExistingFiles", true)
+
+      raise "No Lineman App at #{location}" unless Dir.exist? lineman_path(location)
+      build_lineman location
+      move_assets app.fetch("installToPath"), location, filesToDeploy, overwriteFiles
+    end
+  end
+
+  def lineman_path(location, root = BUILD_DIR)
+    "#{root}/#{location}"
+  end
+
+  def build_lineman(location)
+    path = lineman_path(location)
+    cached_modules_path = lineman_path(location, CACHE_DIR) + "/node_modules"
+
+    retrieve_cached_modules(cached_modules_path, path)
+    npm_install_lineman(path)
+    cache_modules(cached_modules_path, path)
+  end
+
+  def retrieve_cached_modules cached_modules_path, path
+    create_cached_modules_dir(cached_modules_path) unless Dir.exist? cached_modules_path
+    puts run("rm -rf #{path}/node_modules")
+    puts run("mv #{cached_modules_path} #{path}/node_modules")
+  end
+
+  def create_cached_modules_dir path
+    puts run("mkdir -p #{path}")
+  end
+
+  def npm_install_lineman path
+    Dir.chdir(path) do
+      run_npm("install --production")
+      run_npm("rebuild")
+      run_lineman("build", path)
+    end
+  end
+
+  def run_lineman(command, path)
+    puts run("#{NODE_PATH} #{path}/node_modules/.bin/lineman #{command}")
+  end
+
+  def cache_modules cached_modules_path, path
+    puts run("mv #{path}/node_modules #{cached_modules_path}")
+  end
+
+  def move_assets destination, origin, filesToDeploy, overwriteFiles
+    path = lineman_path(origin)
+    filesToDeploy.each do |files|
+      dirName = File.dirname files
+      create_recursive dirName, destination
+      no_overwrite = overwriteFiles ? '' : '-n'
+
+      puts run("mv -f #{no_overwrite} #{path}/dist/#{files} #{destination}/#{dirName}/")
+    end
+  end
+
+  def create_recursive path, location
+    FileUtils.mkpath File.join(location, path)
+  end
+end
+
+BuildLinemanApps.new.build

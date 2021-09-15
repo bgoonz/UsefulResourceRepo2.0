@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Photoman</title>
+  <%= stylesheet_link_tag    "application", :media => "all" %>
+  <%= javascript_include_tag "application" %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+
+<% unless notice.blank? %>
+  <p class="notice"><%= notice %></p>
+<% end %>
+<% unless alert.blank? %>
+  <p class="alert"><%= alert %></p>
+<% end %>
+
+<%= yield %>
+
+<% if current_user %>
+  <%= render :partial => 'menu' %>
+
+  <h2><%= params[:year] %></h2>
+
+
+  <% if false && images = images(:year=>params[:year]).presence %>
+    <div class='images'>
+      <ul>
+        <% images.each do |i| %>
+          <li><%= link_to( image_tag(thumb_url(i)), thumb_url(i,'500x500') )  %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <h2><%= params[:prefix] %></h2>
+
+  <% if s = dir_subdirs(:prefix => params[:prefix]).presence %>
+    <h3>Subdirs</h3>
+    <ul>
+      <% s.each do |d| %>
+        <li><%= link_to d, '/'+d %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+
+  <% if images = dir_images(:prefix => params[:prefix].to_s+"/").presence %>
+    <h3>Dir images</h3>
+    <ul class='images'>
+      <% images.each do |i| %>
+        <% remote_url = Dragonfly[:images].remote_url_for(i.imagefile.uid) %>
+        <% filename   = remote_url.split('/').last %>
+        <li title="<%= filename %>"><%= link_to( image_tag(thumb_url(i)), '/show' + thumb_url(i,'500x500'))  %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+
+  <% if contents = dir_contents(:prefix => params[:prefix].to_s+"/").presence %>
+    <h3>Dir contents</h3>
+    <ul>
+      <% contents.each do |f| %>
+            <li><%= link_to f, Dragonfly[:images].remote_url_for(f)  %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+<% end %>
+
+</body>
+</html>

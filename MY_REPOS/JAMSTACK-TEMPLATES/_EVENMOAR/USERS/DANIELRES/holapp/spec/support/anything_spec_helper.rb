@@ -1,0 +1,3 @@
+def _
+  anything
+end

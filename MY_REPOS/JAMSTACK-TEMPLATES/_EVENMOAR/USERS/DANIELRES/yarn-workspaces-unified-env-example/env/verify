@@ -1,0 +1,68 @@
+#!/usr/bin/env node
+
+// Example usages:
+//
+// to just validate env vars (ex: on prebuild):
+// $ ../env/verify
+// or:
+// & yarn workspace env verify
+//
+// to validate env vars + pass them to an executable:
+// $ ../env/verify node script.js
+// $ ../env/verify docker-compose up
+//
+// to just print a specific env var:
+// $ ../env/verify printenv AUTH0_DOMAIN
+
+const { num, str } = require("envalid");
+const envalid = require("envalid");
+const loadLocal = require("./loadLocalEnv");
+const spawn = require("cross-spawn");
+
+const args = process.argv.slice(2);
+
+process.env.NODE_ENV = process.env.NODE_ENV || "development";
+const { NODE_ENV } = process.env;
+const isDev = NODE_ENV === "development";
+const isTest = NODE_ENV === "test";
+
+loadLocal(NODE_ENV);
+
+const env = envalid.cleanEnv(
+  process.env,
+  {
+    AUTH0_AUDIENCE: str(),
+    AUTH0_DOMAIN: str(),
+    AUTH0_ISSUER: str(),
+    API_GRAPHQL_ENDPOINT: str({ default: "/graphql" }),
+    API_PORT: num({
+      default: isDev ? 3100 : isTest ? 3101 : parseInt(process.env.PORT) // PORT provided by Heroku
+    }),
+    UI_AUTH0_CLIENT_ID: str({ description: "used by UI + e2e tests" }),
+
+    ...(isDev && {
+      UI_DEV_SERVER_PORT: num({ default: 1234 })
+    }),
+
+    ...(isTest && {
+      AUTH0_CLIENT_SECRET: str(),
+      AUTH0_PASSWORD: str(),
+      AUTH0_USERNAME: str(),
+      UI_DEV_SERVER_PORT: num({ default: 1235 })
+    })
+  },
+  {
+    strict: true
+  }
+);
+
+Object.entries(env).map(([k, v]) => (process.env[k] = v));
+
+if (!args[0]) {
+  // This will print only if not validation errors occur:
+  console.log("[ENV] All environment variables are valid.");
+} else {
+  spawn(args[0], args.slice(1), { stdio: "inherit" }).on("exit", exitCode =>
+    process.exit(exitCode)
+  );
+}

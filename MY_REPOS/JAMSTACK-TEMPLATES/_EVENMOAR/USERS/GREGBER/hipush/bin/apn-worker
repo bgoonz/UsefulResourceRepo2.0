@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+
+var Promise = require('bluebird');
+var apnQueue = require('../lib/services/apn-queue');
+var apn = require('../lib/services/apn');
+var logger = require('../lib/logger');
+
+process.on('SIGTERM', function () {
+  logger.info('Will shutdown');
+
+  apnQueue.close()
+  .then(function () {
+    apn.close();
+  });
+});
+
+apnQueue.pull(function (message) {
+  if (!message.alert || !message.urlArgs || !message.token)
+    return Promise.resolve();
+
+  return apn.send(message);
+});

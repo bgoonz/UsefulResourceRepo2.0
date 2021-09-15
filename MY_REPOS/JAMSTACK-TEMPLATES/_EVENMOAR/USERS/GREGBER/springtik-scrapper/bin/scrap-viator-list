@@ -1,0 +1,36 @@
+import db from '../src/db';
+import scrapList from '../src/scrapper/viator/scrap-list';
+
+scrap();
+
+function scrap() {
+  return getLastPage()
+    .then(pageIndex => scrapList({pageIndex: pageIndex + 1}))
+    .then(data => insertData(data))
+    .then(() => delay(4000))
+    .then(scrap)
+    .catch(error => {
+      setTimeout(() => {
+        throw error;
+      });
+    });
+}
+
+function getLastPage() {
+  return db.models.viatorActivity
+    .findOne({
+      order: [['id', 'DESC']]
+    })
+    .then(lastIndexedActivity =>
+      lastIndexedActivity ? lastIndexedActivity.pageIndex : 0
+    );
+}
+
+function insertData(data) {
+  return db.models.viatorActivity
+    .bulkCreate(data);
+}
+
+function delay(time) {
+  return new Promise(resolve => setTimeout(resolve, time));
+}

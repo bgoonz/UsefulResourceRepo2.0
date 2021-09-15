@@ -1,0 +1,95 @@
+<div class="row-fluid graphh"></div>
+<hr>
+
+<div class="row-fluid">
+  <div class="span7">
+    Résultats des individus à découvrir :
+  </div>
+  <div class="span3 offset1">
+    Organisations ou institutions :
+  </div>
+</div>
+<div class="row-fluid">
+  <div class="span7 offset1 result-list">
+    
+  </div>
+
+  <div class="span3 offset1">
+    <h3><img src="/img/lefigaro.jpg"> Le Figaro</h3>
+    <h3><img src="/img/lemonde.jpg"> Le Monde.fr</h3>
+    <h3><img src="/img/ump.jpg"> L'UMP</h3>
+    <h3><img src="/img/leps.png"> Le Parti Socialiste</h3>
+  </div>
+
+</div>
+
+<hr>
+
+<footer>
+  <p>&copy; BigSister 2012</p>
+</footer>
+
+<style>
+
+.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.link {
+  stroke: #999;
+  stroke-opacity: .6;
+}
+
+</style>
+
+<script>
+var width2 = 900,
+    height2 = 250;
+
+var color2 = d3.scale.category20();
+
+var force2 = d3.layout.force()
+    .charge(-120)
+    .linkDistance(30)
+    .size([width2, height2]);
+
+var svg2 = d3.select(".graphh").append("svg")
+    .attr("width", width2)
+    .attr("height", height2);
+
+d3.json("/assets/js/miserables.json", function(error, graph) {
+  force2
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .start();
+
+  var link = svg2.selectAll("line.link")
+      .data(graph.links)
+    .enter().append("line")
+      .attr("class", "link")
+      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+  var node = svg2.selectAll("circle.node")
+      .data(graph.nodes)
+    .enter().append("circle")
+      .attr("class", "node")
+      .attr("r", 5)
+      .style("fill", function(d) { return color2(d.group); })
+      .call(force2.drag);
+
+  node.append("title")
+      .text(function(d) { return d.name; });
+
+  force2.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+  });
+});
+
+</script>

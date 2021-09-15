@@ -1,0 +1,2 @@
+require 'auto_session_timeout_warning'
+require 'auto_session_timeout_warning_helper'

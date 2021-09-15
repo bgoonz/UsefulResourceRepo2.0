@@ -1,0 +1,101 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const argv = require('minimist')(process.argv.slice(2));
+const watch = require('watch');
+const child_process = require('child_process');
+const path = require('path');
+const chalk = require('chalk');
+const debounce = require('lodash.debounce');
+
+const modules = argv._;
+
+if (!modules.length)
+  help();
+
+modules.forEach(watchModule);
+
+const pendingInstalls = {};
+const installs = {};
+
+/**
+ * Watch module.
+ *
+ * @param {string} modulePath
+ */
+
+function watchModule(modulePath) {
+  const pkgPath = path.join(process.cwd(), modulePath, 'package.json');
+
+  try {
+    require(pkgPath);
+  } catch (err) {
+    throw new Error('Invalid module ' + modulePath);
+  }
+
+  const module = {
+    pkg: require(pkgPath),
+    path: modulePath
+  };
+
+  console.info(chalk.yellow('Start watching ' + module.pkg.name));
+
+  watch.watchTree(module.path, {
+    ignoreDotFiles: true
+  }, () => {
+    pendingInstalls[module.path] = module;
+    installModules();
+  });
+}
+
+
+/**
+ * Install module.
+ *
+ * @param {string} modulePath
+ */
+
+
+const installModule = debounce(function (module, cb) {
+  console.info(chalk.blue('Installing ' + module.pkg.name));
+  installs[module.path] = module;
+  const npmInstall = child_process.exec('npm install ' + module.path);
+  npmInstall.stdout.pipe(process.stdout);
+  npmInstall.stderr.pipe(process.stderr);
+  npmInstall.on('error', cb);
+  npmInstall.on('exit', () => {
+    delete installs[module.path];
+    cb();
+  });
+}, 200);
+
+/**
+ * Install all modules in installQueue.
+ */
+
+function installModules() {
+  Object.keys(pendingInstalls).forEach(key => {
+    const module = pendingInstalls[key];
+
+    if (installs[module.path])
+      return;
+
+    delete pendingInstalls[key];
+    installModule(module, err => {
+      if (err)
+        throw err;
+
+      installModules();
+    });
+  });
+}
+
+/**
+ * Display help and exit.
+ */
+
+function help() {
+  console.log('watch [paths...]');
+  process.exit(0);
+}

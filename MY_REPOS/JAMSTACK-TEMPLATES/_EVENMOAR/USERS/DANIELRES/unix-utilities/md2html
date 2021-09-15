@@ -1,0 +1,26 @@
+#!/home/daniel/.rvm/bin/ruby
+
+require 'fileutils'
+require 'redcarpet'
+
+source_file      = ARGV[0]
+destination_dir  = ARGV[1] || "html"
+
+source_file_name = source_file.split('/').last
+source_file_type = source_file.split('.').last
+destination_file = [ destination_dir, source_file_name.gsub( ".#{source_file_type}", '.htm' ) ].join '/'
+source           = File.read source_file
+
+def ensure_dir_present dir
+  Dir.mkdir dir rescue nil
+end
+
+def render source
+  renderer = Redcarpet::Markdown.new( Redcarpet::Render::HTML, autolink: true )
+  renderer.render source
+end
+
+ensure_dir_present destination_dir
+
+File.open( destination_file , 'w'){ |f| f.write render(source) }
+

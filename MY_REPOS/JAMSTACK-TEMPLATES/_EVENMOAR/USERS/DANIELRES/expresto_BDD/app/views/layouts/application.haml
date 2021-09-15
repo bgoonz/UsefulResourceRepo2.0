@@ -1,0 +1,58 @@
+!!!
+%html{ lang: locale}
+  %head
+    %title= page_title
+    = stylesheet_link_tag    "application", media: "all"
+    = javascript_include_tag "application"
+    = csrf_meta_tags
+  %body{ class: body_class }
+    .navbar
+      .navbar-inner
+        .menus
+
+          .menu.userbox.pull-right{ data: { purpose: "userbox" } }
+            %ul.nav
+              - if signed_in?
+                %li.current_user= link_to icon(:user)+current_user, current_user
+                %li.sign_out= sign_out_button
+              - else
+                %li.sign_in= sign_in_button
+
+          = link_to image_tag('expresto-logo.png'), root_path, class: :brand
+          %h2.tagline= t(:tagline, default: :home).capitalize
+
+          .menu.languages
+            = render 'languages/list'
+          .menu.add_expression.pull-right
+            %ul
+              %li= link_to icon(:plus_sign)+t(:add_an_expression), new_expression_path, class: 'btn btn-large btn-success', data: { purpose: 'add-expression-button' }
+
+    .page
+      .menu.pages
+        %ul.nav.nav-tabs
+          - pages.each do |name, path|
+            - active = current_page?(path) || (name.to_s == controller_name)
+            %li{ class: ( :active if active ) }
+              = link_to t("menu.#{name}").to_s.capitalize, path
+          = todo :li do
+            = link_to 'Requests', '#'
+          = todo :li do
+            = link_to 'Tags', '#'
+
+      - flash.each do |name, msg|
+        %div{class: "alert alert-#{name}"}
+          = msg
+
+      .main{ data: { purpose: 'main-content' } }
+        = yield
+    %footer
+      .container
+        %ul
+          %li.about
+            = link_to_unless current_page?(about_path), t('pages.about'), about_path
+          %li.contact
+            = link_to t('contact', default: 'Contact'), 'http://studio.pixarea.com/future'
+          %li.creation
+            Created by
+            %a{href: "http://studio.pixarea.com"} Pixarea studio
+    = render 'google_analytics'

@@ -1,0 +1,335 @@
+{{ $shave := resources.Get "js/shave.min.js" | resources.Fingerprint }}
+<script defer src="{{ $shave.RelPermalink }}"></script>
+{{ $masonry := resources.Get "js/masonry.pkgd.min.js" | resources.Fingerprint }}
+<script defer src="{{ $masonry.RelPermalink }}"></script>
+{{ $imagesloaded := resources.Get "js/imagesloaded.pkgd.min.js" |
+resources.Fingerprint }}
+<script defer src="{{ $imagesloaded.RelPermalink }}"></script>
+
+<script>
+  {{ $enableSearchHighlight := ($.Param "enableSearchHighlight") }}
+  var enableSearchHighlight = JSON.parse({{ $enableSearchHighlight | jsonify }});
+  {{ $isFirstSection := eq .Permalink .FirstSection.Permalink }}
+  var isFirstSection = JSON.parse({{ $isFirstSection | jsonify }});
+  {{ $tagsBaseURL := ("/tags/" | relLangURL) }}
+  var tagsBaseURL = JSON.parse({{ $tagsBaseURL | jsonify }});
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var originHtmlText = JSON.stringify(document.querySelector('.pub__ul').innerHTML);
+
+    // search
+    var pubSearch = document.getElementById('pubSearch');
+    var pubList = document.querySelector('.pub__list');
+    var pubUl = document.querySelector('.pub__ul');
+    var pubResult = document.querySelector('.pub__result');
+
+    var makeLi = function(ulElem, obj) {
+      var li = document.createElement('li');
+      li.className = 'pub__item';
+
+      var titleLink = document.createElement('a');
+      titleLink.innerHTML = obj.title;
+      titleLink.setAttribute('href', obj.uri);
+
+      if (obj.booktitle) {
+        var span = document.createElement('span');
+        span.className = 'p2';
+        span.innerText = ' - ' + obj.booktitle;
+        titleLink.appendChild(span);
+      } else if (obj.shorttitle) {
+        var span = document.createElement('span');
+        span.className = 'p2';
+        span.innerText = ' - ' + obj.shorttitle;
+        titleLink.appendChild(span);
+      }
+
+      var metaDiv = document.createElement('div');
+      metaDiv.setAttribute('class', 'pub__metas');
+      if (obj.publishDate) {
+        var dateSpan = document.createElement('span');
+        dateSpan.className = 'caption pub__meta';
+        dateSpan.innerText = '{{ ($.Site.Params.writtenTimeIcon | safeHTML) | default "📅" }} ' + obj.publishDate.slice(0, 10);
+        metaDiv.appendChild(dateSpan);
+      }
+
+      if (obj.authors) {
+        var authorsSpan = document.createElement('span');
+        authorsSpan.className = 'caption pub__meta';
+        authorsSpan.innerText = '{{ ($.Site.Params.authorIcon | safeHTML) | default "✍️" }} ' + obj.authors.toString();
+        metaDiv.appendChild(authorsSpan);
+      }
+
+      if (obj.publication) {
+        var pubSpan = document.createElement('span');
+        pubSpan.className = 'caption pub__meta';
+        pubSpan.innerText = '{{ ($.Site.Params.publicationIcon | safeHTML) | default "📚" }} ' + obj.publication;
+        metaDiv.appendChild(pubSpan);
+      }
+
+      if (obj.ENTRYTYPE) {
+        var typeSpan = document.createElement('span');
+        typeSpan.className = 'caption pub__meta';
+        typeSpan.innerText = '{{ ($.Site.Params.typeIcon | safeHTML) | default "🎯" }} ' + obj.ENTRYTYPE;
+        metaDiv.appendChild(typeSpan);
+      }
+
+      var tagsUl = null;
+      if (obj.tags && obj.tags.length) {
+        tagsUl = document.createElement('ul');
+        tagsUl.setAttribute('class', 'pub__tags caption');
+        tagsUl.innerHTML = '&nbsp;{{ ($.Site.Params.tagIcon | safeHTML) | default "🏷️" }}';
+
+        for (var i = 0; i < obj.tags.length; i++) {
+          var tagLi = document.createElement('li');
+          var tagLink = document.createElement('a');
+
+          tagLink.setAttribute('href', tagsBaseURL + obj.tags[i]);
+          tagLink.setAttribute('class', 'pub__tag');
+          tagLink.innerText = "#" + obj.tags[i];
+
+          tagLi.appendChild(tagLink);
+          tagsUl.appendChild(tagLi);
+        }
+      }
+
+      var descDiv = document.createElement('div');
+      descDiv.className = 'pub__summary';
+      if (obj.abstract) {
+        descDiv.innerHTML = obj.abstract.substr(0, 300);
+      }
+
+      li.appendChild(titleLink);
+      li.appendChild(metaDiv);
+      li.appendChild(descDiv);
+      if (tagsUl) {
+        metaDiv.appendChild(tagsUl);
+      }
+      ulElem.appendChild(li);
+    }
+
+    var makeHighlightLi = function (ulElem, obj) {
+      var li = document.createElement('li');
+      li.className = 'pub__item';
+
+      var titleLink = document.createElement('a');
+      titleLink.innerHTML = obj.item.title;
+      titleLink.setAttribute('href', obj.item.uri);
+
+      var descDiv = null;
+      if (obj.item.abstract) {
+        descDiv = document.createElement('div');
+        descDiv.innerHTML = obj.item.abstract;
+        descDiv.className = 'pub__summary';
+      }
+
+      if (obj.matches && obj.matches.length) {
+        for (var i = 0; i < obj.matches.length; i++) {
+          titleLink.innerHTML = obj.item.title;
+
+          if (obj.matches[i].key === 'title') {
+            titleLink.innerHTML = generateHighlightedText(obj.item.title, obj.matches[i].indices);
+          }
+
+          if (obj.item.booktitle) {
+            var span = document.createElement('span');
+            span.className = 'p2';
+            span.innerHTML = ' - ' + obj.item.booktitle;
+            titleLink.appendChild(span);
+          } else if (obj.item.shorttitle) {
+            var span = document.createElement('span');
+            span.className = 'p2';
+            span.innerHTML = ' - ' + obj.item.shorttitle;
+            titleLink.appendChild(span);
+          }
+
+          var metaDiv = document.createElement('div');
+          metaDiv.setAttribute('class', 'pub__metas');
+
+          if (obj.item.publishDate) {
+            var dateSpan = document.createElement('span');
+            dateSpan.className = 'caption pub__meta';
+            dateSpan.innerText = '{{ ($.Site.Params.writtenTimeIcon | safeHTML) | default "📅" }} ' + obj.item.publishDate.slice(0, 10);
+            metaDiv.appendChild(dateSpan);
+          }
+
+          if (obj.item.authors) {
+            var authorsSpan = document.createElement('span');
+            authorsSpan.className = 'caption pub__meta';
+            authorsSpan.innerText = '{{ ($.Site.Params.authorIcon | safeHTML) | default "✍️" }} ' + obj.item.authors.toString();
+            metaDiv.appendChild(authorsSpan);
+          }
+
+          if (obj.item.publication) {
+            var pubSpan = document.createElement('span');
+            pubSpan.className = 'caption pub__meta';
+            pubSpan.innerText = '{{ ($.Site.Params.publicationIcon | safeHTML) | default "📚" }} ' + obj.item.publication;
+            metaDiv.appendChild(pubSpan);
+          }
+
+          if (obj.item.ENTRYTYPE) {
+            var typeSpan = document.createElement('span');
+            typeSpan.className = 'caption pub__meta';
+            typeSpan.innerText = '{{ ($.Site.Params.typeIcon | safeHTML) | default "🎯" }} ' + obj.item.ENTRYTYPE;
+            metaDiv.appendChild(typeSpan);
+          }
+
+          var tagsUl = null;
+          if (obj.item.tags && obj.item.tags.length) {
+            tagsUl = document.createElement('ul');
+            tagsUl.setAttribute('class', 'pub__tags caption');
+            tagsUl.innerHTML = '&nbsp;{{ ($.Site.Params.tagIcon | safeHTML) | default "🏷️" }}';
+
+            for (var j = 0; j < obj.item.tags.length; j++) {
+              var tagLi = document.createElement('li');
+              var tagLink = document.createElement('a');
+
+              tagLink.setAttribute('href', tagsBaseURL + obj.item.tags[j]);
+              tagLink.setAttribute('class', 'pub__tag');
+              tagLink.innerText = "#" + obj.item.tags[j];
+
+              tagLi.appendChild(tagLink);
+              tagsUl.appendChild(tagLi);
+            }
+          }
+
+          if (obj.matches[i].key === 'abstract') {
+            descDiv.innerHTML = generateHighlightedText(obj.matches[i].value, obj.matches[i].indices);
+          }
+        }
+
+        li.appendChild(titleLink);
+        if (metaDiv) {
+          li.appendChild(metaDiv);
+        }
+        if (descDiv) {
+          li.appendChild(descDiv);
+        }
+        if (tagsUl && metaDiv) {
+          metaDiv.appendChild(tagsUl);
+        }
+
+        ulElem.appendChild(li);
+      }
+    }
+
+    function generateHighlightedText(text, regions) {
+      if (!regions) {
+        return text;
+      }
+
+      var content = '', nextUnhighlightedRegionStartingIndex = 0;
+
+      regions.forEach(function (region) {
+        if (region[0] === region[1]) {
+          return null;
+        }
+
+        content += '' +
+          text.substring(nextUnhighlightedRegionStartingIndex, region[0]) +
+          '<span class="search__highlight">' +
+          text.substring(region[0], region[1] + 1) +
+          '</span>' +
+          '';
+        nextUnhighlightedRegionStartingIndex = region[1] + 1;
+      });
+
+      content += text.substring(nextUnhighlightedRegionStartingIndex);
+
+      return content;
+    };
+
+    pubSearch ?
+    pubSearch.addEventListener('input', function(e) {
+      var results = fuse.search(e.target.value);
+
+      if (enableSearchHighlight) {
+        renderSearchHighlightResults(e.target.value, results);
+      } else {
+        renderSearchResults(e.target.value, results);
+      }
+    }) : null;
+
+    function renderSearchResults(searchText, results) {
+      var originUl = document.querySelector('.pub__ul');
+      var newUl = document.createElement('ul');
+      newUl.setAttribute('class', 'pub__ul');
+
+      if (!searchText) {
+        if (isFirstSection) {
+          originUl.innerHTML = JSON.parse(originHtmlText);
+          var grid = document.querySelector('.pgrid');
+          var msnry = new Masonry(grid, {
+            itemSelector: '.pgrid-item',
+            columnWidth: '.pgrid-sizer',
+            percentPosition: true,
+          });
+          imagesLoaded(grid).on('progress', function () {
+            msnry.layout();
+          });
+          return null;
+        } else {
+          fuse ? fuse.list.forEach(function (item) {
+            makeLi(newUl, item);
+          }) : null;
+        }
+
+        pubResult ? pubResult.setAttribute('data-display', 'none') : null;
+        originUl ? originUl.setAttribute('data-display', 'block') : null;
+      } else if (results) {
+        if (results && results.length) {
+          results.forEach(function (result) {
+            makeLi(newUl, result);
+          });
+
+          pubResult ? pubResult.setAttribute('data-display', 'block') : null;
+          originUl ? originUl.setAttribute('data-display', 'none') : null;
+        }
+      }
+
+      originUl.parentNode.replaceChild(newUl, originUl);
+    }
+
+    function renderSearchHighlightResults(searchText, results) {
+      var originUl = document.querySelector('.pub__ul');
+      var newUl = document.createElement('ul');
+      newUl.setAttribute('class', 'pub__ul');
+
+      if (!searchText) {
+        if (isFirstSection) {
+          originUl.innerHTML = JSON.parse(originHtmlText);
+          var grid = document.querySelector('.pgrid');
+          var msnry = new Masonry(grid, {
+            itemSelector: '.pgrid-item',
+            columnWidth: '.pgrid-sizer',
+            percentPosition: true,
+          });
+          imagesLoaded(grid).on('progress', function () {
+            msnry.layout();
+          });
+          return null;
+        } else {
+          fuse ? fuse.list.forEach(function (item) {
+            makeLi(newUl, item);
+          }) : null;
+        }
+
+        pubResult ? pubResult.setAttribute('data-display', 'none') : null;
+        originUl ? originUl.setAttribute('data-display', 'block') : null;
+      } else if (results) {
+        if (results && results.length) {
+          results.forEach(function (result) {
+            makeHighlightLi(newUl, result);
+          });
+
+          pubResult ? pubResult.setAttribute('data-display', 'block') : null;
+          originUl ? originUl.setAttribute('data-display', 'none') : null;
+        }
+      }
+
+      originUl.parentNode.replaceChild(newUl, originUl);
+    }
+
+    // shave
+    shave('.pub__summary', 150);
+  });
+</script>

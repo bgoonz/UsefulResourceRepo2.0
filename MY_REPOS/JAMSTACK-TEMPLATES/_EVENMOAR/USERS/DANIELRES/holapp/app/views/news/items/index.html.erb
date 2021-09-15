@@ -1,0 +1,123 @@
+<div ng-app="NewsApp" ng-cloak>
+  <div ng-controller="NewsItemsCtrl">
+
+    <div class="row">
+
+
+
+
+      <div class="col-md-4 col-md-offset-8 news_item-editor" data-purpose="news_item-editor">
+        <div class="panel panel-default">
+          <div class="panel-body">
+
+            <form ng-model="news_item" ng-submit="mode != 'edit' && addItem(news_item) || saveItem(news_item)" data-purpose="main-fields">
+                <%= simple_fields_for News::Item.new,
+                      html: {
+                       'ng-model' => "news_item",
+                       'ng-submit' => "mode != 'edit' && addItem(news_item) || saveItem(news_item)"
+                      } do |f|
+                %>
+                  <%= f.input :language, collection: News::Item::LANGUAGES, input_html: { 'ng-model' => 'news_item.language' }  %>
+                  <%= f.input :summary, input_html: { rows: 5, style: 'width: 100%' , 'ng-model' => 'news_item.summary' }  %>
+                  <%= f.input :body   , input_html: { rows: 3, style: 'width: 100%' , 'ng-model' => 'news_item.body', placeholder: 'News body and / or link(s)' }  %>
+                  <%= f.button :submit, 'Add' , 'ng-show' => "mode == 'add'  " %>
+                  <%= f.button :submit, 'Save changes', 'ng-show' => "mode == 'edit' " %>
+                  <input class="btn" name="cancel" ng-show="mode == 'edit'" type="reset" value="Cancel" ng-click="reset_form()" />
+                <% end %>
+            </form>
+
+          </div>
+        </div>
+
+
+        <div class="panel panel-default" ng-show="mode == 'edit'">
+          <div class="panel-body">
+            <div id="adding_themes">
+              <%= render partial: 'adding_taggings', locals: { tag_field: 'themes' } %>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="panel panel-default" ng-show="mode == 'edit'">
+          <div class="panel-body">
+            <div id="dangerous_actions">
+            <label>Dangerous actions</label>
+              <div>
+                <button type="button" class="btn btn-default btn-xs" ng-click="destroyItem(news_item)" data-purpose="delete-action">
+                  Destroy <i class="glyphicon glyphicon-remove"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+
+
+
+      <div class="col-md-8">
+        <div class="panel panel-default">
+          <div class="panel-body" data-purpose="news_items-list">
+
+            <div class="pull-right">
+              <a class="btn btn-default" href="<%= user_configs_path %>"><i class="glyphicon glyphicon-cog" title="configure"></i></a>
+            </div>
+
+            <ul class="nav nav-tabs">
+              <li ng-class="{active:news_items_loader.filter=='all'}">
+                <a ng-click="news_items_loader.setFilter('all')" data-purpose="filter-all">all</a>
+              </li>
+              <li ng-class="{active:news_items_loader.filter=='interesting'}">
+                <a ng-click="news_items_loader.setFilter('interesting')" data-purpose="filter-interesting">interesting</a>
+              </li>
+            </ul>
+            <br />
+
+
+
+            <div infinite-scroll='news_items_loader.nextPage()' infinite-scroll-disabled='news_items_loader.busy' infinite-scroll-distance='2'>
+            <div ng-repeat="news_item in news_items_loader.items">
+                  <div class="row news_item">
+                    <div class="col-md-2">
+                      <div><small>{{ news_item.created_at | date }}</small></div>
+                      <div>By <a href="{{news_item.author_path}}">{{news_item.author}}</a> </div>
+                      <div>
+                        <button type="button" class="btn btn-default btn-xs" ng-click="editItem(news_item)" data-purpose="edit-action">
+                          <i class="glyphicon glyphicon-pencil"></i>
+                        </button>
+                        <a href="{{news_item.path}}" class="btn btn-default btn-xs" data-purpose="advanced-edit-action">
+                          <i class="glyphicon glyphicon-wrench"></i>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="col-md-4"  btf-markdown="news_item.summary"></div>
+                    <div class="col-md-4"  btf-markdown="news_item.body"   ></div>
+                    <div class="col-md-2">
+                      <div class="language"><small>[{{news_item.language}}]</small></div>
+                      <small>
+                      <span ng-repeat="tag in news_item.tags">
+                        <a href="{{tag.url}}">{{tag.name}}</a>{{$last ? '' : ', '}}
+                      </span>
+                      </small>
+                    </div>
+                  </div>
+                  <hr />
+            </div>
+            </div>
+
+
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+
+    </div>
+
+  </div>
+</div>

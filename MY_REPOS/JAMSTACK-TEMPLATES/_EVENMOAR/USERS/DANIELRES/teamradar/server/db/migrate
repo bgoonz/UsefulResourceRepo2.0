@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+require('../helpers/dotenv/loadenv')
+
+const args = process.argv.slice(2)
+const cmd = args[0]
+
+const Umzug = require('umzug')
+const neo = require('../neo4j')
+
+const metaFile =
+  process.env.NODE_ENV === 'dev'
+    ? `meta-dev.json`
+    : process.env.NODE_ENV === 'test'
+    ? 'meta-test.json'
+    : 'meta.json'
+
+const umzug = new Umzug({
+  storage: 'json',
+  storageOptions: { path: `server/db/${metaFile}` },
+
+  logging: console.log,
+
+  migrations: {
+    path: 'server/db/migrations',
+    wrap: migrate => () => migrate().then(() => neo.close({ silent: true })),
+  },
+})
+
+const exec = async () => {
+  switch (cmd) {
+    case 'down':
+      return umzug.down()
+    case 'reset':
+      await umzug.down({ to: 0 })
+      return umzug.up()
+    case 'up':
+    default:
+      return umzug.up()
+  }
+}
+
+exec()

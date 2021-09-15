@@ -1,0 +1,3 @@
+export default {
+  PRISMA_UNIQUE_CONSTRAINT_ERROR: "P2002",
+};

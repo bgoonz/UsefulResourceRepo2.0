@@ -1,0 +1,60 @@
+{
+  "name": "smarter-api",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "author": "Daniel Reszka <dannn.r@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "yarn e:dev yarn start:watch",
+    "start:watch": "nodemon --watch src --ext js,graphql --exec babel-node src/",
+    "db:seed": "yarn e:dev babel-node src/helpers/neo4j/seed.js",
+    "db:purge": "yarn db:seed purge",
+    "db:migrate": "yarn e:dev node src/helpers/neo4j/migrate.js",
+    "db:rollback": "yarn db:migrate down",
+    "db:test:respawn": "yarn e:test run-s 'db:migrate respawn' db:purge",
+    "docker:up": "yarn e:dev docker-compose up",
+    "docker:reset": "docker-compose down && docker-compose rm -f",
+    "docker:stop:all": "docker stop $(docker ps -aq)",
+    "start": "npm run build && node build/index.js",
+    "test:api": "yarn e:test -- jest tests/api -- ",
+    "build": "babel src -d build; cp .env build; cp src/schema.graphql build",
+    "e:dev": "dotenv -e .env.local -e .env",
+    "e:test": "dotenv -e .env.test.local -e .env.test -e .env.local -e .env"
+  },
+  "dependencies": {
+    "apollo-server": "^2.8.1",
+    "graphql": "^14.4.2",
+    "graphql-tag": "^2.10.1",
+    "neo4j-driver": "^1.7.5",
+    "neo4j-graphql-js": "^2.6.3",
+    "node-fetch": "^2.6.0",
+    "npm-run-all": "^4.1.5",
+    "socket.io": "^2.2.0",
+    "umzug": "^2.2.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/node": "^7.5.5",
+    "@babel/plugin-transform-runtime": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "babel-preset-env": "^1.7.0",
+    "dotenv-cli": "^2.0.1",
+    "husky": "^3.0.3",
+    "jest": "^24.9.0",
+    "lint-staged": "^9.2.1",
+    "nodemon": "^1.19.1",
+    "supertest": "^4.0.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,json,css,md,graphql": [
+      "prettier --write",
+      "git add"
+    ]
+  }
+}

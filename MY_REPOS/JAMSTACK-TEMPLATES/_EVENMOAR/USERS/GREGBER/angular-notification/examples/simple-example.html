@@ -1,0 +1,57 @@
+<!doctype html>
+<html ng-app="myApp">
+<head>
+    <title>Angular notification example</title>
+</head>
+<body ng-controller="MyController">
+<button ng-click="notify()">Notify</button>
+<button ng-click="askPermision()">Ask for Permision</button>
+<script src="../bower_components/angular/angular.js"></script>
+<script src="../angular-notification.js"></script>
+<script>
+    angular.module('myApp', ['notification'])
+            .controller('MyController', function ($scope, $notification, $log) {
+                var p = [];
+
+                $scope.notify = function notify() {
+                    createNotification();
+                };
+
+                $scope.askPermision = function() {
+                    $notification.requestPermission()
+                    .then(function success(value) {
+                        new Notification('Notification allowed', {
+                            body : value,
+                            delay: 5000
+                        });
+                    }, function error() {
+                        $log.error("Can't request for notification");
+                    })
+                };
+
+                function createNotification() {
+                    var notification = $notification('New message', {
+                        body: 'You have a new message.',
+                        delay: 2000
+                    });
+
+                    notification.$on('show', function () {
+                        $log.debug('My notification is displayed.');
+                    });
+
+                    notification.$on('click', function () {
+                        $log.debug('The user has clicked in my notification.');
+                    });
+
+                    notification.$on('close', function () {
+                        $log.debug('The user has closed my notification.');
+                    });
+
+                    notification.$on('error', function () {
+                        $log.debug('The notification encounters an error.');
+                    });
+                }
+            });
+</script>
+</body>
+</html>

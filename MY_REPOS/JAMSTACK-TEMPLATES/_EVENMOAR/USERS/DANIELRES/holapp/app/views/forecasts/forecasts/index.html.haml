@@ -1,0 +1,37 @@
+%p
+  &nbsp;
+%p
+  = link_to(params.merge(format: "xls"),  class:  'btn btn-default btn-primary' ) do
+    %i{ class: 'glyphicon glyphicon-download' }
+    &nbsp; XLS
+.panel.panel-default
+  .panel-body
+    %table.table{ data: { purpose: "forecasts-list" } }
+      %caption
+        Forecasts
+
+      %thead
+        %tr
+          %th{ style: 'width: 7em' } Person
+          %th{ style: 'width: 18em' } Project
+          - @forecast.periods.each do |p|
+            %th= p.starts_at
+
+      %tbody
+
+        - @people.each do |p|
+          - p.memberships.each do |m|
+            - is_empty_row = @forecast.periods.map{|p| p.membership_occupations(m).reject(&:blank?).map(&:to_f).reject(&:zero?) }.flatten.empty?
+            - unless is_empty_row
+              %tr[m]
+
+                %td.person
+                  = link_to (p.trigram || p.name), p
+
+                %td.project= link_to m.project, m.project
+                - @forecast.periods.each do |period|
+                  %td.period
+                    - period.membership_occupations(m).each do |o|
+                      %p.occupation= o
+
+

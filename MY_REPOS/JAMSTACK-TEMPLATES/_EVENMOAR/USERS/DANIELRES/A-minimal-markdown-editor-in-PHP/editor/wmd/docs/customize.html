@@ -1,0 +1,287 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Customization - WMD Markdown Editor</title>
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="http://yui.yahooapis.com/2.6.0/build/reset-fonts-grids/reset-fonts-grids.css"
+    />
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="http://yui.yahooapis.com/2.6.0/build/base/base-min.css"
+    />
+    <link type="text/css" rel="stylesheet" href="sh/styles/shCore.css" />
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="sh/styles/shThemeDefault.css"
+    />
+    <link type="text/css" rel="stylesheet" href="docs.css" />
+    <link type="text/css" rel="stylesheet" href="wmd.css" />
+    <style type="text/css">
+      .wmd-alert {
+        background: #fff url(wmd-alert.png) no-repeat;
+      }
+      .wmd-alert-down {
+        background-position: 0 bottom;
+      }
+    </style>
+    <script type="text/javascript" src="sh/shCore.js"></script>
+    <script type="text/javascript" src="sh/shBrushJScript.js"></script>
+    <script type="text/javascript" src="wmd.js"></script>
+    <script type="text/javascript">
+      SyntaxHighlighter.config.clipboardSwf = "sh/clipboard.swf";
+      SyntaxHighlighter.all();
+
+      window.onload = function () {
+        WMD.Command.runners.alert = function (wmd, chunk, callback) {
+          // Is there any text selected?
+          if (chunk.selection) {
+            alert(chunk.selection);
+          } else {
+            alert(
+              "Hey guy, you need to select something if you want me to tell you about it!"
+            );
+          }
+
+          // Tell the caller that we're finished.
+          if (typeof callback === "function") {
+            callback();
+          }
+        };
+
+        new WMD("alert-input", "alert-toolbar", {
+          commands: "strong em spacer alert",
+          commandTable: {
+            alert: {
+              text: "Alert",
+              title: "Alert the current selection Ctl+T",
+              css: "wmd-alert",
+              shortcut: "t",
+            },
+          },
+        });
+      };
+    </script>
+  </head>
+  <body>
+    <div id="doc3" class="yui-t6">
+      <div id="hd">
+        <h1>WMD Customization</h1>
+        <h4>
+          A WYSIWYM (What You See Is What You Mean)
+          <a href="http://daringfireball.net/projects/markdown/">Markdown</a>
+          editor
+        </h4>
+      </div>
+      <div id="bd">
+        <div class="yui-b navigation">
+          <h5>Resources</h5>
+          <ul>
+            <li><a href="index.html">About</a></li>
+            <li><a href="demo.html">Demo & installation</a></li>
+            <li><a href="customize.html">Customization</a></li>
+          </ul>
+          <h5>On this page</h5>
+          <ul>
+            <li><a href="#toolbar">Toolbar</a></li>
+            <li><a href="#custom-commands">Custom commands</a></li>
+            <li>
+              <a href="#custom-command-example">A custom command example</a>
+            </li>
+          </ul>
+        </div>
+        <div id="yui-main">
+          <div class="yui-b">
+            <p>
+              One of the principle reasons for forking from StackOverflow's
+              <a href="http://github.com/derobins/wmd/tree/master">WMD fork</a>
+              was to make customizing the editor much easier.
+            </p>
+            <p>
+              I've created a very simple API for customizing both the editor's
+              toolbar and for adding or altering commands. There are also plenty
+              of helpers available for creating different dialogs and forms that
+              may need to be launched from your custom commands.
+            </p>
+
+            <h2 id="toolbar">Toolbar</h2>
+            <p>
+              The toolbar gets its layout from an optional setting you can pass
+              in during the construction of a WMD instance. If you explicitly
+              defined the default toolbar, it would look like this:
+            </p>
+            <pre class="brush:js;">
+new WMD("input", "toolbar", {
+    // A space-separated, ordered list of command keys
+    commands: "strong em spacer a blockquote code img spacer ol ul h hr", 
+    // A table of custom command definitions
+	commandTable: { }
+});</pre
+            >
+            <p>
+              If you only wanted to put <strong>Bold</strong> and
+              <em>Italic</em> commands in the toolbar, you would construct your
+              WMD instance like this:
+            </p>
+            <pre class="brush:js;">
+new WMD("input", "toolbar", { commands: "strong em" });</pre
+            >
+            <p>
+              Of course, you can also change the order of the keys in the
+              <code>commands</code> string to change the order of the buttons in
+              the toolbar.
+            </p>
+
+            <h2 id="custom-commands">Custom commands</h2>
+            <p>
+              There are four possible extension points that you can use when
+              creating a custom command or changing the behavior of an existing
+              command:
+            </p>
+            <ol>
+              <li>
+                A command definition object, which can be passed into the WMD
+                constructor as part of the <code>commandTable</code> option
+              </li>
+              <li>
+                A command "builder" function that can take responsibility for
+                actually instantiating a command object, and will be passed the
+                following arguments:
+                <ul>
+                  <li>
+                    <strong>wmd</strong> The command's containing
+                    <code>WMD</code> instance
+                  </li>
+                  <li>
+                    <strong>key</strong> The key the command is being built from
+                    in the command table
+                  </li>
+                  <li>
+                    <strong>definition</strong> The definition the command is
+                    being built from in the command table
+                  </li>
+                </ul>
+              </li>
+              <li>
+                A command "runner" function that will actually run the command,
+                and can be patched onto
+                <code>WMD.Command.runners</code> when using the built-in
+                <code>WMD.Command.create</code> "builder" function and
+                <code>WMD.Command</code> class, and will be passed the following
+                arguments:
+                <ul>
+                  <li>
+                    <strong>wmd</strong> The command's containing
+                    <code>WMD</code> instance
+                  </li>
+                  <li>
+                    <strong>chunk</strong> A helper object for working with the
+                    currently selected "chunk" of text
+                  </li>
+                  <li>
+                    <strong>callback</strong> A function that should be called
+                    when the command has finished its work
+                  </li>
+                </ul>
+              </li>
+              <li>
+                A completely custom command class, implementing the following
+                interface:
+                <pre class="brush:js;">
+{
+	// Draws a command button.
+	// @parent: The container (a "ul") that the drawn 
+	//			command should be added to.
+    draw: function(parent)	{
+	    // Draw your command here.
+    }						
+}</pre
+                >
+              </li>
+            </ol>
+            <p>
+              The command definition object can really look like anything, but
+              two important pieces that should be considered are
+              <code>shortcut</code> and <code>builder</code>.
+            </p>
+            <p>As an example, a snippet from the internal command table:</p>
+            <pre class="brush:js;">
+{
+    "strong": { 
+			      text: "Bold", 
+				  title: "Strong &lt;strong&gt; Ctl+B", 
+				  css: "wmd-strong", 
+				  shortcut: "b" 
+			  },
+    "spacer": { 
+			  	  css: "wmd-spacer", 
+				  builder: WMD.Command.createSpacer 
+			  }						
+}</pre
+            >
+
+            <h2 id="custom-command-example">A custom command example</h2>
+
+            <p>
+              As an example, we'll build a custom command that alerts the
+              currently selected text in the editor. We're going to assign our
+              custom command a key of "alert", and use most of the existing
+              infrastructure to complete its implementation.
+            </p>
+            <p>
+              To allow the internal framework to be utilized fully, we need to
+              create a function named <code>alert</code> and patch it onto
+              <code>WMD.Command.runners</code>, as internal commands are looked
+              up here by key.
+            </p>
+            <p>So, let's start with the actual command implementation:</p>
+            <pre class="brush:js;">
+WMD.Command.runners.alert = function(wmd, chunk, callback) {
+    // Is there any text selected?
+    if (chunk.selection) {
+	    alert(chunk.selection);
+    } else {
+		alert("Hey guy, you need to select something if you want me to tell you about it!");
+    }
+
+	// Tell the caller that we're finished.
+	if (typeof callback === "function") {
+	    callback();
+    }
+};</pre
+            >
+            <p>
+              Now we can construct our WMD instance with our custom command
+              definition:
+            </p>
+            <pre class="brush:js;">
+new WMD("input", "toolbar", {
+    commands: "strong em spacer alert",
+    commandTable: {
+	    "alert": {
+		    text: "Alert",
+		    title: "Alert the current selection Ctl+T",
+		    css: "wmd-alert",
+		    shortcut: "t"
+	    }
+    }						
+});</pre
+            >
+            <div id="alert-toolbar" class="wmd-toolbar"></div>
+            <textarea
+              id="alert-input"
+              class="wmd-input"
+              rows="8"
+              cols="40"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
