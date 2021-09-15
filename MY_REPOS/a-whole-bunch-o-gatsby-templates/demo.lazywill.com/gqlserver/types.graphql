@@ -1,0 +1,125 @@
+type Language @model {
+  id: ID! @isUnique     
+  lang: String! @isUnique
+
+  entries: [Entry!]! @relation(name: "EntriesInLanguage")
+  sentences: [Sentence!]! @relation(name: "SentencesInLanguage")
+  combos: [Combo!]! @relation(name: "CombosInLanguage")
+}
+
+type Entry @model {
+  id: ID! @isUnique     # required system field (read-only)
+  createdAt: DateTime!  # optional system field (read-only)
+  updatedAt: DateTime!  # optional system field (read-only)
+
+  arangoKey: Int! @isUnique
+
+  text: String! @isUnique
+  addedBy: User! @relation(name: "EntriesAddedBy")
+  isPublic: Boolean!
+  combos: [Combo!]! @relation(name: "CombosWithEntry")
+  meanings: [Meaning!]! @relation(name: "MeaningsOfEntry")
+  language: Language! @relation(name: "EntriesInLanguage")
+}
+
+type Meaning @model {
+  id: ID! @isUnique    
+  addedBy: User! @relation(name: "MeaningsAddedBy")
+  arangoKey: Int! @isUnique
+  combos: [Combo!]! @relation(name: "CombosWithMeaning")
+  createdAt: DateTime!  
+  definition: String!
+  entry: Entry! @relation(name: "MeaningsOfEntry")
+  isPublic: Boolean!
+  key: Int!
+  type: MEANING_TYPE!
+  updatedAt: DateTime!
+}
+
+type User @model {
+  id: ID! @isUnique    
+  createdAt: DateTime!  
+  updatedAt: DateTime! 
+
+  email: String!
+  
+  entriesAdded: [Entry!]! @relation(name: "EntriesAddedBy")
+  meaningsAdded: [Meaning!]! @relation(name: "MeaningsAddedBy")
+  picturesAdded: [Picture!]! @relation(name: "PicturesAddedBy")
+  sentencesAdded: [Sentence!]! @relation(name: "SentencesAddedBy")
+  spotsAdded: [Spot!]! @relation(name: "SpotsAddedBy")
+  combosAdded: [Combo!]! @relation(name: "CombosAddedBy")
+}
+
+type Picture @model {
+  id: ID! @isUnique    
+  createdAt: DateTime!  
+  updatedAt: DateTime! 
+  arangoKey: Int! @isUnique
+  addedBy: User! @relation(name: "PicturesAddedBy")
+  isPublic: Boolean!
+  originalFileKey: String!
+  originalFileOrientation: String!
+  originalFileCropPosition: String!
+  hash: String!
+  sourceName: String!
+  sourceUrl: String!
+  authorName: String!
+  authorUrl: String!
+  licenceName: String!
+  licenceUrl: String!
+  spots: [Spot!]! @relation(name: "SpotsOnPicture")
+  combos: [Combo!]! @relation(name: "CombosWithPicture")
+}
+
+type Sentence @model {
+  id: ID! @isUnique    
+  createdAt: DateTime!  
+  updatedAt: DateTime! 
+  arangoKey: Int! @isUnique 
+  text: String!
+  addedBy: User! @relation(name: "SentencesAddedBy")
+  isPublic: Boolean!
+  combos: [Combo!]! @relation(name: "CombosWithSentence")
+  language: Language! @relation(name: "SentencesInLanguage")
+}
+
+type Spot @model {
+  id: ID! @isUnique    
+  createdAt: DateTime!  
+  updatedAt: DateTime! 
+  arangoKey: Int! @isUnique  
+  addedBy: User! @relation(name: "SpotsAddedBy")
+  isPublic: Boolean!
+  picture: Picture! @relation(name: "SpotsOnPicture")
+  height: Int!
+  width: Int!
+  x: Int!
+  y: Int!
+  key: Int!
+  combos: [Combo!]! @relation(name: "CombosWithSpot")
+}
+
+type Combo @model {
+  id: ID! @isUnique    
+  createdAt: DateTime!  
+  updatedAt: DateTime! 
+  arangoKey: Int! @isUnique
+  addedBy: User! @relation(name: "CombosAddedBy")
+  isPublic: Boolean! 
+  entry: Entry! @relation(name: "CombosWithEntry")
+  meaning: Meaning! @relation(name: "CombosWithMeaning")
+  picture: Picture! @relation(name: "CombosWithPicture")
+  spot: Spot! @relation(name: "CombosWithSpot")
+  sentences: [Sentence!]! @relation(name: "CombosWithSentence")
+  language: Language! @relation(name: "CombosInLanguage")
+}
+
+
+enum MEANING_TYPE {
+  NOUN
+  VERB
+  ADJECTIVE
+  PREPOSITION
+  PHRASE
+}
