@@ -1,0 +1,50 @@
+title: Ashish Patel's Notes
+about: ashishdotme/notes
+about_url: https://github.com/ashishdotme/notes
+plugins:
+  datasette-atom:
+    allow_unsafe_html_in_canned_queries: true
+  datasette-media:
+    screenshot:
+      "sql": "select shot as content, 'image/png' as content_type from til where path=:key"
+databases:
+  notes:
+    queries:
+      search: |
+        select
+          notes_fts.rank,
+          notes.*,
+          snippet(notes_fts, -1, 'b4de2a49c8', '8c94a2ed4b', '...', 60) as snippet
+        from
+          notes
+          join notes_fts on notes.rowid = notes_fts.rowid
+        where
+          notes_fts match case
+            :q
+            when '' then 'nomatchforthisterm'
+            else escape_fts(:q)
+          end
+        order by
+          notes_fts.rank limit 20
+      feed:
+        title: Ashish Patel's Notes
+        sql: |-
+          SELECT
+            'tag:notes.ashish.me,2020-04-30:' || path as atom_id,
+            title as atom_title,
+            'https://notes.ashish.me/' || topic || '/' || slug as atom_link,
+            created_utc as atom_updated,
+            html as atom_content_html,
+            'Ashish Patel' as atom_author_name,
+            'https://notes.ashish.me/' as atom_author_uri
+          FROM
+            notes
+          order by
+            created_utc desc
+          limit
+            15
+    tables:
+      notes:
+        sort_desc: updated_utc
+        facets:
+          - topic
