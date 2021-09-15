@@ -1,0 +1,1 @@
+function(a,b,c,d,e,f,g){for(a=(a+"").split(f="").reverse(d=-1);a[++d];)for(e=0;g=b[a[d]][e++];)f=c[+g+d*2]+f;return f}

@@ -1,0 +1,576 @@
+@mixin remove-css-animation {
+	*,
+	*:after,
+	*:before {
+		animation: none !important;
+		transition: none !important;
+	}
+}
+
+@import 'colors';
+
+// This will be white.
+body {
+  background-color: color(body-background); 
+}
+
+/*
+  This will be pink, and will throw
+  a warning message in the console.
+*/
+.my-example {
+  background-color: color(my-example-background);
+}
+div.wp-block-buttons {
+  /*
+    =====
+    NOTE:
+    =====
+
+    I know this code looks a bit gross.
+
+    But that is more of a reflection upon
+    the WordPress block styles themselves.
+
+    This is what it takes to override them.
+  */
+
+  &,
+  &.alignleft,
+  &.alignright,
+  &.aligncenter {
+    // Undo float.
+    float: none;
+
+    // Flex.
+    align-content: flex-start;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    // Offsets.
+    margin-top: -1 * $gutter--half;
+    margin-left: -1 * $gutter--quarter;
+    margin-right: -1 * $gutter--quarter;
+    margin-bottom: $gutter;
+  }
+
+  // Left aligned.
+  &,
+  &.alignleft {
+    justify-content: flex-start;
+  }
+
+  // Center aligned.
+  &.aligncenter {
+    justify-content: center;
+  }
+
+  // Right aligned.
+  &.alignright {
+    justify-content: flex-end;
+  }
+
+  // Buttons within.
+  &,
+  &.alignleft,
+  &.alignright,
+  &.aligncenter {
+    & > .wp-block-button.wp-block-button {
+      // Reset.
+      margin: 0;
+
+      // Add margin back.
+      margin-top: $gutter--half;
+      margin-left: $gutter--quarter;
+      margin-right: $gutter--quarter;
+    }
+  }
+}
+.wp-block-columns {
+	display: flex;
+	margin-bottom: $gutter;
+	flex-wrap: wrap;
+}
+
+@media (min-width: 782px) {
+	.wp-block-columns {
+		flex-wrap: nowrap;
+	}
+}
+
+.wp-block-column {
+	flex-grow: 1;
+	min-width: 0;
+	word-break: break-word;
+	overflow-wrap: break-word;
+}
+
+@media (max-width: 599px) {
+	.wp-block-column {
+		flex-basis: 100% !important;
+	}
+}
+
+@media (min-width: 600px) {
+	.wp-block-column {
+		flex-basis: calc(50% - #{$gutter--half});
+		flex-grow: 0;
+	}
+
+	.wp-block-column:nth-child(2n) {
+		margin-left: $gutter;
+	}
+}
+
+@media (min-width: 782px) {
+	.wp-block-column:not(:first-child) {
+		margin-left: $gutter;
+	}
+}
+
+.wp-block-columns.are-vertically-aligned-top {
+	align-items: flex-start;
+}
+
+.wp-block-columns.are-vertically-aligned-center {
+	align-items: center;
+}
+
+.wp-block-columns.are-vertically-aligned-bottom {
+	align-items: flex-end;
+}
+
+.wp-block-column.is-vertically-aligned-top {
+	align-self: flex-start;
+}
+
+.wp-block-column.is-vertically-aligned-center {
+	-ms-grid-row-align: center;
+	align-self: center;
+}
+
+.wp-block-column.is-vertically-aligned-bottom {
+	align-self: flex-end;
+}
+
+// ==================
+// In variables file.
+// ==================
+
+$font-size-h1: 2.2rem !default;
+$font-family-h1: inherit !default;
+$font-weight-h1: inherit !default;
+
+// =================
+// In headings file.
+// =================
+
+h1 {
+  font-size: $font-size-h1;
+  font-weight: $font-weight-h1;
+
+  /*
+    In all browsers, `font-family`
+    behaves like "inherit" by default.
+  
+    So we only need this if it has
+    been set to something specific.
+  */
+  @if ($font-family-h1 != inherit) {
+    font-family: $font-family-h1;
+  }
+}
+@function rkv-map-merge($maps...) {
+  $collection: ();
+
+  @each $map in $maps {
+    $collection: map-merge($collection, $map);
+  }
+
+  @return $collection;
+}
+// ====================
+// Default placeholder.
+// ====================
+
+/*
+  This is empty by default, but the intent
+  is that it would be overwritten by another
+  variable for a custom site implementation.
+*/
+
+// prettier-ignore
+$-rkv-custom-feature-map: (
+  // Leave this blank!
+) !default;
+
+// ===============================
+// Features. Private to this file.
+// ===============================
+
+// prettier-ignore
+$-rkv-default-feature-map: (
+  charts: true,
+  extras: true,
+  gravity-forms: true,
+  grid: true,
+  storybook: true,
+  syntax: true,
+  wordpress: true,
+) !default;
+
+// ===================
+// Merge feature maps.
+// ===================
+
+// prettier-ignore
+$-rkv-merged-feature-map: rkv-map-merge(
+  $-rkv-default-feature-map,
+  $-rkv-custom-feature-map
+) !default;
+@mixin rkv-feature-flag($flag: '') {
+  @if map-get($-rkv-merged-feature-map, $flag) == true {
+    @content;
+  }
+}
+@include rkv-feature-flag($flag: gravity-forms) {
+  @import './gravity-forms';
+}
+
+@include rkv-feature-flag($flag: storybook) {
+  @import './storybook';
+}
+
+@include rkv-feature-flag($flag: wordpress) {
+  @import './wordpress';
+}
+// ==========================
+// `<pre>` and `<code>` tags.
+// ==========================
+
+code,
+pre,
+pre .token[class] {
+	font-family: $font-family-mono;
+}
+
+// ==============
+// `<code>` tags.
+// ==============
+
+code {
+	color: color(inline-code);
+	word-break: break-word;
+}
+
+pre > code,
+pre > code[class] {
+	outline: 0;
+
+	border-radius: $code-border-radius;
+	display: block;
+
+	font-size: 13px;
+	tab-size: 2;
+
+	padding: 1em;
+	overflow-x: auto;
+}
+
+pre > code:focus {
+	box-shadow: $code-box-shadow-focus;
+}
+
+// ====================================
+// Default colors, withoug Highlight.js
+// ====================================
+
+pre > code:not(.hljs) {
+	background-color: color(block-code-background);
+	color: color(block-code);
+}
+
+// =======================================
+// Fix incorrect Storybook implementation.
+// =======================================
+
+*[class] > pre.hljs[class] {
+	& {
+		overflow: hidden;
+		padding: 0;
+	}
+
+	& > code:not(.hljs) {
+		background-color: transparent;
+	}
+}
+
+// ====================
+// Default placeholder.
+// ====================
+
+/*
+  This is empty by default, but the intent
+  is that it would be overwritten by another
+  variable for a custom site implementation.
+*/
+
+// prettier-ignore
+$_custom-color-map: (
+  // Leave this empty!
+) !default;
+
+// ================
+// Helper function.
+// ================
+
+@function color($key) {
+  @if map-has-key($_merged-color-map, $key) {
+    @return map-get($_merged-color-map, $key);
+  }
+
+  @warn "Unknown `color(#{$key})`";
+  @return $_color-pink;
+}
+
+// ================================
+// Variables. Private to this file.
+// ================================
+
+$_color-white: #fff !default;
+$_color-pink: #f0f !default;
+
+// ================================
+// Color map. Private to this file.
+// ================================
+
+// prettier-ignore
+$_default-color-map: (
+  body-background: $_color-white,
+) !default;
+
+// =================
+// Merge color maps.
+// =================
+
+// prettier-ignore
+$_merged-color-map: map-merge(
+  $_default-color-map,
+  $_custom-color-map
+) !default;
+/*
+  // ===============
+  // What the what!?
+  // ===============
+
+  Below is a list of common `class` names
+  that appear in these default themes:
+
+  - Twenty Twenty
+  - Twenty Nineteen
+  - Twenty Seventeen
+  - Twenty Sixteen
+
+  // ==============
+  // Comments area.
+  // ==============
+
+  - #comments
+  - .comment-reply-title
+
+  // ================
+  // Comment element.
+  // ================
+
+  - .comment
+  - .comment.bypostauthor
+  - .comment.byuser
+  - .comment.comment-author-admin
+  - .comment.depth-1
+  - .comment.even
+  - .comment.odd
+  - .comment.thread-alt
+  - .comment.thread-even
+  - .comment.thread-odd
+
+  // =================
+  // Comment children.
+  // =================
+
+  - .comment-author
+  - .comment-body
+  - .comment-content
+  - .comment-meta
+  - .comment-metadata
+  - .comment-notes
+  - .says (sometimes hidden)
+
+  // =============
+  // Comment form.
+  // =============
+
+  - .comment-form-author
+  - .comment-form-comment
+  - .comment-form-email
+  - .comment-form-url
+  - .comment-notes
+  - .comment-respond
+  - .email-notes
+  - .form-submit
+  - .submit
+
+  // ================
+  // Comments closed.
+  // ================
+
+  - .comments-closed
+  - .no-comments
+
+  // ==================================
+  // VCARD (microformat).
+  //
+  // Don't style these directly.
+  //
+  // http://microformats.org/wiki/hcard
+  // ==================================
+
+  - .fn
+  - .url
+  - .vcard
+*/
+
+// ==============
+// Comments area.
+// ==============
+
+#comments {}
+
+.comment-reply-title {}
+
+// ================
+// Comment element.
+// ================
+
+.comment {}
+
+.comment.bypostauthor {}
+
+.comment.byuser {}
+
+.comment.comment-author-admin {}
+
+.comment.depth-1 {}
+
+.comment.even {}
+
+.comment.odd {}
+
+.comment.thread-alt {}
+
+.comment.thread-even {}
+
+.comment.thread-odd {}
+
+// =================
+// Comment children.
+// =================
+
+.comment-author {}
+
+.comment-body {}
+
+.comment-content {}
+
+.comment-meta {}
+
+.comment-metadata {}
+
+.comment-notes {}
+
+/*
+  NOTE:
+
+  This is sometimes hidden, by being
+  paired with `screen-reader-text`.
+
+  ```
+  <span class="says screen-reader-text">
+    says:
+  </span>
+  ```
+*/
+.says {}
+
+// =============
+// Comment form.
+// =============
+
+.comment-form-author {}
+
+.comment-form-comment {}
+
+.comment-form-email {}
+
+.comment-form-url {}
+
+.comment-respond {}
+
+.email-notes {}
+
+.form-submit {}
+
+.submit {}
+
+// ================
+// Comments closed.
+// ================
+
+/*
+  NOTE: The `<p>` selector is needed, so
+  that we can style either markup pattern:
+
+  ```
+  <div id="comments">
+    <p class="comments-closed">
+      Comments are closed.
+    </p>
+  </div>
+  ```
+
+  ```
+  <div id="comments" class="comments-closed">
+    <p class="no-comments">
+      Comments are closed.
+    </p>
+  </div>
+  ```
+*/
+p.no-comments,
+p.comments-closed {}
+html:not([data-has-css-animation='true']) {
+	@include remove-css-animation;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	@include remove-css-animation;
+}
+
+/*
+  Inspired by this post…
+
+  https://css-tricks.com/transitions-only-after-page-load
+
+  I didn't want to have to add something to
+  the page initially, only to remove it later.
+
+  Instead, I'm adding a "positive" flag via JS
+  and am simply ignoring all animations and
+  transitions if the flag is not present.
+*/
+
+html:not([data-has-css-animation="true"]) * {
+  animation: none !important;
+  transition: none !important;
+}

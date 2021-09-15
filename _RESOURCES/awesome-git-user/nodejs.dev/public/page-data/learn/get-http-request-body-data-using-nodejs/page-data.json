@@ -1,0 +1,326 @@
+{
+  "componentChunkName": "component---src-templates-learn-tsx",
+  "path": "/learn/get-http-request-body-data-using-nodejs",
+  "result": {
+    "data": {
+      "doc": {
+        "id": "4e24ab7e-e598-542b-856f-bd9e11892fd5",
+        "html": "<p>Here is how you can extract the data that was sent as JSON in the request body.</p>\n<p>If you are using Express, that's quite simple: use the <code class=\"language-text\">body-parser</code> Node.js module.</p>\n<p>For example, to get the body of this request:</p>\n<div class=\"gatsby-highlight\" data-language=\"javascript\"><pre class=\"language-javascript\"><code class=\"language-javascript\"><span class=\"token keyword\">const</span> axios <span class=\"token operator\">=</span> <span class=\"token function\">require</span><span class=\"token punctuation\">(</span><span class=\"token string\">'axios'</span><span class=\"token punctuation\">)</span>\n\naxios<span class=\"token punctuation\">.</span><span class=\"token function\">post</span><span class=\"token punctuation\">(</span><span class=\"token string\">'https://whatever.com/todos'</span><span class=\"token punctuation\">,</span> <span class=\"token punctuation\">{</span>\n  todo<span class=\"token operator\">:</span> <span class=\"token string\">'Buy the milk'</span>\n<span class=\"token punctuation\">}</span><span class=\"token punctuation\">)</span></code></pre></div>\n<p>This is the matching server-side code:</p>\n<div class=\"gatsby-highlight\" data-language=\"javascript\"><pre class=\"language-javascript\"><code class=\"language-javascript\"><span class=\"token keyword\">const</span> express <span class=\"token operator\">=</span> <span class=\"token function\">require</span><span class=\"token punctuation\">(</span><span class=\"token string\">'express'</span><span class=\"token punctuation\">)</span>\n<span class=\"token keyword\">const</span> app <span class=\"token operator\">=</span> <span class=\"token function\">express</span><span class=\"token punctuation\">(</span><span class=\"token punctuation\">)</span>\n\napp<span class=\"token punctuation\">.</span><span class=\"token function\">use</span><span class=\"token punctuation\">(</span>\n  express<span class=\"token punctuation\">.</span><span class=\"token function\">urlencoded</span><span class=\"token punctuation\">(</span><span class=\"token punctuation\">{</span>\n    extended<span class=\"token operator\">:</span> <span class=\"token boolean\">true</span>\n  <span class=\"token punctuation\">}</span><span class=\"token punctuation\">)</span>\n<span class=\"token punctuation\">)</span>\n\napp<span class=\"token punctuation\">.</span><span class=\"token function\">use</span><span class=\"token punctuation\">(</span>express<span class=\"token punctuation\">.</span><span class=\"token function\">json</span><span class=\"token punctuation\">(</span><span class=\"token punctuation\">)</span><span class=\"token punctuation\">)</span>\n\napp<span class=\"token punctuation\">.</span><span class=\"token function\">post</span><span class=\"token punctuation\">(</span><span class=\"token string\">'/todos'</span><span class=\"token punctuation\">,</span> <span class=\"token punctuation\">(</span><span class=\"token parameter\">req<span class=\"token punctuation\">,</span> res</span><span class=\"token punctuation\">)</span> <span class=\"token operator\">=></span> <span class=\"token punctuation\">{</span>\n  console<span class=\"token punctuation\">.</span><span class=\"token function\">log</span><span class=\"token punctuation\">(</span>req<span class=\"token punctuation\">.</span>body<span class=\"token punctuation\">.</span>todo<span class=\"token punctuation\">)</span>\n<span class=\"token punctuation\">}</span><span class=\"token punctuation\">)</span></code></pre></div>\n<p>If you're not using Express and you want to do this in vanilla Node.js, you need to do a bit more work, of course, as Express abstracts a lot of this for you.</p>\n<p>The key thing to understand is that when you initialize the HTTP server using <code class=\"language-text\">http.createServer()</code>, the callback is called when the server got all the HTTP headers, but not the request body.</p>\n<p>The <code class=\"language-text\">request</code> object passed in the connection callback is a stream.</p>\n<p>So, we must listen for the body content to be processed, and it's processed in chunks.</p>\n<p>We first get the data by listening to the stream <code class=\"language-text\">data</code> events, and when the data ends, the stream <code class=\"language-text\">end</code> event is called, once:</p>\n<div class=\"gatsby-highlight\" data-language=\"javascript\"><pre class=\"language-javascript\"><code class=\"language-javascript\"><span class=\"token keyword\">const</span> server <span class=\"token operator\">=</span> http<span class=\"token punctuation\">.</span><span class=\"token function\">createServer</span><span class=\"token punctuation\">(</span><span class=\"token punctuation\">(</span><span class=\"token parameter\">req<span class=\"token punctuation\">,</span> res</span><span class=\"token punctuation\">)</span> <span class=\"token operator\">=></span> <span class=\"token punctuation\">{</span>\n  <span class=\"token comment\">// we can access HTTP headers</span>\n  req<span class=\"token punctuation\">.</span><span class=\"token function\">on</span><span class=\"token punctuation\">(</span><span class=\"token string\">'data'</span><span class=\"token punctuation\">,</span> <span class=\"token parameter\">chunk</span> <span class=\"token operator\">=></span> <span class=\"token punctuation\">{</span>\n    console<span class=\"token punctuation\">.</span><span class=\"token function\">log</span><span class=\"token punctuation\">(</span><span class=\"token template-string\"><span class=\"token template-punctuation string\">`</span><span class=\"token string\">Data chunk available: </span><span class=\"token interpolation\"><span class=\"token interpolation-punctuation punctuation\">${</span>chunk<span class=\"token interpolation-punctuation punctuation\">}</span></span><span class=\"token template-punctuation string\">`</span></span><span class=\"token punctuation\">)</span>\n  <span class=\"token punctuation\">}</span><span class=\"token punctuation\">)</span>\n  req<span class=\"token punctuation\">.</span><span class=\"token function\">on</span><span class=\"token punctuation\">(</span><span class=\"token string\">'end'</span><span class=\"token punctuation\">,</span> <span class=\"token punctuation\">(</span><span class=\"token punctuation\">)</span> <span class=\"token operator\">=></span> <span class=\"token punctuation\">{</span>\n    <span class=\"token comment\">//end of data</span>\n  <span class=\"token punctuation\">}</span><span class=\"token punctuation\">)</span>\n<span class=\"token punctuation\">}</span><span class=\"token punctuation\">)</span></code></pre></div>\n<p>So to access the data, assuming we expect to receive a string, we must put it into an array:</p>\n<div class=\"gatsby-highlight\" data-language=\"javascript\"><pre class=\"language-javascript\"><code class=\"language-javascript\"><span class=\"token keyword\">const</span> server <span class=\"token operator\">=</span> http<span class=\"token punctuation\">.</span><span class=\"token function\">createServer</span><span class=\"token punctuation\">(</span><span class=\"token punctuation\">(</span><span class=\"token parameter\">req<span class=\"token punctuation\">,</span> res</span><span class=\"token punctuation\">)</span> <span class=\"token operator\">=></span> <span class=\"token punctuation\">{</span>\n  <span class=\"token keyword\">let</span> data <span class=\"token operator\">=</span> <span class=\"token string\">''</span><span class=\"token punctuation\">;</span>\n  req<span class=\"token punctuation\">.</span><span class=\"token function\">on</span><span class=\"token punctuation\">(</span><span class=\"token string\">'data'</span><span class=\"token punctuation\">,</span> <span class=\"token parameter\">chunk</span> <span class=\"token operator\">=></span> <span class=\"token punctuation\">{</span>\n    data <span class=\"token operator\">+=</span> chunk<span class=\"token punctuation\">;</span>\n  <span class=\"token punctuation\">}</span><span class=\"token punctuation\">)</span>\n  req<span class=\"token punctuation\">.</span><span class=\"token function\">on</span><span class=\"token punctuation\">(</span><span class=\"token string\">'end'</span><span class=\"token punctuation\">,</span> <span class=\"token punctuation\">(</span><span class=\"token punctuation\">)</span> <span class=\"token operator\">=></span> <span class=\"token punctuation\">{</span>\n    <span class=\"token constant\">JSON</span><span class=\"token punctuation\">.</span><span class=\"token function\">parse</span><span class=\"token punctuation\">(</span>data<span class=\"token punctuation\">)</span><span class=\"token punctuation\">.</span>todo <span class=\"token comment\">// 'Buy the milk'</span>\n  <span class=\"token punctuation\">}</span><span class=\"token punctuation\">)</span>\n<span class=\"token punctuation\">}</span><span class=\"token punctuation\">)</span></code></pre></div>",
+        "tableOfContents": "",
+        "frontmatter": {
+          "title": "Get HTTP request body data using Node.js",
+          "description": "Find out how to extract the data sent as JSON through an HTTP request body using Node.js"
+        },
+        "fields": {
+          "slug": "get-http-request-body-data-using-nodejs",
+          "authors": [
+            "flaviocopes",
+            " MylesBorins",
+            " fhemberger",
+            " LaRuaNa",
+            " ahmadawais"
+          ]
+        }
+      }
+    },
+    "pageContext": {
+      "slug": "get-http-request-body-data-using-nodejs",
+      "next": {
+        "slug": "working-with-file-descriptors-in-nodejs",
+        "title": "Working with file descriptors in Node.js"
+      },
+      "previous": {
+        "slug": "make-an-http-post-request-using-nodejs",
+        "title": "Make an HTTP POST request using Node.js"
+      },
+      "relativePath": "0040a-node-request-data/index.md",
+      "navigationData": {
+        "Quick Start": [
+          {
+            "title": "Introduction to Node.js",
+            "slug": "introduction-to-nodejs",
+            "section": "Quick Start"
+          },
+          {
+            "title": "A brief history of Node.js",
+            "slug": "a-brief-history-of-nodejs",
+            "section": "Quick Start"
+          },
+          {
+            "title": "How to install Node.js",
+            "slug": "how-to-install-nodejs",
+            "section": "Quick Start"
+          },
+          {
+            "title": "How much JavaScript do you need to know to use Node.js?",
+            "slug": "how-much-javascript-do-you-need-to-know-to-use-nodejs",
+            "section": "Quick Start"
+          },
+          {
+            "title": "Differences between Node.js and the Browser",
+            "slug": "differences-between-nodejs-and-the-browser",
+            "section": "Quick Start"
+          }
+        ],
+        "Getting Started": [
+          {
+            "title": "The V8 JavaScript Engine",
+            "slug": "the-v8-javascript-engine",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Run Node.js scripts from the command line",
+            "slug": "run-nodejs-scripts-from-the-command-line",
+            "section": "Getting Started"
+          },
+          {
+            "title": "How to exit from a Node.js program",
+            "slug": "how-to-exit-from-a-nodejs-program",
+            "section": "Getting Started"
+          },
+          {
+            "title": "How to read environment variables from Node.js",
+            "slug": "how-to-read-environment-variables-from-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "How to use the Node.js REPL",
+            "slug": "how-to-use-the-nodejs-repl",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Node.js, accept arguments from the command line",
+            "slug": "nodejs-accept-arguments-from-the-command-line",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Output to the command line using Node.js",
+            "slug": "output-to-the-command-line-using-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Accept input from the command line in Node.js",
+            "slug": "accept-input-from-the-command-line-in-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Expose functionality from a Node.js file using exports",
+            "slug": "expose-functionality-from-a-nodejs-file-using-exports",
+            "section": "Getting Started"
+          },
+          {
+            "title": "An introduction to the npm package manager",
+            "slug": "an-introduction-to-the-npm-package-manager",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Where does npm install the packages?",
+            "slug": "where-does-npm-install-the-packages",
+            "section": "Getting Started"
+          },
+          {
+            "title": "How to use or execute a package installed using npm",
+            "slug": "how-to-use-or-execute-a-package-installed-using-npm",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The package.json guide",
+            "slug": "the-package-json-guide",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The package-lock.json file",
+            "slug": "the-package-lock-json-file",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Find the installed version of an npm package",
+            "slug": "find-the-installed-version-of-an-npm-package",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Install an older version of an npm package",
+            "slug": "install-an-older-version-of-an-npm-package",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Update all the Node.js dependencies to their latest version",
+            "slug": "update-all-the-nodejs-dependencies-to-their-latest-version",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Semantic Versioning using npm",
+            "slug": "semantic-versioning-using-npm",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Uninstalling npm packages",
+            "slug": "uninstalling-npm-packages",
+            "section": "Getting Started"
+          },
+          {
+            "title": "npm global or local packages",
+            "slug": "npm-global-or-local-packages",
+            "section": "Getting Started"
+          },
+          {
+            "title": "npm dependencies and devDependencies",
+            "slug": "npm-dependencies-and-devdependencies",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The npx Node.js Package Runner",
+            "slug": "the-npx-nodejs-package-runner",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The Node.js Event Loop",
+            "slug": "the-nodejs-event-loop",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Understanding process.nextTick()",
+            "slug": "understanding-process-nexttick",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Understanding setImmediate()",
+            "slug": "understanding-setimmediate",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Discover JavaScript Timers",
+            "slug": "discover-javascript-timers",
+            "section": "Getting Started"
+          },
+          {
+            "title": "JavaScript Asynchronous Programming and Callbacks",
+            "slug": "javascript-asynchronous-programming-and-callbacks",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Understanding JavaScript Promises",
+            "slug": "understanding-javascript-promises",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Modern Asynchronous JavaScript with Async and Await",
+            "slug": "modern-asynchronous-javascript-with-async-and-await",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The Node.js Event emitter",
+            "slug": "the-nodejs-event-emitter",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Build an HTTP Server",
+            "slug": "build-an-http-server",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Making HTTP requests with Node.js",
+            "slug": "making-http-requests-with-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Make an HTTP POST request using Node.js",
+            "slug": "make-an-http-post-request-using-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Get HTTP request body data using Node.js",
+            "slug": "get-http-request-body-data-using-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Working with file descriptors in Node.js",
+            "slug": "working-with-file-descriptors-in-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Node.js file stats",
+            "slug": "nodejs-file-stats",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Node.js File Paths",
+            "slug": "nodejs-file-paths",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Reading files with Node.js",
+            "slug": "reading-files-with-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Writing files with Node.js",
+            "slug": "writing-files-with-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Working with folders in Node.js",
+            "slug": "working-with-folders-in-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The Node.js fs module",
+            "slug": "the-nodejs-fs-module",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The Node.js path module",
+            "slug": "the-nodejs-path-module",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The Node.js os module",
+            "slug": "the-nodejs-os-module",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The Node.js events module",
+            "slug": "the-nodejs-events-module",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The Node.js http module",
+            "slug": "the-nodejs-http-module",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Node.js Buffers",
+            "slug": "nodejs-buffers",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Node.js Streams",
+            "slug": "nodejs-streams",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Node.js, the difference between development and production",
+            "slug": "nodejs-the-difference-between-development-and-production",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Error handling in Node.js",
+            "slug": "error-handling-in-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "How to log an object in Node.js",
+            "slug": "how-to-log-an-object-in-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Node.js with TypeScript",
+            "slug": "nodejs-with-typescript",
+            "section": "Getting Started"
+          }
+        ]
+      }
+    }
+  },
+  "staticQueryHashes": []
+}

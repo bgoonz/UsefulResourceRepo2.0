@@ -1,0 +1,327 @@
+{
+  "componentChunkName": "component---src-templates-learn-tsx",
+  "path": "/learn/how-to-exit-from-a-nodejs-program",
+  "result": {
+    "data": {
+      "doc": {
+        "id": "1b453816-5d78-5fd9-bfc3-6325e7c89efb",
+        "html": "<p>There are various ways to terminate a Node.js application.</p>\n<p>When running a program in the console you can close it with <code class=\"language-text\">ctrl-C</code>, but what we want to discuss here is programmatically exiting.</p>\n<p>Let's start with the most drastic one, and see why you're better off <em>not</em> using it.</p>\n<p>The <code class=\"language-text\">process</code> core module provides a handy method that allows you to programmatically exit from a Node.js program: <code class=\"language-text\">process.exit()</code>.</p>\n<p>When Node.js runs this line, the process is immediately forced to terminate.</p>\n<p>This means that any callback that's pending, any network request still being sent, any filesystem access, or processes writing to <code class=\"language-text\">stdout</code> or <code class=\"language-text\">stderr</code> - all is going to be ungracefully terminated right away.</p>\n<p>If this is fine for you, you can pass an integer that signals the operating system the exit code:</p>\n<div class=\"gatsby-highlight\" data-language=\"javascript\"><pre class=\"language-javascript\"><code class=\"language-javascript\">process<span class=\"token punctuation\">.</span><span class=\"token function\">exit</span><span class=\"token punctuation\">(</span><span class=\"token number\">1</span><span class=\"token punctuation\">)</span></code></pre></div>\n<p>By default the exit code is <code class=\"language-text\">0</code>, which means success. Different exit codes have different meaning, which you might want to use in your own system to have the program communicate to other programs.</p>\n<p>You can read more on exit codes at <a href=\"https://nodejs.org/api/process.html#process_exit_codes\">https://nodejs.org/api/process.html#process_exit_codes</a></p>\n<p>You can also set the <code class=\"language-text\">process.exitCode</code> property:</p>\n<div class=\"gatsby-highlight\" data-language=\"javascript\"><pre class=\"language-javascript\"><code class=\"language-javascript\">process<span class=\"token punctuation\">.</span>exitCode <span class=\"token operator\">=</span> <span class=\"token number\">1</span></code></pre></div>\n<p>and when the program will later end, Node.js will return that exit code.</p>\n<p>A program will gracefully exit when all the processing is done.</p>\n<p>Many times with Node.js we start servers, like this HTTP server:</p>\n<div class=\"gatsby-highlight\" data-language=\"javascript\"><pre class=\"language-javascript\"><code class=\"language-javascript\"><span class=\"token keyword\">const</span> express <span class=\"token operator\">=</span> <span class=\"token function\">require</span><span class=\"token punctuation\">(</span><span class=\"token string\">'express'</span><span class=\"token punctuation\">)</span>\n<span class=\"token keyword\">const</span> app <span class=\"token operator\">=</span> <span class=\"token function\">express</span><span class=\"token punctuation\">(</span><span class=\"token punctuation\">)</span>\n\napp<span class=\"token punctuation\">.</span><span class=\"token function\">get</span><span class=\"token punctuation\">(</span><span class=\"token string\">'/'</span><span class=\"token punctuation\">,</span> <span class=\"token punctuation\">(</span><span class=\"token parameter\">req<span class=\"token punctuation\">,</span> res</span><span class=\"token punctuation\">)</span> <span class=\"token operator\">=></span> <span class=\"token punctuation\">{</span>\n  res<span class=\"token punctuation\">.</span><span class=\"token function\">send</span><span class=\"token punctuation\">(</span><span class=\"token string\">'Hi!'</span><span class=\"token punctuation\">)</span>\n<span class=\"token punctuation\">}</span><span class=\"token punctuation\">)</span>\n\napp<span class=\"token punctuation\">.</span><span class=\"token function\">listen</span><span class=\"token punctuation\">(</span><span class=\"token number\">3000</span><span class=\"token punctuation\">,</span> <span class=\"token punctuation\">(</span><span class=\"token punctuation\">)</span> <span class=\"token operator\">=></span> console<span class=\"token punctuation\">.</span><span class=\"token function\">log</span><span class=\"token punctuation\">(</span><span class=\"token string\">'Server ready'</span><span class=\"token punctuation\">)</span><span class=\"token punctuation\">)</span></code></pre></div>\n<p>This program is never going to end. If you call <code class=\"language-text\">process.exit()</code>, any currently pending or running request is going to be aborted. This is <em>not nice</em>.</p>\n<p>In this case you need to send the command a SIGTERM signal, and handle that with the process signal handler:</p>\n<blockquote>\n<p>Note: <code class=\"language-text\">process</code> does not require a \"require\", it's automatically available.</p>\n</blockquote>\n<div class=\"gatsby-highlight\" data-language=\"javascript\"><pre class=\"language-javascript\"><code class=\"language-javascript\"><span class=\"token keyword\">const</span> express <span class=\"token operator\">=</span> <span class=\"token function\">require</span><span class=\"token punctuation\">(</span><span class=\"token string\">'express'</span><span class=\"token punctuation\">)</span>\n\n<span class=\"token keyword\">const</span> app <span class=\"token operator\">=</span> <span class=\"token function\">express</span><span class=\"token punctuation\">(</span><span class=\"token punctuation\">)</span>\n\napp<span class=\"token punctuation\">.</span><span class=\"token function\">get</span><span class=\"token punctuation\">(</span><span class=\"token string\">'/'</span><span class=\"token punctuation\">,</span> <span class=\"token punctuation\">(</span><span class=\"token parameter\">req<span class=\"token punctuation\">,</span> res</span><span class=\"token punctuation\">)</span> <span class=\"token operator\">=></span> <span class=\"token punctuation\">{</span>\n  res<span class=\"token punctuation\">.</span><span class=\"token function\">send</span><span class=\"token punctuation\">(</span><span class=\"token string\">'Hi!'</span><span class=\"token punctuation\">)</span>\n<span class=\"token punctuation\">}</span><span class=\"token punctuation\">)</span>\n\n<span class=\"token keyword\">const</span> server <span class=\"token operator\">=</span> app<span class=\"token punctuation\">.</span><span class=\"token function\">listen</span><span class=\"token punctuation\">(</span><span class=\"token number\">3000</span><span class=\"token punctuation\">,</span> <span class=\"token punctuation\">(</span><span class=\"token punctuation\">)</span> <span class=\"token operator\">=></span> console<span class=\"token punctuation\">.</span><span class=\"token function\">log</span><span class=\"token punctuation\">(</span><span class=\"token string\">'Server ready'</span><span class=\"token punctuation\">)</span><span class=\"token punctuation\">)</span>\n\nprocess<span class=\"token punctuation\">.</span><span class=\"token function\">on</span><span class=\"token punctuation\">(</span><span class=\"token string\">'SIGTERM'</span><span class=\"token punctuation\">,</span> <span class=\"token punctuation\">(</span><span class=\"token punctuation\">)</span> <span class=\"token operator\">=></span> <span class=\"token punctuation\">{</span>\n  server<span class=\"token punctuation\">.</span><span class=\"token function\">close</span><span class=\"token punctuation\">(</span><span class=\"token punctuation\">(</span><span class=\"token punctuation\">)</span> <span class=\"token operator\">=></span> <span class=\"token punctuation\">{</span>\n    console<span class=\"token punctuation\">.</span><span class=\"token function\">log</span><span class=\"token punctuation\">(</span><span class=\"token string\">'Process terminated'</span><span class=\"token punctuation\">)</span>\n  <span class=\"token punctuation\">}</span><span class=\"token punctuation\">)</span>\n<span class=\"token punctuation\">}</span><span class=\"token punctuation\">)</span></code></pre></div>\n<blockquote>\n<p>What are signals? Signals are a POSIX intercommunication system: a notification sent to a process in order to notify it of an event that occurred.</p>\n</blockquote>\n<p><code class=\"language-text\">SIGKILL</code> is the signal that tells a process to immediately terminate, and would ideally act like <code class=\"language-text\">process.exit()</code>.</p>\n<p><code class=\"language-text\">SIGTERM</code> is the signal that tells a process to gracefully terminate. It is the signal that's sent from process managers like <code class=\"language-text\">upstart</code> or <code class=\"language-text\">supervisord</code> and many others.</p>\n<p>You can send this signal from inside the program, in another function:</p>\n<div class=\"gatsby-highlight\" data-language=\"javascript\"><pre class=\"language-javascript\"><code class=\"language-javascript\">process<span class=\"token punctuation\">.</span><span class=\"token function\">kill</span><span class=\"token punctuation\">(</span>process<span class=\"token punctuation\">.</span>pid<span class=\"token punctuation\">,</span> <span class=\"token string\">'SIGTERM'</span><span class=\"token punctuation\">)</span></code></pre></div>\n<p>Or from another Node.js running program, or any other app running in your system that knows the PID of the process you want to terminate.</p>",
+        "tableOfContents": "",
+        "frontmatter": {
+          "title": "How to exit from a Node.js program",
+          "description": "Learn how to terminate a Node.js app in the best possible way"
+        },
+        "fields": {
+          "slug": "how-to-exit-from-a-nodejs-program",
+          "authors": [
+            "flaviocopes",
+            " MylesBorins",
+            " fhemberger",
+            " LaRuaNa",
+            " jgb-solutions",
+            " ahmadawais"
+          ]
+        }
+      }
+    },
+    "pageContext": {
+      "slug": "how-to-exit-from-a-nodejs-program",
+      "next": {
+        "slug": "how-to-read-environment-variables-from-nodejs",
+        "title": "How to read environment variables from Node.js"
+      },
+      "previous": {
+        "slug": "run-nodejs-scripts-from-the-command-line",
+        "title": "Run Node.js scripts from the command line"
+      },
+      "relativePath": "0008-node-terminate-program/index.md",
+      "navigationData": {
+        "Quick Start": [
+          {
+            "title": "Introduction to Node.js",
+            "slug": "introduction-to-nodejs",
+            "section": "Quick Start"
+          },
+          {
+            "title": "A brief history of Node.js",
+            "slug": "a-brief-history-of-nodejs",
+            "section": "Quick Start"
+          },
+          {
+            "title": "How to install Node.js",
+            "slug": "how-to-install-nodejs",
+            "section": "Quick Start"
+          },
+          {
+            "title": "How much JavaScript do you need to know to use Node.js?",
+            "slug": "how-much-javascript-do-you-need-to-know-to-use-nodejs",
+            "section": "Quick Start"
+          },
+          {
+            "title": "Differences between Node.js and the Browser",
+            "slug": "differences-between-nodejs-and-the-browser",
+            "section": "Quick Start"
+          }
+        ],
+        "Getting Started": [
+          {
+            "title": "The V8 JavaScript Engine",
+            "slug": "the-v8-javascript-engine",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Run Node.js scripts from the command line",
+            "slug": "run-nodejs-scripts-from-the-command-line",
+            "section": "Getting Started"
+          },
+          {
+            "title": "How to exit from a Node.js program",
+            "slug": "how-to-exit-from-a-nodejs-program",
+            "section": "Getting Started"
+          },
+          {
+            "title": "How to read environment variables from Node.js",
+            "slug": "how-to-read-environment-variables-from-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "How to use the Node.js REPL",
+            "slug": "how-to-use-the-nodejs-repl",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Node.js, accept arguments from the command line",
+            "slug": "nodejs-accept-arguments-from-the-command-line",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Output to the command line using Node.js",
+            "slug": "output-to-the-command-line-using-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Accept input from the command line in Node.js",
+            "slug": "accept-input-from-the-command-line-in-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Expose functionality from a Node.js file using exports",
+            "slug": "expose-functionality-from-a-nodejs-file-using-exports",
+            "section": "Getting Started"
+          },
+          {
+            "title": "An introduction to the npm package manager",
+            "slug": "an-introduction-to-the-npm-package-manager",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Where does npm install the packages?",
+            "slug": "where-does-npm-install-the-packages",
+            "section": "Getting Started"
+          },
+          {
+            "title": "How to use or execute a package installed using npm",
+            "slug": "how-to-use-or-execute-a-package-installed-using-npm",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The package.json guide",
+            "slug": "the-package-json-guide",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The package-lock.json file",
+            "slug": "the-package-lock-json-file",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Find the installed version of an npm package",
+            "slug": "find-the-installed-version-of-an-npm-package",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Install an older version of an npm package",
+            "slug": "install-an-older-version-of-an-npm-package",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Update all the Node.js dependencies to their latest version",
+            "slug": "update-all-the-nodejs-dependencies-to-their-latest-version",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Semantic Versioning using npm",
+            "slug": "semantic-versioning-using-npm",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Uninstalling npm packages",
+            "slug": "uninstalling-npm-packages",
+            "section": "Getting Started"
+          },
+          {
+            "title": "npm global or local packages",
+            "slug": "npm-global-or-local-packages",
+            "section": "Getting Started"
+          },
+          {
+            "title": "npm dependencies and devDependencies",
+            "slug": "npm-dependencies-and-devdependencies",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The npx Node.js Package Runner",
+            "slug": "the-npx-nodejs-package-runner",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The Node.js Event Loop",
+            "slug": "the-nodejs-event-loop",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Understanding process.nextTick()",
+            "slug": "understanding-process-nexttick",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Understanding setImmediate()",
+            "slug": "understanding-setimmediate",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Discover JavaScript Timers",
+            "slug": "discover-javascript-timers",
+            "section": "Getting Started"
+          },
+          {
+            "title": "JavaScript Asynchronous Programming and Callbacks",
+            "slug": "javascript-asynchronous-programming-and-callbacks",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Understanding JavaScript Promises",
+            "slug": "understanding-javascript-promises",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Modern Asynchronous JavaScript with Async and Await",
+            "slug": "modern-asynchronous-javascript-with-async-and-await",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The Node.js Event emitter",
+            "slug": "the-nodejs-event-emitter",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Build an HTTP Server",
+            "slug": "build-an-http-server",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Making HTTP requests with Node.js",
+            "slug": "making-http-requests-with-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Make an HTTP POST request using Node.js",
+            "slug": "make-an-http-post-request-using-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Get HTTP request body data using Node.js",
+            "slug": "get-http-request-body-data-using-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Working with file descriptors in Node.js",
+            "slug": "working-with-file-descriptors-in-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Node.js file stats",
+            "slug": "nodejs-file-stats",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Node.js File Paths",
+            "slug": "nodejs-file-paths",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Reading files with Node.js",
+            "slug": "reading-files-with-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Writing files with Node.js",
+            "slug": "writing-files-with-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Working with folders in Node.js",
+            "slug": "working-with-folders-in-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The Node.js fs module",
+            "slug": "the-nodejs-fs-module",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The Node.js path module",
+            "slug": "the-nodejs-path-module",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The Node.js os module",
+            "slug": "the-nodejs-os-module",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The Node.js events module",
+            "slug": "the-nodejs-events-module",
+            "section": "Getting Started"
+          },
+          {
+            "title": "The Node.js http module",
+            "slug": "the-nodejs-http-module",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Node.js Buffers",
+            "slug": "nodejs-buffers",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Node.js Streams",
+            "slug": "nodejs-streams",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Node.js, the difference between development and production",
+            "slug": "nodejs-the-difference-between-development-and-production",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Error handling in Node.js",
+            "slug": "error-handling-in-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "How to log an object in Node.js",
+            "slug": "how-to-log-an-object-in-nodejs",
+            "section": "Getting Started"
+          },
+          {
+            "title": "Node.js with TypeScript",
+            "slug": "nodejs-with-typescript",
+            "section": "Getting Started"
+          }
+        ]
+      }
+    }
+  },
+  "staticQueryHashes": []
+}

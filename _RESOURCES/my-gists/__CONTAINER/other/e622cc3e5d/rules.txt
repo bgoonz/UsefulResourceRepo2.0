@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+  	function signedIn() {
+    	return request.auth.uid != null;
+    }
+  
+    match /profiles/{profileId} {
+      allow list: if signedIn();
+      allow get: if true;
+      allow create: if signedIn() &&
+      	request.resource.data.user == request.auth.uid;
+      allow update: if signedIn() &&
+      	request.auth.uid == resource.data.user;
+    }
+    
+     match /opportunities/{opportunityId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update: if signedIn() &&
+      	request.resource.data.status == "accepted" || request.resource.data.status == "declined" &&
+        request.auth.uid == resource.data.toUser.id;
+    }
+    
+     match /exchanges/{exchangeId} {
+      allow read: if true;
+      allow create: if signedIn() &&
+      	request.resource.data.title is string &&
+        request.resource.data.title.size() > 10 &&
+        request.resource.data.description is string &&
+        request.resource.data.image is string &&
+        request.resource.data.price is number &&
+        request.resource.data.price > 10 &&
+        request.resource.data.country is string &&
+        request.resource.data.city is string;   
+    }
+  }
+}

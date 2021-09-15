@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>sequelize-breakdown</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<h1 id="sequelize-step-by-step">Sequelize: Step-By-Step</h1>
+<p>Sequelize is a powerful library in Javascript that makes it easy to manage a SQL database. Sequelize can layer over different protocols, but here we’ll use PostgreSQL. At its core, Sequelize is an Object-Relational Mapper – meaning that it maps an object syntax onto our database schemas. Sequelize uses Node.JS and Javascript’s object syntax to accomplish its mapping.</p>
+<p>Under the hood, Sequelize used with PostgreSQL is several layers removed from our actual database:</p>
+<ol type="1">
+<li>First, we write our Sequelize, using Javascript objects to mimic the structure of our database tables.</li>
+<li>Sequelize creates a SQL string and passes it to a lower-level library called <code>pg</code> (PostgreSQL).</li>
+<li><code>pg</code> connects to your PostgreSQL database and queries it or transforms its data.</li>
+<li><code>pg</code> passes the data back to Sequelize, which parses and returns that data as a Javascript object.</li>
+</ol>
+<h4 id="getting-started">Getting Started</h4>
+<p>Now let’s look at the building blocks of your next Sequelize project.</p>
+<p>To get started with Sequelize, we need to create a database instance, connected to a PostgreSQL database.</p>
+<p>The following assumes that you have PostgreSQL set up on your computer and that you can monitor its state. You should also go ahead and make a new database before we begin. Consider using <code>psql</code> or <a href="https://eggerapps.at/postico/">Postico</a> if you need some way to manage PostgreSQL on your machine.</p>
+<h4 id="creating-a-db">Creating a DB</h4>
+<p>Sequelize uses a constructor function to connect to your database. It return a Sequelize instance for you to interact with.</p>
+<p>Here’s all you need to do:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">const</span> db <span class="op">=</span> <span class="kw">new</span> <span class="at">Sequelize</span>(<span class="st">&#39;postgres://localhost:3000/yourDatabaseNameHere&#39;</span>)</a>
+<a class="sourceLine" id="cb1-2" title="2">                          <span class="co">//^ Our protocol   ^Path to DB     ^Database name</span></a></code></pre></div>
+<p>This line creates a new instance of Sequelize, which we have called <code>db</code>. We’ll need to pass in a string with the protocol (PostgreSQL), the database’s location (an IP or other path), and the database name.</p>
+<h3 id="defining-your-models">Defining Your Models</h3>
+<p>Sequelize is all about <em>models</em>. In database-speak, these are our <em>schemas</em> – the shape that our data takes. Your models are both the objects that you’ll interact with in your application and the primary tables that you’ll create and manage in your database.</p>
+<p>Here’s how to define a new model called <em>Album</em>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="va">db</span>.<span class="at">define</span>(<span class="st">&#39;Album&#39;</span><span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="dt">title</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-3" title="3">    <span class="dt">type</span><span class="op">:</span> <span class="va">Sequelize</span>.<span class="at">STRING</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-5" title="5">  <span class="dt">tracks</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-6" title="6">    <span class="dt">type</span><span class="op">:</span> <span class="va">Sequelize</span>.<span class="at">ARRAY</span>(<span class="va">Sequelize</span>.<span class="at">STRING</span>)</a>
+<a class="sourceLine" id="cb2-7" title="7">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-8" title="8">  <span class="dt">price</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-9" title="9">    <span class="dt">type</span><span class="op">:</span> <span class="va">Sequelize</span>.<span class="at">INTEGER</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-10" title="10">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p><code>db.define()</code> defines a new table in our database with the name ‘Album’. As our second parameter to <code>define()</code>, we pass in an object that will hold the attributes of our database schemas.</p>
+<p>Inside this object, our properties create the names of our columns. Now, our Album table will have a <code>title</code>, <code>price</code>, and <code>tracks</code> column.</p>
+<p>For each column, we specify <em>another</em> object that instructs Sequelize how to create and manage that column.</p>
+<p>In our example, we specify the <code>type</code> of each column using <a href="http://docs.sequelizejs.com/en/latest/docs/models-definition/#data-types">Sequelize’s data types</a>. This constrains our schemas, allowing attributes to be assigned only certain types of data.</p>
+<p>We can (and should) add some validation to our columns as well.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">var</span> Album <span class="op">=</span> <span class="va">db</span>.<span class="at">define</span>(<span class="st">&#39;Album&#39;</span><span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="dt">title</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-3" title="3">    <span class="dt">type</span><span class="op">:</span> <span class="va">Sequelize</span>.<span class="at">STRING</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-4" title="4">    <span class="dt">allowNull</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb3-5" title="5">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-6" title="6">  <span class="dt">tracks</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-7" title="7">    <span class="dt">type</span><span class="op">:</span> <span class="va">Sequelize</span>.<span class="at">ARRAY</span>(<span class="va">Sequelize</span>.<span class="at">STRING</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb3-8" title="8">    <span class="dt">allowNull</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb3-9" title="9">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-10" title="10">  <span class="dt">price</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-11" title="11">    <span class="dt">type</span><span class="op">:</span> <span class="va">Sequelize</span>.<span class="at">INTEGER</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-12" title="12">    <span class="dt">allowNull</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-13" title="13">    <span class="dt">defaultValue</span><span class="op">:</span> <span class="dv">10</span></a>
+<a class="sourceLine" id="cb3-14" title="14">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-15" title="15"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>We’ve added an <code>allowNull</code> property. This validation will <code>throw</code> an error if we ever try to create an Album where any of these fields are not specified.</p>
+<p>We can also set default values with <code>defaultValue</code>. Let’s make each Album cost $10, by default.</p>
+<h3 id="add-a-second-model">Add a Second Model</h3>
+<p>Let’s also add an Artist model.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">var</span> Artist <span class="op">=</span> <span class="va">db</span>.<span class="at">define</span>(<span class="st">&#39;Artist&#39;</span><span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="dt">name</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-3" title="3">    <span class="dt">type</span><span class="op">:</span> <span class="va">Sequelize</span>.<span class="at">STRING</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-4" title="4">    <span class="dt">allowNull</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb4-5" title="5">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-6" title="6">  <span class="dt">genre</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-7" title="7">    <span class="dt">type</span><span class="op">:</span> <span class="va">Sequelize</span>.<span class="at">ARRAY</span>(<span class="va">Sequelize</span>.<span class="at">STRING</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb4-8" title="8">    <span class="dt">allowNull</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb4-9" title="9">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-10" title="10"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Once we have our second model, we should associate Artists with Albums. After all, each album will be created by an artist!</p>
+<p>In SQL, we would normally need to create and specify a <em>join table</em>. In our join table the primary key (an id number) of our artist would be tied to the primary key of an album. This would allow us to know that an album ‘belongs to’ an artist.</p>
+<p>Sequelize makes this simple. Rather than building new tables manually, we can just call <code>.belongsTo()</code> on our models to set up an association.</p>
+<p>So below our model definitions, we can write:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="va">Album</span>.<span class="at">belongsTo</span>(Artist<span class="op">,</span> <span class="op">{</span><span class="dt">as</span><span class="op">:</span> <span class="st">&#39;artist&#39;</span><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Just like that, Sequelize creates our join table. The <code>{as: 'artist'}</code> allows us to set an <em>alias</em> for our association. By default, Sequelize adds an id field to associate our Albums and Artists. Now we can refer to that field just by its alias: ‘artist’.</p>
+<h3 id="synchronizing-your-models">Synchronizing Your Models</h3>
+<p>The last step to set up Sequelize is to synchronize our models. We can sychronize individual tables by calling <code>.sync()</code> on the table.</p>
+<p>For example, <code>Albums.sync()</code> or <code>Artists.sync()</code>. To sync the whole database, just use <code>db.sync()</code>.</p>
+<p>When testing, it’s sometimes easier to start with fresh tables every time you launch your application. <code>.sync()</code> can take an object with parameters that allow you to control various aspects of database synchronization. One of these is <code>{force: true}</code>.</p>
+<blockquote>
+<p>Beware! <code>db.sync({force: true})</code> will drop (delete) your tables, and resync your data as though you’re starting fresh! This can be very useful if you need to clean up your database after each run. But it can also cause you to lose data!</p>
+</blockquote>
+<p>That’s all you need to get your SQL database set up and going.</p>
+<h2 id="methods-hooks-getters-and-setters">Methods, Hooks, Getters, and Setters</h2>
+<p>Sequelize models have loads of helpful functionality to make your life easier.</p>
+<p>Let’s look at a few.</p>
+<h3 id="virtuals-getters-and-setters">Virtuals: Getters and Setters</h3>
+<p>Sequelize lets us do even more to enhance our models with getters and setters.</p>
+<p>Getters and setters are commonly used in traditional object-oriented languages like C# or Java. Getters are methods that help you retrieve (get) the value. Setters help you, well, set the value.</p>
+<p>Both are considered <em>virtuals</em>, meaning that they are not actually part of your model’s schema. Getters and setters are just ways to supplement your model with logic of their own.</p>
+<p>First, let’s add a getter to help us get a nicely formatted string of an album title and its price.</p>
+<p>We need to edit the definition of our model for this to work.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">var</span> Album <span class="op">=</span> <span class="va">db</span>.<span class="at">define</span>(<span class="st">&#39;Album&#39;</span><span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-2" title="2">    <span class="dt">title</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-3" title="3">      <span class="dt">type</span><span class="op">:</span> <span class="va">Sequelize</span>.<span class="at">STRING</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-4" title="4">      <span class="dt">allowNull</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb6-5" title="5">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-6" title="6">    <span class="dt">tracks</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-7" title="7">      <span class="dt">type</span><span class="op">:</span> <span class="va">Sequelize</span>.<span class="at">ARRAY</span>(<span class="va">Sequelize</span>.<span class="at">STRING</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb6-8" title="8">      <span class="dt">allowNull</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb6-9" title="9">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-10" title="10">    <span class="dt">price</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-11" title="11">      <span class="dt">type</span><span class="op">:</span> <span class="va">Sequelize</span>.<span class="at">INTEGER</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-12" title="12">      <span class="dt">allowNull</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-13" title="13">      <span class="dt">defaultValue</span><span class="op">:</span> <span class="dv">10</span></a>
+<a class="sourceLine" id="cb6-14" title="14">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-15" title="15">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb6-16" title="16">  getterMethods<span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-17" title="17">    <span class="dt">getTitleWithPrice</span><span class="op">:</span> <span class="kw">function</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-18" title="18">      <span class="cf">return</span> <span class="kw">this</span>.<span class="at">title</span> <span class="op">+</span> <span class="st">&#39; – $&#39;</span> <span class="op">+</span> <span class="kw">this</span>.<span class="at">price</span><span class="op">;</span> <span class="co">// Our `this` context will refer to our album instance</span></a>
+<a class="sourceLine" id="cb6-19" title="19">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-20" title="20">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-21" title="21">)<span class="op">;</span></a></code></pre></div>
+<p>If we need to get this string, we just need to call our getter on an album. Assuming we have already found our album instance, <code>console.log(albumInstance.getTitleWithPrice());</code> will log ‘My Album Title – $10’.</p>
+<p>Now, let’s add a setter for our tracks.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">var</span> Album <span class="op">=</span> <span class="va">db</span>.<span class="at">define</span>(<span class="st">&#39;Album&#39;</span><span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-2" title="2">    <span class="dt">title</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-3" title="3">      <span class="dt">type</span><span class="op">:</span> <span class="va">Sequelize</span>.<span class="at">STRING</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-4" title="4">      <span class="dt">allowNull</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb7-5" title="5">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-6" title="6">    <span class="dt">tracks</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-7" title="7">      <span class="dt">type</span><span class="op">:</span> <span class="va">Sequelize</span>.<span class="at">ARRAY</span>(<span class="va">Sequelize</span>.<span class="at">STRING</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb7-8" title="8">      <span class="dt">allowNull</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb7-9" title="9">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-10" title="10">    <span class="dt">price</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-11" title="11">      <span class="dt">type</span><span class="op">:</span> <span class="va">Sequelize</span>.<span class="at">INTEGER</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-12" title="12">      <span class="dt">allowNull</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-13" title="13">      <span class="dt">defaultValue</span><span class="op">:</span> <span class="dv">10</span></a>
+<a class="sourceLine" id="cb7-14" title="14">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-15" title="15">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb7-16" title="16">  getterMethods<span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-17" title="17">    <span class="dt">getTitleWithPrice</span><span class="op">:</span> <span class="kw">function</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-18" title="18">      <span class="cf">return</span> <span class="kw">this</span>.<span class="at">title</span> <span class="op">+</span> <span class="st">&#39; – $&#39;</span> <span class="op">+</span> <span class="kw">this</span>.<span class="at">price</span><span class="op">;</span> <span class="co">// Our `this` context will refer to our album instance</span></a>
+<a class="sourceLine" id="cb7-19" title="19">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-20" title="20">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb7-21" title="21">  setterMethods<span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-22" title="22">    <span class="dt">setTrackList</span><span class="op">:</span> <span class="kw">function</span> (arrayOfTracks) <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-23" title="23">      <span class="kw">this</span>.<span class="at">tracks</span> <span class="op">=</span> arrayOfTracks<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-24" title="24">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-25" title="25">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-26" title="26">)<span class="op">;</span></a></code></pre></div>
+<h2 id="tbc-here">TBC HERE</h2>
+<p>To create an complete tracks list from an array, we need only call <code>albumInstance.setTrackList(arrayOfTracks)</code> with an <code>arrayOfTracks</code>.</p>
+<pre><code>Hooks, e.g. beforeValidate
+Class methods
+Instance methods
+this value in options
+    getters: the instance
+    hooks: the model (instance is 1st arg of the hook func)
+    Instance methods: instance
+    Class methods: class</code></pre>
+<h3 id="class-methods">Class Methods</h3>
+<p>Class methods exist on the <em>class</em> of the object. Don’t confuse them with methods on an object’s prototype or in an object’s constructor. Methods on an object’s <code>.prototype</code> and added via .thismethod are both instance methods,</p>
+<p>Class methods are added to a class directly. For example, if we had a Users class, we would add a method as follows:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="va">User</span>.<span class="at">myValidationMethod</span> <span class="op">=</span> <span class="kw">function</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-2" title="2"></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="op">};</span></a></code></pre></div>
+<p>Again, notice this is not on the User object’s prototype.</p>
+<h3 id="instance-methods">Instance Methods</h3>
+<p>As you might guess, instance methods exist on instances themselves. Typically, instance methods are added to an object’s prototype.</p>
+<p>For example,</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">var</span> User <span class="op">=</span> <span class="va">db</span>.<span class="at">define</span>(<span class="st">&#39;user&#39;</span>) <span class="co">// finish this</span></a>
+<a class="sourceLine" id="cb10-2" title="2"></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="va">User</span>.<span class="va">prototype</span>.<span class="at">myAmazingMethod</span> <span class="op">=</span> <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-4" title="4"></a>
+<a class="sourceLine" id="cb10-5" title="5"><span class="op">};</span></a>
+<a class="sourceLine" id="cb10-6" title="6"></a></code></pre></div>
+<h4 id="hooks">Hooks</h4>
+<p>Hooks are functions that will run every time your database is updated. A hook on a particular table will run each time a value is changed or perhaps when a new row is added.</p>
+<h3 id="creating-model-associations">Creating Model Associations</h3>
+<p>Databases have standard associations like ‘many to many’, ‘belongs to many’, or ‘many to one’.</p>
+<p>In each case, Sequelize gives us clear methods to configure out associations.</p>
+<p>If we were managing our database in a traditional way, we would need to create separate tables to hold our foreign keys. These tables, often called foreign-key tables or join tables, hold references that connect two other tables.</p>
+<p>For example, if we wanted to associate Users and Accounts, we might want a table to connect a UserID with an accountID. Instead of storing these in the same table, we would create a foreign-key tale that held only a userID and its associated accountID. This would allow easy access of a user’s profile and ID with that user’s account information.</p>
+<p>Associating models, e.g. hasOne, belongsTo, etc. Which model has the foreignKey Which Sequelize model is given new methods</p>
+<h1 id="promises-and-sequelize">Promises and Sequelize</h1>
+<!-- Spin off this article as part of something on Promises  -->
+<p>Sequelize operates with Promises.</p>
+<p>Promises allow us to escape from callback hell when running asynchronous code in Node.js. It’s beyond the scope of this article to go into detail about Promises. Read more about them here.</p>
+<p>When we call Sequelize methods like <code>Model.create()</code> or <code>Model.select()</code>, we are interacting with the file system and therefore making an asynchronous call. These methods return a Promise object, which will resolve or reject based on the successful or failed interaction with your database.</p>
+</body>
+</html>

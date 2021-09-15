@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>mark-html</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+Converting md files to html w/highlighting 0a) Create a root directory to pull in all the repos 0b) Recursively clone or pull each repo $&gt; git clone <repo_url> | git pull on the existing repos 0c) Create a TOC index.html file for the root folder $&gt; echo ’
+<head>
+’ &gt;&gt; index.html $&gt; echo ’’ &gt;&gt; index.html $&gt; echo ’
+</head>
+’ &gt;&gt; index.html $&gt; echo ’
+<body>
+’ &gt;&gt; index.html $&gt; ls &gt;&gt; temp.html $&gt; sed -n ‘/./s/<a href="($1)">($1)</a>/p’ temp.html &gt;&gt; index.html $&gt; echo ’
+</body>
+<p>’ &gt;&gt; index.html $&gt; rm temp.html</p>
+<ol type="1">
+<li><p>Recursively convert each md file to html using pandoc: <span class="math inline">$&gt; find . -name "*.md" | while read i; do pandoc -f markdown -t html "$</span>i" -o "${i%.*}.html"; done</p></li>
+<li>Change all internal file urls from pointing to <em>.md links and instead point to the local </em>.html file
+<ol type="a">
+<li>recursively run this sed command (programatically replace FILENAME) sed -n -i.bak ‘/href="./s/.md/.html/’ FILENAME.html</li>
+<li>alternatively, run the following command instead (programatically replace FILENAME) sed -e ‘/href="./s/.md/.html/’ FILENAME.html &gt; FILENAME.html.tmp &amp;&amp; mv FILENAME.html.tmp FILENAME.html</li>
+</ol></li>
+<li>Add code highlighting to all pages with highlight.js library using the following:
+<ol type="a">
+<li>Download highlight js and add to assets folder</li>
+<li>Add
+<head>
+</head>
+to each .html file (via temp file) if it doesn’t already exist $&gt; touch temp.html $&gt; echo ’
+<head>
+’ &gt;&gt; temp.html $&gt; echo ’’ &gt;&gt; temp.html $&gt; echo ‘<link rel="stylesheet" href="/path/to/styles/default.css">’ &gt;&gt; temp.html $&gt; echo ‘<link rel="stylesheet" href="../../css/typeplate.css">’ &gt;&gt; temp.html $&gt; echo ‘<link rel="stylesheet" href="../../css/custom.css">’ &gt;&gt; temp.html $&gt; echo ’’ &gt;&gt; temp.html $&gt; echo ’
+<script src="/path/to/highlight.pack.js"></script>
+’ &gt;&gt; temp.html $&gt; echo ’
+<script>hljs.initHighlightingOnLoad();</script>
+’ &gt;&gt; temp.html $&gt; echo ’
+</head>
+’ &gt;&gt; temp.html $&gt; echo ’
+<body>
+’ &gt;&gt; temp.html $&gt; cat FILENAME.html &gt;&gt; temp.html $&gt; cat temp.html &gt; FILENAME.html $&gt; echo ’
+</body>
+’ &gt;&gt; FILENAME.html $&gt; rm temp.html</li>
+</ol></li>
+<li><p>Recursively delete all <em>.md files <span class="math inline">$&gt; find . -name "*.md" | while read i; do pandoc -f markdown -t html "$</span>i" -o "${i%.</em>}.html"; done</p></li>
+<li>Fire up a simple static server to serve these files:
+<ol type="a">
+<li>use python:
+<ol type="i">
+<li>cd /path/to/files</li>
+<li>python -m SimpleHTTPServer [port]</li>
+</ol></li>
+<li>use Node:
+<ol type="i">
+<li>install http-server: npm install http-server -g</li>
+<li>cd /path/to/files</li>
+<li>http-server -p [port] ==&gt; default_port=8080</li>
+</ol></li>
+</ol></li>
+</ol>
+***** EXTRAS: 1) From each file, extract ‘Goals’, ‘Exercises’, and ‘Resources’ if they exist *** Write a Ruby script to split out the Goals/Exercises/Resources sections *** Use File.open to work on the file: http://www.tutorialspoint.com/ruby/ruby_input_output.htm *** Use “string”.include?(other_string) to break up sections on
+<h2>
+headers http://www.ruby-doc.org/core-2.1.2/String.html#method-i-include-3F *** Insert
+<div id="SECTION-NAME">
+….
+</div>
+around each of those sections 3) Label the new divs according to the section .. eg.
+<div id="goals">
+…
+</div>
+<pre><code>a) &#39;Goals&#39; is the first &lt;h2&gt; in the document
+b) &#39;Exercises&#39; is the last or 2nd-to-last &lt;h2&gt; in the document
+c) &#39;Resources&#39; is the last &lt;h2&gt; in the document</code></pre>
+<ol start="4" type="1">
+<li>Change the page layout and move these sections in such a way as to improve page navigation. Add the following to custom.css:
+<ol type="a">
+<li>#goals {…} styles/layout</li>
+<li>#exercises {…} styles/layout</li>
+<li>#resources {…} styles/layout</li>
+</ol></li>
+<li>Add any necessary JQuery animation effects to these elements *** maybe use the jQuery velocity.js library</li>
+<li>Add any other CSS styles to the page as deemed necessary</li>
+<li>Add hotkeys for the website - see: *** http://www.hanselman.com/blog/TheWebIsTheNewTerminalAreYouUsingTheWebsKeyboardShortcutsAndHotkeys.aspx</li>
+</ol>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Understand</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="understanding-async-await-in-the-context-of-the-event-loop">Understanding Async Await In The Context Of The Event Loop</h1>
+<p>There’s a special syntax to work with promises in a more comfortable fashion, called “async/await”. It’s surprisingly easy to understand…</p>
+<hr />
+<h3 id="understanding-async-await-in-the-context-of-the-event-loop-1">Understanding Async Await In The Context Of The Event Loop</h3>
+<h4 id="theres-a-special-syntax-to-work-with-promises-in-a-more-comfortable-fashion-called-asyncawait.-its-surprisingly-easy-to-understand-and-use.">There’s a special syntax to work with promises in a more comfortable fashion, called “async/await”. It’s surprisingly easy to understand and use.</h4>
+<p>The <a href="https://dev.to/lydiahallie/javascript-visualized-promises-async-await-5gke" class="markup--anchor markup--p-anchor">following excerpt</a> comes from the phenomenally written article on the subject of the <a href="https://dev.to/lydiahallie/javascript-visualized-promises-async-await-5gke" class="markup--anchor markup--p-anchor">callstack</a> and <a href="https://dev.to/lydiahallie/javascript-visualized-event-loop-3dif" class="markup--anchor markup--p-anchor">event-queue</a> by <a href="https://dev.to/lydiahallie" class="markup--anchor markup--p-anchor">Lidia Hallie</a>!</p>
+<p>JavaScript is <strong>single-threaded</strong>: only one task can run at a time.</p>
+<figure>
+<img src="https://cdn-images-1.medium.com/max/800/0*SLsSFiq0R6OSo89a.jpg" class="graf-image" />
+</figure>
+<p>To compensate, browsers like Google Chrome give us some features that Javascript does not provide in isolation, namely… <a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Client-side_web_APIs/Introduction" class="markup--anchor markup--p-anchor">a Web API.</a></p>
+<blockquote>
+<p>When we invoke a function, it gets added to something called the call stack.</p>
+</blockquote>
+<figure>
+<img src="https://cdn-images-1.medium.com/max/800/0*MvjUSu6XfEuJWm6x.gif" class="graf-image" />
+</figure>
+<p><strong>It’s a stack, meaning that it’s first in, last out (think of a pile of pancakes).</strong></p>
+<blockquote>
+<p>When a function returns a value, it gets popped off the stack</p>
+</blockquote>
+<figure>
+<img src="https://cdn-images-1.medium.com/max/800/1*b31hiO4ynbDLRrXWEFF4aQ.png" class="graf-image" />
+</figure>
+<ul>
+<li><span id="590c">The <code>respond</code> function returns a <code>setTimeout</code> function.</span></li>
+<li><span id="f2f9">The <code>setTimeout</code> is provided to us by the Web API:</span></li>
+<li><span id="5493">it lets us delay tasks without blocking the main thread.</span></li>
+<li><span id="2cbc">The callback function that we passed to the <code>setTimeout</code> function,</span></li>
+</ul>
+<blockquote>
+<p>the arrow function <code>() =&gt; { return</code> <code>'Hey'</code> }</p>
+</blockquote>
+<ul>
+<li><span id="8b76">gets added to the Web API.</span></li>
+<li><span id="1691"><strong>In the meantime, the</strong> <code>setTimeout</code> <strong>function and the respond function get popped off the stack, they both returned their values!</strong></span></li>
+</ul>
+<figure>
+<img src="https://cdn-images-1.medium.com/max/800/1*b31hiO4ynbDLRrXWEFF4aQ.png" class="graf-image" />
+</figure>
+<p><em>In the Web API, a timer runs for as long as the second argument we passed to it, 1000ms.</em></p>
+<p>The callback doesn’t immediately get added to the call stack, instead it’s passed to something called the <strong>queue.</strong></p>
+<figure>
+<img src="https://cdn-images-1.medium.com/max/800/1*b31hiO4ynbDLRrXWEFF4aQ.png" class="graf-image" />
+</figure>
+<p>This does not mean that the callback function gets added to the callstack (<strong><em>returns</em></strong>) after 1000ms!</p>
+<p>This means that the function has been added to the <em>queue</em> after 1000ms where it will wait for it’s proper FIFO designated turn to excite.</p>
+<p><span class="graf-dropCap">T</span>he event loop is simply a mechanism for <strong>connecting the queue with the call stack</strong>!</p>
+<blockquote>
+<p>An analogy to this relationship exists in facebook market place… the marketplace doesn’t actually buy or sell anything… it just provides a framework for which buyers and sellers can interface productively. It’s not a perfect analogy… the point is that the event loop is not some third tangible entity… it’s just the relationship between the stack and queue.</p>
+</blockquote>
+<hr />
+<h4 id="if-the-call-stack-is-empty">If the call stack is empty:</h4>
+<p><strong>meaning all previously invoked functions have returned their values and have been popped off the stack…</strong></p>
+<h4 id="the-first-item-in-the-queue-gets-added-to-the-call-stack">The first item in the queue gets added to the call stack:</h4>
+<p><strong>In this case, no other functions were invoked, meaning that the call stack was empty by the time the callback function was the first item in the queue.</strong></p>
+<hr />
+<p><strong>The callback is added to the call stack</strong></p>
+<ul>
+<li><span id="045e">Gets invoked… returns a value…( gets popped off the stack).</span></li>
+</ul>
+<hr />
+<figure>
+<img src="https://cdn-images-1.medium.com/max/800/0*bpGHoLFACDcK3LxP.gif" class="graf-image" />
+</figure>
+<ol type="1">
+<li><span id="b16f">We invoke <code>bar</code>. <code>bar</code> returns a <code>setTimeout</code> function.</span></li>
+<li><span id="f4d5">The callback we passed to <code>setTimeout</code> gets added to the Web API, the <code>setTimeout</code> function and <code>bar</code> get popped off the callstack.</span></li>
+<li><span id="38c9">The timer runs, in the meantime <code>foo</code> gets invoked and logs <code>First</code>. <code>foo</code> returns (undefined),<code>baz</code> gets invoked, and the callback gets added to the queue.</span></li>
+<li><span id="526b"><code>baz</code> logs <code>Third</code>. The event loop sees the callstack is empty after <code>baz</code> returned, after which the callback gets added to the call stack.</span></li>
+<li><span id="40fe">The callback logs <code>Second</code>.</span></li>
+</ol>
+<figure>
+<img src="https://cdn-images-1.medium.com/max/800/0*YArelm5gHw4BwFZZ.gif" class="graf-image" />
+</figure>
+<hr />
+<h3 id="practice">Practice:</h3>
+<h3 id="asyncawait">Async/await</h3>
+<blockquote>
+<p>There’s a special syntax to work with promises in a more comfortable fashion, called “async/await”. It’s surprisingly easy to understand and use.</p>
+</blockquote>
+<h3 id="async-functions"><a href="#async-functions" class="markup--anchor markup--h3-anchor">Async functions</a></h3>
+<p>Let’s start with the <code>async</code> keyword. It can be placed before a function, like this:</p>
+<pre><code>//Let&#39;s start with the async keyword. It can be placed before a function, like this:
+async function f() {
+  return 1;
+}</code></pre>
+<p>…We could explicitly return a promise, which would be the same:</p>
+<blockquote>
+<p>So, `async` ensures that the function returns a promise, and wraps non-promises in it.</p>
+</blockquote>
+<blockquote>
+<p>There’s another keyword, `await`, that works only inside `async` functions.</p>
+</blockquote>
+<pre><code>The syntax:
+
+//await only works inside the lexical scope of an asynchronous function.
+
+let value = await promise;</code></pre>
+<h4 id="the-keyword-await-makes-javascript-wait-until-that-promise-settles-and-returns-its-result.">The keyword <code>await</code> makes JavaScript wait until that promise settles and returns its result.</h4>
+<p>Here’s an example with a promise that resolves in 1 second:</p>
+<p>The function execution “pauses” at line 5 and resumes when the promise resolves, taking the promise’s eventual resolution as it’s value.</p>
+<blockquote>
+<p>The code above shows “done!” in one second.</p>
+</blockquote>
+<h3 id="await-suspends-the-function-execution-until-the-promise-settles-and-then-resumes-it-with-the-promise-result."><code>Await</code> suspends the function execution until the promise settles, and then resumes it with the promise result.</h3>
+<h3 id="summary"><a href="#summary" class="markup--anchor markup--h3-anchor">Summary</a></h3>
+<p>The <code>async</code> keyword before a function has two effects:</p>
+<ol type="1">
+<li><span id="b418">Makes it always return a promise.</span></li>
+<li><span id="f2f7">Allows <code>await</code> to be used in it.</span></li>
+</ol>
+<p>The <code>await</code> keyword before a promise makes JavaScript wait until that promise settles, and then:</p>
+<h3 id="tbc">TBC…</h3>
+<p><a href="https://medium.com/p/9d241e72fc2d">View original.</a></p>
+<p>Exported from <a href="https://medium.com">Medium</a> on July 13, 2021.</p>
+</body>
+</html>

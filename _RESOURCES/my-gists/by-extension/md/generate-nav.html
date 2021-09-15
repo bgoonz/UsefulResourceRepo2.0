@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>generate-nav</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<h1 id="this-works-wonders">This works wonders!</h1>
+<hr>
+<p>It produces a moc directory structure layout:</p>
+<p><a href="https://i.stack.imgur.com/WRhyk.jpg"><img src="https://i.stack.imgur.com/WRhyk.jpg" alt="enter image description here" /></a></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode py"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="co">#!/usr/bin/env python3</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="co"># ---</span></a>
+<a class="sourceLine" id="cb1-4" title="4"></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="co"># -handle symlinked files and folders: displayed with custom icons</span></a>
+<a class="sourceLine" id="cb1-6" title="6"></a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="co"># By default only the current folder is processed.</span></a>
+<a class="sourceLine" id="cb1-8" title="8"></a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="co"># Use -r or --recursive to process nested folders.</span></a>
+<a class="sourceLine" id="cb1-10" title="10"></a>
+<a class="sourceLine" id="cb1-11" title="11"><span class="im">import</span> argparse</a>
+<a class="sourceLine" id="cb1-12" title="12"><span class="im">import</span> datetime</a>
+<a class="sourceLine" id="cb1-13" title="13"><span class="im">import</span> os</a>
+<a class="sourceLine" id="cb1-14" title="14"><span class="im">import</span> sys</a>
+<a class="sourceLine" id="cb1-15" title="15"><span class="im">from</span> pathlib <span class="im">import</span> Path</a>
+<a class="sourceLine" id="cb1-16" title="16"><span class="im">from</span> urllib.parse <span class="im">import</span> quote</a>
+<a class="sourceLine" id="cb1-17" title="17"></a>
+<a class="sourceLine" id="cb1-18" title="18">DEFAULT_OUTPUT_FILE <span class="op">=</span> <span class="st">&#39;index.html&#39;</span></a>
+<a class="sourceLine" id="cb1-19" title="19"></a>
+<a class="sourceLine" id="cb1-20" title="20"></a>
+<a class="sourceLine" id="cb1-21" title="21"><span class="kw">def</span> process_dir(top_dir, opts):</a>
+<a class="sourceLine" id="cb1-22" title="22">    glob_patt <span class="op">=</span> opts.<span class="bu">filter</span> <span class="kw">or</span> <span class="st">&#39;*&#39;</span></a>
+<a class="sourceLine" id="cb1-23" title="23"></a>
+<a class="sourceLine" id="cb1-24" title="24">    path_top_dir: Path</a>
+<a class="sourceLine" id="cb1-25" title="25">    path_top_dir <span class="op">=</span> Path(top_dir)</a>
+<a class="sourceLine" id="cb1-26" title="26">    index_file <span class="op">=</span> <span class="va">None</span></a>
+<a class="sourceLine" id="cb1-27" title="27"></a>
+<a class="sourceLine" id="cb1-28" title="28">    index_path <span class="op">=</span> Path(path_top_dir, opts.output_file)</a>
+<a class="sourceLine" id="cb1-29" title="29"></a>
+<a class="sourceLine" id="cb1-30" title="30">    <span class="cf">if</span> opts.verbose:</a>
+<a class="sourceLine" id="cb1-31" title="31">        <span class="bu">print</span>(<span class="ss">f&#39;Traversing dir </span><span class="sc">{</span>path_top_dir<span class="sc">.</span>absolute()<span class="sc">}</span><span class="ss">&#39;</span>)</a>
+<a class="sourceLine" id="cb1-32" title="32"></a>
+<a class="sourceLine" id="cb1-33" title="33">    <span class="cf">try</span>:</a>
+<a class="sourceLine" id="cb1-34" title="34">        index_file <span class="op">=</span> <span class="bu">open</span>(index_path, <span class="st">&#39;w&#39;</span>)</a>
+<a class="sourceLine" id="cb1-35" title="35">    <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="cb1-36" title="36">        <span class="bu">print</span>(<span class="st">&#39;cannot create file </span><span class="sc">%s</span><span class="st"> </span><span class="sc">%s</span><span class="st">&#39;</span> <span class="op">%</span> (index_path, e))</a>
+<a class="sourceLine" id="cb1-37" title="37">        <span class="cf">return</span></a>
+<a class="sourceLine" id="cb1-38" title="38"></a>
+<a class="sourceLine" id="cb1-39" title="39">    index_file.write(<span class="st">&quot;&quot;&quot;&lt;!DOCTYPE html&gt;</span></a>
+<a class="sourceLine" id="cb1-40" title="40"><span class="st">&lt;html&gt;</span></a>
+<a class="sourceLine" id="cb1-41" title="41"><span class="st">&lt;head&gt;</span></a>
+<a class="sourceLine" id="cb1-42" title="42"><span class="st">    &lt;meta charset=&quot;utf-8&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-43" title="43"><span class="st">    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-44" title="44"><span class="st">    &lt;style&gt;</span></a>
+<a class="sourceLine" id="cb1-45" title="45"><span class="st">    * { padding: 0; margin: 0; }</span></a>
+<a class="sourceLine" id="cb1-46" title="46"><span class="st">    body {</span></a>
+<a class="sourceLine" id="cb1-47" title="47"><span class="st">        font-family: sans-serif;</span></a>
+<a class="sourceLine" id="cb1-48" title="48"><span class="st">        text-rendering: optimizespeed;</span></a>
+<a class="sourceLine" id="cb1-49" title="49"><span class="st">        background-color: #ffffff;</span></a>
+<a class="sourceLine" id="cb1-50" title="50"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-51" title="51"><span class="st">    a {</span></a>
+<a class="sourceLine" id="cb1-52" title="52"><span class="st">        color: #006ed3;</span></a>
+<a class="sourceLine" id="cb1-53" title="53"><span class="st">        text-decoration: none;</span></a>
+<a class="sourceLine" id="cb1-54" title="54"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-55" title="55"><span class="st">    a:hover,</span></a>
+<a class="sourceLine" id="cb1-56" title="56"><span class="st">    h1 a:hover {</span></a>
+<a class="sourceLine" id="cb1-57" title="57"><span class="st">        color: #319cff;</span></a>
+<a class="sourceLine" id="cb1-58" title="58"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-59" title="59"><span class="st">    header,</span></a>
+<a class="sourceLine" id="cb1-60" title="60"><span class="st">    #summary {</span></a>
+<a class="sourceLine" id="cb1-61" title="61"><span class="st">        padding-left: 5%;</span></a>
+<a class="sourceLine" id="cb1-62" title="62"><span class="st">        padding-right: 5%;</span></a>
+<a class="sourceLine" id="cb1-63" title="63"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-64" title="64"><span class="st">    th:first-child,</span></a>
+<a class="sourceLine" id="cb1-65" title="65"><span class="st">    td:first-child {</span></a>
+<a class="sourceLine" id="cb1-66" title="66"><span class="st">        width: 5%;</span></a>
+<a class="sourceLine" id="cb1-67" title="67"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-68" title="68"><span class="st">    th:last-child,</span></a>
+<a class="sourceLine" id="cb1-69" title="69"><span class="st">    td:last-child {</span></a>
+<a class="sourceLine" id="cb1-70" title="70"><span class="st">        width: 5%;</span></a>
+<a class="sourceLine" id="cb1-71" title="71"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-72" title="72"><span class="st">    header {</span></a>
+<a class="sourceLine" id="cb1-73" title="73"><span class="st">        padding-top: 25px;</span></a>
+<a class="sourceLine" id="cb1-74" title="74"><span class="st">        padding-bottom: 15px;</span></a>
+<a class="sourceLine" id="cb1-75" title="75"><span class="st">        background-color: #f2f2f2;</span></a>
+<a class="sourceLine" id="cb1-76" title="76"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-77" title="77"><span class="st">    h1 {</span></a>
+<a class="sourceLine" id="cb1-78" title="78"><span class="st">        font-size: 20px;</span></a>
+<a class="sourceLine" id="cb1-79" title="79"><span class="st">        font-weight: normal;</span></a>
+<a class="sourceLine" id="cb1-80" title="80"><span class="st">        white-space: nowrap;</span></a>
+<a class="sourceLine" id="cb1-81" title="81"><span class="st">        overflow-x: hidden;</span></a>
+<a class="sourceLine" id="cb1-82" title="82"><span class="st">        text-overflow: ellipsis;</span></a>
+<a class="sourceLine" id="cb1-83" title="83"><span class="st">        color: #999;</span></a>
+<a class="sourceLine" id="cb1-84" title="84"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-85" title="85"><span class="st">    h1 a {</span></a>
+<a class="sourceLine" id="cb1-86" title="86"><span class="st">        color: #000;</span></a>
+<a class="sourceLine" id="cb1-87" title="87"><span class="st">        margin: 0 4px;</span></a>
+<a class="sourceLine" id="cb1-88" title="88"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-89" title="89"><span class="st">    h1 a:hover {</span></a>
+<a class="sourceLine" id="cb1-90" title="90"><span class="st">        text-decoration: underline;</span></a>
+<a class="sourceLine" id="cb1-91" title="91"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-92" title="92"><span class="st">    h1 a:first-child {</span></a>
+<a class="sourceLine" id="cb1-93" title="93"><span class="st">        margin: 0;</span></a>
+<a class="sourceLine" id="cb1-94" title="94"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-95" title="95"><span class="st">    main {</span></a>
+<a class="sourceLine" id="cb1-96" title="96"><span class="st">        display: block;</span></a>
+<a class="sourceLine" id="cb1-97" title="97"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-98" title="98"><span class="st">    .meta {</span></a>
+<a class="sourceLine" id="cb1-99" title="99"><span class="st">        font-size: 12px;</span></a>
+<a class="sourceLine" id="cb1-100" title="100"><span class="st">        font-family: Verdana, sans-serif;</span></a>
+<a class="sourceLine" id="cb1-101" title="101"><span class="st">        border-bottom: 1px solid #9C9C9C;</span></a>
+<a class="sourceLine" id="cb1-102" title="102"><span class="st">        padding-top: 10px;</span></a>
+<a class="sourceLine" id="cb1-103" title="103"><span class="st">        padding-bottom: 10px;</span></a>
+<a class="sourceLine" id="cb1-104" title="104"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-105" title="105"><span class="st">    .meta-item {</span></a>
+<a class="sourceLine" id="cb1-106" title="106"><span class="st">        margin-right: 1em;</span></a>
+<a class="sourceLine" id="cb1-107" title="107"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-108" title="108"><span class="st">    #filter {</span></a>
+<a class="sourceLine" id="cb1-109" title="109"><span class="st">        padding: 4px;</span></a>
+<a class="sourceLine" id="cb1-110" title="110"><span class="st">        border: 1px solid #CCC;</span></a>
+<a class="sourceLine" id="cb1-111" title="111"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-112" title="112"><span class="st">    table {</span></a>
+<a class="sourceLine" id="cb1-113" title="113"><span class="st">        width: 100%;</span></a>
+<a class="sourceLine" id="cb1-114" title="114"><span class="st">        border-collapse: collapse;</span></a>
+<a class="sourceLine" id="cb1-115" title="115"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-116" title="116"><span class="st">    tr {</span></a>
+<a class="sourceLine" id="cb1-117" title="117"><span class="st">        border-bottom: 1px dashed #dadada;</span></a>
+<a class="sourceLine" id="cb1-118" title="118"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-119" title="119"><span class="st">    tbody tr:hover {</span></a>
+<a class="sourceLine" id="cb1-120" title="120"><span class="st">        background-color: #ffffec;</span></a>
+<a class="sourceLine" id="cb1-121" title="121"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-122" title="122"><span class="st">    th,</span></a>
+<a class="sourceLine" id="cb1-123" title="123"><span class="st">    td {</span></a>
+<a class="sourceLine" id="cb1-124" title="124"><span class="st">        text-align: left;</span></a>
+<a class="sourceLine" id="cb1-125" title="125"><span class="st">        padding: 10px 0;</span></a>
+<a class="sourceLine" id="cb1-126" title="126"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-127" title="127"><span class="st">    th {</span></a>
+<a class="sourceLine" id="cb1-128" title="128"><span class="st">        padding-top: 15px;</span></a>
+<a class="sourceLine" id="cb1-129" title="129"><span class="st">        padding-bottom: 15px;</span></a>
+<a class="sourceLine" id="cb1-130" title="130"><span class="st">        font-size: 16px;</span></a>
+<a class="sourceLine" id="cb1-131" title="131"><span class="st">        white-space: nowrap;</span></a>
+<a class="sourceLine" id="cb1-132" title="132"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-133" title="133"><span class="st">    th a {</span></a>
+<a class="sourceLine" id="cb1-134" title="134"><span class="st">        color: black;</span></a>
+<a class="sourceLine" id="cb1-135" title="135"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-136" title="136"><span class="st">    th svg {</span></a>
+<a class="sourceLine" id="cb1-137" title="137"><span class="st">        vertical-align: middle;</span></a>
+<a class="sourceLine" id="cb1-138" title="138"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-139" title="139"><span class="st">    td {</span></a>
+<a class="sourceLine" id="cb1-140" title="140"><span class="st">        white-space: nowrap;</span></a>
+<a class="sourceLine" id="cb1-141" title="141"><span class="st">        font-size: 14px;</span></a>
+<a class="sourceLine" id="cb1-142" title="142"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-143" title="143"><span class="st">    td:nth-child(2) {</span></a>
+<a class="sourceLine" id="cb1-144" title="144"><span class="st">        width: 80%;</span></a>
+<a class="sourceLine" id="cb1-145" title="145"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-146" title="146"><span class="st">    td:nth-child(3) {</span></a>
+<a class="sourceLine" id="cb1-147" title="147"><span class="st">        padding: 0 20px 0 20px;</span></a>
+<a class="sourceLine" id="cb1-148" title="148"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-149" title="149"><span class="st">    th:nth-child(4),</span></a>
+<a class="sourceLine" id="cb1-150" title="150"><span class="st">    td:nth-child(4) {</span></a>
+<a class="sourceLine" id="cb1-151" title="151"><span class="st">        text-align: right;</span></a>
+<a class="sourceLine" id="cb1-152" title="152"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-153" title="153"><span class="st">    td:nth-child(2) svg {</span></a>
+<a class="sourceLine" id="cb1-154" title="154"><span class="st">        position: absolute;</span></a>
+<a class="sourceLine" id="cb1-155" title="155"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-156" title="156"><span class="st">    td .name {</span></a>
+<a class="sourceLine" id="cb1-157" title="157"><span class="st">        margin-left: 1.75em;</span></a>
+<a class="sourceLine" id="cb1-158" title="158"><span class="st">        word-break: break-all;</span></a>
+<a class="sourceLine" id="cb1-159" title="159"><span class="st">        overflow-wrap: break-word;</span></a>
+<a class="sourceLine" id="cb1-160" title="160"><span class="st">        white-space: pre-wrap;</span></a>
+<a class="sourceLine" id="cb1-161" title="161"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-162" title="162"><span class="st">    td .goup {</span></a>
+<a class="sourceLine" id="cb1-163" title="163"><span class="st">        margin-left: 1.75em;</span></a>
+<a class="sourceLine" id="cb1-164" title="164"><span class="st">        padding: 0;</span></a>
+<a class="sourceLine" id="cb1-165" title="165"><span class="st">        word-break: break-all;</span></a>
+<a class="sourceLine" id="cb1-166" title="166"><span class="st">        overflow-wrap: break-word;</span></a>
+<a class="sourceLine" id="cb1-167" title="167"><span class="st">        white-space: pre-wrap;</span></a>
+<a class="sourceLine" id="cb1-168" title="168"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-169" title="169"><span class="st">    .icon {</span></a>
+<a class="sourceLine" id="cb1-170" title="170"><span class="st">        margin-right: 5px;</span></a>
+<a class="sourceLine" id="cb1-171" title="171"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-172" title="172"><span class="st">    tr.clickable {</span></a>
+<a class="sourceLine" id="cb1-173" title="173"><span class="st">        cursor: pointer;</span></a>
+<a class="sourceLine" id="cb1-174" title="174"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-175" title="175"><span class="st">    tr.clickable a {</span></a>
+<a class="sourceLine" id="cb1-176" title="176"><span class="st">        display: block;</span></a>
+<a class="sourceLine" id="cb1-177" title="177"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-178" title="178"><span class="st">    @media (max-width: 600px) {</span></a>
+<a class="sourceLine" id="cb1-179" title="179"><span class="st">        * {</span></a>
+<a class="sourceLine" id="cb1-180" title="180"><span class="st">            font-size: 1.06rem;</span></a>
+<a class="sourceLine" id="cb1-181" title="181"><span class="st">        }</span></a>
+<a class="sourceLine" id="cb1-182" title="182"><span class="st">        .hideable {</span></a>
+<a class="sourceLine" id="cb1-183" title="183"><span class="st">            display: none;</span></a>
+<a class="sourceLine" id="cb1-184" title="184"><span class="st">        }</span></a>
+<a class="sourceLine" id="cb1-185" title="185"><span class="st">        td:nth-child(2) {</span></a>
+<a class="sourceLine" id="cb1-186" title="186"><span class="st">            width: auto;</span></a>
+<a class="sourceLine" id="cb1-187" title="187"><span class="st">        }</span></a>
+<a class="sourceLine" id="cb1-188" title="188"><span class="st">        th:nth-child(3),</span></a>
+<a class="sourceLine" id="cb1-189" title="189"><span class="st">        td:nth-child(3) {</span></a>
+<a class="sourceLine" id="cb1-190" title="190"><span class="st">            padding-right: 5%;</span></a>
+<a class="sourceLine" id="cb1-191" title="191"><span class="st">            text-align: right;</span></a>
+<a class="sourceLine" id="cb1-192" title="192"><span class="st">        }</span></a>
+<a class="sourceLine" id="cb1-193" title="193"><span class="st">        h1 {</span></a>
+<a class="sourceLine" id="cb1-194" title="194"><span class="st">            color: #000;</span></a>
+<a class="sourceLine" id="cb1-195" title="195"><span class="st">        }</span></a>
+<a class="sourceLine" id="cb1-196" title="196"><span class="st">        h1 a {</span></a>
+<a class="sourceLine" id="cb1-197" title="197"><span class="st">            margin: 0;</span></a>
+<a class="sourceLine" id="cb1-198" title="198"><span class="st">        }</span></a>
+<a class="sourceLine" id="cb1-199" title="199"><span class="st">        #filter {</span></a>
+<a class="sourceLine" id="cb1-200" title="200"><span class="st">            max-width: 100px;</span></a>
+<a class="sourceLine" id="cb1-201" title="201"><span class="st">        }</span></a>
+<a class="sourceLine" id="cb1-202" title="202"><span class="st">    }</span></a>
+<a class="sourceLine" id="cb1-203" title="203"><span class="st">    &lt;/style&gt;</span></a>
+<a class="sourceLine" id="cb1-204" title="204"><span class="st">&lt;/head&gt;</span></a>
+<a class="sourceLine" id="cb1-205" title="205"><span class="st">&lt;body&gt;</span></a>
+<a class="sourceLine" id="cb1-206" title="206"><span class="st">    &lt;svg version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; xmlns:xlink=&quot;http://www.w3.org/1999/xlink&quot; height=&quot;0&quot; width=&quot;0&quot; style=&quot;position: absolute;&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-207" title="207"><span class="st">    &lt;defs&gt;</span></a>
+<a class="sourceLine" id="cb1-208" title="208"><span class="st">        &lt;!-- Go-up --&gt;</span></a>
+<a class="sourceLine" id="cb1-209" title="209"><span class="st">        &lt;g id=&quot;go-up&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-210" title="210"><span class="st">            &lt;path d=&quot;M10,9V5L3,12L10,19V14.9C15,14.9 18.5,16.5 21,20C20,15 17,10 10,9Z&quot; fill=&quot;#696969&quot;/&gt;</span></a>
+<a class="sourceLine" id="cb1-211" title="211"><span class="st">        &lt;/g&gt;</span></a>
+<a class="sourceLine" id="cb1-212" title="212"><span class="st">        &lt;!-- Folder --&gt;</span></a>
+<a class="sourceLine" id="cb1-213" title="213"><span class="st">        &lt;g id=&quot;folder&quot; fill-rule=&quot;nonzero&quot; fill=&quot;none&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-214" title="214"><span class="st">            &lt;path d=&quot;M285.22 37.55h-142.6L110.9 0H31.7C14.25 0 0 16.9 0 37.55v75.1h316.92V75.1c0-20.65-14.26-37.55-31.7-37.55z&quot; fill=&quot;#FFA000&quot;/&gt;</span></a>
+<a class="sourceLine" id="cb1-215" title="215"><span class="st">            &lt;path d=&quot;M285.22 36H31.7C14.25 36 0 50.28 0 67.74v158.7c0 17.47 14.26 31.75 31.7 31.75H285.2c17.44 0 31.7-14.3 31.7-31.75V67.75c0-17.47-14.26-31.75-31.7-31.75z&quot; fill=&quot;#FFCA28&quot;/&gt;</span></a>
+<a class="sourceLine" id="cb1-216" title="216"><span class="st">        &lt;/g&gt;</span></a>
+<a class="sourceLine" id="cb1-217" title="217"><span class="st">        &lt;g id=&quot;folder-shortcut&quot; stroke=&quot;none&quot; stroke-width=&quot;1&quot; fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-218" title="218"><span class="st">            &lt;g id=&quot;folder-shortcut-group&quot; fill-rule=&quot;nonzero&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-219" title="219"><span class="st">                &lt;g id=&quot;folder-shortcut-shape&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-220" title="220"><span class="st">                    &lt;path d=&quot;M285.224876,37.5486902 L142.612438,37.5486902 L110.920785,0 L31.6916529,0 C14.2612438,0 0,16.8969106 0,37.5486902 L0,112.646071 L316.916529,112.646071 L316.916529,75.0973805 C316.916529,54.4456008 302.655285,37.5486902 285.224876,37.5486902 Z&quot; id=&quot;Shape&quot; fill=&quot;#FFA000&quot;&gt;&lt;/path&gt;</span></a>
+<a class="sourceLine" id="cb1-221" title="221"><span class="st">                    &lt;path d=&quot;M285.224876,36 L31.6916529,36 C14.2612438,36 0,50.2838568 0,67.7419039 L0,226.451424 C0,243.909471 14.2612438,258.193328 31.6916529,258.193328 L285.224876,258.193328 C302.655285,258.193328 316.916529,243.909471 316.916529,226.451424 L316.916529,67.7419039 C316.916529,50.2838568 302.655285,36 285.224876,36 Z&quot; id=&quot;Shape&quot; fill=&quot;#FFCA28&quot;&gt;&lt;/path&gt;</span></a>
+<a class="sourceLine" id="cb1-222" title="222"><span class="st">                &lt;/g&gt;</span></a>
+<a class="sourceLine" id="cb1-223" title="223"><span class="st">                &lt;path d=&quot;M126.154134,250.559184 C126.850974,251.883673 127.300549,253.006122 127.772602,254.106122 C128.469442,255.206122 128.919016,256.104082 129.638335,257.002041 C130.559962,258.326531 131.728855,259 133.100057,259 C134.493737,259 135.415364,258.55102 136.112204,257.67551 C136.809044,257.002041 137.258619,255.902041 137.258619,254.577551 C137.258619,253.904082 137.258619,252.804082 137.033832,251.457143 C136.786566,249.908163 136.561779,249.032653 136.561779,248.583673 C136.089726,242.814286 135.864939,237.920408 135.864939,233.273469 C135.864939,225.057143 136.786566,217.514286 138.180246,210.846939 C139.798713,204.202041 141.889234,198.634694 144.429328,193.763265 C147.216689,188.869388 150.678411,184.873469 154.836973,181.326531 C158.995535,177.779592 163.626149,174.883673 168.481552,172.661224 C173.336954,170.438776 179.113983,168.665306 185.587852,167.340816 C192.061722,166.218367 198.760378,165.342857 205.481514,164.669388 C212.18017,164.220408 219.598146,163.995918 228.162535,163.995918 L246.055591,163.995918 L246.055591,195.514286 C246.055591,197.736735 246.752431,199.510204 248.370899,201.059184 C250.214153,202.608163 252.079886,203.506122 254.372715,203.506122 C256.463236,203.506122 258.531277,202.608163 260.172223,201.059184 L326.102289,137.797959 C327.720757,136.24898 328.642384,134.47551 328.642384,132.253061 C328.642384,130.030612 327.720757,128.257143 326.102289,126.708163 L260.172223,63.4469388 C258.553756,61.8979592 256.463236,61 254.395194,61 C252.079886,61 250.236632,61.8979592 248.393377,63.4469388 C246.77491,64.9959184 246.07807,66.7693878 246.07807,68.9918367 L246.07807,100.510204 L228.162535,100.510204 C166.863084,100.510204 129.166282,117.167347 115.274437,150.459184 C110.666301,161.54898 108.350993,175.310204 108.350993,191.742857 C108.350993,205.279592 113.903236,223.912245 124.760454,247.438776 C125.00772,248.112245 125.457294,249.010204 126.154134,250.559184 Z&quot; id=&quot;Shape&quot; fill=&quot;#FFFFFF&quot; transform=&quot;translate(218.496689, 160.000000) scale(-1, 1) translate(-218.496689, -160.000000) &quot;&gt;&lt;/path&gt;</span></a>
+<a class="sourceLine" id="cb1-224" title="224"><span class="st">            &lt;/g&gt;</span></a>
+<a class="sourceLine" id="cb1-225" title="225"><span class="st">        &lt;/g&gt;</span></a>
+<a class="sourceLine" id="cb1-226" title="226"><span class="st">        &lt;!-- File --&gt;</span></a>
+<a class="sourceLine" id="cb1-227" title="227"><span class="st">        &lt;g id=&quot;file&quot; stroke=&quot;#000&quot; stroke-width=&quot;25&quot; fill=&quot;#FFF&quot; fill-rule=&quot;evenodd&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-228" title="228"><span class="st">            &lt;path d=&quot;M13 24.12v274.76c0 6.16 5.87 11.12 13.17 11.12H239c7.3 0 13.17-4.96 13.17-11.12V136.15S132.6 13 128.37 13H26.17C18.87 13 13 17.96 13 24.12z&quot;/&gt;</span></a>
+<a class="sourceLine" id="cb1-229" title="229"><span class="st">            &lt;path d=&quot;M129.37 13L129 113.9c0 10.58 7.26 19.1 16.27 19.1H249L129.37 13z&quot;/&gt;</span></a>
+<a class="sourceLine" id="cb1-230" title="230"><span class="st">        &lt;/g&gt;</span></a>
+<a class="sourceLine" id="cb1-231" title="231"><span class="st">        &lt;g id=&quot;file-shortcut&quot; stroke=&quot;none&quot; stroke-width=&quot;1&quot; fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-232" title="232"><span class="st">            &lt;g id=&quot;file-shortcut-group&quot; transform=&quot;translate(13.000000, 13.000000)&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-233" title="233"><span class="st">                &lt;g id=&quot;file-shortcut-shape&quot; stroke=&quot;#000000&quot; stroke-width=&quot;25&quot; fill=&quot;#FFFFFF&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-234" title="234"><span class="st">                    &lt;path d=&quot;M0,11.1214886 L0,285.878477 C0,292.039924 5.87498876,296.999983 13.1728373,296.999983 L225.997983,296.999983 C233.295974,296.999983 239.17082,292.039942 239.17082,285.878477 L239.17082,123.145388 C239.17082,123.145388 119.58541,2.84217094e-14 115.369423,2.84217094e-14 L13.1728576,2.84217094e-14 C5.87500907,-1.71479982e-05 0,4.96022995 0,11.1214886 Z&quot; id=&quot;rect1171&quot;&gt;&lt;/path&gt;</span></a>
+<a class="sourceLine" id="cb1-235" title="235"><span class="st">                    &lt;path d=&quot;M116.37005,0 L116,100.904964 C116,111.483663 123.258008,120 132.273377,120 L236,120 L116.37005,0 L116.37005,0 Z&quot; id=&quot;rect1794&quot;&gt;&lt;/path&gt;</span></a>
+<a class="sourceLine" id="cb1-236" title="236"><span class="st">                &lt;/g&gt;</span></a>
+<a class="sourceLine" id="cb1-237" title="237"><span class="st">                &lt;path d=&quot;M47.803141,294.093878 C48.4999811,295.177551 48.9495553,296.095918 49.4216083,296.995918 C50.1184484,297.895918 50.5680227,298.630612 51.2873415,299.365306 C52.2089688,300.44898 53.3778619,301 54.7490634,301 C56.1427436,301 57.0643709,300.632653 57.761211,299.916327 C58.4580511,299.365306 58.9076254,298.465306 58.9076254,297.381633 C58.9076254,296.830612 58.9076254,295.930612 58.6828382,294.828571 C58.4355724,293.561224 58.2107852,292.844898 58.2107852,292.477551 C57.7387323,287.757143 57.5139451,283.753061 57.5139451,279.95102 C57.5139451,273.228571 58.4355724,267.057143 59.8292526,261.602041 C61.44772,256.165306 63.5382403,251.610204 66.0783349,247.62449 C68.8656954,243.620408 72.3274172,240.35102 76.4859792,237.44898 C80.6445412,234.546939 85.2751561,232.177551 90.1305582,230.359184 C94.9859603,228.540816 100.76299,227.089796 107.236859,226.006122 C113.710728,225.087755 120.409385,224.371429 127.13052,223.820408 C133.829177,223.453061 141.247152,223.269388 149.811542,223.269388 L167.704598,223.269388 L167.704598,249.057143 C167.704598,250.87551 168.401438,252.326531 170.019905,253.593878 C171.86316,254.861224 173.728893,255.595918 176.021722,255.595918 C178.112242,255.595918 180.180284,254.861224 181.82123,253.593878 L247.751296,201.834694 C249.369763,200.567347 250.291391,199.116327 250.291391,197.297959 C250.291391,195.479592 249.369763,194.028571 247.751296,192.761224 L181.82123,141.002041 C180.202763,139.734694 178.112242,139 176.044201,139 C173.728893,139 171.885639,139.734694 170.042384,141.002041 C168.423917,142.269388 167.727077,143.720408 167.727077,145.538776 L167.727077,171.326531 L149.811542,171.326531 C88.5120908,171.326531 50.8152886,184.955102 36.9234437,212.193878 C32.3153075,221.267347 30,232.526531 30,245.971429 C30,257.046939 35.5522422,272.291837 46.4094607,291.540816 C46.6567266,292.091837 47.1063009,292.826531 47.803141,294.093878 Z&quot; id=&quot;Shape-Copy&quot; fill=&quot;#000000&quot; fill-rule=&quot;nonzero&quot; transform=&quot;translate(140.145695, 220.000000) scale(-1, 1) translate(-140.145695, -220.000000) &quot;&gt;&lt;/path&gt;</span></a>
+<a class="sourceLine" id="cb1-238" title="238"><span class="st">            &lt;/g&gt;</span></a>
+<a class="sourceLine" id="cb1-239" title="239"><span class="st">        &lt;/g&gt;</span></a>
+<a class="sourceLine" id="cb1-240" title="240"><span class="st">    &lt;/defs&gt;</span></a>
+<a class="sourceLine" id="cb1-241" title="241"><span class="st">    &lt;/svg&gt;</span></a>
+<a class="sourceLine" id="cb1-242" title="242"><span class="st">&lt;header&gt;</span></a>
+<a class="sourceLine" id="cb1-243" title="243"><span class="st">    &lt;h1&gt;&quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb1-244" title="244">                     <span class="ss">f&#39;</span><span class="sc">{</span>path_top_dir<span class="sc">.</span>name<span class="sc">}</span><span class="ss">&#39;</span></a>
+<a class="sourceLine" id="cb1-245" title="245">                     <span class="st">&quot;&quot;&quot;&lt;/h1&gt;</span></a>
+<a class="sourceLine" id="cb1-246" title="246"><span class="st">                 &lt;/header&gt;</span></a>
+<a class="sourceLine" id="cb1-247" title="247"><span class="st">                 &lt;main&gt;</span></a>
+<a class="sourceLine" id="cb1-248" title="248"><span class="st">                 &lt;div class=&quot;listing&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-249" title="249"><span class="st">                     &lt;table aria-describedby=&quot;summary&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-250" title="250"><span class="st">                         &lt;thead&gt;</span></a>
+<a class="sourceLine" id="cb1-251" title="251"><span class="st">                         &lt;tr&gt;</span></a>
+<a class="sourceLine" id="cb1-252" title="252"><span class="st">                             &lt;th&gt;&lt;/th&gt;</span></a>
+<a class="sourceLine" id="cb1-253" title="253"><span class="st">                             &lt;th&gt;Name&lt;/th&gt;</span></a>
+<a class="sourceLine" id="cb1-254" title="254"><span class="st">                             &lt;th&gt;Size&lt;/th&gt;</span></a>
+<a class="sourceLine" id="cb1-255" title="255"><span class="st">                             &lt;th class=&quot;hideable&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-256" title="256"><span class="st">                                 Modified</span></a>
+<a class="sourceLine" id="cb1-257" title="257"><span class="st">                             &lt;/th&gt;</span></a>
+<a class="sourceLine" id="cb1-258" title="258"><span class="st">                             &lt;th class=&quot;hideable&quot;&gt;&lt;/th&gt;</span></a>
+<a class="sourceLine" id="cb1-259" title="259"><span class="st">                         &lt;/tr&gt;</span></a>
+<a class="sourceLine" id="cb1-260" title="260"><span class="st">                         &lt;/thead&gt;</span></a>
+<a class="sourceLine" id="cb1-261" title="261"><span class="st">                         &lt;tbody&gt;</span></a>
+<a class="sourceLine" id="cb1-262" title="262"><span class="st">                         &lt;tr class=&quot;clickable&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-263" title="263"><span class="st">                             &lt;td&gt;&lt;/td&gt;</span></a>
+<a class="sourceLine" id="cb1-264" title="264"><span class="st">                             &lt;td&gt;&lt;a href=&quot;..&quot;&gt;&lt;svg width=&quot;1.5em&quot; height=&quot;1em&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 24 24&quot;&gt;&lt;use xlink:href=&quot;#go-up&quot;&gt;&lt;/use&gt;&lt;/svg&gt;</span></a>
+<a class="sourceLine" id="cb1-265" title="265"><span class="st">                 &lt;span class=&quot;goup&quot;&gt;..&lt;/span&gt;&lt;/a&gt;&lt;/td&gt;</span></a>
+<a class="sourceLine" id="cb1-266" title="266"><span class="st">                             &lt;td&gt;&amp;mdash;&lt;/td&gt;</span></a>
+<a class="sourceLine" id="cb1-267" title="267"><span class="st">                             &lt;td class=&quot;hideable&quot;&gt;&amp;mdash;&lt;/td&gt;</span></a>
+<a class="sourceLine" id="cb1-268" title="268"><span class="st">                             &lt;td class=&quot;hideable&quot;&gt;&lt;/td&gt;</span></a>
+<a class="sourceLine" id="cb1-269" title="269"><span class="st">                         &lt;/tr&gt;</span></a>
+<a class="sourceLine" id="cb1-270" title="270"><span class="st">                 &quot;&quot;&quot;</span>)</a>
+<a class="sourceLine" id="cb1-271" title="271"></a>
+<a class="sourceLine" id="cb1-272" title="272">    <span class="co"># sort dirs first</span></a>
+<a class="sourceLine" id="cb1-273" title="273">    sorted_entries <span class="op">=</span> <span class="bu">sorted</span>(path_top_dir.glob(glob_patt), key<span class="op">=</span><span class="kw">lambda</span> p: (p.is_file(), p.name))</a>
+<a class="sourceLine" id="cb1-274" title="274"></a>
+<a class="sourceLine" id="cb1-275" title="275">    entry: Path</a>
+<a class="sourceLine" id="cb1-276" title="276">    <span class="cf">for</span> entry <span class="kw">in</span> sorted_entries:</a>
+<a class="sourceLine" id="cb1-277" title="277"></a>
+<a class="sourceLine" id="cb1-278" title="278">        <span class="co"># don&#39;t include index.html in the file listing</span></a>
+<a class="sourceLine" id="cb1-279" title="279">        <span class="cf">if</span> entry.name.lower() <span class="op">==</span> opts.output_file.lower():</a>
+<a class="sourceLine" id="cb1-280" title="280">            <span class="cf">continue</span></a>
+<a class="sourceLine" id="cb1-281" title="281"></a>
+<a class="sourceLine" id="cb1-282" title="282">        <span class="cf">if</span> entry.is_dir() <span class="kw">and</span> opts.recursive:</a>
+<a class="sourceLine" id="cb1-283" title="283">            process_dir(entry, opts)</a>
+<a class="sourceLine" id="cb1-284" title="284"></a>
+<a class="sourceLine" id="cb1-285" title="285">        <span class="co"># From Python 3.6, os.access() accepts path-like objects</span></a>
+<a class="sourceLine" id="cb1-286" title="286">        <span class="cf">if</span> (<span class="kw">not</span> entry.is_symlink()) <span class="kw">and</span> <span class="kw">not</span> os.access(<span class="bu">str</span>(entry), os.W_OK):</a>
+<a class="sourceLine" id="cb1-287" title="287">            <span class="bu">print</span>(<span class="ss">f&quot;*** WARNING *** entry </span><span class="sc">{</span>entry<span class="sc">.</span>absolute()<span class="sc">}</span><span class="ss"> is not writable! SKIPPING!&quot;</span>)</a>
+<a class="sourceLine" id="cb1-288" title="288">            <span class="cf">continue</span></a>
+<a class="sourceLine" id="cb1-289" title="289">        <span class="cf">if</span> opts.verbose:</a>
+<a class="sourceLine" id="cb1-290" title="290">            <span class="bu">print</span>(<span class="ss">f&#39;</span><span class="sc">{</span>entry<span class="sc">.</span>absolute()<span class="sc">}</span><span class="ss">&#39;</span>)</a>
+<a class="sourceLine" id="cb1-291" title="291"></a>
+<a class="sourceLine" id="cb1-292" title="292">        size_bytes <span class="op">=</span> <span class="dv">-1</span>  <span class="co">## is a folder</span></a>
+<a class="sourceLine" id="cb1-293" title="293">        size_pretty <span class="op">=</span> <span class="st">&#39;&amp;mdash;&#39;</span></a>
+<a class="sourceLine" id="cb1-294" title="294">        last_modified <span class="op">=</span> <span class="st">&#39;-&#39;</span></a>
+<a class="sourceLine" id="cb1-295" title="295">        last_modified_human_readable <span class="op">=</span> <span class="st">&#39;-&#39;</span></a>
+<a class="sourceLine" id="cb1-296" title="296">        last_modified_iso <span class="op">=</span> <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb1-297" title="297">        <span class="cf">try</span>:</a>
+<a class="sourceLine" id="cb1-298" title="298">            <span class="cf">if</span> entry.is_file():</a>
+<a class="sourceLine" id="cb1-299" title="299">                size_bytes <span class="op">=</span> entry.stat().st_size</a>
+<a class="sourceLine" id="cb1-300" title="300">                size_pretty <span class="op">=</span> pretty_size(size_bytes)</a>
+<a class="sourceLine" id="cb1-301" title="301"></a>
+<a class="sourceLine" id="cb1-302" title="302">            <span class="cf">if</span> entry.is_dir() <span class="kw">or</span> entry.is_file():</a>
+<a class="sourceLine" id="cb1-303" title="303">                last_modified <span class="op">=</span> datetime.datetime.fromtimestamp(entry.stat().st_mtime).replace(microsecond<span class="op">=</span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb1-304" title="304">                last_modified_iso <span class="op">=</span> last_modified.isoformat()</a>
+<a class="sourceLine" id="cb1-305" title="305">                last_modified_human_readable <span class="op">=</span> last_modified.strftime(<span class="st">&quot;</span><span class="sc">%c</span><span class="st">&quot;</span>)</a>
+<a class="sourceLine" id="cb1-306" title="306"></a>
+<a class="sourceLine" id="cb1-307" title="307">        <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="cb1-308" title="308">            <span class="bu">print</span>(<span class="st">&#39;ERROR accessing file name:&#39;</span>, e, entry)</a>
+<a class="sourceLine" id="cb1-309" title="309">            <span class="cf">continue</span></a>
+<a class="sourceLine" id="cb1-310" title="310"></a>
+<a class="sourceLine" id="cb1-311" title="311">        entry_path <span class="op">=</span> <span class="bu">str</span>(entry.name)</a>
+<a class="sourceLine" id="cb1-312" title="312"></a>
+<a class="sourceLine" id="cb1-313" title="313">        <span class="cf">if</span> entry.is_dir() <span class="kw">and</span> <span class="kw">not</span> entry.is_symlink():</a>
+<a class="sourceLine" id="cb1-314" title="314">            entry_type <span class="op">=</span> <span class="st">&#39;folder&#39;</span></a>
+<a class="sourceLine" id="cb1-315" title="315">            <span class="cf">if</span> os.name <span class="kw">not</span> <span class="kw">in</span> (<span class="st">&#39;nt&#39;</span>,):</a>
+<a class="sourceLine" id="cb1-316" title="316">                <span class="co"># append trailing slash to dirs, unless it&#39;s windows</span></a>
+<a class="sourceLine" id="cb1-317" title="317">                entry_path <span class="op">=</span> os.path.join(entry.name, <span class="st">&#39;&#39;</span>)</a>
+<a class="sourceLine" id="cb1-318" title="318"></a>
+<a class="sourceLine" id="cb1-319" title="319">        <span class="cf">elif</span> entry.is_dir() <span class="kw">and</span> entry.is_symlink():</a>
+<a class="sourceLine" id="cb1-320" title="320">            entry_type <span class="op">=</span> <span class="st">&#39;folder-shortcut&#39;</span></a>
+<a class="sourceLine" id="cb1-321" title="321">            <span class="bu">print</span>(<span class="st">&#39;dir-symlink&#39;</span>, entry.absolute())</a>
+<a class="sourceLine" id="cb1-322" title="322"></a>
+<a class="sourceLine" id="cb1-323" title="323">        <span class="cf">elif</span> entry.is_file() <span class="kw">and</span> entry.is_symlink():</a>
+<a class="sourceLine" id="cb1-324" title="324">            entry_type <span class="op">=</span> <span class="st">&#39;file-shortcut&#39;</span></a>
+<a class="sourceLine" id="cb1-325" title="325">            <span class="bu">print</span>(<span class="st">&#39;file-symlink&#39;</span>, entry.absolute())</a>
+<a class="sourceLine" id="cb1-326" title="326"></a>
+<a class="sourceLine" id="cb1-327" title="327">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb1-328" title="328">            entry_type <span class="op">=</span> <span class="st">&#39;file&#39;</span></a>
+<a class="sourceLine" id="cb1-329" title="329"></a>
+<a class="sourceLine" id="cb1-330" title="330">        index_file.write(<span class="ss">f&quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb1-331" title="331"><span class="ss">        &lt;tr class=&quot;file&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-332" title="332"><span class="ss">            &lt;td&gt;&lt;/td&gt;</span></a>
+<a class="sourceLine" id="cb1-333" title="333"><span class="ss">            &lt;td&gt;</span></a>
+<a class="sourceLine" id="cb1-334" title="334"><span class="ss">                &lt;a href=&quot;</span><span class="sc">{</span>quote(entry_path)<span class="sc">}</span><span class="ss">&quot;&gt;</span></a>
+<a class="sourceLine" id="cb1-335" title="335"><span class="ss">                    &lt;svg width=&quot;1.5em&quot; height=&quot;1em&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 265 323&quot;&gt;&lt;use xlink:href=&quot;#</span><span class="sc">{</span>entry_type<span class="sc">}</span><span class="ss">&quot;&gt;&lt;/use&gt;&lt;/svg&gt;</span></a>
+<a class="sourceLine" id="cb1-336" title="336"><span class="ss">                    &lt;span class=&quot;name&quot;&gt;</span><span class="sc">{</span>entry<span class="sc">.</span>name<span class="sc">}</span><span class="ss">&lt;/span&gt;</span></a>
+<a class="sourceLine" id="cb1-337" title="337"><span class="ss">                &lt;/a&gt;</span></a>
+<a class="sourceLine" id="cb1-338" title="338"><span class="ss">            &lt;/td&gt;</span></a>
+<a class="sourceLine" id="cb1-339" title="339"><span class="ss">            &lt;td data-order=&quot;</span><span class="sc">{</span>size_bytes<span class="sc">}</span><span class="ss">&quot;&gt;</span><span class="sc">{</span>size_pretty<span class="sc">}</span><span class="ss">&lt;/td&gt;</span></a>
+<a class="sourceLine" id="cb1-340" title="340"><span class="ss">            &lt;td class=&quot;hideable&quot;&gt;&lt;time datetime=&quot;</span><span class="sc">{</span>last_modified_iso<span class="sc">}</span><span class="ss">&quot;&gt;</span><span class="sc">{</span>last_modified_human_readable<span class="sc">}</span><span class="ss">&lt;/time&gt;&lt;/td&gt;</span></a>
+<a class="sourceLine" id="cb1-341" title="341"><span class="ss">            &lt;td class=&quot;hideable&quot;&gt;&lt;/td&gt;</span></a>
+<a class="sourceLine" id="cb1-342" title="342"><span class="ss">        &lt;/tr&gt;</span></a>
+<a class="sourceLine" id="cb1-343" title="343"><span class="ss">&quot;&quot;&quot;</span>)</a>
+<a class="sourceLine" id="cb1-344" title="344"></a>
+<a class="sourceLine" id="cb1-345" title="345">    index_file.write(<span class="st">&quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb1-346" title="346"><span class="st">            &lt;/tbody&gt;</span></a>
+<a class="sourceLine" id="cb1-347" title="347"><span class="st">        &lt;/table&gt;</span></a>
+<a class="sourceLine" id="cb1-348" title="348"><span class="st">    &lt;/div&gt;</span></a>
+<a class="sourceLine" id="cb1-349" title="349"><span class="st">&lt;/main&gt;</span></a>
+<a class="sourceLine" id="cb1-350" title="350"><span class="st">&lt;/body&gt;</span></a>
+<a class="sourceLine" id="cb1-351" title="351"><span class="st">&lt;/html&gt;&quot;&quot;&quot;</span>)</a>
+<a class="sourceLine" id="cb1-352" title="352">    <span class="cf">if</span> index_file:</a>
+<a class="sourceLine" id="cb1-353" title="353">        index_file.close()</a>
+<a class="sourceLine" id="cb1-354" title="354"></a>
+<a class="sourceLine" id="cb1-355" title="355"></a>
+<a class="sourceLine" id="cb1-356" title="356"><span class="co"># bytes pretty-printing</span></a>
+<a class="sourceLine" id="cb1-357" title="357">UNITS_MAPPING <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb1-358" title="358">    (<span class="dv">1024</span> <span class="op">**</span> <span class="dv">5</span>, <span class="st">&#39; PB&#39;</span>),</a>
+<a class="sourceLine" id="cb1-359" title="359">    (<span class="dv">1024</span> <span class="op">**</span> <span class="dv">4</span>, <span class="st">&#39; TB&#39;</span>),</a>
+<a class="sourceLine" id="cb1-360" title="360">    (<span class="dv">1024</span> <span class="op">**</span> <span class="dv">3</span>, <span class="st">&#39; GB&#39;</span>),</a>
+<a class="sourceLine" id="cb1-361" title="361">    (<span class="dv">1024</span> <span class="op">**</span> <span class="dv">2</span>, <span class="st">&#39; MB&#39;</span>),</a>
+<a class="sourceLine" id="cb1-362" title="362">    (<span class="dv">1024</span> <span class="op">**</span> <span class="dv">1</span>, <span class="st">&#39; KB&#39;</span>),</a>
+<a class="sourceLine" id="cb1-363" title="363">    (<span class="dv">1024</span> <span class="op">**</span> <span class="dv">0</span>, (<span class="st">&#39; byte&#39;</span>, <span class="st">&#39; bytes&#39;</span>)),</a>
+<a class="sourceLine" id="cb1-364" title="364">]</a>
+<a class="sourceLine" id="cb1-365" title="365"></a>
+<a class="sourceLine" id="cb1-366" title="366"></a>
+<a class="sourceLine" id="cb1-367" title="367"><span class="kw">def</span> pretty_size(<span class="bu">bytes</span>, units<span class="op">=</span>UNITS_MAPPING):</a>
+<a class="sourceLine" id="cb1-368" title="368">    <span class="co">&quot;&quot;&quot;Human-readable file sizes.</span></a>
+<a class="sourceLine" id="cb1-369" title="369"><span class="co">    ripped from https://pypi.python.org/pypi/hurry.filesize/</span></a>
+<a class="sourceLine" id="cb1-370" title="370"><span class="co">    &quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb1-371" title="371">    <span class="cf">for</span> factor, suffix <span class="kw">in</span> units:</a>
+<a class="sourceLine" id="cb1-372" title="372">        <span class="cf">if</span> <span class="bu">bytes</span> <span class="op">&gt;=</span> factor:</a>
+<a class="sourceLine" id="cb1-373" title="373">            <span class="cf">break</span></a>
+<a class="sourceLine" id="cb1-374" title="374">    amount <span class="op">=</span> <span class="bu">int</span>(<span class="bu">bytes</span> <span class="op">/</span> factor)</a>
+<a class="sourceLine" id="cb1-375" title="375"></a>
+<a class="sourceLine" id="cb1-376" title="376">    <span class="cf">if</span> <span class="bu">isinstance</span>(suffix, <span class="bu">tuple</span>):</a>
+<a class="sourceLine" id="cb1-377" title="377">        singular, multiple <span class="op">=</span> suffix</a>
+<a class="sourceLine" id="cb1-378" title="378">        <span class="cf">if</span> amount <span class="op">==</span> <span class="dv">1</span>:</a>
+<a class="sourceLine" id="cb1-379" title="379">            suffix <span class="op">=</span> singular</a>
+<a class="sourceLine" id="cb1-380" title="380">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb1-381" title="381">            suffix <span class="op">=</span> multiple</a>
+<a class="sourceLine" id="cb1-382" title="382">    <span class="cf">return</span> <span class="bu">str</span>(amount) <span class="op">+</span> suffix</a>
+<a class="sourceLine" id="cb1-383" title="383"></a>
+<a class="sourceLine" id="cb1-384" title="384"></a>
+<a class="sourceLine" id="cb1-385" title="385"><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</a>
+<a class="sourceLine" id="cb1-386" title="386">    parser <span class="op">=</span> argparse.ArgumentParser(description<span class="op">=</span><span class="st">&#39;&#39;&#39;DESCRIPTION:</span></a>
+<a class="sourceLine" id="cb1-387" title="387"><span class="st">    Generate directory index files (recursive is OFF by default).</span></a>
+<a class="sourceLine" id="cb1-388" title="388"><span class="st">    Start from current dir or from folder passed as first positional argument.</span></a>
+<a class="sourceLine" id="cb1-389" title="389"><span class="st">    Optionally filter by file types with --filter &quot;*.py&quot;. &#39;&#39;&#39;</span>)</a>
+<a class="sourceLine" id="cb1-390" title="390"></a>
+<a class="sourceLine" id="cb1-391" title="391">    parser.add_argument(<span class="st">&#39;top_dir&#39;</span>,</a>
+<a class="sourceLine" id="cb1-392" title="392">                        nargs<span class="op">=</span><span class="st">&#39;?&#39;</span>,</a>
+<a class="sourceLine" id="cb1-393" title="393">                        action<span class="op">=</span><span class="st">&#39;store&#39;</span>,</a>
+<a class="sourceLine" id="cb1-394" title="394">                        <span class="bu">help</span><span class="op">=</span><span class="st">&#39;top folder from which to start generating indexes, &#39;</span></a>
+<a class="sourceLine" id="cb1-395" title="395">                             <span class="st">&#39;use current folder if not specified&#39;</span>,</a>
+<a class="sourceLine" id="cb1-396" title="396">                        default<span class="op">=</span>os.getcwd())</a>
+<a class="sourceLine" id="cb1-397" title="397"></a>
+<a class="sourceLine" id="cb1-398" title="398">    parser.add_argument(<span class="st">&#39;--filter&#39;</span>, <span class="st">&#39;-f&#39;</span>,</a>
+<a class="sourceLine" id="cb1-399" title="399">                        <span class="bu">help</span><span class="op">=</span><span class="st">&#39;only include files matching glob&#39;</span>,</a>
+<a class="sourceLine" id="cb1-400" title="400">                        required<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb1-401" title="401"></a>
+<a class="sourceLine" id="cb1-402" title="402">    parser.add_argument(<span class="st">&#39;--output-file&#39;</span>, <span class="st">&#39;-o&#39;</span>,</a>
+<a class="sourceLine" id="cb1-403" title="403">                        metavar<span class="op">=</span><span class="st">&#39;filename&#39;</span>,</a>
+<a class="sourceLine" id="cb1-404" title="404">                        default<span class="op">=</span>DEFAULT_OUTPUT_FILE,</a>
+<a class="sourceLine" id="cb1-405" title="405">                        <span class="bu">help</span><span class="op">=</span><span class="ss">f&#39;Custom output file, by default &quot;</span><span class="sc">{</span>DEFAULT_OUTPUT_FILE<span class="sc">}</span><span class="ss">&quot;&#39;</span>)</a>
+<a class="sourceLine" id="cb1-406" title="406"></a>
+<a class="sourceLine" id="cb1-407" title="407">    parser.add_argument(<span class="st">&#39;--recursive&#39;</span>, <span class="st">&#39;-r&#39;</span>,</a>
+<a class="sourceLine" id="cb1-408" title="408">                        action<span class="op">=</span><span class="st">&#39;store_true&#39;</span>,</a>
+<a class="sourceLine" id="cb1-409" title="409">                        <span class="bu">help</span><span class="op">=</span><span class="st">&quot;recursively process nested dirs (FALSE by default)&quot;</span>,</a>
+<a class="sourceLine" id="cb1-410" title="410">                        required<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb1-411" title="411"></a>
+<a class="sourceLine" id="cb1-412" title="412">    parser.add_argument(<span class="st">&#39;--verbose&#39;</span>, <span class="st">&#39;-v&#39;</span>,</a>
+<a class="sourceLine" id="cb1-413" title="413">                        action<span class="op">=</span><span class="st">&#39;store_true&#39;</span>,</a>
+<a class="sourceLine" id="cb1-414" title="414">                        <span class="bu">help</span><span class="op">=</span><span class="st">&#39;***WARNING: can take longer time with complex file tree structures on slow terminals***&#39;</span></a>
+<a class="sourceLine" id="cb1-415" title="415">                             <span class="st">&#39; verbosely list every processed file&#39;</span>,</a>
+<a class="sourceLine" id="cb1-416" title="416">                        required<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb1-417" title="417"></a>
+<a class="sourceLine" id="cb1-418" title="418">    config <span class="op">=</span> parser.parse_args(sys.argv[<span class="dv">1</span>:])</a>
+<a class="sourceLine" id="cb1-419" title="419">    process_dir(config.top_dir, config)</a></code></pre></div>
+<hr>
+<h2 id="alternatively-heres-a-more-simple-script">Alternatively here’s a more simple script:</h2>
+<h4 id="the-result-looks-like-this">The result looks like this:</h4>
+<p><a href="https://i.stack.imgur.com/tcpNw.jpg"><img src="https://i.stack.imgur.com/tcpNw.jpg" alt="enter image description here" /></a></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode py"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="im">import</span> os</a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3">indexTextStart <span class="op">=</span> <span class="st">&quot;&quot;&quot;&lt;!DOCTYPE html&gt;</span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="st">&lt;html&gt;</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="st">&lt;head&gt;&lt;title&gt;Index of </span><span class="sc">{folderPath}</span><span class="st">&lt;/title&gt;&lt;/head&gt;</span></a>
+<a class="sourceLine" id="cb2-6" title="6"><span class="st">&lt;body&gt;</span></a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="st">    &lt;h2&gt;Index of </span><span class="sc">{folderPath}</span><span class="st">&lt;/h2&gt;</span></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="st">    &lt;hr&gt;</span></a>
+<a class="sourceLine" id="cb2-9" title="9"><span class="st">    &lt;ul&gt;</span></a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="st">        &lt;li&gt;</span></a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="st">            &lt;a href=&#39;../&#39;&gt;../&lt;/a&gt;</span></a>
+<a class="sourceLine" id="cb2-12" title="12"><span class="st">        &lt;/li&gt;</span></a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="st">&quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb2-14" title="14">indexTextEnd <span class="op">=</span> <span class="st">&quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb2-15" title="15"><span class="st">    &lt;/ul&gt;</span></a>
+<a class="sourceLine" id="cb2-16" title="16"><span class="st">&lt;/body&gt;</span></a>
+<a class="sourceLine" id="cb2-17" title="17"><span class="st">&lt;/html&gt;</span></a>
+<a class="sourceLine" id="cb2-18" title="18"><span class="st">&quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb2-19" title="19"></a>
+<a class="sourceLine" id="cb2-20" title="20"><span class="kw">def</span> index_folder(folderPath):</a>
+<a class="sourceLine" id="cb2-21" title="21">    <span class="bu">print</span>(<span class="st">&quot;Indexing: &quot;</span> <span class="op">+</span> folderPath <span class="op">+</span><span class="st">&#39;/&#39;</span>)</a>
+<a class="sourceLine" id="cb2-22" title="22">    <span class="co">#Getting the content of the folder</span></a>
+<a class="sourceLine" id="cb2-23" title="23">    files <span class="op">=</span> os.listdir(folderPath)</a>
+<a class="sourceLine" id="cb2-24" title="24">    <span class="co">#If Root folder, correcting folder name</span></a>
+<a class="sourceLine" id="cb2-25" title="25">    root <span class="op">=</span> folderPath</a>
+<a class="sourceLine" id="cb2-26" title="26">    <span class="cf">if</span> folderPath <span class="op">==</span> <span class="st">&#39;.&#39;</span>:</a>
+<a class="sourceLine" id="cb2-27" title="27">        root <span class="op">=</span> <span class="st">&#39;Root&#39;</span></a>
+<a class="sourceLine" id="cb2-28" title="28">    indexText <span class="op">=</span> indexTextStart.<span class="bu">format</span>(folderPath<span class="op">=</span>root)</a>
+<a class="sourceLine" id="cb2-29" title="29">    <span class="cf">for</span> <span class="bu">file</span> <span class="kw">in</span> files:</a>
+<a class="sourceLine" id="cb2-30" title="30">        <span class="co">#Avoiding index.html files</span></a>
+<a class="sourceLine" id="cb2-31" title="31">        <span class="cf">if</span> <span class="bu">file</span> <span class="op">!=</span> <span class="st">&#39;index.html&#39;</span>:</a>
+<a class="sourceLine" id="cb2-32" title="32">            indexText <span class="op">+=</span> <span class="st">&quot;</span><span class="ch">\t\t</span><span class="st">&lt;li&gt;</span><span class="ch">\n\t\t\t</span><span class="st">&lt;a href=&#39;&quot;</span> <span class="op">+</span> <span class="bu">file</span> <span class="op">+</span> <span class="st">&quot;&#39;&gt;&quot;</span> <span class="op">+</span> <span class="bu">file</span> <span class="op">+</span> <span class="st">&quot;&lt;/a&gt;</span><span class="ch">\n\t\t</span><span class="st">&lt;/li&gt;</span><span class="ch">\n</span><span class="st">&quot;</span></a>
+<a class="sourceLine" id="cb2-33" title="33">        <span class="co">#Recursive call to continue indexing</span></a>
+<a class="sourceLine" id="cb2-34" title="34">        <span class="cf">if</span> os.path.isdir(folderPath<span class="op">+</span><span class="st">&#39;/&#39;</span><span class="op">+</span><span class="bu">file</span>):</a>
+<a class="sourceLine" id="cb2-35" title="35">            index_folder(folderPath <span class="op">+</span> <span class="st">&#39;/&#39;</span> <span class="op">+</span> <span class="bu">file</span>)</a>
+<a class="sourceLine" id="cb2-36" title="36">    indexText <span class="op">+=</span> indexTextEnd</a>
+<a class="sourceLine" id="cb2-37" title="37">    <span class="co">#Create or override previous index.html</span></a>
+<a class="sourceLine" id="cb2-38" title="38">    index <span class="op">=</span> <span class="bu">open</span>(folderPath<span class="op">+</span><span class="st">&#39;/index.html&#39;</span>, <span class="st">&quot;w&quot;</span>)</a>
+<a class="sourceLine" id="cb2-39" title="39">    <span class="co">#Save indexed content to file</span></a>
+<a class="sourceLine" id="cb2-40" title="40">    index.write(indexText)</a>
+<a class="sourceLine" id="cb2-41" title="41"></a>
+<a class="sourceLine" id="cb2-42" title="42"><span class="co">#Indexing root directory (Script position)</span></a>
+<a class="sourceLine" id="cb2-43" title="43">index_folder(<span class="st">&#39;.&#39;</span>)</a>
+<a class="sourceLine" id="cb2-44" title="44"></a>
+<a class="sourceLine" id="cb2-45" title="45"></a></code></pre></div>
+<hr>
+<h2 id="you-could-also-use">You could also use</h2>
+<p>1.) <a href="https://www.portablefreeware.com/index.php?id=308">dirhtml</a> 2.) <a href="https://www.rlvision.com/snap2html/about.php">Snap2Html</a></p>
+<h5 id="to-get-roughly-the-same-effect.">to get roughly the same effect.</h5>
+<hr>
+<hr>
+<h2 id="lastly-you-could-also-use-this-bash-script-if-you-want-a-simple-unordered-list-of-files">Lastly you could also use this bash script if you want a simple unordered list of files:</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"></a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3"></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="co">#!/bin/sh</span></a>
+<a class="sourceLine" id="cb3-5" title="5"></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="co"># find ./ | grep -i &quot;\.*$&quot; &gt;files</span></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="fu">find</span> ./ <span class="kw">|</span> <span class="fu">sed</span> -E -e <span class="st">&#39;s/([^ ]+[ ]+){8}//&#39;</span> <span class="kw">|</span> <span class="fu">grep</span> -i <span class="st">&quot;\.*$&quot;</span><span class="op">&gt;</span>files</a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="va">listing=</span><span class="st">&quot;files&quot;</span></a>
+<a class="sourceLine" id="cb3-9" title="9"></a>
+<a class="sourceLine" id="cb3-10" title="10"><span class="va">out=</span><span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb3-11" title="11"></a>
+<a class="sourceLine" id="cb3-12" title="12"><span class="va">html=</span><span class="st">&quot;index.html&quot;</span></a>
+<a class="sourceLine" id="cb3-13" title="13"><span class="va">out=</span><span class="st">&quot;basename </span><span class="va">$out</span><span class="st">.html&quot;</span></a>
+<a class="sourceLine" id="cb3-14" title="14"><span class="va">html=</span><span class="st">&quot;index.html&quot;</span></a>
+<a class="sourceLine" id="cb3-15" title="15"><span class="fu">cmd()</span> <span class="kw">{</span></a>
+<a class="sourceLine" id="cb3-16" title="16"></a>
+<a class="sourceLine" id="cb3-17" title="17">  <span class="bu">echo</span> <span class="st">&#39;  &lt;!DOCTYPE html&gt;&#39;</span></a>
+<a class="sourceLine" id="cb3-18" title="18">  <span class="bu">echo</span> <span class="st">&#39;&lt;html&gt;&#39;</span></a>
+<a class="sourceLine" id="cb3-19" title="19">  <span class="bu">echo</span> <span class="st">&#39;&lt;head&gt;&#39;</span></a>
+<a class="sourceLine" id="cb3-20" title="20"></a>
+<a class="sourceLine" id="cb3-21" title="21">  <span class="bu">echo</span> <span class="st">&#39;  &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html&quot;&gt;&#39;</span></a>
+<a class="sourceLine" id="cb3-22" title="22"></a>
+<a class="sourceLine" id="cb3-23" title="23">  <span class="bu">echo</span> <span class="st">&#39;  &lt;meta name=&quot;Author&quot; content=&quot;Bryan Guner&quot;&gt;&#39;</span></a>
+<a class="sourceLine" id="cb3-24" title="24">  <span class="bu">echo</span> <span class="st">&#39;&lt;link rel=&quot;stylesheet&quot; href=&quot;./assets/prism.css&quot;&gt;&#39;</span></a>
+<a class="sourceLine" id="cb3-25" title="25">  <span class="bu">echo</span> <span class="st">&#39; &lt;link rel=&quot;stylesheet&quot; href=&quot;./assets/style.css&quot;&gt;&#39;</span></a>
+<a class="sourceLine" id="cb3-26" title="26">  <span class="bu">echo</span> <span class="st">&#39; &lt;script async defer src=&quot;./assets/prism.js&quot;&gt;&lt;/script&gt;&#39;</span></a>
+<a class="sourceLine" id="cb3-27" title="27"></a>
+<a class="sourceLine" id="cb3-28" title="28">  <span class="bu">echo</span> <span class="st">&quot;  &lt;title&gt; directory &lt;/title&gt;&quot;</span></a>
+<a class="sourceLine" id="cb3-29" title="29"></a>
+<a class="sourceLine" id="cb3-30" title="30">  <span class="bu">echo</span> <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb3-31" title="31">  <span class="bu">echo</span> <span class="st">&#39;&lt;style&gt;&#39;</span></a>
+<a class="sourceLine" id="cb3-32" title="32"></a>
+<a class="sourceLine" id="cb3-33" title="33"></a>
+<a class="sourceLine" id="cb3-34" title="34"><span class="bu">echo</span> <span class="st">&#39;    a {&#39;</span></a>
+<a class="sourceLine" id="cb3-35" title="35"><span class="bu">echo</span> <span class="st">&#39;      color: black;&#39;</span></a>
+<a class="sourceLine" id="cb3-36" title="36"><span class="bu">echo</span> <span class="st">&#39;    }&#39;</span></a>
+<a class="sourceLine" id="cb3-37" title="37"><span class="bu">echo</span> <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb3-38" title="38"><span class="bu">echo</span> <span class="st">&#39;    li {&#39;</span></a>
+<a class="sourceLine" id="cb3-39" title="39"><span class="bu">echo</span> <span class="st">&#39;      border: 1px solid black !important;&#39;</span></a>
+<a class="sourceLine" id="cb3-40" title="40"><span class="bu">echo</span> <span class="st">&#39;      font-size: 20px;&#39;</span></a>
+<a class="sourceLine" id="cb3-41" title="41"><span class="bu">echo</span> <span class="st">&#39;      letter-spacing: 0px;&#39;</span></a>
+<a class="sourceLine" id="cb3-42" title="42"><span class="bu">echo</span> <span class="st">&#39;      font-weight: 700;&#39;</span></a>
+<a class="sourceLine" id="cb3-43" title="43"><span class="bu">echo</span> <span class="st">&#39;      line-height: 16px;&#39;</span></a>
+<a class="sourceLine" id="cb3-44" title="44"><span class="bu">echo</span> <span class="st">&#39;      text-decoration: none !important;&#39;</span></a>
+<a class="sourceLine" id="cb3-45" title="45"><span class="bu">echo</span> <span class="st">&#39;      text-transform: uppercase;&#39;</span></a>
+<a class="sourceLine" id="cb3-46" title="46"><span class="bu">echo</span> <span class="st">&#39;      background: #194ccdaf !important;&#39;</span></a>
+<a class="sourceLine" id="cb3-47" title="47"><span class="bu">echo</span> <span class="st">&#39;      color: black !important;&#39;</span></a>
+<a class="sourceLine" id="cb3-48" title="48"><span class="bu">echo</span> <span class="st">&#39;      border: none;&#39;</span></a>
+<a class="sourceLine" id="cb3-49" title="49"><span class="bu">echo</span> <span class="st">&#39;      cursor: pointer;&#39;</span></a>
+<a class="sourceLine" id="cb3-50" title="50"><span class="bu">echo</span> <span class="st">&#39;      justify-content: center;&#39;</span></a>
+<a class="sourceLine" id="cb3-51" title="51"><span class="bu">echo</span> <span class="st">&#39;      padding: 30px 60px;&#39;</span></a>
+<a class="sourceLine" id="cb3-52" title="52"><span class="bu">echo</span> <span class="st">&#39;      height: 48px;&#39;</span></a>
+<a class="sourceLine" id="cb3-53" title="53"><span class="bu">echo</span> <span class="st">&#39;      text-align: center;&#39;</span></a>
+<a class="sourceLine" id="cb3-54" title="54"><span class="bu">echo</span> <span class="st">&#39;      white-space: normal;&#39;</span></a>
+<a class="sourceLine" id="cb3-55" title="55"><span class="bu">echo</span> <span class="st">&#39;      border-radius: 10px;&#39;</span></a>
+<a class="sourceLine" id="cb3-56" title="56"><span class="bu">echo</span> <span class="st">&#39;      min-width: 45em;&#39;</span></a>
+<a class="sourceLine" id="cb3-57" title="57"><span class="bu">echo</span> <span class="st">&#39;      padding: 1.2em 1em 0;&#39;</span></a>
+<a class="sourceLine" id="cb3-58" title="58"><span class="bu">echo</span> <span class="st">&#39;      box-shadow: 0 0 5px;&#39;</span></a>
+<a class="sourceLine" id="cb3-59" title="59"><span class="bu">echo</span> <span class="st">&#39;      margin: 1em;&#39;</span></a>
+<a class="sourceLine" id="cb3-60" title="60"><span class="bu">echo</span> <span class="st">&#39;      display: grid;&#39;</span></a>
+<a class="sourceLine" id="cb3-61" title="61"><span class="bu">echo</span> <span class="st">&#39;      -webkit-border-radius: 10px;&#39;</span></a>
+<a class="sourceLine" id="cb3-62" title="62"><span class="bu">echo</span> <span class="st">&#39;      -moz-border-radius: 10px;&#39;</span></a>
+<a class="sourceLine" id="cb3-63" title="63"><span class="bu">echo</span> <span class="st">&#39;      -ms-border-radius: 10px;&#39;</span></a>
+<a class="sourceLine" id="cb3-64" title="64"><span class="bu">echo</span> <span class="st">&#39;      -o-border-radius: 10px;&#39;</span></a>
+<a class="sourceLine" id="cb3-65" title="65"><span class="bu">echo</span> <span class="st">&#39;    }&#39;</span></a>
+<a class="sourceLine" id="cb3-66" title="66"><span class="bu">echo</span> <span class="st">&#39;  &lt;/style&gt;&#39;</span></a>
+<a class="sourceLine" id="cb3-67" title="67">  <span class="bu">echo</span> <span class="st">&#39;&lt;/head&gt;&#39;</span></a>
+<a class="sourceLine" id="cb3-68" title="68"></a>
+<a class="sourceLine" id="cb3-69" title="69">  <span class="bu">echo</span> <span class="st">&#39;&lt;body&gt;&#39;</span></a>
+<a class="sourceLine" id="cb3-70" title="70"></a>
+<a class="sourceLine" id="cb3-71" title="71">  <span class="bu">echo</span> <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb3-72" title="72"></a>
+<a class="sourceLine" id="cb3-73" title="73">  <span class="co"># continue with the HTML stuff</span></a>
+<a class="sourceLine" id="cb3-74" title="74"></a>
+<a class="sourceLine" id="cb3-75" title="75">  <span class="bu">echo</span> <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb3-76" title="76"></a>
+<a class="sourceLine" id="cb3-77" title="77">  <span class="bu">echo</span> <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb3-78" title="78"></a>
+<a class="sourceLine" id="cb3-79" title="79">  <span class="bu">echo</span> <span class="st">&quot;&lt;ul&gt;&quot;</span></a>
+<a class="sourceLine" id="cb3-80" title="80"></a>
+<a class="sourceLine" id="cb3-81" title="81">  <span class="fu">awk</span> <span class="st">&#39;{print &quot;&lt;li&gt;&lt;a href=\&quot;&quot;$1&quot;\&quot;&gt;&quot;,$1,&quot;&amp;nbsp;&lt;/a&gt;&lt;/li&gt;&quot;}&#39;</span> <span class="va">$listing</span></a>
+<a class="sourceLine" id="cb3-82" title="82"></a>
+<a class="sourceLine" id="cb3-83" title="83">  <span class="co"># awk &#39;{print &quot;&lt;li&gt;&quot;};</span></a>
+<a class="sourceLine" id="cb3-84" title="84"></a>
+<a class="sourceLine" id="cb3-85" title="85">  <span class="co">#     {print &quot; &lt;a href=\&quot;&quot;$1&quot;\&quot;&gt;&quot;,$1,&quot;&lt;/a&gt;&lt;/li&gt;&amp;nbsp;&quot;}&#39; \ $listing</span></a>
+<a class="sourceLine" id="cb3-86" title="86"></a>
+<a class="sourceLine" id="cb3-87" title="87">  <span class="bu">echo</span> <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb3-88" title="88"></a>
+<a class="sourceLine" id="cb3-89" title="89">  <span class="bu">echo</span> <span class="st">&quot;&lt;/ul&gt;&quot;</span></a>
+<a class="sourceLine" id="cb3-90" title="90"></a>
+<a class="sourceLine" id="cb3-91" title="91">  <span class="bu">echo</span> <span class="st">&quot;&lt;/body&gt;&quot;</span></a>
+<a class="sourceLine" id="cb3-92" title="92"></a>
+<a class="sourceLine" id="cb3-93" title="93">  <span class="bu">echo</span> <span class="st">&quot;&lt;/html&gt;&quot;</span></a>
+<a class="sourceLine" id="cb3-94" title="94"></a>
+<a class="sourceLine" id="cb3-95" title="95"><span class="kw">}</span></a>
+<a class="sourceLine" id="cb3-96" title="96"></a>
+<a class="sourceLine" id="cb3-97" title="97"><span class="ex">cmd</span> <span class="va">$listing</span> --sort=extension <span class="op">&gt;&gt;</span><span class="va">$html</span></a>
+<a class="sourceLine" id="cb3-98" title="98"></a></code></pre></div>
+</body>
+</html>
