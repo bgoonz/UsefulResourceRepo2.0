@@ -29,12 +29,12 @@ def sort_diagonally(mat: List[List[int]]) -> List[List[int]]:
 
     # Rows + columns - 1
     # The -1 helps you to not repeat a column
-    for i in range(len(mat)+len(mat[0])-1):
+    for i in range(len(mat) + len(mat[0]) - 1):
         # Process the rows
-        if i+1 < len(mat):
-            # Initialize heap, set row and column
+        if i + 1 < len(mat):
+            #  Initialize heap, set row and column
             h = []
-            row = len(mat)-(i+1)
+            row = len(mat) - (i + 1)
             col = 0
 
             # Traverse diagonally, and add the values to the heap
@@ -44,7 +44,7 @@ def sort_diagonally(mat: List[List[int]]) -> List[List[int]]:
                 col += 1
 
             # Sort the diagonal
-            row = len(mat)-(i+1)
+            row = len(mat) - (i + 1)
             col = 0
             while h:
                 ele = heappop(h)
@@ -56,7 +56,7 @@ def sort_diagonally(mat: List[List[int]]) -> List[List[int]]:
             # Initialize heap, row and column
             h = []
             row = 0
-            col = i - (len(mat)-1)
+            col = i - (len(mat) - 1)
 
             # Traverse Diagonally
             while col < len(mat[0]) and row < len(mat):
@@ -66,7 +66,7 @@ def sort_diagonally(mat: List[List[int]]) -> List[List[int]]:
 
             # Sort the diagonal
             row = 0
-            col = i - (len(mat)-1)
+            col = i - (len(mat) - 1)
             while h:
                 ele = heappop(h)
                 mat[row][col] = ele
