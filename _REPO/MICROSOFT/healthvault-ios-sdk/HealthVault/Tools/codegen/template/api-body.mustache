@@ -1,0 +1,101 @@
+//
+// {{classname}}.m
+// MHVLib
+//
+{{>licenceInfo}}
+
+{{#operations}}
+#import <Foundation/Foundation.h>
+#import "MHVRemoteMonitoringClient.h"
+#import "MHVJsonSerializer.h"
+#import "{{classname}}.h"
+{{#imports}}#import "{{import}}.h"
+{{/imports}}
+{{newline}}
+
+@implementation MHVRemoteMonitoringClient ({{classname}})
+
+NSString* _Nonnull k{{classname}}ErrorDomain = @"{{classname}}ErrorDomain";
+NSInteger k{{classname}}MissingParamErrorCode = 234513;
+
+#pragma mark - Api Methods
+
+{{#operation}}
+///
+/// {{{summary}}}
+/// {{{notes}}}
+/// {{#allParams}} @param {{paramName}} {{{description}}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
+/// {{/allParams}}
+- (void){{#vendorExtensions.x-objc-operationId}}{{vendorExtensions.x-objc-operationId}}{{/vendorExtensions.x-objc-operationId}}{{^vendorExtensions.x-objc-operationId}}{{nickname}}{{#hasParams}}With{{vendorExtensions.firstParamAltName}}{{/hasParams}}{{^hasParams}}WithCompletion:{{/hasParams}}{{/vendorExtensions.x-objc-operationId}}{{#allParams}}{{#secondaryParam}}
+    {{paramName}}{{/secondaryParam}}:({{{dataType}}}{{#required}} _Nonnull{{/required}}{{^required}} _Nullable{{/required}}){{paramName}}{{/allParams}}
+    {{#hasParams}}completion:{{/hasParams}}(void(^_Nonnull)({{#returnBaseType}}{{{returnType}}} _Nullable output, {{/returnBaseType}}NSError* _Nullable error))completion
+{
+    {{#allParams}}
+    {{#required}}
+    // verify the required parameter '{{paramName}}' is set
+    if ({{paramName}} == nil)
+    {
+        NSParameterAssert({{paramName}});
+        if(completion)
+        {
+            NSDictionary * userInfo = @{NSLocalizedDescriptionKey : [NSString stringWithFormat:NSLocalizedString(@"Missing required parameter '%@'", nil),@"{{paramName}}"] };
+            NSError* error = [NSError errorWithDomain:k{{classname}}ErrorDomain code:k{{classname}}MissingParamErrorCode userInfo:userInfo];
+            completion({{#returnType}}nil, {{/returnType}}error);
+        }
+
+        return;
+    }
+
+    {{/required}}
+    {{/allParams}}
+    NSMutableString* resourcePath = [NSMutableString stringWithFormat:@"{{{path}}}"];
+
+    NSMutableDictionary *pathParams = [[NSMutableDictionary alloc] init];
+    {{#pathParams}}
+    if ({{paramName}} != nil)
+    {
+        pathParams[@"{{baseName}}"] = {{paramName}};
+    }
+    {{/pathParams}}
+
+    NSMutableDictionary* queryParams = [[NSMutableDictionary alloc] init];
+    {{#queryParams}}
+    if ({{paramName}} != nil)
+    {
+        {{#collectionFormat}}
+        queryParams[@"{{baseName}}"] = [[{{classPrefix}}QueryParamCollection alloc] initWithValuesAndFormat: {{paramName}} format: @"{{collectionFormat}}"];
+        {{/collectionFormat}}
+        {{^collectionFormat}}queryParams[@"{{baseName}}"] = {{paramName}};{{/collectionFormat}}
+    }
+    {{/queryParams}}
+
+    NSData *bodyParam = nil;
+    {{#bodyParam}}
+    NSString *json = [MHVJsonSerializer serialize:{{paramName}}];
+    bodyParam = [json dataUsingEncoding:NSUTF8StringEncoding];
+    {{/bodyParam}}
+
+    {{#returnBaseType}}
+    [self requestWithPath:resourcePath
+                      httpMethod:@"{{httpMethod}}"
+                      pathParams:pathParams
+                     queryParams:queryParams
+                            body:bodyParam
+                     resultClass:[{{{returnBaseType}}} class]
+                      completion:completion];
+    {{/returnBaseType}}
+    {{^returnBaseType}}
+    [self requestWithPath:resourcePath
+                      httpMethod:@"{{httpMethod}}"
+                      pathParams:pathParams
+                     queryParams:queryParams
+                            body:bodyParam
+                      completion:completion];
+    {{/returnBaseType}}
+}
+
+{{/operation}}
+
+{{newline}}
+{{/operations}}
+@end
