@@ -1,0 +1,1 @@
+:warning: NOTE: The work behind the Azure Toolkit for Eclipse has moved to a new repository: https://github.com/microsoft/azure-tools-for-java. This repo is no longer updated and is kept around only for archival purposes. The source code for the latest releases is at the new repo.
