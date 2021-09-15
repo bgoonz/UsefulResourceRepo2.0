@@ -1,165 +1,102 @@
--rw-r--r--   1 gitpod gitpod  3728759 Sep 15 07:57 backup.html
-git commit -m "final"
+  git add ./MY_REPOS/INTERVIEW-PREP-COMPLETE/
+git commit -m "hiii"
 git push 
-git add ./BASH_COMMANDS.md
-git commit -m "final"
+       git add ./MY_REPOS/JAMSTACK-TEMPLATES/
+git commit -m "hiii"
 git push 
-git add ./_BLOG
-git commit -m "final"
+       git add ./MY_REPOS/Javascript/
+git commit -m "hiii"
 git push 
-git add ./commands3.md
-git commit -m "final"
+       git add ./MY_REPOS/Lambda-Resource-Static-Assets/
+git commit -m "hiii"
 git push 
-git add ./commands.txt
-git commit -m "final"
+       git add ./MY_REPOS/Quick-Post-Blog/
+git commit -m "hiii"
 git push 
-git add ./_config.yml
-git commit -m "final"
+       git add ./MY_REPOS/Web-Dev-Hub-Docs/
+git commit -m "hiii"
 git push 
-git add ./_COURSES
-git commit -m "final"
+       git add ./MY_REPOS/gitbook/
+git commit -m "hiii"
 git push 
-git add ./dir.html
-git commit -m "final"
+       git add ./MY_REPOS/github-spaces-trial/
+git commit -m "hiii"
 git push 
-git add ./dir.js
-git commit -m "final"
+       git add ./MY_REPOS/github-stats-website/
+git commit -m "hiii"
 git push 
-git add ./Dir-TREE.md
-git commit -m "final"
+       git add ./MY_REPOS/gitpod-react-notes/
+git commit -m "hiii"
 git push 
-git add ./_DOCS
-git commit -m "final"
+       git add ./MY_REPOS/https___mihirbeg.com_/
+git commit -m "hiii"
 git push 
-git add ./_EXPERIMENTs
-git commit -m "final"
+       git add ./MY_REPOS/images/
+git commit -m "hiii"
 git push 
-git add ./favicon.ico
-git commit -m "final"
+       git add ./MY_REPOS/jamstack-medium-importer/
+git commit -m "hiii"
 git push 
-git add ./FOLDERS_BY_SIZE.md
-git commit -m "final"
+       git add ./MY_REPOS/js-data-structures-refined/
+git commit -m "hiii"
 git push 
-git add ./_GENERAL
-git commit -m "final"
+       git add ./MY_REPOS/psql-practice/Learning-PostgreSQL/Chapter 12/
+git commit -m "hiii"
 git push 
-git add ./GIT-USERS
-git commit -m "final"
+       git add ./MY_REPOS/psql-practice/Learning-PostgreSQL/Chapter 13/
+git commit -m "hiii"
 git push 
-git add ./iframes.html
-git commit -m "final"
+       git add ./MY_REPOS/psql-practice/Learning-PostgreSQL/Chapter 14/
+git commit -m "hiii"
 git push 
-git add ./index.html
-git commit -m "final"
+       git add ./MY_REPOS/psql-practice/Learning-PostgreSQL/Chapter 2/
+git commit -m "hiii"
 git push 
-git add ./_Job-Search
-git commit -m "final"
+       git add ./MY_REPOS/psql-practice/Learning-PostgreSQL/Chapter 3/
+git commit -m "hiii"
 git push 
-git add ./listing-path.md
-git commit -m "final"
+       git add ./MY_REPOS/psql-practice/Learning-PostgreSQL/Chapter 5/
+git commit -m "hiii"
 git push 
-git add ./makefile
-git commit -m "final"
+       git add ./MY_REPOS/psql-practice/Learning-PostgreSQL/Chapter 6/
+git commit -m "hiii"
 git push 
-git add ./Menu-test.html
-git commit -m "final"
+       git add ./MY_REPOS/psql-practice/postgresDBSamples/adventureworks/data.zip
+git commit -m "hiii"
 git push 
-git add ./_MISC
-git commit -m "final"
+       git add ./MY_REPOS/python-gitbook/
+git commit -m "hiii"
 git push 
-git add ./MY_REPOS
-git commit -m "final"
+       git add ./MY_REPOS/react-redux-notes-v5/
+git commit -m "hiii"
 git push 
-git add ./_NEW_POSSIBLE_PROJECTS
-git commit -m "final"
+       git add ./MY_REPOS/react-rotate-iframe/
+git commit -m "hiii"
 git push 
-git add ./_NOTES
-git commit -m "final"
+       git add ./MY_REPOS/sanity-catalyst/
+git commit -m "hiii"
 git push 
-git add ./_ORGS
-git commit -m "final"
+       git add ./MY_REPOS/sanity-gatsby-blog/
+git commit -m "hiii"
 git push 
-git add ./out2.md
-git commit -m "final"
+       git add ./MY_REPOS/sanity-gatsby-hey-sugar/
+git commit -m "hiii"
 git push 
-git add ./_OVERFLOW
-git commit -m "final"
+       git add ./MY_REPOS/sanity-gatsby-hey-sugar2/
+git commit -m "hiii"
 git push 
-git add ./package-lock.json
-git commit -m "final"
+       git add ./MY_REPOS/sanity-gatsby-hey-sugar5/
+git commit -m "hiii"
 git push 
-git add ./path-fixer.js
-git commit -m "final"
+       git add ./MY_REPOS/sanity-gatsby-portfolio/
+git commit -m "hiii"
 git push 
-git add ./_PRAC
-git commit -m "final"
+       git add ./MY_REPOS/sanity-jigsaw-blog/
+git commit -m "hiii"
 git push 
-git add ./PROJECTS
-git commit -m "final"
+       git add ./MY_REPOS/sanity-kitchen-sink/
+git commit -m "hiii"
 git push 
-git add ./_PYTHON
-git commit -m "final"
-git push 
-git add ./_REACT
-git commit -m "final"
-git push 
-git add ./README.md
-git commit -m "final"
-git push 
-git add ./renovate.json
-git commit -m "final"
-git push 
-git add ./_REPO
-git commit -m "final"
-git push 
-git add ./RESOURCE_REPO.html
-git commit -m "final"
-git push 
-git add ./_RESOURCES
-git commit -m "final"
-git push 
-git add ./result.png
-git commit -m "final"
-git push 
-git add ./_REVISIT_L8R
-git commit -m "final"
-git push 
-git add ./robots.txt
-git commit -m "final"
-git push 
-git add ./_SCRAP
-git commit -m "final"
-git push 
-git add ./scrap2.md
-git commit -m "final"
-git push 
-git add ./scrap3.md
-git commit -m "final"
-git push 
-git add ./scrap6.md
-git commit -m "final"
-git push 
-git add ./scrap.md
-git commit -m "final"
-git push 
-git add ./SEARCH.html
-git commit -m "final"
-git push 
-git add ./sitemap-template.html
-git commit -m "final"
-git push 
-git add ./_TEMPLATES
-git commit -m "final"
-git push 
-git add ./_TOOLS
-git commit -m "final"
-git push 
-git add ./tree2.md
-git commit -m "final"
-git push 
-git add ./tree.md
-git commit -m "final"
-git push 
-git add ./UsefulResourceRepo2.0.html
-git commit -m "final"
+       git add ./PROJECTS/promises-with-async-and-await/
+git commit -m "hiii"
 git push 
