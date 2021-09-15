@@ -1,0 +1,12 @@
+- Classes
+  - header: For main title of each page
+  - section: For each topic division
+  - sub-section: For each division within the sections
+  - inner-sub-section: For each division within the sub-sections
+  - major-point: Top level list item
+  - minor-point: Second level lists item
+  - sub-minor-point: Third level list item
+  - image: for images
+  - quote: for blockqoutes
+  - code-block:
+  - image-box: div to contain images

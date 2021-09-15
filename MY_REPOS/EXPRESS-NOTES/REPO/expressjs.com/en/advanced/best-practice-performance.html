@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>Performance Best Practices Using Express in Production</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+    <style type="text/css">
+      a.sourceLine {
+        display: inline-block;
+        line-height: 1.25;
+      }
+      a.sourceLine {
+        pointer-events: none;
+        color: inherit;
+        text-decoration: inherit;
+      }
+      a.sourceLine:empty {
+        height: 1.2em;
+      }
+      .sourceCode {
+        overflow: visible;
+      }
+      code.sourceCode {
+        white-space: pre;
+        position: relative;
+      }
+      div.sourceCode {
+        margin: 1em 0;
+      }
+      pre.sourceCode {
+        margin: 0;
+      }
+      @media screen {
+        div.sourceCode {
+          overflow: auto;
+        }
+      }
+      @media print {
+        code.sourceCode {
+          white-space: pre-wrap;
+        }
+        a.sourceLine {
+          text-indent: -1em;
+          padding-left: 1em;
+        }
+      }
+      pre.numberSource a.sourceLine {
+        position: relative;
+        left: -4em;
+      }
+      pre.numberSource a.sourceLine::before {
+        content: attr(title);
+        position: relative;
+        left: -1em;
+        text-align: right;
+        vertical-align: baseline;
+        border: none;
+        pointer-events: all;
+        display: inline-block;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        padding: 0 4px;
+        width: 4em;
+        color: #aaaaaa;
+      }
+      pre.numberSource {
+        margin-left: 3em;
+        border-left: 1px solid #aaaaaa;
+        padding-left: 4px;
+      }
+      div.sourceCode {
+      }
+      @media screen {
+        a.sourceLine::before {
+          text-decoration: underline;
+        }
+      }
+      code span.al {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Alert */
+      code span.an {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Annotation */
+      code span.at {
+        color: #7d9029;
+      } /* Attribute */
+      code span.bn {
+        color: #40a070;
+      } /* BaseN */
+      code span.bu {
+      } /* BuiltIn */
+      code span.cf {
+        color: #007020;
+        font-weight: bold;
+      } /* ControlFlow */
+      code span.ch {
+        color: #4070a0;
+      } /* Char */
+      code span.cn {
+        color: #880000;
+      } /* Constant */
+      code span.co {
+        color: #60a0b0;
+        font-style: italic;
+      } /* Comment */
+      code span.cv {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* CommentVar */
+      code span.do {
+        color: #ba2121;
+        font-style: italic;
+      } /* Documentation */
+      code span.dt {
+        color: #902000;
+      } /* DataType */
+      code span.dv {
+        color: #40a070;
+      } /* DecVal */
+      code span.er {
+        color: #ff0000;
+        font-weight: bold;
+      } /* Error */
+      code span.ex {
+      } /* Extension */
+      code span.fl {
+        color: #40a070;
+      } /* Float */
+      code span.fu {
+        color: #06287e;
+      } /* Function */
+      code span.im {
+      } /* Import */
+      code span.in {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Information */
+      code span.kw {
+        color: #007020;
+        font-weight: bold;
+      } /* Keyword */
+      code span.op {
+        color: #666666;
+      } /* Operator */
+      code span.ot {
+        color: #007020;
+      } /* Other */
+      code span.pp {
+        color: #bc7a00;
+      } /* Preprocessor */
+      code span.sc {
+        color: #4070a0;
+      } /* SpecialChar */
+      code span.ss {
+        color: #bb6688;
+      } /* SpecialString */
+      code span.st {
+        color: #4070a0;
+      } /* String */
+      code span.va {
+        color: #19177c;
+      } /* Variable */
+      code span.vs {
+        color: #4070a0;
+      } /* VerbatimString */
+      code span.wa {
+        color: #60a0b0;
+        font-weight: bold;
+        font-style: italic;
+      } /* Warning */
+    </style>
+  </head>
+  <body>
+    <header id="title-block-header">
+      <h1 class="title">
+        Performance Best Practices Using Express in Production
+      </h1>
+    </header>
+    <h1 id="production-best-practices-performance-and-reliability">
+      Production best practices: performance and reliability
+    </h1>
+    <h2 id="overview">Overview</h2>
+    <p>
+      This article discusses performance and reliability best practices for
+      Express applications deployed to production.
+    </p>
+    <p>
+      This topic clearly falls into the “devops” world, spanning both
+      traditional development and operations. Accordingly, the information is
+      divided into two parts:
+    </p>
+    <ul>
+      <li>
+        Things to do in your code (the dev part):
+        <ul>
+          <li><a href="#use-gzip-compression">Use gzip compression</a></li>
+          <li>
+            <a href="#dont-use-synchronous-functions"
+              >Don’t use synchronous functions</a
+            >
+          </li>
+          <li><a href="#do-logging-correctly">Do logging correctly</a></li>
+          <li>
+            <a href="#handle-exceptions-properly">Handle exceptions properly</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        Things to do in your environment / setup (the ops part):
+        <ul>
+          <li>
+            <a href="#set-node_env-to-production"
+              >Set NODE_ENV to “production”</a
+            >
+          </li>
+          <li>
+            <a href="#ensure-your-app-automatically-restarts"
+              >Ensure your app automatically restarts</a
+            >
+          </li>
+          <li>
+            <a href="#run-your-app-in-a-cluster">Run your app in a cluster</a>
+          </li>
+          <li><a href="#cache-request-results">Cache request results</a></li>
+          <li><a href="#use-a-load-balancer">Use a load balancer</a></li>
+          <li><a href="#use-a-reverse-proxy">Use a reverse proxy</a></li>
+        </ul>
+      </li>
+    </ul>
+    <h2 id="in-code">Things to do in your code</h2>
+    <p>
+      Here are some things you can do in your code to improve your application’s
+      performance:
+    </p>
+    <ul>
+      <li><a href="#use-gzip-compression">Use gzip compression</a></li>
+      <li>
+        <a href="#dont-use-synchronous-functions"
+          >Don’t use synchronous functions</a
+        >
+      </li>
+      <li><a href="#do-logging-correctly">Do logging correctly</a></li>
+      <li>
+        <a href="#handle-exceptions-properly">Handle exceptions properly</a>
+      </li>
+    </ul>
+    <h3 id="use-gzip-compression">Use gzip compression</h3>
+    <p>
+      Gzip compressing can greatly decrease the size of the response body and
+      hence increase the speed of a web app. Use the
+      <a href="https://www.npmjs.com/package/compression">compression</a>
+      middleware for gzip compression in your Express app. For example:
+    </p>
+    <div class="sourceCode" id="cb1">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">var</span> compression <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;compression&#39;</span>)</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">var</span> express <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;express&#39;</span>)</a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw">var</span> app <span class="op">=</span> <span class="at">express</span>()</a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="va">app</span>.<span class="at">use</span>(<span class="at">compression</span>())</a></code></pre>
+    </div>
+    <p>
+      For a high-traffic website in production, the best way to put compression
+      in place is to implement it at a reverse proxy level (see
+      <a href="#use-a-reverse-proxy">Use a reverse proxy</a>). In that case, you
+      do not need to use compression middleware. For details on enabling gzip
+      compression in Nginx, see
+      <a href="http://nginx.org/en/docs/http/ngx_http_gzip_module.html"
+        >Module ngx_http_gzip_module</a
+      >
+      in the Nginx documentation.
+    </p>
+    <h3 id="dont-use-synchronous-functions">Don’t use synchronous functions</h3>
+    <p>
+      Synchronous functions and methods tie up the executing process until they
+      return. A single call to a synchronous function might return in a few
+      microseconds or milliseconds, however in high-traffic websites, these
+      calls add up and reduce the performance of the app. Avoid their use in
+      production.
+    </p>
+    <p>
+      Although Node and many modules provide synchronous and asynchronous
+      versions of their functions, always use the asynchronous version in
+      production. The only time when a synchronous function can be justified is
+      upon initial startup.
+    </p>
+    <p>
+      If you are using Node.js 4.0+ or io.js 2.1.0+, you can use the
+      <code>--trace-sync-io</code> command-line flag to print a warning and a
+      stack trace whenever your application uses a synchronous API. Of course,
+      you wouldn’t want to use this in production, but rather to ensure that
+      your code is ready for production. See the
+      <a href="https://nodejs.org/api/cli.html#cli_trace_sync_io"
+        >node command-line options documentation</a
+      >
+      for more information.
+    </p>
+    <h3 id="do-logging-correctly">Do logging correctly</h3>
+    <p>
+      In general, there are two reasons for logging from your app: For debugging
+      and for logging app activity (essentially, everything else). Using
+      <code>console.log()</code> or <code>console.error()</code> to print log
+      messages to the terminal is common practice in development. But
+      <a href="https://nodejs.org/api/console.html#console_console_1"
+        >these functions are synchronous</a
+      >
+      when the destination is a terminal or a file, so they are not suitable for
+      production, unless you pipe the output to another program.
+    </p>
+    <h4 id="for-debugging">For debugging</h4>
+    <p>
+      If you’re logging for purposes of debugging, then instead of using
+      <code>console.log()</code>, use a special debugging module like
+      <a href="https://www.npmjs.com/package/debug">debug</a>. This module
+      enables you to use the DEBUG environment variable to control what debug
+      messages are sent to <code>console.error()</code>, if any. To keep your
+      app purely asynchronous, you’d still want to pipe
+      <code>console.error()</code> to another program. But then, you’re not
+      really going to debug in production, are you?
+    </p>
+    <h4 id="for-app-activity">For app activity</h4>
+    <p>
+      If you’re logging app activity (for example, tracking traffic or API
+      calls), instead of using <code>console.log()</code>, use a logging library
+      like <a href="https://www.npmjs.com/package/winston">Winston</a> or
+      <a href="https://www.npmjs.com/package/bunyan">Bunyan</a>. For a detailed
+      comparison of these two libraries, see the StrongLoop blog post
+      <a
+        href="https://strongloop.com/strongblog/compare-node-js-logging-winston-bunyan/"
+        >Comparing Winston and Bunyan Node.js Logging</a
+      >.
+    </p>
+    <h3 id="handle-exceptions-properly">Handle exceptions properly</h3>
+    <p>
+      Node apps crash when they encounter an uncaught exception. Not handling
+      exceptions and taking appropriate actions will make your Express app crash
+      and go offline. If you follow the advice in
+      <a href="#ensure-your-app-automatically-restarts"
+        >Ensure your app automatically restarts</a
+      >
+      below, then your app will recover from a crash. Fortunately, Express apps
+      typically have a short startup time. Nevertheless, you want to avoid
+      crashing in the first place, and to do that, you need to handle exceptions
+      properly.
+    </p>
+    <p>To ensure you handle all exceptions, use the following techniques:</p>
+    <ul>
+      <li><a href="#use-try-catch">Use try-catch</a></li>
+      <li><a href="#use-promises">Use promises</a></li>
+    </ul>
+    <p>
+      Before diving into these topics, you should have a basic understanding of
+      Node/Express error handling: using error-first callbacks, and propagating
+      errors in middleware. Node uses an “error-first callback” convention for
+      returning errors from asynchronous functions, where the first parameter to
+      the callback function is the error object, followed by result data in
+      succeeding parameters. To indicate no error, pass null as the first
+      parameter. The callback function must correspondingly follow the
+      error-first callback convention to meaningfully handle the error. And in
+      Express, the best practice is to use the next() function to propagate
+      errors through the middleware chain.
+    </p>
+    <p>For more on the fundamentals of error handling, see:</p>
+    <ul>
+      <li>
+        <a href="https://www.joyent.com/developers/node/design/errors"
+          >Error Handling in Node.js</a
+        >
+      </li>
+      <li>
+        <a
+          href="https://strongloop.com/strongblog/robust-node-applications-error-handling/"
+          >Building Robust Node Applications: Error Handling</a
+        >
+        (StrongLoop blog)
+      </li>
+    </ul>
+    <h4 id="what-not-to-do">What not to do</h4>
+    <p>
+      One thing you should <em>not</em> do is to listen for the
+      <code>uncaughtException</code> event, emitted when an exception bubbles
+      all the way back to the event loop. Adding an event listener for
+      <code>uncaughtException</code> will change the default behavior of the
+      process that is encountering an exception; the process will continue to
+      run despite the exception. This might sound like a good way of preventing
+      your app from crashing, but continuing to run the app after an uncaught
+      exception is a dangerous practice and is not recommended, because the
+      state of the process becomes unreliable and unpredictable.
+    </p>
+    <p>
+      Additionally, using <code>uncaughtException</code> is officially
+      recognized as
+      <a
+        href="https://nodejs.org/api/process.html#process_event_uncaughtexception"
+        >crude</a
+      >. So listening for <code>uncaughtException</code> is just a bad idea.
+      This is why we recommend things like multiple processes and supervisors:
+      crashing and restarting is often the most reliable way to recover from an
+      error.
+    </p>
+    <p>
+      We also don’t recommend using
+      <a href="https://nodejs.org/api/domain.html">domains</a>. It generally
+      doesn’t solve the problem and is a deprecated module.
+    </p>
+    <h4 id="use-try-catch">Use try-catch</h4>
+    <p>
+      Try-catch is a JavaScript language construct that you can use to catch
+      exceptions in synchronous code. Use try-catch, for example, to handle JSON
+      parsing errors as shown below.
+    </p>
+    <p>
+      Use a tool such as <a href="http://jshint.com/">JSHint</a> or
+      <a href="http://www.jslint.com/">JSLint</a> to help you find implicit
+      exceptions like
+      <a href="http://www.jshint.com/docs/options/#undef"
+        >reference errors on undefined variables</a
+      >.
+    </p>
+    <p>
+      Here is an example of using try-catch to handle a potential
+      process-crashing exception. This middleware function accepts a query field
+      parameter named “params” that is a JSON object.
+    </p>
+    <div class="sourceCode" id="cb2">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/search&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="co">// Simulating async operation</span></a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="at">setImmediate</span>(<span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-4" title="4">    <span class="kw">var</span> jsonStr <span class="op">=</span> <span class="va">req</span>.<span class="va">query</span>.<span class="at">params</span></a>
+<a class="sourceLine" id="cb2-5" title="5">    <span class="cf">try</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-6" title="6">      <span class="kw">var</span> jsonObj <span class="op">=</span> <span class="va">JSON</span>.<span class="at">parse</span>(jsonStr)</a>
+<a class="sourceLine" id="cb2-7" title="7">      <span class="va">res</span>.<span class="at">send</span>(<span class="st">&#39;Success&#39;</span>)</a>
+<a class="sourceLine" id="cb2-8" title="8">    <span class="op">}</span> <span class="cf">catch</span> (e) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-9" title="9">      <span class="va">res</span>.<span class="at">status</span>(<span class="dv">400</span>).<span class="at">send</span>(<span class="st">&#39;Invalid JSON string&#39;</span>)</a>
+<a class="sourceLine" id="cb2-10" title="10">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-11" title="11">  <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb2-12" title="12"><span class="op">}</span>)</a></code></pre>
+    </div>
+    <p>
+      However, try-catch works only for synchronous code. Because the Node
+      platform is primarily asynchronous (particularly in a production
+      environment), try-catch won’t catch a lot of exceptions.
+    </p>
+    <h4 id="use-promises">Use promises</h4>
+    <p>
+      Promises will handle any exceptions (both explicit and implicit) in
+      asynchronous code blocks that use <code>then()</code>. Just add
+      <code>.catch(next)</code> to the end of promise chains. For example:
+    </p>
+    <div class="sourceCode" id="cb3">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> <span class="kw">function</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="co">// do some sync stuff</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="at">queryDb</span>()</a>
+<a class="sourceLine" id="cb3-4" title="4">    .<span class="at">then</span>(<span class="kw">function</span> (data) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-5" title="5">      <span class="co">// handle data</span></a>
+<a class="sourceLine" id="cb3-6" title="6">      <span class="cf">return</span> <span class="at">makeCsv</span>(data)</a>
+<a class="sourceLine" id="cb3-7" title="7">    <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb3-8" title="8">    .<span class="at">then</span>(<span class="kw">function</span> (csv) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-9" title="9">      <span class="co">// handle csv</span></a>
+<a class="sourceLine" id="cb3-10" title="10">    <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb3-11" title="11">    .<span class="at">catch</span>(next)</a>
+<a class="sourceLine" id="cb3-12" title="12"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb3-13" title="13"></a>
+<a class="sourceLine" id="cb3-14" title="14"><span class="va">app</span>.<span class="at">use</span>(<span class="kw">function</span> (err<span class="op">,</span> req<span class="op">,</span> res<span class="op">,</span> next) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-15" title="15">  <span class="co">// handle error</span></a>
+<a class="sourceLine" id="cb3-16" title="16"><span class="op">}</span>)</a></code></pre>
+    </div>
+    <p>
+      Now all errors asynchronous and synchronous get propagated to the error
+      middleware.
+    </p>
+    <p>However, there are two caveats:</p>
+    <ol type="1">
+      <li>
+        All your asynchronous code must return promises (except emitters). If a
+        particular library does not return promises, convert the base object by
+        using a helper function like
+        <a href="http://bluebirdjs.com/docs/api/promise.promisifyall.html"
+          >Bluebird.promisifyAll()</a
+        >.
+      </li>
+      <li>
+        Event emitters (like streams) can still cause uncaught exceptions. So
+        make sure you are handling the error event properly; for example:
+      </li>
+    </ol>
+    <div class="sourceCode" id="cb4">
+      <pre
+        class="sourceCode js"
+      ><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">const</span> wrap <span class="op">=</span> fn <span class="kw">=&gt;</span> (...<span class="at">args</span>) <span class="kw">=&gt;</span> <span class="at">fn</span>(...<span class="at">args</span>).<span class="at">catch</span>(args[<span class="dv">2</span>])</a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> <span class="at">wrap</span>(<span class="kw">async</span> (req<span class="op">,</span> res<span class="op">,</span> next) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-4" title="4">  <span class="kw">const</span> company <span class="op">=</span> <span class="cf">await</span> <span class="at">getCompanyById</span>(<span class="va">req</span>.<span class="va">query</span>.<span class="at">id</span>)</a>
+<a class="sourceLine" id="cb4-5" title="5">  <span class="kw">const</span> stream <span class="op">=</span> <span class="at">getLogoStreamById</span>(<span class="va">company</span>.<span class="at">id</span>)</a>
+<a class="sourceLine" id="cb4-6" title="6">  <span class="va">stream</span>.<span class="at">on</span>(<span class="st">&#39;error&#39;</span><span class="op">,</span> next).<span class="at">pipe</span>(res)</a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="op">}</span>))</a></code></pre>
+    </div>
+    <p>
+      The <code>wrap()</code> function is a wrapper that catches rejected
+      promises and calls <code>next()</code> with the error as the first
+      argument. For details, see
+      <a
+        href="https://strongloop.com/strongblog/async-error-handling-expressjs-es7-promises-generators/#cleaner-code-with-generators"
+        >Asynchronous Error Handling in Express with Promises, Generators and
+        ES7</a
+      >.
+    </p>
+    <p>
+      For more information about error-handling by using promises, see
+      <a
+        href="https://strongloop.com/strongblog/promises-in-node-js-with-q-an-alternative-to-callbacks/"
+        >Promises in Node.js with Q – An Alternative to Callbacks</a
+      >.
+    </p>
+    <h2 id="in-environment">Things to do in your environment / setup</h2>
+    <p>
+      Here are some things you can do in your system environment to improve your
+      app’s performance:
+    </p>
+    <ul>
+      <li>
+        <a href="#set-node_env-to-production">Set NODE_ENV to “production”</a>
+      </li>
+      <li>
+        <a href="#ensure-your-app-automatically-restarts"
+          >Ensure your app automatically restarts</a
+        >
+      </li>
+      <li>
+        <a href="#run-your-app-in-a-cluster">Run your app in a cluster</a>
+      </li>
+      <li><a href="#cache-request-results">Cache request results</a></li>
+      <li><a href="#use-a-load-balancer">Use a load balancer</a></li>
+      <li><a href="#use-a-reverse-proxy">Use a reverse proxy</a></li>
+    </ul>
+    <h3 id="set-node_env-to-production">Set NODE_ENV to “production”</h3>
+    <p>
+      The NODE_ENV environment variable specifies the environment in which an
+      application is running (usually, development or production). One of the
+      simplest things you can do to improve performance is to set NODE_ENV to
+      “production.”
+    </p>
+    <p>Setting NODE_ENV to “production” makes Express:</p>
+    <ul>
+      <li>Cache view templates.</li>
+      <li>Cache CSS files generated from CSS extensions.</li>
+      <li>Generate less verbose error messages.</li>
+    </ul>
+    <p>
+      <a
+        href="http://apmblog.dynatrace.com/2015/07/22/the-drastic-effects-of-omitting-node_env-in-your-express-js-applications/"
+        >Tests indicate</a
+      >
+      that just doing this can improve app performance by a factor of three!
+    </p>
+    <p>
+      If you need to write environment-specific code, you can check the value of
+      NODE_ENV with <code>process.env.NODE_ENV</code>. Be aware that checking
+      the value of any environment variable incurs a performance penalty, and so
+      should be done sparingly.
+    </p>
+    <p>
+      In development, you typically set environment variables in your
+      interactive shell, for example by using <code>export</code> or your
+      <code>.bash_profile</code> file. But in general you shouldn’t do that on a
+      production server; instead, use your OS’s init system (systemd or
+      Upstart). The next section provides more details about using your init
+      system in general, but setting NODE_ENV is so important for performance
+      (and easy to do), that it’s highlighted here.
+    </p>
+    <p>
+      With Upstart, use the <code>env</code> keyword in your job file. For
+      example:
+    </p>
+    <div class="sourceCode" id="cb5">
+      <pre
+        class="sourceCode sh"
+      ><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" title="1"><span class="co"># /etc/init/env.conf</span></a>
+<a class="sourceLine" id="cb5-2" title="2"> <span class="fu">env</span> NODE_ENV=production</a></code></pre>
+    </div>
+    <p>
+      For more information, see the
+      <a href="http://upstart.ubuntu.com/cookbook/#environment-variables"
+        >Upstart Intro, Cookbook and Best Practices</a
+      >.
+    </p>
+    <p>
+      With systemd, use the <code>Environment</code> directive in your unit
+      file. For example:
+    </p>
+    <div class="sourceCode" id="cb6">
+      <pre
+        class="sourceCode sh"
+      ><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1"><span class="co"># /etc/systemd/system/myservice.service</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="va">Environment=</span>NODE_ENV=<span class="ex">production</span></a></code></pre>
+    </div>
+    <p>
+      For more information, see
+      <a
+        href="https://coreos.com/os/docs/latest/using-environment-variables-in-systemd-units.html"
+        >Using Environment Variables In systemd Units</a
+      >.
+    </p>
+    <h3 id="ensure-your-app-automatically-restarts">
+      Ensure your app automatically restarts
+    </h3>
+    <p>
+      In production, you don’t want your application to be offline, ever. This
+      means you need to make sure it restarts both if the app crashes and if the
+      server itself crashes. Although you hope that neither of those events
+      occurs, realistically you must account for both eventualities by:
+    </p>
+    <ul>
+      <li>
+        Using a process manager to restart the app (and Node) when it crashes.
+      </li>
+      <li>
+        Using the init system provided by your OS to restart the process manager
+        when the OS crashes. It’s also possible to use the init system without a
+        process manager.
+      </li>
+    </ul>
+    <p>
+      Node applications crash if they encounter an uncaught exception. The
+      foremost thing you need to do is to ensure your app is well-tested and
+      handles all exceptions (see
+      <a href="#handle-exceptions-properly">handle exceptions properly</a> for
+      details). But as a fail-safe, put a mechanism in place to ensure that if
+      and when your app crashes, it will automatically restart.
+    </p>
+    <h4 id="use-a-process-manager">Use a process manager</h4>
+    <p>
+      In development, you started your app simply from the command line with
+      <code>node server.js</code> or something similar. But doing this in
+      production is a recipe for disaster. If the app crashes, it will be
+      offline until you restart it. To ensure your app restarts if it crashes,
+      use a process manager. A process manager is a “container” for applications
+      that facilitates deployment, provides high availability, and enables you
+      to manage the application at runtime.
+    </p>
+    <p>
+      In addition to restarting your app when it crashes, a process manager can
+      enable you to:
+    </p>
+    <ul>
+      <li>Gain insights into runtime performance and resource consumption.</li>
+      <li>Modify settings dynamically to improve performance.</li>
+      <li>Control clustering (StrongLoop PM and pm2).</li>
+    </ul>
+    <p>The most popular process managers for Node are as follows:</p>
+    <ul>
+      <li><a href="http://strong-pm.io/">StrongLoop Process Manager</a></li>
+      <li><a href="https://github.com/Unitech/pm2">PM2</a></li>
+      <li><a href="https://www.npmjs.com/package/forever">Forever</a></li>
+    </ul>
+    <p>
+      For a feature-by-feature comparison of the three process managers, see
+      <a href="http://strong-pm.io/compare/">http://strong-pm.io/compare/</a>.
+      For a more detailed introduction to all three, see
+      <a href="/%7B%7B%20page.lang%20%7D%7D/advanced/pm.html"
+        >Process managers for Express apps</a
+      >.
+    </p>
+    <p>
+      Using any of these process managers will suffice to keep your application
+      up, even if it does crash from time to time.
+    </p>
+    <p>
+      However, StrongLoop PM has lots of features that specifically target
+      production deployment. You can use it and the related StrongLoop tools to:
+    </p>
+    <ul>
+      <li>
+        Build and package your app locally, then deploy it securely to your
+        production system.
+      </li>
+      <li>Automatically restart your app if it crashes for any reason.</li>
+      <li>Manage your clusters remotely.</li>
+      <li>
+        View CPU profiles and heap snapshots to optimize performance and
+        diagnose memory leaks.
+      </li>
+      <li>View performance metrics for your application.</li>
+      <li>
+        Easily scale to multiple hosts with integrated control for Nginx load
+        balancer.
+      </li>
+    </ul>
+    <p>
+      As explained below, when you install StrongLoop PM as an operating system
+      service using your init system, it will automatically restart when the
+      system restarts. Thus, it will keep your application processes and
+      clusters alive forever.
+    </p>
+    <h4 id="use-an-init-system">Use an init system</h4>
+    <p>
+      The next layer of reliability is to ensure that your app restarts when the
+      server restarts. Systems can still go down for a variety of reasons. To
+      ensure that your app restarts if the server crashes, use the init system
+      built into your OS. The two main init systems in use today are
+      <a href="https://wiki.debian.org/systemd">systemd</a> and
+      <a href="http://upstart.ubuntu.com/">Upstart</a>.
+    </p>
+    <p>There are two ways to use init systems with your Express app:</p>
+    <ul>
+      <li>
+        Run your app in a process manager, and install the process manager as a
+        service with the init system. The process manager will restart your app
+        when the app crashes, and the init system will restart the process
+        manager when the OS restarts. This is the recommended approach.
+      </li>
+      <li>
+        Run your app (and Node) directly with the init system. This is somewhat
+        simpler, but you don’t get the additional advantages of using a process
+        manager.
+      </li>
+    </ul>
+    <h5 id="systemd">Systemd</h5>
+    <p>
+      Systemd is a Linux system and service manager. Most major Linux
+      distributions have adopted systemd as their default init system.
+    </p>
+    <p>
+      A systemd service configuration file is called a <em>unit file</em>, with
+      a filename ending in <code>.service</code>. Here’s an example unit file to
+      manage a Node app directly. Replace the values enclosed in
+      <code>&lt;angle brackets&gt;</code> for your system and app:
+    </p>
+    <div class="sourceCode" id="cb7">
+      <pre
+        class="sourceCode sh"
+      ><code class="sourceCode bash"><a class="sourceLine" id="cb7-1" title="1">[<span class="ex">Unit</span>]</a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="va">Description=</span><span class="op">&lt;</span><span class="ex">Awesome</span> Express App<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-3" title="3"></a>
+<a class="sourceLine" id="cb7-4" title="4">[<span class="ex">Service</span>]</a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="va">Type=</span>simple</a>
+<a class="sourceLine" id="cb7-6" title="6"><span class="va">ExecStart=</span>/usr/local/bin/node <span class="op">&lt;</span><span class="ex">/projects/myapp</span>/<span class="ex">index.js</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-7" title="7"><span class="va">WorkingDirectory=</span><span class="op">&lt;</span><span class="ex">/projects</span>/<span class="ex">myapp</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-8" title="8"></a>
+<a class="sourceLine" id="cb7-9" title="9"><span class="va">User=</span>nobody</a>
+<a class="sourceLine" id="cb7-10" title="10"><span class="va">Group=</span>nogroup</a>
+<a class="sourceLine" id="cb7-11" title="11"></a>
+<a class="sourceLine" id="cb7-12" title="12"><span class="co"># Environment variables:</span></a>
+<a class="sourceLine" id="cb7-13" title="13"><span class="va">Environment=</span>NODE_ENV=<span class="ex">production</span></a>
+<a class="sourceLine" id="cb7-14" title="14"></a>
+<a class="sourceLine" id="cb7-15" title="15"><span class="co"># Allow many incoming connections</span></a>
+<a class="sourceLine" id="cb7-16" title="16"><span class="va">LimitNOFILE=</span>infinity</a>
+<a class="sourceLine" id="cb7-17" title="17"></a>
+<a class="sourceLine" id="cb7-18" title="18"><span class="co"># Allow core dumps for debugging</span></a>
+<a class="sourceLine" id="cb7-19" title="19"><span class="va">LimitCORE=</span>infinity</a>
+<a class="sourceLine" id="cb7-20" title="20"></a>
+<a class="sourceLine" id="cb7-21" title="21"><span class="va">StandardInput=</span>null</a>
+<a class="sourceLine" id="cb7-22" title="22"><span class="va">StandardOutput=</span>syslog</a>
+<a class="sourceLine" id="cb7-23" title="23"><span class="va">StandardError=</span>syslog</a>
+<a class="sourceLine" id="cb7-24" title="24"><span class="va">Restart=</span>always</a>
+<a class="sourceLine" id="cb7-25" title="25"></a>
+<a class="sourceLine" id="cb7-26" title="26">[<span class="ex">Install</span>]</a>
+<a class="sourceLine" id="cb7-27" title="27"><span class="va">WantedBy=</span>multi-user.target</a></code></pre>
+    </div>
+    <p>
+      For more information on systemd, see the
+      <a
+        href="http://www.freedesktop.org/software/systemd/man/systemd.unit.html"
+        >systemd reference (man page)</a
+      >.
+    </p>
+    <h5 id="strongloop-pm-as-a-systemd-service">
+      StrongLoop PM as a systemd service
+    </h5>
+    <p>
+      You can easily install StrongLoop Process Manager as a systemd service.
+      After you do, when the server restarts, it will automatically restart
+      StrongLoop PM, which will then restart all the apps it is managing.
+    </p>
+    <p>To install StrongLoop PM as a systemd service:</p>
+    <div class="sourceCode" id="cb8">
+      <pre
+        class="sourceCode sh"
+      ><code class="sourceCode bash"><a class="sourceLine" id="cb8-1" title="1">$ <span class="fu">sudo</span> sl-pm-install --systemd</a></code></pre>
+    </div>
+    <p>Then start the service with:</p>
+    <div class="sourceCode" id="cb9">
+      <pre
+        class="sourceCode sh"
+      ><code class="sourceCode bash"><a class="sourceLine" id="cb9-1" title="1">$ <span class="fu">sudo</span> /usr/bin/systemctl start strong-pm</a></code></pre>
+    </div>
+    <p>
+      For more information, see
+      <a
+        href="https://docs.strongloop.com/display/SLC/Setting+up+a+production+host#Settingupaproductionhost-RHEL7+,Ubuntu15.04or15.10"
+        >Setting up a production host (StrongLoop documentation)</a
+      >.
+    </p>
+    <h5 id="upstart">Upstart</h5>
+    <p>
+      Upstart is a system tool available on many Linux distributions for
+      starting tasks and services during system startup, stopping them during
+      shutdown, and supervising them. You can configure your Express app or
+      process manager as a service and then Upstart will automatically restart
+      it when it crashes.
+    </p>
+    <p>
+      An Upstart service is defined in a job configuration file (also called a
+      “job”) with filename ending in <code>.conf</code>. The following example
+      shows how to create a job called “myapp” for an app named “myapp” with the
+      main file located at <code>/projects/myapp/index.js</code>.
+    </p>
+    <p>
+      Create a file named <code>myapp.conf</code> at
+      <code>/etc/init/</code> with the following content (replace the bold text
+      with values for your system and app):
+    </p>
+    <div class="sourceCode" id="cb10">
+      <pre
+        class="sourceCode sh"
+      ><code class="sourceCode bash"><a class="sourceLine" id="cb10-1" title="1"><span class="co"># When to start the process</span></a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="ex">start</span> on runlevel [2345]</a>
+<a class="sourceLine" id="cb10-3" title="3"></a>
+<a class="sourceLine" id="cb10-4" title="4"><span class="co"># When to stop the process</span></a>
+<a class="sourceLine" id="cb10-5" title="5"><span class="ex">stop</span> on runlevel [016]</a>
+<a class="sourceLine" id="cb10-6" title="6"></a>
+<a class="sourceLine" id="cb10-7" title="7"><span class="co"># Increase file descriptor limit to be able to handle more requests</span></a>
+<a class="sourceLine" id="cb10-8" title="8"><span class="ex">limit</span> nofile 50000 50000</a>
+<a class="sourceLine" id="cb10-9" title="9"></a>
+<a class="sourceLine" id="cb10-10" title="10"><span class="co"># Use production mode</span></a>
+<a class="sourceLine" id="cb10-11" title="11"><span class="fu">env</span> NODE_ENV=production</a>
+<a class="sourceLine" id="cb10-12" title="12"></a>
+<a class="sourceLine" id="cb10-13" title="13"><span class="co"># Run as www-data</span></a>
+<a class="sourceLine" id="cb10-14" title="14"><span class="ex">setuid</span> www-data</a>
+<a class="sourceLine" id="cb10-15" title="15"><span class="ex">setgid</span> www-data</a>
+<a class="sourceLine" id="cb10-16" title="16"></a>
+<a class="sourceLine" id="cb10-17" title="17"><span class="co"># Run from inside the app dir</span></a>
+<a class="sourceLine" id="cb10-18" title="18"><span class="ex">chdir</span> /projects/myapp</a>
+<a class="sourceLine" id="cb10-19" title="19"></a>
+<a class="sourceLine" id="cb10-20" title="20"><span class="co"># The process to start</span></a>
+<a class="sourceLine" id="cb10-21" title="21"><span class="bu">exec</span> /usr/local/bin/node /projects/myapp/index.js</a>
+<a class="sourceLine" id="cb10-22" title="22"></a>
+<a class="sourceLine" id="cb10-23" title="23"><span class="co"># Restart the process if it is down</span></a>
+<a class="sourceLine" id="cb10-24" title="24"><span class="ex">respawn</span></a>
+<a class="sourceLine" id="cb10-25" title="25"></a>
+<a class="sourceLine" id="cb10-26" title="26"><span class="co"># Limit restart attempt to 10 times within 10 seconds</span></a>
+<a class="sourceLine" id="cb10-27" title="27"><span class="ex">respawn</span> limit 10 10</a></code></pre>
+    </div>
+    <p>
+      NOTE: This script requires Upstart 1.4 or newer, supported on Ubuntu
+      12.04-14.10.
+    </p>
+    <p>
+      Since the job is configured to run when the system starts, your app will
+      be started along with the operating system, and automatically restarted if
+      the app crashes or the system goes down.
+    </p>
+    <p>
+      Apart from automatically restarting the app, Upstart enables you to use
+      these commands:
+    </p>
+    <ul>
+      <li><code>start myapp</code> – Start the app</li>
+      <li><code>restart myapp</code> – Restart the app</li>
+      <li><code>stop myapp</code> – Stop the app.</li>
+    </ul>
+    <p>
+      For more information on Upstart, see
+      <a href="http://upstart.ubuntu.com/cookbook"
+        >Upstart Intro, Cookbook and Best Practises</a
+      >.
+    </p>
+    <h5 id="strongloop-pm-as-an-upstart-service">
+      StrongLoop PM as an Upstart service
+    </h5>
+    <p>
+      You can easily install StrongLoop Process Manager as an Upstart service.
+      After you do, when the server restarts, it will automatically restart
+      StrongLoop PM, which will then restart all the apps it is managing.
+    </p>
+    <p>To install StrongLoop PM as an Upstart 1.4 service:</p>
+    <div class="sourceCode" id="cb11">
+      <pre
+        class="sourceCode sh"
+      ><code class="sourceCode bash"><a class="sourceLine" id="cb11-1" title="1">$ <span class="fu">sudo</span> sl-pm-install</a></code></pre>
+    </div>
+    <p>Then run the service with:</p>
+    <div class="sourceCode" id="cb12">
+      <pre
+        class="sourceCode sh"
+      ><code class="sourceCode bash"><a class="sourceLine" id="cb12-1" title="1">$ <span class="fu">sudo</span> /sbin/initctl start strong-pm</a></code></pre>
+    </div>
+    <p>
+      NOTE: On systems that don’t support Upstart 1.4, the commands are slightly
+      different. See
+      <a
+        href="https://docs.strongloop.com/display/SLC/Setting+up+a+production+host#Settingupaproductionhost-RHELLinux5and6,Ubuntu10.04-.10,11.04-.10"
+        >Setting up a production host (StrongLoop documentation)</a
+      >
+      for more information.
+    </p>
+    <h3 id="run-your-app-in-a-cluster">Run your app in a cluster</h3>
+    <p>
+      In a multi-core system, you can increase the performance of a Node app by
+      many times by launching a cluster of processes. A cluster runs multiple
+      instances of the app, ideally one instance on each CPU core, thereby
+      distributing the load and tasks among the instances.
+    </p>
+    <figure>
+      <img
+        src="/images/clustering.png"
+        alt="Balancing between application instances using the cluster API"
+      />
+      <figcaption>
+        Balancing between application instances using the cluster API
+      </figcaption>
+    </figure>
+    <p>
+      IMPORTANT: Since the app instances run as separate processes, they do not
+      share the same memory space. That is, objects are local to each instance
+      of the app. Therefore, you cannot maintain state in the application code.
+      However, you can use an in-memory datastore like
+      <a href="http://redis.io/">Redis</a> to store session-related data and
+      state. This caveat applies to essentially all forms of horizontal scaling,
+      whether clustering with multiple processes or multiple physical servers.
+    </p>
+    <p>
+      In clustered apps, worker processes can crash individually without
+      affecting the rest of the processes. Apart from performance advantages,
+      failure isolation is another reason to run a cluster of app processes.
+      Whenever a worker process crashes, always make sure to log the event and
+      spawn a new process using cluster.fork().
+    </p>
+    <h4 id="using-nodes-cluster-module">Using Node’s cluster module</h4>
+    <p>
+      Clustering is made possible with Node’s
+      <a href="https://nodejs.org/dist/latest-v4.x/docs/api/cluster.html"
+        >cluster module</a
+      >. This enables a master process to spawn worker processes and distribute
+      incoming connections among the workers. However, rather than using this
+      module directly, it’s far better to use one of the many tools out there
+      that does it for you automatically; for example
+      <a href="https://www.npmjs.com/package/node-pm">node-pm</a> or
+      <a href="https://www.npmjs.com/package/cluster-service">cluster-service</a
+      >.
+    </p>
+    <h4 id="using-strongloop-pm">Using StrongLoop PM</h4>
+    <p>
+      If you deploy your application to StrongLoop Process Manager (PM), then
+      you can take advantage of clustering <em>without</em> modifying your
+      application code.
+    </p>
+    <p>
+      When StrongLoop Process Manager (PM) runs an application, it automatically
+      runs it in a cluster with a number of workers equal to the number of CPU
+      cores on the system. You can manually change the number of worker
+      processes in the cluster using the slc command line tool without stopping
+      the app.
+    </p>
+    <p>
+      For example, assuming you’ve deployed your app to prod.foo.com and
+      StrongLoop PM is listening on port 8701 (the default), then to set the
+      cluster size to eight using slc:
+    </p>
+    <div class="sourceCode" id="cb13">
+      <pre
+        class="sourceCode sh"
+      ><code class="sourceCode bash"><a class="sourceLine" id="cb13-1" title="1">$ <span class="ex">slc</span> ctl -C http://prod.foo.com:8701 set-size my-app 8</a></code></pre>
+    </div>
+    <p>
+      For more information on clustering with StrongLoop PM, see
+      <a href="https://docs.strongloop.com/display/SLC/Clustering"
+        >Clustering</a
+      >
+      in StrongLoop documentation.
+    </p>
+    <h4 id="using-pm2">Using PM2</h4>
+    <p>
+      If you deploy your application with PM2, then you can take advantage of
+      clustering <em>without</em> modifying your application code. You should
+      ensure your
+      <a href="http://pm2.keymetrics.io/docs/usage/specifics/#stateless-apps"
+        >application is stateless</a
+      >
+      first, meaning no local data is stored in the process (such as sessions,
+      websocket connections and the like).
+    </p>
+    <p>
+      When running an application with PM2, you can enable
+      <strong>cluster mode</strong> to run it in a cluster with a number of
+      instances of your choosing, such as the matching the number of available
+      CPUs on the machine. You can manually change the number of processes in
+      the cluster using the <code>pm2</code> command line tool without stopping
+      the app.
+    </p>
+    <p>To enable cluster mode, start your application like so:</p>
+    <div class="sourceCode" id="cb14">
+      <pre
+        class="sourceCode sh"
+      ><code class="sourceCode bash"><a class="sourceLine" id="cb14-1" title="1"><span class="co"># Start 4 worker processes</span></a>
+<a class="sourceLine" id="cb14-2" title="2">$ <span class="ex">pm2</span> start npm --name my-app -i 4 -- start</a>
+<a class="sourceLine" id="cb14-3" title="3"><span class="co"># Auto-detect number of available CPUs and start that many worker processes</span></a>
+<a class="sourceLine" id="cb14-4" title="4">$ <span class="ex">pm2</span> start npm --name my-app -i max -- start</a></code></pre>
+    </div>
+    <p>
+      This can also be configured within a PM2 process file (<code
+        >ecosystem.config.js</code
+      >
+      or similar) by setting <code>exec_mode</code> to <code>cluster</code> and
+      <code>instances</code> to the number of workers to start.
+    </p>
+    <p>Once running, the application can be scaled like so:</p>
+    <div class="sourceCode" id="cb15">
+      <pre
+        class="sourceCode sh"
+      ><code class="sourceCode bash"><a class="sourceLine" id="cb15-1" title="1"><span class="co"># Add 3 more workers</span></a>
+<a class="sourceLine" id="cb15-2" title="2">$ <span class="ex">pm2</span> scale my-app +3</a>
+<a class="sourceLine" id="cb15-3" title="3"><span class="co"># Scale to a specific number of workers</span></a>
+<a class="sourceLine" id="cb15-4" title="4">$ <span class="ex">pm2</span> scale my-app 2</a></code></pre>
+    </div>
+    <p>
+      For more information on clustering with PM2, see
+      <a href="https://pm2.keymetrics.io/docs/usage/cluster-mode/"
+        >Cluster Mode</a
+      >
+      in the PM2 documentation.
+    </p>
+    <h3 id="cache-request-results">Cache request results</h3>
+    <p>
+      Another strategy to improve the performance in production is to cache the
+      result of requests, so that your app does not repeat the operation to
+      serve the same request repeatedly.
+    </p>
+    <p>
+      Use a caching server like
+      <a href="https://www.varnish-cache.org/">Varnish</a> or
+      <a
+        href="https://www.nginx.com/resources/wiki/start/topics/examples/reverseproxycachingexample/"
+        >Nginx</a
+      >
+      (see also
+      <a href="https://serversforhackers.com/nginx-caching/">Nginx Caching</a>)
+      to greatly improve the speed and performance of your app.
+    </p>
+    <h3 id="use-a-load-balancer">Use a load balancer</h3>
+    <p>
+      No matter how optimized an app is, a single instance can handle only a
+      limited amount of load and traffic. One way to scale an app is to run
+      multiple instances of it and distribute the traffic via a load balancer.
+      Setting up a load balancer can improve your app’s performance and speed,
+      and enable it to scale more than is possible with a single instance.
+    </p>
+    <p>
+      A load balancer is usually a reverse proxy that orchestrates traffic to
+      and from multiple application instances and servers. You can easily set up
+      a load balancer for your app by using
+      <a href="http://nginx.org/en/docs/http/load_balancing.html">Nginx</a> or
+      <a
+        href="https://www.digitalocean.com/community/tutorials/an-introduction-to-haproxy-and-load-balancing-concepts"
+        >HAProxy</a
+      >.
+    </p>
+    <p>
+      With load balancing, you might have to ensure that requests that are
+      associated with a particular session ID connect to the process that
+      originated them. This is known as <em>session affinity</em>, or
+      <em>sticky sessions</em>, and may be addressed by the suggestion above to
+      use a data store such as Redis for session data (depending on your
+      application). For a discussion, see
+      <a href="http://socket.io/docs/using-multiple-nodes/"
+        >Using multiple nodes</a
+      >.
+    </p>
+    <h3 id="use-a-reverse-proxy">Use a reverse proxy</h3>
+    <p>
+      A reverse proxy sits in front of a web app and performs supporting
+      operations on the requests, apart from directing requests to the app. It
+      can handle error pages, compression, caching, serving files, and load
+      balancing among other things.
+    </p>
+    <p>
+      Handing over tasks that do not require knowledge of application state to a
+      reverse proxy frees up Express to perform specialized application tasks.
+      For this reason, it is recommended to run Express behind a reverse proxy
+      like <a href="https://www.nginx.com/">Nginx</a> or
+      <a href="http://www.haproxy.org/">HAProxy</a> in production.
+    </p>
+  </body>
+</html>

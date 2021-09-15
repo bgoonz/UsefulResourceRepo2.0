@@ -1,0 +1,2 @@
+<!DOCTYPE html><html lang="en"><head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Document</title></head><body>
+<!DOCTYPE html><html lang="en"><head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Document</title></head><body> class AngryBird: def __init__(self): self.x = 0 self.y = 0 def move_up_by(self, delta): self.y += delta bird = AngryBird() print(bird) print(bird.y) bird.move_up_by(5) print(bird.y)
