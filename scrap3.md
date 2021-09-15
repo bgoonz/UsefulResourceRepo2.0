@@ -1252,27 +1252,3 @@ git push
 git add ./ _REPO/GITHUB/training-kit/redirects.md
 git commit -m "jo" 
 git push 
-git add ./ _REPO/GITHUB/upload/
-git commit -m "jo" 
-git push 
-git add ./ _REPO/GITHUB/version_sorter/
-git commit -m "jo" 
-git push 
-git add ./ _REPO/GITHUB/webcomponentsjs/
-git commit -m "jo" 
-git push 
-git add ./ _REPO/GITHUB/welcome-to-github-and-pages/
-git commit -m "jo" 
-git push 
-git add ./ _REPO/GITHUB/will_paginate_with_hotkeys/
-git commit -m "jo" 
-git push 
-git add ./ _REPO/PLURALSIGHT/
-git commit -m "jo" 
-git push 
-git add ./ _REPO/_REPO.html
-git commit -m "jo" 
-git push 
-git add ./ scrap6.mgit add ./   tree2.md
-git commit -m "jo" 
-git push 
