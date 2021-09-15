@@ -1,0 +1,55 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link href="../../../assets/was-styles.css" rel="stylesheet" />
+    <title>MessagePort | WebAudio Samples</title>
+  </head>
+  <body>
+    <div class="container was-page-wrap"></div>
+    <script type="module">
+      import WorkletDemoBuilder from "../../assets/WorkletDemoBuilder.js";
+      import PageData from "./PageData.js";
+
+      // Extends AudioWorkletNode to simplify the cross-thread message posting.
+      class MessengerWorkletNode extends AudioWorkletNode {
+        constructor(context, logger) {
+          super(context, "messenger-processor");
+          this.counter_ = 0;
+          this.port.onmessage = this.handleMessage_.bind(this);
+          this.logger_ = logger;
+          this.logger_.post("Open console to see messages from the processor.");
+        }
+
+        handleMessage_(event) {
+          this.logger_.post(
+            "[Node:handleMessage_] " +
+              event.data.message +
+              " (" +
+              event.data.contextTimestamp +
+              ")"
+          );
+          if (this.counter_++ === 10) {
+            this.port.postMessage({
+              message: "10 messages received!",
+              contextTimestamp: this.context.currentTime,
+            });
+            this.counter_ = 0;
+          }
+        }
+      }
+
+      const demoCode = async (context, logger) => {
+        await context.audioWorklet.addModule("messenger-processor.js");
+        const messengerWorkletNode = new MessengerWorkletNode(context, logger);
+        messengerWorkletNode.connect(context.destination);
+      };
+
+      WorkletDemoBuilder(PageData, demoCode);
+    </script>
+  </body>
+</html>
