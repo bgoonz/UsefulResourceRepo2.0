@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>render-props</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<h1 id="avoiding-hoc-favoring-render-props">Avoiding HOC; Favoring render props</h1>
+<p>The React community is moving away from HOC (higher order components) in favor of render prop components (RPC). For the most part, HOC and render prop components solve the same problem. However, render prop components provide are gaining popularity because they are more declarative and flexible than an HOC.</p>
+<p>Read more:</p>
+<ul>
+<li><a href="https://cdb.reacttraining.com/use-a-render-prop-50de598f11ce">Use a render prop</a></li>
+<li><a href="https://medium.com/tandemly/im-breaking-up-with-higher-order-components-44b0df2db052">Breaking up with HOC</a></li>
+<li><a href="https://twitter.com/dan_abramov/status/910246052992884736?lang=en">HOC vs. render props</a></li>
+<li><a href="https://reactjs.org/docs/higher-order-components.html">React HOC docs</a></li>
+<li><a href="https://reactjs.org/docs/render-props.html">React render props docs</a></li>
+</ul>
+<h2 id="using-and-abusing-hoc">Using and Abusing HOC</h2>
+<p>There are lots of good things about higher order components. An HOC is a function that accepts a plain component and returns a new extended component. The concepts behind HOC are a marriage of React’s now-deprecated “mixins” functionality and functional composition. The idea is to encapsulate common functionality and make it reusable.</p>
+<p><strong>Mixins?</strong> If you haven’t heard of mixins it’s because you’re not supposed to use them anymore. A long time ago, the React team decided that <a href="https://reactjs.org/blog/2016/07/13/mixins-considered-harmful.html">mixins are considered harmful</a>. At the time they asked people to view <a href="https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750">higher-order-coponents as the solution</a>.</p>
+<p>Now the community is pushing render props instead. Before digging into render props, let’s understand how HOC works a little bit.</p>
+<p>In general, the point of an HOC is to provide derived props to a child component. Just like react-redux, those props might be plain values or functions.</p>
+<h3 id="the-classic-case-connect">The classic case: <code>connect()</code></h3>
+<p>Perhaps the most familiar HOC is the <code>connect()</code> function from react-redux. Using this HOC, your app’s Redux store can be “connected” to a regular component. The <code>connect()</code> function provides a simple interface for deriving props from the Redux state and passing those props to the connected component.</p>
+<p>Every HOC provides at least one of two things to the child component:</p>
+<ol type="1">
+<li>derived props</li>
+<li>callback function props</li>
+</ol>
+<p>In the context of <code>connect()</code>, this relates to the <code>mapStateToProps</code> and <code>mapDispatchToProps</code> functions.</p>
+<p><strong>Key point:</strong> an HOC doesn’t really “wrap” their child component in a JSX sense, instead it <em>extends</em> your component. Meaning, the <code>MyThingContainer</code> component (see below) is a <em>new</em> component. In practice, this means that your React dev tools will show the component as <code>connect(MyThing)</code>. It’s a subtle but important difference.</p>
+<p>One of the reasons to prefer render prop components is that they don’t subvert the normal React component tree.</p>
+<h3 id="using-connect">Using <code>connect()</code></h3>
+<p>The patterns of react-redux clearly illustrate a basic pattern that every HOC should follow.</p>
+<p>Below you can see a generic “container”. We will extend a <code>&lt;MyThing /&gt;</code> component to derive its <code>name</code> prop from Redux.</p>
+<p>We use <code>mapStateToProps</code> to derive the <code>name</code> prop from the redux state. As an example, we’re also passing an <code>onChangeName</code> function prop that allows our <code>MyThing</code> component to update the redux state if it needs to.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> <span class="op">{</span> connect <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react-redux&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="im">import</span> <span class="op">{</span> selectName <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;modules/things/selectors&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="im">import</span> <span class="op">{</span> updateName <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;modules/things/actions&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="im">import</span> MyThing <span class="im">from</span> <span class="st">&quot;./MyThing&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-6" title="6"></a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="co">// 1. pass derived props from redux to the component</span></a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="kw">const</span> mapStateToProps <span class="op">=</span> (state) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb1-9" title="9">  <span class="dt">name</span><span class="op">:</span> <span class="at">selectName</span>(state)<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-10" title="10"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-11" title="11"></a>
+<a class="sourceLine" id="cb1-12" title="12"><span class="co">// 2. pass function props to dispatch actions from the component to redux</span></a>
+<a class="sourceLine" id="cb1-13" title="13"><span class="kw">const</span> mapDispatchToProps <span class="op">=</span> (dispatch) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb1-14" title="14">  <span class="dt">onChangeName</span><span class="op">:</span> (name) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-15" title="15">    <span class="at">dispatch</span>(<span class="at">updateName</span>(name))<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-16" title="16">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb1-17" title="17"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-18" title="18"></a>
+<a class="sourceLine" id="cb1-19" title="19"><span class="kw">const</span> MyThingContainer <span class="op">=</span> <span class="at">connect</span>(mapStateToProps<span class="op">,</span> mapDispatchToProps)(MyThing)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-20" title="20"></a>
+<a class="sourceLine" id="cb1-21" title="21"><span class="im">export</span> <span class="im">default</span> onChangeName<span class="op">;</span></a></code></pre></div>
+<p><strong>Note:</strong> We’ll see what the <code>MyThing</code> component looks like further below. The main takeaway here is that we can use an HOC to inject derived props into a child component.</p>
+<h3 id="the-problem-abusing-hoc">The problem: abusing HOC</h3>
+<p>For all of the benefits of an HOC, there are some problems with the pattern. Many of the issues of the mixins pattern still apply to HOC — it can make code more confusing. A well-designed HOC, like <code>connect</code> makes code better. But there are ways to abuse the pattern and make code harder to understand.</p>
+<p>Problems arise when developers see HOC as the solution to <em>every</em> problem.</p>
+<p>For instance, it’s not a good idea to use an HOC to do something that a normal component can do. In the connect example, HOC is a natural fit. But, what if we’re adding a different type of functionality?</p>
+<p>Below, you can see an abuse of the HOC pattern. We’re creating a new <code>MyThingRow</code> component using a <code>row</code> HOC. We’ll show the guts of the <code>row</code> HOC further below. The key thing to note is that the <code>row</code> doesn’t actually pass any props to the wrapped component.</p>
+<p>The <code>row</code> HOC is being used to wrap a <code>MyThing</code> component so that it will always be contained in a <code>&lt;div /&gt;</code> with the correct class names. You can see that we apply it very similarly to the way we used <code>connect</code>. We pass some configuration and then the component we intend to extend.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// Bad: Using an HOC to provide a wrapper div</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="im">import</span> row <span class="im">from</span> <span class="st">&quot;utils/row&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="im">import</span> MyThing <span class="im">from</span> <span class="st">&quot;./MyThing&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-5" title="5"></a>
+<a class="sourceLine" id="cb2-6" title="6"><span class="kw">const</span> MyThingRow <span class="op">=</span> <span class="at">row</span>(<span class="op">{</span> <span class="dt">backgroundColor</span><span class="op">:</span> <span class="st">&quot;green&quot;</span> <span class="op">}</span>)(MyThing)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="im">export</span> <span class="im">default</span> MyThingRow<span class="op">;</span></a></code></pre></div>
+<h3 id="why-not-a-row-hoc">Why not a <code>row</code> HOC?</h3>
+<p>The problem becomes more clear when you look at the code for the <code>row</code> HOC. Higher order components break the normal way that JSX manages nesting components — remember that an HOC creates a new merged component. Because of the odd nature of HOCs, it’s important to only use them when you need derived props.</p>
+<p>In this case, a <code>row</code> HOC breaks the basic rules for what and HOC should provide.</p>
+<p><strong>Breaking the rules of HOC:</strong></p>
+<ul>
+<li>Not providing any derived props</li>
+<li>Not providing any callback props</li>
+</ul>
+<p><strong>Confusing and restrictive:</strong></p>
+<ul>
+<li>Creates a new “wrapped” component, complicating the React tree</li>
+<li>Only supports a single child, must be a component</li>
+<li>Requires additional compatibility code to work like a “normal” component</li>
+</ul>
+<p><strong>Compatibility code?</strong> The HOC below adds some extra stuff that all HOCs need (as recommended in the React documentation). Because of how HOCs subvert the normal React rendering tree, we need to <strong>1.</strong> <a href="https://reactjs.org/docs/higher-order-components.html#static-methods-must-be-copied-over">copy over static methods</a> and <strong>2.</strong> <a href="https://reactjs.org/docs/higher-order-components.html#refs-arent-passed-through">forward refs</a>.</p>
+<p>You can see an example in the <a href="https://github.com/ReactTraining/react-router/blob/master/packages/react-router/modules/withRouter.js">code for the <code>withRouter</code> HOC</a> from react-router. They use <code>hoistStatics</code> and <code>wrappedComponentRef</code> to get around those issues.</p>
+<p>Notice also that <code>withRouter</code> follows the convention of <strong>3.</strong> <a href="https://reactjs.org/docs/higher-order-components.html#convention-wrap-the-display-name-for-easy-debugging">wrapping the display name</a> to make wrapped components easier to debug.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="im">import</span> React <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="im">import</span> PropTypes <span class="im">from</span> <span class="st">&quot;prop-types&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="im">import</span> hoistStatics <span class="im">from</span> <span class="st">&quot;hoist-non-react-statics&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="im">import</span> classnames <span class="im">from</span> <span class="st">&quot;classnames&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-5" title="5"></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="im">import</span> styles <span class="im">from</span> <span class="st">&quot;./row.css&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-7" title="7"></a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="kw">const</span> getDisplayName <span class="op">=</span> (WrappedComponent) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-9" title="9">  <span class="cf">return</span> <span class="va">WrappedComponent</span>.<span class="at">displayName</span> <span class="op">||</span> <span class="va">WrappedComponent</span>.<span class="at">name</span> <span class="op">||</span> <span class="st">&quot;Component&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-10" title="10"><span class="op">};</span></a>
+<a class="sourceLine" id="cb3-11" title="11"></a>
+<a class="sourceLine" id="cb3-12" title="12"><span class="kw">const</span> row <span class="op">=</span></a>
+<a class="sourceLine" id="cb3-13" title="13">  (<span class="op">{</span> backgroundColor<span class="op">,</span> className<span class="op">,</span> style <span class="op">}</span>) <span class="kw">=&gt;</span></a>
+<a class="sourceLine" id="cb3-14" title="14">  (WrappedComponent) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-15" title="15">    <span class="co">// Create a new merged component</span></a>
+<a class="sourceLine" id="cb3-16" title="16">    <span class="kw">const</span> Row <span class="op">=</span> (<span class="op">{</span> wrappedComponentRef<span class="op">,</span> ...<span class="at">otherProps</span> <span class="op">}</span>) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb3-17" title="17">      <span class="op">&lt;</span>div</a>
+<a class="sourceLine" id="cb3-18" title="18">        <span class="kw">class</span><span class="op">={</span><span class="at">classnames</span>(<span class="va">styles</span>.<span class="at">row</span><span class="op">,</span> className)<span class="op">}</span></a>
+<a class="sourceLine" id="cb3-19" title="19">        style<span class="op">={{</span> backgroundColor<span class="op">,</span> ...<span class="at">style</span> <span class="op">}}</span></a>
+<a class="sourceLine" id="cb3-20" title="20">      <span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb3-21" title="21">        <span class="op">&lt;</span>WrappedComponent ref<span class="op">={</span>wrappedComponentRef<span class="op">}</span> <span class="op">{</span>...<span class="at">otherProps</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb3-22" title="22">      &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb3-23" title="23">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-24" title="24"></a>
+<a class="sourceLine" id="cb3-25" title="25">    <span class="co">// 3. remember to set the displayName</span></a>
+<a class="sourceLine" id="cb3-26" title="26">    <span class="va">Row</span>.<span class="at">displayName</span> <span class="op">=</span> <span class="vs">`Row(</span><span class="sc">${</span><span class="at">getDisplayName</span>(WrappedComponent)<span class="sc">}</span><span class="vs">)`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-27" title="27"></a>
+<a class="sourceLine" id="cb3-28" title="28">    <span class="co">// 2. remember to forward refs</span></a>
+<a class="sourceLine" id="cb3-29" title="29">    <span class="va">Row</span>.<span class="at">propTypes</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-30" title="30">      <span class="dt">wrappedComponentRef</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">func</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-31" title="31">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb3-32" title="32"></a>
+<a class="sourceLine" id="cb3-33" title="33">    <span class="co">// 1. remember to hoist statics</span></a>
+<a class="sourceLine" id="cb3-34" title="34">    <span class="cf">return</span> <span class="at">hoistStatics</span>(Row<span class="op">,</span> WrappedComponent)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-35" title="35">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb3-36" title="36"></a>
+<a class="sourceLine" id="cb3-37" title="37"><span class="im">export</span> <span class="im">default</span> row<span class="op">;</span></a></code></pre></div>
+<h3 id="creating-a-wrapper-row-instead">Creating a wrapper <code>&lt;Row /&gt;</code> instead</h3>
+<p>So, what’s a better way to do it? If you look closely at the example above, you can see that the guts of the HOC are a simple <code>Row</code> component that wraps our <code>WrappedComponent</code> in a <code>div</code>. You don’t need an HOC for that! You can use a normal wrapper component instead.</p>
+<p>Below you can see that we’ve re-written the HOC into a plain old wrapper component. A wrapper component is like a <code>&lt;div /&gt;</code>. It accepts arbitrary <code>children</code> instead of a <code>WrappedComponent</code>. In this case it’s preferred to use a regular component because it makes it so much easier to follow what’s going on.</p>
+<p>Also notice that the configuration object that we passed to the <code>row</code> HOC works equally as well as props on the <code>Row</code> wrapper component. This makes it easier to validate props!</p>
+<p><strong>Benefits of a plain wrapper component:</strong></p>
+<ul>
+<li>Accepts <em>anything</em> as children</li>
+<li>Just a component, keeps the React tree clear</li>
+<li>Prop type checking!</li>
+<li>No compatibility code needed</li>
+<li>No need to spread props!</li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="im">import</span> React <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="im">import</span> PropTypes <span class="im">from</span> <span class="st">&quot;prop-types&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="im">import</span> classnames <span class="im">from</span> <span class="st">&quot;classnames&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" title="4"></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="im">import</span> styles <span class="im">from</span> <span class="st">&quot;./row.css&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-6" title="6"></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="kw">const</span> Row <span class="op">=</span> (<span class="op">{</span> backgroundColor<span class="op">,</span> children<span class="op">,</span> className<span class="op">,</span> style <span class="op">}</span>) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb4-8" title="8">  <span class="op">&lt;</span>div</a>
+<a class="sourceLine" id="cb4-9" title="9">    <span class="kw">class</span><span class="op">={</span><span class="at">classnames</span>(<span class="va">styles</span>.<span class="at">row</span><span class="op">,</span> className)<span class="op">}</span></a>
+<a class="sourceLine" id="cb4-10" title="10">    style<span class="op">={{</span> backgroundColor<span class="op">,</span> ...<span class="at">style</span> <span class="op">}}</span></a>
+<a class="sourceLine" id="cb4-11" title="11">  <span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-12" title="12">    <span class="op">{</span>children<span class="op">}</span></a>
+<a class="sourceLine" id="cb4-13" title="13">  &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-14" title="14">)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-15" title="15"></a>
+<a class="sourceLine" id="cb4-16" title="16"><span class="va">Row</span>.<span class="at">propTypes</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-17" title="17">  <span class="dt">backgroundColor</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="va">string</span>.<span class="at">isRequired</span>()<span class="op">,</span></a>
+<a class="sourceLine" id="cb4-18" title="18">  <span class="dt">children</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">node</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-19" title="19">  <span class="dt">className</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">string</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-20" title="20">  <span class="dt">style</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">object</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-21" title="21"><span class="op">};</span></a>
+<a class="sourceLine" id="cb4-22" title="22"></a>
+<a class="sourceLine" id="cb4-23" title="23"><span class="im">export</span> <span class="im">default</span> Row<span class="op">;</span></a></code></pre></div>
+<p><strong>Notice:</strong> <code>children</code> is a <code>PropTypes.node</code> which allows it to be “any renderable value”. This means that you can provide plain text or an array of nodes or anything else that React can render. By contrast, an HOC requires you to pass a <code>WrappedComponent</code>, which must be a full React component.</p>
+<h3 id="using-a-wrapper-component">Using a wrapper component</h3>
+<p>How do we apply a wrapper component instead of an HOC? When our “wrapper” is a regular component we have multiple options for how to use it!</p>
+<h4 id="manually-wrap">Manually wrap</h4>
+<p>One common case would be to manually wrap <code>&lt;MyThing /&gt;</code> with a <code>&lt;Row /&gt;</code> everywhere it’s needed. Here you can see that we’re using both of these components together in the <code>&lt;Somewhere /&gt;</code> component.</p>
+<p>The benefit here is that we can keep give the implementor total control.</p>
+<p>The downside to this approach is that you need to do this <em>everywhere</em> that you use <code>&lt;MyThing /&gt;</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="co">// Option 1: manually wrap MyThing</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="im">import</span> React <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="im">import</span> Row <span class="im">from</span> <span class="st">&quot;utils/Row&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="im">import</span> MyThing <span class="im">from</span> <span class="st">&quot;./MyThing&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-5" title="5"></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="kw">const</span> Somewhere <span class="op">=</span> () <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb5-7" title="7">  <span class="op">&lt;</span>div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-8" title="8">    <span class="op">{</span><span class="co">/* ... */</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-9" title="9">    <span class="op">&lt;</span>Row backgroundColor<span class="op">=</span><span class="st">&quot;green&quot;</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-10" title="10">      <span class="op">&lt;</span>MyThing name<span class="op">=</span><span class="st">&quot;hello&quot;</span> /&gt;</a>
+<a class="sourceLine" id="cb5-11" title="11">    &lt;/Row<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-12" title="12">  &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb5-13" title="13">)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-14" title="14"></a>
+<a class="sourceLine" id="cb5-15" title="15"><span class="im">export</span> <span class="im">default</span> Somewhere<span class="op">;</span></a></code></pre></div>
+<h4 id="integrate-the-wrapper">Integrate the wrapper</h4>
+<p>If you know that you <em>always</em> want your component to be wrapped in a <code>&lt;Row /&gt;</code> you can integrate it directly into the component that needs it. Conceptually, this is like using a <code>&lt;div /&gt;</code> or a <code>&lt;span /&gt;</code>. Below you can see that we’re using <code>&lt;Row /&gt;</code> instead of using a top-level <code>&lt;div /&gt;</code>. The <code>Row</code> component allows you to define whatever you would like for your <code>children</code>. You can think of <code>MyThing</code> as a <code>Row</code> with pre-defined children.</p>
+<p>The benefit here is that <code>MyThing</code> will always be properly wrapped in a <code>Row</code>. Below you can see that (as an example) we are forcing the <code>backgroundColor</code> to always be “green”.</p>
+<p>The downside to this approach is that you need to pipe props into the <code>Row</code> component if you want it to be configurable from the outside. Below you can see that we pass the <code>className</code> and <code>style</code> props to maintain that functionality.</p>
+<p><strong>NOTE:</strong> This approach is closest to how the HOC works but it doesn’t break the React tree. This is also very similar to how a render props would work.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="co">// Option 2: MyThing integrates the Row wrapper</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="im">import</span> React <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="im">import</span> PropTypes <span class="im">from</span> <span class="st">&quot;prop-types&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-4" title="4"></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="im">import</span> Row <span class="im">from</span> <span class="st">&quot;utils/Row&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-6" title="6"></a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="kw">const</span> MyThing <span class="op">=</span> (<span class="op">{</span> className<span class="op">,</span> name<span class="op">,</span> style <span class="op">}</span>) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb6-8" title="8">  <span class="op">&lt;</span>Row backgroundColor<span class="op">=</span><span class="st">&quot;green&quot;</span> className<span class="op">={</span>className<span class="op">}</span> style<span class="op">={</span>style<span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb6-9" title="9">    Hello<span class="op">,</span> <span class="op">{</span>name<span class="op">}!</span></a>
+<a class="sourceLine" id="cb6-10" title="10">  &lt;/Row<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-11" title="11">)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-12" title="12"></a>
+<a class="sourceLine" id="cb6-13" title="13"><span class="va">MyThing</span>.<span class="at">propTypes</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-14" title="14">  <span class="dt">className</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">string</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-15" title="15">  <span class="dt">name</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">string</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-16" title="16">  <span class="dt">style</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">object</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-17" title="17"><span class="op">};</span></a>
+<a class="sourceLine" id="cb6-18" title="18"></a>
+<a class="sourceLine" id="cb6-19" title="19"><span class="im">export</span> <span class="im">default</span> MyThing<span class="op">;</span></a></code></pre></div>
+<h2 id="using-render-props">Using Render Props</h2>
+<p>In the case of our <code>Row</code> component, we can use declarative JSX instead of using an HOC. This works because we don’t need the children of <code>Row</code> to receive any derived props. Things get tricky when you need your <code>children</code> to know about derived props.</p>
+<p>How do we pass derived props from a component to its children? The answer is render props.</p>
+<p>In short, a render prop component accepts a <code>render</code> prop, which is a function that’s used to render its children. Instead of rendering children normally, the render prop component calls the render function and uses the result as the children. This allows the render prop component to provide derived props to the render function.</p>
+<p>Sound confusing? In practice it’s very similar to the way an HOC works. If you’ve ever used the <a href="https://reacttraining.com/react-router/web/api/Route"><code>&lt;Route /&gt;</code></a> component from react-router you’ve already used a render prop! That’s where the idea originally came from.</p>
+<p><strong>Key idea:</strong> using render props allows your wrapper to pass derived props to its children.</p>
+<h3 id="a-fake-connect-render-prop-component">A fake <code>Connect</code> render prop component</h3>
+<p>For fun, let’s reimagine the <code>connect()</code> HOC as a render props component. We’ll have it accept the same props as the normal <code>connect</code> function as well as an additional <code>render</code> prop.</p>
+<p>Notice the similarity between the container code below and the container we made above with the traditional <code>connect</code> HOC. The only substantive difference is that our <code>MyThingContainer</code> is now a normal component that simply wraps our <code>MyThing</code> component with our new imaginary <code>Connect</code> render props component.</p>
+<p>You can see below that the biggest advantage of this syntax is that it’s now super clear where the <code>MyThing</code> component is getting its props from. Notice the way <code>MyThing</code> gets props from both <code>Connect</code> and <code>MyThingContainer</code>. It’s typical for an HOC to spread props to the <code>WrappedComponent</code>, but a render props component doesn’t need to worry about that step.</p>
+<p><strong>Note:</strong> you’ll need to use your imagination about the internals of the <code>Connect</code> render props component. If you are interested in how it would work, see <a href="https://github.com/reduxjs/react-redux/issues/799">the discussion here</a>.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="co">// Connect as a render-prop component</span></a>
+<a class="sourceLine" id="cb7-2" title="2"></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="im">import</span> <span class="op">{</span> Connect <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;@fake/react-redux&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-5" title="5"></a>
+<a class="sourceLine" id="cb7-6" title="6"><span class="im">import</span> <span class="op">{</span> selectName <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;modules/things/selectors&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-7" title="7"><span class="im">import</span> <span class="op">{</span> onChangeName <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;modules/things/actions&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-8" title="8"><span class="im">import</span> MyThing <span class="im">from</span> <span class="st">&quot;./MyThing&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-9" title="9"></a>
+<a class="sourceLine" id="cb7-10" title="10"><span class="kw">const</span> mapStateToProps <span class="op">=</span> (state) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb7-11" title="11">  <span class="dt">name</span><span class="op">:</span> <span class="at">selectName</span>(state)<span class="op">,</span></a>
+<a class="sourceLine" id="cb7-12" title="12"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-13" title="13"></a>
+<a class="sourceLine" id="cb7-14" title="14"><span class="kw">const</span> mapDispatchToProps <span class="op">=</span> (dispatch) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb7-15" title="15">  <span class="dt">onChangeName</span><span class="op">:</span> (name) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-16" title="16">    <span class="at">dispatch</span>(<span class="at">updateName</span>(name))<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-17" title="17">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb7-18" title="18"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-19" title="19"></a>
+<a class="sourceLine" id="cb7-20" title="20"><span class="kw">const</span> MyThingContainer <span class="op">=</span> (props) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb7-21" title="21">  <span class="op">&lt;</span>Connect</a>
+<a class="sourceLine" id="cb7-22" title="22">    mapStateToProps<span class="op">={</span>mapStateToProps<span class="op">}</span></a>
+<a class="sourceLine" id="cb7-23" title="23">    mapDispatchToProps<span class="op">={</span>mapDispatchToProps<span class="op">}</span></a>
+<a class="sourceLine" id="cb7-24" title="24">    render<span class="op">={</span>(<span class="op">{</span> name<span class="op">,</span> onChangeName <span class="op">}</span>) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb7-25" title="25">      <span class="op">&lt;</span>MyThing name<span class="op">={</span>name<span class="op">}</span> onChangeName<span class="op">={</span>onChangeName<span class="op">}</span> <span class="op">{</span>...<span class="at">props</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb7-26" title="26">    )<span class="op">}</span></a>
+<a class="sourceLine" id="cb7-27" title="27">  /&gt;</a>
+<a class="sourceLine" id="cb7-28" title="28">)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-29" title="29"></a>
+<a class="sourceLine" id="cb7-30" title="30"><span class="im">export</span> <span class="im">default</span> MyThingContainer<span class="op">;</span></a></code></pre></div>
+<h3 id="creating-a-render-props-row">Creating a render-props <code>Row</code></h3>
+<p>Let’s apply the render-props technique to our new <code>Row</code> wrapper component!</p>
+<p>For fun, we want to enable our row’s children to conditionally render themselves based on if they are on screen or not. We’ll use <a href="https://github.com/researchgate/react-intersection-observer"><code>@researchgate/react-intersection-observer</code></a> to manage this. And we’ll use render props to expose the derived <code>visible</code> prop to our children.</p>
+<p>The <code>visible</code> boolean indicates whether or not the row is currently visible on screen. Under the hood this relies on the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API"><code>IntersectionObserver</code> API</a> to determine if the row is “intersecting” the browser viewport. We’ll update the <code>Row</code>’s <code>visible</code> state whenever its <code>isIntersecting</code> property changes.</p>
+<p>Below you can see that we’ve wrapped our <code>&lt;div /&gt;</code> with an <code>&lt;Observer /&gt;</code>. To enable the render props technique we need to add three new props to our <code>Row</code> component.</p>
+<ul>
+<li><code>children</code> must now be a <code>func</code> instead of a <code>node</code></li>
+<li><code>component</code> accepts a React component to render</li>
+<li><code>render</code> must be a <code>func</code> as well</li>
+</ul>
+<p>Why three props? This allows us to support multiple use cases. Because render props are a somewhat new pattern, there are a few different ways that people have been using them. See the “Generic Render Props” template at the end of this document for a deeper explanation. All three props are mutually exclusive, meaning you should only use one of them at a time.</p>
+<p>For our purposes, let’s focus on the <code>render</code> prop. This is the most flexible and the clearest way to use render props.</p>
+<p>Compare the <code>Row</code> render props component below with the regular <code>Row</code> wrapper component we created above.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="co">// Render props Row</span></a>
+<a class="sourceLine" id="cb8-2" title="2"></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> Component <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="im">import</span> PropTypes <span class="im">from</span> <span class="st">&quot;prop-types&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-5" title="5"><span class="im">import</span> renderProps <span class="im">from</span> <span class="st">&quot;render-props&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-6" title="6"><span class="im">import</span> classnames <span class="im">from</span> <span class="st">&quot;classnames&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-7" title="7"><span class="im">import</span> Observer <span class="im">from</span> <span class="st">&quot;@researchgate/react-intersection-observer&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-8" title="8"></a>
+<a class="sourceLine" id="cb8-9" title="9"><span class="im">import</span> styles <span class="im">from</span> <span class="st">&quot;./row.css&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-10" title="10"></a>
+<a class="sourceLine" id="cb8-11" title="11"><span class="kw">class</span> Row <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-12" title="12">  <span class="at">constructor</span>(props) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-13" title="13">    <span class="kw">super</span>(props)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-14" title="14">    <span class="kw">this</span>.<span class="at">state</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-15" title="15">      <span class="dt">visible</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb8-16" title="16">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb8-17" title="17">    <span class="kw">this</span>.<span class="at">handleOnChange</span> <span class="op">=</span> <span class="kw">this</span>.<span class="va">handleOnChange</span>.<span class="at">bind</span>(<span class="kw">this</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-18" title="18">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-19" title="19"></a>
+<a class="sourceLine" id="cb8-20" title="20">  <span class="at">handleOnChange</span>(<span class="op">{</span> isIntersecting <span class="op">}</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-21" title="21">    <span class="kw">const</span> <span class="op">{</span> visible <span class="op">}</span> <span class="op">=</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-22" title="22">    <span class="cf">if</span> (visible <span class="op">!==</span> isIntersecting) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-23" title="23">      <span class="kw">this</span>.<span class="at">setState</span>(<span class="op">{</span> <span class="dt">visible</span><span class="op">:</span> isIntersecting <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-24" title="24">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-25" title="25">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-26" title="26"></a>
+<a class="sourceLine" id="cb8-27" title="27">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-28" title="28">    <span class="kw">const</span> <span class="op">{</span> backgroundColor<span class="op">,</span> children<span class="op">,</span> className<span class="op">,</span> component<span class="op">,</span> render<span class="op">,</span> style <span class="op">}</span> <span class="op">=</span></a>
+<a class="sourceLine" id="cb8-29" title="29">      <span class="kw">this</span>.<span class="at">props</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-30" title="30">    <span class="kw">const</span> <span class="op">{</span> visible <span class="op">}</span> <span class="op">=</span> <span class="kw">this</span>.<span class="at">state</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-31" title="31">    <span class="kw">const</span> componentOrFunction <span class="op">=</span> component <span class="op">||</span> render <span class="op">||</span> children<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-32" title="32"></a>
+<a class="sourceLine" id="cb8-33" title="33">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb8-34" title="34">      <span class="op">&lt;</span>Observer onChange<span class="op">={</span><span class="kw">this</span>.<span class="at">handleOnChange</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb8-35" title="35">        <span class="op">&lt;</span>div</a>
+<a class="sourceLine" id="cb8-36" title="36">          <span class="kw">class</span><span class="op">={</span><span class="at">classnames</span>(<span class="va">styles</span>.<span class="at">row</span><span class="op">,</span> className)<span class="op">}</span></a>
+<a class="sourceLine" id="cb8-37" title="37">          style<span class="op">={{</span> backgroundColor<span class="op">,</span> ...<span class="at">style</span> <span class="op">}}</span></a>
+<a class="sourceLine" id="cb8-38" title="38">        <span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-39" title="39">          <span class="op">{</span><span class="at">renderProps</span>(componentOrFunction<span class="op">,</span> <span class="op">{</span> visible <span class="op">}</span>)<span class="op">}</span></a>
+<a class="sourceLine" id="cb8-40" title="40">        &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-41" title="41">      &lt;/Observer<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-42" title="42">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-43" title="43">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-44" title="44"><span class="op">}</span></a>
+<a class="sourceLine" id="cb8-45" title="45"></a>
+<a class="sourceLine" id="cb8-46" title="46"><span class="va">Row</span>.<span class="at">propTypes</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-47" title="47">  <span class="dt">backgroundColor</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="va">string</span>.<span class="at">isRequired</span>()<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-48" title="48">  <span class="dt">children</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">func</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb8-49" title="49">  <span class="dt">className</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">string</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb8-50" title="50">  <span class="dt">component</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">func</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb8-51" title="51">  <span class="dt">render</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">func</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb8-52" title="52">  <span class="dt">style</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">object</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb8-53" title="53"><span class="op">};</span></a>
+<a class="sourceLine" id="cb8-54" title="54"></a>
+<a class="sourceLine" id="cb8-55" title="55"><span class="im">export</span> <span class="im">default</span> Row<span class="op">;</span></a></code></pre></div>
+<h3 id="using-our-render-props-row">Using our render-props <code>Row</code></h3>
+<p>Now we can see it in action. We need to update our <code>MyThing</code> component from the integrated wrapper <code>Row</code> example from above to support the new render-props <code>Row</code>. Using a render prop allows our component to receive a <code>visible</code> prop when it is visible on screen. We use that to conditionally render <code>null</code> when it is not on screen.</p>
+<p><strong>Why render <code>null</code>?</strong> For this example there’s no good reason. However, if you had a computationally expensive component you might want to avoid rendering it when it isn’t visible. You could use this technique to improve the render performance of your page in some circumstances.</p>
+<p>Compare this <code>MyThing</code> component using a render-props <code>Row</code> to the <code>MyThings</code> component we made above with an integrated <code>Row</code> wrapper. Notice that <code>MyThing</code> accepts the same props as it did before.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="im">import</span> React <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="im">import</span> PropTypes <span class="im">from</span> <span class="st">&quot;prop-types&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb9-3" title="3"></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="im">import</span> Row <span class="im">from</span> <span class="st">&quot;utils/Row&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb9-5" title="5"></a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="kw">const</span> MyThing <span class="op">=</span> (<span class="op">{</span> className<span class="op">,</span> name<span class="op">,</span> style <span class="op">}</span>) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb9-7" title="7">  <span class="op">&lt;</span>Row</a>
+<a class="sourceLine" id="cb9-8" title="8">    backgroundColor<span class="op">=</span><span class="st">&quot;green&quot;</span></a>
+<a class="sourceLine" id="cb9-9" title="9">    className<span class="op">={</span>className<span class="op">}</span></a>
+<a class="sourceLine" id="cb9-10" title="10">    style<span class="op">={</span>style<span class="op">}</span></a>
+<a class="sourceLine" id="cb9-11" title="11">    render<span class="op">={</span>(<span class="op">{</span> visible <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-12" title="12">      <span class="cf">if</span> (<span class="op">!</span>visible) <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-13" title="13">        <span class="cf">return</span> <span class="kw">null</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb9-14" title="14">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb9-15" title="15">      <span class="cf">return</span> <span class="vs">`Hello, </span><span class="sc">${</span>name<span class="sc">}</span><span class="vs">!`</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb9-16" title="16">    <span class="op">}}</span></a>
+<a class="sourceLine" id="cb9-17" title="17">  /&gt;</a>
+<a class="sourceLine" id="cb9-18" title="18">)<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-19" title="19"></a>
+<a class="sourceLine" id="cb9-20" title="20"><span class="va">MyThing</span>.<span class="at">propTypes</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-21" title="21">  <span class="dt">className</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">string</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb9-22" title="22">  <span class="dt">name</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">string</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb9-23" title="23">  <span class="dt">style</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">object</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb9-24" title="24"><span class="op">};</span></a>
+<a class="sourceLine" id="cb9-25" title="25"></a>
+<a class="sourceLine" id="cb9-26" title="26"><span class="im">export</span> <span class="im">default</span> MyThing<span class="op">;</span></a></code></pre></div>
+<h2 id="a-generic-render-props-component">A generic render props component</h2>
+<p>We can follow the example set by <code>&lt;Route /&gt;</code> as well as the <a href="https://www.npmjs.com/package/render-props"><code>render-prop</code></a> package and create a general purpose template to use as the basis for any render-props component.</p>
+<p>A generic render-props component <em>must</em> accept 3 props, <code>children</code>, <code>component</code> and <code>render</code>. You’ll recognize the <code>render</code> prop from the examples above. Although it is <a href="https://americanexpress.io/faccs-are-an-antipattern/">somewhat frowned upon</a>, it is popular to support using <a href="https://reactjs.org/docs/render-props.html#using-props-other-than-render"><code>children</code> as a function</a> to provide the render function. And finally, based on how <code>&lt;Route /&gt;</code> works, you may want to simply supply a <code>component</code> to render.</p>
+<p>Only one of those props will be used. By convention, we have the <code>component</code> prop override the <code>render</code> props, which overrides <code>children</code>. You can see in the <a href="https://github.com/ReactTraining/react-router/blob/master/packages/react-router/modules/Route.js">code for the <code>Route</code> component</a> that they use the <code>warning</code> and <code>invariant</code> libraries to warn users when they provide conflicting props.</p>
+<ul>
+<li>Allows <code>render</code> or <code>children</code> to define the render prop function</li>
+<li>Allows <code>component</code> to enable straight rendering</li>
+<li>Prefers <code>component</code> and transparently falls back to <code>render</code> and <code>children</code></li>
+<li><em>Optional:</em> Transparently merges <code>otherProps</code> with derived props</li>
+</ul>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1"><span class="im">import</span> React<span class="op">,</span> <span class="op">{</span> Component <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;react&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="im">import</span> PropTypes <span class="im">from</span> <span class="st">&quot;prop-types&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="im">import</span> renderProps <span class="im">from</span> <span class="st">&quot;render-props&quot;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb10-4" title="4"></a>
+<a class="sourceLine" id="cb10-5" title="5"><span class="kw">class</span> GenericRenderPropsComponent <span class="kw">extends</span> Component <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-6" title="6">  <span class="at">constructor</span>(props) <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-7" title="7">    <span class="kw">super</span>(props)<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-8" title="8">    <span class="kw">this</span>.<span class="at">state</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-9" title="9">      <span class="dt">something</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb10-10" title="10">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb10-11" title="11">    <span class="kw">this</span>.<span class="at">handleOnSomething</span> <span class="op">=</span> <span class="kw">this</span>.<span class="va">handleOnSomething</span>.<span class="at">bind</span>(<span class="kw">this</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-12" title="12">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb10-13" title="13"></a>
+<a class="sourceLine" id="cb10-14" title="14">  <span class="at">handleOnSomething</span>(value) <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-15" title="15">    <span class="kw">const</span> <span class="op">{</span> something <span class="op">}</span> <span class="op">=</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-16" title="16">    <span class="cf">if</span> (something <span class="op">!==</span> value) <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-17" title="17">      <span class="kw">this</span>.<span class="at">setState</span>(<span class="op">{</span> <span class="dt">something</span><span class="op">:</span> value <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-18" title="18">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb10-19" title="19">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb10-20" title="20"></a>
+<a class="sourceLine" id="cb10-21" title="21">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-22" title="22">    <span class="kw">const</span> <span class="op">{</span> children<span class="op">,</span> component<span class="op">,</span> render<span class="op">,</span> ...<span class="at">otherProps</span> <span class="op">}</span> <span class="op">=</span> <span class="kw">this</span>.<span class="at">props</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb10-23" title="23">    <span class="kw">const</span> <span class="op">{</span> something <span class="op">}</span> <span class="op">=</span> <span class="kw">this</span>.<span class="at">state</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb10-24" title="24"></a>
+<a class="sourceLine" id="cb10-25" title="25">    <span class="kw">const</span> componentOrFunction <span class="op">=</span> component <span class="op">||</span> render <span class="op">||</span> children<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-26" title="26">    <span class="kw">const</span> props <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-27" title="27">      ...<span class="at">otherProps</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb10-28" title="28">      <span class="dt">onSomething</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">handleOnSomething</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb10-29" title="29">      something<span class="op">,</span></a>
+<a class="sourceLine" id="cb10-30" title="30">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb10-31" title="31"></a>
+<a class="sourceLine" id="cb10-32" title="32">    <span class="cf">return</span> componentOrFunction <span class="op">?</span> <span class="at">renderProps</span>(componentOrFunction<span class="op">,</span> props) : <span class="kw">null</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb10-33" title="33">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb10-34" title="34"><span class="op">}</span></a>
+<a class="sourceLine" id="cb10-35" title="35"></a>
+<a class="sourceLine" id="cb10-36" title="36"><span class="va">GenericRenderPropsComponent</span>.<span class="at">propTypes</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-37" title="37">  <span class="dt">children</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">function</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb10-38" title="38">  <span class="dt">component</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">function</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb10-39" title="39">  <span class="dt">render</span><span class="op">:</span> <span class="va">PropTypes</span>.<span class="at">function</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb10-40" title="40"><span class="op">};</span></a>
+<a class="sourceLine" id="cb10-41" title="41"></a>
+<a class="sourceLine" id="cb10-42" title="42"><span class="im">export</span> <span class="im">default</span> GenericRenderPropsComponent<span class="op">;</span></a></code></pre></div>
+<h3 id="open-questions">Open questions?</h3>
+<ul>
+<li>See <a href="https://blog.kentcdodds.com/answers-to-common-questions-about-render-props-a9f84bb12d5d">answers to common questions about render props</a></li>
+</ul>
+</body>
+</html>

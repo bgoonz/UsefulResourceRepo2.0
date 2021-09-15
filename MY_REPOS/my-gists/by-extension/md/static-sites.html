@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>static-sites</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<h1 id="s3-static-sites">S3 Static Sites</h1>
+<p>What this will cover</p>
+<ul>
+<li>Host a static website at S3</li>
+<li>Redirect <code>www.website.com</code> to <code>website.com</code></li>
+<li>Website can be an SPA (requiring all requests to return <code>index.html</code>)</li>
+<li>Free AWS SSL certs</li>
+<li>Deployment with CDN invalidation</li>
+</ul>
+<h2 id="resources">Resources</h2>
+<ul>
+<li>https://stormpath.com/blog/ultimate-guide-deploying-static-site-aws</li>
+<li>https://miketabor.com/host-static-website-using-aws-s3/</li>
+<li>http://www.mycowsworld.com/blog/2013/07/29/setting-up-a-godaddy-domain-name-with-amazon-web-services.html</li>
+<li>https://www.davidbaumgold.com/tutorials/host-static-site-aws-s3-cloudfront/#make-an-s3-bucket</li>
+</ul>
+<h2 id="s3-bucket">S3 Bucket</h2>
+<ul>
+<li>Create an S3 bucket named exactly after the domain name, for example <code>website.com</code>.</li>
+<li>In <strong>Properties</strong>, click the Static Website section.
+<ul>
+<li>Click <strong>Use this bucket to host a website</strong> and enter <code>index.html</code> into <strong>Index Document</strong> field.</li>
+<li>Don’t enter anything else in this form.</li>
+<li>This will create an “endpoint” on the same screen similar to <code>http://website.com.s3-website-us-east-1.amazonaws.com</code>.</li>
+</ul></li>
+<li>Then click on <strong>Permissions</strong> tab, then <strong>Bucket Policy</strong>. Enter this policy:</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">&quot;Version&quot;</span><span class="fu">:</span> <span class="st">&quot;2008-10-17&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="dt">&quot;Statement&quot;</span><span class="fu">:</span> <span class="ot">[</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="fu">{</span></a>
+<a class="sourceLine" id="cb1-5" title="5">      <span class="dt">&quot;Sid&quot;</span><span class="fu">:</span> <span class="st">&quot;AllowPublicRead&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-6" title="6">      <span class="dt">&quot;Effect&quot;</span><span class="fu">:</span> <span class="st">&quot;Allow&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-7" title="7">      <span class="dt">&quot;Principal&quot;</span><span class="fu">:</span> <span class="fu">{</span></a>
+<a class="sourceLine" id="cb1-8" title="8">        <span class="dt">&quot;AWS&quot;</span><span class="fu">:</span> <span class="st">&quot;*&quot;</span></a>
+<a class="sourceLine" id="cb1-9" title="9">      <span class="fu">},</span></a>
+<a class="sourceLine" id="cb1-10" title="10">      <span class="dt">&quot;Action&quot;</span><span class="fu">:</span> <span class="st">&quot;s3:GetObject&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-11" title="11">      <span class="dt">&quot;Resource&quot;</span><span class="fu">:</span> <span class="st">&quot;arn:aws:s3:::BUCKET_NAME/*&quot;</span></a>
+<a class="sourceLine" id="cb1-12" title="12">    <span class="fu">}</span></a>
+<a class="sourceLine" id="cb1-13" title="13">  <span class="ot">]</span></a>
+<a class="sourceLine" id="cb1-14" title="14"><span class="fu">}</span></a></code></pre></div>
+<blockquote>
+<p>Be sure to replace <code>BUCKET_NAME</code> with yours.</p>
+</blockquote>
+<blockquote>
+<p>Note: Naming the bucket doesn’t have to be exactly the domain name. I read that in several articles that it needed to be, but it doesn’t. If using wildcard domains with AWS, I’ve read that we can’t have dots in the domain name when using wildcard domains. So just know that you can name the bucket whatever, but using dots does work if not using wildcard domains</p>
+</blockquote>
+<p>Uploading an <code>index.html</code> should allow us to visit the “endpoint”</p>
+<h2 id="cloudfront">CloudFront</h2>
+<ul>
+<li>Go to the CloudFront section and click <strong>Create Distribution</strong> and then create for <strong>Web</strong>, not RTMP.</li>
+<li>In <strong>Origin Domain Name</strong>, paste the “endpoint” previously created in S3 (without the <code>http://</code> part). Note that when you click on this field it will act like a dropdown with options to your existing buckets. I think you can just select one of those two which is a valid list of your S3 buckets.</li>
+<li>The order of these instructions assume SSL certificates are not setup yet. So don’t do anything with settings regarding SSL</li>
+<li>Select “yes” for <strong>Compress Objects Automatically</strong>.</li>
+<li>In <strong>Alternate Domain Names (CNAMEs)</strong>, put the domain names which you want to correspond to this bucket. Put each on their own line <strong>OR</strong> separated by comma. The reason why you may have two or more is something like this: <code>mywebsite.com</code> and <code>www.mywebsite.com</code>. The field is called “Alternative Domain Names” because AWS will have an aws-specific domain name for the CDN, but you don’t want to use that so you’ll want to put in your custom domains and then use Route 53 (next section) to point domains to the CDN.</li>
+<li>In <strong>Default Root Object</strong>, type <code>index.html</code>.</li>
+<li>Create. The next screen will show distributions in table form, the one we just made will be “in progress” for a few minutes</li>
+</ul>
+<p>The distribution will have a domain name like <code>dpo155j0y52ps.cloudfront.net</code>. This is important for DNS (see below). So copy it somehwere.</p>
+<h2 id="route-53">Route 53</h2>
+<p>These DNS instructions assume your DNS is hosted at AWS. <strong>This does not mean</strong> you have to buy a domain at AWS, it just means that when you buy a domain at somewhere like Google or GoDaddy, over there you need to point NS records to AWS to allow AWS to manage the parts of the DNS record. But first, at AWS is where you create the “Hosted Zone” which is where you create the NS values to eventually give to Google or GoDaddy, etc. I don’t know how any of this is different if you buy your domain at AWS (But then again I never buy domains at the same place I host)</p>
+<ul>
+<li>Click <strong>Hosted Zones</strong></li>
+<li>Create a new Zone: Use the domain name (<code>mywebsite.com</code> without sub domain) for zone. Note that each domain name will get one zone, sub domains all belong to the same zone.</li>
+<li>This should create NS records such as:</li>
+</ul>
+<pre><code>ns-1208.awsdns-23.org.
+ns-2016.awsdns-60.co.uk.
+ns-642.awsdns-16.net.
+ns-243.awsdns-30.com.</code></pre>
+<ul>
+<li>The NS records can be used to point DNS management from other domain registrar to AWS Route 53</li>
+<li>Click <strong>Create Record Set</strong> to create an <code>A</code> record.
+<ul>
+<li>This will be the record that points <code>mywebsite.com</code> to CloudFront.</li>
+<li>For the <strong>name</strong>, enter no value</li>
+<li>Change <strong>Alias</strong> to Yes</li>
+<li>Paste the CloutFront domain in the <strong>Alias</strong> field
+<ul>
+<li>This should look like <code>[some-random-number].couldfront.net</code>. You can get this by clicking your CloudFront distribution and in the General tab there is a “Domain Name” label.</li>
+</ul></li>
+<li>Click Create Record Set</li>
+</ul></li>
+<li>Create another <code>A</code> record for the <code>www</code> redirect
+<ul>
+<li>Follow the same steps for the previous <code>A</code> record, but enter <code>www</code> for <strong>name</strong> and use the same CloudFront domain. But note this is because we want <code>www.mywebsite.com</code> and <code>mywebsite.com</code> to point to the same bucket (and therefore the same CloudFront domain). I suppose you would make a whole new bucket and a whole new CloudFront distrubution (with a new CF domain) if you wanted a second project at <code>app.mywebsite.com</code>. This might be common if you app is a React app that is completly separate code from your “home page” website which might be from a static site generator or something.</li>
+</ul></li>
+</ul>
+<h2 id="https">HTTPS</h2>
+<p>In the AWS Console, go to <strong>Certificate Manager</strong> and request a cert for domain and all sub domains. We will be required to verify certificate via email or DNS. If verifying by email, AWS will look up the public DNS owner information and use up to three emails it finds there (if your domain ownership info is public). But even if it’s not public, AWS will also use these (that you don’t get to choose from)</p>
+<ul>
+<li><code>administrator@mywebsite.com</code></li>
+<li><code>hostmaster@mywebsite.com</code></li>
+<li><code>postmaster@mywebsite.com</code></li>
+<li><code>webmaster@mywebsite.com</code></li>
+<li><code>admin@mywebsite.com</code></li>
+</ul>
+<p>If your company uses “webmaster@”, hats off to you, because your app is probably 1000 years old.</p>
+<p><strong>For .io TLDs</strong>: http://docs.aws.amazon.com/acm/latest/userguide/troubleshoot-iodomains.html</p>
+<p>If you choose to verify via DNS, AWS will ask you to add some CNAME records to your Route 53 DNS, but the nice thing is that there is a shortcut button to do so (for each domain and sub domain) from within the Certificate Manager section.</p>
+<p>After the verification is done and the cert is “issued”, we can go back into CloudFont to edit our distribution for this domain:</p>
+<ul>
+<li>Click the distribution and on the next page (in the General tab), click <strong>Edit</strong></li>
+<li>Check the box for <strong>Custom SSL Certificate</strong></li>
+<li>Select our cert and save. Note that what looks like a text field is really a dropdown menu once you click it to choose your certificate</li>
+<li>When done with the form, click the <strong>Behaviors</strong> tab and edit the only record that should be there</li>
+<li>Select <strong>Redirect HTTP to HTTPS</strong>. Click Save</li>
+</ul>
+<h2 id="spa">SPA</h2>
+<p>If the website is an SPA, then we need to make sure all requests to the server (S3 in this case) return something even if no file exists. This is becuase SPAs like React (with React Router) need the <code>index.html</code> page for every requests, then things like “not found” pages are handled in the front-end.</p>
+<p>Go to CloudFront and click the distribution you want to apply these SPA settings to. Click the <strong>Error Pages</strong> tab and add a new error page. Fill the form with these fields:</p>
+<ul>
+<li><strong>HTTP Error Code</strong>: 404</li>
+<li><strong>TTL</strong>: 0</li>
+<li><strong>Custom Error Response</strong>: Yes</li>
+<li><strong>Response Page Path</strong>: <code>/index.html</code></li>
+<li><strong>HTTP Response Code</strong>: 200</li>
+</ul>
+<h2 id="deployment">Deployment</h2>
+<p>For deployment, we need to consider that files in the CloudFront CDN are not meant to change. If we were to upload new files to S3, they would not be deployed to the CDN’s edge servers and therefore would not update the website. <a href="http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ReplacingObjectsSameName.html">Read More</a>.</p>
+<p>To invalidate files on the CDN we’ll need to use CloudFront’s <strong>invalidations</strong> feature: <a href="http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html">Read More</a>.</p>
+<p>In the AWS console, in the CloudFront management of a distribution, there is a tab for <strong>Invalidations</strong>. We could manually create an invalidation (with the value of <code>/*</code>) to invalidate all S3 files. Note that invalidation records here are one-time invalidations and every time we deploy new files, we will need to make a new invalidation.</p>
+<p>To deploy with invalidations, we will need to <a href="https://aws.amazon.com/cli/">install AWS-CLI</a> first. We also assume you have an IAM user from AWS with an Access Key and Secret Access Key.</p>
+<p>To test installation, do:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="ex">aws</span> --version</a></code></pre></div>
+<p>Configure aws-cli:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1"><span class="ex">aws</span> configure --profile PICK_A_PROFILE_NAME</a></code></pre></div>
+<blockquote>
+<p>Note that using “profiles” to configure AWS-CLI is probably best since you might want to use the CLI to manage multiple AWS accounts at some point. Be sure to swap out <code>PICK_A_PROFILE_NAME</code> for your name choice (can be anything).</p>
+</blockquote>
+<p>Enter these values:</p>
+<pre><code>AWS Access Key ID [None]: [Your Access Key]
+AWS Secret Access Key [None]: [Your Secret Access Key]
+Default region name [None]: us-east-1
+Default output format [None]: json</code></pre>
+<p>This will save your entries at <code>~/.aws/credentials</code>. Note that you need to enter your correct region for your AWS stuff. I used <code>us-east-1</code>, but make sure to use the correct one for you. Also note that you can have responses in <code>text</code> instead of <code>json</code> if you want</p>
+<p>You can ommit the last two questions for region and format if you want to set up a default for your computer (that all profiles will use). The default profile is located at <code>~/.aws/config</code>. If you omit the region and format from your profile, be sure they exist in your <code>~/.aws/config</code> as:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1">[<span class="ex">default</span>]</a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="ex">output</span> = json</a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="ex">region</span> = us-east-1</a></code></pre></div>
+<p>Now, since we’ll need to do some CloudFront commands which are “experimental”, we need to do:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb7-1" title="1"><span class="ex">aws</span> configure set preview.cloudfront true</a></code></pre></div>
+<p>This will result in more records at <code>~/.aws/config</code>.</p>
+<p>We should be setup now to dest a deployment. Run:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb8-1" title="1"><span class="ex">aws</span> s3 sync --acl public-read --profile YOUR_PROFILE_NAME --delete build/ s3://BUCKET_NAME</a></code></pre></div>
+<ul>
+<li>Obviously replace <code>YOUR_PROFILE_NAME</code> and <code>BUCKET_NAME</code> with yours. Also this assumes the folder you want to upload is <code>build</code>.</li>
+<li>This command will
+<ul>
+<li>Ensure all new files uploaded are public (<code>--acl public-read</code>)</li>
+<li>Ensure we’re using your credentials from your local AWS profile (<code>--profile YOUR_PROFILE_NAME</code>)</li>
+<li>Remove any existing S3 objects that don’t exist locally (<code>--delete</code>)</li>
+</ul></li>
+</ul>
+<p>After deployment is verified and successful, we need to invalidate:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb9-1" title="1"><span class="ex">aws</span> cloudfront --profile YOUR_PROFILE_NAME create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths <span class="st">&#39;/*&#39;</span></a></code></pre></div>
+<ul>
+<li>Obviously replace <code>YOUR_PROFILE_NAME</code> and <code>YOUR_DISTRIBUTION_ID</code> with yours. Note that your Distribution ID can be found in the CloudFront seciton of AWS console.</li>
+<li>If the invalidation worked, you’ll be able to see a record of it in the <strong>Invalidations</strong> tab after clicking on your distribution.</li>
+</ul>
+<p>To make it all easier, add to <code>package.json</code>:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb10-1" title="1">  <span class="er">&quot;scripts&quot;:</span> <span class="fu">{</span></a>
+<a class="sourceLine" id="cb10-2" title="2">    <span class="dt">&quot;deploy&quot;</span><span class="fu">:</span> <span class="st">&quot;aws s3 sync --acl public-read --profile XYZ --delete build/ s3://XYX &amp;&amp; npm run invalidate&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb10-3" title="3">    <span class="dt">&quot;invalidate&quot;</span><span class="fu">:</span> <span class="st">&quot;aws cloudfront --profile XYZ create-invalidation --distribution-id XYZ --paths &#39;/*&#39;&quot;</span></a>
+<a class="sourceLine" id="cb10-4" title="4">  <span class="fu">}</span><span class="er">,</span></a></code></pre></div>
+<p><code>XYZ</code> is for all the parts that need to be replaced. Now you can run <code>npm run deploy</code> which will deploy then invalidate</p>
+<p>Cheers!</p>
+</body>
+</html>

@@ -1,0 +1,1 @@
+function(a,b,c,d,e){for(e={};c=e,b=a.pop();){b=("#"+b).split("/");while(b[0])c=c[d=b.shift()]=b[0]?c[d]||{}:d}return e}

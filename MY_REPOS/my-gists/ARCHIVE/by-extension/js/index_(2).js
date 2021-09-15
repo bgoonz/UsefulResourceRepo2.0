@@ -1,0 +1,1 @@
+function(a,b,c,d,e){while(d<c)with(a[d][b[e|=0]||"B"])b[e]=w,e+=m,d=n;return b}

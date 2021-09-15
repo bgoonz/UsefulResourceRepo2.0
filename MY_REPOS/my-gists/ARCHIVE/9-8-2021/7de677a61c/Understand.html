@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Understanding Async Await In The Context Of The Event Loop</title>
+    <style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 940px;
+        margin: auto;
+      }
+      section {
+        width: 940px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 1200px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field="subtitle"],
+      section[data-field="description"] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <article class="h-entry">
+      <header>
+        <h1 class="p-name">
+          Understanding Async Await In The Context Of The Event Loop
+        </h1>
+      </header>
+      <section data-field="subtitle" class="p-summary">
+        There’s a special syntax to work with promises in a more comfortable
+        fashion, called “async/await”. It’s surprisingly easy to understand…
+      </section>
+      <section data-field="body" class="e-content">
+        <section name="fd58" class="section section--body section--first">
+          <div class="section-divider"><hr class="section-divider" /></div>
+          <div class="section-content">
+            <div class="section-inner sectionLayout--insetColumn">
+              <h3
+                name="c976"
+                id="c976"
+                class="graf graf--h3 graf--leading graf--title"
+              >
+                Understanding Async Await In The Context Of The Event Loop
+              </h3>
+              <h4
+                name="0b41"
+                id="0b41"
+                class="graf graf--h4 graf-after--h3 graf--subtitle"
+              >
+                There’s a special syntax to work with promises in a more
+                comfortable fashion, called “async/await”. It’s surprisingly
+                easy to understand and use.
+              </h4>
+              <p name="8b61" id="8b61" class="graf graf--p graf-after--h4">
+                The
+                <a
+                  href="https://dev.to/lydiahallie/javascript-visualized-promises-async-await-5gke"
+                  data-href="https://dev.to/lydiahallie/javascript-visualized-promises-async-await-5gke"
+                  class="markup--anchor markup--p-anchor"
+                  rel="noopener"
+                  target="_blank"
+                  >following excerpt</a
+                >
+                comes from the phenomenally written article on the subject of
+                the
+                <a
+                  href="https://dev.to/lydiahallie/javascript-visualized-promises-async-await-5gke"
+                  data-href="https://dev.to/lydiahallie/javascript-visualized-promises-async-await-5gke"
+                  class="markup--anchor markup--p-anchor"
+                  rel="noopener"
+                  target="_blank"
+                  >callstack </a
+                >and
+                <a
+                  href="https://dev.to/lydiahallie/javascript-visualized-event-loop-3dif"
+                  data-href="https://dev.to/lydiahallie/javascript-visualized-event-loop-3dif"
+                  class="markup--anchor markup--p-anchor"
+                  rel="noopener"
+                  target="_blank"
+                  >event-queue</a
+                >
+                by
+                <a
+                  href="https://dev.to/lydiahallie"
+                  data-href="https://dev.to/lydiahallie"
+                  class="markup--anchor markup--p-anchor"
+                  rel="noopener"
+                  target="_blank"
+                  >Lidia Hallie</a
+                >!
+              </p>
+              <p name="545d" id="545d" class="graf graf--p graf-after--p">
+                JavaScript is
+                <strong class="markup--strong markup--p-strong"
+                  >single-threaded</strong
+                >: only one task can run at a time.
+              </p>
+              <figure
+                name="736b"
+                id="736b"
+                class="graf graf--figure graf-after--p"
+              >
+                <img
+                  class="graf-image"
+                  data-image-id="0*SLsSFiq0R6OSo89a.jpg"
+                  data-width="704"
+                  data-height="406"
+                  data-is-featured="true"
+                  src="https://cdn-images-1.medium.com/max/800/0*SLsSFiq0R6OSo89a.jpg"
+                />
+              </figure>
+              <p name="44e2" id="44e2" class="graf graf--p graf-after--figure">
+                To compensate, browsers like Google Chrome give us some features
+                that Javascript does not provide in isolation, namely…
+                <a
+                  href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Client-side_web_APIs/Introduction"
+                  data-href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Client-side_web_APIs/Introduction"
+                  class="markup--anchor markup--p-anchor"
+                  rel="noopener"
+                  target="_blank"
+                  >a Web API.</a
+                >
+              </p>
+              <blockquote
+                name="5d2c"
+                id="5d2c"
+                class="graf graf--pullquote graf-after--p"
+              >
+                When we invoke a function, it gets added to something called the
+                call stack.
+              </blockquote>
+              <figure
+                name="fa1d"
+                id="fa1d"
+                class="graf graf--figure graf-after--pullquote"
+              >
+                <img
+                  class="graf-image"
+                  data-image-id="0*MvjUSu6XfEuJWm6x.gif"
+                  data-width="880"
+                  data-height="495"
+                  src="https://cdn-images-1.medium.com/max/800/0*MvjUSu6XfEuJWm6x.gif"
+                />
+              </figure>
+              <p name="8368" id="8368" class="graf graf--p graf-after--figure">
+                <strong class="markup--strong markup--p-strong"
+                  >It’s a stack, meaning that it’s first in, last out (think of
+                  a pile of pancakes).</strong
+                >
+              </p>
+              <blockquote
+                name="aeb5"
+                id="aeb5"
+                class="graf graf--pullquote graf-after--p"
+              >
+                When a function returns a value, it gets popped off the stack
+              </blockquote>
+              <figure
+                name="d361"
+                id="d361"
+                class="graf graf--figure graf-after--pullquote"
+              >
+                <img
+                  class="graf-image"
+                  data-image-id="1*b31hiO4ynbDLRrXWEFF4aQ.png"
+                  src="https://cdn-images-1.medium.com/max/800/1*b31hiO4ynbDLRrXWEFF4aQ.png"
+                />
+              </figure>
+              <ul class="postList">
+                <li
+                  name="590c"
+                  id="590c"
+                  class="graf graf--li graf-after--figure"
+                >
+                  The
+                  <code class="markup--code markup--li-code">respond</code>
+                  function returns a
+                  <code class="markup--code markup--li-code">setTimeout</code>
+                  function.
+                </li>
+                <li name="f2f9" id="f2f9" class="graf graf--li graf-after--li">
+                  The
+                  <code class="markup--code markup--li-code">setTimeout</code>
+                  is provided to us by the Web API:
+                </li>
+                <li name="5493" id="5493" class="graf graf--li graf-after--li">
+                  it lets us delay tasks without blocking the main thread.
+                </li>
+                <li name="2cbc" id="2cbc" class="graf graf--li graf-after--li">
+                  The callback function that we passed to the
+                  <code class="markup--code markup--li-code">setTimeout</code>
+                  function,
+                </li>
+              </ul>
+              <blockquote
+                name="9de1"
+                id="9de1"
+                class="graf graf--blockquote graf-after--li"
+              >
+                the arrow function
+                <code class="markup--code markup--blockquote-code"
+                  ><em class="markup--em markup--blockquote-em"
+                    >() =&gt; { return</em
+                  ></code
+                >
+                <code class="markup--code markup--blockquote-code"
+                  ><em class="markup--em markup--blockquote-em"
+                    >&#39;Hey&#39;</em
+                  ></code
+                >
+                }
+              </blockquote>
+              <ul class="postList">
+                <li
+                  name="8b76"
+                  id="8b76"
+                  class="graf graf--li graf-after--blockquote"
+                >
+                  gets added to the Web API.
+                </li>
+                <li name="1691" id="1691" class="graf graf--li graf-after--li">
+                  <strong class="markup--strong markup--li-strong"
+                    >In the meantime, the </strong
+                  ><code class="markup--code markup--li-code"
+                    ><strong class="markup--strong markup--li-strong"
+                      >setTimeout</strong
+                    ></code
+                  ><strong class="markup--strong markup--li-strong">
+                    function and the respond function get popped off the stack,
+                    they both returned their values!</strong
+                  >
+                </li>
+              </ul>
+              <figure
+                name="7188"
+                id="7188"
+                class="graf graf--figure graf-after--li"
+              >
+                <img
+                  class="graf-image"
+                  data-image-id="1*b31hiO4ynbDLRrXWEFF4aQ.png"
+                  src="https://cdn-images-1.medium.com/max/800/1*b31hiO4ynbDLRrXWEFF4aQ.png"
+                />
+              </figure>
+              <p name="19ed" id="19ed" class="graf graf--p graf-after--figure">
+                <em class="markup--em markup--p-em"
+                  >In the Web API, a timer runs for as long as the second
+                  argument we passed to it, 1000ms.</em
+                >
+              </p>
+              <p name="b2d6" id="b2d6" class="graf graf--p graf-after--p">
+                The callback doesn’t immediately get added to the call stack,
+                instead it’s passed to something called the<strong
+                  class="markup--strong markup--p-strong"
+                >
+                  queue.</strong
+                >
+              </p>
+              <figure
+                name="3cf9"
+                id="3cf9"
+                class="graf graf--figure graf-after--p"
+              >
+                <img
+                  class="graf-image"
+                  data-image-id="1*b31hiO4ynbDLRrXWEFF4aQ.png"
+                  src="https://cdn-images-1.medium.com/max/800/1*b31hiO4ynbDLRrXWEFF4aQ.png"
+                />
+              </figure>
+              <p name="beb7" id="beb7" class="graf graf--p graf-after--figure">
+                This does not mean that the callback function gets added to the
+                callstack (<strong class="markup--strong markup--p-strong"
+                  ><em class="markup--em markup--p-em">returns</em></strong
+                >) after 1000ms!
+              </p>
+              <p name="89d6" id="89d6" class="graf graf--p graf-after--p">
+                This means that the function has been added to the
+                <em class="markup--em markup--p-em">queue</em> after 1000ms
+                where it will wait for it’s proper FIFO designated turn to
+                excite.
+              </p>
+              <p
+                name="4842"
+                id="4842"
+                class="
+                  graf graf--p graf--hasDropCapModel graf--hasDropCap
+                  graf-after--p
+                "
+              >
+                <span class="graf-dropCap">T</span>he event loop is simply a
+                mechanism for
+                <strong class="markup--strong markup--p-strong"
+                  >connecting the queue with the call stack</strong
+                >!
+              </p>
+              <blockquote
+                name="58f9"
+                id="58f9"
+                class="graf graf--blockquote graf-after--p graf--trailing"
+              >
+                An analogy to this relationship exists in facebook market place…
+                the marketplace doesn’t actually buy or sell anything… it just
+                provides a framework for which buyers and sellers can interface
+                productively. It’s not a perfect analogy… the point is that the
+                event loop is not some third tangible entity… it’s just the
+                relationship between the stack and queue.
+              </blockquote>
+            </div>
+          </div>
+        </section>
+        <section name="4c36" class="section section--body">
+          <div class="section-divider"><hr class="section-divider" /></div>
+          <div class="section-content">
+            <div class="section-inner sectionLayout--insetColumn">
+              <h4 name="f29c" id="f29c" class="graf graf--h4 graf--leading">
+                If the call stack is empty:
+              </h4>
+              <p name="775a" id="775a" class="graf graf--p graf-after--h4">
+                <strong class="markup--strong markup--p-strong"
+                  >meaning all previously invoked functions have returned their
+                  values and have been popped off the stack…</strong
+                >
+              </p>
+              <h4 name="d423" id="d423" class="graf graf--h4 graf-after--p">
+                The first item in the queue gets added to the call stack:
+              </h4>
+              <p
+                name="5897"
+                id="5897"
+                class="graf graf--p graf-after--h4 graf--trailing"
+              >
+                <strong class="markup--strong markup--p-strong"
+                  >In this case, no other functions were invoked, meaning that
+                  the call stack was empty by the time the callback function was
+                  the first item in the queue.</strong
+                >
+              </p>
+            </div>
+          </div>
+        </section>
+        <section name="a724" class="section section--body">
+          <div class="section-divider"><hr class="section-divider" /></div>
+          <div class="section-content">
+            <div class="section-inner sectionLayout--insetColumn">
+              <p name="fe6e" id="fe6e" class="graf graf--p graf--leading">
+                <strong class="markup--strong markup--p-strong"
+                  >The callback is added to the call stack</strong
+                >
+              </p>
+              <ul class="postList">
+                <li
+                  name="045e"
+                  id="045e"
+                  class="graf graf--li graf-after--p graf--trailing"
+                >
+                  Gets invoked… returns a value…( gets popped off the stack).
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+        <section name="eab7" class="section section--body">
+          <div class="section-divider"><hr class="section-divider" /></div>
+          <div class="section-content">
+            <div class="section-inner sectionLayout--insetColumn">
+              <figure
+                name="fd8f"
+                id="fd8f"
+                class="graf graf--figure graf--iframe graf--leading"
+              >
+                <iframe
+                  src="https://jsfiddle.net/bgoonz/cg5L0fut/embedded/"
+                  width="600"
+                  height="400"
+                  frameborder="0"
+                  scrolling="no"
+                ></iframe>
+              </figure>
+              <figure
+                name="8f01"
+                id="8f01"
+                class="graf graf--figure graf-after--figure"
+              >
+                <img
+                  class="graf-image"
+                  data-image-id="0*bpGHoLFACDcK3LxP.gif"
+                  src="https://cdn-images-1.medium.com/max/800/0*bpGHoLFACDcK3LxP.gif"
+                />
+              </figure>
+              <ol class="postList">
+                <li
+                  name="b16f"
+                  id="b16f"
+                  class="graf graf--li graf-after--figure"
+                >
+                  We invoke
+                  <code class="markup--code markup--li-code">bar</code>.
+                  <code class="markup--code markup--li-code">bar</code> returns
+                  a
+                  <code class="markup--code markup--li-code">setTimeout</code>
+                  function.
+                </li>
+                <li name="f4d5" id="f4d5" class="graf graf--li graf-after--li">
+                  The callback we passed to
+                  <code class="markup--code markup--li-code">setTimeout</code>
+                  gets added to the Web API, the
+                  <code class="markup--code markup--li-code">setTimeout</code>
+                  function and
+                  <code class="markup--code markup--li-code">bar</code> get
+                  popped off the callstack.
+                </li>
+                <li name="38c9" id="38c9" class="graf graf--li graf-after--li">
+                  The timer runs, in the meantime
+                  <code class="markup--code markup--li-code">foo</code> gets
+                  invoked and logs
+                  <code class="markup--code markup--li-code">First</code>.
+                  <code class="markup--code markup--li-code">foo</code> returns
+                  (undefined),<code class="markup--code markup--li-code"
+                    >baz</code
+                  >
+                  gets invoked, and the callback gets added to the queue.
+                </li>
+                <li name="526b" id="526b" class="graf graf--li graf-after--li">
+                  <code class="markup--code markup--li-code">baz</code> logs
+                  <code class="markup--code markup--li-code">Third</code>. The
+                  event loop sees the callstack is empty after
+                  <code class="markup--code markup--li-code">baz</code>
+                  returned, after which the callback gets added to the call
+                  stack.
+                </li>
+                <li name="40fe" id="40fe" class="graf graf--li graf-after--li">
+                  The callback logs
+                  <code class="markup--code markup--li-code">Second</code>.
+                </li>
+              </ol>
+              <figure
+                name="e101"
+                id="e101"
+                class="graf graf--figure graf-after--li graf--trailing"
+              >
+                <img
+                  class="graf-image"
+                  data-image-id="0*YArelm5gHw4BwFZZ.gif"
+                  data-width="880"
+                  data-height="495"
+                  src="https://cdn-images-1.medium.com/max/800/0*YArelm5gHw4BwFZZ.gif"
+                />
+              </figure>
+            </div>
+          </div>
+        </section>
+        <section name="ab8b" class="section section--body section--last">
+          <div class="section-divider"><hr class="section-divider" /></div>
+          <div class="section-content">
+            <div class="section-inner sectionLayout--insetColumn">
+              <h3 name="5a02" id="5a02" class="graf graf--h3 graf--leading">
+                Practice:
+              </h3>
+              <figure
+                name="7f38"
+                id="7f38"
+                class="graf graf--figure graf--iframe graf-after--h3"
+              >
+                <iframe
+                  src="https://jsfiddle.net/bgoonz/dwo3pnh6/embedded/"
+                  width="600"
+                  height="400"
+                  frameborder="0"
+                  scrolling="no"
+                ></iframe>
+              </figure>
+              <figure
+                name="2ca6"
+                id="2ca6"
+                class="graf graf--figure graf--iframe graf-after--figure"
+              >
+                <iframe
+                  src="https://jsfiddle.net/bgoonz/7bLvq2mu/embedded/"
+                  width="600"
+                  height="400"
+                  frameborder="0"
+                  scrolling="no"
+                ></iframe>
+              </figure>
+              <h3
+                name="644b"
+                id="644b"
+                class="graf graf--h3 graf-after--figure"
+              >
+                Async/await
+              </h3>
+              <blockquote
+                name="c759"
+                id="c759"
+                class="graf graf--blockquote graf-after--h3"
+              >
+                There’s a special syntax to work with promises in a more
+                comfortable fashion, called “async/await”. It’s surprisingly
+                easy to understand and use.
+              </blockquote>
+              <h3
+                name="37d3"
+                id="37d3"
+                class="graf graf--h3 graf-after--blockquote"
+              >
+                <a
+                  href="#async-functions"
+                  data-href="#async-functions"
+                  class="markup--anchor markup--h3-anchor"
+                  >Async functions</a
+                >
+              </h3>
+              <p name="27ee" id="27ee" class="graf graf--p graf-after--h3">
+                Let’s start with the
+                <code class="markup--code markup--p-code">async</code> keyword.
+                It can be placed before a function, like this:
+              </p>
+              <pre
+                name="3977"
+                id="3977"
+                class="graf graf--pre graf-after--p"
+              >//Let&#39;s start with the async keyword. It can be placed before a function, like this:<br>async function f() {<br>  return 1;<br>}</pre>
+              <p name="d5de" id="d5de" class="graf graf--p graf-after--pre">
+                …We could explicitly return a promise, which would be the same:
+              </p>
+              <figure
+                name="acef"
+                id="acef"
+                class="graf graf--figure graf--iframe graf-after--p"
+              >
+                <iframe
+                  src="https://jsfiddle.net/bgoonz/eb81uky2/embedded/"
+                  width="600"
+                  height="400"
+                  frameborder="0"
+                  scrolling="no"
+                ></iframe>
+              </figure>
+              <blockquote
+                name="83b0"
+                id="83b0"
+                class="graf graf--pullquote graf-after--figure"
+              >
+                So, `async` ensures that the function returns a promise, and
+                wraps non-promises in it.
+              </blockquote>
+              <blockquote
+                name="47c7"
+                id="47c7"
+                class="graf graf--pullquote graf-after--pullquote"
+              >
+                There’s another keyword, `await`, that works only inside `async`
+                functions.
+              </blockquote>
+              <pre
+                name="e509"
+                id="e509"
+                class="graf graf--pre graf-after--pullquote"
+              ><code class="markup--code markup--pre-code">The syntax:</code></pre>
+              <pre
+                name="a8b3"
+                id="a8b3"
+                class="graf graf--pre graf-after--pre"
+              ><code class="markup--code markup--pre-code">//await only works inside the lexical scope of an asynchronous function.</code></pre>
+              <pre
+                name="ec5b"
+                id="ec5b"
+                class="graf graf--pre graf-after--pre"
+              ><code class="markup--code markup--pre-code">let value = await promise;</code></pre>
+              <h4 name="92fa" id="92fa" class="graf graf--h4 graf-after--pre">
+                The keyword
+                <code class="markup--code markup--h4-code">await</code> makes
+                JavaScript wait until that promise settles and returns
+                its result.
+              </h4>
+              <p name="e305" id="e305" class="graf graf--p graf-after--h4">
+                Here’s an example with a promise that resolves in 1 second:
+              </p>
+              <figure
+                name="de5b"
+                id="de5b"
+                class="graf graf--figure graf--iframe graf-after--p"
+              >
+                <iframe
+                  src="https://jsfiddle.net/bgoonz/10zps79u/embedded/"
+                  width="600"
+                  height="400"
+                  frameborder="0"
+                  scrolling="no"
+                ></iframe>
+              </figure>
+              <p name="021b" id="021b" class="graf graf--p graf-after--figure">
+                The function execution “pauses” at line 5 and resumes when the
+                promise resolves, taking the promise’s eventual resolution as
+                it’s value.
+              </p>
+              <blockquote
+                name="4387"
+                id="4387"
+                class="graf graf--pullquote graf-after--p"
+              >
+                The code above shows “done!” in one second.
+              </blockquote>
+              <h3
+                name="4639"
+                id="4639"
+                class="graf graf--h3 graf-after--pullquote"
+              >
+                <code class="markup--code markup--h3-code">Await</code> suspends
+                the function execution until the promise settles, and then
+                resumes it with the promise result.
+              </h3>
+              <h3 name="f932" id="f932" class="graf graf--h3 graf-after--h3">
+                <a
+                  href="#summary"
+                  data-href="#summary"
+                  class="markup--anchor markup--h3-anchor"
+                  >Summary</a
+                >
+              </h3>
+              <p name="6218" id="6218" class="graf graf--p graf-after--h3">
+                The
+                <code class="markup--code markup--p-code">async</code> keyword
+                before a function has two effects:
+              </p>
+              <ol class="postList">
+                <li name="b418" id="b418" class="graf graf--li graf-after--p">
+                  Makes it always return a promise.
+                </li>
+                <li name="f2f7" id="f2f7" class="graf graf--li graf-after--li">
+                  Allows
+                  <code class="markup--code markup--li-code">await</code> to be
+                  used in it.
+                </li>
+              </ol>
+              <p name="c7fe" id="c7fe" class="graf graf--p graf-after--li">
+                The
+                <code class="markup--code markup--p-code">await</code> keyword
+                before a promise makes JavaScript wait until that promise
+                settles, and then:
+              </p>
+              <h3 name="7892" id="7892" class="graf graf--h3 graf-after--p">
+                TBC…
+              </h3>
+              <p
+                name="4a45"
+                id="4a45"
+                class="graf graf--p graf--empty graf-after--h3 graf--trailing"
+              >
+                <br />
+              </p>
+            </div>
+          </div>
+        </section>
+      </section>
+      <footer>
+        <p><a href="https://medium.com/p/9d241e72fc2d">View original.</a></p>
+        <p>
+          Exported from <a href="https://medium.com">Medium</a> on July 13,
+          2021.
+        </p>
+      </footer>
+    </article>
+  </body>
+</html>

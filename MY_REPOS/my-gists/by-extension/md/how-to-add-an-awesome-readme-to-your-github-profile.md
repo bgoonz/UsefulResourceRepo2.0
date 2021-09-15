@@ -1,0 +1,217 @@
+# How to add an awesome README to your GitHub Profile
+
+> Hi Reader! ✌ In this post, we are going to learn how to add an awesome README.md to a GitHub Profile....
+
+![Cover image for How to add an awesome README to your GitHub Profile](https://res.cloudinary.com/practicaldev/image/fetch/s--mxsdlB4e--/c_imagga_scale,f_auto,fl_progressive,h_420,q_66,w_1000/https://dev-to-uploads.s3.amazonaws.com/i/xb4tb5om9c1y7vrs1ds5.gif)
+
+Hi Reader! ✌  
+In this post, we are going to learn how to add an awesome `README.md` to a GitHub Profile. This is how it will look like:
+
+> Here's what my [@github](https://twitter.com/github) profile looks now!  
+> [#javascript](https://twitter.com/hashtag/javascript) [#github](https://twitter.com/hashtag/github)
+> 
+> 15:12 PM - 10 Jul 2020
+> 
+>  [![Twitter reply action](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/assets/twitter-reply-action.svg)](https://twitter.com/intent/tweet?in_reply_to=1281607352555200512) [ ![Twitter retweet action](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/assets/twitter-retweet-action.svg) ](https://twitter.com/intent/retweet?tweet_id=1281607352555200512) 0 [ ![Twitter like action](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/assets/twitter-like-action.svg) ](https://twitter.com/intent/like?tweet_id=1281607352555200512) 0
+
+I was exploring the new GitHub feature that lets you add a README to your GitHub Profile when I came across this tweet.  
+This was the true inspiration behind my `README.md`.  
+
+> When you're not a designer so you try code something cool for your [@github](https://twitter.com/github) profile intro.
+> 
+> Code -> MP4 -> GIF
+> 
+> [#Github](https://twitter.com/hashtag/Github) [#JavaScript](https://twitter.com/hashtag/JavaScript)
+> 
+> 08:41 AM - 09 Jul 2020
+> 
+>  [![Twitter reply action](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/assets/twitter-reply-action.svg)](https://twitter.com/intent/tweet?in_reply_to=1281146411736694784) [ ![Twitter retweet action](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/assets/twitter-retweet-action.svg) ](https://twitter.com/intent/retweet?tweet_id=1281146411736694784) 270 [ ![Twitter like action](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/assets/twitter-like-action.svg) ](https://twitter.com/intent/like?tweet_id=1281146411736694784) 2109
+
+[](#key-steps)Key Steps:
+------------------------
+
+1.  [Make a repository](#step-1)
+2.  [Build a Website and Screen Record](#step-2)
+3.  [Convert the Video into a GIF](#step-3)
+4.  [Host it and add it to the `README.md`](#step-4)
+
+Here's a link to my GitHub repository for your reference.
+
+### [](#set-up-the-github-repository)Set up the GitHub Repository
+
+*   Create a repository with your GitHub username
+
+`Template: https://github.com/username/username`  
+Example: [https://github.com/satvikchachra/satvikchachra](https://github.com/satvikchachra/satvikchachra)
+
+*   Create a `README.md`
+
+So now that you have set it up, let's come to the interesting part: Designing your `README.md`.
+
+### [](#build-a-website-and-screen-record)Build a Website and Screen Record
+
+Now let's jump into the Code!  
+Let's divide the code into 2 main sections.
+
+*   [Particles JS](#section-1)
+*   [Typewriter JS](#section-2)
+
+#### [](#section-1-particles-js)Section 1: Particles JS
+
+GitHub Link: [https://github.com/VincentGarreau/particles.js/](https://github.com/VincentGarreau/particles.js/)
+
+When you look at the background there are some white particles floating and forming polygons.  
+We will use `particiles.js` to bring that effect into life.
+
+*   Important tip: Remember to run the `index.html` file on a Live Server otherwise, you won't observe the particle effect.
+
+Step 1: Include the CDN Link for particles.js  
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
+
+Step 2: Specify the `div` and it's `id` where you want the particle effect. (in the `index.html` file).  
+
+Apply a style to the div.  
+
+    #particles-js {
+        background-color: #a0d0f8;
+        height: 860px;
+        width: 100%;
+    }
+    
+
+Step 3: To run the `particles.js` on load
+
+(Here `assets` is a directory that contains `patricles.json` file.)  
+
+    /* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
+    particlesJS.load('particles-js', 'assets/particles.json', function() {
+      console.log('callback - particles.js config loaded');
+    });
+    
+
+Step 4: Create a `particles.json` file.  
+  
+You can tweak the values in the `particles.json` file. Experiment and have fun there!
+
+Check this out:
+
+A great tutorial in case you get stuck somewhere.
+
+Section 2: Typewriter JS  
+GitHub Link: [https://github.com/tameemsafi/typewriterjs](https://github.com/tameemsafi/typewriterjs)
+
+Step 1: Include the CDN Link for typewriter.js  
+
+    <script src="https://unpkg.com/typewriter-effect@latest/dist/core.js"></script>
+    
+
+Step 2: Specify the `div` and it's `id` where you want the typewriter effect. (in the `index.html` file).  
+
+    <div id="typewriter"></div>
+    
+
+Apply a style to the div.  
+
+    #typewriter {
+        position: absolute;
+        font-size: 60px;
+        font-family: 'B612', sans-serif;
+        font-weight: 700;
+        width: 800px;
+        margin: 350px 250px;
+    }
+    
+
+Step 3: Create an object of Typewriter class pre-defined through the CDN link.  
+
+    // To run this effect in loop set 'loop' to true
+    const instance = new Typewriter('#typewriter', {
+        loop: true
+    });
+    
+
+Step 4: Use different methods to achieve the desired result
+
+`typeString()`: Types a string. Takes a string as a parameter.
+
+`pauseFor()`: Pauses the effect. Takes the number of milliseconds as a parameter.
+
+`deleteAll()`: Deletes the entire string. Takes speed as an optional parameter.
+
+`deleteChars()`: Deletes characters of a string. Takes the number of characters as a parameter.
+
+`start()`: Starts the typewriter effect.  
+
+    instance.typeString("Hello World!")
+        .pauseFor(1000)
+        .deleteAll()
+        .typeString('I am Your-Name.')
+        .pauseFor(1000)
+        .deleteChars(15)
+        .typeString('an aspiring<br>Your-Goal.')
+        .pauseFor(1000)
+        .deleteChars(29)
+        .typeString('currently learning<br>Your-Skill.')
+        .pauseFor(1000)
+        .deleteAll()
+        .typeString('Check out my work at<br>github.com/your-username')
+        .pauseFor(1000)
+        .deleteAll()
+        .start();
+    
+
+*   Important tip: Remember to nest the `divs` because you want the typewriter effect in front and particle effect in the background.
+
+    <div id="particles-js">
+            <div id="typewriter"></div>
+    </div>
+    
+
+Add styling to elements on the page to get the desired output.
+
+Now you can record the screen using any application.  
+I personally use [OBS](https://obsproject.com/).  
+Check out this resourceful tutorial on how to screen record using OBS.  
+
+### [](#convert-the-video-into-a-gif)Convert the Video into a GIF
+
+Converting the video to a GIF gets tricky because of two reasons:
+
+1.  Large Size: GitHub doesn't allow to upload large size files.
+2.  Loss in quality: There's a significant loss in quality when the video is converted to GIF format.
+
+I personally used this application for conversion.  
+[https://play.google.com/store/apps/details?id=com.gif.gifmaker](https://play.google.com/store/apps/details?id=com.gif.gifmaker)
+
+### [](#host-the-gif)Host the GIF.
+
+There are many platforms you can host your GIF on.  
+I personally used GIPHY. It's really simple.  
+Just sign up and hit upload.
+
+Here's what Upload section looks like:
+
+[![Alt Text](https://res.cloudinary.com/practicaldev/image/fetch/s--J1Ikv7I8--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/fr7jwyeo3oe15f7gx6fn.png)](https://res.cloudinary.com/practicaldev/image/fetch/s--J1Ikv7I8--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/fr7jwyeo3oe15f7gx6fn.png)
+
+Here's the uploaded GIF:
+
+[![Alt Text](https://res.cloudinary.com/practicaldev/image/fetch/s--5GWef34n--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/of34es53m3wuibmll7aa.png)](https://res.cloudinary.com/practicaldev/image/fetch/s--5GWef34n--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/of34es53m3wuibmll7aa.png)
+
+Copy the selected GIF link.
+
+[![Alt Text](https://res.cloudinary.com/practicaldev/image/fetch/s--wFZSEVmr--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/s2rupvvztvhsy3bywxu5.png)](https://res.cloudinary.com/practicaldev/image/fetch/s--wFZSEVmr--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/s2rupvvztvhsy3bywxu5.png)
+
+Finally, add the link to your `README.md`.
+
+[![Alt Text](https://res.cloudinary.com/practicaldev/image/fetch/s--ka5rj4mc--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/3psxs4bt980yw2m5aquu.png)](https://res.cloudinary.com/practicaldev/image/fetch/s--ka5rj4mc--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/3psxs4bt980yw2m5aquu.png)
+
+### [](#push-the-changes)Push the changes! 🚀
+
+And now you have a beautiful `README.md`. Congratulations! 🥳🎉
+
+This was my first tutorial. Your feedback would be much appreciated. Thank you 😊
+
+
+[Source](https://dev.to/satvikchachra/how-to-add-an-awesome-readme-to-your-github-profile-361n)
