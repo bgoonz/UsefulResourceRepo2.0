@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Usage: script/build [-o <BIN>]
+#        script/build files
+
+set -e
+
+windows=
+[[ $OS == Windows* ]] && windows=1
+
+find_source_files() {
+  find . -maxdepth 2 -name '*.go' '!' -name '*_test.go' "$@"
+}
+
+build_hub() {
+  mkdir -p "$(dirname "$1")"
+  go build \
+	  -ldflags "-X github.com/github/hub/v2/version.Version=`./script/version` $LDFLAGS" \
+	  -gcflags "$GCFLAGS" \
+	  -asmflags "$ASMFLAGS" \
+	  -o "$1"
+}
+
+[ $# -gt 0 ] || set -- -o "bin/hub${windows:+.exe}"
+
+case "$1" in
+-o )
+  build_hub "${2?}"
+  ;;
+files )
+  find_source_files
+  ;;
+-h | --help )
+  sed -ne '/^#/!q;s/.\{1,2\}//;1d;p' < "$0"
+  exit
+  ;;
+* )
+  "$0" --help >&2
+  exit 1
+esac

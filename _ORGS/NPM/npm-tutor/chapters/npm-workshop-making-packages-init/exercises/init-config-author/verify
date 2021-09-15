@@ -1,0 +1,71 @@
+#!/usr/bin/env node
+
+"use strict"
+
+var fs = require('fs')
+var path = require('path')
+var assert = require('assertf')
+var mkdirp = require('mkdirp')
+var rimraf = require('rimraf')
+var exec = require('child_process').exec
+
+process.on('uncaughtException', require('workshop-assertion-message'));
+
+var quicktmp = require('quick-tmp')('npm-workshop-workflow')
+var dir = quicktmp()
+mkdirp.sync(dir)
+
+var pkgPath = path.resolve(process.cwd(), 'package.json')
+assert.ok(fs.existsSync(pkgPath), 'Uhh, did you generate a package json?')
+
+var dirname = path.basename(path.dirname(pkgPath))
+
+try {
+  var submitted = JSON.parse(fs.readFileSync(pkgPath))
+} catch (err) {
+  assert.ifError(err)
+}
+
+console.info('\nChecking instructions were followed correctly...\n')
+
+var pending = 2
+var results = {}
+
+exec('npm config get init.author.name', function(err, name) {
+  assert.ifError(err)
+  results.name = name.trim()
+  if (!--pending) done(null, results)
+})
+
+exec('npm config get init.author.email', function(err, email) {
+  assert.ifError(err)
+  results.email = email.trim()
+  if (!--pending) done(null, results)
+})
+
+function done(err, results) {
+  assert.ok(results.name, 'You need to configure npm with your name: %s.')
+  assert.ok(results.email, 'You need to configure npm with your email address: %s.')
+  console.info('Author configuration is set correctly.')
+
+  var typicalInit = {
+    "name": dirname,
+    "version": "0.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": results.name +" <" + results.email +">",
+    "license": "ISC"
+  }
+
+  assert.equal(submitted.name, typicalInit.name, 'Did you accept the npm init defaults?\n"name" should be %s.',  typicalInit.name)
+
+  assert(!submitted.author.indexOf(typicalInit.author), 'Author does not look right!\n"author" should be %s. Did you re-run npm init after updating your npm config?',  typicalInit.author)
+
+  console.info('\nGood work! You set your author information to:\n%s', typicalInit.author)
+
+  console.info('\nPlease continue to enjoy these personalized package.json files courtesy of `npm init`. Thanks `npm init`\n')
+
+}

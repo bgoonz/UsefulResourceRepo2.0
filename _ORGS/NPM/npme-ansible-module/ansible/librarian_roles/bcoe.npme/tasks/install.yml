@@ -1,0 +1,84 @@
+---
+  - name: create npme group
+    sudo: true
+    group: name={{npme_group}} state=present
+    ignore_errors: true
+
+  - name: create npme user
+    sudo: true
+    user: >
+      name={{npme_owner}}
+      group={{npme_group}}
+      createhome=yes
+      shell=/bin/bash
+      system=yes
+    ignore_errors: true
+
+  - name: create npme directories
+    sudo: true
+    file: >
+      path={{item}}
+      state=directory
+      owner={{npme_owner}}
+      group={{npme_group}}
+      mode=755
+    with_items:
+      - /etc/npme/logs
+
+  - name: create npme directories
+    sudo: true
+    file: >
+      path={{item}}
+      state=directory
+      owner={{npme_owner}}
+      group={{npme_group}}
+      mode=777
+    with_items:
+      - /etc/npme
+      - /etc/npme/bin
+      - /etc/npme/node_modules
+
+  - name: install couch-app bin
+    sudo: true
+    copy: >
+      src=install-couch-app.sh
+      dest=/etc/npme/bin/install-couch-app.sh
+      owner={{npme_owner}}
+      group={{npme_group}}
+      mode=755
+
+  - name: install bootstrap config
+    sudo: true
+    copy: >
+      src={{item}}
+      dest="/etc/npme/{{item}}"
+      owner={{npme_owner}}
+      group={{npme_group}}
+      mode=777
+    with_items:
+      - package.json
+      - "{{npme_service_json_path}}"
+
+  - name: perform centos65-specific installation
+    include: 'centos65/install.yml'
+    when: npme_platform == "centos65"
+
+  - name: install npm@npme-beta
+    sudo: true
+    command: "{{npme_npm_bin}} install {{npme_npm_version}} chdir=/etc/npme"
+
+  - name: install ndm
+    sudo: true
+    command: "{{npme_npm_bin}} install ndm chdir=/etc/npme"
+
+  - name: perform trusty-specific installation
+    include: 'trusty/install.yml'
+    when: npme_platform == "trusty"
+
+  - name: create db directory
+    sudo: true
+    file: >
+      path=/etc/npme/couchdb
+      state=directory
+      owner={{npme_couchdb_owner}}
+      group={{npme_couchdb_group}}

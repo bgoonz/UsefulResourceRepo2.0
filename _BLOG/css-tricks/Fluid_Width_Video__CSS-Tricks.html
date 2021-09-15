@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>Fluid_Width_Video__CSS-Tricks</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <p>
+      IN A WORLD of responsive and fluid layouts on the web, ONE MEDIA TYPE
+      stands in the way of perfect harmony: video. There are lots of ways in
+      which video can be displayed on your site. You might be self-hosting the
+      video and presenting it via the HTML5 <code>&lt;video&gt;</code> tag. You
+      might be using YouTube, Vimeo, or some other video provider that provides
+      <code>&lt;iframe&gt;</code> code to display videos. Let’s cover how to
+      make them all fluid width while maintaining an appropriate height based on
+      their aspect ratio.
+    </p>
+    <p>
+      In each of these video-embedding scenarios, it is very common for a static
+      <code>width</code> and <code>height</code> to be declared.
+    </p>
+    <pre><code>&lt;video width=&quot;400&quot; height=&quot;300&quot; controls ... &gt;&lt;/video&gt;
+
+&lt;iframe width=&quot;400&quot; height=&quot;300&quot; ... &gt;&lt;/iframe&gt;
+
+
+&lt;object width=&quot;400&quot; height=&quot;300&quot; ... /&gt;
+&lt;embed width=&quot;400&quot; height=&quot;300&quot; ... /&gt;</code></pre>
+    <p>
+      Guess what? Declaring static widths isn’t a good idea in fluid width
+      environments. What if the parent container for that video shrinks narrower
+      than the declared <code>400px</code>? It will bust out and probably look
+      ridiculous and embarrassing.
+    </p>
+    <figure>
+      <img
+        src="https://i1.wp.com/css-tricks.com/NetMag/FluidWidthVideo/images/breakout.png?ssl=1"
+        alt="breakout"
+      />
+      <figcaption>breakout</figcaption>
+    </figure>
+    <p>Simple and contrived, but still ridiculous and embarassing.</p>
+    <p>So can’t we just do this?</p>
+    <pre><code>&lt;video width=&quot;100%&quot; ... &gt;&lt;/video&gt;</code></pre>
+    <p>
+      Well, yep, you can! If you are using standard HTML5 video, that will make
+      the video fit the width of the container. It’s important that you remove
+      the <code>height</code> declaration when you do this so that the aspect
+      ratio of the video is maintained as it grows and shrinks, lest you get
+      awkward “bars” to fill the empty space (unlike images, the actual video
+      maintains it’s aspect ratio regardless of the size of the element).
+    </p>
+    <p>
+      You can get there via CSS (and not worry about what’s declared in the
+      HTML) like this:
+    </p>
+    <pre><code>video {
+
+  width: 100%    !important;
+  height: auto   !important;
+}</code></pre>
+    <h3 id="iframe-video-youtube-vimeo-etc.">
+      <code>&lt;iframe&gt;</code> Video (YouTube, Vimeo, etc.)
+    </h3>
+    <p>
+      Our little trick from above isn’t going to help us when dealing with video
+      that is delivered via <code>&lt;iframe&gt;</code>. Forcing the width to
+      100% is effective, but when we set <code>height: auto</code>, we end up
+      with a static height of 150px<a
+        href="https://css-tricks.com/fluid-width-video/#fn:1"
+        >1</a
+      >, which is far too squat for most video and makes for more R&amp;E
+      (Ridiculous and Embarrassing).
+    </p>
+    <p>
+      Fortunately, there are a couple of possible solutions here. One of them
+      was pioneered by Thierry Koblentz and presented on A List Apart in
+      2009: <a
+        href="http://www.alistapart.com/articles/creating-intrinsic-ratios-for-video/"
+        >Creating Intrinsic Ratios for Video</a
+      >. With this technique, you wrap the video in another element which has an
+      intrinsic aspect ratio, then absolute position the video within that. That
+      gives us fluid width with a reasonable height we can count on.
+    </p>
+    <pre><code>&lt;div class=&quot;videoWrapper&quot;&gt;
+
+  &lt;iframe width=&quot;560&quot; height=&quot;349&quot; src=&quot;http://www.youtube.com/embed/n_dZNLr2cME?rel=0&amp;hd=1&quot; frameborder=&quot;0&quot; allowfullscreen&gt;&lt;/iframe&gt;
+&lt;/div&gt;</code></pre>
+    <pre><code>.videoWrapper {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+}
+.videoWrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}</code></pre>
+    <p>
+      There is a clever adaptation of this that allows you to adjust the aspect
+      ratio right from the HTML, like:
+    </p>
+    <pre><code>&lt;div class=&quot;videoWrapper&quot; style=&quot;--aspect-ratio: 3 / 4;&quot;&gt;
+  &lt;iframe ...&gt;</code></pre>
+    <pre><code>.videoWrapper {
+  ...
+
+  padding-bottom: calc(var(--aspect-ratio, .5625) * 100%);
+}</code></pre>
+    <p>
+      Some old school video embedding uses <code>&lt;object&gt;</code> and
+      <code>&lt;embed&gt;</code> tags, so if you’re trying to be comprehensive,
+      update that wrapper selector to:
+    </p>
+    <pre><code>.videoWrapper iframe,
+.videoWrapper embed,
+.videoWrapper object { }</code></pre>
+    <h3 id="but-but-aspect-ratios-legacy-content-non-tech-users-etc.">
+      But, but… aspect ratios, legacy content, non-tech users, etc.
+    </h3>
+    <p>
+      The above technique is awesome, but it has several possible limitations:
+    </p>
+    <ol type="1">
+      <li>
+        It requires a wrapper element, so just straight up copy-and-pasting code
+        from YouTube is out. Users will need to be a bit savvier.
+      </li>
+      <li>
+        If you have legacy content and are redesigning to be fluid, all old
+        videos need HTML adjustments.
+      </li>
+      <li>
+        All videos need to be the same aspect ratio. Otherwise, they’ll be
+        forced into a different aspect ratio and you’ll get the “bars”. Or,
+        you’ll need a toolbox of class names you can apply to adjust it which is
+        an additional complication.
+      </li>
+    </ol>
+    <p>
+      If either of these limitations applies to you, you might consider a
+      JavaScript solution.
+    </p>
+    <p>
+      Imagine this: when the page loads all videos are looked at and their
+      aspect ratio is saved. Once right away, and whenever the window is
+      resized, all the videos are resized to fill the available width and
+      maintain their aspect ratio. Using the <a href="https://jquery.com/"
+        >jQuery</a
+      > JavaScript Library, that looks like this:
+    </p>
+    <pre><code>
+
+var $allVideos = $(&quot;iframe[src^=&#39;//www.youtube.com&#39;]&quot;),
+
+
+  $fluidEl = $(&quot;body&quot;);
+
+
+$allVideos.each(function() {
+
+  $(this)
+    .data(&#39;aspectRatio&#39;, this.height / this.width)
+
+
+    .removeAttr(&#39;height&#39;)
+    .removeAttr(&#39;width&#39;);
+
+});
+
+
+$(window).resize(function() {
+
+  var newWidth = $fluidEl.width();
+
+
+  $allVideos.each(function() {
+
+    var $el = $(this);
+    $el
+      .width(newWidth)
+      .height(newWidth * $el.data(&#39;aspectRatio&#39;));
+
+  });
+
+
+}).resize();</code></pre>
+    <h3 id="thats-sorta-what-became-fitvids.js">
+      That’s sorta what became FitVids.js
+    </h3>
+    <p>
+      Except rather than deal with all that resizing business,
+      <a href="https://github.com/davatron5000/FitVids.js">FitVids.js</a> loops
+      over all the videos and adds the aspect-ratio enabling HTML wrapper and
+      CSS necessary. That’s <em>way more efficient</em> than needing to bind to
+      a window resize handler!
+    </p>
+    <h3 id="plain-javascript-instead">Plain JavaScript instead</h3>
+    <p>
+      jQuery is rather out of favor these days. Fortunately, Dave has a Vanilla
+      version (that is BYO CSS):
+    </p>
+  </body>
+</html>

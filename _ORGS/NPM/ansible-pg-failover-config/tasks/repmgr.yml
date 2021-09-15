@@ -1,0 +1,77 @@
+
+# copy replication and failover scripts.
+- name: create directory for repmgr.conf
+  file:
+    path: /etc/repmgr
+    owner: postgres
+    group: postgres
+    state: directory
+    mode: 0700
+
+- name: copy repmgr configuration
+  sudo: true
+  template: >
+    src=repmgr.conf.j2
+    dest=/etc/repmgr/repmgr.conf
+    owner=postgres
+    group=postgres
+    mode=0644
+
+- name: create pgbouncer log
+  sudo: true
+  file: >
+    path=/var/log/pgbouncer.log
+    state=touch
+    owner=postgres
+    group=postgres
+
+- name: copy pgbouncer.ini
+  sudo: true
+  template: >
+    src=pgbouncer-pg.ini.j2
+    dest=/etc/pgbouncer/pgbouncer.ini
+    owner=postgres
+    group=postgres
+    mode=0644
+
+- name: copy failover script
+  sudo: true
+  template: >
+    src=failover.sh.j2
+    dest=/home/ubuntu/failover.sh
+    owner=postgres
+    group=postgres
+    mode=0777
+
+- name: point repmgrd at repmgr config
+  sudo: true
+  lineinfile: >
+    dest=/etc/init.d/repmgrd
+    line="REPMGRD_CONF=/etc/repmgr/repmgr.conf"
+    regexp='^REPMGRD_CONF.*$'
+
+- name: enable repmgrd
+  sudo: true
+  lineinfile: >
+    dest=/etc/default/repmgrd
+    line="REPMGRD_ENABLED=yes"
+    regexp='^REPMGRD_ENABLED.*$'
+
+- name: run repmgrd as root
+  sudo: true
+  lineinfile: >
+    dest=/etc/init.d/repmgrd
+    line="REPMGRD_USER=root"
+    regexp='^REPMGRD_USER'
+
+- name: enable repmgrd
+  sudo: true
+  lineinfile: >
+    dest=/etc/init.d/repmgrd
+    line="REPMGRD_ENABLED=yes"
+    regexp='^REPMGRD_ENABLED.*$'
+
+- name: restart repmgrd
+  notify: restart repmgrd
+  sudo: true
+  service: name=repmgrd state=restarted

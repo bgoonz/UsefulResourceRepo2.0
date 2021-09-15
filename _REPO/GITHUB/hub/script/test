@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Usage: script/test [--coverage [<MIN>]] [<FEATURES>...]
+#
+# Run Go and Cucumber test suites for hub.
+
+set -e
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+  --coverage )
+    export HUB_COVERAGE="$PWD/tmp/cover.out"
+    if [ "${2%.*}" -gt 0 ] 2>/dev/null; then
+      min_coverage="$2"
+      shift 2
+    else
+      min_coverage=1
+      shift 1
+    fi
+    ;;
+  -h | --help )
+    sed -ne '/^#/!q;s/.\{1,2\}//;1d;p' < "$0"
+    exit
+    ;;
+  * )
+    break
+    ;;
+  esac
+done
+
+STATUS=0
+
+trap "exit 1" INT
+
+check_formatting() {
+  make fmt >/dev/null
+  if ! git diff -U1 --exit-code; then
+    echo
+    echo "Some go code was not formatted properly." >&2
+    echo "Run \`make fmt' locally to fix these errors." >&2
+    return 1
+  fi
+}
+
+install_test() {
+  mkdir -p share/doc/hub-doc
+  touch share/man/man1/hub.1 share/doc/hub-doc/hub.1.html
+  DESTDIR="$PWD/tmp/destdir" prefix=/my/prefix bash < script/install.sh
+  test -x tmp/destdir/my/prefix/bin/hub
+  test -e tmp/destdir/my/prefix/share/man/man1/hub.1
+  test ! -x tmp/destdir/my/prefix/share/man/man1/hub.1
+  test -e tmp/destdir/my/prefix/share/doc/hub-doc/hub.1.html
+  test ! -x tmp/destdir/my/prefix/share/doc/hub-doc/hub.1.html
+  rm share/man/man1/hub.1 share/doc/hub-doc/hub.1.html
+}
+
+[ -z "$HUB_COVERAGE" ] || script/coverage prepare
+script/build
+go test ./... || STATUS="$?"
+script/ruby-test "$@" || STATUS="$?"
+[ -z "$HUB_COVERAGE" ] || script/coverage summarize "$min_coverage" || STATUS="$?"
+
+if [ -n "$CI" ]; then
+  check_formatting || STATUS="$?"
+  install_test || STATUS="$?"
+fi
+
+exit "$STATUS"

@@ -1,0 +1,31 @@
+---
+- name: clone master
+  sudo: true
+  command: "{{item}}"
+  ignore_errors: true
+  with_items:
+    - "service postgresql stop"
+    - "repmgr -R root -d repmgr -U postgres -h {{master_host}} standby clone --force"
+
+- name: ensure postgres connection is ssl
+  sudo: true
+  lineinfile: >
+    dest="{{postgresql_data_directory}}/recovery.conf"
+    line="primary_conninfo = 'port=5432 host={{master_host}} user=postgres sslmode=require'"
+    regexp='^primary_conninfo =.*$'
+  when: pg_config_secure
+
+- name: truncate WAL files on secondary
+  sudo: true
+  lineinfile: >
+    dest="{{postgresql_data_directory}}/recovery.conf"
+    line="archive_cleanup_command = '/usr/lib/postgresql/{{postgresql_version}}/bin/pg_archivecleanup /mnt/postgresql/pg_xlog %r'"
+    regexp='^archive_cleanup_command =.*$'
+
+- name: register and start replica
+  sudo: true
+  command: "{{item}}"
+  ignore_errors: true
+  with_items:
+    - "service postgresql start"
+    - "repmgr -f /etc/repmgr/repmgr.conf standby register"

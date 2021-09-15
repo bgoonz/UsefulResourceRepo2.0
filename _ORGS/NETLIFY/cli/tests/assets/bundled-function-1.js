@@ -1,0 +1,1 @@
+module.exports = require('./netlify/functions/bundled-function-1.js')

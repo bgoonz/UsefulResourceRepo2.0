@@ -1,0 +1,98 @@
+name: Node CI
+
+on:
+  push:
+    branches:
+      - master
+
+    paths-ignore:
+      - 'website/**'
+
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+    paths-ignore:
+      - 'website/**'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '*'
+          check-latest: true
+      - name: log versions
+        run: node --version && npm --version && yarn --version
+      - name: install dependecies
+        run: yarn --frozen-lockfile && yarn bootstrap
+      - name: run unit tests
+        run: yarn test:ci
+        env:
+          CI: true
+          NODE_OPTIONS: --max-old-space-size=4096
+      - name: build demo site
+        run: yarn build:demo
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+      - uses: actions/upload-artifact@master
+        with:
+          name: dev-test-website-${{ runner.os }}
+          path: dev-test
+
+  e2e-with-cypress:
+    needs: build
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        machine: [1, 2, 3, 4, 5, 6, 7, 8]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '*'
+          check-latest: true
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - uses: actions/cache@v2
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - uses: actions/download-artifact@master
+        with:
+          name: dev-test-website-${{ runner.os }}
+          path: dev-test
+      - name: npm install
+        run: |
+          node --version
+          npm --version
+          yarn --version
+          yarn --frozen-lockfile
+      - name: e2e test
+        run: |
+          yarn test:e2e:run-ci
+        env:
+          IS_FORK: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          NODE_OPTIONS: --max-old-space-size=4096
+          MACHINE_COUNT: 8
+          MACHINE_INDEX: ${{ matrix.machine }}
+      - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          name: cypress-results-${{ matrix.machine }}
+          path: |
+            cypress/screenshots
+            cypress/videos

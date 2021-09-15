@@ -1,0 +1,325 @@
+<h1 id="grocery-store-app">Grocery Store App</h1>
+<p>In this project, you’ll connect Redux to a React application. You’’ll configure a Redux store, create Redux reducers and action creators, and use them in a Grocery Store application to add produce to a shopping cart. You’ll also learn how to normalize data in a Redux store.</p>
+<p>When you have finished today’s project, your application should have the following features:</p>
+<ul>
+<li>Display all the produce in a list</li>
+<li>Add produce to a cart</li>
+<li>Increment/decrement the quantity of produce in the cart</li>
+<li>Checkout the cart</li>
+</ul>
+<h2 id="phase-0-familiarize-yourself-with-the-code">Phase 0: Familiarize yourself with the code</h2>
+<p>Clone the starter repository at [INSERT REPO HERE].</p>
+<p>Run <code>npm install</code> then <code>npm start</code> to start the development server.</p>
+<p>Navigate to <a href="http://localhost:3000">http://localhost:3000</a>. You should see the text “Grocery Store”. If you click on the “Checkout” button in the navigation bar, it should open a side menu. Right now, there are no produce listed so you cannot add items to the shopping cart yet.</p>
+<p>The <code>Cart</code>, <code>ProduceList</code> and <code>ProduceDetails</code> are the components you need to connect to the Redux store. Take a look at the code there to familiarize yourself with it.</p>
+<p>The <code>src/mockData/produce.json</code> is the mock data that you will use to populate the Redux store with. The file has a JSON array of objects. Each object has the following structure:</p>
+<pre class="plaintext"><code>{
+  id: ID,
+  name: String,
+  liked: Boolean
+}</code></pre>
+<p>In your preview of the code, make sure to get understand how the components are all connected (parent-child relationships of all the components, the component tree).</p>
+<h2 id="phase-1-set-up">Phase 1: Set Up</h2>
+<h3 id="install-dependencies">Install dependencies</h3>
+<p><code>npm install</code> the following dependencies:</p>
+<ul>
+<li><code>redux</code> - the Redux package</li>
+<li><code>react-redux</code> - for connecting Redux to React</li>
+</ul>
+<p><code>npm install -D</code> the following dev-dependencies:</p>
+<ul>
+<li><code>redux-logger</code> - a debugging tool for logging all actions dispatched</li>
+</ul>
+<h3 id="configure-the-redux-store">Configure the Redux store</h3>
+<p>First thing you need to do is set up and configure the Redux store.</p>
+<p>Create a file called <code>index.js</code> in a folder called <code>store</code> under <code>src</code>. In this file, you will define the root reducer and a function that will return a Redux store.</p>
+<p>Import <code>createStore</code>, <code>combineReducers</code>, <code>applyMiddleware</code>, and <code>compose</code> from `redux.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// ./src/store/index.js</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="im">import</span> <span class="op">{</span> createStore<span class="op">,</span> combineReducers<span class="op">,</span> applyMiddleware<span class="op">,</span> compose <span class="op">}</span> <span class="im">from</span> <span class="st">&quot;redux&quot;</span><span class="op">;</span></a></code></pre></div>
+<ul>
+<li><code>createStore</code> - creates a Redux store</li>
+<li><code>combineReducers</code> - creates one reducer from multiple reducers as slices of state</li>
+<li><code>applyMiddleware</code> - a store enhancer that will allow you to attach middlewares (a middleware is a function called before any action hits the root reducer)</li>
+<li><code>compose</code> - another store enhancer that will allow you to use more than one store enhancer</li>
+</ul>
+<p>Next, define the <code>rootReducer</code> which will be the root reducer for the Redux store. The <code>rootReducer</code> will just be the return of <code>combineReducers</code> invoked with an empty object for now.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="co">// ./src/store/index.js</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="co">// ...</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="kw">const</span> rootReducer <span class="op">=</span> <span class="at">combineReducers</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb3-4" title="4"></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Now, you are going to create a store enhancer that will be set only when your application is in development. When in development, you want to add the <code>redux-logger</code> middleware and the Redux dev tools extension store enhancer to your store. For <code>redux-logger</code>, you will use the <code>applyMiddleware</code> which returns a store enhancer. The store enhancer for the Redux dev tools extension is set by the extension to a global property, <code>window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__</code>. This store enhancer combines other store enhancers into one, just like <code>compose</code> from <code>redux</code> does.</p>
+<p>Set the <code>enhancer</code> variable when in development to use these enhancers like so:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="co">// ./src/store/index.js</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="co">// ...</span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="kw">let</span> enhancer<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" title="4"></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="cf">if</span> (<span class="va">process</span>.<span class="va">env</span>.<span class="at">NODE_ENV</span> <span class="op">!==</span> <span class="st">&quot;production&quot;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-6" title="6">  <span class="kw">const</span> logger <span class="op">=</span> <span class="at">require</span>(<span class="st">&quot;redux-logger&quot;</span>).<span class="at">default</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-7" title="7">  <span class="kw">const</span> composeEnhancers <span class="op">=</span></a>
+<a class="sourceLine" id="cb4-8" title="8">    <span class="va">window</span>.<span class="at">__REDUX_DEVTOOLS_EXTENSION_COMPOSE__</span> <span class="op">||</span> compose<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-9" title="9">  enhancer <span class="op">=</span> <span class="at">composeEnhancers</span>(<span class="at">applyMiddleware</span>(logger))<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-10" title="10"><span class="op">}</span></a></code></pre></div>
+<p>Let’s break this down.</p>
+<p>The <code>logger</code> variable is set to the <code>default</code> export of the imported <code>redux-logger</code> package using <code>require</code> instead of ES6 module imports. Why? ES6 module imports need to be defined at the very top of the file in the outermost scope and will be loaded in all node environments. However, <code>redux-logger</code> is a development dependency and cannot be loaded in production. Loading it with <code>require</code> is needed if you only want it in a certain node environment.</p>
+<p>The <code>composeEnhancers</code> variable is set to the Redux dev tools extension’s store enhancer, <code>window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__</code> or the <code>compose</code> function from <code>redux</code> if the extension fails to load or if you don’t have the extension installed in your browser.</p>
+<p>The Redux’s <code>compose</code> function takes in store enhancers as its arguments and combines them to create a single store enhancer. The only other store enhancer that you need is the <code>applyMiddleware</code> invoked with the loaded <code>logger</code> <code>enhancer</code> is set to the combined store enhancer.</p>
+<p>Finally, define a function called <code>configureStore</code> that will take in a <code>preloadedState</code> and return the result of <code>createStore</code> invoked with the <code>rootReducer</code>, the <code>preloadedState</code>, and the <code>enhancer</code>. Export the <code>configureStore</code> function as the default export.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="co">// ./src/store/index.js</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="co">// ...</span></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="kw">const</span> configureStore <span class="op">=</span> (preloadedState) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="cf">return</span> <span class="at">createStore</span>(rootReducer<span class="op">,</span> preloadedState<span class="op">,</span> enhancer)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="op">};</span></a>
+<a class="sourceLine" id="cb5-6" title="6"></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="im">export</span> <span class="im">default</span> configureStore<span class="op">;</span></a></code></pre></div>
+<h3 id="provide-the-redux-store">Provide the Redux store</h3>
+<p>Now, you need to wrap the React application with the Redux store provider.</p>
+<p>Import the <code>configureStore</code> function into the entry file, <code>src/index.js</code>. Import the <code>Provider</code> component from <code>react-redux</code>.</p>
+<p>Initialize a variable called <code>store</code> and set it to the return of <code>configureStore</code> (a <code>preloadedState</code> does not need to be passed in, it can be <code>undefined</code>).</p>
+<p>In the <code>Root</code> function component, wrap the <code>BrowserRouter</code> component with the <code>Provider</code> component. Pass the prop of <code>store</code> with the value of <code>store</code> into the <code>Provider</code>.</p>
+<p>Your entry file should look like this:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="co">// ./src/index.js</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="im">import</span> ReactDOM <span class="im">from</span> <span class="st">&#39;react-dom&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="im">import</span> <span class="op">{</span> BrowserRouter <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react-router-dom&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="im">import</span> <span class="op">{</span> Provider <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react-redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="im">import</span> configureStore <span class="im">from</span> <span class="st">&#39;./store&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="im">import</span> <span class="st">&#39;./index.css&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-8" title="8"><span class="im">import</span> App <span class="im">from</span> <span class="st">&#39;./App&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-9" title="9"></a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="kw">const</span> store <span class="op">=</span> <span class="at">configureStore</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-11" title="11"></a>
+<a class="sourceLine" id="cb6-12" title="12"><span class="kw">function</span> <span class="at">Root</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-13" title="13">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb6-14" title="14">    <span class="op">&lt;</span>Provider store<span class="op">={</span>store<span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb6-15" title="15">      <span class="op">&lt;</span>BrowserRouter<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-16" title="16">        <span class="op">&lt;</span>App /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-17" title="17">      &lt;/BrowserRouter<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-18" title="18">    &lt;/Provider<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-19" title="19">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-20" title="20"><span class="op">}</span></a>
+<a class="sourceLine" id="cb6-21" title="21"></a>
+<a class="sourceLine" id="cb6-22" title="22"><span class="va">ReactDOM</span>.<span class="at">render</span>(</a>
+<a class="sourceLine" id="cb6-23" title="23">  <span class="op">&lt;</span><span class="va">React</span>.<span class="at">StrictMode</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-24" title="24">    <span class="op">&lt;</span>Root /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb6-25" title="25">  &lt;/<span class="va">React</span>.<span class="at">StrictMode</span><span class="op">&gt;,</span></a>
+<a class="sourceLine" id="cb6-26" title="26">  <span class="va">document</span>.<span class="at">getElementById</span>(<span class="st">&#39;root&#39;</span>)</a>
+<a class="sourceLine" id="cb6-27" title="27">)<span class="op">;</span></a></code></pre></div>
+<h3 id="test-your-setup">Test your setup</h3>
+<p>Let’s test your setup!</p>
+<p>Navigate to <a href="http://localhost:3000">http://localhost:3000</a> and open up the browser’s dev tools. In the console, you should see a message about an invalid reducer. That’s because the <code>rootReducer</code> isn’t combining any reducers yet. Ignore this warning for now.</p>
+<p>Open the “Redux” tab in your browser’s dev tools. You should not see the message “No store found”.</p>
+<p>In your entry file, expose the <code>store</code> variable on the <code>window</code> <strong>only in development</strong> for testing purposes.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="co">// ./src/index.js</span></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="co">// ...</span></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="cf">if</span> (<span class="va">process</span>.<span class="va">env</span>.<span class="at">NODE_ENV</span> <span class="op">!==</span> <span class="st">&quot;production&quot;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-4" title="4">  <span class="va">window</span>.<span class="at">store</span> <span class="op">=</span> store<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="op">}</span></a></code></pre></div>
+<p>Navigate to <a href="http://localhost:3000">http://localhost:3000</a> and refresh. You should see the <code>store</code> on the <code>window</code> in your browser’s dev tools console. If you call <code>store.getState()</code> then you should just get back an empty object.</p>
+<p>If you are having issues while testing, check your syntax in your store and entry files.</p>
+<p>Commit your setup code!</p>
+<h2 id="phase-2-displaying-a-list-of-produce">Phase 2: Displaying a list of Produce</h2>
+<p>To display a list of produce, you need to first store the list of produce in the Redux store. Then you need to extract the produce from the store for display in a React component.</p>
+<h3 id="produce-reducer">Produce Reducer</h3>
+<p>First, you need to create space in the Redux store for the produce. To do this, you will add a key in the Redux store for handling the produce information. This key will be the produce slice of state.</p>
+<p>In your store file, <code>src/store/index.js</code>, add a key of <code>produce</code> to the <code>rootReducer</code> with the value of <code>produceReducer</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="co">// ./src/store/index.js</span></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="co">// ...</span></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="kw">const</span> rootReducer <span class="op">=</span> <span class="at">combineReducers</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb8-4" title="4">  <span class="dt">produce</span><span class="op">:</span> produceReducer</a>
+<a class="sourceLine" id="cb8-5" title="5"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>The <code>produceReducer</code> is responsible for handling the produce information in the store, or the produce slice of state.</p>
+<p>Now, you need to define the <code>produceReducer</code>. Create a file in the <code>store</code> folder called <code>produce.js</code>. Define a function called <code>produceReducer</code> with <code>state</code> and <code>action</code> as parameters. The <code>state</code> should default to an empty object. Add a <code>switch/case</code> statement on <code>action.type</code> inside of the function and return the state as the <code>default</code> case. Export the <code>produceReducer</code> as default.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="co">// ./src/store/produce.js</span></a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="im">export</span> <span class="im">default</span> <span class="kw">function</span> <span class="at">produceReducer</span>(state <span class="op">=</span> <span class="op">{},</span> action) <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-3" title="3">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-4" title="4">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb9-5" title="5">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-6" title="6">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb9-7" title="7"><span class="op">}</span></a></code></pre></div>
+<p>This is the structure of how all reducer functions should look like by convention. The reducer should return the old state or a new state depending on the <code>type</code> of the <code>action</code> that gets dispatched. The <code>state</code> does not have to be an object. It could be an array, boolean, etc.</p>
+<p>The produce slice of state should be an object with produce id’s as keys. The values should be objects of produce information.</p>
+<p>Import the <code>produceReducer</code> into the store file, <code>store/index.js</code>.</p>
+<h4 id="test-the-reducer">Test the reducer</h4>
+<p>Now, test the reducer by refreshing at <a href="http://localhost:3000">http://localhost:3000</a>. The state in the Redux dev tools extension should show a key of <code>produce</code> with the value of an empty object! Also, if you call <code>store.getState()</code> in the console, you’ll get an object with a key of produce with an empty object as the value.</p>
+<h3 id="populate-the-produce-slice-of-state">Populate the produce slice of state</h3>
+<p>You will use the mock data in the <code>src/mockData/produce.json</code> file to add produce to the produce slice of state. To populate the produce slice of state, you need to trigger a change to the Redux store state. This can only be done by dispatching an action.</p>
+<p>In the <code>store/produce.js</code> file, create and export an action creator called <code>populateProduce</code>. This function should return an object with a unique <code>type</code> key. Create a constant called <code>POPULATE</code> and set it to a string literal of <code>produce/POPULATE</code>. Set the key of <code>type</code> in the return of <code>populateProduce</code> to this constant.</p>
+<p>Import the <code>produce.json</code> as <code>produceData</code>. Set a key of <code>produce</code> in the return of <code>populateProduce</code> to <code>produceData</code>. The key of <code>produce</code> is a payload key.</p>
+<p>If you try dispatching the <code>populateProduce</code> action right now, the Redux store state will not change. Whenever you create a new action type, you need to add a case for it in reducer that handles the slice of state that needs to be updated.</p>
+<p>In the <code>produceReducer</code> add a case for the <code>action.type</code> of <code>POPULATE</code>. This case should turn the <code>action.produce</code> array into an object and return the object. <code>action.produce</code> is an array of produce data objects. The object returned should have keys set to the id’s of the produce data objects with their values as the respective produce data objects.</p>
+<p>The <code>action.produce</code> array should look something like this:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1">[</a>
+<a class="sourceLine" id="cb10-2" title="2">  <span class="op">{</span> <span class="dt">id</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&quot;Longos - Greek Salad&quot;</span><span class="op">,</span> <span class="dt">liked</span><span class="op">:</span> <span class="kw">false</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb10-3" title="3">  <span class="op">{</span> <span class="dt">id</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&quot;Juice - Lagoon Mango&quot;</span><span class="op">,</span> <span class="dt">liked</span><span class="op">:</span> <span class="kw">false</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb10-4" title="4">  <span class="op">{</span> <span class="dt">id</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&quot;Lamb - Whole, Frozen&quot;</span><span class="op">,</span> <span class="dt">liked</span><span class="op">:</span> <span class="kw">false</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb10-5" title="5">  <span class="co">// ...</span></a>
+<a class="sourceLine" id="cb10-6" title="6">]</a></code></pre></div>
+<p>The object created from the array should look something like this:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" title="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb11-2" title="2">  <span class="dv">1</span><span class="op">:</span> <span class="op">{</span> <span class="dt">id</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&quot;Longos - Greek Salad&quot;</span><span class="op">,</span> <span class="dt">liked</span><span class="op">:</span> <span class="kw">false</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb11-3" title="3">  <span class="dv">2</span><span class="op">:</span> <span class="op">{</span> <span class="dt">id</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&quot;Juice - Lagoon Mango&quot;</span><span class="op">,</span> <span class="dt">liked</span><span class="op">:</span> <span class="kw">false</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb11-4" title="4">  <span class="dv">3</span><span class="op">:</span> <span class="op">{</span> <span class="dt">id</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&quot;Lamb - Whole, Frozen&quot;</span><span class="op">,</span> <span class="dt">liked</span><span class="op">:</span> <span class="kw">false</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb11-5" title="5">  <span class="co">// ...</span></a>
+<a class="sourceLine" id="cb11-6" title="6"><span class="op">}</span></a></code></pre></div>
+<p>Try attempting this before looking below.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" title="1"><span class="co">// ./src/store/produce.js</span></a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="im">import</span> produceData <span class="im">from</span> <span class="st">&#39;../mockData/produce.json&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb12-3" title="3"></a>
+<a class="sourceLine" id="cb12-4" title="4"><span class="kw">const</span> POPULATE <span class="op">=</span> <span class="st">&#39;produce/POPULATE&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb12-5" title="5"></a>
+<a class="sourceLine" id="cb12-6" title="6"><span class="im">export</span> <span class="kw">const</span> populateProduce <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-7" title="7">  <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-8" title="8">    <span class="dt">type</span><span class="op">:</span> POPULATE<span class="op">,</span></a>
+<a class="sourceLine" id="cb12-9" title="9">    <span class="dt">produce</span><span class="op">:</span> produceData</a>
+<a class="sourceLine" id="cb12-10" title="10">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb12-11" title="11"><span class="op">};</span></a>
+<a class="sourceLine" id="cb12-12" title="12"></a>
+<a class="sourceLine" id="cb12-13" title="13"><span class="im">export</span> <span class="im">default</span> <span class="kw">function</span> <span class="at">produceReducer</span>(state <span class="op">=</span> <span class="op">{},</span> action) <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-14" title="14">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-15" title="15">    <span class="cf">case</span> <span class="dt">POPULATE</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb12-16" title="16">      <span class="kw">const</span> newState <span class="op">=</span> <span class="op">{};</span></a>
+<a class="sourceLine" id="cb12-17" title="17">      <span class="va">action</span>.<span class="va">produce</span>.<span class="at">forEach</span>(produce <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-18" title="18">        newState[<span class="va">produce</span>.<span class="at">id</span>] <span class="op">=</span> produce<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-19" title="19">      <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-20" title="20">      <span class="cf">return</span> newState<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-21" title="21">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb12-22" title="22">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-23" title="23">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb12-24" title="24"><span class="op">}</span></a></code></pre></div>
+<p>This conversion from an array into this object structure is known as <strong>normalizing data</strong>. It’s faster to search for a produce by its id in this object structure than in an array. Normalizing data is a common practice even outside of Redux, so practice getting comfortable with it!</p>
+<h4 id="testing-populateproduce-action">Testing <code>populateProduce</code> action</h4>
+<p>To test the <code>populateProduce</code> action, import it into the entry file and attach it to the <code>window</code> just like you did with the <code>store</code>.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" title="1"><span class="co">// ./src/index.js</span></a>
+<a class="sourceLine" id="cb13-2" title="2"><span class="co">// ...</span></a>
+<a class="sourceLine" id="cb13-3" title="3"><span class="im">import</span> <span class="op">{</span> populateProduce <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;./store/produce&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb13-4" title="4"><span class="co">// ...</span></a>
+<a class="sourceLine" id="cb13-5" title="5"><span class="cf">if</span> (<span class="va">process</span>.<span class="va">env</span>.<span class="at">NODE_ENV</span> <span class="op">!==</span> <span class="st">&quot;production&quot;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-6" title="6">  <span class="va">window</span>.<span class="at">store</span> <span class="op">=</span> store<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-7" title="7">  <span class="va">window</span>.<span class="at">populateProduce</span> <span class="op">=</span> populateProduce<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-8" title="8"><span class="op">}</span></a></code></pre></div>
+<p>Go to <a href="http://localhost:3000">http://localhost:3000</a> and use <code>store.dispatch</code> on the browser’s dev tools console to dispatch the action from the <code>populateProduce</code> action creator on the <code>window</code>.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb14-1" title="1"><span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">populateProduce</span>())<span class="op">;</span></a></code></pre></div>
+<p>As a response to dispatching this action, the <code>redux-logger</code> middleware should aesthetically display the previous state, action, and the next state in the console. The Redux dev tools extension should now show the action dispatched and the changed state.</p>
+<p>The new state should look something like this:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb15-1" title="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb15-2" title="2">  <span class="dt">produce</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb15-3" title="3">    <span class="dv">1</span><span class="op">:</span> <span class="op">{</span> <span class="dt">id</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&quot;Longos - Greek Salad&quot;</span><span class="op">,</span> <span class="dt">liked</span><span class="op">:</span> <span class="kw">false</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb15-4" title="4">    <span class="dv">2</span><span class="op">:</span> <span class="op">{</span> <span class="dt">id</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&quot;Juice - Lagoon Mango&quot;</span><span class="op">,</span> <span class="dt">liked</span><span class="op">:</span> <span class="kw">false</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb15-5" title="5">    <span class="dv">3</span><span class="op">:</span> <span class="op">{</span> <span class="dt">id</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&quot;Lamb - Whole, Frozen&quot;</span><span class="op">,</span> <span class="dt">liked</span><span class="op">:</span> <span class="kw">false</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb15-6" title="6">    <span class="co">// ...</span></a>
+<a class="sourceLine" id="cb15-7" title="7">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb15-8" title="8"><span class="op">}</span></a></code></pre></div>
+<p>To debug the action, you can add <code>console.log</code>’s and/or <code>debugger</code>’s in the action creator and reducer. To hit them, try refreshing and dispatching the action in the console again.</p>
+<p>Even if your state looks the way you expect it to look, try adding <code>console.log</code> and/or <code>debugger</code> into the action creator and reducer to examine how and when they are invoked.</p>
+<h3 id="programmatically-dispatch-populateproduce">Programmatically dispatch <code>populateProduce</code></h3>
+<p>To programmatically dispatch the <code>populateProduce</code> action instead of doing it through the browser console, you will dispatch this action when the <code>App</code> component gets loaded.</p>
+<p>To get the <code>dispatch</code> method in a React component, import and use the <code>useDispatch</code> hook from <code>react-redux</code> in the <code>App</code> component.</p>
+<p>Import the <code>populateProduce</code> action creator into the <code>App</code> component file.</p>
+<p>Use the <code>useEffect</code> hook to dispatch the action when the <code>App</code> component first loads.</p>
+<p>Your <code>App</code> component should look something like this:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb16-1" title="1"><span class="co">// ./src/App.js</span></a>
+<a class="sourceLine" id="cb16-2" title="2"><span class="co">// ...</span></a>
+<a class="sourceLine" id="cb16-3" title="3"><span class="im">import</span> <span class="op">{</span> useDispatch <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react-redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb16-4" title="4"><span class="im">import</span> <span class="op">{</span> populateProduce <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;./store/produce&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb16-5" title="5"></a>
+<a class="sourceLine" id="cb16-6" title="6"><span class="kw">function</span> <span class="at">App</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb16-7" title="7">  <span class="kw">const</span> dispatch <span class="op">=</span> <span class="at">useDispatch</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb16-8" title="8">  <span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb16-9" title="9">    <span class="at">dispatch</span>(<span class="at">populateProduce</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb16-10" title="10">  <span class="op">},</span> [])<span class="op">;</span></a>
+<a class="sourceLine" id="cb16-11" title="11">  <span class="co">// ...</span></a>
+<a class="sourceLine" id="cb16-12" title="12"><span class="op">}</span></a></code></pre></div>
+<p>Reload <a href="http://localhost:3000">http://localhost:3000</a>. You should see the Redux store state updated automatically with the populate produce action!</p>
+<p>You may have noticed a warning in the React server logs or in the browser’s console. “React Hook useEffect has a missing dependency: ‘dispatch’.” Add <code>dispatch</code> into <code>useEffect</code>’s dependency array. The <code>dispatch</code> function should never change across re-renders so <code>useEffect</code> should only dispatch the action once.</p>
+<h3 id="display-the-produce-in-a-list">Display the produce in a list</h3>
+<p>So far, you added the produce mock data into the Redux store state. But this didn’t change anything on your actual React application. To display the produce, you need the <code>ProduceList</code> component to access the produce slice of state from the Redux store.</p>
+<p>In the <code>ProduceList</code> component file, import <code>useSelector</code> from <code>react-redux</code>. <code>useSelector</code> accepts a function as a parameter. <code>useSelector</code> will pass the updated state into the function whenever the state gets updated. The return value of the function will be the return of the <code>useSelector</code> function. In the component, set the <code>produce</code> variable to the return of <code>useSelector</code> and pass in a function that will return the <code>produce</code> slice of state from the updated state.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">const</span> produce <span class="op">=</span> <span class="at">useSelector</span>(state <span class="kw">=&gt;</span> <span class="va">state</span>.<span class="at">produce</span>)<span class="op">;</span></a></code></pre></div>
+<p>The <code>ProduceList</code> component will turn the products into an array of <code>ProduceDetails</code> components to be rendered.</p>
+<p>If you refresh the <a href="http://localhost:3000">http://localhost:3000</a> now, the produce should be displayed under “All Produce”!</p>
+<p>Commit your code!</p>
+<h2 id="phase-3-add-produce-to-the-cart">Phase 3: Add produce to the cart</h2>
+<p>When the “Checkout” button in the navigation bar is clicked, the side bar containing the shopping cart should open. Let’s try adding produce to the shopping cart.</p>
+<p>The shopping cart is a separate entity from the produce list. The shopping cart needs to know which produce and how much of it was added to the cart. You need a cart slice of state that will hold an object with produce id’s as its keys and objects with a <code>count</code> property as its values.</p>
+<h3 id="cart-reducer">Cart Reducer</h3>
+<p>Create a <code>cart.js</code> file in <code>src/store</code> and define and export a <code>cartReducer</code> from this file. Add the <code>cart</code> slice of state with this as the reducer in the store file (<code>src/store/index.js</code>). Use the <code>produceReducer</code> as an example if you get stuck. Test the reducer in the same way as the way you tested the <code>produceReducer</code>.</p>
+<p>The store state should now look something like this:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb18-1" title="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb18-2" title="2">  <span class="dt">cart</span><span class="op">:</span> <span class="op">{},</span></a>
+<a class="sourceLine" id="cb18-3" title="3">  <span class="dt">produce</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb18-4" title="4">    <span class="co">// ...</span></a>
+<a class="sourceLine" id="cb18-5" title="5">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb18-6" title="6"><span class="op">}</span></a></code></pre></div>
+<h3 id="add-to-cart-action">Add to cart action</h3>
+<p>Create the necessary Redux entities for adding produce to the cart.</p>
+<p>The Redux store state should look something like this when a produce with an id of 3 is added.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb19-1" title="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb19-2" title="2">  <span class="dt">cart</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb19-3" title="3">    <span class="dv">3</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb19-4" title="4">      <span class="dt">id</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb19-5" title="5">      <span class="dt">count</span><span class="op">:</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb19-6" title="6">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb19-7" title="7">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb19-8" title="8">  <span class="dt">produce</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb19-9" title="9">    <span class="co">// ...</span></a>
+<a class="sourceLine" id="cb19-10" title="10">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb19-11" title="11"><span class="op">}</span></a></code></pre></div>
+<p>Define an action creator for adding an item with a specified id to the cart. The action creator should have the produce’s <code>id</code> as the parameter and should return it as a payload key.</p>
+<p>In the reducer, add a case for the action type of adding an item with the id in the action payload. The state returned should be a new object that includes all the keys of the previous state plus with the desired item id as a new key. The value of that key should be an object with properties of <code>id</code> and <code>count</code> (set to 1).</p>
+<p>Hint: To create a new object that includes all the keys of another object with additional keys:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">const</span> newObj <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-2" title="2">  ...<span class="at">oldObj</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb20-3" title="3">  <span class="dt">newKey</span><span class="op">:</span> <span class="op">{</span> <span class="dt">property</span><span class="op">:</span> <span class="st">&quot;value&quot;</span> <span class="op">}</span></a>
+<a class="sourceLine" id="cb20-4" title="4"><span class="op">};</span></a></code></pre></div>
+<p>Test the action creator in the same way that you tested the <code>populateProduce</code> action.</p>
+<h3 id="connect-the-plus-button-to-the-add-to-cart-action">Connect the plus button to the add to cart action</h3>
+<p>In the <code>ProduceList</code> component, all the produce in the Redux store is mapped to a array of <code>ProduceDetails</code> components. The <code>ProduceDetails</code> component has a button element with a <code>className</code> of “plus-button”. When that button is clicked, dispatch the add to cart action with the id of the produce in that component.</p>
+<p>Test this out by navigating to <a href="http://localhost:3000">http://localhost:3000</a> and clicking the plus button on any of the produce in the list. Check to see if the new Redux store state has that produce in the cart slice of state.</p>
+<p>Note: If you open the cart by clicking the “Checkout” button right now, you will not see the produce that you added in there. That’s because you didn’t connect the cart to read the cart slice of state yet.</p>
+<h3 id="display-the-cart-items">Display the cart items</h3>
+<p>Display the produce in the cart slice of state in the cart side bar.</p>
+<p>The <code>Cart</code> component renders the list of items in the cart side bar. Set the <code>cart</code> variable to the extracted cart slice of state in the Redux store state (take a look at the <code>ProduceList</code> component to refresh yourself on how to access information from the Redux store).</p>
+<p>If you refresh <a href="http://localhost:3000">http://localhost:3000</a> and add a produce to the cart, you should see something in the cart now!</p>
+<p>There is something in the cart, but the item can’t be identified. The name of the produce should be displayed next to the count. The <code>name</code> of the produce is stored in the <code>produce</code> slice of state, but the <code>Cart</code> component only has the <code>cart</code> slice of state. Extract the <code>produce</code> from the state and set it to the <code>produce</code> variable.</p>
+<p>The <code>cartItems</code> array should return an array of produce items with information combined from both the cart and the produce slices of state.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb21-1" title="1">  <span class="kw">const</span> cartItems <span class="op">=</span> <span class="va">Object</span>.<span class="at">values</span>(cart)</a>
+<a class="sourceLine" id="cb21-2" title="2">    .<span class="at">map</span>(item <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb21-3" title="3">      <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb21-4" title="4">        ...<span class="at">item</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb21-5" title="5">        ...<span class="at">produce</span>[<span class="va">item</span>.<span class="at">id</span>]</a>
+<a class="sourceLine" id="cb21-6" title="6">      <span class="op">};</span></a>
+<a class="sourceLine" id="cb21-7" title="7">    <span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Now if you refresh the page, you should see the cart items with names!</p>
+<p>This is a good time to commit! Every time you finish a phase, or a chunk of working code, commit!</p>
+<h2 id="phase-4-remove-produce-from-the-cart">Phase 4: Remove produce from the cart</h2>
+<p>Add the functionality to remove produce from the cart when the “Remove” button is clicked.</p>
+<h2 id="phase-5-update-the-number-of-a-produce-in-the-cart">Phase 5: Update the number of a produce in the cart</h2>
+<p>When the plus button next to a cart item is clicked, increment the count of the cart item by 1. When the minus button next to a cart item is clicked, decrement the count of the cart item by 1.</p>
+<p>When the number in the input field next to a cart item is changed and clicked off of, it should update the count for that cart item in the Redux store state.</p>
+<p>If clicking the minus button or changing the number in the input field ever updates to a count lower than 1, remove the cart item.</p>
+<p>When the plus button next to a produce in the produce list is clicked, the item should be added to the cart if it’s not in the cart. If it is already in the cart, increment the count of the respective cart item by 1.</p>
+<h2 id="phase-6-purchase-produce">Phase 6: Purchase produce</h2>
+<p>When the “Purchase” button is clicked in the cart, it should empty the cart.</p>
+<h2 id="phase-7-likeunlike-a-produce">Phase 7: Like/Unlike a Produce</h2>
+<p>When the like button next to a produce in the produce list is clicked, then the boolean of <code>liked</code> on the produce in the Redux store produce slice of state should be toggled to <code>true</code>/<code>false</code>.</p>
+<h2 id="phase-8-redux-selectors">Phase 8: Redux selectors</h2>
+<p>Instead of creating a different selector function every time you use the hook, <code>useSelector</code>, for the same purpose (e.g. extracting the <code>produce</code> slice of state), you can define a single function to be used anytime you need the same information from the Redux store state.</p>
+<p>For example, to get an array of all the produce in the Redux store state, you can use the following selector function in the <code>src/store/produce.js</code> file:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb22-1" title="1"><span class="co">// ./src/store/produce.js</span></a>
+<a class="sourceLine" id="cb22-2" title="2"><span class="im">export</span> <span class="kw">const</span> getAllProduce <span class="op">=</span> (state) <span class="kw">=&gt;</span> <span class="va">Object</span>.<span class="at">values</span>(<span class="va">state</span>.<span class="at">produce</span>)<span class="op">;</span></a></code></pre></div>
+<p>Import this function into the <code>ProduceList</code> component and remove the following lines:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb23-1" title="1">  <span class="kw">const</span> produce <span class="op">=</span> <span class="at">useSelector</span>(state <span class="kw">=&gt;</span> <span class="va">state</span>.<span class="at">produce</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb23-2" title="2">  </a>
+<a class="sourceLine" id="cb23-3" title="3">  <span class="kw">const</span> produceArr <span class="op">=</span> <span class="va">Object</span>.<span class="at">values</span>(produce)<span class="op">;</span></a></code></pre></div>
+<p>Replace it with this line:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb24-1" title="1"><span class="kw">const</span> produceArr <span class="op">=</span> <span class="at">useSelector</span>(getAllProduce)<span class="op">;</span></a></code></pre></div>
+<p>This may seem like it’s much more work than just defining the selector function inside the component, but it will save you the time from having to refactor all your code in all the components if you change the structure of your state. Instead, you can just refactor the one file that holds all your Redux actions, reducer, and selector functions.</p>
+<p>You don’t need to use selector functions. It’s up to you whether or not you want to use them.</p>
+<p>Practice defining your own selector functions by refactoring the code to use selector functions only.</p>
+<p>Note: For the <code>Cart</code> component, try making a single selector function that will extract the cart items with the cart and produce information (including the <code>name</code>).</p>
+<h2 id="bonus-phase-keep-the-order-of-added-produce-to-the-cart">Bonus Phase: Keep the order of added produce to the cart</h2>
+<p>Reconfigure your cart reducer to maintain the order of the added produce to the cart. For example, if you add produce with an id of 3 then produce with an id of 1 to the shopping cart, the produce with the id of 3 should come <em>before</em> the produce with the id of 1 in the shopping cart.</p>
+<p>Hint: Store an object and an array in your cart slice of state. If you did the selector functions correctly, you only need to update the Redux files. No need to change any of the React components.</p>
+<h2 id="bonus-phase-programmatically-open-the-cart-side-bar">Bonus Phase: Programmatically open the cart side bar</h2>
+<p>For an added bonus, try to configure the application to open the cart side bar whenever there is a new item added to the cart.</p>

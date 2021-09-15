@@ -1,0 +1,46 @@
+---
+- name: create release directory
+  file: >
+    path='{{ deploy_release_dir }}'
+    state=directory
+    owner={{ ansible_ssh_user }}
+    group={{ ansible_ssh_user }}
+
+- name: clone code to release directory
+  git: >
+    dest={{ deploy_release_dir }}
+    repo={{ deploy_update_code_git.repository }}
+    version={{ deploy_update_code_git.version }}
+    depth=1
+  notify: symlink release
+
+- name: create shared directories
+  file: >
+    path='{{ item }}'
+    state=directory
+    owner={{ ansible_ssh_user }}
+    group={{ ansible_ssh_user }}
+  with_items:
+    - '{{ deploy_logs_dir }}'
+    - '{{ deploy_assets_dir }}'
+
+- name: make sure that files/directories that are going to be symlinks do not exist
+  file: >
+    path={{ item }}
+    state=absent
+    force=yes
+  with_items:
+    - '{{ deploy_release_dir }}/{{ deploy_update_code_git_defaults.logs_path }}'
+    - '{{ deploy_release_dir }}/{{ deploy_update_code_git_defaults.assets_path }}'
+
+- name: create symlinks to shared directories
+  file: >
+    src={{ item.src }}
+    dest={{ item.dest }}
+    state=link
+    owner={{ ansible_ssh_user }}
+    group={{ ansible_ssh_user }}
+    force=yes
+  with_items:
+    - { src: '{{ deploy_logs_dir }}',   dest: '{{ deploy_release_dir }}/{{ deploy_update_code_git_defaults.logs_path }}' }
+    - { src: '{{ deploy_assets_dir }}', dest: '{{ deploy_release_dir }}/{{ deploy_update_code_git_defaults.assets_path }}' }
