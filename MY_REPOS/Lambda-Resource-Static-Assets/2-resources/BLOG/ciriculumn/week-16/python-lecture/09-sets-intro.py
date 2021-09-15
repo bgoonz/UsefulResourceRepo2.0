@@ -28,6 +28,6 @@
 # print(a.difference(b))
 # print(b.difference(a))
 
-basket = ['apple', 'banana', 'apple', 'orange','pear','apple','banana']
+basket = ["apple", "banana", "apple", "orange", "pear", "apple", "banana"]
 print(basket)
 print(set(basket))

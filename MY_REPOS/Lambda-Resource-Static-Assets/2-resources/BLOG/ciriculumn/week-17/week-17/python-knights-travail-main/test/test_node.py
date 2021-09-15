@@ -2,12 +2,13 @@ import tree
 import unittest
 from unittest.mock import Mock, PropertyMock, patch
 
+
 class TestNodeInitialize(unittest.TestCase):
     def setUp(self):
-        self.node = tree.Node('some value')
+        self.node = tree.Node("some value")
 
     def test_should_set_an_initial_value(self):
-        self.assertEqual(self.node.value, 'some value')
+        self.assertEqual(self.node.value, "some value")
 
     def test_should_set_parent_to_None(self):
         self.assertIsNone(self.node.parent)
@@ -18,9 +19,9 @@ class TestNodeInitialize(unittest.TestCase):
 
 class TestNodeParentSetter(unittest.TestCase):
     def setUp(self):
-        self.child1 = tree.Node('child1')
-        self.parent = tree.Node('parent')
-        self.child2 = tree.Node('child2')
+        self.child1 = tree.Node("child1")
+        self.parent = tree.Node("parent")
+        self.child2 = tree.Node("child2")
 
         self.child1.parent = self.parent
         self.child2.parent = self.parent
@@ -52,19 +53,20 @@ class TestNodeParentSetter(unittest.TestCase):
         self.child2.parent = self.child1
         self.assertNotIn(self.child2, self.parent.children)
 
+
 class TreeNodeAddChild(unittest.TestCase):
     def setUp(self):
-        self.child1 = tree.Node('child1')
-        self.parent = tree.Node('parent')
-        self.child2 = tree.Node('child2')
+        self.child1 = tree.Node("child1")
+        self.parent = tree.Node("parent")
+        self.child2 = tree.Node("child2")
 
         self.child1.parent = self.parent
         self.child2.parent = self.parent
 
     def test_should_pass_itself_to_the_child_parent_setter(self):
-        with patch('tree.Node.parent', new_callable=PropertyMock) as mock_prop:
-            parent = tree.Node('parent')
-            child = tree.Node('child')
+        with patch("tree.Node.parent", new_callable=PropertyMock) as mock_prop:
+            parent = tree.Node("parent")
+            child = tree.Node("child")
             parent.add_child(child)
             mock_prop.assert_called_with(parent)
 
@@ -75,17 +77,17 @@ class TreeNodeAddChild(unittest.TestCase):
 
 class TreeNodeRemoveChild(unittest.TestCase):
     def setUp(self):
-        self.child1 = tree.Node('child1')
-        self.parent = tree.Node('parent')
-        self.child2 = tree.Node('child2')
+        self.child1 = tree.Node("child1")
+        self.parent = tree.Node("parent")
+        self.child2 = tree.Node("child2")
 
         self.child1.parent = self.parent
         self.child2.parent = self.parent
 
     def test_should_pass_None_to_the_child_parent(self):
-        with patch('tree.Node.parent', new_callable=PropertyMock) as mock_prop:
-            parent = tree.Node('parent')
-            child = tree.Node('child')
+        with patch("tree.Node.parent", new_callable=PropertyMock) as mock_prop:
+            parent = tree.Node("parent")
+            child = tree.Node("child")
             parent._children.append(child)
             child._parent = parent
 
@@ -98,18 +100,19 @@ class TreeNodeIsSearchable:
         self.nodes = [tree.Node(i) for i in "abcdefg"]
         parent_index = 0
         for index, child in enumerate(self.nodes):
-            if index == 0: continue
+            if index == 0:
+                continue
             child.parent = self.nodes[parent_index]
             parent_index += 1 if index % 2 == 0 else 0
 
     def test_should_return_itself_if_it_contains_the_value(self):
-        self.assertEqual(self.nodes[0].depth_search('a'), self.nodes[0])
+        self.assertEqual(self.nodes[0].depth_search("a"), self.nodes[0])
 
     def test_should_find_descendant(self):
-        self.assertEqual(self.nodes[0].depth_search('g'), self.nodes[-1])
+        self.assertEqual(self.nodes[0].depth_search("g"), self.nodes[-1])
 
     def test_should_return_None_when_value_not_found(self):
-        self.assertIsNone(self.nodes[0].depth_search('x'))
+        self.assertIsNone(self.nodes[0].depth_search("x"))
 
 
 class TreeNodeIsSearchableByDepthFirst(TreeNodeIsSearchable, unittest.TestCase):
@@ -117,12 +120,12 @@ class TreeNodeIsSearchableByDepthFirst(TreeNodeIsSearchable, unittest.TestCase):
         for child in self.nodes:
             child.depth_search = Mock(wraps=child.depth_search)
 
-        self.assertEqual(self.nodes[0].depth_search('e'), self.nodes[4])
+        self.assertEqual(self.nodes[0].depth_search("e"), self.nodes[4])
 
         self.nodes[2].depth_search.assert_not_called()
         for i in [0, 1, 3, 4]:
             self.nodes[i].depth_search.assert_called()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

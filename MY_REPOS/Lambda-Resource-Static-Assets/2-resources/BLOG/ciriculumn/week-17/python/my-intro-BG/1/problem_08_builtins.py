@@ -12,6 +12,7 @@
 
 # WRITE YOUR CODE HERE
 
+
 def indexify(lst):
     return list(enumerate(lst))
 

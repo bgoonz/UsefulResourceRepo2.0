@@ -33,7 +33,7 @@ def lossy_transform(n):
 
 
 # TEST DATA
-print(lossy_transform(8))     # > 0
-print(lossy_transform(33))    # > 66
-print(lossy_transform(99))    # > 33
+print(lossy_transform(8))  # > 0
+print(lossy_transform(33))  # > 66
+print(lossy_transform(99))  # > 33
 print(lossy_transform(1002))  # > None

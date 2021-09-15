@@ -7,7 +7,7 @@
 # - returning tuples from functions
 
 a = 1, 2, 3
-b = ('a', 'b', 'c')
+b = ("a", "b", "c")
 
 empty = ()
 print(empty)
@@ -15,5 +15,5 @@ print(empty)
 single = (1,)
 print(single)
 
-single = ('a',)
+single = ("a",)
 print(single)

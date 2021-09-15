@@ -21,4 +21,3 @@ print(friends[::2])
 
 # print(friends.length)
 print(len(friends))
-

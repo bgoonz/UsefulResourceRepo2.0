@@ -1,42 +1,42 @@
 from flask import Blueprint, render_template, redirect, session
 from app.forms.login import LoginForm
 
-bp = Blueprint('', __name__)
+bp = Blueprint("", __name__)
 
 
 def track_views():
-    if 'views' in session:
-        session['views'] = session.get('views') + 1
+    if "views" in session:
+        session["views"] = session.get("views") + 1
     else:
-        session['views'] = 1
+        session["views"] = 1
 
 
-@bp.route('/')
+@bp.route("/")
 def index():
     track_views()
-    return render_template('page.html', title='Welcome')
+    return render_template("page.html", title="Welcome")
 
 
-@bp.route('/views')
+@bp.route("/views")
 def views():
     return f'Total views: {session.get("views")}'
 
 
-@bp.route('/views/reset')
+@bp.route("/views/reset")
 def reset_views():
-    views = session.pop('views', None)
-    return f'Reset views (previous {views})'
+    views = session.pop("views", None)
+    return f"Reset views (previous {views})"
 
 
-@bp.route('/login', methods=['GET', 'POST'])
+@bp.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        return redirect('/')
-    return render_template('login.html', form=form)
+        return redirect("/")
+    return render_template("login.html", form=form)
 
 
-@bp.route('/help')
+@bp.route("/help")
 def help():
     track_views()
-    return render_template('page.html', title='Help')
+    return render_template("page.html", title="Help")

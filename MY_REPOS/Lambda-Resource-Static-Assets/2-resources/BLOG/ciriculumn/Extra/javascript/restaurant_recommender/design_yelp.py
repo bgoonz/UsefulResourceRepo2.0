@@ -12,7 +12,6 @@ helper = SourceFileLoader("Heap.py", "./Heap.py").load_module()
 
 
 class RestaurantRecommender(object):
-
     def __init__(self):
         self.users = {}
         self.restaurants = {}
@@ -22,21 +21,24 @@ class RestaurantRecommender(object):
         """
         Add user to the system if they do not already exist.
         """
-        if user_id in self.users: return
+        if user_id in self.users:
+            return
         self.users[user_id] = User(user_id, name)
 
     def get_user(self, user_id):
         """
         Get user from the system if they exist.
         """
-        if user_id not in self.users: return
+        if user_id not in self.users:
+            return
         return self.users[user_id]
 
     def add_restaurant(self, restaurant_id, name):
         """
         Add a restaurant to the system if it does not exist.
         """
-        if restaurant_id not in self.restaurants: self.restaurants[restaurant_id] = Restaurant(restaurant_id, name)
+        if restaurant_id not in self.restaurants:
+            self.restaurants[restaurant_id] = Restaurant(restaurant_id, name)
 
     def add_restaurant_to_tag(self, restaurant_id, name, tag):
         """
@@ -55,27 +57,31 @@ class RestaurantRecommender(object):
         """
         Get restaurant from the system if it exists.
         """
-        if restaurant_id not in self.restaurants: return
+        if restaurant_id not in self.restaurants:
+            return
         return self.restaurants[restaurant_id]
 
     def add_tag(self, tag):
         """
         Add tag to tags if it does not already exist.
         """
-        if tag not in self.tags: self.tags[tag] = Tag(tag)
+        if tag not in self.tags:
+            self.tags[tag] = Tag(tag)
 
     def get_tag(self, tag):
         """
         Get tag if it exists
         """
-        if tag not in self.tags: return
+        if tag not in self.tags:
+            return
         return self.tags[tag]
 
     def validate_rating(self, score):
         """
         Check if score is within appropriate range.
         """
-        if score < 0 or score > 10: return None
+        if score < 0 or score > 10:
+            return None
         return score
 
     def add_rating(self, user_id, restaurant_id, score):
@@ -83,12 +89,14 @@ class RestaurantRecommender(object):
         Add rating to the system
         """
 
-        if self.validate_rating(score) is None: return
+        if self.validate_rating(score) is None:
+            return
 
         # add users and restaurants that do not exist
-        if user_id not in self.users: self.add_user(user_id)
-        if restaurant_id not in self.restaurants: self.add_restaurant(restaurant_id)
-
+        if user_id not in self.users:
+            self.add_user(user_id)
+        if restaurant_id not in self.restaurants:
+            self.add_restaurant(restaurant_id)
 
         # update average restaurant rating and user's ratings
         user = self.get_user(user_id)
@@ -107,7 +115,8 @@ class RestaurantRecommender(object):
         ratings_copy = ratings[::]
         for index, item in enumerate(ratings_copy):
             restaurant, score = ratings_copy[index]
-            if score is None: ratings.remove(item)
+            if score is None:
+                ratings.remove(item)
 
         return ratings
 
@@ -140,14 +149,18 @@ class RestaurantRecommender(object):
         top_restaurants = []
         for tag in tags:
             ratings_heap = self.prioritize(tag.ratings)
-            tag_restaurants = self.filter_restaurants(tag.get_top_restaurants(ratings_heap), seen_restaurants)
+            tag_restaurants = self.filter_restaurants(
+                tag.get_top_restaurants(ratings_heap), seen_restaurants
+            )
             if len(tag_restaurants) > 0:
                 top_restaurants.append(tag_restaurants)
         return top_restaurants
 
     def get_top_average_restaurants(self, number_of_restaurants=5, min_score=5):
-        # create new dict with restaurant id as key, and value is average rating. 
-        ratings = {r_id: self.restaurants[r_id].average_score for r_id in self.restaurants}
+        # create new dict with restaurant id as key, and value is average rating.
+        ratings = {
+            r_id: self.restaurants[r_id].average_score for r_id in self.restaurants
+        }
 
         # put it into a heap.
         candidates = self.prioritize(ratings)
@@ -164,7 +177,8 @@ class RestaurantRecommender(object):
     def give_top_five(self, user_id):
         # check for user_id in system
         user = self.get_user(user_id)
-        if user is None: return
+        if user is None:
+            return
 
         # initialize seen_restaurants; add all restaurants a user has seen
         seen_restaurants = set()
@@ -173,7 +187,8 @@ class RestaurantRecommender(object):
 
         # ratings for a user. Going to replace with calling another function that would
         # .. get the top five
-        if len(user.ratings) == 0: return []
+        if len(user.ratings) == 0:
+            return []
 
         # prioritize restauraunts
         user_heap = self.prioritize(user.ratings)
@@ -182,12 +197,14 @@ class RestaurantRecommender(object):
         highest_rated = user.get_top_five(user_heap)
 
         # iterate through restaurants in the array
-        if len(highest_rated) == 0: return self.get_top_average_restaurants()
+        if len(highest_rated) == 0:
+            return self.get_top_average_restaurants()
 
         # get the top rated restaurants that are a part of each category.
         top_tags = []
         for rated in highest_rated:
-            if rated not in self.restaurants: continue
+            if rated not in self.restaurants:
+                continue
             restaurant = self.restaurants[rated]
             top_tags = restaurant.tags
 
@@ -199,8 +216,7 @@ class RestaurantRecommender(object):
         for index in range(len(top_candidates)):
             top_candidate_list = top_candidates[index]
             id, score = top_candidate_list[-1]
-            max_heap.insert(
-                [id,  score,  index, len(top_candidate_list) - 1])
+            max_heap.insert([id, score, index, len(top_candidate_list) - 1])
 
         count = 10
         result = []
@@ -222,7 +238,7 @@ class Tag(object):
         self.ratings = {}
 
     def __repr__(self):
-        return '<{}>'.format(self.name)
+        return "<{}>".format(self.name)
 
     def add_restaurant(self, restaurant):
         self.ratings[restaurant.id] = restaurant.average_score
@@ -250,7 +266,8 @@ class User(object):
         self.ratings[restaurant_id] = score
 
     def add_preference(self, tags):
-        for tag in tags: self.preferences.add(tag)
+        for tag in tags:
+            self.preferences.add(tag)
 
     def get_top_five(self, heap):
         result = []
@@ -276,12 +293,12 @@ class Restaurant(object):
 
     def add_rating(self, score):
         self.num_of_ratings += 1
-        if self.average_score is None: self.average_score = 0
-        self.average_score = ((self.average_score + score)/self.num_of_ratings)
+        if self.average_score is None:
+            self.average_score = 0
+        self.average_score = (self.average_score + score) / self.num_of_ratings
 
     def add_tag(self, tag):
         self.tags.add(tag)
-
 
 
 ############### TESTS ##########
@@ -355,7 +372,6 @@ r.add_tag("Italian")
 # Dan has 5 ratings
 # Keith has 1 rating
 # Stephen has 15 ratings --> no restaurants.
-
 
 
 # Add Ratings
@@ -435,10 +451,7 @@ r.add_rating(4, 12, 4)
 r.add_rating(4, 13, 2)
 r.add_rating(4, 14, 7)
 r.add_rating(4, 15, 9)
-r.give_top_five(4) # No recommendations
-
-
-
+r.give_top_five(4)  # No recommendations
 
 
 # TEST EVERYTHING
@@ -483,16 +496,16 @@ r.add_restaurant(2, "Burger King")
 r.add_restaurant(3, "Carl's Jr")
 r.add_restaurant(4, "Panda Express")
 r.add_restaurant(5, "ByChloe")
-r.add_restaurant(6, "Juan's Flying Burrito", )
-r.add_restaurant(7, "Apple Bee's", )
-r.add_restaurant(8, "KFC", )
+r.add_restaurant(6, "Juan's Flying Burrito")
+r.add_restaurant(7, "Apple Bee's")
+r.add_restaurant(8, "KFC")
 r.add_restaurant(9, "Subway")
 r.add_restaurant(10, "In 'N Out")
-r.add_restaurant(11, "Gracias Madre", )
-r.add_restaurant(12, "Super Duper Burger", )
-r.add_restaurant(13, "Wendy's", )
+r.add_restaurant(11, "Gracias Madre")
+r.add_restaurant(12, "Super Duper Burger")
+r.add_restaurant(13, "Wendy's")
 r.add_restaurant(14, "Pizzeria Delfina")
-r.add_restaurant(15, "iHop", )
+r.add_restaurant(15, "iHop")
 
 tag1 = r.tags["24 Hours Open"]
 r.add_restaurant_to_tag(1, "Taco Bell", "24 Hours open")
@@ -556,7 +569,6 @@ print(r.give_top_five(2))
 print("Top Average Restaurants: ", r.get_top_average_restaurants())
 
 
-
 # Rate top 10 restaurants:
 # [iHop, Pizzeria Delfina, ]
 
@@ -567,5 +579,3 @@ print("Top Average Restaurants: ", r.get_top_average_restaurants())
 
 # [iHop, Gracias Madre, Pizzeria Delfina, Subway, ByChloe]
 #
-
-

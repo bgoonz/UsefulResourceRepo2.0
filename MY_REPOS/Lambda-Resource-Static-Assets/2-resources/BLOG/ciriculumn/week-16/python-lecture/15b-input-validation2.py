@@ -13,9 +13,8 @@ while age:
         try:
             age = int(float(age))
             if age > 0 and age < 120:
-                print(f'Cool! You had {age} birthdays.')
+                print(f"Cool! You had {age} birthdays.")
             else:
-                print('Out of range. Please try again.')
+                print("Out of range. Please try again.")
         except:
-            print('Please enter a number')
-
+            print("Please enter a number")

@@ -13,7 +13,7 @@ map = {
     "Nashville": {"Kansas City", "Houston", "Miami"},
     "New York": {"Chicago", "Washington D.C."},
     "Washington D.C.": {"Chicago", "Nashville", "Miami"},
-    "Miami": {"Washington D.C.", "Houston", "Nashville"}
+    "Miami": {"Washington D.C.", "Houston", "Nashville"},
 }
 
 DELIVERED = "Delivered"
@@ -48,14 +48,24 @@ map_dij = {
     "San Francisco": {("Seattle", 679), ("Los Angeles", 381), ("Denver", 474)},
     "Los Angeles": {("San Francisco", 381), ("Phoenix", 357)},
     "Phoenix": {("Los Angeles", 357), ("Denver", 586)},
-    "Denver": {("Phoenix", 586), ("San Francisco", 474), ("Houston", 878), ("Kansas City", 557)},
-    "Kansas City": {("Denver", 557), ("Houston", 815), ("Chicago", 412), ("Nashville", 554)},
+    "Denver": {
+        ("Phoenix", 586),
+        ("San Francisco", 474),
+        ("Houston", 878),
+        ("Kansas City", 557),
+    },
+    "Kansas City": {
+        ("Denver", 557),
+        ("Houston", 815),
+        ("Chicago", 412),
+        ("Nashville", 554),
+    },
     "Houston": {("Kansas City", 815), ("Denver", 878)},
     "Chicago": {("Kansas City", 412), ("New York", 712)},
     "Nashville": {("Kansas City", 554), ("Houston", 665), ("Miami", 817)},
     "New York": {("Chicago", 712), ("Washington D.C.", 203)},
     "Washington D.C.": {("Chicago", 701), ("Nashville", 566), ("Miami", 926)},
-    "Miami": {("Washington D.C.", 926), ("Houston", 483), ("Nashville", 817)}
+    "Miami": {("Washington D.C.", 926), ("Houston", 483), ("Nashville", 817)},
 }
 
 
@@ -64,7 +74,7 @@ def find_shortest_path_dij(map, start, end):
     next_cities = [start]
     # Cities that we have fully explored
     visited = set()
-    
+
     # Track each city we encounter, the total distance to get there, and the previous city in the route
     # We're tracking both of these values in one dict for each city
     distances = {start: {"distance_from_start": 0, "previous": None}}
@@ -78,12 +88,19 @@ def find_shortest_path_dij(map, start, end):
         current_distance = distances.get(current).get("distance_from_start")
         # For each connected city, get a reference to the city name and distance of that leg of the route
         for city, next_distance in map[current]:
-            # IF we haven't fully explored that city 
+            # IF we haven't fully explored that city
             # AND we either haven't been to that city before
             #     OR getting there from this route is shorter than our previous route
-            if city not in visited and (city not in distances or distances.get(city).get("distance_from_start") > (current_distance + next_distance)):
-                # Assign the updated total distance and pointer to the previous city 
-                distances[city] = {"distance_from_start": current_distance + next_distance, "previous": current}
+            if city not in visited and (
+                city not in distances
+                or distances.get(city).get("distance_from_start")
+                > (current_distance + next_distance)
+            ):
+                # Assign the updated total distance and pointer to the previous city
+                distances[city] = {
+                    "distance_from_start": current_distance + next_distance,
+                    "previous": current,
+                }
                 # Add the city to the list that we need to explore if it's not already there
                 if city not in next_cities:
                     next_cities.append(city)
@@ -92,19 +109,22 @@ def find_shortest_path_dij(map, start, end):
         visited.add(current)
         # Find the city in the next_cities list that is closest to our start that we know of
         if next_cities:
-            closest_next = min(next_cities, key=lambda city: distances.get(city).get("distance_from_start"))
+            closest_next = min(
+                next_cities,
+                key=lambda city: distances.get(city).get("distance_from_start"),
+            )
             # Put it at the beginning of the list so that on our next iteration we can take out the first element
             next_cities.insert(0, next_cities.pop(next_cities.index(closest_next)))
-    
+
     # Logging our final calculated distances
     print(f"\nFinal distances:\n{distances}\n")
-    
+
     return trace_back(distances, start, end)
 
 
 def trace_back(distances, start, end):
     if end not in distances:
-        return 'Path not viable' 
+        return "Path not viable"
     path = [end]
     # Build our path from our end point, referencing the previous node at each step
     while path[0] != start:
@@ -121,15 +141,19 @@ def advance_delivery(location, destination):
     if location in [DELIVERED, destination]:
         return DELIVERED
 
-    path = find_shortest_path_bfs(location, destination) # Old BFS way
-    path = find_shortest_path_dij(map_dij, location, destination) # Find a better path!
+    path = find_shortest_path_bfs(location, destination)  # Old BFS way
+    path = find_shortest_path_dij(map_dij, location, destination)  # Find a better path!
     # Safe to say there is a next city if we get here
     return path[1]
 
 
 # Testing
-print("BFS:", find_shortest_path_bfs("Seattle", "Washington D.C."))  # BFS: ['Seattle', 'Washington D.C.']
-print("Dij:", find_shortest_path_dij(map_dij, "Seattle", "Washington D.C."))  # Dij: ['Seattle', 'San Francisco', 'Denver', 'Kansas City', 'Chicago', 'New York', 'Washington D.C.']
+print(
+    "BFS:", find_shortest_path_bfs("Seattle", "Washington D.C.")
+)  # BFS: ['Seattle', 'Washington D.C.']
+print(
+    "Dij:", find_shortest_path_dij(map_dij, "Seattle", "Washington D.C.")
+)  # Dij: ['Seattle', 'San Francisco', 'Denver', 'Kansas City', 'Chicago', 'New York', 'Washington D.C.']
 
 
 # Simpler example
@@ -142,7 +166,7 @@ simple_map_dij = {
     "F": {("E", 26), ("A", 75)},
 }
 
-'''
+"""
   A----(75)---F
   | \         |
   |  \        |
@@ -159,8 +183,10 @@ simple_map_dij = {
    (30)    (25)
       \    /
          D
-'''
+"""
 
 print("Dij:", find_shortest_path_dij(simple_map_dij, "A", "B"))  # Dij: ['A', 'B']
 print("Dij:", find_shortest_path_dij(simple_map_dij, "A", "E"))  # Dij: ['A', 'F', 'E']
-print("Dij:", find_shortest_path_dij(simple_map_dij, "C", "F"))  # Dij: ['C', 'D', 'E', 'F']
+print(
+    "Dij:", find_shortest_path_dij(simple_map_dij, "C", "F")
+)  # Dij: ['C', 'D', 'E', 'F']

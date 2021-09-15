@@ -28,10 +28,12 @@
 
 
 # TEST DATA
-print("good_or_bad test1:", good_or_bad("Coffee")) # => "Good"
+print("good_or_bad test1:", good_or_bad("Coffee"))  # => "Good"
 print("good_or_bad test2:", good_or_bad("Ice Cream"))  # => "Good"
-print("good_or_bad test3:", good_or_bad("Phone in Toilet")) # => "Bad"
+print("good_or_bad test3:", good_or_bad("Phone in Toilet"))  # => "Bad"
 print("good_or_bad test4:", good_or_bad("Sleeping through alarm"))  # => "Bad"
-print("good_or_bad test5:", good_or_bad("6 Pieces of plain bread")) # => "Okay?"
+print("good_or_bad test5:", good_or_bad("6 Pieces of plain bread"))  # => "Okay?"
 print("good_or_bad test6:", good_or_bad("Doe"))  # => "A dear, a female dear"
-print("good_or_bad test7:", good_or_bad("Jokes Ed or Justin made that are funny")) # => None
+print(
+    "good_or_bad test7:", good_or_bad("Jokes Ed or Justin made that are funny")
+)  # => None

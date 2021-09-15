@@ -9,14 +9,12 @@ cities = [(city, city) for city in map.keys()]
 
 
 class ShippingForm(FlaskForm):
-    sender_name = StringField('Sender', validators=[DataRequired()])
-    recipient_name = StringField('Recipient', validators=[DataRequired()])
-    origin = SelectField('Origin',
-                         choices=cities,
-                         validators=[DataRequired()])
-    destination = SelectField('Destination',
-                              choices=cities,
-                              validators=[DataRequired()])
+    sender_name = StringField("Sender", validators=[DataRequired()])
+    recipient_name = StringField("Recipient", validators=[DataRequired()])
+    origin = SelectField("Origin", choices=cities, validators=[DataRequired()])
+    destination = SelectField(
+        "Destination", choices=cities, validators=[DataRequired()]
+    )
 
     submit = SubmitField("Ship It!")
     cancel = SubmitField("Cancel")

@@ -15,7 +15,7 @@ print(list(fives))
 test = range(51, 5)
 print(list(test))
 
-items = ['a', 'b', 'c']
+items = ["a", "b", "c"]
 for i in range(len(items)):
     print(i, items[i])
 

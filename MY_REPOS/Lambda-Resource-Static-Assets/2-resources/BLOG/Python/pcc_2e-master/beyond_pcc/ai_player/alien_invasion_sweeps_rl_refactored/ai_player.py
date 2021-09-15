@@ -2,8 +2,8 @@ import pygame
 
 from alien_invasion import AlienInvasion
 
-class AIPlayer:
 
+class AIPlayer:
     def __init__(self, ai_game):
         """Automatic player for Alien Invasion."""
 
@@ -35,7 +35,7 @@ class AIPlayer:
 
     def _implement_strategy(self):
         """Implement an automated strategy for playing the game."""
-        self._sweep_right_left()        
+        self._sweep_right_left()
 
         # Fire a bullet whenever possible.
         self.ai_game._fire_bullet()
@@ -48,8 +48,7 @@ class AIPlayer:
         if not ship.moving_right and not ship.moving_left:
             # Ship hasn't started moving yet; move to the right.
             ship.moving_right = True
-        elif (ship.moving_right
-                    and ship.rect.right > screen_rect.right - 10):
+        elif ship.moving_right and ship.rect.right > screen_rect.right - 10:
             # Ship about to hit right edge; move left.
             ship.moving_right = False
             ship.moving_left = True
@@ -57,7 +56,8 @@ class AIPlayer:
             ship.moving_left = False
             ship.moving_right = True
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     ai_game = AlienInvasion()
 
     ai_player = AIPlayer(ai_game)

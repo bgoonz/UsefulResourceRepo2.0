@@ -5,6 +5,7 @@ import pygame
 from ship import Ship
 from alien_ship import AlienShip
 
+
 class SidewaysHero:
     """Overall class to manage game assets and behavior."""
 
@@ -51,7 +52,8 @@ class SidewaysHero:
             # Make the most recently drawn screen visible.
             pygame.display.flip()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Make a game instance, and run the game.
     sh_game = SidewaysHero()
     sh_game.run_game()

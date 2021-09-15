@@ -3,7 +3,7 @@ print("Enter 'q' to quit.")
 
 while True:
     first_number = input("\nFirst number: ")
-    if first_number == 'q':
+    if first_number == "q":
         break
     second_number = input("Second number: ")
     try:

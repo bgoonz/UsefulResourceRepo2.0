@@ -5,7 +5,7 @@ db = SQLAlchemy()
 
 
 class Package(db.Model):
-    __tablename__ = 'packages'
+    __tablename__ = "packages"
 
     id = db.Column(db.Integer, primary_key=True)
     sender = db.Column(db.String(255))
@@ -20,7 +20,8 @@ class Package(db.Model):
         packages = Package.query.all()
         for package in packages:
             if package.location is not DELIVERED:
-                package.location = advance_delivery(package.location,
-                                                    package.destination)
+                package.location = advance_delivery(
+                    package.location, package.destination
+                )
 
         db.session.commit()

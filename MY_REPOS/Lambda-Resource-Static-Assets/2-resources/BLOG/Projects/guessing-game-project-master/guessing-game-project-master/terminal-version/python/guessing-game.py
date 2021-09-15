@@ -1,4 +1,5 @@
 from random import randint
+
 min_num = int(input("Pick a minimum number! "))
 max_num = int(input("Pick a maximum number! "))
 secret_number = randint(min_num, max_num)
@@ -6,9 +7,9 @@ secret_number = randint(min_num, max_num)
 num_attempts = int(input("How many turns do you want? "))
 
 while num_attempts != -1:
-    user_guess = int(input(
-        f"Try to guess the secret number, you have {num_attempts} left!  "
-        ))
+    user_guess = int(
+        input(f"Try to guess the secret number, you have {num_attempts} left!  ")
+    )
 
     if user_guess < min_num or user_guess > max_num:
         print("That number is not in range")

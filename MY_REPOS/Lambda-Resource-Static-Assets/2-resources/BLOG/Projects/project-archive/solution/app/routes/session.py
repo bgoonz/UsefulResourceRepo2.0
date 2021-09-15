@@ -12,6 +12,7 @@ def login():
         return redirect(url_for("orders.index"))
     form = LoginForm()
     from pprint import pprint
+
     pprint(form.data)
     if form.validate_on_submit():
         n = form.employee_number.data
@@ -23,7 +24,7 @@ def login():
     return render_template("login.html", form=form)
 
 
-@bp.route('/logout', methods=["POST"])
+@bp.route("/logout", methods=["POST"])
 def logout():
     logout_user()
-    return redirect(url_for('.login'))
+    return redirect(url_for(".login"))

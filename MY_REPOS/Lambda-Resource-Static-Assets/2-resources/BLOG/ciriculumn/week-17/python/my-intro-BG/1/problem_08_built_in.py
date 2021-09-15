@@ -5,13 +5,11 @@
 #   one 's' character.
 #
 #  Use the "filter" method to do this.
-# 
-# 
-# 
+#
+#
+#
 #
 #  --- YOUR CODE HERE ---
-
-
 
 
 #

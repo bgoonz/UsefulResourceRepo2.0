@@ -47,8 +47,10 @@
 
 # print(tuple(sorted(scores)))
 
+
 def minmax(numbers):
     return min(numbers), max(numbers)
+
 
 myNums = (1, 4, -2, 3.3, -8, 25, 9, 0)
 print(minmax(myNums))

@@ -1,4 +1,3 @@
-
 from collections import namedtuple
 
 
@@ -21,8 +20,7 @@ class Card:
         Method to return the rank of the card
         adjusted as needed if the card is an ace.
         """
-        return 14 if aces_high and self._rank_name == "Ace" \
-            else self._rank_value
+        return 14 if aces_high and self._rank_name == "Ace" else self._rank_value
 
     def __repr__(self):
         return f"{self._rank_name} of {self._suit}"
@@ -33,9 +31,7 @@ class Card:
         Static method to compare two or more cards and
         return the one with the highest rank.
         """
-        return max(
-            args,
-            key=lambda card: card.adjusted_rank_value(aces_high=aces_high))
+        return max(args, key=lambda card: card.adjusted_rank_value(aces_high=aces_high))
 
 
 Rank = namedtuple("Rank", "name value")
@@ -60,13 +56,15 @@ class Deck:
         Rank(name="Ten", value=10),
         Rank(name="Jack", value=11),
         Rank(name="Queen", value=12),
-        Rank(name="King", value=13)
+        Rank(name="King", value=13),
     )
 
     def __init__(self):
-        self._cards = [Card(suit, rank.name, rank.value)
-                       for suit in self._SUITS
-                       for rank in self._RANKS]
+        self._cards = [
+            Card(suit, rank.name, rank.value)
+            for suit in self._SUITS
+            for rank in self._RANKS
+        ]
 
     @property
     def cards(self):
@@ -79,8 +77,7 @@ class Deck:
         with the specified cards removed.
         """
         deck = cls()
-        deck._cards = [card for card in deck._cards
-                       if card.rank_value not in args]
+        deck._cards = [card for card in deck._cards if card.rank_value not in args]
         return deck
 
     @classmethod
@@ -114,22 +111,12 @@ print(Card.max(ace_of_hearts, two_of_hearts, aces_high=True))
 print(Card.max(two_of_hearts, ace_of_hearts, aces_high=True))
 # Ace of Hearts
 
-print(Card.max(
-    ace_of_hearts,
-    two_of_hearts,
-    three_of_hearts))  # Three of Hearts
-print(Card.max(
-    three_of_hearts,
-    two_of_hearts,
-    ace_of_hearts))  # Three of Hearts
+print(Card.max(ace_of_hearts, two_of_hearts, three_of_hearts))  # Three of Hearts
+print(Card.max(three_of_hearts, two_of_hearts, ace_of_hearts))  # Three of Hearts
 
-print(Card.max(
-    ace_of_hearts,
-    two_of_hearts,
-    three_of_hearts,
-    aces_high=True))  # Ace of Hearts
-print(Card.max(
-    three_of_hearts,
-    two_of_hearts,
-    ace_of_hearts,
-    aces_high=True))  # Ace of Hearts
+print(
+    Card.max(ace_of_hearts, two_of_hearts, three_of_hearts, aces_high=True)
+)  # Ace of Hearts
+print(
+    Card.max(three_of_hearts, two_of_hearts, ace_of_hearts, aces_high=True)
+)  # Ace of Hearts

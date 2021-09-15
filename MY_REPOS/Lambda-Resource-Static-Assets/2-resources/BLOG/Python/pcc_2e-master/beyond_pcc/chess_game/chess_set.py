@@ -22,16 +22,17 @@ class ChessSet:
           for that piece.
         - Adds each piece to the list self.pieces.
         """
-        filename = 'images/chess_pieces.bmp'
+        filename = "images/chess_pieces.bmp"
         piece_ss = SpriteSheet(filename)
 
         # Load all piece images.
-        piece_images = piece_ss.load_grid_images(2, 6, x_margin=64,
-                x_padding=72, y_margin=68, y_padding=48)
+        piece_images = piece_ss.load_grid_images(
+            2, 6, x_margin=64, x_padding=72, y_margin=68, y_padding=48
+        )
 
         # Create a Piece for each image.
-        colors = ['black', 'white']
-        names = ['king', 'queen', 'rook', 'bishop', 'knight', 'pawn']
+        colors = ["black", "white"]
+        names = ["king", "queen", "rook", "bishop", "knight", "pawn"]
 
         piece_num = 0
         for color in colors:
@@ -53,8 +54,8 @@ class Piece:
         super().__init__()
 
         self.image = None
-        self.name = ''
-        self.color = ''
+        self.name = ""
+        self.color = ""
 
         self.screen = chess_game.screen
 

@@ -4,13 +4,14 @@ from time import sleep
 
 from say_something import say_something
 
+
 def run_quiz():
 
-    words = ['completed', 'deleted', 'shoulder']
+    words = ["completed", "deleted", "shoulder"]
     completed_words = []
 
-    correct_msgs = ['correct', 'absolutely right', 'yes!', 'excellent']
-    incorrect_msgs = ['oh no!', 'wrong', 'incorrect', "oh my, you'll have to try again"]
+    correct_msgs = ["correct", "absolutely right", "yes!", "excellent"]
+    incorrect_msgs = ["oh no!", "wrong", "incorrect", "oh my, you'll have to try again"]
 
     say_something("I'm going to quiz you on your spelling words. Get ready.")
     sleep(5)

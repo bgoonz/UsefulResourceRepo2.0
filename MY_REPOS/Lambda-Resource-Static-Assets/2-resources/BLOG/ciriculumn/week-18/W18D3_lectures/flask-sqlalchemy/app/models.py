@@ -4,10 +4,10 @@ db = SQLAlchemy()
 
 
 pet_owners = db.Table(
-  "pet_owners",
-  db.Model.metadata,
-  db.Column("pet_id", db.Integer, db.ForeignKey("pets.id"), primary_key=True),
-  db.Column("owner_id", db.Integer, db.ForeignKey("owners.id"), primary_key=True),
+    "pet_owners",
+    db.Model.metadata,
+    db.Column("pet_id", db.Integer, db.ForeignKey("pets.id"), primary_key=True),
+    db.Column("owner_id", db.Integer, db.ForeignKey("owners.id"), primary_key=True),
 )
 
 

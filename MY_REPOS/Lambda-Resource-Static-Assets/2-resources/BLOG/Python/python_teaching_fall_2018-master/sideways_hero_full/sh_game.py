@@ -7,6 +7,7 @@ from ship import Ship
 from alien_ship import AlienShip
 from explosion import Explosion
 
+
 class SidewaysHero:
     """Overall class to manage game assets and behavior."""
 
@@ -25,12 +26,10 @@ class SidewaysHero:
             new_alien = AlienShip(self)
             self.aliens.add(new_alien)
 
-        pygame.mixer.music.load('sounds/explosion.mp3')
-
+        pygame.mixer.music.load("sounds/explosion.mp3")
 
     def run_game(self):
         """Start the main loop for the game."""
-
 
         while True:
             # Watch for keyboard and mouse events.
@@ -77,7 +76,8 @@ class SidewaysHero:
             # Make the most recently drawn screen visible.
             pygame.display.flip()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Make a game instance, and run the game.
     sh_game = SidewaysHero()
     sh_game.run_game()

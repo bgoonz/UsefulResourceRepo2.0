@@ -5,12 +5,8 @@ class Order(db.Model):
     __tablename__ = "orders"
 
     id = db.Column(db.Integer, primary_key=True)
-    employee_id = db.Column(db.Integer,
-                            db.ForeignKey("employees.id"),
-                            nullable=False)
-    table_id = db.Column(db.Integer,
-                         db.ForeignKey("tables.id"),
-                         nullable=False)
+    employee_id = db.Column(db.Integer, db.ForeignKey("employees.id"), nullable=False)
+    table_id = db.Column(db.Integer, db.ForeignKey("tables.id"), nullable=False)
     finished = db.Column(db.Boolean, nullable=False)
 
     employee = db.relationship("Employee", back_populates="orders")

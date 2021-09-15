@@ -1,6 +1,6 @@
 from PIL import Image
 
-filename = 'willie_crab.jpg'
+filename = "willie_crab.jpg"
 
 # Read in original image.
 orig_img = Image.open(filename)
@@ -12,7 +12,7 @@ pixel_map = orig_img.load()
 
 # This code creates a new image that matches the size of the original
 #  image. It also sets all the pixels in the new image to white.
-new_img = Image.new(orig_img.mode, orig_img.size, 'white')
+new_img = Image.new(orig_img.mode, orig_img.size, "white")
 
 # Get all the pixels in the new image.
 #  We're free to change these pixels in any way we want.
@@ -22,16 +22,16 @@ new_img_pixel_map = new_img.load()
 # Modify each pixel in the new image.
 for x in range(orig_img.size[0]):
     for y in range(orig_img.size[1]):
-        
+
         # This gets the original r, g, and b values
-        r = pixel_map[x,y][0]
-        g = pixel_map[x,y][1]
-        b = pixel_map[x,y][2]
+        r = pixel_map[x, y][0]
+        g = pixel_map[x, y][1]
+        b = pixel_map[x, y][2]
 
         # This finds the average of the three rgb values, and uses that
         #  for each of the new rgb values.
         #  The // operator is normal division, but then only keeps the integer part of the quotient.
-        avg_rgb = (r + g + b)//3
+        avg_rgb = (r + g + b) // 3
         max_rgb = max(r, g, b)
         new_r = max_rgb
         new_g = max_rgb

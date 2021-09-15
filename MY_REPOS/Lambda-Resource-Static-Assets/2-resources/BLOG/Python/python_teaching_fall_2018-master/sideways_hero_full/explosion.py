@@ -1,5 +1,6 @@
 import pygame
 
+
 class Explosion:
     """A class to manage the explosion."""
 
@@ -9,7 +10,7 @@ class Explosion:
         self.screen_rect = sh_game.screen.get_rect()
 
         # Load the ship image and get its rect.
-        self.image = pygame.image.load('images/explosion.bmp')
+        self.image = pygame.image.load("images/explosion.bmp")
         self.rect = self.image.get_rect()
 
         # Start each explosion at the ship's nose.

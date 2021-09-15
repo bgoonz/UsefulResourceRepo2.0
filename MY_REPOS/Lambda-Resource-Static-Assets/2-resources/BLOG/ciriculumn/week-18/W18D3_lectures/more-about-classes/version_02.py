@@ -1,4 +1,3 @@
-
 from collections import namedtuple
 
 
@@ -38,13 +37,15 @@ class Deck:
         Rank(name="Ten", value=10),
         Rank(name="Jack", value=11),
         Rank(name="Queen", value=12),
-        Rank(name="King", value=13)
+        Rank(name="King", value=13),
     )
 
     def __init__(self):
-        self._cards = [Card(suit, rank.name, rank.value)
-                       for suit in self._SUITS
-                       for rank in self._RANKS]
+        self._cards = [
+            Card(suit, rank.name, rank.value)
+            for suit in self._SUITS
+            for rank in self._RANKS
+        ]
 
     @property
     def cards(self):

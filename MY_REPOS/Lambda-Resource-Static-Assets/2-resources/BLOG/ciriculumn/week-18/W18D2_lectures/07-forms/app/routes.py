@@ -3,30 +3,26 @@ from app import app
 from app.forms.login import LoginForm
 
 
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('page.html', title='Welcome')
+    return render_template("page.html", title="Welcome")
 
 
-@app.route('/login')
+@app.route("/login")
 def login():
     form = LoginForm()
-    return render_template('login.html', form=form)
+    return render_template("login.html", form=form)
 
 
-@app.route('/help')
+@app.route("/help")
 def help():
-    return render_template('page.html', title='Help')
+    return render_template("page.html", title="Help")
 
 
-@app.route('/item/<int:id>')
+@app.route("/item/<int:id>")
 def item(id):
-    if (id > 0 and id < 100):
-        item = {
-            "id": id,
-            "name": f"Fancy Item {id}",
-            "description": "Coming soon!",
-        }
-        return render_template('item.html', item=item)
+    if id > 0 and id < 100:
+        item = {"id": id, "name": f"Fancy Item {id}", "description": "Coming soon!"}
+        return render_template("item.html", item=item)
     else:
-        return '<h1>Sample App</h1><h2>Item Not Found</h2>'
+        return "<h1>Sample App</h1><h2>Item Not Found</h2>"

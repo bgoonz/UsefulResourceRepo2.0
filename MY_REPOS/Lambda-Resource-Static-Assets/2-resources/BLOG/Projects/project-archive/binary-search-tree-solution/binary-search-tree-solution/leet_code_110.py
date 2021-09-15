@@ -2,27 +2,30 @@
 View the full problem and run the test cases at:
 https://leetcode.com/problems/balanced-binary-tree/
 """
+
+
 class TreeNode(object):
-  def __init__(self, val=0, left=None, right=None):
-    self.val = val
-    self.left = left
-    self.right = right
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
 
 
 def getHeight(node):
-  if node is None:
-    return -1
-  return 1 + max(getHeight(node.left), getHeight(node.right))
+    if node is None:
+        return -1
+    return 1 + max(getHeight(node.left), getHeight(node.right))
+
 
 def isBalanced(root):
-  """
+    """
   :type root: TreeNode
   :rtype: bool
   """
-  if root is None:
-    return True
-  isValidHeight = 1 >= abs(getHeight(root.left) - getHeight(root.right))
-  return isValidHeight and isBalanced(root.left) and isBalanced(root.right)
+    if root is None:
+        return True
+    isValidHeight = 1 >= abs(getHeight(root.left) - getHeight(root.right))
+    return isValidHeight and isBalanced(root.left) and isBalanced(root.right)
 
 
 # Tree: [3,9,20,null,null,15,7]
@@ -37,7 +40,7 @@ node_3.left = TreeNode(9)
 node_3.right = node_20
 node_20.left = TreeNode(15)
 node_20.right = TreeNode(7)
-print(isBalanced(node_3))   # True
+print(isBalanced(node_3))  # True
 
 # Tree: [1,2,2,3,3,null,null,4,4]
 #        1
@@ -62,4 +65,4 @@ node_4a = TreeNode(4)
 node_4b = TreeNode(4)
 node_3a.left = node_4a
 node_3a.right = node_4b
-print(isBalanced(node_1))   # False
+print(isBalanced(node_1))  # False

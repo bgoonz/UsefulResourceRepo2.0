@@ -14,12 +14,14 @@
 def bind_argument(value, fn):
     return lambda: fn(value)
 
+
 # OR
 
 
 def bind_argument(value, fn):
     def bound():
         return fn(value)
+
     return bound
 
 

@@ -3,6 +3,7 @@ from pygame.sprite import Sprite
 
 from random import randint
 
+
 class AlienShip(Sprite):
     """A class to manage the ship."""
 
@@ -13,7 +14,7 @@ class AlienShip(Sprite):
         self.screen_rect = sh_game.screen.get_rect()
 
         # Load the ship image and get its rect.
-        self.image = pygame.image.load('images/alien_ship.bmp')
+        self.image = pygame.image.load("images/alien_ship.bmp")
         self.rect = self.image.get_rect()
 
         # Start each new ship at a random position on the right

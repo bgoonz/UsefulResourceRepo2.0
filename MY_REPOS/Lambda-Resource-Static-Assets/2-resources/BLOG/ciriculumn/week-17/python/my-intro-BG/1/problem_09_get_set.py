@@ -1,14 +1,12 @@
 # GETTERS AND SETTERS
-# 
+#
 # Create a class "GetItSetIt" that will be initialized with a single value
 #   Write a getter and a setter for this value
 #   Write a method called forget which will assign the value to None
-# 
-# 
-# 
+#
+#
+#
 #  --- YOUR CODE HERE ---
-
-
 
 
 #

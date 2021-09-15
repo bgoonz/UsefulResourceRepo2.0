@@ -26,7 +26,6 @@ app.register_blueprint(routes.inventory.bp)
 #         return '<h1>Sample App</h1><h2>Item Not Found</h2>'
 
 
-
 app.register_blueprint(routes.main.bp)
 
 # @app.route('/')

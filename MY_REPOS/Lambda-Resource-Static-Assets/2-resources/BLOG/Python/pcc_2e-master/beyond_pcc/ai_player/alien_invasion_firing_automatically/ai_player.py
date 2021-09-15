@@ -2,8 +2,8 @@ import pygame
 
 from alien_invasion import AlienInvasion
 
-class AIPlayer:
 
+class AIPlayer:
     def __init__(self, ai_game):
         """Automatic player for Alien Invasion."""
 
@@ -33,7 +33,8 @@ class AIPlayer:
 
             self.ai_game._update_screen()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     ai_game = AlienInvasion()
 
     ai_player = AIPlayer(ai_game)

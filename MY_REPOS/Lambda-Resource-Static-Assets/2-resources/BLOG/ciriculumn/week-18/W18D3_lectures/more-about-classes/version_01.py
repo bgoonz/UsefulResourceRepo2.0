@@ -1,4 +1,3 @@
-
 class Card:
     """Represents a playing card."""
 
@@ -22,7 +21,7 @@ class Deck:
         self._cards = [
             Card("Hearts", "Ace", 1),
             Card("Hearts", "Two", 2),
-            Card("Hearts", "Three", 3)
+            Card("Hearts", "Three", 3),
         ]
 
     @property

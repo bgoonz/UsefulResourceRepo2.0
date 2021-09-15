@@ -14,7 +14,7 @@
 
 # TEST DATA
 test1 = ["plop", "", "drip", "zop", "stop"]
-print("my_for_filter test1:", my_for_filter(test1, "op")) # => ["plop", "zop", "stop"]
+print("my_for_filter test1:", my_for_filter(test1, "op"))  # => ["plop", "zop", "stop"]
 
 test2 = ["plop", "", "drip", "zop", "stop"]
 print("my_for_filter test2:", my_for_filter(test2, "mop"))  # => []

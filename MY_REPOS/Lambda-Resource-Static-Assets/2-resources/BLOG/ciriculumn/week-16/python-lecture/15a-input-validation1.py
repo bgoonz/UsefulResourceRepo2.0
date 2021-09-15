@@ -11,7 +11,6 @@ while age:
     if age:
         try:
             age = int(float(age))
-            print(f'Cool! You had {age} birthdays.')
+            print(f"Cool! You had {age} birthdays.")
         except:
-            print('Please enter a number')
-
+            print("Please enter a number")

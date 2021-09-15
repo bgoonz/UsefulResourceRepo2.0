@@ -1,2 +1,2 @@
- # Say hello to everyone.
+# Say hello to everyone.
 print("Hello Python people!")

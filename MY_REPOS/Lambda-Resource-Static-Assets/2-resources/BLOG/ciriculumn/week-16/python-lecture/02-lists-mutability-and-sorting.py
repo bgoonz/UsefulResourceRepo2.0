@@ -20,7 +20,7 @@
 # supplies.sort(key=str.lower)
 # print(supplies)
 
-colors = ['red', 'orange', 'blue', 'pink']
+colors = ["red", "orange", "blue", "pink"]
 alphabetical = sorted(colors)
 print(colors)
 print(alphabetical)

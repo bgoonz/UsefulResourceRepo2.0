@@ -1,8 +1,6 @@
 from flask import Blueprint, redirect, render_template, url_for
 from flask_login import current_user, login_required
-from app.models import (
-    Employee, MenuItem, MenuItemType, Order, OrderDetail, Table, db
-)
+from app.models import Employee, MenuItem, MenuItemType, Order, OrderDetail, Table, db
 from ..forms import MenuItemAssignmentForm, TableAssignmentForm
 from sqlalchemy.orm import joinedload
 
@@ -13,9 +11,9 @@ bp = Blueprint("orders", __name__, url_prefix="")
 @login_required
 def add_to_order(id):
     form = MenuItemAssignmentForm()
-    form.menu_item_ids.choices = [(item.id, '')
-                                  for item in MenuItem.query.all()]
+    form.menu_item_ids.choices = [(item.id, "") for item in MenuItem.query.all()]
     from pprint import pprint
+
     pprint(form.menu_item_ids.choices)
     if form.validate_on_submit():
         order = Order.query.get(id)
@@ -23,7 +21,7 @@ def add_to_order(id):
             detail = OrderDetail(order=order, menu_item_id=menu_item_id)
             db.session.add(detail)
         db.session.commit()
-    return redirect(url_for('.index'))
+    return redirect(url_for(".index"))
 
 
 @bp.route("/assignments", methods=["POST"])
@@ -35,13 +33,11 @@ def assign():
     form.employees.choices = [(e.id, e.name) for e in servers]
     if form.validate_on_submit():
         order = Order(
-            employee_id=form.employees.data,
-            table_id=form.tables.data,
-            finished=False
+            employee_id=form.employees.data, table_id=form.tables.data, finished=False
         )
         db.session.add(order)
         db.session.commit()
-    return redirect(url_for('.index'))
+    return redirect(url_for(".index"))
 
 
 @bp.route("/finalization/<int:id>", methods=["POST"])
@@ -50,7 +46,7 @@ def close(id):
     order = Order.query.get(id)
     order.finished = True
     db.session.commit()
-    return redirect(url_for('.index'))
+    return redirect(url_for(".index"))
 
 
 @bp.route("/")
@@ -61,18 +57,26 @@ def index():
     taf.tables.choices = [(t.id, f"Table {t.number}") for t in open_tables]
     taf.employees.choices = [(e.id, e.name) for e in servers]
 
-    open_orders = Order.query.filter(
-        Order.finished == False and Order.employee_id == current_user.id
-    ).options(joinedload(Order.table)).options(joinedload(Order.details, OrderDetail.menu_item))
+    open_orders = (
+        Order.query.filter(
+            Order.finished == False and Order.employee_id == current_user.id
+        )
+        .options(joinedload(Order.table))
+        .options(joinedload(Order.details, OrderDetail.menu_item))
+    )
 
-    foods = MenuItem.query.join(MenuItemType).order_by(MenuItemType.name, MenuItem.name).options(joinedload(MenuItem.type))
+    foods = (
+        MenuItem.query.join(MenuItemType)
+        .order_by(MenuItemType.name, MenuItem.name)
+        .options(joinedload(MenuItem.type))
+    )
     foods_by_type = {}
     for food in foods:
         if food.type.name not in foods_by_type:
             foods_by_type[food.type.name] = []
         foods_by_type[food.type.name].append(food)
 
-    data = {'taf': taf, 'orders': open_orders, 'foods_by_type': foods_by_type}
+    data = {"taf": taf, "orders": open_orders, "foods_by_type": foods_by_type}
     return render_template("orders.html", **data)
 
 

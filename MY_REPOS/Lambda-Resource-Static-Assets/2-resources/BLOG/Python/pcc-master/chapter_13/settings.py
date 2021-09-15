@@ -1,4 +1,4 @@
-class Settings():
+class Settings:
     """A class to store all settings for Alien Invasion."""
 
     def __init__(self):
@@ -18,7 +18,7 @@ class Settings():
         self.bullet_height = 15
         self.bullet_color = 60, 60, 60
         self.bullets_allowed = 3
-        
+
         # Alien settings.
         self.alien_speed_factor = 1
         self.fleet_drop_speed = 10

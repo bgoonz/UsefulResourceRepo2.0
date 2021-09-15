@@ -2,21 +2,23 @@
 Binary Heap Class
 """
 
-class Heap:
 
-    def __init__(self, type='min'):
+class Heap:
+    def __init__(self, type="min"):
         self.storage = []
         self.type = type
 
-
     def compare(self, a, b):
-        if self.type == 'max':
+        if self.type == "max":
             return self.storage[a][1] > self.storage[b][1]
         else:
             return self.storage[a][1] < self.storage[b][1]
 
     def swap(self, index1, index2):
-        self.storage[index1], self.storage[index2] = self.storage[index2], self.storage[index1]
+        self.storage[index1], self.storage[index2] = (
+            self.storage[index2],
+            self.storage[index1],
+        )
 
     def peak(self):
         return self.storage[0]
@@ -24,11 +26,9 @@ class Heap:
     def size(self):
         return len(self.storage)
 
-
     def insert(self, value):
         self.storage.append(value)
         self.bubble_up(self.size() - 1)
-
 
     def bubble_up(self, index):
         if index < 1 or index >= self.size():
@@ -50,13 +50,11 @@ class Heap:
             else:
                 parent_index = (child_index - 1) // 2
 
-
     def remove_peak(self):
         self.swap(0, self.size() - 1)
         to_return = self.storage.pop()
         self.bubble_down(0)
         return to_return
-
 
     def bubble_down(self, index):
         if index >= self.size():
@@ -75,7 +73,9 @@ class Heap:
         else:
             master_child_index = child_index2
 
-        while parent_index < self.size() - 1 and not self.compare(parent_index, master_child_index):
+        while parent_index < self.size() - 1 and not self.compare(
+            parent_index, master_child_index
+        ):
             self.swap(parent_index, master_child_index)
 
             parent_index = master_child_index
@@ -93,13 +93,13 @@ class Heap:
 
     def remove(self, value):
         for i in range(0, len(self.storage)):
-              if self.storage[i] == value:
-                  self.swap(i, self.size() - 1)
-                  temp = self.storage.pop()
-                  self.bubble_up(i)
-                  self.bubble_down(i)
-                  return temp
-        return str(value) + ' does not exist'
+            if self.storage[i] == value:
+                self.swap(i, self.size() - 1)
+                temp = self.storage.pop()
+                self.bubble_up(i)
+                self.bubble_down(i)
+                return temp
+        return str(value) + " does not exist"
 
     def heapify(self):
         counter = self.size() - 1

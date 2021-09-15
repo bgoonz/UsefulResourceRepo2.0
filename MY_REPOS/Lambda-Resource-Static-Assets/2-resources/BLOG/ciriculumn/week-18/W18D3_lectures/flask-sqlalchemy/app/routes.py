@@ -13,17 +13,19 @@ def index():
     return render_template("overview.html", pets=pets, owners=owners)
 
 
-@bp.route('/pets/<int:id>', methods=["GET", "POST"])
-@bp.route('/pets', methods=["GET", "POST"])
+@bp.route("/pets/<int:id>", methods=["GET", "POST"])
+@bp.route("/pets", methods=["GET", "POST"])
 def pet_detail(id=0):
     form = PetForm()
     # Set the choices on pet type and owners
-    form.pet_type_id.choices = [(type.id, type.type)
-                                for type in PetType.query.order_by(PetType.type).all()]
+    form.pet_type_id.choices = [
+        (type.id, type.type) for type in PetType.query.order_by(PetType.type).all()
+    ]
 
     owner_query = Owner.query.order_by(Owner.last_name, Owner.first_name)
-    form.owner_id.choices = [(o.id, f"{o.last_name}, {o.first_name}")
-                             for o in owner_query.all()]
+    form.owner_id.choices = [
+        (o.id, f"{o.last_name}, {o.first_name}") for o in owner_query.all()
+    ]
     if form.validate_on_submit():
         # Get or create a pet
         # Update the pet
@@ -36,8 +38,8 @@ def pet_detail(id=0):
         return render_template("pet_form.html", form=form)
 
 
-@bp.route('/owners/<int:id>', methods=["GET", "POST"])
-@bp.route('/owners', methods=["GET", "POST"])
+@bp.route("/owners/<int:id>", methods=["GET", "POST"])
+@bp.route("/owners", methods=["GET", "POST"])
 def owner_detail(id=0):
     form = OwnerForm()
     if form.validate_on_submit():
