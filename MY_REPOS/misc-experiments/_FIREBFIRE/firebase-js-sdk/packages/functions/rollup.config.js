@@ -1,0 +1,78 @@
+/**
+ * @license
+ * Copyright 2018 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+lup-plugin-typescript2';
+import typescript from 'typescript';
+import pkg from './package.json';
+
+const deps = Object.keys(Object.assign({}, pkg.peerDependencies, pkg.dependencies));
+/**
+ * ES5 Builds
+ */
+const es5BuildPlugins = [
+  typescriptPlugin({
+    typescript
+  }),
+  json()
+];
+
+const es5Builds = [
+  /**
+   * Browser Builds
+   */
+  {
+    input: 'src/index.ts',
+    output: [{ file: pkg.esm5, format: 'es', sourcemap: true }],
+    external: id => deps.some(dep => id === dep || id.startsWith(`${dep}/`)),
+    plugins: es5BuildPlugins
+  },
+  /**
+   * Node.js Build
+   */
+  {
+    input: 'src/index.node.ts',
+    output: [{ file: pkg.main, format: 'cjs', sourcemap: true }],
+    external: id => deps.some(dep => id === dep || id.startsWith(`${dep}/`)),
+    plugins: es5BuildPlugins
+  }
+];
+
+/**
+ * ES2017 Builds
+ */
+const es2017BuildPlugins = [
+  typescriptPlugin({
+    typescript,
+    tsconfigOverride: {
+      compilerOptions: {
+        target: 'es2017'
+      }
+    }
+  }),
+  json({ preferConst: true })
+];
+
+const es2017Builds = [
+  {
+    /**
+     * Browser Build
+     */
+    input: 'src/index.ts',
+    output: {
+      file: pkg.browser,
+      format: 'es',
+      sourcemap: true
+    },
+    external: id => deps.some(dep => id === dep || id.startsWith(`${dep}/`)),
+    plugins: es2017BuildPlugins
+  }
+];
+
+export default [...es5Builds, ...es2017Builds];

@@ -1,0 +1,69 @@
+/*
+ * Copyright 2018, gRPC Authors All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+
+import static junit.framework.Assert.assertTrue;
+
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
+public class InteropTest {
+  private String host;
+  private int port;
+  private boolean useTls;
+
+  @Before
+  public void setUp() throws Exception {
+    host =
+        InstrumentationRegistry.getArguments()
+            .getString("server_host", "grpc-test.sandbox.googleapis.com");
+    port = Integer.parseInt(InstrumentationRegistry.getArguments().getString("server_port", "443"));
+    useTls =
+        Boolean.parseBoolean(InstrumentationRegistry.getArguments().getString("use_tls", "true"));
+  }
+
+  @Test
+  public void emptyUnary() {
+    assertTrue(InteropActivity.doEmpty(host, port, useTls));
+  }
+
+  @Test
+  public void largeUnary() {
+    assertTrue(InteropActivity.doLargeUnary(host, port, useTls));
+  }
+
+  @Test
+  public void emptyStream() {
+    assertTrue(InteropActivity.doEmptyStream(host, port, useTls));
+  }
+
+  @Test
+  public void requestStreaming() {
+    assertTrue(InteropActivity.doRequestStreaming(host, port, useTls));
+  }
+
+  @Test
+  public void responseStreaming() {
+    assertTrue(InteropActivity.doResponseStreaming(host, port, useTls));
+  }
+
+  @Test
+  public void pingPong() {
+    assertTrue(InteropActivity.doPingPong(host, port, useTls));
+  }
+}

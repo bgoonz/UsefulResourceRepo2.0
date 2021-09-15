@@ -1,0 +1,69 @@
+/*
+ * Copyright 2021 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+IN_QUERY_SNAPSHOT_MAIN_H_
+
+#include <cstddef>
+#include <vector>
+
+#include "Firestore/core/src/api/query_snapshot.h"
+#include "absl/types/optional.h"
+#include "firestore/src/include/firebase/firestore/document_change.h"
+#include "firestore/src/include/firebase/firestore/document_snapshot.h"
+#include "firestore/src/include/firebase/firestore/metadata_changes.h"
+#include "firestore/src/include/firebase/firestore/query.h"
+#include "firestore/src/include/firebase/firestore/query_snapshot.h"
+#include "firestore/src/include/firebase/firestore/snapshot_metadata.h"
+#include "firestore/src/main/firestore_main.h"
+
+#if defined(__ANDROID__)
+#error "This header should not be used on Android."
+#endif
+
+namespace firebase {
+namespace firestore {
+
+class QuerySnapshotInternal {
+ public:
+  explicit QuerySnapshotInternal(api::QuerySnapshot&& snapshot);
+
+  FirestoreInternal* firestore_internal();
+
+  Query query() const;
+  SnapshotMetadata metadata() const;
+  std::size_t size() const;
+
+  std::vector<DocumentChange> DocumentChanges(
+      MetadataChanges metadata_changes) const;
+
+  std::vector<DocumentSnapshot> documents() const;
+
+  std::size_t Hash() const { return snapshot_.Hash(); }
+
+  friend bool operator==(const QuerySnapshotInternal& lhs,
+                         const QuerySnapshotInternal& rhs);
+
+ private:
+  api::QuerySnapshot snapshot_;
+
+  // Cache the results
+  mutable absl::optional<std::vector<DocumentChange>> document_changes_;
+  mutable absl::optional<std::vector<DocumentSnapshot>> documents_;
+  mutable bool changes_include_metadata_ = false;
+};
+
+inline bool operator!=(const QuerySnapshotInternal& lhs,
+                       const QuerySnapshotInternal& rhs) {
+  return !(lhs == rhs);
+}
+
+}  // namespace firestore
+}  // namespace firebase
+
+#endif  // FIREBASE_FIRESTORE_SRC_MAIN_QUERY_SNAPSHOT_MAIN_H_

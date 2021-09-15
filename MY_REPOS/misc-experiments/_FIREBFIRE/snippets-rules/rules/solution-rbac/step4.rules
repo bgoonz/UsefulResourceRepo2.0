@@ -1,0 +1,40 @@
+service cloud.firestore {
+   match /databases/{database}/documents {
+     match /stories/{story} {
+        function isSignedIn() {
+          return request.auth != null;
+        }
+
+        function getRole(rsc) {
+          return rsc.data.roles[request.auth.uid];
+        }
+
+        function isOneOfRoles(rsc, array) {
+          return isSignedIn() && (getRole(rsc) in array);
+        }
+
+        function isValidNewStory() {
+          return resource == null
+            && request.resource.data.roles[request.auth.uid] == 'owner';
+        }
+
+        allow write: if isValidNewStory() || isOneOfRoles(resource, ['owner'])
+        allow read: if isOneOfRoles(resource, ['owner', 'writer', 'commenter', 'reader']);
+
+        match /comments/{comment} {
+          allow read: if isOneOfRoles(get(/databases/$(database)/documents/stories/$(story)),
+                                      ['owner', 'writer', 'commenter', 'reader']);
+
+          // Owners, writers, and commenters can create comments. The
+          // user id in the comment document must match the requesting
+          // user's id.
+          //
+          // Note: we have to use get() here to retrieve the story
+          // document so that we can check the user's role.
+          allow create: if isOneOfRoles(get(/databases/$(database)/documents/stories/$(story)),
+                                        ['owner', 'writer', 'commenter'])
+                        && request.resource.data.user == request.auth.uid;
+        }
+     }
+   }
+}

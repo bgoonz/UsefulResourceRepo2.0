@@ -1,0 +1,34 @@
+/*
+ *
+ * Copyright 2018 gRPC authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+orm.h>
+
+#include <grpcpp/ext/server_load_reporting.h>
+
+#include "src/cpp/server/load_reporter/load_reporting_service_server_builder_plugin.h"
+
+namespace grpc {
+namespace load_reporter {
+namespace experimental {
+
+void LoadReportingServiceServerBuilderOption::UpdateArguments(
+    ::grpc::ChannelArguments* args) {
+  args->SetInt(GRPC_ARG_ENABLE_LOAD_REPORTING, true);
+}
+
+void LoadReportingServiceServerBuilderOption::UpdatePlugins(
+    std::vector<std::unique_ptr<::grpc::ServerBuilderPlugin>>* plugins) {
+  plugins->emplace_back(
+      new grpc::load_reporter::LoadReportingServiceServerBuilderPlugin());
+}
+
+}  // namespace experimental
+}  // namespace load_reporter
+}  // namespace grpc

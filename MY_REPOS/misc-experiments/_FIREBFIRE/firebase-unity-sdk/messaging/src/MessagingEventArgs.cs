@@ -1,0 +1,27 @@
+/*
+ * Copyright 2016 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+
+  /// Event argument for the MessageReceived event containing the message data.
+  public sealed class MessageReceivedEventArgs : System.EventArgs {
+    public MessageReceivedEventArgs(FirebaseMessage msg) {
+        this.Message = msg;
+    }
+    /// Message data passed to the MessageReceived event handler.
+    public FirebaseMessage Message { get; set; }
+  }
+  /// Token argument for the TokenReceived event containing the token string.
+  public sealed class TokenReceivedEventArgs : System.EventArgs {
+    public TokenReceivedEventArgs(string token) { this.Token = token; }
+    /// An identity token string provided by the TokenReceived event handler.
+    public string Token { get; set; }
+  }
+
+}  // namespace Firebase.Messaging
+

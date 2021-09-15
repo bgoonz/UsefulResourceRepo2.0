@@ -1,0 +1,40 @@
+/*
+ *
+ * Copyright 2017 gRPC authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ILS_IMPL_H
+#define GRPCPP_SUPPORT_ERROR_DETAILS_IMPL_H
+
+#include <grpcpp/support/status.h>
+
+namespace google {
+namespace rpc {
+class Status;
+}  // namespace rpc
+}  // namespace google
+
+namespace grpc_impl {
+
+/// Map a \a grpc::Status to a \a google::rpc::Status.
+/// The given \a to object will be cleared.
+/// On success, returns status with OK.
+/// Returns status with \a INVALID_ARGUMENT, if failed to deserialize.
+/// Returns status with \a FAILED_PRECONDITION, if \a to is nullptr.
+grpc::Status ExtractErrorDetails(const grpc::Status& from,
+                                 ::google::rpc::Status* to);
+
+/// Map \a google::rpc::Status to a \a grpc::Status.
+/// Returns OK on success.
+/// Returns status with \a FAILED_PRECONDITION if \a to is nullptr.
+grpc::Status SetErrorDetails(const ::google::rpc::Status& from,
+                             grpc::Status* to);
+
+}  // namespace grpc_impl
+
+#endif  // GRPCPP_SUPPORT_ERROR_DETAILS_IMPL_H

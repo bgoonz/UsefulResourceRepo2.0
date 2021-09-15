@@ -1,0 +1,23 @@
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+
+/**
+ * @fileoverview Documentation for the metadata format.
+ */
+
+/**
+ * The full set of object metadata, including read-only properties.
+ */
+interface Metadata extends FullMetadata {
+  [prop: string]: unknown;
+}
+
+export { Metadata };

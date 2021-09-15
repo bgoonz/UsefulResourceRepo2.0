@@ -1,0 +1,31 @@
+/**
+ * @license
+ * Copyright 2021 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+
+ */
+
+import { getModularInstance } from '@firebase/util';
+import { expect } from 'chai';
+import { getAnalytics } from '@firebase/analytics';
+import firebase from '@firebase/app-compat';
+import '@firebase/analytics-compat';
+
+import { TEST_PROJECT_CONFIG } from './util';
+
+firebase.initializeApp(TEST_PROJECT_CONFIG);
+
+const compatAnalytics = firebase.analytics();
+const modularAnalytics = getAnalytics();
+
+describe('Analytics compat interop', () => {
+  it('Analytics compat instance references modular Analytics instance', () => {
+    expect(getModularInstance(compatAnalytics)).to.equal(modularAnalytics);
+  });
+});

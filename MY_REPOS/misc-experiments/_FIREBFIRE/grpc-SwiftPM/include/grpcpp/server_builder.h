@@ -1,0 +1,22 @@
+/*
+ *
+ * Copyright 2019 gRPC authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+
+#define GRPCPP_SERVER_BUILDER_H
+
+#include <grpcpp/server_builder_impl.h>
+
+namespace grpc {
+
+typedef ::grpc_impl::ServerBuilder ServerBuilder;
+
+}  // namespace grpc
+
+#endif  // GRPCPP_SERVER_BUILDER_H

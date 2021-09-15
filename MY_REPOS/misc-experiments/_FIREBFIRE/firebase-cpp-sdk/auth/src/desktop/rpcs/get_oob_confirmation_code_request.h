@@ -1,0 +1,48 @@
+/*
+ * Copyright 2017 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+_RPCS_GET_OOB_CONFIRMATION_CODE_REQUEST_H_
+
+#include <memory>
+
+#include "app/src/log.h"
+#include "auth/request_generated.h"
+#include "auth/request_resource.h"
+#include "auth/src/desktop/rpcs/auth_request.h"
+
+namespace firebase {
+namespace auth {
+
+class GetOobConfirmationCodeRequest : public AuthRequest {
+ public:
+  static std::unique_ptr<GetOobConfirmationCodeRequest>
+  CreateSendEmailVerificationRequest(const char* api_key,
+                                     const char* language_code = nullptr);
+
+  static std::unique_ptr<GetOobConfirmationCodeRequest>
+  CreateSendPasswordResetEmailRequest(const char* api_key, const char* email,
+                                      const char* language_code = nullptr);
+
+  void SetIdToken(const char* const id_token) {
+    if (id_token) {
+      application_data_->idToken = id_token;
+      UpdatePostFields();
+    } else {
+      LogError("No id token given.");
+    }
+  }
+
+ private:
+  explicit GetOobConfirmationCodeRequest(const char* api_key);
+};
+
+}  // namespace auth
+}  // namespace firebase
+
+#endif  // FIREBASE_AUTH_SRC_DESKTOP_RPCS_GET_OOB_CONFIRMATION_CODE_REQUEST_H_

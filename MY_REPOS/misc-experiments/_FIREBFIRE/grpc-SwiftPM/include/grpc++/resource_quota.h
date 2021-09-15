@@ -1,0 +1,20 @@
+/*
+ *
+ * Copyright 2018 gRPC authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+lude/grpc++ are deprecated. Please include the
+// headers in include/grpcpp instead. This header exists only for backwards
+// compatibility.
+
+#ifndef GRPCXX_RESOURCE_QUOTA_H
+#define GRPCXX_RESOURCE_QUOTA_H
+
+#include <grpcpp/resource_quota.h>
+
+#endif  // GRPCXX_RESOURCE_QUOTA_H

@@ -1,0 +1,64 @@
+/*
+ * Copyright 2017 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+
+import com.google.firebase.auth.FirebaseAuth;
+
+/**
+ * Implements IdTokenListener by redirecting calls into C++.
+ */
+public class JniIdTokenListener implements FirebaseAuth.IdTokenListener {
+
+  /**
+   * Lock that controls access to authData.
+   */
+  private final Object lock = new Object();
+
+  /**
+   * Pointer to an AuthData structure.
+   */
+  private long cppAuthData;
+
+  /**
+   * Constructor is called via JNI from C++.
+   * cppAuthData is a pointer to the AuthData structure which is passed back to the caller in
+   * onAuthStateChanged(). It provides the caller with context.
+   */
+  public JniIdTokenListener(long cppAuthData) {
+    this.cppAuthData = cppAuthData;
+  }
+
+  /**
+   * Remove the reference to the C++ AuthData object
+   */
+  public void disconnect() {
+    synchronized (lock) {
+      cppAuthData = 0;
+    }
+  }
+
+  @Override
+  public void onIdTokenChanged(FirebaseAuth auth) {
+    AuthCommon.safeRunNativeMethod(new Runnable() {
+        @Override
+        public void run() {
+          synchronized (lock) {
+            if (cppAuthData != 0) {
+              nativeOnIdTokenChanged(cppAuthData);
+            }
+          }
+        }
+      });
+  }
+
+  /**
+   * This function is implemented in the Auth C++ library (auth_android.cc).
+   */
+  private native void nativeOnIdTokenChanged(long cppAuthData);
+}

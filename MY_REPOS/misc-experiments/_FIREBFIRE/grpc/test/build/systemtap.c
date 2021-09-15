@@ -1,0 +1,17 @@
+/*
+ *
+ * Copyright 2015 gRPC authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+
+
+#ifndef _SYS_SDT_H
+#error "_SYS_SDT_H not defined, despite <sys/sdt.h> being present."
+#endif
+
+int main() { return 0; }

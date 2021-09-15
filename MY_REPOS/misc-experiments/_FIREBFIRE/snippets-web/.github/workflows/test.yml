@@ -1,0 +1,44 @@
+name: CI Tests
+
+on:
+  - pull_request
+  - push
+
+env:
+  CI: true
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 14.x
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Cache npm
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package.json') }}
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npm run bootstrap
+
+      - name: Lint snippets
+        run: npm run lint
+
+      - name: Compile snippets
+        run: npm run compile
+
+      - name: Check generated snippets
+        run: |
+          npm run snippets
+          ./scripts/checkdirty.sh
+      

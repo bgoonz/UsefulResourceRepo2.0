@@ -1,0 +1,56 @@
+/**
+ * Copyright 2021 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+
+  CONNECTED,
+  PENDING,
+}
+
+export class ReconnectingWebSocket {
+  state: WebSocketState = WebSocketState.DISCONNECTED;
+  listener: Function | undefined = undefined;
+  interval: number | undefined = undefined;
+  ws: WebSocket | undefined = undefined;
+
+  constructor(wsUrl: string) {
+    this.connect(wsUrl);
+    // XXX: The Node.js typings for setInterval is leaking in, which causes the
+    // function to be typed to return NodeJS.Timeout and thus the as-any cast.
+    // TODO: Remove Node.js typings from source files for the web.
+    this.interval = setInterval(() => this.connect(wsUrl), 1000) as any;
+  }
+
+  private connect(wsUrl: string) {
+    if (this.state !== WebSocketState.DISCONNECTED) return;
+
+    const ws = new WebSocket(wsUrl);
+    this.ws = ws;
+    this.state = WebSocketState.PENDING;
+
+    ws.onopen = () => {
+      this.state = WebSocketState.CONNECTED;
+    };
+
+    ws.onclose = () => {
+      this.state = WebSocketState.DISCONNECTED;
+    };
+
+    ws.onmessage = (msg) => {
+      const data = JSON.parse(msg.data);
+      this.listener && this.listener(data);
+    };
+  }
+
+  cleanup() {
+    this.listener = undefined;
+    if (this.interval) clearInterval(this.interval);
+    if (this.ws) this.ws.close();
+    this.ws = undefined;
+  }
+}

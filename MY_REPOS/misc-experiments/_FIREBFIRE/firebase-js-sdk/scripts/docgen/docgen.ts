@@ -1,0 +1,96 @@
+/**
+ * @license
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ from '../release/utils/workspace';
+import { projectRoot } from '../utils';
+import fs from 'fs';
+import glob from 'glob';
+import * as yargs from 'yargs';
+
+yargs
+  .command('$0', 'generate standard reference docs', {}, _argv =>
+    generateDocs(/* forDevsite */ false)
+  )
+  .command('devsite', 'generate reference docs for devsite', {}, _argv =>
+    generateDocs(/* forDevsite */ true)
+  )
+  .demandCommand()
+  .help().argv;
+
+const tmpDir = `${projectRoot}/temp`;
+// create *.api.json files
+async function generateDocs(forDevsite: boolean = false) {
+  const outputFolder = forDevsite ? 'docs-devsite' : 'docs';
+  const command = forDevsite ? 'api-documenter-devsite' : 'api-documenter';
+
+  // Use a special d.ts file for auth for doc gen only.
+  const authApiConfigOriginal = fs.readFileSync(
+    `${projectRoot}/packages/auth/api-extractor.json`,
+    'utf8'
+  );
+  const authApiConfigModified = authApiConfigOriginal.replace(
+    `"mainEntryPointFilePath": "<projectFolder>/dist/esm5/index.d.ts"`,
+    `"mainEntryPointFilePath": "<projectFolder>/dist/esm5/index.doc.d.ts"`
+  );
+  fs.writeFileSync(
+    `${projectRoot}/packages/auth/api-extractor.json`,
+    authApiConfigModified
+  );
+
+  await spawn('yarn', ['build'], {
+    stdio: 'inherit'
+  });
+
+  await spawn('yarn', ['api-report'], {
+    stdio: 'inherit'
+  });
+
+  // Restore original auth api-extractor.json contents.
+  fs.writeFileSync(
+    `${projectRoot}/packages/auth/api-extractor.json`,
+    authApiConfigOriginal
+  );
+
+  if (!fs.existsSync(tmpDir)) {
+    fs.mkdirSync(tmpDir);
+  }
+
+  // TODO: Throw error if path doesn't exist once all packages add markdown support.
+  const apiJsonDirectories = (
+    await mapWorkspaceToPackages([
+      `${projectRoot}/packages/*`
+    ])
+  )
+    .map(path => `${path}/temp`)
+    .filter(path => fs.existsSync(path));
+
+  for (const dir of apiJsonDirectories) {
+    const paths = await new Promise<string[]>(resolve =>
+      glob(`${dir}/*.api.json`, (err, paths) => {
+        if (err) throw err;
+        resolve(paths);
+      })
+    );
+
+    if (paths.length === 0) {
+      throw Error(`*.api.json file is missing in ${dir}`);
+    }
+
+    // there will be only 1 api.json file
+    const fileName = paths[0].split('/').pop();
+    fs.copyFileSync(paths[0], `${tmpDir}/${fileName}`);
+  }
+
+  await spawn(
+    'yarn',
+    [command, 'markdown', '--input', 'temp', '--output', outputFolder],
+    { stdio: 'inherit' }
+  );
+}

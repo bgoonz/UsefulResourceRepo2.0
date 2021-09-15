@@ -1,0 +1,36 @@
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+I_LIST_H_
+
+#include "firestore/src/jni/collection.h"
+#include "firestore/src/jni/jni_fwd.h"
+
+namespace firebase {
+namespace firestore {
+namespace jni {
+
+/** A C++ proxy for a Java `List`. */
+class List : public Collection {
+ public:
+  using Collection::Collection;
+
+  static void Initialize(Loader& loader);
+
+  static Class GetClass();
+
+  Local<Object> Get(Env& env, size_t i) const;
+  Local<Object> Set(Env& env, size_t i, const Object& object);
+};
+
+}  // namespace jni
+}  // namespace firestore
+}  // namespace firebase
+
+#endif  // FIREBASE_FIRESTORE_SRC_JNI_LIST_H_

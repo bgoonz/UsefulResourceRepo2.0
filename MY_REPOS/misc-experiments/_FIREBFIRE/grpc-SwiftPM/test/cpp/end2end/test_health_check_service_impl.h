@@ -1,0 +1,50 @@
+/*
+ *
+ * Copyright 2018 gRPC authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+T_HEALTH_CHECK_SERVICE_IMPL_H
+
+#include <map>
+#include <mutex>
+
+#include <grpcpp/server_context.h>
+#include <grpcpp/support/status.h>
+
+#include "src/proto/grpc/health/v1/health.grpc.pb.h"
+
+namespace grpc {
+namespace testing {
+
+// A sample sync implementation of the health checking service. This does the
+// same thing as the default one.
+class HealthCheckServiceImpl : public health::v1::Health::Service {
+ public:
+  Status Check(ServerContext* context,
+               const health::v1::HealthCheckRequest* request,
+               health::v1::HealthCheckResponse* response) override;
+  Status Watch(ServerContext* context,
+               const health::v1::HealthCheckRequest* request,
+               ServerWriter<health::v1::HealthCheckResponse>* writer) override;
+  void SetStatus(const grpc::string& service_name,
+                 health::v1::HealthCheckResponse::ServingStatus status);
+  void SetAll(health::v1::HealthCheckResponse::ServingStatus status);
+
+  void Shutdown();
+
+ private:
+  std::mutex mu_;
+  bool shutdown_ = false;
+  std::map<const grpc::string, health::v1::HealthCheckResponse::ServingStatus>
+      status_map_;
+};
+
+}  // namespace testing
+}  // namespace grpc
+
+#endif  // GRPC_TEST_CPP_END2END_TEST_HEALTH_CHECK_SERVICE_IMPL_H

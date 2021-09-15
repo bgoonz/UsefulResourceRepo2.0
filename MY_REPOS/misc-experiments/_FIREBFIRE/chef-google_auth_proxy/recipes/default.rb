@@ -1,0 +1,1 @@
+# Empty default.rb file for cookbook package managers

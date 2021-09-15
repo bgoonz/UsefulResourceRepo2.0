@@ -1,0 +1,16 @@
+/*
+ *
+ * Copyright 2018 gRPC authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ER_WRITER_H
+#define GRPCPP_SUPPORT_PROTO_BUFFER_WRITER_H
+
+#include <grpcpp/impl/codegen/proto_buffer_writer.h>
+
+#endif  // GRPCPP_SUPPORT_PROTO_BUFFER_WRITER_H

@@ -1,0 +1,163 @@
+# Copyright 2019 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: firestore-send-email
+version: 0.1.11
+specVersion: v1beta
+
+displayName: Trigger Email
+description:
+  Composes and sends an email based on the contents of a document written to a specified Cloud Firestore collection.
+
+license: Apache-2.0
+
+sourceUrl: https://github.com/firebase/extensions/tree/master/firestore-send-email
+releaseNotesUrl: https://github.com/firebase/extensions/blob/master/firestore-send-email/CHANGELOG.md
+
+author:
+  authorName: Firebase
+  url: https://firebase.google.com
+
+contributors:
+  - authorName: Michael Bleigh
+    url: https://github.com/mbleigh
+  - authorName: Invertase
+    email: oss@invertase.io
+    url: https://github.com/invertase
+
+billingRequired: true
+
+roles:
+  - role: datastore.user
+    reason: Allows this extension to access Cloud Firestore to read and process added email documents.
+
+resources:
+  - name: processQueue
+    type: firebaseextensions.v1beta.function
+    description:
+      Processes document changes in the specified Cloud Firestore collection,
+      delivers emails, and updates the document with delivery status information.
+    properties:
+      location: ${param:LOCATION}
+      runtime: nodejs14
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.write
+        resource: projects/${param:PROJECT_ID}/databases/(default)/documents/${param:MAIL_COLLECTION}/{id}
+
+params:
+  - param: LOCATION
+    label: Cloud Functions location
+    description: >-
+      Where do you want to deploy the functions created for this extension?
+      You usually want a location close to your database. For help selecting a
+      location, refer to the [location selection
+      guide](https://firebase.google.com/docs/functions/locations).
+    type: select
+    options:
+      - label: Iowa (us-central1)
+        value: us-central1
+      - label: South Carolina (us-east1)
+        value: us-east1
+      - label: Northern Virginia (us-east4)
+        value: us-east4
+      - label: Los Angeles (us-west2)
+        value: us-west2
+      - label: Salt Lake City (us-west3)
+        value: us-west3
+      - label: Las Vegas (us-west4)
+        value: us-west4
+      - label: Warsaw (europe-central2)
+        value: europe-central2
+      - label: Belgium (europe-west1)
+        value: europe-west1
+      - label: London (europe-west2)
+        value: europe-west2
+      - label: Frankfurt (europe-west3)
+        value: europe-west3
+      - label: Zurich (europe-west6)
+        value: europe-west6
+      - label: Hong Kong (asia-east2)
+        value: asia-east2
+      - label: Tokyo (asia-northeast1)
+        value: asia-northeast1
+      - label: Osaka (asia-northeast2)
+        value: asia-northeast2
+      - label: Seoul (asia-northeast3)
+        value: asia-northeast3
+      - label: Mumbai (asia-south1)
+        value: asia-south1
+      - label: Jakarta (asia-southeast2)
+        value: asia-southeast2
+      - label: Montreal (northamerica-northeast1)
+        value: northamerica-northeast1
+      - label: Sao Paulo (southamerica-east1)
+        value: southamerica-east1
+      - label: Sydney (australia-southeast1)
+        value: australia-southeast1
+    default: us-central1
+    required: true
+    immutable: true
+
+  - param: SMTP_CONNECTION_URI
+    label: SMTP connection URI
+    description: >-
+      A URI representing an SMTP server this extension can use to deliver email. Note that port 25 is blocked by Google Cloud Platform, so we recommend using port 587 for SMTP connections. If you're using the SMTPS protocol, we recommend using port 465.
+    type: string
+    example: smtps://username:password@smtp.hostname.com:465
+    validationRegex: ^smtps?://[^:]+:[^:]+@.*$
+    validationErrorMessage: Invalid SMTP connection URI. Must be in the form `smtp(s)://username:password@hostname:port`.
+    required: true
+
+  - param: MAIL_COLLECTION
+    label: Email documents collection
+    description: >-
+      What is the path to the collection that contains the documents used to build and send the emails?
+    type: string
+    default: mail
+    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
+    validationErrorMessage: Must be a valid Cloud Firestore collection
+    required: true
+
+  - param: DEFAULT_FROM
+    label: Default FROM address
+    description: >-
+      The email address to use as the sender's address (if it's not specified in the added email document). 
+      You can optionally include a name with the email address (`Friendly Firebaser <foobar@example.com>`).
+    type: string
+    example: foobar@example.com
+    validationRegex: ^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$|^.*<(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})>$
+    validationErrorMessage: Must be a valid email address or valid name plus email address
+    required: true
+
+  - param: DEFAULT_REPLY_TO
+    label: Default REPLY-TO address
+    description: >-
+      The email address to use as the reply-to address (if it's not specified in the added email document).
+    type: string
+
+  - param: USERS_COLLECTION
+    label: Users collection
+    description: >-
+      A collection of documents keyed by user UID.
+      If the `toUids`, `ccUids`, and/or `bccUids` recipient options are used in the added email document,
+      this extension delivers email to the `email` field based on lookups in this collection.
+    type: string
+
+  - param: TEMPLATES_COLLECTION
+    label: Templates collection
+    description: >-
+      A collection of email templates keyed by name.
+      This extension can render an email using a [Handlebar](https://handlebarsjs.com/) template,
+      if the template is specified in the added email document.
+    type: string

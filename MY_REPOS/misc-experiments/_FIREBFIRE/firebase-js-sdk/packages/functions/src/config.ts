@@ -1,0 +1,58 @@
+/**
+ * @license
+ * Copyright 2019 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+'./service';
+import {
+  Component,
+  ComponentType,
+  ComponentContainer,
+  InstanceFactory
+} from '@firebase/component';
+import { FUNCTIONS_TYPE } from './constants';
+import { FirebaseAuthInternalName } from '@firebase/auth-interop-types';
+import { AppCheckInternalComponentName } from '@firebase/app-check-interop-types';
+import { MessagingInternalComponentName } from '@firebase/messaging-interop-types';
+
+const AUTH_INTERNAL_NAME: FirebaseAuthInternalName = 'auth-internal';
+const APP_CHECK_INTERNAL_NAME: AppCheckInternalComponentName =
+  'app-check-internal';
+const MESSAGING_INTERNAL_NAME: MessagingInternalComponentName =
+  'messaging-internal';
+
+export function registerFunctions(fetchImpl: typeof fetch): void {
+  const factory: InstanceFactory<'functions'> = (
+    container: ComponentContainer,
+    { instanceIdentifier: regionOrCustomDomain }
+  ) => {
+    // Dependencies
+    const app = container.getProvider('app').getImmediate();
+    const authProvider = container.getProvider(AUTH_INTERNAL_NAME);
+    const messagingProvider = container.getProvider(MESSAGING_INTERNAL_NAME);
+    const appCheckProvider = container.getProvider(APP_CHECK_INTERNAL_NAME);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new FunctionsService(
+      app,
+      authProvider,
+      messagingProvider,
+      appCheckProvider,
+      regionOrCustomDomain,
+      fetchImpl
+    );
+  };
+
+  _registerComponent(
+    new Component(
+      FUNCTIONS_TYPE,
+      factory,
+      ComponentType.PUBLIC
+    ).setMultipleInstances(true)
+  );
+}

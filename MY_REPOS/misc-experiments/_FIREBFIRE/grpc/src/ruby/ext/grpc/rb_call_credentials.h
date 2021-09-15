@@ -1,0 +1,23 @@
+/*
+ *
+ * Copyright 2015 gRPC authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+H_
+#define GRPC_RB_CALL_CREDENTIALS_H_
+
+#include <ruby/ruby.h>
+
+#include <grpc/grpc_security.h>
+
+/* Initializes the ruby CallCredentials class. */
+void Init_grpc_call_credentials();
+
+grpc_call_credentials* grpc_rb_get_wrapped_call_credentials(VALUE v);
+
+#endif /* GRPC_RB_CALL_CREDENTIALS_H_ */
