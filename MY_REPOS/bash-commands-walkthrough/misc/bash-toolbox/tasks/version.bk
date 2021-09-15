@@ -1,0 +1,77 @@
+VERSION_FILE=${VERSION_FILE:-VERSION}
+
+desc version "Load the current version for dump. The version attributes are:" "
+    * tag
+    * date
+    * milestone
+    * timestamp"
+task version {
+  if [[ -z "${version[*]}" ]]; then
+    load ${VERSION_FILE}
+    start "Loading version file"
+      version=(${VERSION[0]//./ })
+      major=${version[0]}
+      minor=${version[1]}
+      patch=${version[2]}
+      build=${version[3]}
+    end
+  fi
+}
+
+desc version:major "Dump major version"
+task version:major {
+  start "Increment major version"
+    major=$(( major + 1 ))
+    VERSION[0]="${major}.0.0"
+  end
+  invoke version:dump
+}
+
+desc version:minor "Dump minor version"
+task version:minor {
+  start "Increment minor version"
+    minor=$(( minor + 1 ))
+    VERSION[0]="${major}.${minor}.0"
+  end
+  invoke version:dump
+}
+
+desc version:patch "Dump patch version"
+task version:patch {
+  start "Increment patch version"
+    patch=$(( patch + 1 ))
+    VERSION[0]="${major}.${minor}.${patch}"
+  end
+  invoke version:dump
+}
+
+desc version:build "Dump build version"
+task version:build {
+  start "Increment build version"
+    build=$(( build + 1 ))
+    VERSION[0]="${major}.${minor}.${patch}.${build}"
+  end
+  invoke version:dump
+}
+
+task version:dump {
+  test "${VERSION[0]//./ }" != "${version[*]}" && {
+    VERSION[1]="$(date +%F)"
+    start "Writting version ${VERSION[0]} to ${VERSION_FILE}"
+      echo "# version attributes" > ${VERSION_FILE}
+      echo "VERSION=("           >> ${VERSION_FILE}
+      echo "  # Tag"             >> ${VERSION_FILE}
+      echo "  ${VERSION[0]}"     >> ${VERSION_FILE}
+      echo "  # Date release"    >> ${VERSION_FILE}
+      echo "  ${VERSION[1]}"     >> ${VERSION_FILE}
+      echo "  # Milestone"       >> ${VERSION_FILE}
+      echo "  '${VERSION[2]}'"   >> ${VERSION_FILE}
+      echo "  # Timestamps"      >> ${VERSION_FILE}
+      echo "  ${VERSION[3]}"     >> ${VERSION_FILE}
+      echo ")"                   >> ${VERSION_FILE}
+    end
+  }
+  message --info "v${VERSION[@]}"
+}
+
+# vim: filetype=sh
