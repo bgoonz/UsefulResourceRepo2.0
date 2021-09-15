@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+    function signedIn() {
+      return request.auth.uid != null;
+    }
+    
+    function canCreateMessage(collaboration) {
+      return signedIn() &&
+          collaboration.expiresAt > request.time &&
+          request.auth.uid in collaboration.allowedPeople;
+    }
+    
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if signedIn() &&
+        request.resource.data.category is string &&
+        request.resource.data.category in ['mathematics', 'programming', 'painting', 'singing', 'english'] &&
+        request.resource.data.title is string &&
+        request.resource.data.title.size() > 10 &&
+        request.resource.data.description is string &&
+        request.resource.data.description.size() > 50 &&
+        request.resource.data.image is string &&
+        request.resource.data.price is number &&
+        request.resource.data.price > 5;
+    }
+    
+    match /collaborations/{collabId} {
+      allow read: 
+        if signedIn() &&
+           request.auth.uid in resource.data.allowedPeople;
+      allow write: if signedIn();
+      
+      match /messages/{messageId} {
+        allow read: if signedIn();
+        allow write: if canCreateMessage(get(/databases/$(database)/documents/collaborations/$(collabId)).data);
+      } 
+    }
+    
+    match /profiles/{profileId} {
+      allow read: if true;
+      allow write: if signedIn() &&
+        request.resource.data.uid == request.auth.uid;
+      
+      match /messages/{messageId} {
+        allow read, write: if signedIn();
+      }
+    }
+    
+    match /offers/{offerId} {
+      allow read: if signedIn();
+      allow write: if signedIn();
+    }
+  }
+}
