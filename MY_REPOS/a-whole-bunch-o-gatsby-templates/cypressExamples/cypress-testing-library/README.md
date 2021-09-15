@@ -57,7 +57,6 @@ This allows you to use all the useful
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [Installation](#installation)
   - [With TypeScript](#with-typescript)
 - [Usage](#usage)
@@ -78,7 +77,8 @@ npm install --save-dev @testing-library/cypress
 
 ### With TypeScript
 
-Typings are defined in `@types/testing-library__cypress` at [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/testing-library__cypress),
+Typings are defined in `@types/testing-library__cypress` at
+[DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/testing-library__cypress),
 and should be added as follows in `tsconfig.json`:
 
 ```json
@@ -103,10 +103,12 @@ You can now use all of `DOM Testing Library`'s `findBy`, `findAllBy`, `queryBy`
 and `queryAllBy` commands.
 [See the `DOM Testing Library` docs for reference](https://testing-library.com)
 
-You can find [all Library definitions here](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/testing-library__cypress/index.d.ts).
+You can find
+[all Library definitions here](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/testing-library__cypress/index.d.ts).
 
 To show some simple examples (from
-[cypress/integration/query.spec.js](cypress/integration/query.spec.js) or [cypress/integration/find.spec.js](cypress/integration/find.spec.js)):
+[cypress/integration/query.spec.js](cypress/integration/query.spec.js) or
+[cypress/integration/find.spec.js](cypress/integration/find.spec.js)):
 
 ```javascript
 cy.findAllByText('Jackie Chan').click()
@@ -116,7 +118,7 @@ cy.queryByLabelText('Label text', {timeout: 7000}).should('exist')
 cy.get('form').within(() => {
   cy.findByText('Button Text').should('exist')
 })
-cy.get('form').then(subject => {
+cy.get('form').then((subject) => {
   cy.findByText('Button Text', {container: subject}).should('exist')
 })
 ```

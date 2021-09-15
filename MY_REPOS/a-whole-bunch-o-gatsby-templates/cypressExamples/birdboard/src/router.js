@@ -1,49 +1,49 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import Home from './views/Home.vue'
-import Board from './views/Board.vue'
-import Signup from './components/Signup.vue'
-import Login from './components/Login.vue'
+import Vue from "vue";
+import Router from "vue-router";
+import Home from "./views/Home.vue";
+import Board from "./views/Board.vue";
+import Signup from "./components/Signup.vue";
+import Login from "./components/Login.vue";
 
-Vue.use(Router)
+Vue.use(Router);
 
 const router = new Router({
-  mode: 'history',
+  mode: "history",
   base: process.env.BASE_URL,
   routes: [
     {
-      path: '/',
-      name: 'home',
-      component: Home
+      path: "/",
+      name: "home",
+      component: Home,
     },
     {
-      path: '/signup',
-      name: 'signup',
-      component: Signup
+      path: "/signup",
+      name: "signup",
+      component: Signup,
     },
     {
-      path: '/login',
-      name: 'login',
-      component: Login
+      path: "/login",
+      name: "login",
+      component: Login,
     },
     {
-      path: '/board',
-      name: 'board',
+      path: "/board",
+      name: "board",
       component: Board,
       meta: {
-        authRequired: true
-      }
-    }
-  ]
-})
+        authRequired: true,
+      },
+    },
+  ],
+});
 
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.authRequired)) {
-    if(!localStorage.getItem('jwt')) {
-      next('/login')
+  if (to.matched.some((record) => record.meta.authRequired)) {
+    if (!localStorage.getItem("jwt")) {
+      next("/login");
     }
   }
-  next()
-})
+  next();
+});
 
-export default router
+export default router;

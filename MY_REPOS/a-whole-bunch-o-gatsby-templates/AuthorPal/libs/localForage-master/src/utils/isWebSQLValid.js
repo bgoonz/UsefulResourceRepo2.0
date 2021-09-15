@@ -1,5 +1,5 @@
 function isWebSQLValid() {
-    return typeof openDatabase === 'function';
+  return typeof openDatabase === "function";
 }
 
 export default isWebSQLValid;

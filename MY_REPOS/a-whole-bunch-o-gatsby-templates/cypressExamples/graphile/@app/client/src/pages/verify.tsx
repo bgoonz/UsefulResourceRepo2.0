@@ -28,7 +28,7 @@ function Page(props: IProps) {
           token,
         },
       })
-        .then(result => {
+        .then((result) => {
           if (get(result, "data.verifyEmail.success")) {
             setState("SUCCESS");
           } else {
@@ -49,7 +49,7 @@ function Page(props: IProps) {
         <input
           type="text"
           value={token}
-          onChange={e => setIdAndToken([id, e.target.value])}
+          onChange={(e) => setIdAndToken([id, e.target.value])}
         />
         {error ? <p>{error.message || error}</p> : null}
         <button>Submit</button>

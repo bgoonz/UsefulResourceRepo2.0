@@ -1,9 +1,9 @@
-import { createSelector, createFeatureSelector } from '@ngrx/store';
-import { EntityState, EntityAdapter, createEntityAdapter } from '@ngrx/entity';
+import { createSelector, createFeatureSelector } from "@ngrx/store";
+import { EntityState, EntityAdapter, createEntityAdapter } from "@ngrx/entity";
 
-import { IArticle } from '../models';
-import { ArticleActions, ArticleActionTypes } from '../actions/articles';
-import { IArticleFilter } from '../../../app/article-filter/models/article-filter';
+import { IArticle } from "../models";
+import { ArticleActions, ArticleActionTypes } from "../actions/articles";
+import { IArticleFilter } from "../../../app/article-filter/models/article-filter";
 
 export interface AppState {
   articles: IArticle[];
@@ -16,14 +16,15 @@ export interface ArticlesState extends EntityState<IArticle> {
   error: any;
 }
 
-export const articleAdapter: EntityAdapter<IArticle> = createEntityAdapter<IArticle>({
-  selectId: (article: IArticle) => article._id
-});
+export const articleAdapter: EntityAdapter<IArticle> =
+  createEntityAdapter<IArticle>({
+    selectId: (article: IArticle) => article._id,
+  });
 
 export const initialState: ArticlesState = articleAdapter.getInitialState({
   selectedArticleId: null,
   loading: false,
-  error: null
+  error: null,
 });
 
 export function articleReducer(
@@ -36,20 +37,20 @@ export function articleReducer(
       return {
         ...state,
         loading: true,
-        error: null
+        error: null,
       };
 
     case ArticleActionTypes.LoadSuccess:
       return {
         ...articleAdapter.addMany(action.payload, initialState),
-        loading: false
+        loading: false,
       };
 
     case ArticleActionTypes.LoadFail:
       return {
         ...state,
         loading: false,
-        error: { error: 'Error while loading articles' }
+        error: { error: "Error while loading articles" },
       };
 
     case ArticleActionTypes.Select: {

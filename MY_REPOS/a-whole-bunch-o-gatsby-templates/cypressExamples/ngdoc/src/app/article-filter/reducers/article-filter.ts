@@ -1,15 +1,18 @@
-import { IArticleFilter } from '../models/article-filter';
-import { ArticleFilterActions, ArticleFilterActionTypes } from '../actions/article-filter';
+import { IArticleFilter } from "../models/article-filter";
+import {
+  ArticleFilterActions,
+  ArticleFilterActionTypes,
+} from "../actions/article-filter";
 
 export interface AppState {
   articleFilter: IArticleFilter;
 }
 
 export const initialState: IArticleFilter = {
-  keywords: '',
-  version: '2+',
+  keywords: "",
+  version: "2+",
   tags: [],
-  showAllTags: false
+  showAllTags: false,
 };
 
 export function articleFilterReducer(
@@ -28,8 +31,7 @@ export function articleFilterReducer(
       return { ...state, ...tags };
 
     case ArticleFilterActionTypes.RemoveTag:
-      const data = [...state.tags].filter(tag =>
-        tag !== action.payload);
+      const data = [...state.tags].filter((tag) => tag !== action.payload);
       return { ...state, tags: data };
 
     case ArticleFilterActionTypes.SetShowAllTags:

@@ -1,6 +1,6 @@
 /* global TS */
 {
-  "use strict";
+  ("use strict");
   let amethyst = "#96c"; //use by typing ${amethyst};
   let wisteria = "#C9A0DC";
   let clouds = "#ecf0f1";
@@ -132,6 +132,6 @@
     }
       select option:checked {
         background-color: ${amethyst};
-      }`
+      }`,
   };
 }

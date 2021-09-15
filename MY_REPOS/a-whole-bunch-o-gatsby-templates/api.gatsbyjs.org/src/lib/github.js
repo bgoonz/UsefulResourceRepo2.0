@@ -6,53 +6,53 @@ const { GITHUB_ORG, GITHUB_TOKEN, GITHUB_TEAM_ID } = process.env;
 const logger = getLogger('lib/github');
 const github = new Octokit();
 
-export const getContributorInfo = async username => {
+export const getContributorInfo = async (username) => {
   logger.verbose('loading merged PRs from @%s', username);
   const response = await github.search.issues({
-    q: `org:${GITHUB_ORG}+author:${username}+type:pr+is:merged`
+    q: `org:${GITHUB_ORG}+author:${username}+type:pr+is:merged`,
   });
 
   return {
     totalContributions: response.data.total_count,
-    pullRequests: response.data.items.map(item => ({
+    pullRequests: response.data.items.map((item) => ({
       id: item.id,
       title: item.title,
       url: item.html_url,
       number: item.number,
-      labels: item.labels.map(({ name, url }) => ({ name, url }))
-    }))
+      labels: item.labels.map(({ name, url }) => ({ name, url })),
+    })),
   };
 };
 
-export const getOpenIssuesByLabel = async label => {
+export const getOpenIssuesByLabel = async (label) => {
   logger.verbose('loading issues with the label %s', label);
 
   const response = await github.search.issues({
     q: `org:gatsbyjs type:issue label:"${label}" is:open`,
     sort: 'updated',
-    order: 'desc'
+    order: 'desc',
   });
 
   return {
     totalIssues: response.data.total_count,
-    issues: response.data.items.map(item => ({
+    issues: response.data.items.map((item) => ({
       id: item.id,
       title: item.title,
       url: item.html_url,
       number: item.number,
-      labels: item.labels.map(({ name, url }) => ({ name, url }))
-    }))
+      labels: item.labels.map(({ name, url }) => ({ name, url })),
+    })),
   };
 };
 
 // Check if the given user has a merged PR in the GitHub org.
-export const isGitHubContributor = async username => {
+export const isGitHubContributor = async (username) => {
   const response = await getContributorInfo(username);
 
   return response.totalContributions > 0;
 };
 
-export const inviteIfNecessary = async username => {
+export const inviteIfNecessary = async (username) => {
   logger.verbose('checking if @%s was already invited to this team', username);
 
   // Make sure we can make authenticated requests to the GitHub API.

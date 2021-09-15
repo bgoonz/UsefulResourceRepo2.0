@@ -3,54 +3,54 @@ import agent from '../../agent'
 import { connect } from 'react-redux'
 import { ADD_COMMENT } from '../../constants/actionTypes'
 
-const mapDispatchToProps = dispatch => ({
-  onSubmit: payload => dispatch({ type: ADD_COMMENT, payload })
+const mapDispatchToProps = (dispatch) => ({
+  onSubmit: (payload) => dispatch({ type: ADD_COMMENT, payload }),
 })
 
 class CommentInput extends React.Component {
-  constructor () {
+  constructor() {
     super()
     this.state = {
-      body: ''
+      body: '',
     }
 
-    this.setBody = ev => {
+    this.setBody = (ev) => {
       this.setState({ body: ev.target.value })
     }
 
-    this.createComment = ev => {
+    this.createComment = (ev) => {
       ev.preventDefault()
       const payload = agent.Comments.create(this.props.slug, {
-        body: this.state.body
+        body: this.state.body,
       })
       this.setState({ body: '' })
       this.props.onSubmit(payload)
     }
   }
 
-  render () {
+  render() {
     return (
-      <form className='card comment-form' onSubmit={this.createComment}>
-        <div className='card-block'>
+      <form className="card comment-form" onSubmit={this.createComment}>
+        <div className="card-block">
           <textarea
-            className='form-control'
-            placeholder='Write a comment...'
-            data-cy='comment-text'
+            className="form-control"
+            placeholder="Write a comment..."
+            data-cy="comment-text"
             value={this.state.body}
             onChange={this.setBody}
-            rows='3'
+            rows="3"
           />
         </div>
-        <div className='card-footer'>
+        <div className="card-footer">
           <img
             src={this.props.currentUser.image}
-            className='comment-author-img'
+            className="comment-author-img"
             alt={this.props.currentUser.username}
           />
           <button
-            className='btn btn-sm btn-primary'
-            type='submit'
-            data-cy='post-comment'
+            className="btn btn-sm btn-primary"
+            type="submit"
+            data-cy="post-comment"
           >
             Post Comment
           </button>
@@ -60,7 +60,4 @@ class CommentInput extends React.Component {
   }
 }
 
-export default connect(
-  () => ({}),
-  mapDispatchToProps
-)(CommentInput)
+export default connect(() => ({}), mapDispatchToProps)(CommentInput)

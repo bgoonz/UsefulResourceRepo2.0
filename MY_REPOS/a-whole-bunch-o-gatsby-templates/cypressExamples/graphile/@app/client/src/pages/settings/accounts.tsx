@@ -107,7 +107,7 @@ export default function Settings_Accounts() {
       <H4>Link another account</H4>
       <SocialLoginOptions
         next="/settings/accounts"
-        buttonTextFromService={service => `Link ${service} account`}
+        buttonTextFromService={(service) => `Link ${service} account`}
       />
     </SettingsLayout>
   );

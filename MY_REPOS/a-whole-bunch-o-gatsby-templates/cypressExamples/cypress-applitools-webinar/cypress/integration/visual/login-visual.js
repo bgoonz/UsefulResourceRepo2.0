@@ -7,7 +7,7 @@ describe('Conduit Login', () => {
     // we are not logged in
   })
 
-  beforeEach(function() {
+  beforeEach(function () {
     cy.eyesOpen({
       testName: this.currentTest.title,
       appName: 'Conduit',

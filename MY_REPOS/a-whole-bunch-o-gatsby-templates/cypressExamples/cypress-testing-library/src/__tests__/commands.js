@@ -6,7 +6,7 @@ test('exports expected commands', () => {
   const sortedQueryNames = Object.keys(queries).sort()
   const sortedCommandNames = commands.map(({name}) => name).sort()
   expect(sortedCommandNames).toEqual(sortedQueryNames)
-  commands.forEach(command =>
+  commands.forEach((command) =>
     expect(command).toMatchObject({
       name: expect.any(String),
       // We get a new function that wraps the respective query from `dom-testing-library`.

@@ -3,26 +3,26 @@ export const search = {
     data: {
       total_count: 0,
       incomplete_results: false,
-      items: []
-    }
-  }))
+      items: [],
+    },
+  })),
 };
 
 export const orgs = {
   addTeamMembership: jest.fn(() => ({
     data: {
-      state: 'active'
-    }
+      state: 'active',
+    },
   })),
   getTeamMembership: jest.fn(() => ({
-    status: 200
-  }))
+    status: 200,
+  })),
 };
 
 const Octokit = jest.fn().mockImplementation(() => ({
   authenticate: () => {},
   orgs,
-  search
+  search,
 }));
 
 export default Octokit;

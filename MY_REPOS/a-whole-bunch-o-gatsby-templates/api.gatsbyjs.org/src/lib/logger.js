@@ -1,6 +1,6 @@
 import winston from 'winston';
 
-const addLabel = winston.format(info => {
+const addLabel = winston.format((info) => {
   // Add the label to the message.
   info.message = `[${info.label}] ${info.message}`;
 
@@ -10,7 +10,7 @@ const addLabel = winston.format(info => {
   return info;
 });
 
-const removeEmptyMeta = winston.format(info => {
+const removeEmptyMeta = winston.format((info) => {
   // Remove the meta prop since splat was already applied.
   if (info.meta && info.meta.length < 1) {
     delete info.meta;
@@ -19,7 +19,7 @@ const removeEmptyMeta = winston.format(info => {
   return info;
 });
 
-export default label =>
+export default (label) =>
   winston.createLogger({
     level: process.env.APP_LOGLEVEL,
     format: winston.format.combine(
@@ -32,7 +32,7 @@ export default label =>
     ),
     transports: [
       new winston.transports.Console({
-        silent: process.env.NODE_ENV !== 'development'
-      })
-    ]
+        silent: process.env.NODE_ENV !== 'development',
+      }),
+    ],
   });

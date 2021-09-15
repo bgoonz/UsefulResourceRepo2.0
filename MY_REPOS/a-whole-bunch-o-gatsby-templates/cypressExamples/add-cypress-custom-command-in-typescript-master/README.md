@@ -2,18 +2,18 @@
 
 To add TypeScript support to Cypress
 
-* `npm i -D @bahmutov/add-typescript-to-cypress`
-* add [tsconfig.json](tsconfig.json)
-* start using TypeScript in your [cypress/integration/spec.ts](cypress/integration/spec.ts)
-* you can write [custom Cypress commands](https://on.cypress.io/custom-commands) in TypeScript, see example in [cypress/support/commands.ts](cypress/support/commands.ts) to add custom commands.
+- `npm i -D @bahmutov/add-typescript-to-cypress`
+- add [tsconfig.json](tsconfig.json)
+- start using TypeScript in your [cypress/integration/spec.ts](cypress/integration/spec.ts)
+- you can write [custom Cypress commands](https://on.cypress.io/custom-commands) in TypeScript, see example in [cypress/support/commands.ts](cypress/support/commands.ts) to add custom commands.
 
 ## Screenshots
 
-* passing tests that exercise custom commands
+- passing tests that exercise custom commands
 
 ![test](images/cy-foo-works.png)
 
-* VSCode IntelliSense correctly shows `cy.foo()` docs
+- VSCode IntelliSense correctly shows `cy.foo()` docs
 
 ![IntelliSense](images/cy-foo-intellisense.png)
 

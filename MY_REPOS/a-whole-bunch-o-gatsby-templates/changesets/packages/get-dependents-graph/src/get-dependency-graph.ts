@@ -8,7 +8,7 @@ const DEPENDENCY_TYPES = [
   "dependencies",
   "devDependencies",
   "peerDependencies",
-  "optionalDependencies"
+  "optionalDependencies",
 ] as const;
 
 const getAllDependencies = (config: PackageJSON) => {
@@ -34,9 +34,7 @@ const getAllDependencies = (config: PackageJSON) => {
   return allDependencies;
 };
 
-export default function getDependencyGraph(
-  packages: Packages
-): {
+export default function getDependencyGraph(packages: Packages): {
   graph: Map<string, { pkg: Package; dependencies: Array<string> }>;
   valid: boolean;
 } {
@@ -47,7 +45,7 @@ export default function getDependencyGraph(
   let valid = true;
 
   const packagesByName: { [key: string]: Package } = {
-    [packages.root.packageJson.name]: packages.root
+    [packages.root.packageJson.name]: packages.root,
   };
 
   const queue = [packages.root];

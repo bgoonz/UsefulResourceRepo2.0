@@ -1,28 +1,25 @@
 /// <reference types="../support/commands.js" />
 
-describe('App initialization', () => {
-  it('Loads todos on page load', () => {
+describe("App initialization", () => {
+  it("Loads todos on page load", () => {
     cy.seedAndVisit();
 
-    cy.get('.todo-list li')
-      .should('have.length', 4);
+    cy.get(".todo-list li").should("have.length", 4);
   });
 
-  it('Displays an error on failure', () => {
+  it("Displays an error on failure", () => {
     cy.server(); // starts a server which allows us to stub responses
-    cy.route({ // stubbing a route
-      url: '/api/todos',
-      method: 'GET',
+    cy.route({
+      // stubbing a route
+      url: "/api/todos",
+      method: "GET",
       status: 500,
-      response: {}
+      response: {},
     });
 
-    cy.visit('/');
-    cy.get('.todo-list li')
-      .should('not.exist');
+    cy.visit("/");
+    cy.get(".todo-list li").should("not.exist");
 
-    cy.get('.error')
-      .should('be.visible');
-
+    cy.get(".error").should("be.visible");
   });
 });

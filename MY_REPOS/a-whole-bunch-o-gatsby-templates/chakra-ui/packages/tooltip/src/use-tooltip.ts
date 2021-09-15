@@ -91,18 +91,14 @@ export function useTooltip(props: UseTooltipProps = {}) {
     onClose: onCloseProp,
   })
 
-  const {
-    referenceRef,
-    getPopperProps,
-    getArrowInnerProps,
-    getArrowProps,
-  } = usePopper({
-    placement,
-    arrowPadding,
-    modifiers,
-    gutter,
-    offset,
-  })
+  const { referenceRef, getPopperProps, getArrowInnerProps, getArrowProps } =
+    usePopper({
+      placement,
+      arrowPadding,
+      modifiers,
+      gutter,
+      offset,
+    })
 
   const tooltipId = useId(id, "tooltip")
 

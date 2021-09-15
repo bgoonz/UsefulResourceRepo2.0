@@ -51,7 +51,7 @@ export interface ThemeComponentProps<Theme extends ChakraTheme = ChakraTheme>
 
 export type ThemeComponentFunction<
   Style,
-  Theme extends ChakraTheme = ChakraTheme
+  Theme extends ChakraTheme = ChakraTheme,
 > = (props: ThemeComponentProps<Theme>) => Style
 
 export type ThemingPropsThunk<Style, Theme extends ChakraTheme = ChakraTheme> =

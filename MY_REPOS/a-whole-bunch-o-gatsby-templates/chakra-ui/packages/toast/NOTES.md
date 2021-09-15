@@ -22,13 +22,8 @@ the hook version would look like:
 
 ```jsx
 function Example() {
-  const {
-    addToast,
-    removeToast,
-    removeAllToasts,
-    updateToast,
-    toasts,
-  } = useToasts()
+  const { addToast, removeToast, removeAllToasts, updateToast, toasts } =
+    useToasts()
 
   return <button>Trigger</button>
 }

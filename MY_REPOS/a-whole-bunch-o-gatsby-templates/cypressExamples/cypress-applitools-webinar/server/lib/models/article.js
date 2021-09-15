@@ -8,29 +8,24 @@ const { Model } = require('./helpers')
 const internals = {}
 
 module.exports = class Article extends Model {
-  static get tableName () {
+  static get tableName() {
     return 'Articles'
   }
 
-  static get joiSchema () {
+  static get joiSchema() {
     return Joi.object({
-      id: Joi.number()
-        .integer()
-        .greater(0),
+      id: Joi.number().integer().greater(0),
       createdAt: Joi.date(),
       updatedAt: Joi.date(),
-      authorId: Joi.number()
-        .integer()
-        .greater(0)
-        .required(),
+      authorId: Joi.number().integer().greater(0).required(),
       slug: Joi.string(),
       title: Joi.string().required(),
       description: Joi.string().required(),
-      body: Joi.string().required()
+      body: Joi.string().required(),
     })
   }
 
-  static get relationMappings () {
+  static get relationMappings() {
     const Tag = require('./tag')
     const User = require('./user')
 
@@ -40,8 +35,8 @@ module.exports = class Article extends Model {
         modelClass: User,
         join: {
           from: 'Articles.authorId',
-          to: 'Users.id'
-        }
+          to: 'Users.id',
+        },
       },
       tags: {
         relation: Model.ManyToManyRelation,
@@ -50,10 +45,10 @@ module.exports = class Article extends Model {
           from: 'Articles.id',
           through: {
             from: 'ArticleTags.articleId',
-            to: 'ArticleTags.tagId'
+            to: 'ArticleTags.tagId',
           },
-          to: 'Tags.id'
-        }
+          to: 'Tags.id',
+        },
       },
       favoritedBy: {
         relation: Model.ManyToManyRelation,
@@ -62,15 +57,15 @@ module.exports = class Article extends Model {
           from: 'Articles.id',
           through: {
             from: 'ArticleFavorites.articleId',
-            to: 'ArticleFavorites.userId'
+            to: 'ArticleFavorites.userId',
           },
-          to: 'Users.id'
-        }
-      }
+          to: 'Users.id',
+        },
+      },
     }
   }
 
-  async $beforeInsert (ctx) {
+  async $beforeInsert(ctx) {
     const now = new Date()
 
     this.createdAt = now
@@ -78,14 +73,14 @@ module.exports = class Article extends Model {
     await this._setSlug(ctx.transaction)
   }
 
-  async $beforeUpdate (opt, ctx) {
+  async $beforeUpdate(opt, ctx) {
     const now = new Date()
 
     this.updatedAt = now
     await this._setSlug(ctx.transaction)
   }
 
-  $parseDatabaseJson (json) {
+  $parseDatabaseJson(json) {
     json = super.$parseDatabaseJson(json)
 
     json.createdAt = json.createdAt && new Date(json.createdAt)
@@ -94,7 +89,7 @@ module.exports = class Article extends Model {
     return json
   }
 
-  async _setSlug (txn) {
+  async _setSlug(txn) {
     if (typeof this.title === 'undefined') {
       return
     }

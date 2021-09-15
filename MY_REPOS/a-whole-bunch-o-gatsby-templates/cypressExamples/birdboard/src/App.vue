@@ -16,18 +16,16 @@
     </v-toolbar> -->
 
     <v-content>
-      <router-view/>
+      <router-view />
     </v-content>
   </v-app>
 </template>
 
 <script>
 export default {
-  name: 'App',
-  async created () {
-    await this.$store.dispatch('initUser')
-  }
-}
+  name: "App",
+  async created() {
+    await this.$store.dispatch("initUser");
+  },
+};
 </script>
-
-

@@ -39,9 +39,7 @@ function getCy(cyName: string): Chainable<JQuery<HTMLElement>> {
 /**
  * Deletes all users with username starting 'test'.
  */
-function serverCommand(
-  command: "clearTestUsers"
-): Chainable<{
+function serverCommand(command: "clearTestUsers"): Chainable<{
   success: true;
 }>;
 

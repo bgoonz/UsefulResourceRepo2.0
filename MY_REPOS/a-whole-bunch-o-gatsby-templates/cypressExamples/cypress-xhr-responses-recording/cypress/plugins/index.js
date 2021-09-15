@@ -11,21 +11,20 @@
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
-const fs = require('fs-extra');
-const path = require('path')
-const autoRecord = require('cypress-autorecord/plugin');
+const fs = require("fs-extra");
+const path = require("path");
+const autoRecord = require("cypress-autorecord/plugin");
 
 module.exports = (on, config) => {
   autoRecord(on, config, fs);
 
-  const file = config.env.configFile || 'default'
+  const file = config.env.configFile || "default";
 
-  return getConfigurationByFile(file)
+  return getConfigurationByFile(file);
 };
 
+function getConfigurationByFile(file) {
+  const pathToConfigFile = path.resolve("cypress/config", `${file}.json`);
 
-function getConfigurationByFile (file) {
-  const pathToConfigFile = path.resolve('cypress/config', `${file}.json`)
-
-  return fs.readJson(pathToConfigFile)
+  return fs.readJson(pathToConfigFile);
 }

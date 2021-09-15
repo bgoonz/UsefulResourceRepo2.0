@@ -12,11 +12,11 @@ const requireValidJWT = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`
+    jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`,
   }),
   audience: process.env.AUTH0_AUDIENCE,
   issuer: `https://${process.env.AUTH0_DOMAIN}/`,
-  algorithms: ['RS256']
+  algorithms: ['RS256'],
 });
 
 const app = express();
@@ -39,7 +39,7 @@ if (process.env.NODE_ENV !== 'development') {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  playground: process.env.NODE_ENV === 'development'
+  playground: process.env.NODE_ENV === 'development',
 });
 
 server.applyMiddleware({ app, cors: true });

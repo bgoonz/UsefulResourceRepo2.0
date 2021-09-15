@@ -1,41 +1,39 @@
-'use strict';
+'use strict'
 
-const Boom = require('boom');
-const Helpers = require('../helpers');
-const User = require('../../models/user');
+const Boom = require('boom')
+const Helpers = require('../helpers')
+const User = require('../../models/user')
 
 module.exports = Helpers.withDefaults({
-    method: 'delete',
-    path: '/profiles/{username}/follow',
-    options: {
-        validate: {
-            params: {
-                username: User.field('username')
-            }
-        },
-        auth: 'jwt',
-        handler: async (request, h) => {
+  method: 'delete',
+  path: '/profiles/{username}/follow',
+  options: {
+    validate: {
+      params: {
+        username: User.field('username'),
+      },
+    },
+    auth: 'jwt',
+    handler: async (request, h) => {
+      const { username } = request.params
+      const { userService, displayService } = request.services()
+      const currentUserId = Helpers.currentUserId(request)
 
-            const { username } = request.params;
-            const { userService, displayService } = request.services();
-            const currentUserId = Helpers.currentUserId(request);
+      const user = await userService.findByUsername(username)
 
-            const user = await userService.findByUsername(username);
+      if (user.id === currentUserId) {
+        throw Boom.forbidden('You cannot unfollow yourself')
+      }
 
-            if (user.id === currentUserId) {
-                throw Boom.forbidden('You cannot unfollow yourself');
-            }
+      const unfollowUserAndFetchProfile = async (txn) => {
+        await userService.unfollow(currentUserId, user.id, txn)
 
-            const unfollowUserAndFetchProfile = async (txn) => {
+        return await displayService.profile(currentUserId, user, txn)
+      }
 
-                await userService.unfollow(currentUserId, user.id, txn);
+      const profile = await h.context.transaction(unfollowUserAndFetchProfile)
 
-                return await displayService.profile(currentUserId, user, txn);
-            };
-
-            const profile = await h.context.transaction(unfollowUserAndFetchProfile);
-
-            return { profile };
-        }
-    }
-});
+      return { profile }
+    },
+  },
+})

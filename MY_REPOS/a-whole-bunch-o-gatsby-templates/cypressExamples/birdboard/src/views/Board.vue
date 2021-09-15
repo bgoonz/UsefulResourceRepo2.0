@@ -1,12 +1,10 @@
 <template>
   <v-card flat>
-    <v-toolbar
-      extended
-      dark
-      flat
-    >
+    <v-toolbar extended dark flat>
       <v-spacer></v-spacer>
-      <v-toolbar-title class="font-weight-black headline">🐦 BirdBoard</v-toolbar-title>
+      <v-toolbar-title class="font-weight-black headline"
+        >🐦 BirdBoard</v-toolbar-title
+      >
       <v-spacer></v-spacer>
       <!-- <v-toolbar-side-icon></v-toolbar-side-icon> -->
       <template v-slot:extension>
@@ -23,11 +21,7 @@
           dark
         >
           <template v-slot:selection="data">
-            <v-chip
-              :selected="data.selected"
-              close
-              @input="remove(data.item)"
-            >
+            <v-chip :selected="data.selected" close @input="remove(data.item)">
               <span class="blue--text"># </span>&nbsp;
               <strong>{{ data.item }}</strong>
             </v-chip>
@@ -62,13 +56,12 @@
                 <v-list-tile-title>{{ tweet.user.name }}</v-list-tile-title>
               </v-list-tile-content>
 
-              <v-layout
-                align-center
-                justify-end
-              >
+              <v-layout align-center justify-end>
                 <span v-if="tweet.favorite_count">
                   <v-icon class="mr-1 red--text">favorite</v-icon>
-                  <span class="subheading mr-2">{{ tweet.favorite_count }}</span>
+                  <span class="subheading mr-2">{{
+                    tweet.favorite_count
+                  }}</span>
                   <span class="mr-1">·</span>
                 </span>
 
@@ -76,7 +69,6 @@
                   <v-icon class="mr-1 green--text">autorenew</v-icon>
                   <span class="subheading">{{ tweet.retweet_count }}</span>
                 </span>
-
               </v-layout>
             </v-list-tile>
           </v-card-actions>
@@ -87,43 +79,52 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState } from "vuex";
 
-const cardColors = ['blue', 'cyan', 'green', 'teal', 'deep-orange', 'indigo', 'red', 'pink']
+const cardColors = [
+  "blue",
+  "cyan",
+  "green",
+  "teal",
+  "deep-orange",
+  "indigo",
+  "red",
+  "pink",
+];
 
 export default {
-  data () {
+  data() {
     return {
       hashtags: [],
-      items: ['javascript', 'cypressio']
-    }
+      items: ["javascript", "cypressio"],
+    };
   },
 
-  computed: mapState([ 'tweets' ]),
+  computed: mapState(["tweets"]),
 
   methods: {
-    remove (item) {
-      this.hashtags.splice(this.hashtags.indexOf(item), 1)
-      this.hashtags = [...this.hashtags]
+    remove(item) {
+      this.hashtags.splice(this.hashtags.indexOf(item), 1);
+      this.hashtags = [...this.hashtags];
     },
 
-    getRandomColor () {
-      return cardColors[Math.floor(Math.random() * cardColors.length)]
+    getRandomColor() {
+      return cardColors[Math.floor(Math.random() * cardColors.length)];
     },
 
-    async getTweets () {
-      await this.$store.dispatch('fetchTweets', this.hashtags)
-    }
-  }, 
+    async getTweets() {
+      await this.$store.dispatch("fetchTweets", this.hashtags);
+    },
+  },
 
   watch: {
-    hashtags (hashtags) {
+    hashtags(hashtags) {
       if (!hashtags.length) {
-        return this.$store.commit('clearTweets')
+        return this.$store.commit("clearTweets");
       }
 
-      this.getTweets()
-    }
-  }
-}
+      this.getTweets();
+    },
+  },
+};
 </script>

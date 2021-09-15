@@ -1,195 +1,192 @@
-'use strict';
+'use strict'
 
-const Bounce = require('bounce');
-const Schmervice = require('schmervice');
-const { UniqueViolationError } = require('objection-db-errors');
+const Bounce = require('bounce')
+const Schmervice = require('schmervice')
+const { UniqueViolationError } = require('objection-db-errors')
 
 module.exports = class ArticleService extends Schmervice.Service {
+  async findById(id, txn) {
+    const { Article } = this.server.models()
 
-    async findById(id, txn) {
+    return await Article.query(txn).throwIfNotFound().findById(id)
+  }
 
-        const { Article } = this.server.models();
+  async findBySlug(slug, txn) {
+    const { Article } = this.server.models()
 
-        return await Article.query(txn).throwIfNotFound().findById(id);
+    return await Article.query(txn).throwIfNotFound().first().where({ slug })
+  }
+
+  async find({ tag, author, favorited, limit, offset }, txn) {
+    const { Article } = this.server.models()
+
+    const query = Article.query(txn)
+
+    // Note that these joins don't ruin the result count
+    // only because each match must be unique or nil.
+
+    if (tag) {
+      query.innerJoinRelation('tags').where('tags.name', tag)
     }
 
-    async findBySlug(slug, txn) {
-
-        const { Article } = this.server.models();
-
-        return await Article.query(txn).throwIfNotFound().first().where({ slug });
+    if (author) {
+      query.innerJoinRelation('author').where('author.username', author)
     }
 
-    async find({ tag, author, favorited, limit, offset }, txn) {
-
-        const { Article } = this.server.models();
-
-        const query = Article.query(txn);
-
-        // Note that these joins don't ruin the result count
-        // only because each match must be unique or nil.
-
-        if (tag) {
-            query.innerJoinRelation('tags').where('tags.name', tag);
-        }
-
-        if (author) {
-            query.innerJoinRelation('author').where('author.username', author);
-        }
-
-        if (favorited) {
-            query.innerJoinRelation('favoritedBy').where('favoritedBy.username', favorited);
-        }
-
-        const [articles, total] = await Promise.all([
-            query.limit(limit).offset(offset).orderBy('createdAt', 'desc'),
-            query.resultSize()
-        ]);
-
-        return { articles, total };
+    if (favorited) {
+      query
+        .innerJoinRelation('favoritedBy')
+        .where('favoritedBy.username', favorited)
     }
 
-    async feed(currentUserId, { limit, offset }, txn) {
+    const [articles, total] = await Promise.all([
+      query.limit(limit).offset(offset).orderBy('createdAt', 'desc'),
+      query.resultSize(),
+    ])
 
-        const { Article } = this.server.models();
+    return { articles, total }
+  }
 
-        const query = Article.query(txn)
-            .joinRelation('author.followedBy')
-            .where('author:followedBy.id', currentUserId);
+  async feed(currentUserId, { limit, offset }, txn) {
+    const { Article } = this.server.models()
 
-        const [articles, total] = await Promise.all([
-            query.limit(limit).offset(offset).orderBy('createdAt', 'desc'),
-            query.resultSize()
-        ]);
+    const query = Article.query(txn)
+      .joinRelation('author.followedBy')
+      .where('author:followedBy.id', currentUserId)
 
-        return { articles, total };
+    const [articles, total] = await Promise.all([
+      query.limit(limit).offset(offset).orderBy('createdAt', 'desc'),
+      query.resultSize(),
+    ])
+
+    return { articles, total }
+  }
+
+  async create(currentUserId, { tagList, ...articleInfo }, txn) {
+    const { Article, Tag } = this.server.models()
+
+    if (tagList) {
+      const ensureTag = async (name) => await this._ensureTag(name, txn)
+      await Promise.all(tagList.map(ensureTag))
     }
 
-    async create(currentUserId, { tagList, ...articleInfo }, txn) {
+    const tags =
+      tagList && (await Tag.query(txn).select('id').whereIn('name', tagList))
 
-        const { Article, Tag } = this.server.models();
+    const { id } = await Article.query(txn).insertGraph(
+      {
+        ...articleInfo,
+        authorId: currentUserId,
+        tags,
+      },
+      {
+        relate: true,
+      }
+    )
 
-        if (tagList) {
-            const ensureTag = async (name) => await this._ensureTag(name, txn);
-            await Promise.all(tagList.map(ensureTag));
-        }
+    return id
+  }
 
-        const tags = tagList && await Tag.query(txn).select('id').whereIn('name', tagList);
+  async update(id, { tagList, ...articleInfo }, txn) {
+    const { Article, Tag } = this.server.models()
 
-        const { id } = await Article.query(txn).insertGraph({
-            ...articleInfo,
-            authorId: currentUserId,
-            tags
-        }, {
-            relate: true
-        });
-
-        return id;
+    if (tagList) {
+      const ensureTag = async (name) => await this._ensureTag(name, txn)
+      await Promise.all(tagList.map(ensureTag))
     }
 
-    async update(id, { tagList, ...articleInfo }, txn) {
+    const tags =
+      tagList && (await Tag.query(txn).select('id').whereIn('name', tagList))
 
-        const { Article, Tag } = this.server.models();
+    await Article.query(txn).upsertGraph(
+      {
+        ...articleInfo,
+        id,
+        tags,
+      },
+      {
+        relate: true,
+        unrelate: true,
+      }
+    )
 
-        if (tagList) {
-            const ensureTag = async (name) => await this._ensureTag(name, txn);
-            await Promise.all(tagList.map(ensureTag));
-        }
+    return id
+  }
 
-        const tags = tagList && await Tag.query(txn).select('id').whereIn('name', tagList);
+  async _ensureTag(name, txn) {
+    const { Tag } = this.server.models()
 
-        await Article.query(txn).upsertGraph({
-            ...articleInfo,
-            id,
-            tags
-        }, {
-            relate: true,
-            unrelate: true
-        });
-
-        return id;
+    try {
+      await Tag.query(txn).insert({ name })
+    } catch (err) {
+      Bounce.ignore(err, UniqueViolationError)
     }
+  }
 
-    async _ensureTag(name, txn) {
+  async delete(id, txn) {
+    const { Article } = this.server.models()
 
-        const { Tag } = this.server.models();
+    await Article.query(txn).throwIfNotFound().delete().where({ id })
+  }
 
-        try {
-            await Tag.query(txn).insert({ name });
-        }
-        catch (err) {
-            Bounce.ignore(err, UniqueViolationError);
-        }
+  async favorite(currentUserId, id, txn) {
+    const { Article } = this.server.models()
+
+    const article = Article.fromJson({ id }, { skipValidation: true })
+
+    try {
+      await article.$relatedQuery('favoritedBy', txn).relate(currentUserId)
+    } catch (err) {
+      Bounce.ignore(err, UniqueViolationError)
     }
+  }
 
-    async delete(id, txn) {
+  async unfavorite(currentUserId, id, txn) {
+    const { Article } = this.server.models()
 
-        const { Article } = this.server.models();
+    const article = Article.fromJson({ id }, { skipValidation: true })
 
-        await Article.query(txn).throwIfNotFound().delete().where({ id });
-    }
+    await article
+      .$relatedQuery('favoritedBy', txn)
+      .unrelate()
+      .where({ id: currentUserId })
+  }
 
-    async favorite(currentUserId, id, txn) {
+  async tags(txn) {
+    const { Tag } = this.server.models()
 
-        const { Article } = this.server.models();
+    return await Tag.query(txn)
+  }
 
-        const article = Article.fromJson({ id }, { skipValidation: true });
+  async findCommentById(commentId, txn) {
+    const { Comment } = this.server.models()
 
-        try {
-            await article.$relatedQuery('favoritedBy', txn).relate(currentUserId);
-        }
-        catch (err) {
-            Bounce.ignore(err, UniqueViolationError);
-        }
-    }
+    return await Comment.query(txn).throwIfNotFound().findById(commentId)
+  }
 
-    async unfavorite(currentUserId, id, txn) {
+  async findCommentsByArticle(articleId, txn) {
+    const { Comment } = this.server.models()
 
-        const { Article } = this.server.models();
+    return await Comment.query(txn)
+      .where({ articleId })
+      .orderBy('createdAt', 'desc')
+  }
 
-        const article = Article.fromJson({ id }, { skipValidation: true });
+  async addComment(currentUserId, articleId, { body }, txn) {
+    const { Comment } = this.server.models()
 
-        await article.$relatedQuery('favoritedBy', txn).unrelate().where({ id: currentUserId });
-    }
+    const { id } = await Comment.query(txn).insert({
+      authorId: currentUserId,
+      articleId,
+      body,
+    })
 
-    async tags(txn) {
+    return id
+  }
 
-        const { Tag } = this.server.models();
+  async removeComment(commentId, txn) {
+    const { Comment } = this.server.models()
 
-        return await Tag.query(txn);
-    }
-
-    async findCommentById(commentId, txn) {
-
-        const { Comment } = this.server.models();
-
-        return await Comment.query(txn).throwIfNotFound().findById(commentId);
-    }
-
-    async findCommentsByArticle(articleId, txn) {
-
-        const { Comment } = this.server.models();
-
-        return await Comment.query(txn).where({ articleId }).orderBy('createdAt', 'desc');
-    }
-
-    async addComment(currentUserId, articleId, { body }, txn) {
-
-        const { Comment } = this.server.models();
-
-        const { id } = await Comment.query(txn).insert({
-            authorId: currentUserId,
-            articleId,
-            body
-        });
-
-        return id;
-    }
-
-    async removeComment(commentId, txn) {
-
-        const { Comment } = this.server.models();
-
-        return await Comment.query(txn).delete().where({ id: commentId });
-    }
-};
+    return await Comment.query(txn).delete().where({ id: commentId })
+  }
+}

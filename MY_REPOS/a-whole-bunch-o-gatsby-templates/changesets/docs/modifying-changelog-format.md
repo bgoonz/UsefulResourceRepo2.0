@@ -52,7 +52,7 @@ async function getDependencyReleaseLine() {}
 
 const defaultChangelogFunctions: ChangelogFunctions = {
   getReleaseLine,
-  getDependencyReleaseLine
+  getDependencyReleaseLine,
 };
 
 export default defaultChangelogFunctions;

@@ -13,7 +13,7 @@ export declare namespace StateMachine {
   type Expression<
     TContext extends Dict,
     TEvent extends EventObject,
-    TReturn
+    TReturn,
   > = (context: TContext, event: TEvent) => TReturn
 
   export interface AnyEventObject extends EventObject {
@@ -26,13 +26,13 @@ export declare namespace StateMachine {
 
   export type Actions<
     TContext extends Dict,
-    TEvent extends EventObject
+    TEvent extends EventObject,
   > = MaybeArray<Action<TContext, TEvent>>
 
   export type TransitionDefinition<
     TContext extends Dict,
     TState extends string,
-    TEvent extends EventObject
+    TEvent extends EventObject,
   > = {
     target?: TState
     actions?: Actions<TContext, TEvent>
@@ -42,7 +42,7 @@ export declare namespace StateMachine {
   export type TransitionDefinitionWithDelay<
     TContext extends Dict,
     TState extends string,
-    TEvent extends EventObject
+    TEvent extends EventObject,
   > = TransitionDefinition<TContext, TState, TEvent> & {
     delay?: Delay<TContext, TEvent>
   }
@@ -55,23 +55,23 @@ export declare namespace StateMachine {
   export type Transition<
     TContext extends Dict,
     TState extends string,
-    TEvent extends EventObject
+    TEvent extends EventObject,
   > = TState | TransitionDefinition<TContext, TState, TEvent>
 
   export type Activity<
     TContext extends Dict,
-    TEvent extends EventObject
+    TEvent extends EventObject,
   > = Expression<TContext, TEvent, CleanupFunction>
 
   export type Activities<
     TContext extends Dict,
-    TEvent extends EventObject
+    TEvent extends EventObject,
   > = MaybeArray<Activity<TContext, TEvent>>
 
   export type Transitions<
     TContext extends Dict,
     TState extends string,
-    TEvent extends EventObject
+    TEvent extends EventObject,
   > =
     | Transition<TContext, TState, TEvent>
     | MaybeArray<TransitionDefinition<TContext, TState, TEvent>>
@@ -79,7 +79,7 @@ export declare namespace StateMachine {
   export type AfterTransitions<
     TContext,
     TState extends string,
-    TEvent extends EventObject
+    TEvent extends EventObject,
   > =
     | Record<
         string | number,
@@ -93,13 +93,13 @@ export declare namespace StateMachine {
 
   export type ExtractEvent<
     TEvent extends EventObject,
-    K
+    K,
   > = K extends TEvent["type"] ? Extract<TEvent, { type: K }> : EventObject
 
   export type TransitionDefinitionMap<
     TContext,
     TState extends string,
-    TEvent extends EventObject
+    TEvent extends EventObject,
   > = {
     [K in TEvent["type"]]?:
       | TState
@@ -111,7 +111,7 @@ export declare namespace StateMachine {
   export interface StateNode<
     TContext extends Dict,
     TState extends string,
-    TEvent extends EventObject
+    TEvent extends EventObject,
   > {
     type?: "final"
     /**
@@ -160,7 +160,7 @@ export declare namespace StateMachine {
   export interface MachineConfig<
     TContext extends Dict,
     TState,
-    TEvent extends EventObject
+    TEvent extends EventObject,
   > {
     /**
      * The unique identifier for the invoked machine.
@@ -205,7 +205,7 @@ export declare namespace StateMachine {
   export interface StateInfo<
     TContext extends Dict,
     TState extends string,
-    TEvent extends EventObject
+    TEvent extends EventObject,
   > {
     transition: TransitionDefinition<TContext, TState, TEvent> | undefined
     stateNode: StateNode<TContext, TState, TEvent> | undefined
@@ -216,12 +216,12 @@ export declare namespace StateMachine {
 
   export type ActionsMap<
     TContext extends Dict,
-    TEvent extends EventObject
+    TEvent extends EventObject,
   > = Record<string, Exclude<Action<TContext, TEvent>, string>>
 
   export type GuardsMap<
     TContext extends Dict,
-    TEvent extends EventObject
+    TEvent extends EventObject,
   > = Record<string, Expression<TContext, TEvent, boolean>>
 
   export type TimersMap<TContext extends Dict, TEvent extends EventObject> = {
@@ -230,7 +230,7 @@ export declare namespace StateMachine {
 
   export interface MachineOptions<
     TContext extends Dict,
-    TEvent extends EventObject
+    TEvent extends EventObject,
   > {
     /**
      * The computed value to derive from the current context

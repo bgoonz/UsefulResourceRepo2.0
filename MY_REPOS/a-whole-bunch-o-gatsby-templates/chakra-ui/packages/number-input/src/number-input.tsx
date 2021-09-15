@@ -24,14 +24,12 @@ interface NumberInputContext extends Omit<UseNumberInputReturn, "htmlProps"> {}
 /**
  * React context used to communicate between components
  */
-const [
-  NumberInputProvider,
-  useNumberInputContext,
-] = createContext<NumberInputContext>({
-  name: "NumberInputContext",
-  errorMessage:
-    "useNumberInputContext: `context` is undefined. Seems you forgot to wrap number-input's components within <NumberInput />",
-})
+const [NumberInputProvider, useNumberInputContext] =
+  createContext<NumberInputContext>({
+    name: "NumberInputContext",
+    errorMessage:
+      "useNumberInputContext: `context` is undefined. Seems you forgot to wrap number-input's components within <NumberInput />",
+  })
 
 interface InputOptions {
   /**

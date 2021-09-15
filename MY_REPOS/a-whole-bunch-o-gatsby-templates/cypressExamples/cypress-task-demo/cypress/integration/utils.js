@@ -1,16 +1,16 @@
 // @ts-check
 export const resetDatabase = () => {
-  cy.log('reset database')
+  cy.log("reset database");
   cy.request({
-    method: 'POST',
-    url: '/reset',
+    method: "POST",
+    url: "/reset",
     body: {
-      todos: []
+      todos: [],
     },
-    log: false
-  })
-}
+    log: false,
+  });
+};
 
-export const enterTodo = (text = 'example todo') => {
-  cy.get('.todoapp .new-todo').type(`${text}{enter}`)
-}
+export const enterTodo = (text = "example todo") => {
+  cy.get(".todoapp .new-todo").type(`${text}{enter}`);
+};

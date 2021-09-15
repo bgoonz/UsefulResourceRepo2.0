@@ -114,7 +114,7 @@ TS.cssTemplates.default = {
       select option:checked {
         color: white;
         background-color: rgb(0,33,0);
-      }`
+      }`,
 };
 TS.cssTemplates.sparky = {
   link: `
@@ -233,5 +233,5 @@ TS.cssTemplates.sparky = {
       select option:checked {
         color: white;
         background-color: rgb(0,33,0);
-      }`
+      }`,
 };

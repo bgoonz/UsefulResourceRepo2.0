@@ -5,17 +5,17 @@ describe('Conduit', () => {
   beforeEach(() => {
     // Login
     cy.request('POST', 'http://localhost:3000/api/users/login', {
-      user: Cypress.env('user')
+      user: Cypress.env('user'),
     })
       .its('body.user.token')
       .should('exist')
-      .then(token => {
+      .then((token) => {
         localStorage.setItem('jwt', token)
       })
 
     cy.visit('/')
   })
-  beforeEach(function() {
+  beforeEach(function () {
     cy.eyesOpen({
       testName: this.currentTest.title,
       appName: 'Conduit',

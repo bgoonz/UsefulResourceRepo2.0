@@ -54,7 +54,7 @@ async function main() {
   });
 }
 
-main().catch(e => {
+main().catch((e) => {
   console.error("Fatal error occurred starting server!");
   console.error(e);
   process.exit(101);

@@ -28,7 +28,7 @@ import { resetWebsocketConnection } from "../lib/withApollo";
 const { Paragraph } = Typography;
 
 function hasErrors(fieldsError: Object) {
-  return Object.keys(fieldsError).some(field => fieldsError[field]);
+  return Object.keys(fieldsError).some((field) => fieldsError[field]);
 }
 
 interface LoginProps {

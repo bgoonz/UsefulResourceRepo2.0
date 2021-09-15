@@ -18,13 +18,11 @@ export interface CheckboxGroupContext
   extends Pick<UseCheckboxGroupReturn, "onChange" | "value">,
     Omit<ThemingProps<"Checkbox">, "orientation"> {}
 
-const [
-  CheckboxGroupProvider,
-  useCheckboxGroupContext,
-] = createContext<CheckboxGroupContext>({
-  name: "CheckboxGroupContext",
-  strict: false,
-})
+const [CheckboxGroupProvider, useCheckboxGroupContext] =
+  createContext<CheckboxGroupContext>({
+    name: "CheckboxGroupContext",
+    strict: false,
+  })
 
 export { useCheckboxGroupContext }
 

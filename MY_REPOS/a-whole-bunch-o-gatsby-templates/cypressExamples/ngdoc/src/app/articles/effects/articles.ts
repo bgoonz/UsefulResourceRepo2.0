@@ -1,16 +1,16 @@
-import { Injectable } from '@angular/core';
-import { Action } from '@ngrx/store';
-import { Effect, Actions } from '@ngrx/effects';
+import { Injectable } from "@angular/core";
+import { Action } from "@ngrx/store";
+import { Effect, Actions } from "@ngrx/effects";
 
-import { Observable } from 'rxjs';
-import { of } from 'rxjs';
+import { Observable } from "rxjs";
+import { of } from "rxjs";
 
-import { switchMap, toArray, map, catchError, mergeMap } from 'rxjs/operators';
+import { switchMap, toArray, map, catchError, mergeMap } from "rxjs/operators";
 
-import { ArticleActionTypes } from '../actions/articles';
-import * as articleActions from '../actions/articles';
-import { IArticle } from '../models/article';
-import { ArticleService } from '../services/article.service';
+import { ArticleActionTypes } from "../actions/articles";
+import * as articleActions from "../actions/articles";
+import { IArticle } from "../models/article";
+import { ArticleService } from "../services/article.service";
 
 @Injectable()
 export class ArticleEffects {
@@ -26,7 +26,7 @@ export class ArticleEffects {
             (articles: IArticle[]) =>
               new articleActions.LoadArticlesSuccess(articles)
           ),
-          catchError(err =>
+          catchError((err) =>
             of(new articleActions.LoadArticlesFail({ error: err.message }))
           )
         )
@@ -43,7 +43,7 @@ export class ArticleEffects {
             (articles: IArticle[]) =>
               new articleActions.LoadArticlesSuccess(articles)
           ),
-          catchError(error => of(new articleActions.LoadArticlesFail(error)))
+          catchError((error) => of(new articleActions.LoadArticlesFail(error)))
         )
       )
     );

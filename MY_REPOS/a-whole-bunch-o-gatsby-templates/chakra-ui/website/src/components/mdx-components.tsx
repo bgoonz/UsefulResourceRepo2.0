@@ -8,7 +8,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react"
 import React from "react"
-import ReactPlayer, { ReactPlayerProps } from "react-player";
+import ReactPlayer, { ReactPlayerProps } from "react-player"
 
 import CarbonAd from "./carbon-ad"
 import CodeBlock from "./codeblock/codeblock"
@@ -74,9 +74,7 @@ const InlineCode = (props: any) => (
   />
 )
 
-const VideoPlayer = (props: ReactPlayerProps) => (
-  <ReactPlayer {...props} />
-);
+const VideoPlayer = (props: ReactPlayerProps) => <ReactPlayer {...props} />
 
 const MDXComponents = {
   h1: (props) => <chakra.h1 apply="mdx.h1" {...props} />,

@@ -79,9 +79,9 @@ const GHDataLoader = new DataLoader(async (requests: RequestData[]) => {
   const data = await fetch("https://api.github.com/graphql", {
     method: "POST",
     headers: {
-      Authorization: `Token ${process.env.GITHUB_TOKEN}`
+      Authorization: `Token ${process.env.GITHUB_TOKEN}`,
     },
-    body: JSON.stringify({ query: makeQuery(repos) })
+    body: JSON.stringify({ query: makeQuery(repos) }),
   }).then((x: any) => x.json());
 
   // this is mainly for the case where there's an authentication problem
@@ -106,9 +106,7 @@ const GHDataLoader = new DataLoader(async (requests: RequestData[]) => {
   return requests.map(({ repo, commit }) => cleanedData[repo][commit]);
 });
 
-export async function getInfo(
-  request: RequestData
-): Promise<{
+export async function getInfo(request: RequestData): Promise<{
   user: string | null;
   pull: number | null;
   links: {
@@ -163,7 +161,7 @@ export async function getInfo(
       pull: associatedPullRequest
         ? `[#${associatedPullRequest.number}](${associatedPullRequest.url})`
         : null,
-      user: user ? `[@${user.login}](${user.url})` : null
-    }
+      user: user ? `[@${user.login}](${user.url})` : null,
+    },
   };
 }

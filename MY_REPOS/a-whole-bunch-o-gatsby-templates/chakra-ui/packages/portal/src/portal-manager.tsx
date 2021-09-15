@@ -6,13 +6,11 @@ interface PortalManagerContext {
   zIndex?: number
 }
 
-const [
-  PortalManagerContextProvider,
-  usePortalManager,
-] = createContext<PortalManagerContext | null>({
-  strict: false,
-  name: "PortalManagerContext",
-})
+const [PortalManagerContextProvider, usePortalManager] =
+  createContext<PortalManagerContext | null>({
+    strict: false,
+    name: "PortalManagerContext",
+  })
 
 export { usePortalManager }
 

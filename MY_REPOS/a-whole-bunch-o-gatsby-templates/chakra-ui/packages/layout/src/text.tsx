@@ -35,9 +35,8 @@ export interface TextProps extends HTMLChakraProps<"p">, ThemingProps<"Text"> {
  */
 export const Text = forwardRef<TextProps, "p">((props, ref) => {
   const styles = useStyleConfig("Text", props)
-  const { className, align, decoration, casing, ...rest } = omitThemingProps(
-    props,
-  )
+  const { className, align, decoration, casing, ...rest } =
+    omitThemingProps(props)
 
   const aliasedProps = filterUndefined({
     textAlign: props.align,

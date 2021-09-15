@@ -4,13 +4,13 @@ import {
   getContributorInfo,
   getOpenIssuesByLabel,
   isGitHubContributor,
-  inviteIfNecessary
+  inviteIfNecessary,
 } from '../lib/github';
 import {
   createShopifyCustomer,
   getShopifyDiscountCodes,
   getEarnedDiscountCodes,
-  addTagsToCustomer
+  addTagsToCustomer,
 } from '../lib/shopify';
 import getLogger from '../lib/logger';
 
@@ -22,7 +22,7 @@ export default {
       await getContributorInfo(githubUsername),
     openIssues: async (_, { label }) => await getOpenIssuesByLabel(label),
     getContributor: async (_, { githubUsername }) =>
-      await getContributorByGitHubUsername(githubUsername)
+      await getContributorByGitHubUsername(githubUsername),
   },
   Mutation: {
     discountCode: async (
@@ -53,7 +53,7 @@ export default {
             githubUsername,
             firstName,
             email,
-            acceptsMarketing: subscribe
+            acceptsMarketing: subscribe,
           });
         } else {
           errors.push(
@@ -66,7 +66,7 @@ export default {
 
       return {
         discountCode: errors.length === 0 ? code : null,
-        errors
+        errors,
       };
     },
 
@@ -99,10 +99,10 @@ export default {
         // @todo: more useful error logging
         throw new ApolloError(error.message);
       }
-    }
+    },
   },
   Contributor: {
-    shopify: async data => {
+    shopify: async (data) => {
       if (!data || !data.shopifyCustomerID) {
         return null;
       }
@@ -110,11 +110,11 @@ export default {
       return {
         id: data.shopifyCustomerID,
         // Passed through to child resolver at `ShopifyInfo.codes`
-        count: data.github.contributionCount
+        count: data.github.contributionCount,
       };
-    }
+    },
   },
   ShopifyInfo: {
-    codes: async data => await getShopifyDiscountCodes(data.id, data.count)
-  }
+    codes: async (data) => await getShopifyDiscountCodes(data.id, data.count),
+  },
 };

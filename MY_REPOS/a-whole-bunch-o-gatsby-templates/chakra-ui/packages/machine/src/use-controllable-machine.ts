@@ -24,7 +24,7 @@ type Extend<C extends { value: any }> = C & {
 export const createControllableMachine = <
   C extends { value: any },
   S extends string,
-  E extends StateMachine.EventObject = StateMachine.AnyEventObject
+  E extends StateMachine.EventObject = StateMachine.AnyEventObject,
 >(
   config: StateMachine.MachineConfig<Extend<C>, S, E>,
   opts?: StateMachine.MachineOptions<Extend<C>, E>,
@@ -52,7 +52,7 @@ export const createControllableMachine = <
 export const useControllableMachine = <
   C extends Extend<{ value: any }>,
   S extends string,
-  E extends StateMachine.EventObject = StateMachine.AnyEventObject
+  E extends StateMachine.EventObject = StateMachine.AnyEventObject,
 >(
   machine: Machine<C, S, E>,
   props: Partial<C> & {

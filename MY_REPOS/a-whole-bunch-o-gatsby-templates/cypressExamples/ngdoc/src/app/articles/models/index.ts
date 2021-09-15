@@ -1,1 +1,1 @@
-export { IArticle, ContentTypes } from './article';
+export { IArticle, ContentTypes } from "./article";

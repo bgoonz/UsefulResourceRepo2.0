@@ -21,7 +21,7 @@ You can run cypress in either mode, however you can also just flip the bit in `b
 
 ```javascript
 // will record
-const isRecord = () => Cypress.env('ENVIRONMENT') === 'record';
+const isRecord = () => Cypress.env("ENVIRONMENT") === "record";
 // will not record
-const isRecord = () => Cypress.env('ENVIRONMENT') !== 'record';
+const isRecord = () => Cypress.env("ENVIRONMENT") !== "record";
 ```

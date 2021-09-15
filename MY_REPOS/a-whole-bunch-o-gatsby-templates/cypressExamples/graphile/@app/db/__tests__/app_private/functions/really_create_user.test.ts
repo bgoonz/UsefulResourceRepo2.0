@@ -29,7 +29,7 @@ export async function reallyCreateUser(
 }
 
 test("can register user with a password", () =>
-  withRootDb(async client => {
+  withRootDb(async (client) => {
     // Normally PassportLoginPlugin will call this SQL function directly.
     const user = await reallyCreateUser(
       client,
@@ -55,7 +55,7 @@ test("can register user with a password", () =>
   }));
 
 test("cannot register with a weak password", () =>
-  withRootDb(async client => {
+  withRootDb(async (client) => {
     const promise = reallyCreateUser(
       client,
       "testuser",
@@ -71,7 +71,7 @@ test("cannot register with a weak password", () =>
   }));
 
 test("can register user with just a username and email", () =>
-  withRootDb(async client => {
+  withRootDb(async (client) => {
     // Normally PassportLoginPlugin will call this SQL function directly.
     const user = await reallyCreateUser(
       client,
@@ -97,7 +97,7 @@ test("can register user with just a username and email", () =>
   }));
 
 test("cannot register user without email", () =>
-  withRootDb(async client => {
+  withRootDb(async (client) => {
     // Normally PassportLoginPlugin will call this SQL function directly.
     const promise = reallyCreateUser(client, null, null, null, null, null);
     await expect(promise).rejects.toMatchInlineSnapshot(

@@ -4,23 +4,23 @@ TS.start = function (parent) {
   Object.assign(TS, {
     events: {},
     data: {},
-    refs: {}
+    refs: {},
   });
   TS.refs.container = parent;
-  
+
   //Load Data
-  TS.js.indexedDB(function(opts) {
-    let y = opts.index.get(['master_999'])
-    y.onsuccess = function() {
-      if (y.result) { 
-        TS.data.local = y.result.data 
-        begin()
+  TS.js.indexedDB(function (opts) {
+    let y = opts.index.get(["master_999"]);
+    y.onsuccess = function () {
+      if (y.result) {
+        TS.data.local = y.result.data;
+        begin();
       } else {
         localforage.getItem("Book", function (err, value) {
-          if (value == null || value == 'null') {
+          if (value == null || value == "null") {
             value = JSON.stringify({
               files: {},
-              preferences: {}
+              preferences: {},
             });
             localforage.setItem("Book", value, function () {});
           }
@@ -31,13 +31,13 @@ TS.start = function (parent) {
           begin();
         });
       }
-    }
-  })
+    };
+  });
   TS.events.save = function (callback) {
     //TS.start
-    TS.js.indexedDB(function(cb) {
-      store.put({id: 'master_999', data: TS.data.local})
-    })
+    TS.js.indexedDB(function (cb) {
+      store.put({ id: "master_999", data: TS.data.local });
+    });
     /*
     localforage.setItem("Book", JSON.stringify(TS.data.local), function () {
       if (callback) callback();
@@ -53,7 +53,7 @@ TS.start = function (parent) {
   let begin = function () {
     TS.css = TS.css();
     let parentStyle = TS.lib.createNode("style", {
-      innerHTML: TS.css.boxes.root()
+      innerHTML: TS.css.boxes.root(),
     });
     document.body.append(parentStyle);
     let display = TS.html.display.start();

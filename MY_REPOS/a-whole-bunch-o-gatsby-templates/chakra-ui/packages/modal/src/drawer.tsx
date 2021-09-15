@@ -70,11 +70,8 @@ export const DrawerContent = forwardRef<DrawerContentProps, "section">(
   (props, ref) => {
     const { className, children, ...rest } = props
 
-    const {
-      getDialogProps,
-      getDialogContainerProps,
-      isOpen,
-    } = useModalContext()
+    const { getDialogProps, getDialogContainerProps, isOpen } =
+      useModalContext()
 
     const dialogProps = getDialogProps(rest, ref) as any
     const containerProps = getDialogContainerProps()

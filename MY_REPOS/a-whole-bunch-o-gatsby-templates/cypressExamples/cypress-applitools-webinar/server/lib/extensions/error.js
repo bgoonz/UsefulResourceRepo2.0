@@ -1,77 +1,71 @@
-'use strict';
+'use strict'
 
-const Boom = require('boom');
-const Toys = require('toys');
-const Avocat = require('avocat');
-const { NotFoundError, ValidationError } = require('objection');
+const Boom = require('boom')
+const Toys = require('toys')
+const Avocat = require('avocat')
+const { NotFoundError, ValidationError } = require('objection')
 
-const internals = {};
+const internals = {}
 
 module.exports = Toys.onPreResponse((request, h) => {
+  const { response: error } = request
+  const { formatError, mapError } = internals
 
-    const { response: error } = request;
-    const { formatError, mapError } = internals;
+  if (!error.isBoom) {
+    return h.continue
+  }
 
-    if (!error.isBoom) {
-        return h.continue;
-    }
-
-    throw formatError(mapError(error));
-});
+  throw formatError(mapError(error))
+})
 
 internals.mapError = (error) => {
+  // Handle joi input validation error.
+  // Info available due to default failAction in routes/helpers.
 
-    // Handle joi input validation error.
-    // Info available due to default failAction in routes/helpers.
+  if (error.output.payload.validation) {
+    // e.g. '"body" is required' -> 'is required'
+    const stripFieldName = (str) => str.replace(/^".*?" /, '')
+    const { source } = error.output.payload.validation
 
-    if (error.output.payload.validation) {
+    const validation = error.details.reduce((collector, { path, message }) => {
+      const field = path[path.length - 1] || source
 
-        // e.g. '"body" is required' -> 'is required'
-        const stripFieldName = (str) => str.replace(/^".*?" /, '');
-        const { source } = error.output.payload.validation;
+      return {
+        ...collector,
+        [field]: (collector[field] || []).concat(stripFieldName(message)),
+      }
+    }, {})
 
-        const validation = error.details.reduce((collector, { path, message }) => {
+    return Boom.badData(null, { validation })
+  }
 
-            const field = path[path.length - 1] || source;
+  // Handle some specific db errors
 
-            return {
-                ...collector,
-                [field]: (collector[field] || []).concat(stripFieldName(message))
-            };
-        }, {});
+  if (error instanceof ValidationError) {
+    return Boom.badData(null, { validation: {} }) // No specifics, avoid leaking model details
+  }
 
-        return Boom.badData(null, { validation });
-    }
+  if (error instanceof NotFoundError) {
+    return Boom.notFound(`${error.modelName || 'Record'} Not Found`)
+  }
 
-    // Handle some specific db errors
+  // Handle all other db errors with avocat
 
-    if (error instanceof ValidationError) {
-        return Boom.badData(null, { validation: {} }); // No specifics, avoid leaking model details
-    }
-
-    if (error instanceof NotFoundError) {
-        return Boom.notFound(`${error.modelName || 'Record'} Not Found`);
-    }
-
-    // Handle all other db errors with avocat
-
-    return Avocat.rethrow(error, { return: true, includeMessage: false }) || error;
-};
+  return Avocat.rethrow(error, { return: true, includeMessage: false }) || error
+}
 
 internals.formatError = (error) => {
+  const { message } = error.output.payload
+  const payload = (error.output.payload = { errors: {} })
 
-    const { message } = error.output.payload;
-    const payload = error.output.payload = { errors: {} };
-
-    if (error.data && error.data.validation) {
-        payload.errors = error.data.validation;
+  if (error.data && error.data.validation) {
+    payload.errors = error.data.validation
+  } else {
+    const type = (error.typeof && error.typeof.name) || 'error'
+    payload.errors = {
+      [type]: [message],
     }
-    else {
-        const type = (error.typeof && error.typeof.name) || 'error';
-        payload.errors = {
-            [type]: [message]
-        };
-    }
+  }
 
-    return error;
-};
+  return error
+}

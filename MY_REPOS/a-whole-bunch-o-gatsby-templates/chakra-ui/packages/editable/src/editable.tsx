@@ -164,13 +164,8 @@ if (__DEV__) {
  * React hook use to gain access to the editable state and actions.
  */
 export function useEditableState() {
-  const {
-    isEditing,
-    onSubmit,
-    onCancel,
-    onEdit,
-    isDisabled,
-  } = useEditableContext()
+  const { isEditing, onSubmit, onCancel, onEdit, isDisabled } =
+    useEditableContext()
 
   return {
     isEditing,

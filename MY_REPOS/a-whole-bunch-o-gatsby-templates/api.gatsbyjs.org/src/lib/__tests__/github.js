@@ -44,7 +44,7 @@ describe('lib/github', () => {
     test('invites the user if they’re not part of the org already', async () => {
       orgs.getTeamMembership.mockRejectedValueOnce({ code: 404 });
       orgs.addTeamMembership.mockReturnValueOnce({
-        data: { status: 'pending' }
+        data: { status: 'pending' },
       });
 
       const result = await inviteIfNecessary('jlengstorf');

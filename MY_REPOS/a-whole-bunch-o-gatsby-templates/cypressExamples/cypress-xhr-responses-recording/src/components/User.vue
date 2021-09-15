@@ -1,17 +1,15 @@
 <template>
-  <li>
-    {{ user.name }} ({{ user.username }})
-  </li>
+  <li>{{ user.name }} ({{ user.username }})</li>
 </template>
 
 <script>
 export default {
-  name: 'User',
+  name: "User",
   props: {
     user: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
-}
+};
 </script>

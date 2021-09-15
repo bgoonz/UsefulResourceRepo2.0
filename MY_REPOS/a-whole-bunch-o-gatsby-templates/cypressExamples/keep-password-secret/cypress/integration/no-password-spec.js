@@ -11,21 +11,17 @@ it('logs in using env variables', () => {
   }
 
   cy.visit('/login')
-  cy.get('[name=username]')
-    .type(username)
-    .should('have.value', username)
+  cy.get('[name=username]').type(username).should('have.value', username)
   cy.get('[name=password]')
     .type(password, { log: false })
-    .should(el$ => {
+    .should((el$) => {
       if (el$.val() !== password) {
         throw new Error('Different value of typed password')
       }
     })
   cy.get('[type=Submit]').click()
 
-  cy.contains('a', 'profile')
-    .should('be.visible')
-    .click()
+  cy.contains('a', 'profile').should('be.visible').click()
   cy.url().should('match', /profile$/)
   cy.contains('Email: jack@example.com')
 })

@@ -64,13 +64,11 @@ type FormControlProviderContext = Omit<
   "getRootProps" | "htmlProps"
 >
 
-const [
-  FormControlProvider,
-  useFormControlContext,
-] = createContext<FormControlProviderContext>({
-  strict: false,
-  name: "FormControlContext",
-})
+const [FormControlProvider, useFormControlContext] =
+  createContext<FormControlProviderContext>({
+    strict: false,
+    name: "FormControlContext",
+  })
 
 export { useFormControlContext }
 
@@ -219,9 +217,11 @@ export interface FormControlProps
 export const FormControl = forwardRef<FormControlProps, "div">((props, ref) => {
   const styles = useMultiStyleConfig("Form", props)
   const ownProps = omitThemingProps(props)
-  const { getRootProps, htmlProps: _, ...context } = useFormControlProvider(
-    ownProps,
-  )
+  const {
+    getRootProps,
+    htmlProps: _,
+    ...context
+  } = useFormControlProvider(ownProps)
 
   const className = cx("chakra-form-control", props.className)
   const contextValue = React.useMemo(() => context, [context])

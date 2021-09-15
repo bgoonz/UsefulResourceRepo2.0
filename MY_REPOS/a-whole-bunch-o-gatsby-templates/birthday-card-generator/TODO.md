@@ -15,7 +15,6 @@
 - [ ] Add prettier config
 - [ ] Add actual Readme
 
-
 # Additional Features
 
 - [ ] QR-Code integration/generation

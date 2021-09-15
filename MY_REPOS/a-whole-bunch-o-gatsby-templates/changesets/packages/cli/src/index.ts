@@ -19,39 +19,39 @@ const { input, flags } = meow(
   {
     flags: {
       sinceMaster: {
-        type: "boolean"
+        type: "boolean",
       },
       verbose: {
         type: "boolean",
-        alias: "v"
+        alias: "v",
       },
       output: {
         type: "string",
-        alias: "o"
+        alias: "o",
       },
       otp: {
-        type: "string"
+        type: "string",
       },
       empty: {
-        type: "boolean"
+        type: "boolean",
       },
       since: {
-        type: "string"
+        type: "string",
       },
       ignore: {
         type: "string",
-        isMultiple: true
+        isMultiple: true,
       },
       tag: {
-        type: "string"
-      }
-    }
+        type: "string",
+      },
+    },
   }
 );
 
 const cwd = process.cwd();
 
-run(input, flags, cwd).catch(err => {
+run(input, flags, cwd).catch((err) => {
   if (err instanceof InternalError) {
     error(
       "The following error is an internal unexpected error, these should never happen."

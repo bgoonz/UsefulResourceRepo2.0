@@ -42,7 +42,7 @@ You could define the key `starter-name` in your example's `package.json`, like:
 
 ```json
 {
-  "starter-name": "gatsby-starter-custom-foobar",
+  "starter-name": "gatsby-starter-custom-foobar"
 }
 ```
 

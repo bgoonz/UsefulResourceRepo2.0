@@ -59,14 +59,14 @@ function Page({ userId: rawUserId, token: rawToken }: IProps) {
           <Input
             type="text"
             value={token}
-            onChange={e => setIdAndToken([userId, e.target.value])}
+            onChange={(e) => setIdAndToken([userId, e.target.value])}
           />
         </Form.Item>
         <Form.Item label="Choose a new password:">
           <Input
             type="password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </Form.Item>
         {error ? (

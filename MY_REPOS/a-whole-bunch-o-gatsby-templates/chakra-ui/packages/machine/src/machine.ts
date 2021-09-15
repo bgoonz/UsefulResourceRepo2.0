@@ -29,7 +29,7 @@ const toComputed = (obj: Dict = {}) =>
 export class Machine<
   TContext extends Dict,
   TState extends string,
-  TEvent extends S.EventObject = S.AnyEventObject
+  TEvent extends S.EventObject = S.AnyEventObject,
 > {
   state: S.State<TContext>
   config: S.MachineConfig<TContext, TState, TEvent>
@@ -651,5 +651,5 @@ export class Machine<
 export type MachineSrc<
   C extends Dict,
   S extends string,
-  E extends S.EventObject = S.AnyEventObject
+  E extends S.EventObject = S.AnyEventObject,
 > = Machine<C, S, E> | (() => Machine<C, S, E>)

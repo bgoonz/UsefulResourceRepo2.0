@@ -1,149 +1,144 @@
-'use strict';
+'use strict'
 
 // Load modules
 
-const Fs = require('fs');
-const Util = require('util');
-const Bounce = require('bounce');
-const Code = require('code');
-const Lab = require('lab');
-const Toys = require('toys');
-const Newman = require('newman');
-const Server = require('../server');
+const Fs = require('fs')
+const Util = require('util')
+const Bounce = require('bounce')
+const Code = require('code')
+const Lab = require('lab')
+const Toys = require('toys')
+const Newman = require('newman')
+const Server = require('../server')
 
 // Test shortcuts
 
-const { describe, it } = exports.lab = Lab.script();
-const { expect } = Code;
+const { describe, it } = (exports.lab = Lab.script())
+const { expect } = Code
 
 describe('Deployment', () => {
+  const dropDb = async () => {
+    try {
+      await Util.promisify(Fs.unlink)('.test.db')
+    } catch (error) {
+      Bounce.ignore(error, { code: 'ENOENT' })
+    }
+  }
 
-    const dropDb = async () => {
+  it('allows a user to login, signup, then fetch their user info.', async () => {
+    await dropDb()
 
-        try {
-            await Util.promisify(Fs.unlink)('.test.db');
-        }
-        catch (error) {
-            Bounce.ignore(error, { code: 'ENOENT' });
-        }
-    };
+    const server = await Server.deployment()
 
-    it('allows a user to login, signup, then fetch their user info.', async () => {
+    const signup = await server.inject({
+      method: 'post',
+      url: '/api/users',
+      payload: {
+        user: {
+          username: 'test-user',
+          password: 'test-pass',
+          email: 'x@y.com',
+        },
+      },
+    })
 
-        await dropDb();
+    expect(signup.statusCode).to.equal(200)
+    expect(signup.result).to.equal({
+      user: {
+        id: 1,
+        username: 'test-user',
+        email: 'x@y.com',
+        bio: null,
+        image: null,
+        token: signup.result.user.token,
+      },
+    })
 
-        const server = await Server.deployment();
+    expect(signup.result.user.token).to.be.a.string()
 
-        const signup = await server.inject({
-            method: 'post',
-            url: '/api/users',
-            payload: {
-                user: {
-                    username: 'test-user',
-                    password: 'test-pass',
-                    email: 'x@y.com'
-                }
-            }
-        });
+    const login = await server.inject({
+      method: 'post',
+      url: '/api/users/login',
+      payload: {
+        user: {
+          email: 'x@y.com',
+          password: 'test-pass',
+        },
+      },
+    })
 
-        expect(signup.statusCode).to.equal(200);
-        expect(signup.result).to.equal({
-            user: {
-                id: 1,
-                username: 'test-user',
-                email: 'x@y.com',
-                bio: null,
-                image: null,
-                token: signup.result.user.token
-            }
-        });
+    expect(login.statusCode).to.equal(200)
+    expect(login.result).to.equal({
+      user: {
+        id: 1,
+        username: 'test-user',
+        email: 'x@y.com',
+        bio: null,
+        image: null,
+        token: login.result.user.token,
+      },
+    })
 
-        expect(signup.result.user.token).to.be.a.string();
+    expect(login.result.user.token).to.be.a.string()
 
-        const login = await server.inject({
-            method: 'post',
-            url: '/api/users/login',
-            payload: {
-                user: {
-                    email: 'x@y.com',
-                    password: 'test-pass'
-                }
-            }
-        });
+    const getCurrentUser = await server.inject({
+      method: 'get',
+      url: '/api/user',
+      headers: {
+        authorization: `Token ${login.result.user.token}`,
+      },
+    })
 
-        expect(login.statusCode).to.equal(200);
-        expect(login.result).to.equal({
-            user: {
-                id: 1,
-                username: 'test-user',
-                email: 'x@y.com',
-                bio: null,
-                image: null,
-                token: login.result.user.token
-            }
-        });
+    expect(getCurrentUser.statusCode).to.equal(200)
+    expect(getCurrentUser.result).to.equal({
+      user: {
+        id: 1,
+        username: 'test-user',
+        email: 'x@y.com',
+        bio: null,
+        image: null,
+        token: login.result.user.token,
+      },
+    })
+  })
 
-        expect(login.result.user.token).to.be.a.string();
+  it('passes postman tests.', { timeout: 5000 }, async (flags) => {
+    await dropDb()
 
-        const getCurrentUser = await server.inject({
-            method: 'get',
-            url: '/api/user',
-            headers: {
-                authorization: `Token ${login.result.user.token}`
-            }
-        });
+    const server = await Server.deployment()
 
-        expect(getCurrentUser.statusCode).to.equal(200);
-        expect(getCurrentUser.result).to.equal({
-            user: {
-                id: 1,
-                username: 'test-user',
-                email: 'x@y.com',
-                bio: null,
-                image: null,
-                token: login.result.user.token
-            }
-        });
-    });
+    await server.start()
 
-    it('passes postman tests.', { timeout: 5000 }, async (flags) => {
+    flags.onCleanup = async () => await server.stop()
 
-        await dropDb();
+    // Create a user to follow/unfollow (referenced within postman collection)
 
-        const server = await Server.deployment();
+    await server.services().userService.signup({
+      username: 'rick',
+      password: 'secret-rick',
+      email: 'rick@rick.com',
+    })
 
-        await server.start();
+    // Run postman tests
 
-        flags.onCleanup = async () => await server.stop();
+    const newman = Newman.run({
+      reporters: 'cli',
+      collection: require('./postman-collection.json'),
+      environment: {
+        values: [
+          {
+            enabled: true,
+            key: 'apiUrl',
+            value: `${server.info.uri}/api`,
+            type: 'text',
+          },
+        ],
+      },
+    })
 
-        // Create a user to follow/unfollow (referenced within postman collection)
+    await Toys.event(newman, 'done')
 
-        await server.services().userService.signup({
-            username: 'rick',
-            password: 'secret-rick',
-            email: 'rick@rick.com'
-        });
-
-        // Run postman tests
-
-        const newman = Newman.run({
-            reporters: 'cli',
-            collection: require('./postman-collection.json'),
-            environment: {
-                values: [
-                    {
-                        enabled: true,
-                        key: 'apiUrl',
-                        value: `${server.info.uri}/api`,
-                        type: 'text'
-                    }
-                ]
-            }
-        });
-
-        await Toys.event(newman, 'done');
-
-        expect(newman.summary.run.error).to.not.exist();
-        expect(newman.summary.run.failures.length).to.equal(0);
-    });
-});
+    expect(newman.summary.run.error).to.not.exist()
+    expect(newman.summary.run.failures.length).to.equal(0)
+  })
+})

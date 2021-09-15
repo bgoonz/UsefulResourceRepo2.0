@@ -1,6 +1,6 @@
 # :houses: Veranstaltungsorte
 
-CSS Frankfurt Veranstaltungen finden an verschiedenen Orten in und um Frankfurt statt.  
+CSS Frankfurt Veranstaltungen finden an verschiedenen Orten in und um Frankfurt statt.
 
 Wir danken allen Firmen und Co-Working-Spaces, die uns ihre Räumlichkeiten zur Verfügung stellen!
 

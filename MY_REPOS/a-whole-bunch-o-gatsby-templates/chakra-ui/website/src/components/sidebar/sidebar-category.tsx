@@ -16,15 +16,8 @@ interface SidebarState {
 }
 
 function SidebarCategory(props: SidebarCategoryProps) {
-  const {
-    isMobile,
-    title,
-    selected,
-    opened,
-    children,
-    contentRef,
-    ...rest
-  } = props
+  const { isMobile, title, selected, opened, children, contentRef, ...rest } =
+    props
 
   const ref = useRef<HTMLDivElement | null>(null)
 

@@ -106,11 +106,10 @@ export function useDescendants<T extends HTMLElement, P>() {
     )
   }, [])
 
-  const context = useMemo(() => ({ descendants, register, unregister }), [
-    descendants,
-    register,
-    unregister,
-  ])
+  const context = useMemo(
+    () => ({ descendants, register, unregister }),
+    [descendants, register, unregister],
+  )
 
   return context
 }

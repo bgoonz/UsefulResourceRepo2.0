@@ -1,22 +1,20 @@
 // to test this without having to flip between yarn e2e:record  and yarn e2e:open, just flip the bit
-const isRecord = () => Cypress.env('ENVIRONMENT') !== 'record';
+const isRecord = () => Cypress.env("ENVIRONMENT") !== "record";
 
-describe('MyApp', function() {
-
+describe("MyApp", function () {
   // We declare an empty array to gather XHR responses
   const xhrData = [];
 
-  after(function() {
+  after(function () {
     // In record mode, save gathered XHR data to local JSON file
     if (isRecord()) {
-      const path = './cypress/fixtures/fixture.json';
+      const path = "./cypress/fixtures/fixture.json";
       cy.writeFile(path, xhrData);
       cy.log(`Wrote ${xhrData.length} XHR responses to local file ${path}`);
     }
   });
 
-  it('Works', function() {
-
+  it("Works", function () {
     console.log(isRecord());
     cy.server({
       // Here we handle all requests passing through Cypress' server
@@ -33,25 +31,23 @@ describe('MyApp', function() {
 
     // This tells Cypress to hook into any GET request
     if (isRecord()) {
-      cy.log('recording!');
+      cy.log("recording!");
       cy.route({
-        method: 'GET',
-        url: '*',
+        method: "GET",
+        url: "*",
       });
     }
 
     // Load stubbed data from local JSON file
     if (!isRecord()) {
-      cy.fixture('fixture')
-        .then((data) => {
-          for (let i = 0, length = data.length; i < length; i++) {
-            cy.route(data[i].method, data[i].url, data[i].data);
-          }
-        });
+      cy.fixture("fixture").then((data) => {
+        for (let i = 0, length = data.length; i < length; i++) {
+          cy.route(data[i].method, data[i].url, data[i].data);
+        }
+      });
     }
 
-    cy.visit('http://localhost:8080/');
-    cy.get('ul').find('li').should('have.length', 10);
-
+    cy.visit("http://localhost:8080/");
+    cy.get("ul").find("li").should("have.length", 10);
   });
 });

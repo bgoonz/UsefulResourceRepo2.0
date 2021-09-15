@@ -1,7 +1,8 @@
 const matchString = (val: string, regex: RegExp) => val.match(regex)
 
 const unitMatch = /(\d*\.?\d+)\s?(px|em|ex|%|in|rem|cn|mm|pt|pc+)/
-const styleMatch = /none|hidden|dotted|dashed|solid|double|groove|ridge|inset|outset/
+const styleMatch =
+  /none|hidden|dotted|dashed|solid|double|groove|ridge|inset|outset/
 
 /**
  * Function to enable shorthand border values.

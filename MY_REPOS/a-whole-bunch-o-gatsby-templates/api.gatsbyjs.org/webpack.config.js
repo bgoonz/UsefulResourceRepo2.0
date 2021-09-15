@@ -7,10 +7,10 @@ module.exports = {
   target: 'node',
   mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
   optimization: {
-    minimize: false
+    minimize: false,
   },
   performance: {
-    hints: false
+    hints: false,
   },
   devtool: 'nosources-source-map',
   externals: [nodeExternals()],
@@ -21,21 +21,21 @@ module.exports = {
         exclude: /node_modules/,
         use: [
           {
-            loader: 'babel-loader'
-          }
-        ]
+            loader: 'babel-loader',
+          },
+        ],
       },
       {
         test: /\.(graphql|gql)$/,
         exclude: /node_modules/,
-        loader: 'graphql-tag/loader'
-      }
-    ]
+        loader: 'graphql-tag/loader',
+      },
+    ],
   },
   output: {
     libraryTarget: 'commonjs2',
     path: path.join(__dirname, '.webpack'),
     filename: '[name].js',
-    sourceMapFilename: '[file].map'
-  }
+    sourceMapFilename: '[file].map',
+  },
 };

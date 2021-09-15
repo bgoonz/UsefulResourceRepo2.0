@@ -22,20 +22,19 @@ TS.html.modals = {
         </form>
         </div>
       `,
-      js: function ({
-        box,
-        root
-      }) {
+      js: function ({ box, root }) {
         TS.js.baseModal(box, root);
-        root.querySelector("#themeSelect").value = TS.data.local.preferences.theme;
+        root.querySelector("#themeSelect").value =
+          TS.data.local.preferences.theme;
         root.querySelector("#prefForm").onsubmit = function (event) {
           event.preventDefault();
-          TS.data.local.preferences.theme = root.querySelector("#themeSelect").value;
+          TS.data.local.preferences.theme =
+            root.querySelector("#themeSelect").value;
           TS.events.updatePreferences(root.querySelector("#themeSelect").value);
           box.remove();
           return 0;
         };
-      }
+      },
     });
     return item.box;
   },
@@ -43,7 +42,8 @@ TS.html.modals = {
     let options = ``;
     if (TS.data.chosenFile.master_root === undefined) {
       TS.data.chosenFile.master_root = {};
-      TS.data.chosenFile.master_root.templates = 'TS.js.templates["novel outline"]';
+      TS.data.chosenFile.master_root.templates =
+        'TS.js.templates["novel outline"]';
     }
     let x = eval(TS.data.chosenFile.master_root.templates); // Todo: Remove the eval, there must be a better way
     Object.keys(x).forEach(function (ele) {
@@ -67,17 +67,20 @@ TS.html.modals = {
          </form>
         </div>
       `,
-      js: function ({box,root}) {
+      js: function ({ box, root }) {
         TS.js.baseModal(box, root);
-        root.querySelector('#addLineForm').onkeypress = function(event) {
-          if(event.charCode == 13){
+        root.querySelector("#addLineForm").onkeypress = function (event) {
+          if (event.charCode == 13) {
             event.preventDefault();
-            root.querySelector("#addLineForm").querySelector('.btnSubmit').click();
+            root
+              .querySelector("#addLineForm")
+              .querySelector(".btnSubmit")
+              .click();
             return false; // returning false will prevent the event from bubbling up.
           } else {
-              return true;
+            return true;
           }
-        }
+        };
         root.querySelector("#addLineForm").onsubmit = function (event) {
           event.preventDefault();
           let name = this.querySelector("#name").value;
@@ -89,12 +92,15 @@ TS.html.modals = {
             TS.data.currentView.forEach(function (ele, n) {
               if (n < TS.data.currentView.length - 1) i = i[ele];
             });
-            TS.refs.displayOpts.swapFocus(i, TS.data.currentView[TS.data.currentView.length - 1]);
+            TS.refs.displayOpts.swapFocus(
+              i,
+              TS.data.currentView[TS.data.currentView.length - 1]
+            );
           }
           box.remove();
           return false;
         };
-      }
+      },
     });
     return item.box;
   },
@@ -112,10 +118,7 @@ TS.html.modals = {
           <input type = 'submit' id='submit' class='btnSubmit'>
         </div>
       `,
-      js: function ({
-        box,
-        root
-      }) {
+      js: function ({ box, root }) {
         TS.js.baseModal(box, root);
         root.querySelector("#submit").onclick = function () {
           var input = root.querySelector("#fileUpload");
@@ -130,16 +133,16 @@ TS.html.modals = {
             alert("Please upload a file before continuing"); // Todo: remove the alert, maybe create some modal or solve it differently
           }
         };
-      }
+      },
     });
     return item.box;
   },
   saveFile: function () {
     let textarea = Object.assign(document.createElement("textarea"), {
-      innerText: JSON.stringify(TS.data.local.files, 0, 2)
+      innerText: JSON.stringify(TS.data.local.files, 0, 2),
     });
     var myblob = new Blob([textarea.innerText], {
-      type: "text/plain"
+      type: "text/plain",
     });
     let url = URL.createObjectURL(myblob);
     let date = new Date();
@@ -157,16 +160,13 @@ TS.html.modals = {
           <a href="${url}" download="AuthorPal-${date.toDateString()}">Download</a>
         </div>
       `,
-      js: function ({
-        box,
-        root
-      }) {
+      js: function ({ box, root }) {
         TS.js.baseModal(box, root);
-      }
+      },
     });
     return item.box;
   },
-  createFile: function ({commands}) {
+  createFile: function ({ commands }) {
     let item = TS.lib.createComponent({
       id: "TS.html.modals.createFile",
       css: TS.css.modals.createFile(),
@@ -186,7 +186,7 @@ TS.html.modals = {
          </form>
         </div>
       `,
-      js: function ({box,root}) {
+      js: function ({ box, root }) {
         TS.js.baseModal(box, root);
         root.querySelector("#createForm").onsubmit = function (event) {
           event.preventDefault();
@@ -199,13 +199,13 @@ TS.html.modals = {
           } else {
             let msg = Object.assign(document.createElement("b"), {
               innerText: " | Name is already taken! | ",
-              style: "color: blue;"
+              style: "color: blue;",
             });
             root.appendChild(msg);
           }
           return false;
         };
-      }
+      },
     });
     return item.box;
   },
@@ -219,7 +219,7 @@ TS.html.modals = {
           <h2> Choose the file you wish to delete </h2>
         </div>
       `,
-      js: function ({box,root}) {
+      js: function ({ box, root }) {
         TS.js.baseModal(box, root);
         for (let x in TS.data.local.files) {
           if (TS.data.local.files.hasOwnProperty(x)) {
@@ -227,26 +227,31 @@ TS.html.modals = {
               className: "fileBtn",
               innerText: x,
               onclick: function () {
-                TS.refs.container.appendChild(TS.html.modals.confirmationDelete(x, function () {
-                  delete TS.data.local.files[x];
-                  TS.events.save(function () {
-                    location.reload();
-                  });
-                }));
+                TS.refs.container.appendChild(
+                  TS.html.modals.confirmationDelete(x, function () {
+                    delete TS.data.local.files[x];
+                    TS.events.save(function () {
+                      location.reload();
+                    });
+                  })
+                );
                 box.remove();
-              }
+              },
             });
             root.querySelector("#centerModal").appendChild(file);
           }
         }
-        if (Object.keys(TS.data.local.files).length === 0) root.querySelector("#centerModal").appendChild(TS.lib.createNode("h2", {
-          innerHTML: "no files found"
-        }));
-      }
+        if (Object.keys(TS.data.local.files).length === 0)
+          root.querySelector("#centerModal").appendChild(
+            TS.lib.createNode("h2", {
+              innerHTML: "no files found",
+            })
+          );
+      },
     });
     return item.box;
   },
-  openFile: function ({commands}) {
+  openFile: function ({ commands }) {
     let item = TS.lib.createComponent({
       id: "TS.html.modals.openFile",
       css: TS.css.modals.openFile(),
@@ -256,7 +261,7 @@ TS.html.modals = {
           <h2> Choose file you wish to open </h2>
         </div>
       `,
-      js: function ({box,root}) {
+      js: function ({ box, root }) {
         TS.js.baseModal(box, root);
         for (let x in TS.data.local.files) {
           if (TS.data.local.files.hasOwnProperty(x)) {
@@ -266,15 +271,18 @@ TS.html.modals = {
               onclick: function () {
                 commands.open(x);
                 box.remove();
-              }
+              },
             });
             root.querySelector("#centerModal").appendChild(file);
           }
         }
-        if (Object.keys(TS.data.local.files).length === 0) root.querySelector("#centerModal").appendChild(TS.lib.createNode("h2", {
-          innerHTML: "no files found"
-        }));
-      }
+        if (Object.keys(TS.data.local.files).length === 0)
+          root.querySelector("#centerModal").appendChild(
+            TS.lib.createNode("h2", {
+              innerHTML: "no files found",
+            })
+          );
+      },
     });
     return item.box;
   },
@@ -289,7 +297,7 @@ TS.html.modals = {
           <button id='yes' class='btnWarn'>Yes</button><button id='cancel'>Cancel</button>
         </div>
       `,
-      js: function ({box,root}) {
+      js: function ({ box, root }) {
         TS.js.baseModal(box, root);
         root.querySelector("#yes").onclick = function () {
           callback();
@@ -298,7 +306,7 @@ TS.html.modals = {
         root.querySelector("#cancel").onclick = function () {
           box.remove();
         };
-      }
+      },
     });
     return item.box;
   },
@@ -308,7 +316,9 @@ TS.html.modals = {
       text;
     let styleChoice;
     if (TS.data.chosenFile && TS.data.chosenFile.master_root.exportFormat) {
-      let formatted = TS.js.fileFormat[TS.data.chosenFile.master_root.exportFormat](TS.data.chosenFile);
+      let formatted = TS.js.fileFormat[
+        TS.data.chosenFile.master_root.exportFormat
+      ](TS.data.chosenFile);
       text = formatted;
       let keys = Object.keys(formatted);
       try {
@@ -319,12 +329,17 @@ TS.html.modals = {
       }
       keys.forEach(function (ele) {
         let textarea = Object.assign(document.createElement("textarea"), {
-          innerText: `<head> ${TS.data.chosenFile["#advanced"]["*head"]}
+          innerText:
+            `<head> ${TS.data.chosenFile["#advanced"]["*head"]}
           <script>${TS.data.chosenFile["#advanced"]["*script"]} </script>
-           ${styleChoice} </head>` + formatted[ele].main + "<script>" + formatted[ele].script + "</script>"
+           ${styleChoice} </head>` +
+            formatted[ele].main +
+            "<script>" +
+            formatted[ele].script +
+            "</script>",
         });
         var myblob = new Blob([textarea.innerText], {
-          type: "text/html"
+          type: "text/html",
         });
         let url = URL.createObjectURL(myblob);
         let date = new Date();
@@ -344,15 +359,16 @@ TS.html.modals = {
           ${filePreview || ""}
         </div>
       `,
-      js: function ({box, root}) {
+      js: function ({ box, root }) {
         TS.js.baseModal(box, root);
         if (!fileDownload) {
           let i = document.createElement("i");
-          i.innerText = "Either you haven't opened a file or your file is incompatible for export.";
+          i.innerText =
+            "Either you haven't opened a file or your file is incompatible for export.";
           root.querySelector("#centerModal").appendChild(i);
         }
-      }
+      },
     });
     return item.box;
-  }
+  },
 };

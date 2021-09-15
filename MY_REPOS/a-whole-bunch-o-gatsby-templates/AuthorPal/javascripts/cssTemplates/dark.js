@@ -1,6 +1,6 @@
 /* global TS */
 {
-  "use strict";
+  ("use strict");
   let font = `
     color: rgb(240,240,240);
   `;
@@ -132,6 +132,6 @@
       select option:checked {
         color: white;
         background-color: rgb(0,33,0);
-      }`
+      }`,
   };
 }

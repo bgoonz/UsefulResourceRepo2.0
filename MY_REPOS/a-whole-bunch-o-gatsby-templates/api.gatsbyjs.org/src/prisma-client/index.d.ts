@@ -2,13 +2,13 @@
 // Please don't change this file manually but run `prisma generate` to update it.
 // For more information, please read the docs: https://www.prisma.io/docs/prisma-client/
 
-import { DocumentNode } from "graphql";
+import { DocumentNode } from 'graphql';
 import {
   makePrismaClientClass,
   BaseClientOptions,
-  Model
-} from "prisma-client-lib";
-import { typeDefs } from "./prisma-schema";
+  Model,
+} from 'prisma-client-lib';
+import { typeDefs } from './prisma-schema';
 
 export type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K> }> = Partial<T> &
   U[keyof U];
@@ -141,34 +141,34 @@ export interface ClientConstructor<T> {
  */
 
 export type ContributorOrderByInput =
-  | "id_ASC"
-  | "id_DESC"
-  | "updatedAt_ASC"
-  | "updatedAt_DESC"
-  | "createdAt_ASC"
-  | "createdAt_DESC"
-  | "email_ASC"
-  | "email_DESC"
-  | "githubUsername_ASC"
-  | "githubUsername_DESC"
-  | "shopifyCustomerID_ASC"
-  | "shopifyCustomerID_DESC";
+  | 'id_ASC'
+  | 'id_DESC'
+  | 'updatedAt_ASC'
+  | 'updatedAt_DESC'
+  | 'createdAt_ASC'
+  | 'createdAt_DESC'
+  | 'email_ASC'
+  | 'email_DESC'
+  | 'githubUsername_ASC'
+  | 'githubUsername_DESC'
+  | 'shopifyCustomerID_ASC'
+  | 'shopifyCustomerID_DESC';
 
 export type FeedbackOrderByInput =
-  | "id_ASC"
-  | "id_DESC"
-  | "updatedAt_ASC"
-  | "updatedAt_DESC"
-  | "createdAt_ASC"
-  | "createdAt_DESC"
-  | "rating_ASC"
-  | "rating_DESC"
-  | "comment_ASC"
-  | "comment_DESC"
-  | "originUrl_ASC"
-  | "originUrl_DESC";
+  | 'id_ASC'
+  | 'id_DESC'
+  | 'updatedAt_ASC'
+  | 'updatedAt_DESC'
+  | 'createdAt_ASC'
+  | 'createdAt_DESC'
+  | 'rating_ASC'
+  | 'rating_DESC'
+  | 'comment_ASC'
+  | 'comment_DESC'
+  | 'originUrl_ASC'
+  | 'originUrl_DESC';
 
-export type MutationType = "CREATED" | "UPDATED" | "DELETED";
+export type MutationType = 'CREATED' | 'UPDATED' | 'DELETED';
 
 export type ContributorWhereUniqueInput = AtLeastOne<{
   id: ID_Input;
@@ -755,13 +755,13 @@ export type Long = string;
 
 export const models: Model[] = [
   {
-    name: "Contributor",
-    embedded: false
+    name: 'Contributor',
+    embedded: false,
   },
   {
-    name: "Feedback",
-    embedded: false
-  }
+    name: 'Feedback',
+    embedded: false,
+  },
 ];
 
 /**

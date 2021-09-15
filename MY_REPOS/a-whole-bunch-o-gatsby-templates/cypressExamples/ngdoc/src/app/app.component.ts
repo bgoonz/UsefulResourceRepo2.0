@@ -1,15 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from "@angular/core";
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   template: `
     <app-main-nav></app-main-nav>
-    <div class='page-wrapper'>
+    <div class="page-wrapper">
       <router-outlet></router-outlet>
     </div>
     <app-site-footer></app-site-footer>
   `,
-  styles: []
+  styles: [],
 })
 export class AppComponent implements OnInit {
   ngOnInit() {}

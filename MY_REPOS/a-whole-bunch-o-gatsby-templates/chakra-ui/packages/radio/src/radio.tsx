@@ -68,17 +68,13 @@ export const Radio = forwardRef<RadioProps, "input">((props, ref) => {
 
   const name = props?.name ?? group?.name
 
-  const {
-    getInputProps,
-    getCheckboxProps,
-    getLabelProps,
-    htmlProps,
-  } = useRadio({
-    ...rest,
-    isChecked,
-    onChange,
-    name,
-  })
+  const { getInputProps, getCheckboxProps, getLabelProps, htmlProps } =
+    useRadio({
+      ...rest,
+      isChecked,
+      onChange,
+      name,
+    })
 
   const [layoutProps, otherProps] = split(htmlProps, layoutPropNames as any)
 

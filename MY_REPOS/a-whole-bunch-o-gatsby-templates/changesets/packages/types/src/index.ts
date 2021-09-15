@@ -4,7 +4,7 @@ const DEPENDENCY_TYPES = [
   "dependencies",
   "devDependencies",
   "peerDependencies",
-  "optionalDependencies"
+  "optionalDependencies",
 ] as const;
 
 export type VersionType = "major" | "minor" | "patch" | "none";
@@ -65,9 +65,7 @@ export type Config = {
   /** The minimum bump type to trigger automatic update of internal dependencies that are part of the same release */
   updateInternalDependencies: "patch" | "minor";
   ignore: ReadonlyArray<string>;
-  ___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH: Required<
-    ExperimentalOptions
-  >;
+  ___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH: Required<ExperimentalOptions>;
 };
 
 export type WrittenConfig = {

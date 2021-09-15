@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const Objection = require('objection');
+const Objection = require('objection')
 
 module.exports = (server) => ({
-    transaction: (fn) => Objection.transaction(server.knex(), fn)
-});
+  transaction: (fn) => Objection.transaction(server.knex(), fn),
+})

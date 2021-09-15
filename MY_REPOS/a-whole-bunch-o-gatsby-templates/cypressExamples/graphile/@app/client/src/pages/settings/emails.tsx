@@ -66,7 +66,7 @@ function Email({
             Make primary
           </a>
         ),
-      ].filter(_ => _)}
+      ].filter((_) => _)}
     >
       <List.Item.Meta
         avatar={
@@ -147,7 +147,7 @@ export default function Settings_Emails() {
           </P>
           <List
             dataSource={user.userEmails.nodes}
-            renderItem={email => (
+            renderItem={(email) => (
               <Email
                 email={email}
                 hasOtherEmails={user.userEmails.nodes.length > 1}
@@ -203,7 +203,7 @@ function AddEmailForm({
     [form]
   );
   const handleSubmit = useCallback(
-    async e => {
+    async (e) => {
       e.preventDefault();
       try {
         setError(null);

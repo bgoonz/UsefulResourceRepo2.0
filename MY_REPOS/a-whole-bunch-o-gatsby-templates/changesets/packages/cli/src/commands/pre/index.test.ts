@@ -14,10 +14,10 @@ let preStateForSimpleProject: PreState = {
   changesets: [],
   initialVersions: {
     "pkg-a": "1.0.0",
-    "pkg-b": "1.0.0"
+    "pkg-b": "1.0.0",
   },
   mode: "pre",
-  tag: "next"
+  tag: "next",
 };
 
 jest.mock("@changesets/logger");
@@ -63,9 +63,9 @@ describe("exitPre", () => {
     );
     await pre(cwd, { command: "exit" });
 
-    expect(
-      await fs.readJson(path.join(cwd, ".changeset", "pre.json"))
-    ).toEqual({ ...preStateForSimpleProject, mode: "exit" });
+    expect(await fs.readJson(path.join(cwd, ".changeset", "pre.json"))).toEqual(
+      { ...preStateForSimpleProject, mode: "exit" }
+    );
   });
   it("should throw if not in pre", async () => {
     let cwd = f.copy("simple-project");

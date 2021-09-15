@@ -19,7 +19,7 @@ export async function resetPassword(
 }
 
 it("can use valid token", () =>
-  withRootDb(async client => {
+  withRootDb(async (client) => {
     // Get the token
     const [user] = await createUsers(client, 1, true);
     await forgotPassword(client, user._email!.toLowerCase());
@@ -41,7 +41,7 @@ it("can use valid token", () =>
   }));
 
 it("cannot use reset password token twice", () =>
-  withRootDb(async client => {
+  withRootDb(async (client) => {
     // Get the token
     const [user] = await createUsers(client, 1, true);
     await forgotPassword(client, user._email!.toLowerCase());
@@ -67,7 +67,7 @@ it("cannot use reset password token twice", () =>
   }));
 
 it("cannot reset password without token", () =>
-  withRootDb(async client => {
+  withRootDb(async (client) => {
     const [user] = await createUsers(client, 1, true);
     await forgotPassword(client, user._email!.toLowerCase());
     const jobs = await getJobs(client, "user__forgot_password");
@@ -86,7 +86,7 @@ it("cannot reset password without token", () =>
   }));
 
 it("cannot reset password with invalid token", () =>
-  withRootDb(async client => {
+  withRootDb(async (client) => {
     // Get the token
     const [user] = await createUsers(client, 1, true);
     await forgotPassword(client, user._email!.toLowerCase());

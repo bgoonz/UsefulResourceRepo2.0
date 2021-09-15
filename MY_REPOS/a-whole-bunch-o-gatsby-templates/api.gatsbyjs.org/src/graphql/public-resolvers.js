@@ -10,14 +10,14 @@ export default {
       const result = await prisma.feedbacks({
         where: {
           AND: {
-            originUrl_contains: 'gatsbyjs.org'
-          }
+            originUrl_contains: 'gatsbyjs.org',
+          },
         },
-        orderBy: 'originUrl_ASC'
+        orderBy: 'originUrl_ASC',
       });
 
       return result;
-    }
+    },
   },
   Mutation: {
     submitFeedback: async (_, { input }) => {
@@ -25,7 +25,7 @@ export default {
       const result = await prisma.createFeedback({
         comment: input.comment,
         rating: input.rating,
-        originUrl: input.originUrl
+        originUrl: input.originUrl,
       });
 
       if (!result.id) {
@@ -33,9 +33,9 @@ export default {
       }
 
       return 'success';
-    }
+    },
   },
   Feedback: {
-    date: source => source.createdAt
-  }
+    date: (source) => source.createdAt,
+  },
 };

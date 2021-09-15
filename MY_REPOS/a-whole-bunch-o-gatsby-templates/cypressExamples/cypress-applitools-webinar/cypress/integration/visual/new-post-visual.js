@@ -9,7 +9,7 @@ describe('New post', () => {
     cy.login()
   })
 
-  beforeEach(function() {
+  beforeEach(function () {
     cy.eyesOpen({
       testName: this.currentTest.title,
       appName: 'Conduit',
@@ -34,13 +34,11 @@ describe('New post', () => {
     // cy.get('[data-cy=article]').type(article)
 
     // dispatch Redux actions
-    cy.window()
-      .its('store')
-      .invoke('dispatch', {
-        type: 'UPDATE_FIELD_EDITOR',
-        key: 'body',
-        value: article,
-      })
+    cy.window().its('store').invoke('dispatch', {
+      type: 'UPDATE_FIELD_EDITOR',
+      key: 'body',
+      value: article,
+    })
 
     // need to click "Enter" after each tag
     cy.get('[data-cy=tags]').type(tags.join('{enter}') + '{enter}')

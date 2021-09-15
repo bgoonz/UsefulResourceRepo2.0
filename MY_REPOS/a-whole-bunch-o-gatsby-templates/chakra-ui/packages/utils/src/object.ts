@@ -137,7 +137,7 @@ export const filterUndefined = (object: Dict) =>
   objectFilter(object, (val) => val !== null && val !== undefined)
 
 export const objectKeys = <T extends Dict>(obj: T) =>
-  (Object.keys(obj) as unknown) as (keyof T)[]
+  Object.keys(obj) as unknown as (keyof T)[]
 
 /**
  * Object.entries polyfill for Nodev10 compatibility

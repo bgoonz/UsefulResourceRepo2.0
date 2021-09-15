@@ -1,6 +1,6 @@
 # :police_car: Melde-Richtlinien
 
-If you are subject to or witness unacceptable behavior, or have any other concerns, please contact us at ****report@cssfrankfurt.de**** or reach out any of our [team members](/#meet-the-team).
+If you are subject to or witness unacceptable behavior, or have any other concerns, please contact us at \***\*report@cssfrankfurt.de**** or reach out any of our [team members](/#meet-the-team).
 
 ## 1. Information we need from you
 
@@ -18,7 +18,7 @@ Please include the following information (English or German) in your report:
 
 When you have sent off your report, you will receive an email from us acknowledging that we have recieved your report: the first one will be an automatic reply that your report has arrived in our inbox, and within 24 hours one of our organisers will contact you personally. If we need more information from you, we then also let you know as soon as possible.
 
-*We will respond in the language (English or German) you used in your report.*
+_We will respond in the language (English or German) you used in your report._
 
 Once we have a complete account of the incident(s), we will make a decision as to how to respond. Responses may include:
 

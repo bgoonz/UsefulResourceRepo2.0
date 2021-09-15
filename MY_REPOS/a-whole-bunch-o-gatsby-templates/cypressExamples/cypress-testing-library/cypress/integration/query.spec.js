@@ -6,9 +6,7 @@ describe('query* dom-testing-library commands', () => {
   // Test each of the types of queries: LabelText, PlaceholderText, Text, DisplayValue, AltText, Title, Role, TestId
 
   it.only('queryByLabelText', () => {
-    cy.queryByLabelText('Label 1')
-      .click()
-      .type('Hello Input Labelled By Id')
+    cy.queryByLabelText('Label 1').click().type('Hello Input Labelled By Id')
   })
 
   it('queryAllByLabelText', () => {
@@ -16,9 +14,7 @@ describe('query* dom-testing-library commands', () => {
   })
 
   it('queryByPlaceholderText', () => {
-    cy.queryByPlaceholderText('Input 1')
-      .click()
-      .type('Hello Placeholder')
+    cy.queryByPlaceholderText('Input 1').click().type('Hello Placeholder')
   })
 
   it('queryAllByPlaceholderText', () => {
@@ -26,15 +22,13 @@ describe('query* dom-testing-library commands', () => {
   })
 
   it('queryByText', () => {
-    cy.queryByText('Button Text 1')
-      .click()
-      .should('contain', 'Button Clicked')
+    cy.queryByText('Button Text 1').click().should('contain', 'Button Clicked')
   })
-  
+
   it('queryAllByText', () => {
     cy.queryAllByText(/^Button Text \d$/)
       .should('have.length', 2)
-      .click({ multiple: true })
+      .click({multiple: true})
       .should('contain', 'Button Clicked')
   })
 
@@ -44,10 +38,9 @@ describe('query* dom-testing-library commands', () => {
       .clear()
       .type('Some new text')
   })
-  
+
   it('queryAllByDisplayValue', () => {
-    cy.queryAllByDisplayValue(/^Display Value \d$/)
-      .should('have.length', 2)
+    cy.queryAllByDisplayValue(/^Display Value \d$/).should('have.length', 2)
   })
 
   it('queryByAltText', () => {
@@ -79,14 +72,19 @@ describe('query* dom-testing-library commands', () => {
   })
 
   it('queryAllByTestId', () => {
-    cy.queryAllByTestId(/^image-with-random-alt-tag-\d$/).should('have.length', 2)
+    cy.queryAllByTestId(/^image-with-random-alt-tag-\d$/).should(
+      'have.length',
+      2,
+    )
   })
 
   /* Test the behaviour around these queries */
 
-  it('queryByText with .should(\'not.exist\')', () => {
+  it("queryByText with .should('not.exist')", () => {
     cy.queryAllByText(/^Button Text \d$/).should('exist')
-    cy.queryByText('Non-existing Button Text', {timeout: 100}).should('not.exist')
+    cy.queryByText('Non-existing Button Text', {timeout: 100}).should(
+      'not.exist',
+    )
   })
 
   it('queryByText within', () => {
@@ -99,18 +97,17 @@ describe('query* dom-testing-library commands', () => {
     cy.queryByText('Next Page').click()
 
     const errorMessage = `expected 'queryByText(\`New Page Loaded\`)' to exist in the DOM`
-    cy.on('fail', err => {
+    cy.on('fail', (err) => {
       expect(err.message).to.eq(errorMessage)
     })
 
-    cy.queryByText('New Page Loaded', { timeout: 300 }).should('exist')
+    cy.queryByText('New Page Loaded', {timeout: 300}).should('exist')
   })
 
   it('query* in container', () => {
-    return cy.get('#nested')
-      .then(subject => {
-        cy.queryByText(/^Button Text/, {container: subject}).click()
-      })
+    return cy.get('#nested').then((subject) => {
+      cy.queryByText(/^Button Text/, {container: subject}).click()
+    })
   })
 
   it('queryByText can return no result, and should not error', () => {
@@ -129,10 +126,10 @@ describe('query* dom-testing-library commands', () => {
       .and('not.exist')
   })
 
-  it('queryAllByText with a should(\'exist\') must provide selector error message', () => {
+  it("queryAllByText with a should('exist') must provide selector error message", () => {
     const text = 'Supercalifragilistic'
     const errorMessage = `expected 'queryAllByText(\`${text}\`)' to exist in the DOM`
-    cy.on('fail', err => {
+    cy.on('fail', (err) => {
       expect(err.message).to.eq(errorMessage)
     })
 
@@ -141,7 +138,7 @@ describe('query* dom-testing-library commands', () => {
 
   it('queryByText finding multiple items should error', () => {
     const errorMessage = `Found multiple elements with the text: /^queryByText/i\n\n(If this is intentional, then use the \`*AllBy*\` variant of the query (like \`queryAllByText\`, \`getAllByText\`, or \`findAllByText\`)).`
-    cy.on('fail', err => {
+    cy.on('fail', (err) => {
       expect(err.message).to.eq(errorMessage)
     })
 

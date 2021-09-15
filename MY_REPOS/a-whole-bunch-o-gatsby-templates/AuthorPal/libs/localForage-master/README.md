@@ -1,4 +1,5 @@
 # localForage
+
 [![Build Status](https://travis-ci.org/localForage/localForage.svg?branch=master)](http://travis-ci.org/localForage/localForage)
 [![NPM version](https://badge.fury.io/js/localforage.svg)](http://badge.fury.io/js/localforage)
 [![Dependency Status](https://img.shields.io/david/localForage/localForage.svg)](https://david-dm.org/localForage/localForage)
@@ -15,8 +16,11 @@ To use localForage, just drop a single JavaScript file into your page:
 
 ```html
 <script src="localforage/dist/localforage.js"></script>
-<script>localforage.getItem('something', myCallback);</script>
+<script>
+  localforage.getItem("something", myCallback);
+</script>
 ```
+
 Try the [live example](http://codepen.io/thgreasi/pen/ojYKeE).
 
 Download the [latest localForage from GitHub](https://github.com/localForage/localForage/releases/latest), or install with
@@ -69,9 +73,9 @@ or [Promises](https://www.promisejs.org/). If you are unsure which one is right 
 Here's an example of the Node-style callback form:
 
 ```js
-localforage.setItem('key', 'value', function (err) {
+localforage.setItem("key", "value", function (err) {
   // if err is non-null, we got an error
-  localforage.getItem('key', function (err, value) {
+  localforage.getItem("key", function (err, value) {
     // if err is non-null, we got an error. otherwise, value is the value
   });
 });
@@ -80,13 +84,17 @@ localforage.setItem('key', 'value', function (err) {
 And the Promise form:
 
 ```js
-localforage.setItem('key', 'value').then(function () {
-  return localforage.getItem('key');
-}).then(function (value) {
-  // we got our value
-}).catch(function (err) {
-  // we got an error
-});
+localforage
+  .setItem("key", "value")
+  .then(function () {
+    return localforage.getItem("key");
+  })
+  .then(function (value) {
+    // we got our value
+  })
+  .catch(function (err) {
+    // we got an error
+  });
 ```
 
 For more examples, please visit [the API docs](https://localforage.github.io/localForage).
@@ -114,14 +122,15 @@ Available options are `driver`, `name`, `storeName`, `version`, `size`, and
 `description`.
 
 Example:
+
 ```javascript
 localforage.config({
-    driver      : localforage.WEBSQL, // Force WebSQL; same as using setDriver()
-    name        : 'myApp',
-    version     : 1.0,
-    size        : 4980736, // Size of database, in bytes. WebSQL-only for now.
-    storeName   : 'keyvaluepairs', // Should be alphanumeric, with underscores.
-    description : 'some description'
+  driver: localforage.WEBSQL, // Force WebSQL; same as using setDriver()
+  name: "myApp",
+  version: 1.0,
+  size: 4980736, // Size of database, in bytes. WebSQL-only for now.
+  storeName: "keyvaluepairs", // Should be alphanumeric, with underscores.
+  description: "some description",
 });
 ```
 
@@ -135,13 +144,13 @@ You can create multiple instances of localForage that point to different stores
 using `createInstance`. All the configuration options used by
 [`config`](#configuration) are supported.
 
-``` javascript
+```javascript
 var store = localforage.createInstance({
-  name: "nameHere"
+  name: "nameHere",
 });
 
 var otherStore = localforage.createInstance({
-  name: "otherName"
+  name: "otherName",
 });
 
 // Setting the key on one of these doesn't affect the other.
@@ -154,12 +163,12 @@ otherStore.setItem("key", "value2");
 You can use localForage with [RequireJS](http://requirejs.org/):
 
 ```javascript
-define(['localforage'], function(localforage) {
-    // As a callback:
-    localforage.setItem('mykey', 'myvalue', console.log);
+define(["localforage"], function (localforage) {
+  // As a callback:
+  localforage.setItem("mykey", "myvalue", console.log);
 
-    // With a Promise:
-    localforage.setItem('mykey', 'myvalue').then(console.log);
+  // With a Promise:
+  localforage.setItem("mykey", "myvalue").then(console.log);
 });
 ```
 
@@ -200,9 +209,9 @@ If you use a framework listed, there's a localForage storage driver for the
 models in your framework so you can store data offline with localForage. We
 have drivers for the following frameworks:
 
-* [AngularJS](https://github.com/ocombe/angular-localForage)
-* [Backbone](https://github.com/localForage/localForage-backbone)
-* [Ember](https://github.com/genkgo/ember-localforage-adapter)
+- [AngularJS](https://github.com/ocombe/angular-localForage)
+- [Backbone](https://github.com/localForage/localForage-backbone)
+- [Ember](https://github.com/genkgo/ember-localforage-adapter)
 
 If you have a driver you'd like listed, please
 [open an issue](https://github.com/localForage/localForage/issues/new) to have it

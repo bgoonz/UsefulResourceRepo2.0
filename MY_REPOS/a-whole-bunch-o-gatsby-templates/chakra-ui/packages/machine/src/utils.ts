@@ -27,7 +27,7 @@ export function toTarget<T extends string | { target?: string }>(target: T) {
 export function toTransition<
   TContext extends Dict,
   TState extends string,
-  TEvent extends S.EventObject
+  TEvent extends S.EventObject,
 >(
   transition: S.Transitions<TContext, TState, TEvent> | undefined,
   currentState?: string | null,

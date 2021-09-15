@@ -1,14 +1,14 @@
-describe('Articles using waits', () => {
+describe("Articles using waits", () => {
   beforeEach(() => {
-    cy.visit('/');
+    cy.visit("/");
   });
-  it('should wait for tags', () => {
+  it("should wait for tags", () => {
     cy.server();
-    cy.route('/api/tags').as('tags');
-    cy.wait('@tags');
+    cy.route("/api/tags").as("tags");
+    cy.wait("@tags");
 
-    cy.get('.tags-container input').type('anim');
-    cy.get('div.tags').should('have.length', 3);
+    cy.get(".tags-container input").type("anim");
+    cy.get("div.tags").should("have.length", 3);
   });
 
   // USER CREATED TEST FOR WAITS
@@ -19,7 +19,5 @@ describe('Articles using waits', () => {
   // BONUS - assert anchor target for articles is _blank
   // HINT: http://example.cypress.io
   // HINT: https://docs.cypress.io/api/commands/should.html#Value
-  it('recents articles should display 25 articles', () => {
-
-  });
+  it("recents articles should display 25 articles", () => {});
 });

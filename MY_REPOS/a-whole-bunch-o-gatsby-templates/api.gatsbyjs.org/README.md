@@ -5,14 +5,17 @@ This is the GraphQL API that powers the Maintainer Dashboard for the [Gatsby Sto
 ## Production environment
 
 Services:
-- [AWS Lambda](https://aws.com/lambda) 
+
+- [AWS Lambda](https://aws.com/lambda)
 - [Prisma Cloud](https://prisma.io/cloud)
 - [Shopify](https://shopify.com)
 
 API:
+
 - [GitHub](https://developer.github.com/v4/)
 
 Frameworks:
+
 - [ExpressJS](https://expressjs.com/)
 - [Prisma Client](https://www.prisma.io/client/client-typescript)
 - [Serverless Framework](https://serverless.com/)

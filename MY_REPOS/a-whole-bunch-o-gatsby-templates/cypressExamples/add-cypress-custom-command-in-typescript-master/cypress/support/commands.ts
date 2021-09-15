@@ -2,9 +2,9 @@
 declare global {
   namespace Cypress {
     type Greeting = {
-      greeting: string,
-      name: string
-    }
+      greeting: string;
+      name: string;
+    };
 
     interface Chainable {
       /**
@@ -15,8 +15,8 @@ declare global {
        * @example
        *    cy.foo().then(f = ...) // f is "foo"
        */
-      foo: typeof foo
-      foo2: typeof foo2
+      foo: typeof foo;
+      foo2: typeof foo2;
 
       /**
        * Yields sum of the arguments.
@@ -28,7 +28,7 @@ declare global {
         cy.sum(2, 3).should('equal', 5)
         ```
        */
-      sum: (a: number, b: number) => Chainable<number>
+      sum: (a: number, b: number) => Chainable<number>;
 
       /**
        * Example command that passes an object of arguments.
@@ -40,12 +40,12 @@ declare global {
         cy.greeting()
        ```
        */
-      greeting: (options?: Greeting) => void
+      greeting: (options?: Greeting) => void;
     }
   }
 }
 
-  /**
+/**
  * An example function "foo()"
  *
  * @returns {string} "foo"
@@ -53,7 +53,7 @@ declare global {
  *    foo() // "foo"
  */
 export function foo() {
-  return 'foo'
+  return "foo";
 }
 
 /**
@@ -63,33 +63,33 @@ export function foo() {
  * @example cy.foo() // "foo"
  */
 export function foo2() {
-  return cy.foo()
+  return cy.foo();
 }
 
 /**
  * Adds two numbers
  * @example sum(2, 3) // 5
-*/
+ */
 export function sum(a: number, b: number): number {
-  return a + b
+  return a + b;
 }
 
 const defaultGreeting: Cypress.Greeting = {
-  greeting: 'hi',
-  name: 'there'
-}
+  greeting: "hi",
+  name: "there",
+};
 
 /**
  * Prints a custom greeting.
  * @example printToConsole({ greeting: 'hello', name: 'world' })
  */
 export const printToConsole = (options = defaultGreeting) => {
-  const {greeting, name} = options
-  console.log(`${greeting}, ${name}`)
-}
+  const { greeting, name } = options;
+  console.log(`${greeting}, ${name}`);
+};
 
 // add commands to Cypress like "cy.foo()" and "cy.foo2()"
-Cypress.Commands.add('foo', foo)
-Cypress.Commands.add('foo2', foo2)
-Cypress.Commands.add('sum', sum)
-Cypress.Commands.add('greeting', printToConsole)
+Cypress.Commands.add("foo", foo);
+Cypress.Commands.add("foo2", foo2);
+Cypress.Commands.add("sum", sum);
+Cypress.Commands.add("greeting", printToConsole);

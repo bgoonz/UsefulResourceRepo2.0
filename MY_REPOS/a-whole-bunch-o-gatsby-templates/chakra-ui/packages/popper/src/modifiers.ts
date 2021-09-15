@@ -14,10 +14,12 @@ export const matchWidth: Modifier<"matchWidth", any> = {
   fn: ({ state }) => {
     state.styles.popper.width = `${state.rects.reference.width}px`
   },
-  effect: ({ state }) => () => {
-    const reference = state.elements.reference as HTMLElement
-    state.elements.popper.style.width = `${reference.offsetWidth}px`
-  },
+  effect:
+    ({ state }) =>
+    () => {
+      const reference = state.elements.reference as HTMLElement
+      state.elements.popper.style.width = `${reference.offsetWidth}px`
+    },
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -34,9 +36,11 @@ export const transformOrigin: Modifier<"transformOrigin", any> = {
   fn: ({ state }) => {
     setTransformOrigin(state)
   },
-  effect: ({ state }) => () => {
-    setTransformOrigin(state)
-  },
+  effect:
+    ({ state }) =>
+    () => {
+      setTransformOrigin(state)
+    },
 }
 
 const setTransformOrigin = (state: State) => {
@@ -111,9 +115,11 @@ export const innerArrow: Modifier<"innerArrow", any> = {
   fn: ({ state }) => {
     setInnerArrowStyles(state)
   },
-  effect: ({ state }) => () => {
-    setInnerArrowStyles(state)
-  },
+  effect:
+    ({ state }) =>
+    () => {
+      setInnerArrowStyles(state)
+    },
 }
 
 const setInnerArrowStyles = (state: State) => {

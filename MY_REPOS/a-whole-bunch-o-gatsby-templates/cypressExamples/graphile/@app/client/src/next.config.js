@@ -7,7 +7,7 @@ if (!ROOT_URL) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-(function(process = null) {
+(function (process = null) {
   // You *must not* use `process.env` in here, because we need to check we have
   // those variables. To enforce this, we've deliberately shadowed process.
   module.exports = () => {
@@ -52,7 +52,7 @@ if (!ROOT_URL) {
           externals: [
             ...(config.externals || []),
             isServer ? { "pg-native": "pg/lib/client" } : null,
-          ].filter(_ => _),
+          ].filter((_) => _),
         };
       },
     });

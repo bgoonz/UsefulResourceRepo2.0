@@ -20,15 +20,14 @@ interface CreateTransformOptions {
   transform?: Transform
 }
 
-export const tokenToCSSVar = (scale: ThemeScale, value: any) => (
-  theme: Dict,
-) => {
-  const valueStr = String(value)
-  const key = scale ? `${scale}.${valueStr}` : valueStr
-  return isObject(theme.__cssMap) && key in theme.__cssMap
-    ? theme.__cssMap[key].varRef
-    : value
-}
+export const tokenToCSSVar =
+  (scale: ThemeScale, value: any) => (theme: Dict) => {
+    const valueStr = String(value)
+    const key = scale ? `${scale}.${valueStr}` : valueStr
+    return isObject(theme.__cssMap) && key in theme.__cssMap
+      ? theme.__cssMap[key].varRef
+      : value
+  }
 
 export function createTransform(options: CreateTransformOptions) {
   const { scale, transform, compose } = options

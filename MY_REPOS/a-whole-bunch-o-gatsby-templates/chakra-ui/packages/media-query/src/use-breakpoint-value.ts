@@ -25,9 +25,9 @@ export function useBreakpointValue<T = any>(
 
   const obj = isArray(values)
     ? fromEntries<Record<string, T>>(
-        Object.entries(
-          arrayToObjectNotation(values, breakpoints),
-        ).map(([key, value]) => [key, value]),
+        Object.entries(arrayToObjectNotation(values, breakpoints)).map(
+          ([key, value]) => [key, value],
+        ),
       )
     : values
 

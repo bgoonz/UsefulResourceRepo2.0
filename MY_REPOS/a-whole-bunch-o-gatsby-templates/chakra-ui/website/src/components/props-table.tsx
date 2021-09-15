@@ -41,11 +41,10 @@ const PropsTable = ({
   ],
   only,
 }: PropsTableProps) => {
-  const propList = React.useMemo(() => makePropsTable({ of, omit, only }), [
-    of,
-    omit,
-    only,
-  ])
+  const propList = React.useMemo(
+    () => makePropsTable({ of, omit, only }),
+    [of, omit, only],
+  )
 
   if (!propList.length) {
     // this error breaks the build to notify you when there would be an empty table

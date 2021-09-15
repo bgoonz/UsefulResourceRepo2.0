@@ -40,7 +40,7 @@ describe('New post', () => {
 
     // check that each tag is displayed after post is shown
     cy.url().should('match', /my-title$/)
-    tags.forEach(tag => cy.contains('.tag-default', tag))
+    tags.forEach((tag) => cy.contains('.tag-default', tag))
   })
 
   it('sets the post body at once', () => {
@@ -60,9 +60,7 @@ describe('New post', () => {
       You can set long text all at once and then trigger \`onChange\` event.
     `
 
-    cy.get('[data-cy=article]')
-      .invoke('val', post)
-      .type('{enter}')
+    cy.get('[data-cy=article]').invoke('val', post).type('{enter}')
 
     cy.get('[data-cy=tags]').type('test{enter}')
     cy.get('[data-cy=publish]').click()
@@ -85,13 +83,11 @@ describe('New post', () => {
     // cy.get('[data-cy=article]').type(article)
 
     // dispatch Redux actions
-    cy.window()
-      .its('store')
-      .invoke('dispatch', {
-        type: 'UPDATE_FIELD_EDITOR',
-        key: 'body',
-        value: article
-      })
+    cy.window().its('store').invoke('dispatch', {
+      type: 'UPDATE_FIELD_EDITOR',
+      key: 'body',
+      value: article,
+    })
 
     // need to click "Enter" after each tag
     cy.get('[data-cy=tags]').type(tags.join('{enter}') + '{enter}')
@@ -105,18 +101,16 @@ describe('New post', () => {
     // new article should be on the server
     cy.request('http://localhost:3000/api/articles?limit=10&offset=0')
       .its('body')
-      .should(body => {
+      .should((body) => {
         expect(body).to.have.property('articlesCount', 1)
         expect(body.articles).to.have.length(1)
         const firstPost = body.articles[0]
         expect(firstPost).to.contain({
           title,
           description: about,
-          body: article
+          body: article,
         })
-        expect(firstPost)
-          .property('tagList')
-          .to.deep.equal(tags)
+        expect(firstPost).property('tagList').to.deep.equal(tags)
       })
   })
 })

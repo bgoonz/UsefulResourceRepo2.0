@@ -6,9 +6,7 @@ describe('find* dom-testing-library commands', () => {
   // Test each of the types of queries: LabelText, PlaceholderText, Text, DisplayValue, AltText, Title, Role, TestId
 
   it('findByLabelText', () => {
-    cy.findByLabelText('Label 1')
-      .click()
-      .type('Hello Input Labelled By Id')
+    cy.findByLabelText('Label 1').click().type('Hello Input Labelled By Id')
   })
 
   it('findAllByLabelText', () => {
@@ -16,9 +14,7 @@ describe('find* dom-testing-library commands', () => {
   })
 
   it('findByPlaceholderText', () => {
-    cy.findByPlaceholderText('Input 1')
-      .click()
-      .type('Hello Placeholder')
+    cy.findByPlaceholderText('Input 1').click().type('Hello Placeholder')
   })
 
   it('findAllByPlaceholderText', () => {
@@ -26,15 +22,13 @@ describe('find* dom-testing-library commands', () => {
   })
 
   it('findByText', () => {
-    cy.findByText('Button Text 1')
-      .click()
-      .should('contain', 'Button Clicked')
+    cy.findByText('Button Text 1').click().should('contain', 'Button Clicked')
   })
-  
+
   it('findAllByText', () => {
     cy.findAllByText(/^Button Text \d$/)
       .should('have.length', 2)
-      .click({ multiple: true })
+      .click({multiple: true})
       .should('contain', 'Button Clicked')
   })
 
@@ -44,10 +38,9 @@ describe('find* dom-testing-library commands', () => {
       .clear()
       .type('Some new text')
   })
-  
+
   it('findAllByDisplayValue', () => {
-    cy.findAllByDisplayValue(/^Display Value \d$/)
-      .should('have.length', 2)
+    cy.findAllByDisplayValue(/^Display Value \d$/).should('have.length', 2)
   })
 
   it('findByAltText', () => {
@@ -79,14 +72,19 @@ describe('find* dom-testing-library commands', () => {
   })
 
   it('findAllByTestId', () => {
-    cy.findAllByTestId(/^image-with-random-alt-tag-\d$/).should('have.length', 2)
+    cy.findAllByTestId(/^image-with-random-alt-tag-\d$/).should(
+      'have.length',
+      2,
+    )
   })
 
   /* Test the behaviour around these queries */
 
-  it('findByText with should(\'not.exist\')', () => {
+  it("findByText with should('not.exist')", () => {
     cy.findAllByText(/^Button Text \d$/).should('exist')
-    cy.findByText('Non-existing Button Text', {timeout: 100}).should('not.exist')
+    cy.findByText('Non-existing Button Text', {timeout: 100}).should(
+      'not.exist',
+    )
   })
 
   it('findByText within', () => {
@@ -96,10 +94,9 @@ describe('find* dom-testing-library commands', () => {
   })
 
   it('findByText in container', () => {
-    return cy.get('#nested')
-      .then(subject => {
-        cy.findByText(/^Button Text/, {container: subject}).click()
-      })
+    return cy.get('#nested').then((subject) => {
+      cy.findByText(/^Button Text/, {container: subject}).click()
+    })
   })
 
   it('findByText works when another page loads', () => {
@@ -110,7 +107,7 @@ describe('find* dom-testing-library commands', () => {
   it('findByText should error if no elements are found', () => {
     const regex = /Supercalifragilistic/
     const errorMessage = `Timed out retrying: Expected to find element: 'findByText(${regex})', but never found it.`
-    cy.on('fail', err => {
+    cy.on('fail', (err) => {
       expect(err.message).to.eq(errorMessage)
     })
 
@@ -119,7 +116,7 @@ describe('find* dom-testing-library commands', () => {
 
   it.only('findByText finding multiple items should error', () => {
     const errorMessage = `Found multiple elements with the text: /^Button Text/i\n\n(If this is intentional, then use the \`*AllBy*\` variant of the query (like \`queryAllByText\`, \`getAllByText\`, or \`findAllByText\`)).`
-    cy.on('fail', err => {
+    cy.on('fail', (err) => {
       expect(err.message).to.eq(errorMessage)
     })
 

@@ -22,13 +22,8 @@ export interface UseFormControlProps<T extends HTMLElement>
 export function useFormControl<T extends HTMLElement>(
   props: UseFormControlProps<T>,
 ) {
-  const {
-    isDisabled,
-    isInvalid,
-    isReadOnly,
-    isRequired,
-    ...rest
-  } = useFormControlProps(props)
+  const { isDisabled, isInvalid, isReadOnly, isRequired, ...rest } =
+    useFormControlProps(props)
 
   return {
     ...rest,

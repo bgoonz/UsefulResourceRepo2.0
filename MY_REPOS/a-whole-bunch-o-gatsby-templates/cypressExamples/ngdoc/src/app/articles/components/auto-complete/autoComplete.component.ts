@@ -1,36 +1,57 @@
 /* tslint:disable:use-host-property-decorator */
 import {
-  NgModule, Component, ViewChild, ElementRef,
-  AfterViewInit, AfterContentInit, AfterViewChecked,
-  DoCheck, Input, Output, EventEmitter, ContentChildren,
-  QueryList, TemplateRef, IterableDiffers, Renderer2,
-  forwardRef, OnDestroy, HostBinding, HostListener
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+  NgModule,
+  Component,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  AfterContentInit,
+  AfterViewChecked,
+  DoCheck,
+  Input,
+  Output,
+  EventEmitter,
+  ContentChildren,
+  QueryList,
+  TemplateRef,
+  IterableDiffers,
+  Renderer2,
+  forwardRef,
+  OnDestroy,
+  HostBinding,
+  HostListener,
+} from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { NG_VALUE_ACCESSOR, ControlValueAccessor } from "@angular/forms";
 
-import { PrimeTemplate } from 'primeng/components/common/shared';
-import { DomHandler } from 'primeng/components/dom/domhandler';
+import { PrimeTemplate } from "primeng/components/common/shared";
+import { DomHandler } from "primeng/components/dom/domhandler";
 
 @Component({
-  selector: 'app-auto-complete',
-  templateUrl: 'autoComplete.component.html',
+  selector: "app-auto-complete",
+  templateUrl: "autoComplete.component.html",
   host: {
-    '[class.ui-inputwrapper-filled]': 'filled',
-    '[class.ui-inputwrapper-focus]': 'focus'
+    "[class.ui-inputwrapper-filled]": "filled",
+    "[class.ui-inputwrapper-focus]": "focus",
   },
   providers: [
     DomHandler,
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => AutocompleteWithChipsComponent),
-      multi: true
-    }]
+      multi: true,
+    },
+  ],
 })
-export class AutocompleteWithChipsComponent implements
-  AfterContentInit, AfterViewInit, DoCheck,
-  AfterViewChecked, ControlValueAccessor, OnDestroy {
-
+export class AutocompleteWithChipsComponent
+  implements
+    AfterContentInit,
+    AfterViewInit,
+    DoCheck,
+    AfterViewChecked,
+    ControlValueAccessor,
+    OnDestroy
+{
   @Input() minLength = 1;
 
   @Input() delay = 300;
@@ -59,7 +80,7 @@ export class AutocompleteWithChipsComponent implements
 
   @Input() field: string;
 
-  @Input() scrollHeight = '200px';
+  @Input() scrollHeight = "200px";
 
   @Input() dropdown: boolean;
 
@@ -79,7 +100,7 @@ export class AutocompleteWithChipsComponent implements
 
   @ContentChildren(PrimeTemplate) templates: QueryList<any>;
 
-  @ViewChild('in') inputEL: ElementRef;
+  @ViewChild("in") inputEL: ElementRef;
 
   public itemTemplate: TemplateRef<any>;
 
@@ -111,14 +132,16 @@ export class AutocompleteWithChipsComponent implements
 
   filled: boolean;
 
-  onModelChange: Function = () => { };
+  onModelChange: Function = () => {};
 
-  onModelTouched: Function = () => { };
+  onModelTouched: Function = () => {};
 
-  constructor(public el: ElementRef,
+  constructor(
+    public el: ElementRef,
     public domHandler: DomHandler,
     differs: IterableDiffers,
-    public renderer: Renderer2) {
+    public renderer: Renderer2
+  ) {
     this.differ = differs.find([]).create(null);
   }
 
@@ -137,7 +160,7 @@ export class AutocompleteWithChipsComponent implements
   ngAfterContentInit() {
     this.templates.forEach((item) => {
       switch (item.getType()) {
-        case 'item':
+        case "item":
           this.itemTemplate = item.template;
           break;
 
@@ -149,19 +172,25 @@ export class AutocompleteWithChipsComponent implements
   }
 
   ngAfterViewInit() {
-    this.input = this.domHandler.findSingle(this.el.nativeElement, 'input');
-    this.panel = this.domHandler.findSingle(this.el.nativeElement, 'div.ui-autocomplete-panel');
+    this.input = this.domHandler.findSingle(this.el.nativeElement, "input");
+    this.panel = this.domHandler.findSingle(
+      this.el.nativeElement,
+      "div.ui-autocomplete-panel"
+    );
 
     if (this.multiple) {
-      this.multipleContainer = this.domHandler.findSingle(this.el.nativeElement, 'ul.ui-autocomplete-multiple-container');
+      this.multipleContainer = this.domHandler.findSingle(
+        this.el.nativeElement,
+        "ul.ui-autocomplete-multiple-container"
+      );
     }
 
-    this.documentClickListener = this.renderer.listen('body', 'click', () => {
+    this.documentClickListener = this.renderer.listen("body", "click", () => {
       this.hide();
     });
 
     if (this.appendTo) {
-      if (this.appendTo === 'body') {
+      if (this.appendTo === "body") {
         document.body.appendChild(this.panel);
       } else {
         this.domHandler.appendChild(this.panel, this.appendTo);
@@ -176,7 +205,10 @@ export class AutocompleteWithChipsComponent implements
     }
 
     if (this.highlightOptionChanged) {
-      const listItem = this.domHandler.findSingle(this.panel, 'li.ui-state-highlight');
+      const listItem = this.domHandler.findSingle(
+        this.panel,
+        "li.ui-state-highlight"
+      );
       if (listItem) {
         this.domHandler.scrollInView(this.panel, listItem);
       }
@@ -186,7 +218,7 @@ export class AutocompleteWithChipsComponent implements
 
   writeValue(value: any): void {
     this.value = value;
-    this.filled = this.value && this.value !== '';
+    this.filled = this.value && this.value !== "";
   }
 
   registerOnChange(fn: Function): void {
@@ -235,15 +267,17 @@ export class AutocompleteWithChipsComponent implements
 
     this.completeMethod.emit({
       originalEvent: event,
-      query: query
+      query: query,
     });
   }
 
   selectItem(option: any) {
-    if (!option) { return; }
+    if (!option) {
+      return;
+    }
 
     if (this.multiple) {
-      this.input.value = '';
+      this.input.value = "";
       this.value = this.value || [];
       if (!this.isSelected(option)) {
         this.value.push(option);
@@ -256,16 +290,15 @@ export class AutocompleteWithChipsComponent implements
       this.onModelChange(this.value);
     }
 
-    if (typeof option === 'object') {
+    if (typeof option === "object") {
       this.select.emit(option);
     } else {
       this.select.emit(option);
       this.add.emit({
         originalEvent: event,
-        value: option
+        value: option,
       });
     }
-
 
     this.input.focus();
   }
@@ -280,9 +313,15 @@ export class AutocompleteWithChipsComponent implements
 
   align() {
     if (this.appendTo) {
-      this.domHandler.absolutePosition(this.panel, (this.multiple ? this.multipleContainer : this.input));
+      this.domHandler.absolutePosition(
+        this.panel,
+        this.multiple ? this.multipleContainer : this.input
+      );
     } else {
-      this.domHandler.relativePosition(this.panel, (this.multiple ? this.multipleContainer : this.input));
+      this.domHandler.relativePosition(
+        this.panel,
+        this.multiple ? this.multipleContainer : this.input
+      );
     }
   }
 
@@ -293,7 +332,7 @@ export class AutocompleteWithChipsComponent implements
   handleDropdownClick(event: any) {
     this.dropdownClick.emit({
       originalEvent: event,
-      query: this.input.value
+      query: this.input.value,
     });
   }
 
@@ -306,10 +345,10 @@ export class AutocompleteWithChipsComponent implements
 
   resolveFieldData(data: any): any {
     if (data && this.field) {
-      if (this.field.indexOf('.') === -1) {
+      if (this.field.indexOf(".") === -1) {
         return data[this.field];
       } else {
-        const fields: string[] = this.field.split('.');
+        const fields: string[] = this.field.split(".");
         let value = data;
         for (let i = 0, len = fields.length; i < len; ++i) {
           value = value[fields[i]];
@@ -330,7 +369,7 @@ export class AutocompleteWithChipsComponent implements
         case 40:
           if (highlightItemIndex !== -1) {
             const nextItemIndex = highlightItemIndex + 1;
-            if (nextItemIndex !== (this.suggestions.length)) {
+            if (nextItemIndex !== this.suggestions.length) {
               this.highlightOption = this.suggestions[nextItemIndex];
               this.highlightOptionChanged = true;
             }
@@ -355,7 +394,6 @@ export class AutocompleteWithChipsComponent implements
         // enter
         case 13:
           if (this.highlightOption) {
-
             this.selectItem(this.highlightOption);
             this.hide();
           }
@@ -367,7 +405,6 @@ export class AutocompleteWithChipsComponent implements
           this.hide();
           event.preventDefault();
           break;
-
 
         // tab
         case 9:
@@ -448,7 +485,7 @@ export class AutocompleteWithChipsComponent implements
   }
 
   updateFilledState() {
-    this.filled = this.input && this.input.value !== '';
+    this.filled = this.input && this.input.value !== "";
   }
 
   ngOnDestroy() {

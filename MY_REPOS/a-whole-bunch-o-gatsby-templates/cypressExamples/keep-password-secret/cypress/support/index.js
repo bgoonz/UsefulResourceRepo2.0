@@ -22,8 +22,8 @@ export const login = () => {
     form: true,
     body: {
       username,
-      password
-    }
+      password,
+    },
   })
   cy.getCookie('connect.sid').should('exist')
 }

@@ -37,7 +37,7 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
 
 export function useTheme<T extends object = Dict>() {
   const theme = React.useContext(
-    (ThemeContext as unknown) as React.Context<T | undefined>,
+    ThemeContext as unknown as React.Context<T | undefined>,
   )
   if (!theme) {
     throw Error(

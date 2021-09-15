@@ -14,13 +14,13 @@ const SHOPIFY_DISCOUNT_CODES = [
     code: 'BUILDWITHGATSBY',
     // rename this shizz
     threshold: 1,
-    tag: 'contributor'
+    tag: 'contributor',
   },
   {
     code: 'HOLYBUCKETS',
     threshold: 5,
-    tag: 'level2'
-  }
+    tag: 'level2',
+  },
 ];
 
 /**
@@ -28,22 +28,22 @@ const SHOPIFY_DISCOUNT_CODES = [
  * @param {string} query - a GraphQL query or mutation
  * @return {Promise} a Promise containing the result and/or errors
  */
-const fetchGraphQL = query =>
+const fetchGraphQL = (query) =>
   axios({
     method: 'post',
     url: `https://${process.env.SHOPIFY_URI}/admin/api/graphql.json`,
     headers: {
       'Content-Type': 'application/graphql',
-      'X-Shopify-Access-Token': process.env.SHOPIFY_GRAPHQL_TOKEN
+      'X-Shopify-Access-Token': process.env.SHOPIFY_GRAPHQL_TOKEN,
     },
-    data: query
+    data: query,
   });
 
-const getShopifyCustomerByEmail = async email => {
+const getShopifyCustomerByEmail = async (email) => {
   const {
     data: {
-      data: { customers }
-    }
+      data: { customers },
+    },
   } = await fetchGraphQL(
     `
       {
@@ -58,7 +58,7 @@ const getShopifyCustomerByEmail = async email => {
     `
   );
 
-  return customers.edges.map(({ node }) => node).find(id => id);
+  return customers.edges.map(({ node }) => node).find((id) => id);
 };
 
 /** @typedef {{ usedCodes: string[], tags: string[] }} CustomerData */
@@ -73,7 +73,7 @@ const getShopifyCustomerByEmail = async email => {
  * @type ShopifyCustomer
  */
 const getShopifyCustomer = mem(
-  async id => {
+  async (id) => {
     logger.verbose(`loading Shopify customer data...`);
 
     const result = await fetchGraphQL(
@@ -99,7 +99,7 @@ const getShopifyCustomer = mem(
       usedCodes: result.data.data.customer.orders.edges.map(
         ({ node: { discountCode } }) => discountCode
       ),
-      tags: result.data.data.customer.tags
+      tags: result.data.data.customer.tags,
     };
   },
   { maxAge: 3000 }
@@ -108,13 +108,13 @@ const getShopifyCustomer = mem(
 export const createShopifyCustomer = async ({
   email,
   firstName,
-  acceptsMarketing
+  acceptsMarketing,
 }) => {
   try {
     const {
       data: {
-        data: { customerCreate: response }
-      }
+        data: { customerCreate: response },
+      },
     } = await fetchGraphQL(
       `
         mutation {
@@ -137,7 +137,7 @@ export const createShopifyCustomer = async ({
 
     if (response.userErrors.length > 0) {
       // Hard-coding error messages feels gross but I don’t have a better idea.
-      const isDuplicate = response.userErrors.find(err =>
+      const isDuplicate = response.userErrors.find((err) =>
         err.message.match(/Email has already been taken/)
       );
 
@@ -193,13 +193,13 @@ export const addTagsToCustomer = async (shopifyCustomerID, tags) => {
   logger.verbose(`Added new tags: ${tags.join(', ')}`);
 };
 
-export const getEarnedDiscountCodes = contributionCount =>
-  SHOPIFY_DISCOUNT_CODES.filter(code => contributionCount >= code.threshold);
+export const getEarnedDiscountCodes = (contributionCount) =>
+  SHOPIFY_DISCOUNT_CODES.filter((code) => contributionCount >= code.threshold);
 
 const getDiscountCodesWithStatus = (contributionCount, usedCodes) =>
   getEarnedDiscountCodes(contributionCount).map(({ code }) => ({
     code,
-    used: usedCodes.includes(code)
+    used: usedCodes.includes(code),
   }));
 
 export const getShopifyDiscountCodes = async (

@@ -68,14 +68,14 @@ export const withRootDb = <T>(fn: ClientCallback<T>) =>
 export const withUserDb = <T>(
   fn: (client: PoolClient, user: User) => Promise<T>
 ) =>
-  withRootDb(async client => {
+  withRootDb(async (client) => {
     const [user] = await createUsers(client, 1);
     await becomeUser(client, user.id);
     await fn(client, user);
   });
 
 export const withAnonymousDb = <T>(fn: (client: PoolClient) => Promise<T>) =>
-  withRootDb(async client => {
+  withRootDb(async (client) => {
     await becomeUser(client, null);
     await fn(client);
   });
@@ -134,7 +134,8 @@ export const pruneIds = (row: { [key: string]: unknown }) =>
       : v
   );
 
-const uuidRegexp = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const uuidRegexp =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const pruneUUIDs = (row: { [key: string]: unknown }) =>
   mapValues(row, (v, k) => {

@@ -17,13 +17,11 @@ export interface RadioGroupContext
   extends Pick<UseRadioGroupReturn, "onChange" | "value" | "name">,
     Omit<ThemingProps<"Radio">, "orientation"> {}
 
-const [
-  RadioGroupProvider,
-  useRadioGroupContext,
-] = createContext<RadioGroupContext>({
-  name: "RadioGroupContext",
-  strict: false,
-})
+const [RadioGroupProvider, useRadioGroupContext] =
+  createContext<RadioGroupContext>({
+    name: "RadioGroupContext",
+    strict: false,
+  })
 
 export { useRadioGroupContext }
 

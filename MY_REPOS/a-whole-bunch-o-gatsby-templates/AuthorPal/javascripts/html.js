@@ -8,10 +8,10 @@ Object.assign(TS.html.display, {
     let box = document.createElement("div");
     Object.assign(box, {
       style: TS.css.boxes.wholeDisplayContainer(),
-      id: "TS.html.display"
+      id: "TS.html.display",
     });
     let root = box.attachShadow({
-      mode: "open"
+      mode: "open",
     });
     let currentID = "";
     let sorted = "";
@@ -27,14 +27,14 @@ Object.assign(TS.html.display, {
         root.innerHTML = "";
         sorted = TS.html.display.sort(id);
         root.append(sorted.element);
-      }, 
+      },
       swapTab: function (id) {
         currentID = id;
         sorted.opts.swapTab(id);
       },
       swapFocus: function (obj, target) {
         sorted.opts.focus(obj, target);
-      }
+      },
     };
     TS.events.bodyChange = function (focused) {
       if (focused.length === 0) {
@@ -54,18 +54,18 @@ Object.assign(TS.html.display, {
   sort: function (id) {
     let box = document.createElement("div");
     Object.assign(box, {
-      id: "TS.html.display.sort"
+      id: "TS.html.display.sort",
     });
     box.style = TS.css.boxes.wholeDisplayContainer();
     let root = box.attachShadow({
-      mode: "open"
+      mode: "open",
     });
     let mainDisplay = TS.html.display.renderedList(id);
     let topUI = TS.html._navBars.displayLeftNav({
       mainDisplay: mainDisplay.opts,
-      id: id
+      id: id,
     });
-    if (typeof (TS.data.chosenFile[id]) === "object") {
+    if (typeof TS.data.chosenFile[id] === "object") {
       topUI.opts.makeList([]);
     }
     root.append(topUI.box, mainDisplay.element);
@@ -80,28 +80,33 @@ Object.assign(TS.html.display, {
         mainDisplay.element.remove();
         mainDisplay.element = mainDisplay.opts.focus(obj, pathName);
         root.append(mainDisplay.element);
-      }
+      },
     };
     return {
       element: box,
-      opts: opts
+      opts: opts,
     };
   },
   renderedList: function (id) {
     let focused = [];
-    let opts = {}
+    let opts = {};
     let box = Object.assign(document.createElement("div"), {
       name: "mainDisplayView",
-      id: "TS.html.display.renderedList"
+      id: "TS.html.display.renderedList",
     });
     TS.refs.display = box;
     let root = box.attachShadow({
-      mode: "open"
+      mode: "open",
     });
     let style = document.createElement("style");
     style.innerHTML = TS.css.boxes.display();
     root.append(style);
-    let determine = function (item, itemName, path, {maxDepth, depth, unfocus}) {
+    let determine = function (
+      item,
+      itemName,
+      path,
+      { maxDepth, depth, unfocus }
+    ) {
       let formatType;
       if (depth === undefined) depth = 0;
       //something funky here
@@ -120,17 +125,26 @@ Object.assign(TS.html.display, {
         };
       }
       let line = Object.assign(document.createElement("div"), {
-        className: "lineContainer "
+        className: "lineContainer ",
       });
-      if (typeof (item) === "object") line.className += " objectContainer";
+      if (typeof item === "object") line.className += " objectContainer";
       else line.className += " stringContainer";
       let lineBody;
       lineBody = Object.assign(document.createElement("div"), {
-        className: "lineBody"
+        className: "lineBody",
       });
-      let title = TS.html.display.titleBar({path: path, itemName: itemName, depth: depth, unfocus: unfocus, item: item, opts: opts, focused: focused, lineBody: lineBody})
+      let title = TS.html.display.titleBar({
+        path: path,
+        itemName: itemName,
+        depth: depth,
+        unfocus: unfocus,
+        item: item,
+        opts: opts,
+        focused: focused,
+        lineBody: lineBody,
+      });
       line.append(title);
-      if (typeof (item) === "string" && maxDepth === undefined) {
+      if (typeof item === "string" && maxDepth === undefined) {
         let textField = Object.assign(document.createElement("div"), {
           className: "textField",
           contentEditable: true,
@@ -143,7 +157,7 @@ Object.assign(TS.html.display, {
               this.innerHTML = formatType(this.innerText);
             }
             TS.events.save();
-          }
+          },
         });
         if (itemName[0] === "*") {
           textField.innerText = item;
@@ -152,26 +166,30 @@ Object.assign(TS.html.display, {
         }
         lineBody.append(textField);
         line.append(lineBody);
-      } else if (typeof (item) === "object") {
+      } else if (typeof item === "object") {
         if (maxDepth === undefined || depth < maxDepth) {
           for (let x in item) {
             if (item.hasOwnProperty(x)) {
-              lineBody.append(determine(item[x], x, item, {
-                maxDepth: maxDepth,
-                depth: 1 + depth
-              }));
+              lineBody.append(
+                determine(item[x], x, item, {
+                  maxDepth: maxDepth,
+                  depth: 1 + depth,
+                })
+              );
             }
           }
         }
       }
-      if (typeof (item) === "object" && Object.keys(item).length !== 0) {
+      if (typeof item === "object" && Object.keys(item).length !== 0) {
         line.append(lineBody);
       }
       if (itemName === TS.data.addedLine) {
         delete TS.data.addedLine;
         TS.data.scrollToLine = line;
         setTimeout(function () {
-          let height = TS.data.scrollToLine.getBoundingClientRect().top - TS.refs.mainNavBar.clientHeight;
+          let height =
+            TS.data.scrollToLine.getBoundingClientRect().top -
+            TS.refs.mainNavBar.clientHeight;
           if (TS.data.alignment === "top") {
             height -= TS.refs.secondaryNavBar.clientHeight;
           }
@@ -186,19 +204,26 @@ Object.assign(TS.html.display, {
         let curr = TS.data.currentView[0];
         focused = [TS.data.chosenFile[curr], curr, TS.data.chosenFile, {}];
         root.innerHTML = "";
-        root.append(style, determine(TS.data.chosenFile[curr], curr, TS.data.chosenFile, {}));
+        root.append(
+          style,
+          determine(TS.data.chosenFile[curr], curr, TS.data.chosenFile, {})
+        );
       },
       fold: function (n) {
         root.innerHTML = "";
         root.append(style);
         if (focused.length === 0)
-          root.append(determine(TS.data.chosenFile[id], id, TS.data.chosenFile, {
-            maxDepth: n
-          }));
+          root.append(
+            determine(TS.data.chosenFile[id], id, TS.data.chosenFile, {
+              maxDepth: n,
+            })
+          );
         else {
-          root.append(determine(focused[0], focused[1], focused[2], {
-            maxDepth: n
-          }));
+          root.append(
+            determine(focused[0], focused[1], focused[2], {
+              maxDepth: n,
+            })
+          );
         }
       },
       focus: function (path, itemName, clickedFocus) {
@@ -212,24 +237,38 @@ Object.assign(TS.html.display, {
       update: function (item) {
         focused = item;
         root.innerHTML = "";
-        root.append(style, (focused.length > 0 ? determine(...item) : determine(TS.data.chosenFile[id], id, TS.data.chosenFile, {})));
-      }
+        root.append(
+          style,
+          focused.length > 0
+            ? determine(...item)
+            : determine(TS.data.chosenFile[id], id, TS.data.chosenFile, {})
+        );
+      },
     });
     return {
       element: box,
-      opts: opts
+      opts: opts,
     };
   },
-  titleBar : function({itemName, unfocus, path, item, depth, opts, focused, lineBody}) {
+  titleBar: function ({
+    itemName,
+    unfocus,
+    path,
+    item,
+    depth,
+    opts,
+    focused,
+    lineBody,
+  }) {
     let title = TS.lib.createNode("div", {
       className: "title",
       draggable: "true",
       ondragstart: function (event) {
         TS.js.events.dragTitle(event);
       },
-      ondragend: function(event) {
-        TS.js.events.dragTitle(event)
-      }
+      ondragend: function (event) {
+        TS.js.events.dragTitle(event);
+      },
     });
     let titleContent = Object.assign(document.createElement("span"), {
       className: "titleContent",
@@ -242,24 +281,23 @@ Object.assign(TS.html.display, {
           itemName = this.innerText;
           path[itemName] = item;
           delete path[oldItemName];
-          let targPath = TS.data.currentView
-          let obj = TS.data.chosenFile
-          for (let i = 0; i < targPath.length-1; i++) {
-            obj = obj[targPath[i]]
+          let targPath = TS.data.currentView;
+          let obj = TS.data.chosenFile;
+          for (let i = 0; i < targPath.length - 1; i++) {
+            obj = obj[targPath[i]];
           }
           if (path === TS.data.chosenFile) {
             TS.refs.displayOpts.render(itemName);
           } else {
-            TS.refs.displayOpts.swapFocus(obj, targPath[targPath.length-1]);
+            TS.refs.displayOpts.swapFocus(obj, targPath[targPath.length - 1]);
           }
         }
-        if (itemName !== this.innerText)
-          this.innerText = itemName;
+        if (itemName !== this.innerText) this.innerText = itemName;
         TS.events.save();
-      }
+      },
     });
     let buttonGroup = Object.assign(document.createElement("div"), {
-      className: "buttonGroup"
+      className: "buttonGroup",
     });
     let keyDelete = Object.assign(document.createElement("button"), {
       innerHTML: "<b>-</b>",
@@ -285,52 +323,60 @@ Object.assign(TS.html.display, {
           TS.data.currentView = [focused[1]];
           TS.refs.treeNav[TS.data.currentView[0]].click();
         };
-        document.body.append(TS.html.modals.confirmationDelete(itemName, callback));
+        document.body.append(
+          TS.html.modals.confirmationDelete(itemName, callback)
+        );
       },
-      contentEditable: false
+      contentEditable: false,
     });
     let unfocusBtn = Object.assign(document.createElement("button"), {
       innerHTML: "&nbsp;&nbsp;",
       title: `unfocus element`,
       className: "unfocusMe",
-      onclick: function() {
-        let targ = TS.data.chosenFile
-        TS.data.currentView.forEach(function(ele, i) {
-          if (i < TS.data.currentView.length -1) targ = targ[ele]
-        })
-        opts.focus(targ, TS.data.currentView[TS.data.currentView.length-1]);
-      }
+      onclick: function () {
+        let targ = TS.data.chosenFile;
+        TS.data.currentView.forEach(function (ele, i) {
+          if (i < TS.data.currentView.length - 1) targ = targ[ele];
+        });
+        opts.focus(targ, TS.data.currentView[TS.data.currentView.length - 1]);
+      },
     });
     let openEditorChoices;
-    let editorChoices = function(name) {
+    let editorChoices = function (name) {
       let buttons = [];
-      let addEditor = function(type) {
-        document.body.append(TS.lib.createNode('div', {
-          id: 'editor',
-          style: `width: ${TS.refs.display.clientWidth}px; height: ${TS.refs.display.clientHeight}px; position: absolute; z-index: 1; top: ${TS.refs.topNav.clientHeight}px; left: ${TS.refs.secondaryNavBar.clientWidth}px`
-        }))
+      let addEditor = function (type) {
+        document.body.append(
+          TS.lib.createNode("div", {
+            id: "editor",
+            style: `width: ${TS.refs.display.clientWidth}px; height: ${TS.refs.display.clientHeight}px; position: absolute; z-index: 1; top: ${TS.refs.topNav.clientHeight}px; left: ${TS.refs.secondaryNavBar.clientWidth}px`,
+          })
+        );
         let aceEditor;
         switch (type) {
-          case 'rich text':
-            $(document).ready(function() {
-              $('#editor').summernote();
-              $('#editor').summernote({
-                focus: true
+          case "rich text":
+            $(document).ready(function () {
+              $("#editor").summernote();
+              $("#editor").summernote({
+                focus: true,
               });
-              document.querySelector('.note-editor').style = `
+              document.querySelector(".note-editor").style = `
                 width: ${TS.refs.display.clientWidth}px; height: ${TS.refs.display.clientHeight}px; position: absolute; z-index: 1; top: ${TS.refs.topNav.clientHeight}px; left: ${TS.refs.secondaryNavBar.clientWidth}px
-              `
-              $('#editor').summernote('code', lineBody.querySelector('.textField').innerHTML);
+              `;
+              $("#editor").summernote(
+                "code",
+                lineBody.querySelector(".textField").innerHTML
+              );
               aceEditor = {
-                getValue: function() {
-                  let text = $('#editor').summernote('code')
-                  $('#editor').summernote('destroy');
+                getValue: function () {
+                  let text = $("#editor").summernote("code");
+                  $("#editor").summernote("destroy");
 
                   return text;
                 },
-                setValue: function() {// code insertion todo?
-                }
-              }
+                setValue: function () {
+                  // code insertion todo?
+                },
+              };
             });
             break;
           default:
@@ -339,64 +385,70 @@ Object.assign(TS.html.display, {
             aceEditor.getSession().setMode("ace/mode/" + type);
             aceEditor.setOptions({
               wrap: true,
-              fontSize: "1rem"
+              fontSize: "1rem",
             });
             aceEditor.setValue(item);
         }
-        let exitEditor = TS.lib.createNode('button', {
-          innerText: 'Exit Editor',
-          className: 'baseButtons2',
-          onclick: function() {
+        let exitEditor = TS.lib.createNode("button", {
+          innerText: "Exit Editor",
+          className: "baseButtons2",
+          onclick: function () {
             item = aceEditor.getValue();
             path[itemName] = item;
-            if (itemName[0] == '*') {
-              lineBody.querySelector('.textField').innerText = item;
+            if (itemName[0] == "*") {
+              lineBody.querySelector(".textField").innerText = item;
             } else {
-              lineBody.querySelector('.textField').innerHTML = marked(item);
+              lineBody.querySelector(".textField").innerHTML = marked(item);
             }
-            document.querySelector('#editor').remove();
-            this.remove()
-          }
-        })
-        TS.refs.secondaryNavBar.shadowRoot.querySelector('#left').append(exitEditor)
-      }
-      if (name[0] == '*') {
-        let opts = ['javascript', 'css', 'json', 'html']
-        opts.forEach(ele => {
-          let aBtn = TS.lib.createNode('button', {
+            document.querySelector("#editor").remove();
+            this.remove();
+          },
+        });
+        TS.refs.secondaryNavBar.shadowRoot
+          .querySelector("#left")
+          .append(exitEditor);
+      };
+      if (name[0] == "*") {
+        let opts = ["javascript", "css", "json", "html"];
+        opts.forEach((ele) => {
+          let aBtn = TS.lib.createNode("button", {
             innerText: ele,
-            onclick: function() {addEditor(ele)}
-          })
-          buttons.push(aBtn)
-        })
+            onclick: function () {
+              addEditor(ele);
+            },
+          });
+          buttons.push(aBtn);
+        });
       } else {
-        let opts = ['rich text', 'markdown', 'html']
-        opts.forEach(ele => buttons.push(
-          TS.lib.createNode('button', {
-            innerText: ele,
-            onclick: function() {
-              addEditor(ele)
-            }
-          })
-        ))
+        let opts = ["rich text", "markdown", "html"];
+        opts.forEach((ele) =>
+          buttons.push(
+            TS.lib.createNode("button", {
+              innerText: ele,
+              onclick: function () {
+                addEditor(ele);
+              },
+            })
+          )
+        );
       }
-      let div = TS.lib.createNode('div', {
-        className: 'editorTooltip'
-      })
-      div.append(...buttons)
-      return div
-    }
-    let editor = TS.lib.createNode('div', {
+      let div = TS.lib.createNode("div", {
+        className: "editorTooltip",
+      });
+      div.append(...buttons);
+      return div;
+    };
+    let editor = TS.lib.createNode("div", {
       innerHTML: `editor`,
       className: "editor",
-      onmouseenter: function() {
-        openEditorChoices = editorChoices(titleContent.innerHTML)
-        this.append(openEditorChoices)
+      onmouseenter: function () {
+        openEditorChoices = editorChoices(titleContent.innerHTML);
+        this.append(openEditorChoices);
       },
-      onmouseleave: function() {
-          openEditorChoices.remove()
-      }
-    })
+      onmouseleave: function () {
+        openEditorChoices.remove();
+      },
+    });
 
     let focusMe = Object.assign(document.createElement("button"), {
       innerHTML: `&nbsp;&nbsp;`,
@@ -405,15 +457,17 @@ Object.assign(TS.html.display, {
       onclick: function () {
         opts.focus(path, itemName, true);
       },
-      contentEditable: false
+      contentEditable: false,
     });
-    if (typeof(item) === "object") {
+    if (typeof item === "object") {
       let add = Object.assign(document.createElement("button"), {
         className: "addLine",
         onclick: function () {
-          TS.refs.container.append(TS.html.modals.addLine(path[itemName], focused));
+          TS.refs.container.append(
+            TS.html.modals.addLine(path[itemName], focused)
+          );
         },
-        innerHTML: "+"
+        innerHTML: "+",
       });
       buttonGroup.append(add);
     }
@@ -421,9 +475,9 @@ Object.assign(TS.html.display, {
     buttonGroup.append(keyDelete);
     if (depth === 0 && unfocus) buttonGroup.append(unfocusBtn);
     if (depth > 0) buttonGroup.append(focusMe);
-    if (typeof(item) ==='string') {
-      buttonGroup.append(editor)
+    if (typeof item === "string") {
+      buttonGroup.append(editor);
     }
     return title;
-  }
+  },
 });

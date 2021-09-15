@@ -1,17 +1,16 @@
-'use strict';
+'use strict'
 
-const Toys = require('toys');
+const Toys = require('toys')
 
 exports.withDefaults = Toys.withRouteDefaults({
-    options: {
-        cors: true,
-        validate: {
-            failAction: (request, h, err) => {
+  options: {
+    cors: true,
+    validate: {
+      failAction: (request, h, err) => {
+        throw err
+      },
+    },
+  },
+})
 
-                throw err;
-            }
-        }
-    }
-});
-
-exports.currentUserId = Toys.reacher('auth.credentials.id', { default: null });
+exports.currentUserId = Toys.reacher('auth.credentials.id', { default: null })

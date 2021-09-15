@@ -1,7 +1,7 @@
 import { makeExtendSchemaPlugin, gql } from "graphile-utils";
 import { ERROR_MESSAGE_OVERRIDES } from "../utils/handleErrors";
 
-const PassportLoginPlugin = makeExtendSchemaPlugin(build => ({
+const PassportLoginPlugin = makeExtendSchemaPlugin((build) => ({
   typeDefs: gql`
     input RegisterInput {
       username: String!

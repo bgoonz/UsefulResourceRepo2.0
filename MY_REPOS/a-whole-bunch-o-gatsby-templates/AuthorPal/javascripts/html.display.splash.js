@@ -18,9 +18,7 @@ TS.html.display.splash = function () {
       <ul id='filesList'>
     </div><hr>
   `,
-    js: function ({
-      root
-    }) {
+    js: function ({ root }) {
       let files = TS.data.local.files;
       if (files) {
         let list = ``;
@@ -37,6 +35,6 @@ TS.html.display.splash = function () {
           TS.events.openFile(event.target.innerText);
         };
       }
-    }
+    },
   });
 };

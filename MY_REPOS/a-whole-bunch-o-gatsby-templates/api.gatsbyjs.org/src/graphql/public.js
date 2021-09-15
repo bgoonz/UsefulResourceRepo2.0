@@ -11,7 +11,7 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   introspection: true,
-  playground: true
+  playground: true,
 });
 
 server.applyMiddleware({ app, cors: true, path: '/public' });

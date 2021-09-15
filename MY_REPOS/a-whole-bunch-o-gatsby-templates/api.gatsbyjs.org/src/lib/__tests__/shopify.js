@@ -11,16 +11,16 @@ describe('lib/shopify', () => {
           data: {
             customerCreate: {
               customer: { id: 'gid://shopify/Customer/1234567891234' },
-              userErrors: []
-            }
-          }
-        }
+              userErrors: [],
+            },
+          },
+        },
       });
 
       const customerID = await createShopifyCustomer({
         email: 'team@gatsbyjs.com',
         firstName: 'Gatsbot',
-        acceptsMarketing: true
+        acceptsMarketing: true,
       });
 
       expect(customerID).toBe('gid://shopify/Customer/1234567891234');
@@ -34,28 +34,28 @@ describe('lib/shopify', () => {
               customerCreate: {
                 customer: null,
                 userErrors: [
-                  { message: 'Error: Email has already been taken.' }
-                ]
-              }
-            }
-          }
+                  { message: 'Error: Email has already been taken.' },
+                ],
+              },
+            },
+          },
         })
         .mockResolvedValueOnce({
           data: {
             data: {
               customers: {
                 edges: [
-                  { node: { id: 'gid://shopify/Customer/1234567891234' } }
-                ]
-              }
-            }
-          }
+                  { node: { id: 'gid://shopify/Customer/1234567891234' } },
+                ],
+              },
+            },
+          },
         });
 
       const customerID = await createShopifyCustomer({
         email: 'team@gatsbyjs.com',
         firstName: 'Gatsbot',
-        acceptsMarketing: true
+        acceptsMarketing: true,
       });
 
       expect(customerID).toBe('gid://shopify/Customer/1234567891234');
@@ -69,17 +69,17 @@ describe('lib/shopify', () => {
           data: {
             customerCreate: {
               customer: null,
-              userErrors: [{ message: 'some other error' }]
-            }
-          }
-        }
+              userErrors: [{ message: 'some other error' }],
+            },
+          },
+        },
       });
 
       try {
         await createShopifyCustomer({
           email: 'team@gatsbyjs.com',
           firstName: 'Gatsbot',
-          acceptsMarketing: true
+          acceptsMarketing: true,
         });
       } catch (error) {
         expect(error.message).toBe('some other error');

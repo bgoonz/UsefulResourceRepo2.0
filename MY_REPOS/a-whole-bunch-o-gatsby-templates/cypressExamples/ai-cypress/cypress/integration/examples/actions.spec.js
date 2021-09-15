@@ -18,7 +18,7 @@ context("Actions", () => {
 
       batchName: "actions.spec",
       appName: "Cypress Example app",
-      testName: ".type() - type into a DOM element"
+      testName: ".type() - type into a DOM element",
     });
     // https://on.cypress.io/type
 
@@ -43,7 +43,7 @@ context("Actions", () => {
     cy.eyesCheckWindow({
       tag: "Step1",
       sizeMode: "selector",
-      selector: ".action-email"
+      selector: ".action-email",
     });
 
     cy.get(".action-disabled")
@@ -55,7 +55,7 @@ context("Actions", () => {
     cy.eyesCheckWindow({
       tag: "Step2",
       sizeMode: "selector",
-      selector: ".action-disabled"
+      selector: ".action-disabled",
     });
   });
 
@@ -66,7 +66,7 @@ context("Actions", () => {
 
       batchName: "actions.spec",
       appName: "Cypress Example app",
-      testName: ".focus() - focus on a DOM element"
+      testName: ".focus() - focus on a DOM element",
     });
     // https://on.cypress.io/focus
     cy.get(".action-focus")
@@ -78,7 +78,7 @@ context("Actions", () => {
     cy.eyesCheckWindow({
       tag: ".focus() - focus on a DOM element",
       sizeMode: "selector",
-      selector: ".action-focus"
+      selector: ".action-focus",
     });
   });
 
@@ -89,7 +89,7 @@ context("Actions", () => {
 
       batchName: "actions.spec",
       appName: "Cypress Example app",
-      testName: ".blur() - blur off a DOM element"
+      testName: ".blur() - blur off a DOM element",
     });
     // https://on.cypress.io/blur
     cy.get(".action-blur")
@@ -102,7 +102,7 @@ context("Actions", () => {
     cy.eyesCheckWindow({
       tag: ".blur() - blur off a DOM element",
       sizeMode: "selector",
-      selector: ".action-blur"
+      selector: ".action-blur",
     });
   });
 
@@ -114,7 +114,7 @@ context("Actions", () => {
 
       batchName: "actions.spec",
       appName: "Cypress Example app",
-      testName: ".clear() - clears an input or textarea element"
+      testName: ".clear() - clears an input or textarea element",
     });
 
     cy.get(".action-clear")
@@ -126,7 +126,7 @@ context("Actions", () => {
     cy.eyesCheckWindow({
       tag: ".clear() - clears an input or textarea element",
       sizeMode: "selector",
-      selector: ".action-blur"
+      selector: ".action-blur",
     });
   });
 
@@ -138,12 +138,10 @@ context("Actions", () => {
 
       batchName: "actions.spec",
       appName: "Cypress Example app",
-      testName: ".submit() - submit a form"
+      testName: ".submit() - submit a form",
     });
 
-    cy.get(".action-form")
-      .find('[type="text"]')
-      .type("HALFOFF");
+    cy.get(".action-form").find('[type="text"]').type("HALFOFF");
 
     cy.get(".action-form")
       .submit()
@@ -153,7 +151,7 @@ context("Actions", () => {
     cy.eyesCheckWindow({
       tag: ".submit() - submit a form",
       sizeMode: "selector",
-      selector: ".action-form"
+      selector: ".action-form",
     });
   });
 
@@ -165,7 +163,7 @@ context("Actions", () => {
 
       batchName: "actions.spec",
       appName: "Cypress Example app",
-      testName: ".click() - click on a DOM element"
+      testName: ".click() - click on a DOM element",
     });
 
     cy.get(".action-btn").click();
@@ -216,7 +214,7 @@ context("Actions", () => {
     cy.eyesCheckWindow({
       tag: ".click() - click on a DOM element",
       sizeMode: "selector",
-      selector: "#action-canvas"
+      selector: "#action-canvas",
     });
   });
 
@@ -228,20 +226,18 @@ context("Actions", () => {
 
       batchName: "actions.spec",
       appName: "Cypress Example app",
-      testName: ".dblclick() - double click on a DOM element"
+      testName: ".dblclick() - double click on a DOM element",
     });
 
     // Our app has a listener on 'dblclick' event in our 'scripts.js'
     // that hides the div and shows an input on double click
-    cy.get(".action-div")
-      .dblclick()
-      .should("not.be.visible");
+    cy.get(".action-div").dblclick().should("not.be.visible");
     cy.get(".action-input-hidden").should("be.visible");
 
     cy.eyesCheckWindow({
       tag: ".dblclick() - double click on a DOM element",
       sizeMode: "selector",
-      selector: ".action-div"
+      selector: ".action-div",
     });
   });
 
@@ -253,7 +249,7 @@ context("Actions", () => {
 
       batchName: "actions.spec",
       appName: "Cypress Example app",
-      testName: ".check() - check a checkbox or radio element"
+      testName: ".check() - check a checkbox or radio element",
     });
 
     // By default, .check() will check all
@@ -298,7 +294,7 @@ context("Actions", () => {
 
       batchName: "actions.spec",
       appName: "Cypress Example app",
-      testName: ".uncheck() - uncheck a checkbox element"
+      testName: ".uncheck() - uncheck a checkbox element",
     });
 
     // By default, .uncheck() will uncheck all matching
@@ -337,7 +333,7 @@ context("Actions", () => {
 
       batchName: "actions.spec",
       appName: "Cypress Example app",
-      testName: ".select() - select an option in a <select> element"
+      testName: ".select() - select an option in a <select> element",
     });
 
     // Select option(s) with matching text content
@@ -351,19 +347,19 @@ context("Actions", () => {
     cy.get(".action-select-multiple").select([
       "fr-apples",
       "fr-oranges",
-      "fr-bananas"
+      "fr-bananas",
     ]);
 
     cy.eyesCheckWindow({
       tag: ".select() - select an option in a <select> element",
       sizeMode: "selector",
-      selector: ".action-select"
+      selector: ".action-select",
     });
 
     cy.eyesCheckWindow({
       tag: ".select() - select an option in a <select> element",
       sizeMode: "selector",
-      selector: ".action-select-multiple"
+      selector: ".action-select-multiple",
     });
   });
 
@@ -375,7 +371,7 @@ context("Actions", () => {
 
       batchName: "actions.spec",
       appName: "Cypress Example app",
-      testName: ".scrollIntoView() - scroll an element into view"
+      testName: ".scrollIntoView() - scroll an element into view",
     });
     // normally all of these buttons are hidden,
     // because they're not within
@@ -386,29 +382,25 @@ context("Actions", () => {
     cy.eyesCheckWindow({
       tag: ".scrollIntoView() - scroll an element into view",
       sizeMode: "selector",
-      selector: "#scroll-horizontal button"
+      selector: "#scroll-horizontal button",
     });
     // scroll the button into view, as if the user had scrolled
-    cy.get("#scroll-horizontal button")
-      .scrollIntoView()
-      .should("be.visible");
+    cy.get("#scroll-horizontal button").scrollIntoView().should("be.visible");
 
     cy.eyesCheckWindow({
       tag: ".scrollIntoView() - scroll an element into view",
       sizeMode: "selector",
-      selector: "#scroll-horizontal button"
+      selector: "#scroll-horizontal button",
     });
     cy.get("#scroll-vertical button").should("not.be.visible");
 
     // Cypress handles the scroll direction needed
-    cy.get("#scroll-vertical button")
-      .scrollIntoView()
-      .should("be.visible");
+    cy.get("#scroll-vertical button").scrollIntoView().should("be.visible");
 
     cy.eyesCheckWindow({
       tag: ".scrollIntoView() - scroll an element into view",
       sizeMode: "selector",
-      selector: "#scroll-vertical button"
+      selector: "#scroll-vertical button",
     });
 
     cy.get("#scroll-both button").should("not.be.visible");
@@ -416,18 +408,16 @@ context("Actions", () => {
     cy.eyesCheckWindow({
       tag: ".scrollIntoView() - scroll an element into view",
       sizeMode: "selector",
-      selector: "#scroll-both button"
+      selector: "#scroll-both button",
     });
 
     // Cypress knows to scroll to the right and down
-    cy.get("#scroll-both button")
-      .scrollIntoView()
-      .should("be.visible");
+    cy.get("#scroll-both button").scrollIntoView().should("be.visible");
 
     cy.eyesCheckWindow({
       tag: ".scrollIntoView() - scroll an element into view",
       sizeMode: "selector",
-      selector: "#scroll-both button"
+      selector: "#scroll-both button",
     });
   });
 
@@ -440,7 +430,7 @@ context("Actions", () => {
 
       batchName: "actions.spec",
       appName: "Cypress Example app",
-      testName: "cy.scrollTo() - scroll the window or element to a position"
+      testName: "cy.scrollTo() - scroll the window or element to a position",
     });
 
     // You can scroll to 9 specific positions of an element:
@@ -469,7 +459,7 @@ context("Actions", () => {
     cy.eyesCheckWindow({
       tag: "cy.scrollTo() - scroll the window or element to a position",
       sizeMode: "region",
-      region: { top: 0, left: 0, width: 250, height: 250 }
+      region: { top: 0, left: 0, width: 250, height: 250 },
     });
 
     // or you can scroll to a specific percentage

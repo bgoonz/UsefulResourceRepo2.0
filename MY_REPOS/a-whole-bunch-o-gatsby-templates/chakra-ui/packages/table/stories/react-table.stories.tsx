@@ -59,13 +59,8 @@ export const ReactTable = () => {
     [],
   )
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable({ columns, data })
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    useTable({ columns, data })
 
   return (
     <Table {...getTableProps()}>

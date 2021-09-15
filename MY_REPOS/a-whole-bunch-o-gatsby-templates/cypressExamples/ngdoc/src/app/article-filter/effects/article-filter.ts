@@ -1,15 +1,15 @@
-import { Injectable } from '@angular/core';
-import { Action, Store } from '@ngrx/store';
-import { Effect, Actions } from '@ngrx/effects';
+import { Injectable } from "@angular/core";
+import { Action, Store } from "@ngrx/store";
+import { Effect, Actions } from "@ngrx/effects";
 
-import { Observable } from 'rxjs';
-import { withLatestFrom, map } from 'rxjs/operators';
+import { Observable } from "rxjs";
+import { withLatestFrom, map } from "rxjs/operators";
 
-import * as articleActions from '../../articles/actions/articles';
-import { ArticleFilterActionTypes } from '../actions/article-filter';
-import * as articleFilterActions from '../actions/article-filter';
-import { IArticleFilter } from '../models/article-filter';
-import { articleFilterReducer, AppState } from '../reducers/article-filter';
+import * as articleActions from "../../articles/actions/articles";
+import { ArticleFilterActionTypes } from "../actions/article-filter";
+import * as articleFilterActions from "../actions/article-filter";
+import { IArticleFilter } from "../models/article-filter";
+import { articleFilterReducer, AppState } from "../reducers/article-filter";
 
 @Injectable()
 export class ArticleFilterEffects {
@@ -26,7 +26,7 @@ export class ArticleFilterEffects {
     )
     .pipe(
       withLatestFrom(this.store, (action, state) => state.articleFilter),
-      map(filter => {
+      map((filter) => {
         if (this.filterIsDefault(filter)) {
           return new articleActions.LoadRecentArticles();
         } else {
@@ -35,11 +35,11 @@ export class ArticleFilterEffects {
       })
     );
 
-  filterIsDefault = filter => {
+  filterIsDefault = (filter) => {
     return (
       filter.tags.length === 0 &&
-      filter.keywords === '' &&
-      filter.version === '2+'
+      filter.keywords === "" &&
+      filter.version === "2+"
     );
-  }
+  };
 }

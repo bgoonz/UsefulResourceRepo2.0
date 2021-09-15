@@ -34,10 +34,10 @@ export declare type ThemeOverride = DeepPartial<ChakraTheme> &
  */
 export function extendTheme<
   BaseTheme extends ChakraTheme = Theme,
-  Overrides extends ThemeOverride = ThemeOverride
+  Overrides extends ThemeOverride = ThemeOverride,
 >(
   overrides: Overrides,
-  baseTheme: BaseTheme = (defaultTheme as unknown) as BaseTheme,
+  baseTheme: BaseTheme = defaultTheme as unknown as BaseTheme,
 ): BaseTheme & Overrides {
   function customizer(
     source: unknown,

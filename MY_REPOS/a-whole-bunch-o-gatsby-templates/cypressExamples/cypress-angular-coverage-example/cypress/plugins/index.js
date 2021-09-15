@@ -1,8 +1,8 @@
-const cypressTypeScriptPreprocessor = require('./cy-ts-preprocessor')
+const cypressTypeScriptPreprocessor = require("./cy-ts-preprocessor");
 
-module.exports = on => {
-  on('file:preprocessor', cypressTypeScriptPreprocessor);
+module.exports = (on) => {
+  on("file:preprocessor", cypressTypeScriptPreprocessor);
 
   // enable code coverage collection
-  on('task', require('@cypress/code-coverage/task'));
-}
+  on("task", require("@cypress/code-coverage/task"));
+};

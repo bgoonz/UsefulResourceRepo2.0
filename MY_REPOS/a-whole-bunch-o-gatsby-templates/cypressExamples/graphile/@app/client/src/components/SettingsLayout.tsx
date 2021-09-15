@@ -54,7 +54,7 @@ const pages = {
 };
 
 interface SettingsLayoutProps {
-  href: keyof (typeof pages);
+  href: keyof typeof pages;
   children: React.ReactNode;
 }
 
@@ -77,7 +77,7 @@ export default function SettingsLayout({
           <Layout style={{ minHeight: "calc(100vh - 64px - 64px)" }} hasSider>
             <Sider>
               <Menu selectedKeys={[href]}>
-                {Object.keys(pages).map(pageHref => (
+                {Object.keys(pages).map((pageHref) => (
                   <Menu.Item key={pageHref}>
                     <Link href={pageHref}>
                       <a data-cy={pages[pageHref].cy}>

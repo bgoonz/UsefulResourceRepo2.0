@@ -114,10 +114,10 @@ export const Stack = forwardRef<StackProps, "div">((props, ref) => {
 
   const direction = isInline ? "row" : directionProp ?? "column"
 
-  const styles = React.useMemo(() => getStackStyles({ direction, spacing }), [
-    direction,
-    spacing,
-  ])
+  const styles = React.useMemo(
+    () => getStackStyles({ direction, spacing }),
+    [direction, spacing],
+  )
 
   const dividerStyle = React.useMemo(
     () => getDividerStyles({ spacing, direction }),

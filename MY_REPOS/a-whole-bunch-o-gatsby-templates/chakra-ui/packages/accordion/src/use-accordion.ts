@@ -148,14 +148,12 @@ interface AccordionContext extends Omit<UseAccordionReturn, "htmlProps"> {
   reduceMotion: boolean
 }
 
-const [
-  AccordionProvider,
-  useAccordionContext,
-] = createContext<AccordionContext>({
-  name: "AccordionContext",
-  errorMessage:
-    "useAccordionContext: `context` is undefined. Seems you forgot to wrap the accordion components in `<Accordion />`",
-})
+const [AccordionProvider, useAccordionContext] =
+  createContext<AccordionContext>({
+    name: "AccordionContext",
+    errorMessage:
+      "useAccordionContext: `context` is undefined. Seems you forgot to wrap the accordion components in `<Accordion />`",
+  })
 
 export { AccordionProvider, useAccordionContext }
 
@@ -183,12 +181,8 @@ export interface UseAccordionItemProps {
 export function useAccordionItem(props: UseAccordionItemProps) {
   const { isDisabled, isFocusable, id, ...htmlProps } = props
 
-  const {
-    getAccordionItemProps,
-    domContext,
-    focusedIndex,
-    setFocusedIndex,
-  } = useAccordionContext()
+  const { getAccordionItemProps, domContext, focusedIndex, setFocusedIndex } =
+    useAccordionContext()
 
   const { descendants } = domContext
 
@@ -282,10 +276,10 @@ export function useAccordionItem(props: UseAccordionItemProps) {
    * Since each accordion item's button still remains tabbable, let's
    * update the focusedIndex when it receives focus
    */
-  const onFocus = useCallback(() => setFocusedIndex(index), [
-    index,
-    setFocusedIndex,
-  ])
+  const onFocus = useCallback(
+    () => setFocusedIndex(index),
+    [index, setFocusedIndex],
+  )
 
   const getButtonProps: PropGetter<HTMLButtonElement> = useCallback(
     (props = {}, ref = null) => ({

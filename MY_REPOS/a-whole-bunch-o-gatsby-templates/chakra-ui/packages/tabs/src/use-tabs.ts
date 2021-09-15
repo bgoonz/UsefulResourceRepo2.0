@@ -183,12 +183,8 @@ export interface UseTabListProps {
  * @param props props object for the tablist
  */
 export function useTabList<P extends UseTabListProps>(props: P) {
-  const {
-    setFocusedIndex,
-    focusedIndex,
-    orientation,
-    enabledDomContext,
-  } = useTabsContext()
+  const { setFocusedIndex, focusedIndex, orientation, enabledDomContext } =
+    useTabsContext()
 
   const count = enabledDomContext.descendants.length
 

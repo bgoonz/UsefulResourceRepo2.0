@@ -1,5 +1,3 @@
-
-
 # :dancers: The Team
 
 Meet the team behind CSS Frankfurt!
