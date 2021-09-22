@@ -1,0 +1,2 @@
+source .functions
+source .aliases
