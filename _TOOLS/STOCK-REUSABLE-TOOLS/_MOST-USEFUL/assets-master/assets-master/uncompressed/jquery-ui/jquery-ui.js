@@ -1,1 +1,0 @@
-../../source/jquery-ui/jquery-ui.js

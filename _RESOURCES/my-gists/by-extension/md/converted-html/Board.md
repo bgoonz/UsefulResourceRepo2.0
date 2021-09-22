@@ -1,3 +1,0 @@
-New Game
-
-Give Up

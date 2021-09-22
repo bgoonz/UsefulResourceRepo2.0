@@ -1,1 +1,0 @@
-ant -f ../package.xml publishonly

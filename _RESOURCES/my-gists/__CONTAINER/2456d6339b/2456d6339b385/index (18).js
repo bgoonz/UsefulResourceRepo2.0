@@ -1,1 +1,0 @@
-function(a, i){''.replace.call(a,/[^,]+/g,i)}

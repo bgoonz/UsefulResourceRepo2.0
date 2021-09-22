@@ -1,1 +1,0 @@
-applyMiddleware(thunk, promise, logger)

@@ -1,2 +1,0 @@
-case 'vk':
-  return vkLogin();

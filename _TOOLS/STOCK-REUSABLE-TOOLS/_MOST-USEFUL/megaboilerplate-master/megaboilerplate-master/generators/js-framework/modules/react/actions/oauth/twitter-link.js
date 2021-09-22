@@ -1,2 +1,0 @@
-case 'twitter':
-  return twitterLogin();

@@ -1,1 +1,0 @@
-# React Redux Giphy Starter

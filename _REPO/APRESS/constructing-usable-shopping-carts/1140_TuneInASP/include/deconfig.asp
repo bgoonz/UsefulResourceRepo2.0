@@ -1,6 +1,0 @@
-<%
-
-dbConn.Close
-dbConn=Nothing
-
-%>

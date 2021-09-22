@@ -1,1 +1,0 @@
-../source/jquery.min.js

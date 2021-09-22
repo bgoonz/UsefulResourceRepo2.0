@@ -1,2 +1,0 @@
-case 'google':
-  return googleLogin();

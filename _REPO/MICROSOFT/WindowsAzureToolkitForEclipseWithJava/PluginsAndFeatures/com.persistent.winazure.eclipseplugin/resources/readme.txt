@@ -1,1 +1,0 @@
-Copy WAStarterKitForJava.zip here (To get zip, install Azure eclipse plugin from http://dl.msopentech.com/eclipse and copy zip from plugins/com.persistent.winazure.eclipseplugin)

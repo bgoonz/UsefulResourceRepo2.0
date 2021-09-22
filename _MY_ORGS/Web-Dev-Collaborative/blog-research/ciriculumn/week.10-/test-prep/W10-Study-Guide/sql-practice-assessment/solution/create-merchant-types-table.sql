@@ -1,4 +1,0 @@
-CREATE TABLE merchant_types (
-  id SERIAL PRIMARY KEY,
-  type VARCHAR(20) NOT NULL
-)
