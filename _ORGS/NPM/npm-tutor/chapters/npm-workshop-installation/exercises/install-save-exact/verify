@@ -1,0 +1,34 @@
+#!/usr/bin/env node
+
+"use strict"
+
+var fs = require('fs')
+var util = require('util')
+var path = require('path')
+var assert = require('assertf')
+var semver = require('semver')
+
+process.on('uncaughtException', require('workshop-assertion-message'));
+
+function inspect(obj) {
+  return util.inspect(obj, {colors: true, depth: 30})
+}
+
+var target = path.resolve(process.cwd(), 'node_modules/once')
+var targetPackage = path.resolve(process.cwd(), 'package.json')
+
+assert.ok(fs.existsSync(targetPackage), 'Where is your package.json?')
+
+var pkg = require(targetPackage)
+
+assert.ok(pkg.dependencies, 'package.json needs dependencies: ' + inspect(pkg))
+
+
+assert.ok(pkg.dependencies['request'], 'package.json does not have the request dependency:\n' + inspect(pkg))
+
+assert.ok(semver.toComparators(pkg.dependencies['request'])[0].length == 1, "%s does not look like an exact dependency.\n\n%s", pkg.dependencies['request'], inspect(pkg))
+
+var target = path.resolve(process.cwd(), 'node_modules/request')
+assert.ok(fs.existsSync(target), 'The request package must be installed!')
+console.info('\nGreat stuff. You set up \'request\' as a fixed-version dependency.')
+

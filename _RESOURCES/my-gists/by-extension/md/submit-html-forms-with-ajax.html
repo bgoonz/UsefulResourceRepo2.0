@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>submit-html-forms-with-ajax</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<p>Netlify comes with built-in form handling that’s enabled by default. Our build bots do it by parsing your HTML files directly at deploy time, so there’s no need for you to make an API call or include extra JavaScript on your site.</p>
+<h2 id="html-forms"><a href="https://docs.netlify.com/forms/setup/#html-forms">#</a> HTML forms</h2>
+<p>Code an HTML form into any page on your site, add <code>data-netlify="true"</code> or a <code>netlify</code> attribute to the <code>&lt;form&gt;</code> tag, and you can start receiving <a href="https://docs.netlify.com/forms/submissions">submissions</a> in your Netlify site admin panel.</p>
+<p>Your form’s <code>name</code> attribute determines what we call the form in the Netlify app interface. If you have more than one form on a site, each form should have a different <code>name</code> attribute.</p>
+<p>Here’s an example:</p>
+<p>When Netlify bots parse the static HTML for a form you’ve added, they automatically strip the <code>data-netlify="true"</code> or <code>netlify</code> attribute from the <code>&lt;form&gt;</code> tag and inject a hidden input named <code>form-name</code>. In the resulting HTML that’s deployed, the <code>data-netlify="true"</code> or <code>netlify</code> attribute is gone, and the hidden <code>form-name</code> input’s <code>value</code> matches the <code>name</code> attribute of <code>&lt;form&gt;</code> like this:</p>
+<h3 id="submit-html-forms-with-ajax"><a href="https://docs.netlify.com/forms/setup/#submit-html-forms-with-ajax">#</a> Submit HTML forms with AJAX</h3>
+<p>You don’t have to, but you can submit static HTML forms using AJAX.</p>
+<p>A static HTML form submitted this way must have <code>data-netlify=true</code> or a <code>netlify</code> attribute inside its <code>&lt;form&gt;</code> tag.</p>
+<p>Here’s an AJAX form submission example using the <code>fetch</code> API for a static HTML form:</p>
+<p>Requirements for the request:</p>
+<ul>
+<li>The body of the request must be URL-encoded. In the above example, the form is passed to a <code>FormData</code> constructor. That object is then encoded using the <code>URLSearchParams</code> constructor and converted to a string. Note that Netlify forms do not support JSON form data at this time.</li>
+<li>If the form accepts alphanumeric data only, the request should include the header <code>"Content-Type": "application/x-www-form-urlencoded"</code>. If the form accepts <a href="https://docs.netlify.com/forms/setup/#file-uploads">file uploads</a>, the request should instead include the header <code>"Content-Type": "multipart/form-data"</code>.</li>
+</ul>
+<h2 id="javascript-forms"><a href="https://docs.netlify.com/forms/setup/#javascript-forms">#</a> JavaScript forms</h2>
+<p>You don’t need to include extra JavaScript on your site to use Netlify Forms. But, if you want to, you can use JavaScript to render a form client-side. You can also submit JavaScript-rendered forms over AJAX.</p>
+<h3 id="work-with-javascript-rendered-forms"><a href="https://docs.netlify.com/forms/setup/#work-with-javascript-rendered-forms">#</a> Work with JavaScript-rendered forms</h3>
+<p>Our buildbots find your forms by parsing the HTML of your site when the build completes. This means that if you’re using JavaScript to render a form client-side, our buildbots won’t find it in the pre-built files. You can work around this:</p>
+<ul>
+<li><p>Create a hidden HTML form with the <code>data-netlify="true"</code> attribute or a <code>netlify</code> attribute and input fields with <code>name</code> attributes to match the inputs of your JavaScript-rendered form. You need to apply the same work around if you want to use our <a href="https://docs.netlify.com/forms/spam-filters/#recaptcha-2-challenge">reCAPTCHA 2 integration</a>, and create a <code>div</code> element in the hidden HTML with the <code>data-netlify-recaptcha="true"</code> attribute.</p></li>
+<li><p>Add a hidden input to the JavaScript-rendered form or JSX form:</p></li>
+</ul>
+<p>You can also find related tutorials on our blog:</p>
+<ul>
+<li><a href="https://www.netlify.com/blog/2017/07/19/how-to-integrate-netlifys-form-handling-in-a-react-app/">How to Integrate Netlify’s Form Handling in a React App</a></li>
+<li><a href="https://www.netlify.com/blog/2018/09/07/how-to-integrate-netlify-forms-in-a-vue-app/">How to Integrate Netlify forms in a Vue App</a></li>
+</ul>
+<p>While the two articles are fairly framework-specific, the code demonstrates how to prerender forms when working with them in a web application.</p>
+<h3 id="submit-javascript-rendered-forms-with-ajax"><a href="https://docs.netlify.com/forms/setup/#submit-javascript-rendered-forms-with-ajax">#</a> Submit JavaScript-rendered forms with AJAX</h3>
+<p>To submit a JavaScript-rendered form built with a framework like Gatsby or Nuxt, you can send an AJAX <code>POST</code> request to any path on your site. Requirements for the request:</p>
+<ul>
+<li>You need a function to URL-encode your form data in the body of the request.</li>
+<li>If you haven’t added a hidden <code>form-name</code> input to your JavaScript-rendered form, you need to send a <code>form-name</code> attribute in the AJAX <code>POST</code> request body.</li>
+<li>If the form accepts alphanumeric data only, the request should include the header <code>"Content-Type": "application/x-www-form-urlencoded"</code>. If the form accepts <a href="https://docs.netlify.com/forms/setup/#file-uploads">file uploads</a>, the request should instead include the header <code>"Content-Type": "multipart/form-data"</code>.</li>
+</ul>
+<p>Here’s an AJAX form submission code sample using the <code>fetch</code> API for a JavaScript-rendered form. It uses Gatsby’s <code>navigate</code> function to redirect to a custom page on form submission success.</p>
+<p>For a JavaScript-rendered form, you need to add a hidden <code>input</code> with <code>name="form-name"</code> to the returned form elements. Here’s an example:</p>
+<p>In the code sample above, a <code>handleChange</code> function updates the form’s state, which ultimately gets sent in a <code>POST</code> request to Netlify.</p>
+<h2 id="success-messages"><a href="https://docs.netlify.com/forms/setup/#success-messages">#</a> Success messages</h2>
+<p>By default, when visitors complete a form, they will see a generically styled success message with a link back to the form page. You can replace the default success message with a custom page you create by adding an <code>action</code> attribute to the <code>&lt;form&gt;</code> tag, entering the path of your custom page (like <code>"/pages/success"</code>) as the value. The path must be relative to the site root, starting with a <code>/</code>.</p>
+<h2 id="file-uploads"><a href="https://docs.netlify.com/forms/setup/#file-uploads">#</a> File uploads</h2>
+<p>Netlify Forms can receive files uploaded with form submissions. To do this, add an input with <code>type="file"</code> to any form.</p>
+<p>Here’s a sample HTML form with a file upload field:</p>
+<h3 id="limitations"><a href="https://docs.netlify.com/forms/setup/#limitations">#</a> Limitations</h3>
+<p>Keep the following considerations in mind when working with file uploads in forms.</p>
+<ul>
+<li>Only one file upload per field is supported. For multiple file uploads, use multiple fields.</li>
+<li>There is no file size limit, but file uploads time out after 30 seconds.</li>
+</ul>
+<h3 id="submit-file-uploads-with-ajax"><a href="https://docs.netlify.com/forms/setup/#submit-file-uploads-with-ajax">#</a> Submit file uploads with AJAX</h3>
+<p>To submit a form with file uploads over AJAX, the request headers should include <code>"Content-Type": "multipart/form-data"</code> instead of <code>"Content-Type": "application/x-www-form-urlencoded"</code>. This applies to both HTML forms that you submit with AJAX and JavaScript-rendered forms that you submit with AJAX.</p>
+<p>Here’s an AJAX form submission code sample using the <code>fetch</code> API for the above HTML form with file upload:</p>
+<h2 id="more-forms-resources"><a href="https://docs.netlify.com/forms/setup/#more-forms-resources">#</a> More Forms resources</h2>
+<ul>
+<li><a href="https://docs.netlify.com/forms/spam-filters">Spam filters</a></li>
+<li><a href="https://docs.netlify.com/forms/submissions">Form submissions</a></li>
+<li><a href="https://docs.netlify.com/forms/notifications">Form notifications</a></li>
+<li><a href="https://docs.netlify.com/forms/troubleshooting-tips">Troubleshooting tips</a></li>
+<li><a href="https://docs.netlify.com/forms/usage-and-billing">Forms usage and billing</a></li>
+</ul>
+</body>
+</html>

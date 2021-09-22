@@ -1,0 +1,222 @@
+<h1 id="adding-user-authorization-to-your-nodejs-project-with-auth0">Adding User Authorization to your NodeJS Project with Auth0</h1>
+<h3 id="projected-time">Projected Time</h3>
+<p>About 1.5 hour</p>
+<ul>
+<li>Lesson: 30 min</li>
+<li>Guided Practice: 30 min</li>
+<li>Independent Practice: 15 min</li>
+<li>Check for Understanding: 15 min</li>
+</ul>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>Here are links to lessons that should be completed before this lesson:</p>
+<ul>
+<li><a href="/electives/oauth/o-auth.md">Adding Auth0 to your Project</a> - Especially the ‘Authentication v. Authorization’ slides</li>
+<li><a href="/node-js/node-js.md">Node.js</a></li>
+<li><a href="/express-js/express.md">Express.js</a></li>
+</ul>
+<h3 id="motivation">Motivation</h3>
+<p>Many app developers need a way to persist user information from session to session, but they also want to provide a smooth experience for those users. The OAuth protocol allows user to “log in” to an app using their Google account (or other social media accounts). This removes friction for the user because they don’t need to create a new profile or remember a new password. OAuth can be used for other types of integration, like allowing users to give an app permission to access the user’s bank balances or Dropbox files. This is beyond the scope of this lesson but may be valuable to you in the future.</p>
+<h3 id="objectives">Objectives</h3>
+<p><strong>Participants will be able to:</strong></p>
+<ul>
+<li>add authentication and authorization to an Express.js API.</li>
+</ul>
+<h3 id="specific-things-to-learn">Specific Things to Learn</h3>
+<ul>
+<li>Configure Auth0 APIs</li>
+<li>Validate Access Tokens</li>
+<li>Protect API Endpoints</li>
+</ul>
+<h3 id="supplement-materials">Supplement Materials</h3>
+<ul>
+<li><a href="https://docs.google.com/presentation/d/1p7fa20o7lRyvXuXhsFz8MfHktY5MaqSPSrLdNjocNcE/edit?usp=sharing">Authorization Slides</a></li>
+<li><a href="https://example.com">Example video (10 min)</a></li>
+</ul>
+<h3 id="lesson">Lesson</h3>
+<p>Here’s text about introducing something and how it works.</p>
+<ol type="1">
+<li><a href="">These lesson slides follow the Guided Practice section below.</a>.</li>
+<li><a href="">Follow this video describing how to add Auth0 to an app</a>.</li>
+</ol>
+<h3 id="common-mistakes-misconceptions">Common Mistakes / Misconceptions</h3>
+<p>-<strong>“It’s okay if I post my API keys to my private GitHub repo.”</strong> Never push API keys to GitHub, even if you are certain the repository is secure. You might end up changing the permissions or adding a collaborator in the future. Keeping your keys off GitHub protects them from being exposed, even accidentally.</p>
+<p>-<strong>Logging in to an app with OAuth gives the developer access to my Google password</strong>. Passwords are never shared and never even pass through the primary app’s servers. Instead, providing your credentials to Google (or another social media platform) along with information from the primary app tells Google it’s okay to send a <em>different</em> piece of shared secret information–tokens–to the primary app. The tokens are now associated with specific users, and <em>this</em> is the currency used between the primary app and the third-party service.</p>
+<h3 id="guided-practice">Guided Practice</h3>
+<h4 id="step-1---configure-node.js-to-use-auth0">Step 1 - Configure Node.js to use Auth0</h4>
+<h5 id="create-the-.env-file">Create the .env file</h5>
+<p>Create the .env file in the root of your app and add your Auth0 variables and values to it. # .env AUTH0_CLIENT_ID=YOUR_CLIENT_ID AUTH0_DOMAIN=YOUR_AUTH0_DOMAIN AUTH0_CLIENT_SECRET=YOUR_CLIENT_SECRET</p>
+<h5 id="install-dependencies">Install Dependencies</h5>
+<p>To get started, install the following dependencies. <em><code>passport</code> - an authentication middleware for Node.js </em><code>passport-auth0</code> - an Auth0 authentication strategy for Passport <em><code>express-session</code> - a middleware to manage sessions </em><code>dotenv</code> - a module to load environment variables from a .env file</p>
+<h4 id="installation-with-npm">Installation with npm</h4>
+<p><code>npm install passport passport-auth0 express-session dotenv --save</code></p>
+<h5 id="configure-express-session">Configure express-session</h5>
+<p>In app.js, include the express-session module and configure it. The secret parameter is a secret string that is used to sign the session ID cookie. Please use a custom value.</p>
+<p>```// app.js</p>
+<pre><code>const session = require(&#39;express-session&#39;);
+
+// config express-session
+let sess = {
+secret: &#39;CHANGE THIS TO A RANDOM SECRET&#39;,
+cookie: {},
+resave: false,
+saveUninitialized: true
+};
+
+if (app.get(&#39;env&#39;) === &#39;production&#39;) {
+sess.cookie.secure = true; // serve secure cookies, requires https
+}
+
+app.use(session(sess));</code></pre>
+<p>```</p>
+<h5 id="configure-passport-with-the-application-setting">Configure Passport with the application setting</h5>
+<p>In app.js, include the passport and passport-auth0 modules, and configure Passport to use a new instance of Auth0Strategy with your Auth0 application settings. Use passport.initialize() and passport.session() to initialize Passport with persistent login sessions.</p>
+<p>```// app.js</p>
+<pre><code>// Load environment variables from .env
+const dotenv = require(&#39;dotenv&#39;);
+dotenv.config();
+
+// Load Passport
+const passport = require(&#39;passport&#39;);
+const Auth0Strategy = require(&#39;passport-auth0&#39;);
+
+// Configure Passport to use Auth0
+const strategy = new Auth0Strategy(
+{
+    domain: process.env.AUTH0_DOMAIN,
+    clientID: process.env.AUTH0_CLIENT_ID,
+    clientSecret: process.env.AUTH0_CLIENT_SECRET,
+    callbackURL:
+    process.env.AUTH0_CALLBACK_URL || &#39;http://localhost:3000/callback&#39;
+},
+function (accessToken, refreshToken, extraParams, profile, done) {
+    // accessToken is the token to call Auth0 API (not needed in the most cases)
+    // extraParams.id_token has the JSON Web Token
+    // profile has all the information from the user
+    return done(null, profile);
+}
+);
+
+passport.use(strategy);
+
+app.use(passport.initialize());
+app.use(passport.session());</code></pre>
+<p>```</p>
+<p>Please make sure these last two commands are in your code after the application of the express middleware (app.use(session(sess)).</p>
+<h5 id="storing-and-retrieving-user-data-from-he-session">Storing and retrieving user data from he session</h5>
+<p>In a typical web application, the credentials used to authenticate a user are only transmitted during the login request. If authentication succeeds, a session is established and maintained via a cookie set in the user’s browser. Each subsequent request does not contain credentials, but rather the unique cookie that identifies the session.</p>
+<p>To support login sessions, Passport serializes and deserializes user instances to and from the session. Optionally, you may want to serialize only a subset to reduce the footprint, i.e., user.id.</p>
+<p>```// app.js</p>
+<pre><code>// You can use this section to keep a smaller payload
+passport.serializeUser(function (user, done) {
+done(null, user);
+});
+
+passport.deserializeUser(function (user, done) {
+done(null, user);
+});</code></pre>
+<p>```</p>
+<h4 id="step-2--implement-login-user-profile-and-logout">Step 2- Implement login, user profile and logout</h4>
+<p>In this example, following routes are implemented:</p>
+<ul>
+<li><p><code>/login</code> triggers the authentication by calling Passport’s authenticate method. The user is then redirected to the tenant login page hosted by Auth0</p></li>
+<li><p><code>/callback</code> is the route the user is returned to by Auth0 after authenticating. It redirects the user to the profile page (<code>/user</code>).</p></li>
+<li><p><code>/user</code> displays the user’s profile.</p></li>
+<li><p><code>/logout</code> closes the local user session and redirects the user again to the root index <code>/</code>.</p></li>
+</ul>
+<p>We will use the following routers: <em><code>routes/auth.js</code>, to handle authentication </em><code>routes/index.js</code>, to serve the home page *<code>routes/users.js</code>, to serve the user profile</p>
+<h5 id="adding-the-authentication-router">Adding the authentication router</h5>
+<p>Start by creating a new router routes/auth.js to handle authentication.</p>
+<p>In the authentication step, make sure to pass the scope parameter with values openid email profile to access email and the other attributes stored in the user profile. This is needed to display the user’s information on the profile page.</p>
+<p>```// routes/auth.js</p>
+<pre><code>const express = require(&#39;express&#39;);
+const router = express.Router();
+const passport = require(&#39;passport&#39;);
+
+// Perform the login, after login Auth0 will redirect to callback
+router.get(&#39;/login&#39;, passport.authenticate(&#39;auth0&#39;, {
+scope: &#39;openid email profile&#39;
+}), function (req, res) {
+res.redirect(&#39;/&#39;);
+});
+
+// Perform the final stage of authentication and redirect to previously requested URL or &#39;/user&#39;
+router.get(&#39;/callback&#39;, function (req, res, next) {
+passport.authenticate(&#39;auth0&#39;, function (err, user, info) {
+    if (err) { return next(err); }
+    if (!user) { return res.redirect(&#39;/login&#39;); }
+    req.logIn(user, function (err) {
+    if (err) { return next(err); }
+    const returnTo = req.session.returnTo;
+    delete req.session.returnTo;
+    res.redirect(returnTo || &#39;/user&#39;);
+    });
+})(req, res, next);
+});
+
+// Perform session logout and redirect to homepage
+router.get(&#39;/logout&#39;, (req, res) =&gt; {
+req.logout();
+res.redirect(&#39;/&#39;);
+});
+
+module.exports = router;</code></pre>
+<p>```</p>
+<h5 id="middleware-to-protect-routes">Middleware to protect routes</h5>
+<p>Create a secured middleware to protect routes and ensure they are only accessible if logged in.</p>
+<p>If the user is not logged in, the requested route will be stored in the session and the user will be redirected to the login page. Upon successful login, the user will be redirected to the previously requested URL (see callback route above).</p>
+<p>```// lib/middleware/secured.js</p>
+<pre><code>module.exports = function () {
+return function secured (req, res, next) {
+    if (req.user) { return next(); }
+    req.session.returnTo = req.originalUrl;
+    res.redirect(&#39;/login&#39;);
+};
+};</code></pre>
+<p>```</p>
+<h5 id="create-user-profile-route">Create user profile route</h5>
+<p>The /user route (the user’s profile) should only be accessible if the user is logged in. Use the secured middleware to secure the route.</p>
+<p>```// routes/users.js</p>
+<pre><code>const express = require(&#39;express&#39;);
+const secured = require(&#39;../lib/middleware/secured&#39;);
+const router = express.Router();
+
+/* GET user profile. */
+router.get(&#39;/user&#39;, secured(), function (req, res, next) {
+const { _raw, _json, ...userProfile } = req.user;
+res.render(&#39;user&#39;, {
+    userProfile: JSON.stringify(userProfile, null, 2),
+    title: &#39;Profile page&#39;
+});
+});
+
+module.exports = router;</code></pre>
+<p>```</p>
+<h5 id="create-index-route">Create index route</h5>
+<p>Create an index route to serve the homepage.</p>
+<p>```// routes/index.js</p>
+<pre><code>const express = require(&#39;express&#39;);
+const router = express.Router();
+
+/* GET home page. */
+router.get(&#39;/&#39;, function (req, res, next) {
+res.render(&#39;index&#39;, { title: &#39;Auth0 Webapp sample Nodejs&#39; });
+});
+
+module.exports = router;</code></pre>
+<p>```</p>
+<h5 id="making-user-available-in-the-views">Making user available in the views</h5>
+<p>In the views and layouts, it is often necessary to conditionally render content depending on if a user is logged in or not. Other times, the user object might be necessary in order to customize the view.</p>
+<p>Create a middleware <code>lib/middleware/userInViews.js</code> for this purpose.</p>
+<p>```// userInViews.js</p>
+<pre><code>module.exports = function () {
+return function (req, res, next) {
+    res.locals.user = req.user;
+    next();
+};
+};</code></pre>
+<p>```</p>
+<p>Include the <code>lib/middleware/userInViews.js</code> in the <code>app.js</code></p>
+<h3 id="independent-practice">Independent Practice</h3>
+<p>echtonica staff will assign pairs. Work together on the Sample App you created during the demonstration to troubleshoot the ‘Log in with Google’ feature so that when users choose that option, they can successfully log in using their Google credentials.</p>
+<h3 id="challenge">Challenge</h3>
+<p>Try to add other routes and provide user view in each route.</p>

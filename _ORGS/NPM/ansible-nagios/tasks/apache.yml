@@ -1,0 +1,87 @@
+- name: add apache user to nagios group
+  become: true
+  user: >
+    groups=nagios
+    name=apache
+
+- name: add passwords for nagios
+  become: true
+  htpasswd: >
+    name="{{nagios_user}}"
+    password="{{nagios_password}}"
+    path=/usr/local/nagios/etc/htpasswd.users
+
+- name: set permissions on new password file
+  become: true
+  file: >
+    path=/usr/local/nagios/etc/htpasswd.users
+    owner=nagios
+    group=nagcmd
+
+- name: create certs directory
+  become: true
+  file: >
+    state=directory
+    path=/etc/apache2/ssl
+    owner=root
+    group=root
+    mode=770
+
+- name: create certs directory
+  become: true
+  file: >
+    state=directory
+    path=/etc/apache2/ssl
+    owner=root
+    group=root
+    mode=770
+
+- name: copy nagios.pem
+  become: true
+  copy: >
+    src=nagios.pem
+    dest=/etc/apache2/ssl/nagios.pem
+    owner=root
+    group=root
+    mode=640
+
+- name: copy nagios.key
+  become: true
+  copy: >
+    src=nagios.key
+    dest=/etc/apache2/ssl/nagios.key
+    owner=root
+    group=root
+    mode=640
+
+- name: copy nagios vhost
+  become: true
+  template: >
+    src=nagios.vhost.j2
+    dest=/etc/apache2/sites-available/nagios.conf
+    owner=root
+    group=root
+    mode=640
+  when: not (legacy | default(false))
+
+- name: copy nagios vhost for pre-trusty
+  become: true
+  template: >
+    src=nagios.vhost.j2
+    dest=/etc/apache2/sites-available/nagios
+    owner=root
+    group=root
+    mode=640
+  when: legacy | default(false)
+
+- name: enable nagios vhost
+  become: true
+  command: "a2ensite nagios"
+
+- name: enable apache ssl
+  become: true
+  command: "a2enmod ssl"
+
+- name: enable apache cgi
+  become: true
+  command: "a2enmod cgi"

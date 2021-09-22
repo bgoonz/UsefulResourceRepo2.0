@@ -1,0 +1,39 @@
+---
+
+  - name: build pgbouncer
+    include: 'pgbouncer.yml'
+
+  - name: build repmgr
+    include: 'repmgr.yml'
+
+  - name: ensure postgresql is running
+    sudo: true
+    service: name=postgresql state=started
+
+  - name: install repmgr functions on each pg
+    command: "psql 'dbname=repmgr user=postgres port=5432' -f {{pg_config_repmgr_funcs}}"
+
+  - name: log to syslog
+    sudo: true
+    lineinfile: >
+      dest={{pg_config_postgresql_conf}}
+      line="log_destination = 'stderr,syslog'"
+      regexp='^log_destination.*$'
+
+  - name: allow all pg servers to interconnect for replication
+    sudo: true
+    lineinfile: >
+      dest={{pg_config_pg_hba_conf}}
+      line="host  replication  all  0.0.0.0/0  trust"
+      regexp='^host  replication  all.*$'
+
+  - name: setup passwordless ssh between pg nodes
+    include: 'ssh-access.yml'
+
+  - name: setup configuration for master node
+    include: 'master.yml'
+    when: role == 'master'
+
+  - name: restart postgresql
+    sudo: true
+    service: name=postgresql state=restarted

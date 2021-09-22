@@ -1,0 +1,33 @@
+---
+
+  - name: build-essentials
+    yum: name={{item}} state=installed
+    sudo: yes
+    with_items:
+      - autoconf
+      - gcc
+      - bison
+      - flex
+      - gcc-c++
+      - gettext
+      - kernel-devel
+      - make
+      - m4
+      - ncurses-devel
+
+  - name: install couchdb
+    include: 'couchdb.yml'
+
+  - name: add 8080 to iptables
+    sudo: true
+    command: iptables -I INPUT 1 -i eth0 -p tcp --dport 8080 -m state --state NEW,ESTABLISHED -j ACCEPT
+    ignore_errors: yes
+
+  - name: save iptables
+    sudo: true
+    command: service iptables save
+    ignore_errors: yes
+
+  - name: restart redis
+    sudo: true
+    service: name=redis state=restarted

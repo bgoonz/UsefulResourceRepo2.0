@@ -1,0 +1,49 @@
+{{!
+Copyright (c) Microsoft Corporation
+
+All rights reserved. 
+
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files 
+(the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, 
+publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR 
+ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH 
+THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+}}<?xml version="1.0" encoding="utf-8"?>
+<ServiceDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="{{name}}" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">{{#WorkerRole}}
+  <WorkerRole name="{{name}}" vmsize="{{vmsize}}">
+    <LocalResources>
+      <LocalStorage name="DiagnosticStore" sizeInMB="4096" cleanOnRoleRecycle="false" />
+    </LocalResources>
+    <ConfigurationSettings>{{#settings}}
+      <Setting name="{{name}}" />{{/settings}}
+    </ConfigurationSettings>
+    <Endpoints>{{#endpoints.inputEndpoint}}
+      <InputEndpoint name="{{name}}" protocol="{{protocol}}" port="{{port}}" localPort="{{localPort}}" {{#if certificate}}certificate="{{certificate}}"{{/if}}/>{{/endpoints.inputEndpoint}}{{#if remoteForwarder}}
+      <InputEndpoint name="Microsoft.WindowsAzure.Plugins.RemoteForwarder.RdpInput" protocol="tcp" port="3389" localPort="*" ignoreRoleInstanceStatus="true" />{{/if}}{{#if remoteAccess}}
+      <InternalEndpoint name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Rdp" protocol="tcp">
+        <FixedPortRange min="3389" max="3389" />
+      </InternalEndpoint>{{/if}}{{#endpoints.internalEndpoint}}
+      <InternalEndpoint name="{{name}}" protocol="{{protocol}}" >{{#if fixedPortRange}}
+              <FixedPortRange min="{{fixedPortRange.min}}" max="{{fixedPortRange.max}}" />{{/if}}{{#if fixedPort}}
+          <FixedPortRange min="{{fixedPort.port}}" max="{{fixedPort.port}}" />
+      {{/if}}</InternalEndpoint>{{/endpoints.internalEndpoint}}{{#endpoints.instanceInputEndpoint}}
+      <InstanceInputEndpoint name="{{name}}" localPort="{{localPort}}" protocol="tcp">
+          <AllocatePublicPortFrom>
+              <FixedPortRange min="{{AllocatePublicPortFrom.fixedPortRange.min}}" max="{{AllocatePublicPortFrom.fixedPortRange.max}}" />
+          </AllocatePublicPortFrom>
+      </InstanceInputEndpoint>{{/endpoints.instanceInputEndpoint}}
+    </Endpoints>
+    <Certificates>{{#certificates.certificate}}
+        <Certificate name="{{name}}" storeLocation="LocalMachine" storeName="My" />{{/certificates.certificate}}{{#if remoteAccess}}
+        <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" storeLocation="LocalMachine" storeName="My" />{{/if}}
+    </Certificates>
+  </WorkerRole>{{/WorkerRole}}
+</ServiceDefinition>

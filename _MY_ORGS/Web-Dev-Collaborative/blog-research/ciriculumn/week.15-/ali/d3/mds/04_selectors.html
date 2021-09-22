@@ -1,0 +1,118 @@
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<hr />
+<h1 id="selectors">Selectors</h1>
+<p>Selectors are functions used to extract and format information from the application state in different forms. When you finish this article, you should be able to write a selector to extract and format information from state stored in a Redux store.</p>
+<h2 id="writing-a-selector">Writing a selector</h2>
+<p>Here’s a sample state tree from the Fruit Stand React/Redux application:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">fruit</span><span class="op">:</span> [</a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="st">&#39;APPLE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="st">&#39;APPLE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="st">&#39;ORANGE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-6" title="6">    <span class="st">&#39;GRAPEFRUIT&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-7" title="7">    <span class="st">&#39;WATERMELON&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-8" title="8">  ]<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-9" title="9">  <span class="dt">farmers</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-10" title="10">    <span class="dv">1</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-11" title="11">      <span class="dt">id</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-12" title="12">      <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;John Smith&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-13" title="13">      <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-14" title="14">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb1-15" title="15">    <span class="dv">2</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-16" title="16">      <span class="dt">id</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-17" title="17">      <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;Sally Jones&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-18" title="18">      <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-19" title="19">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb1-20" title="20">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-21" title="21"><span class="op">}</span></a></code></pre></div>
+<p>The state’s <code>farmers</code> are stored as an object. Keys correspond to <code>farmer.id</code>s and values correspond to <code>farmer</code> objects. This yields O(1) for the lookup of a single farmer. However, storing all the farmers as values of an object makes it slightly inconvenient to obtain and render them all at once. To solve this inconvenience, we use selectors.</p>
+<p>Selectors are typically defined in a file that sits next to the reducer for its slice of state. For example, if the <code>farmers</code> state slice is managed by the reducer defined in <code>./src/reducers/farmersReducer.js</code>, then the farmers selectors would be stored in a file at <code>./src/reducers/farmersSelectors.js</code>.</p>
+<p>Selectors are passed the application’s <code>state</code> and return information from the state in a specified form (e.g. an array). You can use selectors to format different slice(s) of the state by calling them in a container’s <code>mapStateToProps</code>.</p>
+<p>For example, <code>getAllFarmers</code> returns all the farmers stored in the state as an array of <code>farmer</code> objects, making it easier to iterate over and render each one.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// ./src/reducers/farmersSelectors.js</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="im">export</span> <span class="kw">const</span> getAllFarmers <span class="op">=</span> (<span class="op">{</span> farmers <span class="op">}</span>) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="va">Object</span>.<span class="at">values</span>(farmers)</a>
+<a class="sourceLine" id="cb2-5" title="5">)<span class="op">;</span></a></code></pre></div>
+<p>A selector can be used in multiple components’ <code>mapStateToProps</code>. For example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="co">// ./src/components/FarmerManagerContainer.js</span></a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="im">import</span> <span class="op">{</span> getAllFarmers <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../reducers/farmersSelectors&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-4" title="4"></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="kw">const</span> mapStateToProps <span class="op">=</span> (state) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb3-6" title="6">  <span class="dt">farmers</span><span class="op">:</span> <span class="at">getAllFarmers</span>(state)<span class="op">,</span></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Selectors are passed the entire application <code>state</code> so they can utilize multiple slices of the application state to assemble data. For example, if the Fruit Stand application’s state tree included a <code>filter</code> state slice:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="dt">fruit</span><span class="op">:</span> [</a>
+<a class="sourceLine" id="cb4-3" title="3">    <span class="st">&#39;APPLE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-4" title="4">    <span class="st">&#39;APPLE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-5" title="5">    <span class="st">&#39;ORANGE&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-6" title="6">    <span class="st">&#39;GRAPEFRUIT&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-7" title="7">    <span class="st">&#39;WATERMELON&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-8" title="8">  ]<span class="op">,</span></a>
+<a class="sourceLine" id="cb4-9" title="9">  <span class="dt">farmers</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-10" title="10">    <span class="dv">1</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-11" title="11">      <span class="dt">id</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-12" title="12">      <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;John Smith&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-13" title="13">      <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-14" title="14">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb4-15" title="15">    <span class="dv">2</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-16" title="16">      <span class="dt">id</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-17" title="17">      <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;Sally Jones&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-18" title="18">      <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-19" title="19">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb4-20" title="20">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb4-21" title="21">  <span class="dt">filter</span><span class="op">:</span> <span class="st">&#39;&#39;</span></a>
+<a class="sourceLine" id="cb4-22" title="22"><span class="op">}</span></a></code></pre></div>
+<p>Then you could write a selector to extract a filtered list of <code>farmer</code> objects:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="co">// ./src/reducers/farmersSelectors.js</span></a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="im">export</span> <span class="kw">const</span> getAllFarmers <span class="op">=</span> (<span class="op">{</span> farmers <span class="op">}</span>) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="va">Object</span>.<span class="at">values</span>(farmers)</a>
+<a class="sourceLine" id="cb5-5" title="5">)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-6" title="6"></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="im">export</span> <span class="kw">const</span> getFilteredFarmers <span class="op">=</span> (<span class="op">{</span> farmers<span class="op">,</span> filter <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-8" title="8">  <span class="kw">const</span> lowerCaseFilter <span class="op">=</span> <span class="va">filter</span>.<span class="at">toLowerCase</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-9" title="9">  <span class="cf">return</span> <span class="va">Object</span>.<span class="at">values</span>(farmers).<span class="at">filter</span>(</a>
+<a class="sourceLine" id="cb5-10" title="10">    (farmer) <span class="kw">=&gt;</span> <span class="va">farmer</span>.<span class="va">name</span>.<span class="at">toLowerCase</span>().<span class="at">includes</span>(lowerCaseFilter)</a>
+<a class="sourceLine" id="cb5-11" title="11">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-12" title="12"><span class="op">};</span></a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="co">// ./src/components/FarmerManagerContainer.js</span></a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="im">import</span> <span class="op">{</span> getAllFarmers<span class="op">,</span> getFilteredFarmers <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../reducers/farmersSelectors&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb6-4" title="4"></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="kw">const</span> mapStateToProps <span class="op">=</span> (state) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb6-6" title="6">  <span class="dt">farmers</span><span class="op">:</span> <span class="at">getAllFarmers</span>(state)<span class="op">,</span></a>
+<a class="sourceLine" id="cb6-7" title="7">  <span class="dt">filteredFarmers</span><span class="op">:</span> <span class="at">getFilteredFarmers</span>(state)<span class="op">,</span></a>
+<a class="sourceLine" id="cb6-8" title="8"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h2 id="selector-examples">Selector examples</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="co">// ./src/reducers/farmersSelectors.js</span></a>
+<a class="sourceLine" id="cb7-2" title="2"></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="co">// Returns the state&#39;s farmers as an array of farmer objects.</span></a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="im">export</span> <span class="kw">const</span> getAllFarmers <span class="op">=</span> (<span class="op">{</span> farmers <span class="op">}</span>) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb7-5" title="5">  <span class="va">Object</span>.<span class="at">values</span>(farmers)</a>
+<a class="sourceLine" id="cb7-6" title="6">)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-7" title="7"></a>
+<a class="sourceLine" id="cb7-8" title="8"><span class="co">// Returns the state&#39;s farmers as an array of farmer objects,</span></a>
+<a class="sourceLine" id="cb7-9" title="9"><span class="co">// filtered by their name.</span></a>
+<a class="sourceLine" id="cb7-10" title="10"><span class="im">export</span> <span class="kw">const</span> getFilteredFarmers <span class="op">=</span> (<span class="op">{</span> farmers<span class="op">,</span> filter <span class="op">}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-11" title="11">  <span class="kw">const</span> lowerCaseFilter <span class="op">=</span> <span class="va">filter</span>.<span class="at">toLowerCase</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-12" title="12">  <span class="cf">return</span> <span class="va">Object</span>.<span class="at">values</span>(farmers).<span class="at">filter</span>(</a>
+<a class="sourceLine" id="cb7-13" title="13">    (farmer) <span class="kw">=&gt;</span> <span class="va">farmer</span>.<span class="va">name</span>.<span class="at">toLowerCase</span>().<span class="at">includes</span>(lowerCaseFilter)</a>
+<a class="sourceLine" id="cb7-14" title="14">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-15" title="15"><span class="op">};</span></a>
+<a class="sourceLine" id="cb7-16" title="16"></a>
+<a class="sourceLine" id="cb7-17" title="17"><span class="co">// Returns the selected farmer object or an empty farmer object</span></a>
+<a class="sourceLine" id="cb7-18" title="18"><span class="co">// if no farmer exists with given id.</span></a>
+<a class="sourceLine" id="cb7-19" title="19"><span class="im">export</span> <span class="kw">const</span> selectFarmer <span class="op">=</span> (<span class="op">{</span> farmers <span class="op">},</span> id) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-20" title="20">  <span class="kw">const</span> nullFarmer <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-21" title="21">    <span class="dt">id</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-22" title="22">    <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb7-23" title="23">    <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb7-24" title="24">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb7-25" title="25">  <span class="cf">return</span> farmers[id] <span class="op">||</span> nullFarmer<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-26" title="26"><span class="op">};</span></a></code></pre></div>
+<h2 id="what-you-learned">What you learned</h2>
+<p>In this article, you learned how to write a selector to extract and format information from state stored in a Redux store.</p>

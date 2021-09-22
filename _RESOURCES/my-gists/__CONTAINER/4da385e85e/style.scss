@@ -1,0 +1,401 @@
+$sidex : 5;
+$sidey : 5;
+$sizes : 4;
+$colorsnumber : 7;
+$colors: (
+    (#8D6E63 #795548 #6D4C41 1),
+    (#66BB6A #4CAF50 #43A047 1),
+    (#66BB6A #795548 #6D4C41 1),
+    (#78909C #607D8B #546E7A 1),
+    (#43A047 #607D8B #546E7A 1),
+    (#FAFAFA #F5F5F5 #EEEEEE 1),
+    ( rgba(38, 198, 218, 0.8) rgba(0, 172, 193, 0.8) rgba(38, 198, 218, 0.8) 1),
+);
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #cee7d4 0%, #f5f4c9 100%);
+  overflow: hidden;
+}
+input{
+  position:absolute;
+  left:-9999px;
+}
+.hidden-label{   
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  opacity: 0;
+  transform: translateZ(-0.5rem);
+  width: 2.5rem;
+  height: 2.5rem;
+  left: 0.25rem;
+  top: 0.25rem;
+  pointer-events : none;
+}
+.clickable-label{
+   z-index:2;    
+   transform: translateZ(0.1rem);
+   width: 3.1rem;
+   height: 3.1rem;
+   left: -0.05rem;
+   top: -0.05rem;
+   pointer-events : inherit;
+}
+.clickable-label-down,
+.clickable-label-color{
+   z-index:3;    
+   transform: translateZ(0.2rem);
+   width: 3.2rem;
+   height: 3.2rem;
+   left: -0.1rem;
+   top: -0.1rem;
+   pointer-events : inherit;
+}
+%extend_1 {
+	content: '';
+	position: absolute;
+	top: 50%;
+	margin-top: -1.5rem;
+	margin-left: -1.5rem;
+	height: 3rem;
+	width: 3rem;
+	border-left: 1rem solid #fff;
+	border-top: 1rem solid #fff;
+	left: 50%;
+	transform: rotate(-45deg);
+  &:hover{
+    border-color:#000;
+  }
+}
+
+
+.turn-grid {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 15rem;
+	&.turn-left {
+		left: 0;
+		&:before {
+			@extend %extend_1;
+		}
+		&:hover ~ .world-grid {
+			transform: translateY(-50%) translateX(-50%) rotateX(65deg) rotateZ(0deg);
+		}
+	}
+	&.turn-right {
+		right: 0;
+		&:after {
+			@extend %extend_1;
+	    transform: rotate(135deg);
+		}
+		&:hover ~ .world-grid {
+			transform: translateY(-50%) translateX(-50%) rotateX(65deg) rotateZ(90deg);
+		}
+	}
+}
+.toolbar {
+    position: absolute;
+    z-index:4;
+    top: 0;
+    height: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 1rem;
+    background: #272525;
+    border-radius: 0 0 0.5rem 0.5rem;
+    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.3);    
+    white-space: nowrap;
+    transform-style: flat;
+  .tool {
+    display: inline-block;
+    transition:200ms ease all;
+    height: 2rem;
+    width: 2rem;
+    margin: 0 0.25rem;
+    border-radius: 50%;
+    cursor: pointer;
+    &:first-child + .tool{
+      margin-right: 3rem;
+    }
+    &.color-tool{
+      border-radius:0;
+      margin: 0 0.5rem;
+      position:relative;
+      transform-style: preserve-3d;
+      transition:200ms ease all;
+      cursor: pointer;
+      z-index: 1;
+      transform: translateY(-50%) translateX(-50%) rotateX(65deg) rotateZ(45deg);
+      &:before{
+        content:'';
+        position:absolute;
+        background:#6D4C41;
+        left:100%;
+        top:0;
+        height:100%;
+        width:100%;
+        transform-origin: 0%;
+        transform: rotateY(90deg);
+        transition:200ms ease all;
+      }
+      &:after{
+        content: '';
+        position: absolute;
+        background: #795548;
+        left: 0;
+        bottom: 0;
+        height: 100%;
+        width: 100%;
+        transform: rotateX(90deg);
+        transform-origin: 0 100%;
+        transition:200ms ease all;
+      }      
+    }
+    &[for*="size-tool"] {
+        position: relative;        
+        &:before{
+          content: '';
+          position: absolute;
+          left: 0.75rem;
+          bottom: 0.25rem;
+          width: 0.5rem;
+          height: 1rem;
+          background: #fff;
+        }
+        &:after {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0.25rem;
+            border-bottom: 0.75rem solid #fff;
+            border-left: 0.5rem solid transparent;
+            border-right: 0.5rem solid transparent;
+        }
+      &[for*="size-tool-down"]{
+        &:before{
+          top:0.25rem;
+          bottom:inherit;
+        }
+        &:after {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top:inherit;
+            bottom: 0.25rem;
+            border-bottom:none;
+            border-top: 0.75rem solid #fff;
+            border-left: 0.5rem solid transparent;
+            border-right: 0.5rem solid transparent;
+        }
+      }
+    }
+    @for $c from 1 to $colorsnumber+1 {
+      &.c#{$c}-tool{
+        background: nth( nth( $colors, $c ),1) ;
+        opacity: nth( nth( $colors, $c ),4) ;
+        &:before{
+          background: nth( nth( $colors, $c ),3) ;
+        }
+        &:after{
+          background: nth( nth( $colors, $c ),2) ;
+        }
+      }
+    }
+  }
+}
+
+.world-grid{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform: translateY(-50%) translateX(-50%) rotateX(65deg) rotateZ(45deg);
+font-size:0;
+  transform-style: preserve-3d;
+  transition: 1000ms ease all;    
+  white-space: nowrap;
+  &:after{
+    content:'';
+    position:absolute;
+    background:none;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    transform:translateZ(-3rem);
+    box-shadow: 0 0 4rem 3rem rgba(0, 0, 0, 0.25);
+    background: rgba(0,0,0,0.25);
+  }
+  .world-line{    
+    transform-style: preserve-3d;
+  }
+  .world-item{
+    width:3rem;
+    height:3rem;
+    background:#8D6E63;
+    display:inline-block;
+    position:relative;
+    transform-style: preserve-3d;
+    transition:200ms ease all;
+    cursor: pointer;
+    z-index: 1;
+    &:before{
+      content:'';
+      position:absolute;
+      background:#6D4C41;
+      left:100%;
+      top:0;
+      height:100%;
+      width:100%;
+      transform-origin: 0%;
+      transform: rotateY(90deg);
+      transition:200ms ease all;
+    }
+    &:after{
+      content: '';
+      position: absolute;
+      background: #795548;
+      left: 0;
+      bottom: 0;
+      height: 100%;
+      width: 100%;
+      transform: rotateX(90deg);
+      transform-origin: 0 100%;
+      transition:200ms ease all;
+    }
+    &:hover, &:hover:after, &:hover:before {
+        box-shadow: inset 0 0 0 3rem rgba(0, 0, 0, 0.25);
+    }    
+    @for $s from 0 through $sizes{
+       @if $s > 0 {
+           .size-#{$s}{      
+             @extend .hidden-label;
+          }
+       }
+    }  
+    @for $c from 1 through $colorsnumber+1{
+      .color-#{$c}{      
+         @extend .hidden-label;
+      }
+    }
+  }
+}
+
+.selected-tool{
+  box-shadow : 0 0 0 1px #fff;
+  &.color-tool:before{
+    box-shadow : 0 0 0 1px #fff;
+  }
+  &.color-tool:after{
+    box-shadow : 0 0 0 1px #fff;
+  }
+}
+#size-tool-up:checked ~ .toolbar .tool[for=size-tool-up]{
+  @extend .selected-tool;
+}
+#size-tool-down:checked ~ .toolbar .tool[for=size-tool-down]{
+  @extend .selected-tool;
+}
+@for $c from 1 through $colorsnumber+1{
+  #c#{$c}-tool:checked ~ .world-grid .world-line .world-item{
+    .color-#{$c}{      
+        @extend .clickable-label-color;
+        &:before{
+          width: 100% + ($sizes*100%);
+        }
+        &:after{
+          height: 100% + ($sizes*100%);
+        }
+    }
+  }
+  #c#{$c}-tool:checked ~ .toolbar .c#{$c}-tool{
+    @extend .selected-tool;
+    box-shadow: -1px -1px 0 1px #fff;
+  }
+}
+
+
+
+@for $i from 1 through $sidex{  
+  @for $j from 1 through $sidey{    
+    @for $c from 1 to $colorsnumber+1 {
+      #l#{$i}i#{$j}c#{$c}:checked ~ .world-grid .world-item[for="l#{$i}i#{$j}s0"]{
+         background: nth( nth( $colors, $c ),1);
+        @if nth( nth( $colors, $c ),4) < 1{
+          @keyframes water {
+            0%{
+            background-position: 0% 0%;
+            }
+            50%{
+            background-position: 100% 100%;
+            }
+            100%{
+            background-position: 0% 0%;
+            }
+          }          
+          background :  radial-gradient(ellipse at center, nth( nth( $colors, $c ),1) 0%,nth( nth( $colors, $c ),3) 58%,nth( nth( $colors, $c ),1) 100%);
+          background-size: 20%;
+          animation-duration: 5s;
+          animation-name: water;
+          animation-iteration-count: infinite;
+        }else{
+        }
+        opacity : nth( nth( $colors, $c ),4) ;
+        &:after{
+          background: nth( nth( $colors, $c ),2);
+        }
+        &:before{
+          background: nth( nth( $colors, $c ),3);
+        }
+      }
+    }
+    @for $s from 0 through $sizes{ 
+     #l#{$i}i#{$j}s#{$s}:checked ~ .world-grid .world-item[for="l#{$i}i#{$j}s0"]{
+        $trs: ($s*3);
+        transform:translateZ(#{$trs}rem);
+       &:before{
+         $width: 100% + ($s*100%);
+         width: $width;
+       }
+       &:after{
+         $height: 100% + ($s*100%);
+         height: $height;
+       }
+      }
+    }
+    @for $s from 0 through $sizes{ 
+     #size-tool-up:checked ~ #l#{$i}i#{$j}s#{$s}:checked ~ .world-grid .world-item[for="l#{$i}i#{$j}s0"]{
+       
+       .size-#{$s + 1}:before{
+         $width: 100% + ($s*100%);
+         width: $width;
+       }
+       .size-#{$s + 1}:after{
+         $height: 100% + ($s*100%);
+         height: $height;
+       }
+       .size-#{$s + 1}{
+         @extend .clickable-label;
+       }
+      }
+    }
+    @for $s from 0 through $sizes{ 
+     #size-tool-down:checked ~ #l#{$i}i#{$j}s#{$s}:checked ~ .world-grid .world-item[for="l#{$i}i#{$j}s0"]{
+       
+       .size-#{$s - 1}:before{
+         $width: 100% + ($s*100%);
+         width: $width;
+       }
+       .size-#{$s - 1}:after{
+         $height: 100% + ($s*100%);
+         height: $height;
+       }
+       .size-#{$s - 1}{
+         @extend .clickable-label-down;
+       }
+      }
+    }
+  }
+}

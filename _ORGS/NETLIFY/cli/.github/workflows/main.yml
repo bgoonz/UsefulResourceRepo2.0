@@ -1,0 +1,81 @@
+name: Testing for CLI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        node-version: [10.x, '*']
+        exclude:
+          - os: macOS-latest
+            node-version: '10.x'
+          - os: windows-latest
+            node-version: '10.x'
+      fail-fast: false
+
+    steps:
+      # Sets an output parameter if this is a release PR
+      - name: Check for release
+        id: release-check
+        run: echo "::set-output name=IS_RELEASE::true"
+        if: "${{ startsWith(github.head_ref, 'release-') }}"
+      # This improves Windows network performance, we need this since we open many ports in our tests
+      - name: Increase Windows port limit and reduce time wait delay
+        run: |
+          REG ADD HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\TCPIP\Parameters /v MaxUserPort /t REG_DWORD /d 32768 /f
+          REG ADD HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\TCPIP\Parameters /v TcpTimedWaitDelay /t REG_DWORD /d 30 /f
+        if: "${{ matrix.os == 'windows-latest' }}"
+      - name: Git checkout
+        uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          check-latest: true
+      - name: Install core dependencies
+        run: npm ci --no-audit
+      - name: Install site dependencies
+        run: npm run site:build:install
+      - name: Linting
+        run: npm run format:ci
+        if: "${{ matrix.node-version == '*' && !steps.release-check.outputs.IS_RELEASE}}"
+      - name: Tests
+        if: '${{ !steps.release-check.outputs.IS_RELEASE }}'
+        run: npm run test:ci
+        env:
+          # GitHub secrets are not available when running on PR from forks
+          # We set a flag so we can skip tests that access Netlify API
+          NETLIFY_TEST_DISABLE_LIVE:
+            ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          # NETLIFY_TEST_GITHUB_TOKEN is used to avoid reaching GitHub API limits in exec-fetcher.js
+          NETLIFY_TEST_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Changes the polling interval used by the file watcher
+          CHOKIDAR_INTERVAL: 20
+          CHOKIDAR_USEPOLLING: 1
+      - name: Get test coverage flags
+        if: '${{ !steps.release-check.outputs.IS_RELEASE }}'
+        id: test-coverage-flags
+        run: |-
+          os=${{ matrix.os }}
+          node=${{ matrix.node-version }}
+          echo "::set-output name=os::${os/-latest/}"
+          echo "::set-output name=node::node_${node//[.*]/}"
+        shell: bash
+      - uses: codecov/codecov-action@v2
+        if: '${{ !steps.release-check.outputs.IS_RELEASE }}'
+        with:
+          file: coverage/coverage-final.json
+          flags: ${{ steps.test-coverage-flags.outputs.os }},${{ steps.test-coverage-flags.outputs.node }}

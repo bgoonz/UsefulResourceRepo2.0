@@ -1,0 +1,12 @@
+// the unit test suite lives in these modules
+require('./marky')
+require('./markdown')
+require('./sanitize')
+require('./gravatar')
+require('./github')
+require('./youtube')
+require('./packagize')
+require('./headings')
+require('./cdn')
+require('./emoji')
+require('./readmes')

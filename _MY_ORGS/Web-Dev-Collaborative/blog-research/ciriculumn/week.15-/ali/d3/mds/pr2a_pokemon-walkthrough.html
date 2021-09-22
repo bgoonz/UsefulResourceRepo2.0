@@ -1,0 +1,200 @@
+<h1 id="redux-based-pokedex-project">Redux-Based Pokedex Project</h1>
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<hr />
+<p>Instead of building a new application, you will spend time refactoring an existing application, one that is not yours. Navigating around someone else’s code is an interesting way to learn what to do and what <em>not</em> to do. The starter application is in a little bit of a mess and needs your help to get unmessed.</p>
+<p>By the end of this walk-through, you will be able to:</p>
+<ul>
+<li>Describe the Redux data cycle</li>
+<li>Explain a <em>reducer</em></li>
+<li>Configure a React application to use Redux</li>
+<li>Use connected components to access Redux state</li>
+<li>Use composed reducers to simplify state management</li>
+<li>Configure a React application to use the Redux development tools</li>
+</ul>
+<h2 id="getting-started">Getting started</h2>
+<p>You’ll need the backend of the application.</p>
+<p>If you have <em>not</em> cloned it, please clone the repository from https://github.com/appacademy-starters/pokedex-backend.</p>
+<p>If you have cloned it, please get the latest (things sometimes change) by going to the repository in your Terminal and typing <code>git pull origin master</code>. This will get the latest code for you.</p>
+<p>You’ll need the starter application. Please clone the repository from https://github.com/appacademy-starters/redux-pokedex-starter.</p>
+<h2 id="tour-the-application">Tour the application</h2>
+<p>This application is a Heroku-deployable React application. Here are the files that are in it. Hopefully, you find nothing surprising about the file layout or the intent of each file. Take a moment to look in each file to get the lay of the land. (Really, take a look in each file. You may feel like jumping right into it, but looking at other people’s code is helpful. This is one of the benefits to the pair-programming learning style at App Academy.)</p>
+<pre><code>.
+├── package-lock.json        - The NPM lock file
+├── package.json             - The NPM file
+├── public
+│   └── index.html           - The page that gets served to the browser
+├── server.js                - A very light-weight server for Heroku
+└── src
+    ├── App.js               - The main application component
+    ├── Fab.js               - A floating action button component
+    ├── LoginPanel.js        - The form that shows the login
+    ├── LogoutButton.js      - A component for logging out
+    ├── PokemonBrowser.js    - The component that shows the list and detail
+    ├── PokemonDetail.js     - The component that shows the detail of a Pokemon
+    ├── PokemonForm.js       - The form to create a new Pokemon
+    ├── config.js            - Configuration variables
+    ├── index.css            - Styling for the application
+    └── index.js             - The main entry point for Webpack</code></pre>
+<p>Start the backend with <code>npm run dev</code>. Start the React application with <code>npm run dev</code>. Make sure it runs. It looks for a local backend at <code>http://localhost:8000</code>, so make sure that’s where the backend is running.</p>
+<h2 id="install-redux-and-devtools">Install Redux and DevTools</h2>
+<p>If you haven’t already, install <a href="https://github.com/zalmoxisus/redux-devtools-extension#installation">Redux DevTools</a>. During development, you can watch the Redux store handle actions and change state in the timeline.</p>
+<p>To use Redux in this application, you need to install it and the connector between Redux and React. You will also want to use asynchronous actions with the Redux store, so you’ll want a middleware, one like <a href="https://github.com/reduxjs/redux-thunk">Redux Thunk</a>.</p>
+<pre><code>npm install react-redux redux redux-thunk</code></pre>
+<p>There are more than one asynchronous action-handling middleware out there in the world. Redux Thunk happens to be one of the oldest and widely used.</p>
+<p>Whenever you consider installing a library or framework, you should make sure that your existing application meets the expectations. For example, as of the time of this writing, to <a href="https://react-redux.js.org/introduction/quick-start">install “react-redux”</a>, your application needs to support <strong>React 16.8.3</strong> or later. Take a look in the <strong>package.json</strong> file to make sure that an acceptable version of React is listed in there. If not, you will need to upgrade the version of React used by this project by running something like <code>npm upgrade</code>.</p>
+<h2 id="setting-up-the-store">Setting up the store</h2>
+<p>The <em>store</em> is the object (and supporting objects and functions) that will contain the state of the application. This centralizes the state so that, presumably, you can better reason about it.</p>
+<p>There are a couple of ways to organize your state management code, each with their own benefits. Redux has a list of different articles about <a href="https://redux.js.org/faq/code-structure/">this very topic</a>. You should choose to organize your code in a way that makes sense to your team (or follow any conventions that already exist). This walk-through will follow the <a href="https://github.com/erikras/ducks-modular-redux">Ducks</a> approach of layout.</p>
+<p>In the <strong>src</strong> directory, create a new directory named <strong>store</strong>. In that new directory, create a new file named <strong>configureStore.js</strong>. In that file, put this code. This is boilerplate code and will appear in nearly every application that you have that uses Redux. A description of the contents follows the code block.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="im">import</span> <span class="op">{</span> createStore<span class="op">,</span> applyMiddleware<span class="op">,</span> combineReducers<span class="op">,</span> compose <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="im">import</span> thunk <span class="im">from</span> <span class="st">&#39;redux-thunk&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-3" title="3"></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="kw">const</span> composeEnhancers <span class="op">=</span> <span class="va">window</span>.<span class="at">__REDUX_DEVTOOLS_EXTENSION_COMPOSE__</span> <span class="op">||</span> compose<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-5" title="5"></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="kw">const</span> reducer <span class="op">=</span> <span class="at">combineReducers</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-8" title="8"></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="kw">const</span> configureStore <span class="op">=</span> initialState <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-10" title="10">  <span class="cf">return</span> <span class="at">createStore</span>(</a>
+<a class="sourceLine" id="cb3-11" title="11">    reducer<span class="op">,</span></a>
+<a class="sourceLine" id="cb3-12" title="12">    initialState<span class="op">,</span></a>
+<a class="sourceLine" id="cb3-13" title="13">    <span class="at">composeEnhancers</span>(<span class="at">applyMiddleware</span>(thunk))<span class="op">,</span></a>
+<a class="sourceLine" id="cb3-14" title="14">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-15" title="15"><span class="op">};</span></a>
+<a class="sourceLine" id="cb3-16" title="16"></a>
+<a class="sourceLine" id="cb3-17" title="17"><span class="im">export</span> <span class="im">default</span> configureStore<span class="op">;</span></a></code></pre></div>
+<p>(If you’re looking in your console after putting this code in there, you’ll see an error about not having any valid reducers. That’s true, there are no valid reducers. You’ll fix that in just a moment.)</p>
+<p>On those first two lines, the code imports the stuff it will need to create and configure a store.</p>
+<ul>
+<li><code>createStore</code> is the function from Redux that creates the state-management object</li>
+<li><code>applyMiddleware</code> allows you to plug in extra functionality into the state-management workflow (in this case, Redux Thunk)</li>
+<li><code>combineReducers</code> takes many reducers and combines them into a single one</li>
+<li><code>compose</code> is a function that <em>composes</em> functions from right-to-left, that is, it puts them together, the return value of the right-most getting passed to the second right-most, return values getting passed from that to the third right-most, and so on, until the first function in the list returns its final value to the store (<a href="https://redux.js.org/api/compose">documentation</a> for compose)</li>
+<li><code>thunk</code> is the middleware that will allow you to make asynchronous calls because you can’t do that in Redux actions</li>
+</ul>
+<p>The fourth line creates a new <code>composeEnhancers</code> variable that will be either the Redux DevTools special compose function, or the one from Redux, if DevTools is not installed. This allows browsers that have the DevTools installed to take advantage of watching the changes in the store.</p>
+<p>The sixth and seventh lines is just the thing that combines the reducers for the store into a single reducer. More about that later.</p>
+<p>The ninth line declares a function that gets exported at the end of the file that creates and configures the store with the <code>reducer</code>, the <code>initialState</code> passed into the function, and composes the React Thunk middleware and the Redux DevTools, if they exist.</p>
+<p>To use this functionality, open <strong>src/index.js</strong> and add two imports to the top of the file.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="im">import</span> <span class="op">{</span> Provider <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react-redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="im">import</span> configureStore <span class="im">from</span> <span class="st">&#39;./store/configureStore&#39;</span><span class="op">;</span></a></code></pre></div>
+<p>Those two lines import a Context Provider from React Redux and the function you just created above. Now, under those lines and before the <code>ReactDOM.render</code> statement, create a store.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">const</span> store <span class="op">=</span> <span class="at">configureStore</span>()<span class="op">;</span></a></code></pre></div>
+<p>Finally, wrap the <code>App</code> component in a <code>Provider</code> component that has a “store” property assigned the value of <code>store</code> that you created in the previous code snippet, just as you saw in the <em>Passing the Store</em> section of the <em>Usage with React</em> article you read in the homework preparing you for these topics.</p>
+<p>If everything works, you should be able to view the Redux DevTools in your browser’s DevTools environment as a new tab. You should see the “@<span class="citation" data-cites="INIT">@INIT</span>” action that was run and an empty state.</p>
+<figure>
+<img src="https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/aggregates/pokedex/redux-based/assets/redux-initial-state-devtools.png" alt="Redux DevTools initialization" /><figcaption>Redux DevTools initialization</figcaption>
+</figure>
+<h2 id="your-first-action-workflow">Your first action workflow</h2>
+<p>Now, you will refactor the <code>LoginPanel</code> component to put the token it receives from the AJAX call into the Redux store. The rest of the application will remain the same, for now.</p>
+<p>Open <code>LoginPanel</code> and review it. There are two “interesting” portions of this code, the <code>render</code> function which will redirect to the path “/” when a token exists (and show the login form if it does not), and the <code>handleSubmit</code> method that makes the actual AJAX call to get the token. These are the things that you will modify to make this work. It’s going to seem like a lot of code replacing just a few lines, but this will make your application easier to understand because all of the state changes will be encapsulated in their own area under the <strong>store</strong> directory. You won’t have to search through a bunch of components to figure out why the application as a whole is not working.</p>
+<p>The first step is to make <code>LoginPanel</code> a <em>connected component</em>, that is, connect it to the Redux store’s pipeline. To do this, follow these steps:</p>
+<ol type="1">
+<li>Import <code>connect</code> from <code>react-redux</code> in the import section of the <code>LoginPanel</code>.</li>
+<li><p>Remove the <code>export</code> line at the bottom and replace it with this.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">const</span> mapStateToProps <span class="op">=</span> state <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-3" title="3">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="op">};</span></a>
+<a class="sourceLine" id="cb6-5" title="5"></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="kw">const</span> mapDispatchToProps <span class="op">=</span> dispatch <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-7" title="7">  <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-8" title="8">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb6-9" title="9"><span class="op">};</span></a>
+<a class="sourceLine" id="cb6-10" title="10"></a>
+<a class="sourceLine" id="cb6-11" title="11"><span class="co">// Yes, this looks funny, but you will often</span></a>
+<a class="sourceLine" id="cb6-12" title="12"><span class="co">// see this kind of indentation in others&#39;</span></a>
+<a class="sourceLine" id="cb6-13" title="13"><span class="co">// code when using React and Redux.</span></a>
+<a class="sourceLine" id="cb6-14" title="14"><span class="im">export</span> <span class="im">default</span> <span class="at">connect</span>(</a>
+<a class="sourceLine" id="cb6-15" title="15">  mapStateToProps<span class="op">,</span></a>
+<a class="sourceLine" id="cb6-16" title="16">  mapDispatchToProps</a>
+<a class="sourceLine" id="cb6-17" title="17">)(</a>
+<a class="sourceLine" id="cb6-18" title="18">  LoginPanel</a>
+<a class="sourceLine" id="cb6-19" title="19">)<span class="op">;</span></a></code></pre></div></li>
+</ol>
+<p>The last line of the code <em>connects</em> the <code>LoginPanel</code> to the Redux store. The two functions that you created above it, <code>mapStateToProps</code> and <code>mapDispatchToProps</code> are functions that you will write to help in translating state and actions for use in your component. The <code>mapStateToProps</code> function maps the state of the Redux store to the values that you want to show up in the <code>props</code> of the connected component. The <code>mapDispatchToProps</code> function maps complicated action calls to simple ones that your component can use.</p>
+<p>The first thing you’ll need is one of those actions. This is going to be something to let your authentication run to get that token. In the <strong>src/store</strong> directory, create a new file named <strong>authentication.js</strong> which will contain all of the Redux-related stuff to handle authentication:</p>
+<ul>
+<li>the actions,</li>
+<li>the action types,</li>
+<li>the thunks (which are just actions that are allowed to perform calls that have use resources <em>outside</em> the function, like AJAX calls or putting something into local storage), and,</li>
+<li>the reducers.</li>
+</ul>
+<p>The steps that you want the application to go through are:</p>
+<ul>
+<li>Make an AJAX call to sign in (that’s a <em>thunk</em>)</li>
+<li>When the token returns, create an <em>action</em> that will send the token to the store</li>
+<li>Create a reducer to put the token in the store</li>
+</ul>
+<p>Most of these steps will need something more, so if you see something not defined in one of these steps, you will get to it in a later step.</p>
+<h3 id="the-thunk">The thunk</h3>
+<p>In case you lost track, this goes in <strong>src/store/authentication.js</strong>.</p>
+<p>First up, <em>thunks</em> are functions that return another function that takes a single function as its argument. The argument is the <code>dispatch</code> method used to dispatch actions to Redux. So, for example, the <code>login</code> thunk could have this form.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="im">export</span> <span class="kw">const</span> login <span class="op">=</span> (email<span class="op">,</span> password) <span class="kw">=&gt;</span> <span class="kw">async</span> dispatch <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-2" title="2">  <span class="co">// Dispatch an action, here</span></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="op">}</span></a></code></pre></div>
+<p>That’s pretty weird, if you’ve never seen that syntax before, those double <code>=&gt;</code> signs in there. It’s a shortcut to write a function that returns a function. You could also write it like this:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="im">export</span> <span class="kw">const</span> login <span class="op">=</span> (email<span class="op">,</span> password) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-2" title="2">  <span class="cf">return</span> <span class="kw">async</span> dispatch <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-3" title="3">    <span class="co">// Dispatch an action, here</span></a>
+<a class="sourceLine" id="cb8-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-5" title="5"><span class="op">}</span></a></code></pre></div>
+<p>Once you get used to the double (or triple) <code>=&gt;</code> signs, it becomes second nature to write functions that return functions, that way.</p>
+<p>Inside the login method, make a <code>fetch</code> call to the API using the same <code>fetch</code> call found in <code>LoginPanel</code>’s <code>handleSubmit</code> method. You’ll need to import <code>baseUrl</code> from the <strong>src/config.js</strong> module. You don’t have access to the state of the object, just the <code>email</code> and <code>password</code> that they’re passing in through your method call, so change the “body” parameter of the <code>fetch</code> from <code>JSON.stringify(this.state),</code> to <code>JSON.stringify({ email, password }),</code>.</p>
+<p>For now, if the response from the fetch is ok, just get the token out of the response object and log it to the console.</p>
+<p>Now, to hook up this thunk to your component, open <strong>src/LoginPanel.js</strong> and import the <code>login</code> thunk that you just created. At the bottom in the <code>mapDispatchToProps</code> function, add a “login” key that is a function that takes an email and password, and then dispatches the <code>login</code> thunk with those values.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-2" title="2">  <span class="dt">login</span><span class="op">:</span> (email<span class="op">,</span> password) <span class="kw">=&gt;</span> <span class="at">dispatch</span>(<span class="at">login</span>(email<span class="op">,</span> password))</a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="op">};</span></a></code></pre></div>
+<p>Now, there’s a “login” property on the <code>props</code> handed to the <code>LoginPanel</code> component. The value of the “login” property is a function that takes an <em>email</em> and a <em>password</em>. Those then get handed to the <code>login</code> thunk which returns a function to the <code>dispatch</code> function of Redux. It’s functions all the way down.</p>
+<p>Now, delete everything from the <code>handleSubmit</code> method <em>except</em> the line that prevents the default action. Replace it with a call to the function in the “login” property of the <code>props</code> like this.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">this</span>.<span class="va">props</span>.<span class="at">login</span>(<span class="kw">this</span>.<span class="va">state</span>.<span class="at">email</span><span class="op">,</span> <span class="kw">this</span>.<span class="va">state</span>.<span class="at">password</span>)<span class="op">;</span></a></code></pre></div>
+<p>After the application refreshes, you should be able to click the <em>Login</em> button on the screen and see token appear after the AJAX call completes.</p>
+<p>Now that you have the token, you need to dispatch another action, one that isn’t created yet, to set the token in the state so it can be used elsewhere. Remove the <code>console.log</code> statement in your <code>login</code> thunk and replace it with an invocation of the <code>dispatch</code> method that your thunk gets, dispatching an action creator named <code>setToken</code> with the token as its argument.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" title="1"><span class="at">dispatch</span>(<span class="at">setToken</span>(token))</a></code></pre></div>
+<p>Now, it’s time to create that action.</p>
+<h3 id="the-action">The action</h3>
+<p>Actions are just plain objects that have, at a minimum, a “type” property. Action creators are just plain functions that return actions.</p>
+<p>Below your import section and above the <code>login</code> thunk of your code in <strong>src/store/authentication.js</strong>, create a constant named <code>SET_TOKEN</code> and set it equal to the string <code>'pokedex/authentication/SET_TOKEN'</code>. You could make this string <em>anything</em>, it just needs to be unique within your application. This is merely the <a href="https://github.com/erikras/ducks-modular-redux">Ducks</a> convention.</p>
+<p>Now, create a function <code>setToken</code> that takes a token as its one parameter, and returns an object that has a “type” property set to the <code>SET_TOKEN</code> constant and a “token” property set to the value passed into the parameter. Export the <code>setToken</code> function.</p>
+<p>If you’ve done everything correctly to this point, when you click the <em>Login</em> button, you should now see an action appear in the Redux DevTools with the string that you set the <code>SET_TOKEN</code> constant to.</p>
+<figure>
+<img src="images/redux-set-token-action-devtools.png" alt="Redux DevTools with SET_TOKEN action" /><figcaption>Redux DevTools with SET_TOKEN action</figcaption>
+</figure>
+<p>Now, you need to tell Redux how to handle that action with a reducer.</p>
+<h2 id="the-reducer">The reducer</h2>
+<p>Somewhere in the <strong>src/store/authentication.js</strong> file, export a <code>reducer</code> function as the default value of the module. The <code>state</code> parameter gets a default value of an empty object because Redux does not like <code>undefined</code> values returned from reducers. Redux <em>will</em> call your reducer when it creates the store with <code>undefined</code> just to mess with you.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" title="1"><span class="im">export</span> <span class="im">default</span> <span class="kw">function</span> <span class="at">reducer</span>(state <span class="op">=</span> <span class="op">{},</span> action) <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-2" title="2">  <span class="co">// Your code in here.</span></a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="op">}</span></a></code></pre></div>
+<p>In that reducer, you want to check if the “type” property of <code>action</code> is equal to the <code>SET_TOKEN</code> constant. Every reducer is called with every action, so you have to do this check. If it is, then you should return an object with the token in it. If it doesn’t, then just return the state unaltered. Idiomatic Redux usually uses a <code>switch</code> statement to do this with each <code>case</code> statement handling a different action type.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" title="1"><span class="im">export</span> <span class="im">default</span> <span class="kw">function</span> <span class="at">reducer</span>(state <span class="op">=</span> <span class="op">{},</span> action) <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-2" title="2">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-3" title="3">    <span class="cf">case</span> <span class="dt">SET_TOKEN</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-4" title="4">      <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-5" title="5">        ...<span class="at">state</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb13-6" title="6">        <span class="dt">token</span><span class="op">:</span> <span class="va">action</span>.<span class="at">token</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb13-7" title="7">      <span class="op">};</span></a>
+<a class="sourceLine" id="cb13-8" title="8">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb13-9" title="9"></a>
+<a class="sourceLine" id="cb13-10" title="10">    <span class="cf">default</span><span class="op">:</span> <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-11" title="11">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb13-12" title="12"><span class="op">}</span></a></code></pre></div>
+<h3 id="adding-the-reducer-to-the-store">Adding the reducer to the store</h3>
+<p>Now that you have the reducer handling the action, you must add it to the reducer in <strong>src/store/configureStore.js</strong>. Open up that file and import the default value as <code>authentication</code> from the <strong>src/store/authentication.js</strong> module.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb14-1" title="1"><span class="im">import</span> authentication <span class="im">from</span> <span class="st">&#39;./authentication&#39;</span><span class="op">;</span></a></code></pre></div>
+<p>Then, in the <code>combineReducers</code> invocation, add <code>authentication</code> as a key and value.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">const</span> reducer <span class="op">=</span> <span class="at">combineReducers</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb15-2" title="2">  authentication</a>
+<a class="sourceLine" id="cb15-3" title="3"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>After the page reloads, when you click the <em>Login</em> button, you should now see the authentication and token appear in the right pane of the Redux DevTools. (You may need to select the action in the left pane.)</p>
+<h2 id="using-the-token">Using the token</h2>
+<p>Now, you’ve come full circle. You’re going to use the token in the store to inform the <code>LoginPanel</code> that it needs to close. In the <code>render</code> function, the code uses <code>this.state.token</code> to determine whether or not to redirect. You want that to use <code>this.props.token</code>, now, so change it to that.</p>
+<p>To get the token value from the state of the Redux store into the <code>props</code>, you use <code>mapStateToProps</code> function that you created below. Change it to read like this, now, which takes the value of the token stored in the state and puts it into the “token” property of what will be passed to <code>LoginPanel</code> in its <code>props</code>.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">const</span> mapStateToProps <span class="op">=</span> state <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb16-2" title="2">  <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb16-3" title="3">    <span class="dt">token</span><span class="op">:</span> <span class="va">state</span>.<span class="va">authentication</span>.<span class="at">token</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb16-4" title="4">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb16-5" title="5"><span class="op">};</span></a></code></pre></div>
+<p>Now, when you click the <em>Login</em> button, it redirects the application back to “/”. However, because <code>App</code> relies on its own state to get updated from a call to its <code>updateToken</code> method, it goes into an recursive loop of redirecting back and forth between the <code>App</code> component and the <code>LoginPanel</code>. You’ll fix that in the next section.</p>

@@ -1,0 +1,64 @@
+---
+  - name: ensure postgresql is running
+    sudo: true
+    service: name=postgresql state=started
+
+  - name: install repmgr functions on each pg
+    command: "psql 'dbname=repmgr user=postgres port=5432' -f {{pg_config_repmgr_funcs}}"
+
+  - name: allow all pg servers to interconnect for replication
+    sudo: true
+    lineinfile: >
+      dest={{pg_config_pg_hba_conf}}
+      line="host  replication  all  0.0.0.0/0  trust"
+      regexp='^host  replication  all.*$'
+
+  # a few clever config changes.
+  - name: set max wal segments
+    sudo: true
+    lineinfile: >
+      dest={{pg_config_postgresql_conf}}
+      line="wal_keep_segments = 5000"
+      regexp='^wal_keep_segments.*$'
+
+  - name: turn on ssl
+    sudo: true
+    lineinfile: >
+      dest={{pg_config_postgresql_conf}}
+      line="ssl = on"
+      regexp='^ssl.*=.*$'
+
+  - name: set ssl crt
+    sudo: true
+    lineinfile: >
+      dest={{pg_config_postgresql_conf}}
+      line="ssl_cert_file = '{{pg_config_ssl_cert_file}}'"
+      regexp='^ssl_cert_file.*=.*$'
+
+  - name: set ssl key
+    sudo: true
+    lineinfile: >
+      dest={{pg_config_postgresql_conf}}
+      line="ssl_key_file = '{{pg_config_ssl_key_file}}'"
+      regexp='^ssl_key_file.*=.*$'
+
+  - name: setup passwordless ssh between pg nodes
+    include: 'ssh-access.yml'
+
+  - name: install repmgr scripts/conf
+    include: 'repmgr.yml'
+
+  - name: setup configuration for master node
+    include: 'master.yml'
+    when: role == 'master'
+
+  - name: setup configuration for replica
+    include: 'replica.yml'
+    when: role == 'replica'
+
+  - name: setup configuration for pgbouncer
+    include: 'bouncer.yml'
+    when: role == 'bouncer'
+
+  - name: reload configuration
+    command: "psql 'dbname=repmgr user=postgres port=5432' -c 'SELECT pg_reload_conf();'"

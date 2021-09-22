@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>check_palindromic_linkedlist</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<p><strong>Translator: <a href="https://github.com/natsunoyoru97">natsunoyoru97</a></strong></p>
+<p><strong>Author: <a href="https://github.com/labuladong">labuladong</a></strong></p>
+<p>There are two previous articles mentioned the problems about palindromic strings and palindromic sequences.</p>
+<p>The core concept to <strong>FIND</strong> the palindromic strings is expanding from the middle to the edges:</p>
+<pre><code>string palindrome(string&amp; s, int l, int r) {
+    // to prevent the indexes from getting out of range
+    while (l &gt;= 0 &amp;&amp; r &lt; s.size()
+            &amp;&amp; s[l] == s[r]) {
+        // expand to two edges
+        l--; r++;
+    }
+    // return the longest palindromic in which the middle
+    // are both s[l] and s[r]
+    return s.substr(l + 1, r - l - 1);
+}</code></pre>
+<p>The length of the palindromic strings can be either odd or even: when the length is odd there is only one middle pivot, and when the length is even there are two middle pivots. So the function above needs to parse the arguments <code>l</code> and <code>r</code> in.</p>
+<p>But to <strong>CHECK</strong> a palindromic string is much easier. Regardless of its length, we only need to do the double pointers trick, and move from two edges to the middle:</p>
+<pre><code>bool isPalindrome(string s) {
+    int left = 0, right = s.length - 1;
+    while (left &lt; right) {
+        if (s[left] != s[right])
+            return false;
+        left++; right--;
+    }
+    return true;
+}</code></pre>
+<p>So the code is cleaner and much easier to understand. <strong>The palindromic strings are SYMMETRIC so it is same to write it in normal order as in reverse order, which is the key to solve the problems of the palindromic strings.</strong></p>
+<p>We make expansion from this simple scenario, and try to solve the problem: how to check a palindromic singly linked list.</p>
+<h3 id="check-a-palindromic-singly-linked-list">1. Check A Palindromic Singly Linked List</h3>
+<p>Given the head node of a singly linked list, and check if the values are palindromic:</p>
+<pre><code>/**
+ * The definition of nodes in a singly linked list:
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ * }
+ */
+
+boolean isPalindrome(ListNode head);
+
+Input: 1-&gt;2-&gt;null
+Output: false
+
+Input: 1-&gt;2-&gt;2-&gt;1-&gt;null
+Output: true</code></pre>
+<p>The two pointers DON’T do the trick because we can’t traverse a singly linked list in reverse. The most straightforward way is to store the existed linked list in a new linked list REVERSELY, then to compare whether these two linked lists are the same. If you have no idea about how to reverse a linked list, you can look at <em><a href="https://github.com/labuladong/fucking-algorithm/blob/english/data_structure/reverse_part_of_a_linked_list_via_recursion.md">Reverse Part of a Linked List via Recusion</a></em>.</p>
+<p>But <strong>similar to the postorder traversal in a binary tree, we can traverse a linked list reversely without doing the actual reverse</strong>.</p>
+<p>We are familiar with the ways to traverse a binary tree:</p>
+<pre><code>void traverse(TreeNode root) {
+    // code to traverse in preorder
+    traverse(root.left);
+    // code to traverse in inorder
+    traverse(root.right);
+    // code to traverse in postorder
+}</code></pre>
+<p>As mentioned in <em>The Thinking Patterns in Data Structure</em>, the linked list is recursive and it is the derivation of the trees ADT. Thus, <strong>the linked list also has preorder traversal and postorder traversal</strong>:</p>
+<pre><code>void traverse(ListNode head) {
+    // code to traverse in preorder
+    traverse(head.next);
+    // code to traverse in postorder
+}</code></pre>
+<p>How do we apply such a pattern? If I want to print the value of <code>val</code> in a linked list in normal order, I will write the code in the position of preorder traversal; Meanwhile, if I want to print the value in reverse order, I will make the code in the position of postorder traversal:</p>
+<pre><code>/* print the values in a linked list reversely */
+void traverse(ListNode head) {
+    if (head == null) return;
+    traverse(head.next);
+    // code to traverse in postorder
+    print(head.val);
+}</code></pre>
+<p>We can also make a slight modification to imitate the two pointers to check the palindromes:</p>
+<pre><code>// The left pointer
+ListNode left;
+
+boolean isPalindrome(ListNode head) {
+    left = head;
+    return traverse(head);
+}
+
+boolean traverse(ListNode right) {
+    if (right == null) return true;
+    boolean res = traverse(right.next);
+    // code to traverse in postorder
+    res = res &amp;&amp; (right.val == left.val);
+    left = left.next;
+    return res;
+}</code></pre>
+<p>What is the essence of this way? It is all about <strong>pushing the nodes in the linked list into a stack and then popping them out. At this time the elements are in reverse.</strong> What we make in use is the queues and stacks in recursion.</p>
+<p><img src="../pictures/palindromic_linkedlist/1.gif" /></p>
+<p>Of course, both the time complexity and the space complexity are O(N) no matter you construct a reversed linked list or use postorder traversal. Can we solve it without using extra spaces?</p>
+<h3 id="optimizing-the-space-complexity">2. Optimizing the Space Complexity</h3>
+<p>Here is how to optimize:</p>
+<p><strong>2.1 Find the node in the middle by the fast and slow pointers</strong>:</p>
+<pre><code>ListNode slow, fast;
+slow = fast = head;
+while (fast != null &amp;&amp; fast.next != null) {
+    slow = slow.next;
+    fast = fast.next.next;
+}
+// the slow pointer now points to the middle point</code></pre>
+<p><img src="../pictures/palindromic_linkedlist/1.jpg" /></p>
+<p><strong>2.2 If the <code>fast</code> pointer doesn’t point to <code>null</code>, the length of this linked list is odd, which means the <code>slow</code> pointer needs to forward one more step</strong>:</p>
+<pre><code>if (fast != null)
+    slow = slow.next;</code></pre>
+<p><img src="../pictures/palindromic_linkedlist/2.jpg" /></p>
+<p><strong>2.3 Reverse the right half of the linked list and compare palindromes</strong>:</p>
+<pre><code>ListNode left = head;
+ListNode right = reverse(slow);
+
+while (right != null) {
+    if (left.val != right.val)
+        return false;
+    left = left.next;
+    right = right.next;
+}
+return true;</code></pre>
+<p><img src="../pictures/palindromic_linkedlist/3.jpg" /></p>
+<p>Till now, we only need to merge these 3 parts of code to cope with this problem. The <code>reverse</code> function is easy to build:</p>
+<pre><code>ListNode reverse(ListNode head) {
+    ListNode pre = null, cur = head;
+    while (cur != null) {
+        ListNode next = cur.next;
+        cur.next = pre;
+        pre = cur;
+        cur = next;
+    }
+    return pre;
+}</code></pre>
+<p><img src="../pictures/kgroup/8.gif" /></p>
+<p>The time complexity of this algorithm is O(N) and the space complexity is O(1), which is fully optimized.</p>
+<p>I know some readers may ask: It is efficient but it broke the structure of the linked list. Can we remain the structure in origin?</p>
+<p>It is easy to deal with, and the key is to get the positions of the pointers <code>p, q</code>:</p>
+<p><img src="../pictures/palindromic_linkedlist/4.jpg" /></p>
+<p>We only need to add one line before the return function to get the original order of the linked list.</p>
+<pre><code>p.next = reverse(q);</code></pre>
+<p>To avoid being wordy, my words will stop here. Readers can have a try by yourselves.</p>
+<h3 id="summing-up">3. Summing Up</h3>
+<p>First, by extending <strong>from the middle to the two edges</strong> to FIND the palindromic strings, meanwhile by shrinking <strong>from the middle to the two edges</strong> to CHECK the palindromic strings. Traversing in reverse doesn’t work for a singly linked list, the two alternatives are: to construct a new reversed linked list instead, or to apply the stack ADT.</p>
+<p>Due to the feature of palindromes (they are SYMMETRIC), we can optimize the space complexity to O(1) by only <strong>reversing half of the linked list</strong>.</p>
+</body>
+</html>

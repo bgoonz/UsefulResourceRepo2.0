@@ -1,0 +1,65 @@
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<hr />
+<h1 id="freezing-objects">Freezing Objects</h1>
+<p>As you learned earlier in this lesson, a reducer must never mutate its arguments. If the state changes, the reducer must return a new object.</p>
+<p>JavaScript provides us with an easy way to enforce this. <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze"><code>Object.freeze</code></a> prevents new properties from being added to an object, and also prevents properties currently on an object from being altered or deleted. Essentially, it renders an object immutable, which is exactly what you want.</p>
+<p>When you finish this article, you should be able to use <code>Object.freeze</code> to prevent the current state within a reducer from being mutated.</p>
+<h2 id="using-object.freeze-to-prevent-state-mutations">Using <code>Object.freeze</code> to prevent state mutations</h2>
+<p>By calling <code>Object.freeze(state)</code> at the top of every reducer, you can ensure that the state is never accidentally mutated. For example, this is what your farmer reducer from the Fruit Stand application would look like:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">const</span> farmersReducer <span class="op">=</span> (state <span class="op">=</span> <span class="op">{},</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="va">Object</span>.<span class="at">freeze</span>(state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="kw">let</span> nextState <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="cf">case</span> <span class="dt">HIRE_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb1-6" title="6">      <span class="kw">const</span> farmerToHire <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-7" title="7">        <span class="dt">id</span><span class="op">:</span> <span class="va">action</span>.<span class="at">id</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-8" title="8">        <span class="dt">name</span><span class="op">:</span> <span class="va">action</span>.<span class="at">name</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-9" title="9">        <span class="dt">paid</span><span class="op">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb1-10" title="10">      <span class="op">};</span></a>
+<a class="sourceLine" id="cb1-11" title="11">      nextState[<span class="va">action</span>.<span class="at">id</span>] <span class="op">=</span> farmerToHire<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-12" title="12">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-13" title="13">    <span class="cf">case</span> <span class="dt">PAY_FARMER</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb1-14" title="14">      <span class="kw">const</span> farmerToPay <span class="op">=</span> nextState[<span class="va">action</span>.<span class="at">id</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-15" title="15">      <span class="va">farmerToPay</span>.<span class="at">paid</span> <span class="op">=</span> <span class="op">!</span><span class="va">farmerToPay</span>.<span class="at">paid</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-16" title="16">      <span class="cf">return</span> nextState<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-17" title="17">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb1-18" title="18">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-19" title="19">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-20" title="20"><span class="op">};</span></a></code></pre></div>
+<p>Now you can be certain that you won’t accidentally mutate the state within the reducer.</p>
+<h3 id="understanding-the-difference-between-deep-and-shallow-freezes">Understanding the difference between deep and shallow freezes</h3>
+<p>Here’s another example:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">const</span> people <span class="op">=</span> <span class="op">{</span> <span class="dt">farmers</span><span class="op">:</span> <span class="op">{</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;Old MacDonald&#39;</span> <span class="op">}</span> <span class="op">};</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="va">Object</span>.<span class="at">freeze</span>(people)<span class="op">;</span></a></code></pre></div>
+<p>When you try to mutate an object that you <em>froze</em> by modifying a property, it will be prevented:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="va">people</span>.<span class="at">farmers</span> <span class="op">=</span> <span class="op">{</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;Young MacDonald&#39;</span> <span class="op">};</span></a>
+<a class="sourceLine" id="cb3-2" title="2">people<span class="op">;</span> <span class="co">// { farmers: { name: &#39;Old MacDonald&#39; } }</span></a></code></pre></div>
+<p><strong>Note: This is not a <em>deep freeze</em>.</strong> <code>Object.freeze</code> performs a <em>shallow freeze</em> as it only applies to the immediate properties of the object itself. Nested objects can still be mutated, so be careful. Here’s an example of this:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="va">people</span>.<span class="va">farmers</span>.<span class="at">name</span> <span class="op">=</span> <span class="st">&#39;Young MacDonald&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-2" title="2">people<span class="op">;</span> <span class="co">// { farmers: { name: &#39;Young MacDonald&#39; } }</span></a></code></pre></div>
+<h3 id="object.freeze-and-arrays"><code>Object.freeze</code> and arrays</h3>
+<p>You can also use <code>Object.freeze</code> to freeze an array, so if a reducer’s <code>state</code> parameter is an array, you can still prevent accidental state mutations:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="va">Object</span>.<span class="at">freeze</span>(state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-3" title="3">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-4" title="4">    <span class="cf">case</span> <span class="dt">ADD_FRUIT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-5" title="5">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> <span class="va">action</span>.<span class="at">fruit</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="cf">case</span> <span class="dt">ADD_FRUITS</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-7" title="7">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> ...<span class="va">action</span>.<span class="at">fruits</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-8" title="8">    <span class="cf">case</span> <span class="dt">SELL_FRUIT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-9" title="9">      <span class="kw">const</span> index <span class="op">=</span> <span class="va">state</span>.<span class="at">indexOf</span>(<span class="va">action</span>.<span class="at">fruit</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-10" title="10">      <span class="cf">if</span> (index <span class="op">!==</span> <span class="dv">-1</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-11" title="11">        <span class="co">// remove first instance of action.fruit</span></a>
+<a class="sourceLine" id="cb5-12" title="12">        <span class="cf">return</span> [...<span class="va">state</span>.<span class="at">slice</span>(<span class="dv">0</span><span class="op">,</span> index)<span class="op">,</span> ...<span class="va">state</span>.<span class="at">slice</span>(index <span class="op">+</span> <span class="dv">1</span>)]<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-13" title="13">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-14" title="14">      <span class="cf">return</span> state<span class="op">;</span> <span class="co">// if action.fruit is not in state, return previous state</span></a>
+<a class="sourceLine" id="cb5-15" title="15">    <span class="cf">case</span> <span class="dt">SELL_OUT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-16" title="16">      <span class="cf">return</span> []<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-17" title="17">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-18" title="18">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-19" title="19">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-20" title="20"><span class="op">};</span></a></code></pre></div>
+<p>When an array is frozen with <code>Object.freeze</code>, its elements cannot be altered and no elements can be added to or removed from the array. Just like with objects, freezing arrays has limitations. If the array’s elements containing objects, properties on those objects can still be mutated.</p>
+<h2 id="what-you-learned">What you learned</h2>
+<p>In this article, you learned how to use <code>Object.freeze</code> to prevent the current state within a reducer from being mutated.</p>

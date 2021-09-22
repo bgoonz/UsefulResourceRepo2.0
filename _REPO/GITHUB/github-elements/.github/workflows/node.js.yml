@@ -1,0 +1,27 @@
+name: Update data
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Generate data
+      uses: actions/setup-node@v1
+      with:
+        node-version: 15.x
+    - run: node generate.js
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Commit & Push Generated Data
+      run: |
+        git config --local user.email "actions@github.com"
+        git config --local user.name "Actions Auto Build"
+        git add -f .
+        git commit -m "docs: generate documents" || true
+        git push --force origin HEAD:refs/heads/main

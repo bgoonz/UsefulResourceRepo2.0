@@ -1,0 +1,92 @@
+---
+- name: Ensure MySQL server is uninstalled
+  action: apt pkg={{ item }} state=absent
+  with_items:
+          - mysql-server-core-5.5
+          - mysql-client 
+          - mysql-client-5.5
+          - mysql-client-core-5.5
+
+- name: Install percona database server
+  action: apt pkg={{ item }} state=latest
+  with_items:
+          - percona-server-server-5.5
+          - percona-server-client-5.5
+          - percona-toolkit
+          - percona-xtrabackup
+          - python-mysqldb
+
+- name: Stop percona
+  sudo: true
+  command: service mysql stop
+
+- name: Ensure datadir exists
+  sudo: true
+  file: >
+    path={{ mysql_datadir }}
+    state=directory
+    owner=mysql
+    group=mysql
+
+- name: Ensure default datadir is not still there
+  sudo: true
+  file: >
+    path=/var/lib/mysql
+    state=absent
+
+- name: Ensure symlink from /var/lib/mysql to datadir
+  sudo: true
+  file: >
+    path=/var/lib/mysql
+    src={{ mysql_datadir }}
+    state=link
+    force=yes
+    owner=mysql
+    group=mysql
+  notify:
+          - restart percona
+
+- name: Initialize the datadir if it's not already populated
+  sudo: true
+  command: mysql_install_db --datadir={{ mysql_datadir }} --user=mysql
+
+- name: Force datadir to be owned by mysql because mysql_install_db is shit
+  sudo: true
+  command: chown -R mysql:mysql {{ mysql_datadir }}
+
+- name: Write custom server configuration
+  template: src=etc_mysql_my.cnf.j2 dest=/etc/mysql/my.cnf owner=root mode=0600
+
+- name: Restart percona
+  sudo: true
+  command: service mysql start
+
+- name: update mysql root password for all root accounts
+  mysql_user: name=root host={{ item }} password={{ mysql_root_password }}
+  with_items:
+   - "{{ ansible_hostname }}"
+   - 127.0.0.1
+   - ::1
+   - localhost
+  when: ansible_hostname != 'localhost'
+
+- name: update mysql root password for all root accounts
+  mysql_user: name=root host={{ item }} password={{ mysql_root_password }}
+  with_items:
+   - 127.0.0.1
+   - ::1
+   - localhost
+  when: ansible_hostname == 'localhost'
+
+- name: Copy .my.cnf file into the root home folder
+  template: src=root-my-cnf.j2 dest=~/.my.cnf owner=root mode=0600
+
+- name: Ensure anonymous users are not in the database
+  mysql_user: name='' host={{ item }} state=absent
+  with_items:
+          - "{{ ansible_hostname }}"
+          - localhost
+
+- name: remove test database
+  mysql_db: name=test state=absent
+

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>how-2-setup-aws-lambda-psql</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<div class="line-block"></div>
+<div class="line-block"></div>
+<p>Hey Bryan, it’s Nate from <a href="https://fd338.infusion-links.com/api/v1/click/6626750413275136/5065786733756416">newline</a> and today I’ll show you how to create a PostgreSQL database for your AWS Lambda app. In this walkthrough, we configure the database so that it’s covered by the AWS <a href="https://fd338.infusion-links.com/api/v1/click/5815833194790912/5065786733756416">Free Tier</a>, that way it won’t cost anything.</p>
+<p>This lesson is part of <em>The newline Guide to Serverless Django with Zappa</em>. Check out the <a href="https://fd338.infusion-links.com/api/v1/click/5173837925056512/5065786733756416">full course</a> for more.</p>
+<p><a href="https://fd338.infusion-links.com/api/v1/click/5425192912683008/5065786733756416"><img src="https://ci6.googleusercontent.com/proxy/CelabduVwxbC_KisebBZFQw1QNagrv6ChEMDyJfT3UThp4ye9KQ9fakGFG7jZOKjvDoCU3p7jQDNnZ1BcRzlOSRFQiQ782DHLuWLC4osT9DLUL_8PxLFYpY5ZAG8ZxhABoSBRQF_XkNXMFG-K18Tg-3ZH6lxWBKgv7LgZoHEbqeg3nKFJc8dP9Jg8cuFnoxY300V_3LFiOfPNQ=s0-d-e1-ft#http://email-assets.fullstack.io.s3-website-us-east-1.amazonaws.com/assets/zappa/2021-06-06-postgresql-database-lambda/aws_console.jpg" alt="Creating an RDS Database" /></a></p>
+<p>AWS RDS supports many types of database engines, but for this lesson, we will choose a well-supported and common engine: <a href="https://fd338.infusion-links.com/api/v1/click/5454475584471040/5065786733756416">PostgreSQL</a>. Make sure your AWS account has the permissions to create new RDS instances.</p>
+<p>This lesson is going to be used for illustration purposes. The RDS instance you will create will be publicly accessible to the entire internet. This insecure approach should not be used in production.</p>
+<p>We’re going through this process now to become familiar with the steps and will delete this database at the end. In the full course we go over more steps to make this setup production-ready.</p>
+<h2 id="creating-rds-instances">Creating RDS Instances</h2>
+<p>When you create an RDS instance, it’s like telling AWS to host a virtual database server for you. You can host one or more databases on an RDS instance, so if you have many small projects that don’t require many resources, they can all share a single RDS instance. This is nice if you’d like to continue to use the AWS free tier and keep your monthly costs low.</p>
+<p>So we’re going to create an RDS instance called <code>newline-course-zappa</code> and on that instance, we’ll host a database called <code>ZappaCourseDB</code>.</p>
+<h2 id="step-by-step">Step by Step</h2>
+<p>Here are the steps we’re following to create the RDS instance. Not all the settings would be appropriate for creating a production RDS instance, and I’ve attempted to note them below.</p>
+<ol type="1">
+<li>Go to the <a href="https://fd338.infusion-links.com/api/v1/click/6629172678361088/5065786733756416">RDS service</a> in the AWS Console</li>
+<li>For database creation method, select <code>Standard create</code></li>
+<li><p>For Engine options, select <code>PostgreSQL</code></p>
+<ul>
+<li>For the Version, you may select the latest stable version. For this lesson, we’ll use <code>PostgreSQL 12.5-R1</code></li>
+</ul></li>
+<li>For Templates, select <code>Free tier</code></li>
+<li><p>For Settings, use the following:</p>
+<ul>
+<li>For DB Instance Identifier, let’s use <code>newline-course-zappa</code>. Of course, you may choose anything to identify your own RDS instance here.</li>
+<li>For Credentials Setting, you may use the default <code>postgres</code> as the username. For increased security, you may want to choose something else. Pick a strong password. <strong>Make sure to record these securely</strong></li>
+</ul></li>
+<li>For DB Instance Class, <code>db.t2.micro</code> should already be selected for you (corresponds to the free tier)</li>
+<li>For Storage, you may take the defaults, but please disable <code>Storage autoscaling</code> unless you know you need this.</li>
+<li><p>For Availability and Durability, this section should be disabled due to the free tier restrictions.</p>
+<ul>
+<li>In production, you’ll want to read up on how Multi-AZ will add robustness to your service. This is highly recommended.</li>
+</ul></li>
+<li><p>For Connectivity, we need to edit some options</p>
+<ul>
+<li>You may leave the default VPC and Subnet group settings.</li>
+<li>Public Access should be set to <strong>yes</strong>. This is the important switch. You normally wouldn’t want to use this, but to keep things simple for this lesson, it’s fine.</li>
+<li>Keep the default VPC Security Group</li>
+<li>Keep the Availability Zone at <code>no preference</code></li>
+</ul></li>
+<li>For Database Authentication, select <code>Password authentication</code></li>
+<li>Expand Additional Configuration. The initial database name should be <code>ZappaCourseDB</code>. Uncheck <code>Enable automatic backups</code> (won’t be needed for this lesson, but valuable in production). Uncheck <code>Enable performance insights</code> (won’t be needed for this lesson, but valuable in production). Keep defaults for Maintenance and Deletion protection. Obviously, when creating production RDS instances, you’ll want to pay more attention to these.</li>
+<li><p>Click on <strong>Create Database</strong></p></li>
+</ol>
+<p>Once completed, you’ll see the new RDS instance in the console like this:</p>
+<figure>
+<img src="https://ci4.googleusercontent.com/proxy/YEbv4R9srQQx384nbIaasWyR1rk8ssc492TjxhZjMBGZ00SwtZDX6fyuy2xduf5Q1wBgrxnnz5W2PEPEHSOvTKCH_o2YiyeWwinRFxYf8hiM1KFKLCyNJ-rLItJTwPdtegkNKd9j_S6-3eE1215Ch_oyiK1aPorYUoJooAHDqxPY25ThkQpL462lUNDsKuch1rWz1RqnNlBe4P1rhw=s0-d-e1-ft#http://email-assets.fullstack.io.s3-website-us-east-1.amazonaws.com/assets/zappa/2021-06-06-postgresql-database-lambda/0_rds_instance.jpg" alt="RDS being created" /><figcaption>RDS being created</figcaption>
+</figure>
+<h2 id="edit-security-group-settings">Edit Security Group Settings</h2>
+<p>Even though you’ve set this RDS instance to be public, we’ll need to open up the security group to allow inbound database network traffic. Follow these steps:</p>
+<ol type="1">
+<li>Click on the name of your RDS instance in the AWS Console</li>
+<li>Under Security, click on the name of your VPC security group. It should be something like <code>default (sg-fe7fa7f1)</code>. Note the name will be similar but the trailing characters after <code>sg-</code> will be different.</li>
+<li>Click on the In-bound rules tab</li>
+<li>Click on <strong>Edit inbound rules</strong></li>
+<li>Scroll to the bottom and click on <strong>Add rule</strong></li>
+<li><p>Configure the new rule with these settings:</p>
+<ul>
+<li>Type is <strong>PostgreSQL</strong></li>
+<li>Source is <strong>Anywhere</strong></li>
+</ul></li>
+<li><p>Then click <strong>Save Rules</strong></p></li>
+</ol>
+<p>Your final security group configuration should resemble the following.</p>
+<figure>
+<img src="https://ci5.googleusercontent.com/proxy/2RZD4Sfapi-I-y2OHUDztkWfvm78sYdmmXuwTiTxrBLpEa0Hu8rO4a4moLFK3oE2tyj-6g44rUZ1nC2t7TH89codjRFzRIOAfN3_SARSHF3coOsnkR6alRJait5L9jn1wi8W8EnH-_pIKWyI2wRY7HrIGFGAkADm-GLRoynrnLLeIwBv9avBTX2VNrlHrmgbXPqiCJtaFIHxS1vUZPGBMg=s0-d-e1-ft#http://email-assets.fullstack.io.s3-website-us-east-1.amazonaws.com/assets/zappa/2021-06-06-postgresql-database-lambda/security_settings.jpg" alt="Security Group Config" /><figcaption>Security Group Config</figcaption>
+</figure>
+<p>Don’t forget to test to see if you can connect to the database from your app. As a follow up to this simple set up, you’ll want to configure security settings more robustly after your initial connection is successful. If you need more guidance, check out our new <a href="https://fd338.infusion-links.com/api/v1/click/5459211188568064/5065786733756416">course</a> for running Django on AWS Lambda.</p>
+<p>|</p>
+<p>|</p>
+</body>
+</html>

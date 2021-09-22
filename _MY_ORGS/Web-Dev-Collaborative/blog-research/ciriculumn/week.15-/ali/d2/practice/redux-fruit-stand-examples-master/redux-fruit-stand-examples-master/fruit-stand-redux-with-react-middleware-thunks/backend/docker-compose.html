@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+
+  fruit-stand-api:
+    build:
+      context: .
+      target: dev
+    ports:
+      - ${PORT}:${PORT}
+    volumes:
+      - ./:/app:delegated
+      - /app/node_modules
+    environment:
+      - PORT=${PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_HOST=fruit-stand-db
+    depends_on:
+      - fruit-stand-db
+    command: ./wait-for fruit-stand-db:5432 -- npm run db-migrate-seed
+  
+  fruit-stand-db:
+    image: postgres:12.3
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+    volumes:
+      - fruit-stand-db-data:/var/lib/postgresql/data
+
+volumes:
+  fruit-stand-db-data:

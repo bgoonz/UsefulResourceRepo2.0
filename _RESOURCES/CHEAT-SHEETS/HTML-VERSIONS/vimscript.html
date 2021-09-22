@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>vimscript.html</title>
+    <style type="text/css">
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      span.underline {
+        text-decoration: underline;
+      }
+      div.column {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <pre class="vim"><code>&quot; ##############
+&quot;  Introduction
+&quot; ##############
+&quot;
+&quot; Vim script (also called VimL) is the subset of Vim&#39;s ex-commands which
+&quot; supplies a number of features one one would expect from a scripting language,
+&quot; such as values, variables, functions or loops. Always keep in the back of
+&quot; your mind that a Vim script file is just a sequence of ex-commands. It is
+&quot; very common for a script to mix programming-language features and raw
+&quot; ex-commands.
+&quot;
+&quot; You can run Vim script directly by entering the commands in command-line mode
+&quot; (press `:` to enter command-line mode), or you can write them to a file
+&quot; (without the leading `:`) and source it in a running Vim instance (`:source
+&quot; path/to/file`). Some files are sourced automatically as part of your
+&quot; configuration (see |startup|). This guide assumes that you are familiar
+&quot; with ex-commands and will only cover the scripting. Help topics to the
+&quot; relevant manual sections are included.
+&quot;
+&quot; See |usr_41.txt| for the official introduction to Vim script. A comment is
+&quot; anything following an unmatched `&quot;` until the end of the line, and `|`
+&quot; separates instructions (what `;` does in most other languages). References to
+&quot; the manual as surrounded with `|`, such as |help.txt|.
+
+&quot; This is a comment
+
+&quot; The vertical line &#39;|&#39; (pipe) separates commands
+echo &#39;Hello&#39; | echo &#39;world!&#39;
+
+&quot; Putting a comment after a command usually works
+pwd                   &quot; Displays the current working directory
+
+&quot; Except for some commands it does not; use the command delemiter before the
+&quot; comment (echo assumes that the quotation mark begins a string)
+echo &#39;Hello world!&#39;  | &quot; Displays a message
+
+&quot; Line breaks can be escaped by pacing a backslash as the first non-whitespace
+&quot; character on the *following* line. Only works in script files, not on the
+&quot; command line
+echo &quot; Hello
+    \ world &quot;
+
+echo [1, 
+    \ 2]
+
+echo {
+    \ &#39;a&#39;: 1,
+    \ &#39;b&#39;: 2
+\}
+
+
+&quot; #######
+&quot;  Types
+&quot; #######
+&quot;
+&quot; For an overview of types see |E712|. For an overview of operators see
+&quot; |expression-syntax|
+
+&quot; Numbers (|expr-number|)
+&quot; #######
+
+echo  123         | &quot; Decimal
+echo  0b1111011   | &quot; Binary
+echo  0173        | &quot; Octal
+echo  0x7B        | &quot; Hexadecimal
+echo  123.0       | &quot; Floating-point
+echo  1.23e2      | &quot; Floating-point (scientific notation)
+
+&quot; Note that an *integer* number with a leading `0` is in octal notation. The
+&quot; usual arithmetic operations are supported.
+
+echo  1 + 2       | &quot; Addition
+echo  1 - 2       | &quot; Subtraction
+echo  - 1         | &quot; Negation (unary minus)
+echo  + 1         | &quot; Unary plus (does nothing really, but still legal)
+echo  1 * 2       | &quot; Multiplication
+echo  1 / 2       | &quot; Division
+echo  1 % 2       | &quot; Modulo (remainder)
+
+&quot; Booleans (|Boolean|)
+&quot; ########
+&quot;
+&quot; The number 0 is false, every other number is true. Strings are implicitly
+&quot; converted to numbers (see below). There are two pre-defined semantic
+&quot; constants.
+
+echo  v:true      | &quot; Evaluates to 1 or the string &#39;v:true&#39;
+echo  v:false     | &quot; Evaluates to 0 or the string &#39;v:false&#39;
+
+&quot; Boolean values can result from comparison of two objects.
+
+echo  x == y             | &quot; Equality by value
+echo  x != y             | &quot; Unequality
+echo  x &gt;  y             | &quot; Greater than
+echo  x &gt;= y             | &quot; Greater than or equal
+echo  x &lt;  y             | &quot; Smaller than
+echo  x &lt;= y             | &quot; Smaller than or equal
+echo  x is y             | &quot; Instance identity (lists and dictionaries)
+echo  x isnot y          | &quot; Instance non-identity (lists and dictionaries)
+
+&quot; Strings are compared based on their alphanumerical ordering
+&quot; echo &#39;a&#39; &lt; &#39;b&#39;. Case sensitivity depends on the setting of &#39;ignorecase&#39;
+&quot;
+&quot; Explicit case-sensitivity is specified by appending &#39;#&#39; (match case) or &#39;?&#39;
+&quot; (ignore case) to the operator. Prefer explicity case sensitivity when writing
+&quot; portable scripts.
+
+echo  &#39;a&#39; &lt;  &#39;B&#39;         | &quot; True or false depending on &#39;ignorecase&#39;
+echo  &#39;a&#39; &lt;? &#39;B&#39;         | &quot; True
+echo  &#39;a&#39; &lt;# &#39;B&#39;         | &quot; False
+
+&quot; Regular expression matching
+echo  &quot;hi&quot; =~  &quot;hello&quot;    | &quot; Regular expression match, uses &#39;ignorecase&#39;
+echo  &quot;hi&quot; =~# &quot;hello&quot;    | &quot; Regular expression match, case sensitive
+echo  &quot;hi&quot; =~? &quot;hello&quot;    | &quot; Regular expression match, case insensitive
+echo  &quot;hi&quot; !~  &quot;hello&quot;    | &quot; Regular expression unmatch, use &#39;ignorecase&#39;
+echo  &quot;hi&quot; !~# &quot;hello&quot;    | &quot; Regular expression unmatch, case sensitive
+echo  &quot;hi&quot; !~? &quot;hello&quot;    | &quot; Regular expression unmatch, case insensitive
+
+&quot; Boolean operations are possible.
+
+echo  v:true &amp;&amp; v:false       | &quot; Logical AND
+echo  v:true || v:false       | &quot; Logical OR
+echo  ! v:true                | &quot; Logical NOT
+echo  v:true ? &#39;yes&#39; : &#39;no&#39;   | &quot; Ternary operator
+
+
+&quot; Strings (|String|)
+&quot; #######
+&quot;
+&quot; An ordered zero-indexed sequence of bytes. The encoding of text into bytes
+&quot; depends on the option |&#39;encoding&#39;|.
+
+&quot; Literal constructors
+echo  &quot;Hello world\n&quot;   | &quot; The last two characters stand for newline
+echo  &#39;Hello world\n&#39;   | &quot; The last two characters are literal
+echo  &#39;Let&#39;&#39;s go!&#39;      | &quot; Two single quotes become one quote character
+
+&quot; Single-quote strings take all characters are literal, except two single
+&quot; quotes, which are taken to be a single quote in the string itself. See 
+&quot; |expr-quote| for all possible escape sequences.
+
+&quot; String concatenation
+&quot; The .. operator is preferred, but only supported in since Vim 8.1.1114
+echo  &#39;Hello &#39; .  &#39;world&#39;  | &quot; String concatenation
+echo  &#39;Hello &#39; .. &#39;world&#39;  | &quot; String concatenation (new variant)
+
+&quot; String indexing
+echo  &#39;Hello&#39;[0]           | &quot; First byte
+echo  &#39;Hello&#39;[1]           | &quot; Second byte
+echo  &#39;Hellö&#39;[4]           | &quot; Returns a byte, not the character &#39;ö&#39;
+
+&quot; Substrings (second index is inclusive)
+echo  &#39;Hello&#39;[:]           | &quot; Copy of entire string
+echo  &#39;Hello&#39;[1:3]         | &quot; Substring, second to fourth byte
+echo  &#39;Hello&#39;[1:-2]        | &quot; Substring until second to last byte
+echo  &#39;Hello&#39;[1:]          | &quot; Substring with starting index
+echo  &#39;Hello&#39;[:2]          | &quot; Substring with ending index
+echo  &#39;Hello&#39;[-2:]         | &quot; Substring relative to end of string
+
+&quot; A negative index is relative to the end of the string. See
+&quot; |string-functions| for all string-related functions.
+
+&quot; Lists (|List|)
+&quot; #####
+&quot;
+&quot; An ordered zero-indexed heterogeneous sequence of arbitrary Vim script
+&quot; objects.
+
+&quot; Literal constructor
+echo  []                   | &quot; Empty list
+echo  [1, 2, &#39;Hello&#39;]      | &quot; List with elements
+echo  [1, 2, &#39;Hello&#39;, ]    | &quot; Trailing comma permitted
+echo  [[1, 2], &#39;Hello&#39;]    | &quot; Lists can be nested arbitrarily
+
+&quot; List concatenation
+echo  [1, 2] + [3, 4]      | &quot; Creates a new list
+
+&quot; List indexing, negative is relative to end of list (|list-index|)
+echo  [1, 2, 3, 4][2]      | &quot; Third element
+echo  [1, 2, 3, 4][-1]     | &quot; Last element
+
+&quot; List slicing (|sublist|)
+echo  [1, 2, 3, 4][:]      | &quot; Shallow copy of entire list
+echo  [1, 2, 3, 4][:2]     | &quot; Sublist until third item (inclusive)
+echo  [1, 2, 3, 4][2:]     | &quot; Sublist from third item (inclusive)
+echo  [1, 2, 3, 4][:-2]    | &quot; Sublist until second-to-last item (inclusive)
+
+&quot; All slicing operations create new lists. To modify a list in-place use list
+&quot; functions (|list-functions|) or assign directly to an item (see below about
+&quot; variables).
+
+
+&quot; Dictionaries (|Dictionary|)
+&quot; ############
+&quot;
+&quot; An unordered sequence of key-value pairs, keys are always strings (numbers
+&quot; are implicitly converted to strings).
+
+&quot; Dictionary literal
+echo  {}                       | &quot; Empty dictionary
+echo  {&#39;a&#39;: 1, &#39;b&#39;: 2}         | &quot; Dictionary literal
+echo  {&#39;a&#39;: 1, &#39;b&#39;: 2, }       | &quot; Trailing comma permitted
+echo  {&#39;x&#39;: {&#39;a&#39;: 1, &#39;b&#39;: 2}}  | &quot; Nested dictionary
+
+&quot; Indexing a dictionary
+echo  {&#39;a&#39;: 1, &#39;b&#39;: 2}[&#39;a&#39;]    | &quot; Literal index
+echo  {&#39;a&#39;: 1, &#39;b&#39;: 2}.a       | &quot; Syntactic sugar for simple keys
+
+&quot; See |dict-functions| for dictionary manipulation functions.
+
+
+&quot; Funcref (|Funcref|)
+&quot; #######
+&quot;
+&quot; Reference to a function, uses the function name as a string for construction.
+&quot; When stored in a variable the name of the variable has the same restrictions
+&quot; as a function name (see below).
+
+echo  function(&#39;type&#39;)                   | &quot; Reference to function type()
+&quot; Note that `funcref(&#39;type&#39;)` will throw an error because the argument must be
+&quot; a user-defined function; see further below for defining your own functions.
+echo  funcref(&#39;type&#39;)                    | &quot; Reference by identity, not name
+&quot; A lambda (|lambda|) is an anonymous function; it can only contain one
+&quot; expression in its body, which is also its implicit return value.
+echo  {x -&gt; x * x}                       | &quot; Anonymous function
+echo  function(&#39;substitute&#39;, [&#39;hello&#39;])  | &quot; Partial function
+
+
+&quot; Regular expression (|regular-expression|)
+&quot; ##################
+&quot;
+&quot; A regular expression pattern is generally a string, but in some cases you can
+&quot; also use a regular expression between a pair of delimiters (usually `/`, but
+&quot; you can choose anything).
+
+&quot; Substitute &#39;hello&#39; for &#39;Hello&#39;
+substitute/hello/Hello/
+
+
+&quot; ###########################
+&quot;  Implicit type conversions
+&quot; ###########################
+&quot;
+&quot; Strings are converted to numbers, and numbers to strings when necessary. A
+&quot; number becomes its decimal notation as a string. A string becomes its
+&quot; numerical value if it can be parsed to a number, otherwise it becomes zero.
+
+echo  &quot;1&quot; + 1         | &quot; Number
+echo  &quot;1&quot; .. 1        | &quot; String
+echo  &quot;0xA&quot; + 1       | &quot; Number
+
+&quot; Strings are treated like numbers when used as booleans
+echo &quot;true&quot; ? 1 : 0   | &quot; This string is parsed to 0, which is false
+
+&quot; ###########
+&quot;  Variables
+&quot; ###########
+&quot; 
+&quot; Variables are bound within a scope; if no scope is provided a default is
+&quot; chosen by Vim. Use `:let` and `:const` to bind a value and `:unlet` to unbind
+&quot; it.
+
+let b:my_var = 1        | &quot; Local to current buffer
+let w:my_var = 1        | &quot; Local to current window
+let t:my_var = 1        | &quot; Local to current tab page
+let g:my_var = 1        | &quot; Global variable
+let l:my_var = 1        | &quot; Local to current function (see functions below)
+let s:my_var = 1        | &quot; Local to current script file
+let a:my_arg = 1        | &quot; Function argument (see functions below)
+
+&quot; The Vim scope is read-only
+echo  v:true            | &quot; Special built-in Vim variables (|v:var|)
+
+&quot; Access special Vim memory like variables
+let @a = &#39;Hello&#39;        | &quot; Register
+let $PATH=&#39;&#39;            | &quot; Environment variable
+let &amp;textwidth = 79     | &quot; Option
+let &amp;l:textwidth = 79   | &quot; Local option
+let &amp;g:textwidth = 79   | &quot; Global option
+
+&quot; Access scopes as dictionaries (can be modified like all dictionaries)
+&quot; See the |dict-functions|, especially |get()|, for access and manipulation
+echo  b:                | &quot; All buffer variables
+echo  w:                | &quot; All window variables
+echo  t:                | &quot; All tab page variables
+echo  g:                | &quot; All global variables
+echo  l:                | &quot; All local variables
+echo  s:                | &quot; All script variables
+echo  a:                | &quot; All function arguments
+echo  v:                | &quot; All Vim variables
+
+&quot; Constant variables
+const x = 10            | &quot; See |:const|, |:lockvar|
+
+&quot; Function reference variables have the same restrictions as function names
+let IsString = {x -&gt; type(x) == type(&#39;&#39;)}    | &quot; Global: capital letter
+let s:isNumber = {x -&gt; type(x) == type(0)}   | &quot; Local: any name allowed
+
+&quot; When omitted the scope `g:` is implied, except in functions, there `l:` is
+&quot; implied.
+
+
+&quot; Multiple value binding (list unpacking)
+&quot; #######################################
+&quot;
+&quot; Assign values of list to multiple variables (number of items must match)
+let [x, y] = [1, 2]
+
+&quot; Assign the remainer to a rest variable (note the semicolon)
+let [mother, father; children] = [&#39;Alice&#39;, &#39;Bob&#39;, &#39;Carol&#39;, &#39;Dennis&#39;, &#39;Emily&#39;]
+
+
+&quot; ##############
+&quot;  Flow control
+&quot; ##############
+
+&quot; Conditional (|:if|, |:elseif|, |:else|, |:endif|)
+&quot; ###########
+&quot; 
+&quot; Conditions are set between `if` and `endif`. They can be nested.
+
+let condition = v:true
+
+if condition
+    echo &#39;First condition&#39;
+elseif another_condition
+    echo &#39;Second condition&#39;
+else
+    echo &#39;Fail&#39;
+endif
+
+&quot; Loops (|:for|, |:endfor|, |:while|, |:endwhile|, |:break|, |:continue|)
+&quot; #####
+&quot;
+&quot; Two types of loops: `:for` and `:while`. Use `:continue` to skip to the next
+&quot; iteration, `:break` to break out of the loop.
+
+&quot; For-loop (|:for|, |:endfor|)
+&quot; ========
+&quot;
+&quot; For-loops iterate over lists and nothing else. If you want to iterate over
+&quot; another sequence you need to use a function which will create a list.
+
+&quot; Iterate over a list
+for person in [&#39;Alice&#39;, &#39;Bob&#39;, &#39;Carol&#39;, &#39;Dennis&#39;, &#39;Emily&#39;]
+    echo &#39;Hello &#39; .. person
+endfor
+
+&quot; Iterate over a nested list by unpacking it
+for [x, y] in [[1, 0], [0, 1], [-1, 0], [0, -1]]
+    echo &#39;Position: x =&#39;  .. x .. &#39;, y = &#39; .. y
+endfor
+
+&quot; Iterate over a range of numbers
+for i in range(10, 0, -1)  &quot; Count down from 10
+    echo &#39;T minus&#39;  .. i
+endfor
+
+&quot; Iterate over the keys of a dictionary
+for symbol in keys({&#39;π&#39;: 3.14, &#39;e&#39;: 2.71})
+    echo &#39;The constant &#39; .. symbol .. &#39; is a transcendent number&#39;
+endfor
+
+&quot; Iterate over the values of a dictionary
+for value in values({&#39;π&#39;: 3.14, &#39;e&#39;: 2.71})
+    echo &#39;The value &#39; .. value .. &#39; approximates a transcendent number&#39;
+endfor
+
+&quot; Iterate over the keys and values of a dictionary
+for [symbol, value] in items({&#39;π&#39;: 3.14, &#39;e&#39;: 2.71})
+    echo &#39;The number &#39; .. symbol .. &#39; is approximately &#39; .. value
+endfor
+
+&quot; While-loops (|:while|, |:endwhile|)
+
+let there_yet = v:true
+while !there_yet
+    echo &#39;Are we there yet?&#39;
+endwhile
+
+
+&quot; Exception handling (|exception-handling|)
+&quot; ##################
+&quot;
+&quot; Throw new exceptions as strings, catch them by pattern-matching a regular
+&quot; expression against the string
+
+&quot; Throw new exception
+throw &quot;Wrong arguments&quot;
+
+&quot; Guard against an exception (the second catch matches any exception)
+try
+    source path/to/file
+catch /Cannot open/
+    echo &#39;Looks like that file does not exist&#39;
+catch /.*/
+    echo &#39;Something went wrong, but I do not know what&#39;
+finally
+    echo &#39;I am done trying&#39;
+endtry
+
+
+&quot; ##########
+&quot;  Functions
+&quot; ##########
+
+&quot; Defining functions (|:function|, |:endfunction|)
+&quot; ##################
+
+&quot; Unscoped function names have to start with a capital letter
+function! AddNumbersLoudly(x, y)
+    &quot; Use a: scope to access arguments
+    echo &#39;Adding&#39;  .. a:x ..  &#39;and&#39;  .. a:y   | &quot; A side effect
+    return a:x + a:y                          | &quot; A return value
+endfunction
+
+&quot; Scoped function names may start with a lower-case letter
+function! s:addNumbersLoudly(x, y)
+    echo &#39;Adding&#39;  .. a:x ..  &#39;and&#39;  .. a:y
+    return a:x + a:y
+endfunction
+
+&quot; Without the exclamation mark it would be an error to re-define a function,
+&quot; with the exclamation mark the new definition can replace the old one. Since
+&quot; Vim script files can be reloaded several times over the course of a session
+&quot; it is best to use the exclamation mark unless you really know what you are
+&quot; doing.
+
+&quot; Function definitions can have special qualifiers following the argument list.
+
+&quot; Range functions define two implicit arguments, which will be set to the range
+&quot; of the ex-command
+function! FirstAndLastLine() range
+    echo [a:firstline, a:lastline]
+endfunction
+
+&quot; Prints the first and last line that match a pattern (|cmdline-ranges|)
+/^#!/,/!#$/call FirstAndLastLine()
+
+&quot; Aborting functions, abort once error occurs (|:func-abort|)
+function! SourceMyFile() abort
+    source my-file.vim        | &quot; Try sourcing non-existing file
+    echo &#39;This will never be printed&#39;
+endfunction
+
+&quot; Closures, functions carrying values from outer scope (|:func-closure|)
+function! MakeAdder(x)
+    function! Adder(n) closure
+        return a:n + a:x
+    endfunction
+    return funcref(&#39;Adder&#39;)
+endfunction
+let AddFive = MakeAdder(5)
+echo AddFive(3)               | &quot; Prints 8
+
+&quot; Dictionary functions, poor man&#39;s OOP methods (|Dictionary-function|)
+function! Mylen() dict
+    return len(self.data)     | &quot; Implicit variable self
+endfunction
+let mydict = {&#39;data&#39;: [0, 1, 2, 3], &#39;len&#39;: function(&quot;Mylen&quot;)}
+echo mydict.len()
+
+&quot; Alternatively, more concise
+let mydict = {&#39;data&#39;: [0, 1, 2, 3]}
+function! mydict.len()
+    return len(self.data)
+endfunction
+
+&quot; Calling functions (|:call|)
+&quot; #################
+
+&quot; Call a function for its return value, and possibly for its side effects
+let animals = keys({&#39;cow&#39;: &#39;moo&#39;, &#39;dog&#39;: &#39;woof&#39;, &#39;cat&#39;: &#39;meow&#39;})
+
+&quot; Call a function for its side effects only, ignore potential return value
+call sign_undefine()
+
+&quot; The call() function calls a function reference and passes parameters as a
+&quot; list, and returns the function&#39;s result.
+echo  call(function(&#39;get&#39;), [{&#39;a&#39;: 1, &#39;b&#39;: 2}, &#39;c&#39;, 3])   | &quot; Prints 3
+
+&quot; Recall that Vim script is embedded within the ex-commands, that is why we
+&quot; cannot just call a function directly, we have to use the `:call` ex-command.
+
+&quot; Function namespaces (|write-library-script|, |autoload|)
+&quot; ###################
+
+&quot; Must be defined in autoload/foo/bar.vim
+&quot; Namspaced function names do not have to start with a capital letter
+function! foo#bar#log(value)
+    echomsg value
+endfunction
+
+call foo#bar#log(&#39;Hello&#39;)
+
+
+&quot; #############################
+&quot;  Frequently used ex-commands
+&quot; #############################
+
+
+&quot; Sourcing runtime files (|&#39;runtimepath&#39;|)
+&quot; ######################
+
+&quot; Source first match among runtime paths
+runtime plugin/my-plugin.vim
+
+
+&quot; Defining new ex-commands (|40.2|, |:command|)
+&quot; ########################
+
+&quot; First argument here is the name of the command, rest is the command body
+command! SwapAdjacentLines normal! ddp
+
+&quot; The exclamation mark works the same as with `:function`. User-defined
+&quot; commands must start with a capital letter. The `:command` command can take a
+&quot; number of attributes (some of which have their own parameters with `=`), such
+&quot; as `-nargs`, all of them start with a dash to set them apart from the command
+&quot; name.
+
+command! -nargs=1 Error echoerr &lt;args&gt;
+
+
+&quot; Defining auto-commands (|40.3|, |autocmd|, |autocommand-events|)
+&quot; ######################
+
+&quot; The arguments are &quot;events&quot;, &quot;patterns&quot;, rest is &quot;commands&quot;
+autocmd BufWritePost $MYVIMRC source $MYVIMRC
+
+&quot; Events and patterns are separated by commas with no space between. See
+&quot; |autocmd-events| for standard events, |User| for custom events. Everything
+&quot; else are the ex-commands which will be executed.
+
+&quot; Auto groups
+&quot; ===========
+&quot;
+&quot; When a file is sourced multiple times the auto-commands are defined anew,
+&quot; without deleting the old ones, causing auto-commands to pile up over time.
+&quot; Use auto-groups and the following ritual to guard against this.
+
+augroup auto-source   | &quot; The name of the group is arbitrary
+    autocmd!          | &quot; Deletes all auto-commands in the current group
+    autocmd BufWritePost $MYVIMRC source $MYVIMRC
+augroup END           | &quot; Switch back to default auto-group
+
+&quot; It is also possible to assign a group directly. This is useful if the
+&quot; definition of the group is in one script and the definition of the
+&quot; auto-command is in another script.
+
+&quot; In one file
+augroup auto-source
+    autocmd!
+augroup END
+
+&quot; In another file
+autocmd auto-source BufWritePost $MYVIMRC source $MYVIMRC
+
+&quot; Executing (run-time macros of sorts)
+&quot; ####################################
+
+&quot; Sometimes we need to construct an ex-command where part of the command is not
+&quot; known until runtime.
+
+let line = 3                | &quot; Line number determined at runtime
+execute line .. &#39;delete&#39;    | &quot; Delete a line
+
+&quot; Executing normal-mode commands
+&quot; ##############################
+&quot;
+&quot; Use `:normal` to play back a sequence of normal mode commands from the
+&quot; command-line. Add an exclamation mark to ignore user mappings.
+
+normal! ggddGp             | &quot; Transplant first line to end of buffer
+
+&quot; Window commands can be used with :normal, or with :wincmd if :normal would
+&quot; not work
+wincmd L                   | &quot; Move current window all the way to the right
+
+
+&quot; ###########################
+&quot;  Frequently used functions
+&quot; ###########################
+
+&quot; Feature check
+echo  has(&#39;nvim&#39;)                  | &quot; Running Neovim
+echo  has(&#39;python3&#39;)               | &quot; Support for Python 3 plugins
+echo  has(&#39;unix&#39;)                  | &quot; Running on a Unix system
+echo  has(&#39;win32&#39;)                 | &quot; Running on a Windows system
+
+
+&quot; Test if something exists
+echo  exists(&#39;&amp;mouse&#39;)             | &quot; Option (exists only)
+echo  exists(&#39;+mouse&#39;)             | &quot; Option (exists and works)
+echo  exists(&#39;$HOSTNAME&#39;)          | &quot; Environment variable
+echo  exists(&#39;*strftime&#39;)          | &quot; Built-in function
+echo  exists(&#39;**s:MyFunc&#39;)         | &quot; User-defined function
+echo  exists(&#39;bufcount&#39;)           | &quot; Variable (scope optional)
+echo  exists(&#39;my_dict[&quot;foo&quot;]&#39;)     | &quot; Variable (dictionary entry)
+echo  exists(&#39;my_dict[&quot;foo&quot;]&#39;)     | &quot; Variable (dictionary entry)
+echo  exists(&#39;:Make&#39;)              | &quot; Command
+echo  exists(&quot;#CursorHold&quot;)        | &quot; Auto-command defined for event
+echo  exists(&quot;#BufReadPre#*.gz&quot;)   | &quot; Event and pattern
+echo  exists(&quot;#filetypeindent&quot;)    | &quot; Auto-command group
+echo  exists(&quot;##ColorScheme&quot;)      | &quot; Auto-commnand supported for event
+
+&quot; Various dynamic values (see |expand()|)
+echo  expand(&#39;%&#39;)                  | &quot; Current file name
+echo  expand(&#39;&lt;cword&gt;&#39;)            | &quot; Current word under cursor
+echo  expand(&#39;%:p&#39;)                | &quot; Modifier are possible
+
+&quot; Type tests
+&quot; There are unique constants defined for the following types. Older versions
+&quot; of Vim lack the type variables, see the reference &quot; documentation for a
+&quot; workaround
+echo  type(my_var) == v:t_number      | &quot; Number
+echo  type(my_var) == v:t_string      | &quot; String
+echo  type(my_var) == v:t_func        | &quot; Funcref
+echo  type(my_var) == v:t_list        | &quot; List
+echo  type(my_var) == v:t_dict        | &quot; Dictionary
+echo  type(my_var) == v:t_float       | &quot; Float
+echo  type(my_var) == v:t_bool        | &quot; Explicit Boolean
+&quot; For the null object should compare it against itself
+echo  my_var is v:null
+
+&quot; Format strings
+echo  printf(&#39;%d in hexadecimal is %X&#39;, 123, 123)
+
+
+&quot; #####################
+&quot;  Tricks of the trade
+&quot; #####################
+
+&quot; Source guard
+&quot; ############
+
+&quot; Prevent a file from being sourced multiple times; users can set the variable
+&quot; in their configuration to prevent the plugin from loading at all.
+if exists(&#39;g:loaded_my_plugin&#39;)
+    finish
+endif
+let g:loaded_my_plugin = v:true
+
+&quot; Default values
+&quot; ##############
+
+&quot; Get a default value: if the user defines a variable use it, otherwise use a
+&quot; hard-coded default. Uses the fact that a scope is also a dictionary.
+let s:greeting = get(g:, &#39;my_plugin_greeting&#39;, &#39;Hello&#39;)</code></pre>
+  </body>
+</html>

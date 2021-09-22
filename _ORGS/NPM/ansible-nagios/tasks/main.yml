@@ -1,0 +1,96 @@
+# Update and install dependent packages.
+- name: install nagios' dependent packages
+  become: true
+  apt: pkg={{ item }} state=present force=true update_cache=yes
+  with_items: nagios_packages
+
+- name: install legacy packages
+  become: true
+  apt: pkg={{ item }} state=present force=true update_cache=yes
+  with_items: nagios_legacy_packages
+  when: legacy | default(false)
+
+# Create nagios users and groups.
+- name: create nagios group
+  become: true
+  group: >
+    gid=3000
+    name=nagios
+
+- name: create nagcmd group
+  become: true
+  group: >
+    gid=3001
+    name=nagcmd
+
+- name: create nagios user
+  become: true
+  user: >
+    uid=3000
+    group=nagios
+    groups=nagcmd
+    name=nagios
+    home=/usr/local/nagios
+    comment="Nagios Admin"
+
+- name: add user www-data to nagcmd group
+  become: true
+  user: >
+    groups=nagcmd
+    name=www-data
+
+# build and install nagios.
+- tasks:
+  include: build-nagios.yml
+
+# Build and install nagios check plugins.
+- tasks:
+  include: build-plugins.yml
+
+# Build and install nagios remote checks.
+- tasks:
+  include: build-nrpe.yml
+
+# Setup apache.
+- tasks:
+  include: apache.yml
+
+# Setup pagerduty.
+- tasks:
+  include: pagerduty.yml
+  when: nagios_enable_pagerduty_notifications
+
+# Setup SES for notifications.
+- tasks:
+  include: ses.yml
+  when: nagios_enable_ses_notifications
+
+- name: disable flap detection
+  become: true
+  lineinfile: >
+    dest=/usr/local/nagios/etc/nagios.cfg
+    line="enable_flap_detection=0"
+    regexp="^enable_flap_detection.*$"
+
+- name: overwrite contacts.cfg
+  become: true
+  template: >
+    src=contacts.cfg.j2
+    dest=/usr/local/nagios/etc/objects/contacts.cfg
+    owner=nagios
+    group=nagios
+    mode=640
+
+- name: install nagios upstart script
+  become: true
+  copy: >
+    src=nagios.conf
+    dest=/etc/init/nagios.conf
+    owner=nagios
+    group=nagios
+    mode=640
+
+- name: restart nagios
+  become: true
+  service: name=nagios state=restarted
+  notify: restart apache

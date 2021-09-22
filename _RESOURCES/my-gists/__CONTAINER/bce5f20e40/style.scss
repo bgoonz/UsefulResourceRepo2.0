@@ -1,0 +1,675 @@
+@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600);
+
+$device-width: 54vh;
+$device-height: 96vh;
+$tile-size: $device-width / 7;
+
+$duration: 0.6s;
+$easing: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+$type-small: $tile-size / 4;
+$type-normal: $tile-size / 3;
+$type-large: $tile-size / 2.5;
+
+$colors: (
+  #FBEC6B,
+  #F4BC6B,
+  #EB8B6B,
+  #E0536B,
+  #D6306D,
+  #A32C68,
+  #722A65,
+  #422662,
+  #12255D,
+  #275B75,
+  #3C918B,
+  #52C6A2,
+  #66F8B6,
+  lighten(#66f8b6, 10%)
+);
+
+@function list-slice($list, $from, $to: length($list)) {
+  $result: ();
+  
+  @for $i from $from through $to {
+    $result: append($result, nth($list, $i));
+  }
+  
+  @return $result;
+}
+
+@function shadows($from: 1, $app: false) {
+  $shadows: ();
+  $i: 0;
+  
+  @if ($app) {
+    @each $color in list-slice($colors, $from, length($colors) - 1) {
+      $i: $i + 1;
+      $shadows: append($shadows, $color, comma);
+    }
+    
+    @return $shadows;
+  }
+
+  @each $color in list-slice($colors, $from, length($colors) - 1) {
+    $i: $i + 1;
+    $subshadows: ();
+    $darkest-color: nth(list-slice($colors, $from), $i + 1);
+
+    @for $j from 1 through 7 {
+      $subshadows: append(
+        $subshadows,
+        ($j - 1) * $tile-size $i * $tile-size mix($darkest-color, $color, percentage($j / 7)),
+        comma);
+    }
+
+    $shadows: append($shadows, $subshadows, comma);
+  }
+  
+  @return $shadows;
+}
+
+%transition {
+  transition: all $duration $easing;
+}
+
+[id="index"]:target ~ .cal-device {
+  .cal-scene.-calendar {
+    > .cal-month, > .cal-header {
+      animation: fade-in $duration $duration * 0.5 $easing both;
+    }
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+[id="oct-week-3"]:target ~ .cal-device {
+  [href="#oct-week-3"] {
+    cursor: default;
+  }
+  
+  .cal-app {
+    background: linear-gradient(shadows(1, true));
+  }
+}
+
+[id="oct-week-4"]:target ~ .cal-device {
+  .cal-month {
+    transform: translateY(-$tile-size);
+      
+    &.-october > .cal-header {
+      transform:
+        translateY($tile-size)
+        translateX($tile-size * 4);
+    }
+  }
+  
+  .cal-scene.-calendar:before {
+    box-shadow: shadows(2);
+  }
+  
+  .cal-app {
+    background: linear-gradient(shadows(2, true));
+  }
+  
+  [href="#oct-week-4"] {
+    z-index: -1;
+  }
+}
+
+[id="nov-week-1"]:target ~ .cal-device {
+  .cal-month {
+    transform: translateY(-$tile-size * 2);
+      
+      &.-october > .cal-header {
+        transform:
+          translateY($tile-size)
+          translateX($tile-size * 4);
+        opacity: 0;
+      }
+      
+      &.-november {
+        @extend %inactive-month;
+      }
+      
+      &.-december {
+        @extend %active-month;
+      }
+  }
+  
+  .cal-app {
+    background: linear-gradient(shadows(3, true));
+  }
+  
+  .cal-scene.-calendar:before {
+    box-shadow: shadows(3);
+  }
+}
+
+[id="nov-week-2"]:target ~ .cal-device {
+  .cal-month {
+    transform: translateY(-$tile-size * 3);
+      
+      &.-october > .cal-header {
+        opacity: 0;
+      }
+      
+      &.-november {
+        @extend %inactive-month;
+      }
+      
+      &.-december {
+        @extend %active-month;
+      }
+  }
+  
+  .cal-scene.-calendar:before {
+    box-shadow: shadows(4);
+  }
+  
+  .cal-app {
+    background: linear-gradient(shadows(4, true));
+  }
+}
+
+[id="schedule"]:target ~ .cal-device {
+  .cal-bar .-schedule {
+    opacity: 1;
+  }
+  
+  .cal-bar .-calendar {
+    opacity: 0;
+  }
+  
+  .cal-scene.-schedule {
+    opacity: 1;
+    z-index: 2;
+  }
+  
+  %schedule-text {
+    transform: translateX(0);
+  }
+  
+  @for $i from 1 through 7 {
+    .cal-item:nth-child(#{$i}) %schedule-text {
+      transition-delay: 0.06s * ($i - 1);
+    }
+  }
+  
+  .cal-scene.-calendar {
+    &, * {
+      transition-delay: $duration;
+    }
+  }
+}
+
+.cal-device {
+  width: $device-width;
+  height: $device-height;
+  background: white;
+  
+  > .cal-header {
+    height: $tile-size * 1.5;
+    background: #1c3e69;
+  }
+  
+  // Initial state
+  .cal-month.-october, .cal-month.-december, .cal-month.-january {
+      @extend %inactive-month;
+  }
+  
+  .cal-month.-november {
+    @extend %active-month;
+  }
+}
+
+.cal-app {
+  height: $device-height - $tile-size * 1.5;
+  width: 100%;
+  background: linear-gradient(shadows(1, true));
+}
+
+.cal-week {
+  height: $tile-size;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.cal-weekday {
+  color: white;
+  width: $tile-size;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  font-weight: 600;
+  font-size: $type-normal;
+}
+
+.fa {
+  font-size: $type-normal;
+}
+
+.cal-scene {
+  @extend %transition;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  
+  &.-calendar {
+    &:before {
+      content: '';
+      display: block;
+      height: $tile-size;
+      width: $tile-size;
+      position: absolute;
+      top: -$tile-size;
+      left: 0;
+      box-shadow: shadows();
+      transition: box-shadow $duration $easing;
+    }
+  }
+  
+  &.-schedule {
+    z-index: -1;
+    opacity: 0;
+  }
+}
+
+%inactive-month {
+  > .cal-header {    
+    transform: translateX($tile-size * 4);
+
+    > .cal-link {
+      background-color: rgba(white, 0.4);
+      > span {
+        transform: translateX(calc(-50% - #{$tile-size / 4})) translateY(-50%);
+        color: white;
+      }
+    }
+
+    > .cal-arrow {
+      opacity: 1;
+      pointer-events: inherit;
+    }
+  }
+  
+  .cal-day {
+    color: rgba(white, 0.4);
+  }
+  
+  &.-october {
+    .cal-arrow {
+      color: #EB8B6B;
+    }
+  }
+  
+  &.-november {
+    .cal-arrow {
+      color: #D6306D;
+    }
+  }
+  
+  &.-december {
+    .cal-arrow {
+      color: #102152;
+    }
+  }
+  
+  &.-january {
+    .cal-arrow {
+      color: #97FACD;
+    }
+  }
+}
+
+%active-month {
+  > .cal-header {    
+    transform: translateX($tile-size * 2);
+  }
+  
+  .cal-link {
+    background-color: white;
+    color: gray;
+
+    > span {
+      transform: translateX(-50%) translateY(-50%);
+    }
+  }
+
+  .cal-arrow {
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  .cal-day {
+    color: white;
+  }
+  
+  &.-november {
+    .cal-link span {
+      color: #DA3F6C;
+    } 
+  }
+  
+  &.-december {
+    .cal-link span {
+      color: #26255F;
+    } 
+  }
+}
+
+.cal-month {
+  display: block;
+  @extend %cf;
+  counter-reset: month;
+  transition: transform $duration $easing;
+  z-index: 1;
+  
+  &:first-child {
+    margin-top: -$tile-size;
+    @extend %inactive-month;
+    
+    > .cal-header {
+      top: 2 * $tile-size;
+    }
+    
+    ~ .cal-month {
+      margin-top: -$tile-size;
+    }
+  }
+  
+  > .cal-header {
+    position: absolute;
+    height: $tile-size;
+    width: $tile-size * 3;
+    padding: $tile-size / 3.5;
+    z-index: 1;
+    transition: all $duration $easing;
+    
+    > .cal-link {
+      display: block;
+      height: 100%;
+      width: 100%;
+      font-size: $type-small;
+      text-decoration: none;
+      color: gray;
+      text-transform: uppercase;
+      padding: $type-normal / 4 $type-normal * 2;
+      border-radius: $type-normal;
+      background: white;
+      transition: all $duration $easing;
+      font-weight: 600;
+      
+      > span {
+        display: block;
+        position: absolute;
+        top: 48%; // Uppercase text gets vertically centered weirdly.
+        left: 50%;
+        transition: all $duration $easing;
+      }
+    }
+  }
+  
+  &.-january {
+    margin-top: 0 !important;
+  }
+}
+
+.cal-subheader {
+  height: $tile-size / 2;
+  width: 100%;
+}
+
+.cal-bar {
+  height: $tile-size;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  
+  > .cal-title {
+    flex-grow: 1;
+    height: 100%;
+  }
+  
+  .-schedule {
+    opacity: 0;
+  }
+}
+
+.cal-button {
+  width: $tile-size;
+  height: $tile-size;
+  
+  > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-decoration: none;
+    @extend %transition;
+    font-size: $type-large;
+  }
+}
+
+.cal-title {
+  > .cal-heading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: $type-large;
+    @extend %transition;
+  }
+}
+
+.cal-arrow {
+  position: absolute;
+  height: $tile-size;
+  width: $tile-size;
+  background: white;
+  top: 0;
+  right: 0;
+  padding: $tile-size / 6;
+  background-clip: content-box;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transition: all $duration $easing;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  color: gray;
+  
+  // Stupid font awesome icons
+  .fa-chevron-up {
+    top: -1px;
+  }
+}
+
+.cal-day {
+  counter-increment: month;
+  width: $tile-size;
+  height: $tile-size;
+  display: block;
+  float: left;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: $type-normal;
+  @extend %transition;
+  
+  &[href="#schedule"]:before {
+    background: rgba(white, 0.4);
+  }
+  
+  &:before {
+    content: counter(month);
+    display: block;
+    height: 75%;
+    width: 75%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+  }
+}
+
+.cal-item {
+  height: $tile-size;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  
+  &.-long {
+    height: $tile-size * 2;
+  }
+  
+  @for $i from 1 through 8 {
+    &:nth-child(#{$i}) {
+      > .cal-time {      
+        background-color: mix(#BD1F50, #FA739D, percentage(($i - 1) / 8));
+      }
+      
+      > .cal-task {
+        background-color: mix(#E8B1C2, white, percentage(($i - 1) / 8));
+      }
+    }
+  }
+}
+
+.cal-time {
+  width: 2 * $tile-size;
+  flex-basis: 2 * $tile-size;
+  height: 100%;
+  justify-content: center;
+  line-height: $tile-size;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  color: white;
+
+  > * {
+    @extend %schedule-text;
+    transition: all $duration $easing;
+    transform: translateX($tile-size * -2);
+    font-weight: 600;
+    font-size: $type-normal;
+  }
+}
+
+.cal-task {
+  flex-basis: 5 * $tile-size;
+  height: 100%;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0 $type-normal;
+  font-size: $type-small;
+
+  > p {
+    margin-top: 0;
+    margin-bottom: 0;
+    color: #12255E;
+  }
+
+  > a {
+    text-decoration: none;
+    color: #EA80A2;
+    font-weight: 600;
+    
+    > .fa {
+      margin-right: $type-small / 2;
+    }
+  }
+
+  > * {
+    @extend %schedule-text;
+    transition: all $duration $easing;
+    transform: translateX($tile-size * 5);
+  }
+}
+
+.meta {
+  flex-basis: calc(80% - #{$device-width});
+  font-size: $type-normal;
+  font-weight: 300;
+  
+  p, a { color: rgba(white, 0.7); }
+  h1 {
+    font-size: $type-large * 3;
+    line-height: $type-large * 3;
+    font-weight: 300;
+    color: white;
+  }
+  p { line-height: 1.4; }
+  
+  a:hover {
+    color: rgba(white, 0.7);
+  }
+  
+  @media (max-width: 750px) {
+    display: none;
+  }
+}
+
+body {
+  background: #4ACDDE;
+  background: linear-gradient(135deg, #4EFFDF, #48BBDE, #F47EC6);
+  font-family: Source Sans Pro, sans-serif;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  overflow: hidden;
+  
+  @media (max-width: 750px) {
+    justify-content: center;
+  }
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  quotes: "«" "»";
+}
+
+*, *:before, *:after {
+  box-sizing: border-box;
+  position: relative;
+}
+
+%cf:before,
+%cf:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+%cf:after {
+    clear: both;
+}

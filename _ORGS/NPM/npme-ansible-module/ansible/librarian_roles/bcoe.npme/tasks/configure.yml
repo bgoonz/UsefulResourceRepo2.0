@@ -1,0 +1,65 @@
+---
+  - include_vars: centos65.yml
+    when: npme_platform == "centos65"
+
+  - include_vars: unknown.yml
+    when: npme_platform == "unknown"
+
+  # copy configuration to location, post install.
+  # this is split into two steps, because we
+  # interview the user about environment variables
+  # in-between.
+  - name: copy nginx configuration
+    sudo: true
+    notify: 'restart nginx'
+    template: >
+      src=nginx.conf.j2
+      dest={{npme_nginx_config_path}}/nginx.conf
+      owner={{npme_owner}}
+      group={{npme_group}}
+      mode=770
+
+  - name: copy couchdb configuration
+    sudo: true
+    notify: 'restart couchdb'
+    copy: >
+      src=local.ini
+      dest={{npme_couchdb_config_path}}/local.ini
+      owner={{npme_couchdb_owner}}
+      group={{npme_couchdb_group}}
+      mode=770
+
+  - name: create npme directories
+    sudo: true
+    file: >
+      path={{item}}
+      state=directory
+      owner={{npme_owner}}
+      group={{npme_group}}
+      mode=755
+      recurse=yes
+    with_items:
+      - /etc/npme
+      - /etc/npme/bin
+      - /etc/npme/node_modules
+
+  - name: chown db directory
+    sudo: true
+    file: >
+      path=/etc/npme/couchdb
+      state=directory
+      owner={{npme_couchdb_owner}}
+      group={{npme_couchdb_group}}
+      mode=755
+      recurse=yes
+
+  - name: more restrictive permissions
+    sudo: true
+    file: >
+      path="/etc/npme/{{item}}"
+      owner={{npme_owner}}
+      group={{npme_group}}
+      mode=644
+    with_items:
+      - package.json
+      - "{{npme_service_json_path}}"
