@@ -1,0 +1,125 @@
+; Copyright (c) Facebook, Inc. and its affiliates.
+;
+; This source code is licensed under the MIT license found in the
+; LICENSE file in the root directory of this source tree.
+
+(env
+ (debug
+  (flags
+   (-w +a-4-9-18-30-40-42-44-48@50-66 -strict-formats -strict-sequence
+     -short-paths -bin-annot -keep-locs -keep-docs -g))
+  (ocamlopt_flags (-O3))
+  (env-vars
+   (PPX_TRACE_ENABLED 1))
+  (inline_tests enabled))
+ (trace
+  (flags
+   (-w -a -noassert -unboxed-types -g))
+  (ocamlopt_flags (-O3))
+  (env-vars
+   (PPX_TRACE_ENABLED 1))
+  (inline_tests disabled))
+ (_ ; release, dev, default,...
+  (flags
+   (-w -a -noassert -unboxed-types))
+  (ocamlopt_flags (-O3))
+  (env-vars
+   (PPX_TRACE_ENABLED 0))
+  (inline_tests disabled)))
+
+(library
+ (name ppx_sledge)
+ (kind ppx_rewriter)
+ (libraries ppx_compare ppx_enumerate ppx_expect ppx_hash ppx_here
+   ppx_inline_test ppx_let ppx_sexp_conv ppx_sexp_value ppx_variants_conv)
+ (preprocess no_preprocessing))
+
+(subdir
+ src/llair
+ (library
+  (name llair)
+  (public_name sledge.llair)
+  (libraries nonstdlib fpath)
+  (flags
+   (:standard -open NS))
+  (preprocess
+   (pps ppx_sledge ppx_trace))
+  (inline_tests)))
+
+(subdir
+ src/fol
+ (library
+  (name fol)
+  (public_name sledge.fol)
+  (libraries nonstdlib llair)
+  (flags
+   (:standard -open NS))
+  (preprocess
+   (pps ppx_sledge ppx_trace))
+  (inline_tests)))
+
+(subdir
+ src
+ (library
+  (name sledge)
+  (public_name sledge)
+  (libraries mtime mtime.clock.os nonstdlib llair fol)
+  (flags
+   (:standard -open NS))
+  (preprocess
+   (pps ppx_sledge ppx_trace))
+  (inline_tests)))
+
+(subdir
+ report
+ (executable
+  (name sledge_report)
+  (public_name sledge-report)
+  (package sledge)
+  (libraries sledge core)
+  (flags
+   (:standard -open NS -open Sledge))
+  (preprocess
+   (pps ppx_sledge ppx_trace))))
+
+(subdir
+ src/test
+ (library
+  (name test)
+  (libraries sledge)
+  (flags
+   (:standard -open NS))
+  (preprocess
+   (pps ppx_sledge ppx_trace))
+  (inline_tests)))
+
+(subdir
+ cli
+ (executable
+  (name sledge_cli)
+  (public_name sledge)
+  (package sledge)
+  (libraries apron apron.boxMPQ core ctypes ctypes.foreign dune-build-info
+    llvm llvm.irreader llvm.analysis llvm.scalar_opts llvm.target llvm.ipo
+    llvm.linker memtrace shexp.process yojson trace nonstdlib sledge
+    smtlib-utils)
+  (flags
+   (:standard -w -58 -open NS -open Sledge))
+  (preprocess
+   (pps ppx_sledge ppx_trace))))
+
+(dirs :standard \ test)
+
+(vendored_dirs vendor)
+
+(rule
+ (targets sledge-help.txt)
+ (deps
+  tools/gen_help.sh
+  cli/sledge_cli.exe
+  (env_var SLEDGE_CONFIG))
+ (action
+  (with-stdout-to
+   sledge-help.txt
+   (run tools/gen_help.sh)))
+ (mode promote))
