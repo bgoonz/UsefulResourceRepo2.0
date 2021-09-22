@@ -1,0 +1,10 @@
+<?hh
+
+enum class Foo : mixed {
+  string A = 'a';
+}
+
+enum class Foo: IFoo
+  extends Bar {
+  FooBarFrameworkParam<bool, bool> baz = FooBarFrameworkParam::bool()->withDefaultOf(false);
+}

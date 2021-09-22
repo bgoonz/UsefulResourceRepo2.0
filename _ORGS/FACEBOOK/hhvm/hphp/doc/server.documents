@@ -1,0 +1,71 @@
+
+<h2>Server Documents</h2>
+
+This flow is implemented in hphp/runtime/server/http-server.cpp:
+
+                              +-------------+
+                              | APC Priming |
+                              +------+------+
+                                     |
+                                     V
+                            +-----------------+
+                            | StartupDocument |
+                            +--------+--------+
+                                     |
+                                     |
+                   +-----------------+
+                   |
+                   V
+    +============================+
+    |       Worker Thread        |
+    |____________________________|
+    |                            |
+    |  +-----------+             |
+    |  |           |             |
+    |  |           V             |
+    |  |   +----------------+    |
+    |  |   |  RequestInit   |    |
+    |  |   +----------------+    |
+    |  |           |             |
+    |  |           +----<-----+  |
+    |  |           V          |  |
+    |  |   +----------------+ R  |
+    |  |   |  URL Handling  | P  |
+    |  |   +----------------+ C  |
+    |  |           |          |  |
+    |  |           +---->-----+  |
+    |  |           |             |
+    |  +--(sweep)--+             |
+    |                            |
+    +============================+
+
+
+1. StartupDocument
+
+This file is executed when web server starts, and it is executed before any
+thread gets started but after APC is primed. Example use:
+
+  * bootstrapping server
+  * preparing parameters for service threads (see below): in this case, we have
+    to use APC to pass those parameters into service threads.
+
+2. This space intentionally left blank.
+
+3. RequestInitDocument and RequestInitFunction
+
+When a worker thread resets, the RequestInitDocument and/or RequestInitFunction
+are executed in order to initialize certain states or request specific coding.
+If both RequestInitDocument and RequestInitFunction are specified, the
+RequestInitDocument is executed before the RequestInitFunction.
+
+4. RPCRequestHandler
+
+RPCRequestHandler will call ExecutionContext::backupSession() right after
+RequestInit function/document, and it will call ExecutionContext::
+restoreSession() right after it finishes one request processing and it goes
+back to a state right after RequestInit is executed.
+
+RPCRequestHandler will reset a worker thread from time to time, either after
+the worker thread has processed a certain number of requests or after certain
+amount of time. When this happens, it will perform a sweep and re-execute
+RequestInit function/document.

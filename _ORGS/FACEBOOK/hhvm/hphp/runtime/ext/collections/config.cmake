@@ -1,0 +1,21 @@
+HHVM_DEFINE_EXTENSION("collections" REQUIRED
+  SOURCES
+    ext_collections.cpp
+    ext_collections-map.cpp
+    ext_collections-pair.cpp
+    ext_collections-set.cpp
+    ext_collections-vector.cpp
+    hash-collection.cpp
+  HEADERS
+    ext_collections.h
+    ext_collections-map.h
+    ext_collections-pair.h
+    ext_collections-set.h
+    ext_collections-vector.h
+    hash-collection.h
+  SYSTEMLIB
+    ext_collections-map.php
+    ext_collections-pair.php
+    ext_collections-set.php
+    ext_collections-vector.php
+)

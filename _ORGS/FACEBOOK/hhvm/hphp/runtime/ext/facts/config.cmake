@@ -1,0 +1,35 @@
+HHVM_DEFINE_EXTENSION(
+  "facts"
+  SOURCES
+    autoload-db.cpp
+    exception.cpp
+    ext_facts.cpp
+    fact-extractor.cpp
+    logging.cpp
+    string-data-ptr.cpp
+    symbol-map.cpp
+    thread-factory.cpp
+    facts-store.cpp
+  HEADERS
+    attribute-argument-map.h
+    attribute-map.h
+    autoload-db.h
+    exception.h
+    ext_facts.h
+    fact-extractor.h
+    file-facts.h
+    inheritance-info.h
+    lazy-two-way-map.h
+    logging.h
+    path-and-hash.h
+    path-symbols-map.h
+    string-ptr.h
+    symbol-map.h
+    symbol-types.h
+    thread-factory.h
+    facts-store.h
+  SYSTEMLIB
+    ext_facts.php
+  DEPENDS
+    libwatchmanclient
+)

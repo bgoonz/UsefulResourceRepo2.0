@@ -1,0 +1,6 @@
+<?hh
+
+function using($x) {
+
+}
+

@@ -1,0 +1,45 @@
+<?hh
+/*
+ * proto float sinh(float number)
+ * Function is implemented in ext/standard/math.c
+ */
+
+<<__EntryPoint>> function main(): void {
+require(__DIR__."/allowed_rounding_error.inc");
+
+echo "sinh .5  = ";
+var_dump(sinh(0.5));
+if (allowed_rounding_error(sinh(0.5),0.52109530549375)){
+    echo "Pass\n";
+}
+else {
+    echo "Fail\n";
+}
+
+echo "sinh -0.5  = ";
+var_dump(sinh(-0.5));
+if (allowed_rounding_error(sinh(-0.5), -0.52109530549375)){
+    echo "Pass\n";
+}
+else {
+    echo "Fail\n";
+}
+
+echo "sinh 3  = ";
+var_dump(sinh(3.0));
+if (allowed_rounding_error(sinh(3.0), 10.01787492741)){
+    echo "Pass\n";
+}
+else {
+    echo "Fail\n";
+}
+
+echo "sinh -3  = ";
+var_dump(sinh(-3.0));
+if (allowed_rounding_error(sinh(-3.0), -10.01787492741)){
+    echo "Pass\n";
+}
+else {
+    echo "Fail\n";
+}
+}

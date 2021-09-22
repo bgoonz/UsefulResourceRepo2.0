@@ -1,0 +1,126 @@
+#
+# Simple test of AssertRAT opcodes
+#
+
+.class Foo {
+  .default_ctor;
+
+  .method [public] returns_int {
+    Int 12
+    RetC
+  }
+}
+
+.class Bar extends Foo {
+  .default_ctor;
+}
+
+.function obj_type($x, $sub) {
+  CGetL $x
+  AssertRATStk 0 Obj=Foo
+  AssertRATL $x Obj=Foo
+  AssertRATL $sub Obj<=Bar
+  PopC
+  AssertRATL $x   Obj=Foo
+  AssertRATL $x   Obj<=Foo
+  AssertRATL $sub Obj=Bar
+  AssertRATL $sub Obj<=Foo
+  AssertRATL $sub Obj=Bar
+  Int 1
+  RetC
+}
+
+.function make_bar() {
+  NewObjD "Bar"
+  Dup
+  NullUninit
+  FCallCtor <LockWhileUnwinding> 0 1 "" "" - "" ""
+  AssertRATStk 0 InitNull
+  AssertRATStk 1 Obj
+  AssertRATStk 1 Obj=Bar
+  PopC
+  AssertRATStk 0 Obj=Bar
+  LockObj
+  AssertRATStk 0 Obj=Bar
+  RetC
+}
+
+.function obj_type2() {
+  NullUninit
+  NullUninit
+  FCallFuncD <> 0 1 "" "" - "" "make_bar"
+  AssertRATStk 0 Obj
+  AssertRATStk 0 Obj=Bar
+  AssertRATL $x Uninit
+  AssertRATStk 0 Obj
+  SetL $x
+  PopC
+  Int 1
+  RetC
+}
+
+.function foo() {
+  Jmp stuff
+out:
+  Null
+  RetC
+
+stuff:
+  NewObjD "Foo"
+  Dup
+  NullUninit
+  FCallCtor <LockWhileUnwinding> 0 1 "" "" - "" ""
+  PopC
+  LockObj
+  SetL $obj
+  PopC
+
+  CGetL $obj
+  NullUninit
+  FCallObjMethodD <> 0 1 "" "" - "" "" NullThrows "returns_int"
+  AssertRATStk 0 Int
+  Int 0
+  Add
+  SetL $k
+  PopC
+  Jmp out
+}
+
+.function ["__EntryPoint"("""y:0:{}""")] main() {
+  NullUninit
+  NullUninit
+  FCallFuncD <> 0 1 "" "" - "" "foo"
+  PopC
+
+  NewObjD "Foo"
+  Dup
+  NullUninit
+  FCallCtor <LockWhileUnwinding> 0 1 "" "" - "" ""
+  PopC
+  LockObj
+  SetL $x
+  PopC
+
+  NewObjD "Bar"
+  Dup
+  NullUninit
+  FCallCtor <LockWhileUnwinding> 0 1 "" "" - "" ""
+  PopC
+  LockObj
+  SetL $y
+  PopC
+  NullUninit
+  NullUninit
+  CGetL $x
+  CGetL $y
+  FCallFuncD <> 2 1 "" "" - "" "obj_type"
+  PopC
+  NullUninit
+  NullUninit
+  FCallFuncD <> 0 1 "" "" - "" "obj_type2"
+  PopC
+
+  Int 1
+  RetC
+}
+

@@ -1,0 +1,2 @@
+<?hh
+echo self::class;

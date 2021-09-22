@@ -1,0 +1,57 @@
+<?hh
+function main() {
+  $a1 = darray["1" => 11, 1 => 22, "2" => 33, 3 => 44, 4 => 55, "a" => 66,
+              "7" => 77];
+  $v1 = Vector {"1", 1, "2", 3, 4, "a", "7"};
+  $m1 = Map {"1" => 11, 1 => 22, "2" => 33, 3 => 44, 4 => 55, "a" => 66,
+                   "7" => 77};
+  $a2 = darray[1 => 11, "3" => 22, 5 => 33, "a" => 44];
+  $v2 = Vector {1, "3", 5, "a"};
+  $m2 = Map {1 => 11, "3" => 22, 5 => 33, "a" => 44};
+  $a3 = darray["0" => 11, 7 => 22];
+  $v3 = Vector {"0", 7};
+  $m3 = Map {"0" => 11, 7 => 22};
+  var_dump(array_intersect_key($a1, $a2));
+  var_dump(array_intersect_key($v1, $a2));
+  var_dump(array_intersect_key($m1, $a2));
+  var_dump(array_intersect_key($a1, $v2));
+  var_dump(array_intersect_key($v1, $v2));
+  var_dump(array_intersect_key($m1, $v2));
+  var_dump(array_intersect_key($a1, $m2));
+  var_dump(array_intersect_key($v1, $m2));
+  var_dump(array_intersect_key($m1, $m2));
+  echo "========\n";
+  var_dump(array_intersect_key($a1, $a2, $a3));
+  var_dump(array_intersect_key($v1, $a2, $a3));
+  var_dump(array_intersect_key($m1, $a2, $a3));
+  var_dump(array_intersect_key($a1, $v2, $a3));
+  var_dump(array_intersect_key($v1, $v2, $a3));
+  var_dump(array_intersect_key($m1, $v2, $a3));
+  var_dump(array_intersect_key($a1, $m2, $a3));
+  var_dump(array_intersect_key($v1, $m2, $a3));
+  var_dump(array_intersect_key($m1, $m2, $a3));
+  var_dump(array_intersect_key($a1, $a2, $v3));
+  var_dump(array_intersect_key($v1, $a2, $v3));
+  var_dump(array_intersect_key($m1, $a2, $v3));
+  var_dump(array_intersect_key($a1, $v2, $v3));
+  var_dump(array_intersect_key($v1, $v2, $v3));
+  var_dump(array_intersect_key($m1, $v2, $v3));
+  var_dump(array_intersect_key($a1, $m2, $v3));
+  var_dump(array_intersect_key($v1, $m2, $v3));
+  var_dump(array_intersect_key($m1, $m2, $v3));
+  var_dump(array_intersect_key($a1, $a2, $m3));
+  var_dump(array_intersect_key($v1, $a2, $m3));
+  var_dump(array_intersect_key($m1, $a2, $m3));
+  var_dump(array_intersect_key($a1, $v2, $m3));
+  var_dump(array_intersect_key($v1, $v2, $m3));
+  var_dump(array_intersect_key($m1, $v2, $m3));
+  var_dump(array_intersect_key($a1, $m2, $m3));
+  var_dump(array_intersect_key($v1, $m2, $m3));
+  var_dump(array_intersect_key($m1, $m2, $m3));
+}
+
+
+<<__EntryPoint>>
+function main_array_intersect_key_1() {
+main();
+}

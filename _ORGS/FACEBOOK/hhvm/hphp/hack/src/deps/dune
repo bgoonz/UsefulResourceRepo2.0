@@ -1,0 +1,61 @@
+(library
+  (name file_info)
+  (wrapped false)
+  (modules
+    fileInfo)
+  (libraries
+    opaque_digest
+    pos
+    symbol_name
+    utils_core)
+  (preprocess (pps ppx_deriving.std)))
+
+(library
+  (name symbol_name)
+  (wrapped false)
+  (modules
+    symbol_name)
+  (libraries
+    collections
+    utils_core)
+  (preprocess (pps ppx_deriving.std)))
+
+(library
+  (name typing_deps)
+  (wrapped false)
+  (modules
+    typing_deps
+    typing_deps_mode)
+  (libraries
+    collections
+    decl_reference
+    depgraph
+    file_info
+    heap_shared_mem
+    heap_shared_mem_hash
+    logging
+    ocamlpool
+    relative_path
+    typing_deps_rust
+    worker_cancel)
+  (preprocess (pps ppx_deriving.std)))
+
+(library
+  (name typing_deps_rust)
+  (modules)
+  (wrapped false)
+  (preprocess (pps ppx_deriving.std))
+  (self_build_stubs_archive (deps_rust))
+)
+
+(rule
+  (targets libdeps_rust_stubs.a)
+  (deps (source_tree %{workspace_root}/src))
+  (locks /cargo)
+  (action
+    (run %{workspace_root}/scripts/build_rust_to_ocaml.sh
+      deps_rust
+      deps_rust
+    )
+  )
+)

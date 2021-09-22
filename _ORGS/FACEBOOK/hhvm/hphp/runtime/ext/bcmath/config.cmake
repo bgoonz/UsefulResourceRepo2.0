@@ -1,0 +1,33 @@
+HHVM_DEFINE_EXTENSION("bcmath"
+  SOURCES
+    add.cpp
+    compare.cpp
+    debug.cpp
+    div.cpp
+    divmod.cpp
+    doaddsub.cpp
+    ext_bcmath.cpp
+    init.cpp
+    int2num.cpp
+    nearzero.cpp
+    neg.cpp
+    num2long.cpp
+    num2str.cpp
+    output.cpp
+    raise.cpp
+    raisemod.cpp
+    recmul.cpp
+    rmzero.cpp
+    sqrt.cpp
+    str2num.cpp
+    sub.cpp
+    zero.cpp
+  HEADERS
+    bcmath.h
+    config.h
+    private.h
+  SYSTEMLIB
+    ext_bcmath.php
+  DEPENDS
+    libFolly
+)

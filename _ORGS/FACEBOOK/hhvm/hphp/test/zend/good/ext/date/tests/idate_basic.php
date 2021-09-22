@@ -1,0 +1,17 @@
+<?hh
+/* Prototype  : int idate(string format [, int timestamp])
+ * Description: Format a local time/date as integer 
+ * Source code: ext/date/php_date.c
+ * Alias to functions: 
+ */
+<<__EntryPoint>> function main(): void {
+echo "*** Testing idate() : basic functionality ***\n";
+
+// Initialise all required variables
+$format = 'Y';
+
+// Calling idate() with mandatory arguments
+date_default_timezone_set("Asia/Calcutta");
+var_dump( idate($format) );
+echo "===DONE===\n";
+}

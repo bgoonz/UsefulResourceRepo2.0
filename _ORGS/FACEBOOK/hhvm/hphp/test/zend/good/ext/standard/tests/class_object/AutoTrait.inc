@@ -1,0 +1,4 @@
+<?hh
+
+trait AutoTrait {}
+

@@ -1,0 +1,19 @@
+<?hh
+/* Prototype  : bool ctype_digit(mixed $c)
+ * Description: Checks for numeric character(s) 
+ * Source code: ext/ctype/ctype.c
+ */
+<<__EntryPoint>> function main(): void {
+echo "*** Testing ctype_digit() : basic functionality ***\n";
+
+$orig = setlocale(LC_CTYPE, "C");
+
+$c1 = '1234';
+$c2 = 'abc123';
+
+var_dump(ctype_digit($c1));
+var_dump(ctype_digit($c2));
+
+setlocale(LC_CTYPE, $orig);
+echo "===DONE===\n";
+}

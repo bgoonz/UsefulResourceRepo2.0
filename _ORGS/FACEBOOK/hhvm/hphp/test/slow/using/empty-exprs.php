@@ -1,0 +1,7 @@
+<?hh
+
+function main() {
+  using () {
+  }
+}
+

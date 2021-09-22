@@ -1,0 +1,13 @@
+HHVM_DEFINE_EXTENSION("zlib"
+  SOURCES
+    ext_zlib.cpp
+    zip-file.cpp
+  HEADERS
+    ext_zlib.h
+    zip-file.h
+  SYSTEMLIB
+    ext_zlib.php
+  DEPENDS
+    libFolly
+    libZLib
+)

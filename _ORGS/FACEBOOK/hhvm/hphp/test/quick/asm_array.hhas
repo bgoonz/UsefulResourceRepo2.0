@@ -1,0 +1,106 @@
+#
+# Test arrays for hhbc asm.
+#
+
+.adata my_array = """D:2:{s:3:"foo";s:3:"bar";s:3:"baz";s:4:"blah";}""";
+
+.class ClassWithArray {
+  .property [static public] arr =
+            """D:4:{i:0;i:1;i:1;i:2;i:2;i:3;i:3;i:4;}""";
+}
+
+.function ArrayMember() {
+  NullUninit
+  NullUninit
+    String "arr"
+    String "ClassWithArray"
+    ClassGetC
+    CGetS Any
+  FCallFuncD <> 1 1 "" "" - "" "var_dump"
+  PopC
+
+  String "ClassWithArray"
+  SetL $x
+  PopC
+  NullUninit
+  NullUninit
+    String "arr"
+    Int 2
+    CGetL $x
+    ClassGetC
+    BaseSC 2 0 Warn Any
+    QueryM 3 CGet EC:1 Any
+  FCallFuncD <> 1 1 "" "" - "" "var_dump"
+  PopC
+
+  True
+  RetC
+}
+
+.function ["__EntryPoint"("""y:0:{}""")] main() {
+  NullUninit
+  NullUninit
+  FCallFuncD <> 0 1 "" "" - "" "ArrayMember"
+  PopC
+
+  Dict @my_array
+  SetL $arr
+  PopC
+
+  BaseL $arr Warn Any
+  QueryM 0 CGet ET:"foo" Any
+  String "\n"
+  Concat
+  Print
+  PopC
+
+  String "one"
+  BaseL $arr Define Any
+  SetM 0 EI:1 Any
+  PopC
+
+  BaseL $arr Warn Any
+  QueryM 0 CGet EI:1 Any
+  String "\n"
+  Concat
+  Print
+  PopC
+
+  String "baz"
+  SetL $key
+  PopC
+  BaseL $arr Unset Any
+  UnsetM 0 EL:$key Any
+
+  # Test that it's unset
+  CGetL $arr
+  BaseC 0 Warn
+  QueryM 1 Isset EL:$key Any
+  JmpZ unset_label
+
+  String "This should be impossible...\n"
+  Print
+  PopC
+
+  Null
+  RetC
+
+unset_label:  String "win\n"
+              Print
+              PopC
+              NullUninit
+              NullUninit
+              CGetL $arr
+              FCallFuncD <> 1 1 "" "" - "" "var_dump"
+              PopC
+              NullUninit
+              NullUninit
+              Int 1
+              String "b"
+              NewVec 2
+              FCallFuncD <> 1 1 "" "" - "" "var_dump"
+              PopC
+
+              Null
+              RetC
+}

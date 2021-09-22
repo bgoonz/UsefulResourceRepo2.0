@@ -1,0 +1,55 @@
+#!/bin/bash
+
+readonly script_dir="$(dirname "$0")"
+
+# Try to find an hhvm binary. Prefer a version built from this source tree,
+# then in /usr/local, and finally from $PATH.
+function get_hhvm_bin {
+    local -a candidates
+    candidates=(
+        "$script_dir/../../buck-out/gen/hphp/hhvm/hhvm/hhvm"
+        "$script_dir/../hhvm/hhvm"
+        "/usr/local/hphpi/bin/hhvm"
+    )
+
+    for binary in "${candidates[@]}"; do
+        if [[ ! -d "$binary" && -x "$binary" ]]; then
+            echo "$binary"
+            return
+        fi
+    done
+
+    if command -v hhvm 2>/dev/null; then
+        return
+    fi
+
+    return 1
+}
+
+if ! hhvm_bin="$(get_hhvm_bin)"; then
+    echo "Couldn't find hhvm binary to run test/run" 1>&2
+    exit 1
+fi
+
+# Try to find a cli config.
+function get_cli_config {
+  local -a candidates
+  candidates=(
+    "/usr/local/hphpi/cli.hdf"
+  )
+
+  for config in "${candidates[@]}"; do
+    if [[ ! -d "$config" && -r "$config" ]]; then
+      echo "$config"
+      return
+    fi
+  done
+
+  return 1
+}
+
+if hhvm_cfg="$(get_cli_config)"; then
+  exec "$hhvm_bin" -c "$hhvm_cfg" "$script_dir/run.php" "$@"
+else
+  exec "$hhvm_bin" "$script_dir/run.php" "$@"
+fi

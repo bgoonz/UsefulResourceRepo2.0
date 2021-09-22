@@ -1,0 +1,21 @@
+HHVM_DEFINE_EXTENSION("curl"
+  SOURCES
+    curl-multi-await.cpp
+    curl-multi-resource.cpp
+    curl-resource.cpp
+    ext_curl.cpp
+    curl-share-resource.cpp
+  HEADERS
+    curl-multi-await.h
+    curl-multi-resource.h
+    curl-resource.h
+    ext_curl.h
+    curl-share-resource.h
+  SYSTEMLIB
+    ext_curl.php
+  DEPENDS
+    libBoost
+    libCurl
+    libFolly
+    libOpenSSL
+)

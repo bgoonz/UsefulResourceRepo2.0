@@ -1,0 +1,22 @@
+<?hh
+<<__EntryPoint>> function main(): void {
+$doc = new DOMDocument();
+$doc->load(dirname(__FILE__)."/nsdoc.xml");
+
+$root = $doc->documentElement;
+
+$duri = $doc->lookupNamespaceUri("ns2")."\n";
+$euri = $root->lookupNamespaceUri("ns2")."\n";
+
+var_dump($duri == $euri);
+
+$dpref = $doc->lookupPrefix("http://ns2")."\n";
+$epref = $root->lookupPrefix("http://ns2")."\n";
+
+var_dump($dpref == $epref);
+
+$disdef = (string)($doc->isDefaultNamespace("http://ns"))."\n";
+$eisdef = (string)($root->isDefaultNamespace("http://ns"))."\n";
+
+var_dump($dpref === $epref);
+}
