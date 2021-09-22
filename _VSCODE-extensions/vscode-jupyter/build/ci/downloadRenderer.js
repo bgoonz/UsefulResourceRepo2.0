@@ -12,8 +12,8 @@ const StreamZip = require('node-stream-zip');
 
 async function unzip(zipFile, targetFolder) {
     await fs.ensureDir(targetFolder);
-    return new Promise((resolve, reject) => {
-        const zip = new StreamZip({
+    retu/** @type {*} */
+    const zip = new StreamZip({
             file: zipFile,
             storeEntries: true
         });
