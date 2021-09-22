@@ -1,0 +1,36 @@
+name: tests
+on:
+  - push
+  - pull_request
+jobs:
+  test:
+    name: Run tests
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: [3.6]
+        poetry-version: [1.1.4]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run image
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
+      - name: Install dependencies
+        run: poetry install
+      - name: Run mypy
+        run: poetry run mypy src
+      - name: Run flake8
+        run: poetry run flake8 src
+      - name: Run pylint
+        run: poetry run pylint src
+      - name: Run tests
+        run: poetry run pytest src/tests
+      - name: Run vulture
+        run: poetry run vulture src
