@@ -73,6 +73,7 @@ Obviously the boundary pixels of the image cannot have the full eight neighbours
 **Step 1:**
 
 All pixels are tested and pixels satisfying all the following conditions (simultaneously) are just noted at this stage. <ol>
+
 <li>The pixel is black and has eight neighbours</li>
 <li>$2 <= B(P1) <= 6$</li>
 <li>$A(P1) = 1$</li>
@@ -86,6 +87,7 @@ After iterating over the image and collecting all the pixels satisfying all step
 **Step 2:**
 
 All pixels are again tested and pixels satisfying all the following conditions are just noted at this stage. <ol>
+
 <li>The pixel is black and has eight neighbours</li>
 <li>$2 <= B(P1) <= 6$</li>
 <li>$A(P1) = 1$</li>
