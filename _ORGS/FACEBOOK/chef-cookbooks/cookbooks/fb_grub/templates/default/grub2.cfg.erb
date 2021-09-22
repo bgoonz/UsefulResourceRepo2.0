@@ -1,0 +1,148 @@
+# This file is maintained by Chef. Do not edit, all changes will be
+# overwritten. See opsfiles/chef/cookbooks/core/fb_grub/README.md
+
+<%
+  root_arg = node['fb_grub']['rootfs_arg']
+  cmdline_args = node['fb_grub']['kernel_cmdline_args']
+
+  kargs = "ro root=#{root_arg} #{cmdline_args.uniq.join(' ')}"
+  if node['fb_grub']['_rootflags']
+    kargs << " rootflags=#{node['fb_grub']['_rootflags']}"
+  end
+  if node['fb_grub']['_root_uuid']
+    root_line = "search --set=root --fs-uuid #{node['fb_grub']['_root_uuid']}"
+  elsif node['fb_grub']['_root_label']
+    root_line = "search --set=root --label #{node['fb_grub']['_root_label']}"
+  else
+    root_line = "set root='(#{node['fb_grub']['root_device']})'"
+  end
+
+  terminal = node['fb_grub']['terminal'].join(' ')
+  serial = node['fb_grub']['serial'].to_hash
+
+  kernel_extra_args = node['fb_grub']['tboot']['kernel_extra_args'].join(' ')
+
+  tboot_cmdline = "logging=#{node['fb_grub']['tboot']['logging'].join(',')}"
+  if node['fb_grub']['tboot']['logging'].include?('serial')
+    tboot_port = '0x3f8'  # I/O port for ttyS0
+    if serial['unit'] == '1'
+      tboot_port = '0x2f8'  # I/O port for ttyS1
+    end
+    tboot_parity = serial['parity'][0]
+    tboot_cmdline += " serial=#{serial['speed']}," +
+                     "#{serial['word']}#{tboot_parity}#{serial['stop']}," +
+                     tboot_port
+  end
+  unless node['fb_grub']['tboot']['tboot_extra_args'].empty?
+    tboot_cmdline +=
+      " #{node['fb_grub']['tboot']['tboot_extra_args'].join(' ')}"
+  end
+
+  path_prefix = node['fb_grub']['path_prefix']
+
+  users = node['fb_grub']['users'].to_hash
+  superusers = []
+  users.each do |user, data|
+    if data['is_superuser']
+      superusers << user
+    end
+  end
+  restriction = ''
+  if !users.empty? && !node['fb_grub']['require_auth_on_boot']
+    restriction = '--unrestricted '
+  end
+
+  # default is 0 because we'll automagically put the non-kdump kernel first
+-%>
+set default=0
+set timeout=<%= node['fb_grub']['timeout'] %>
+<% if node['fb_grub']['terminal'].include?('serial') -%>
+serial --speed=<%= serial['speed'] %> --unit=<%= serial['unit'] %> --word=<%= serial['word'] %> --parity=<%= serial['parity'] %> --stop=<%= serial['stop'] %>
+<% end -%>
+terminal_input <%= terminal %>
+terminal_output <%= terminal %>
+<% unless superusers.empty? %>
+
+set superusers="<%= superusers.join(' ') %>"
+<% end %>
+<% users.each do |user, data| %>
+<%   if data['password'].start_with?('grub.pbkdf2.') %>
+password_pbkdf2 <%= user %> <%= data['password'] %>
+<%   else %>
+password <%= user %> <%= data['password'] %>
+<%   end %>
+<% end %>
+<% if node['fb_grub']['enable_bls'] %>
+
+# load_video directive injected by grubby by default
+# so it must be at least defined or entries would be unbootable
+function load_video {
+  if [ x$feature_all_video_module = xy ]; then
+    insmod all_video
+  else
+    insmod efi_gop
+    insmod efi_uga
+    insmod ieee1275_fb
+    insmod vbe
+    insmod vga
+    insmod video_bochs
+    insmod video_cirrus
+  fi
+}
+
+# efi will use different location for entries and env file
+# force it to use /boot/ device
+<%= root_line %>
+
+# load bls configs
+set boot=$root
+set blsdir=/loader/entries
+
+# load variable, mostly for default bootentry
+load_env
+if [ "${saved_entry}" ] ; then
+  set default="${saved_entry}"
+fi
+
+# enforce kernelops from grub.cfg which is managed by chef
+# rather then variable from grubby. Single quotes are required
+# to preserve escape chars in kernel opts like memmap=128M\$1G
+set kernelopts='<%= kargs %>'
+
+# load bls entries
+insmod blscfg
+blscfg
+<% end %>
+<% node['fb_grub']['kernels'].to_hash.each do |kernel, data| -%>
+<%   if node['fb_grub']['tboot']['enable'] && !kernel.include?('rescue') -%>
+
+menuentry 'tboot <%= kernel %>' <%= restriction %>{
+  <%= root_line %>
+  <%   if node['fb_grub']['_module_label'] %>
+  search --set=module_root --label <%= node['fb_grub']['_module_label'] %>
+  <%     module_root = "($module_root)"
+       elsif node['fb_grub']['_module_uuid'] %>
+  search --set=module_root --fs-uuid <%= node['fb_grub']['_module_uuid'] %>
+  <%     module_root = "($module_root)"
+       else
+         module_root = ''
+       end -%>
+  <%   node['fb_grub']['tboot']['_grub_modules'].each do |mod| -%>
+  insmod <%= "#{module_root}#{node['fb_grub']['_grub2_module_path']}/#{mod}" %>
+  <%   end %>
+  multiboot2 /tboot.gz <%= tboot_cmdline %>
+  module2 <%= path_prefix %><%= data['path'] %> <%= kargs %> <%= kernel_extra_args %>
+<%     if data['initrd_path'] -%>
+  module2 <%= path_prefix %><%= data['initrd_path'] %>
+<%     end -%>
+}
+<%   end -%>
+
+menuentry '<%= kernel %>' <%= restriction %>{
+  <%= root_line %>
+  <%= @linux_statement %> <%= path_prefix %><%= data['path'] %> <%= kargs %>
+<%   if data['initrd_path'] -%>
+  <%= @initrd_statement %> <%= path_prefix %><%= data['initrd_path'] %>
+<%   end -%>
+}
+<% end -%>

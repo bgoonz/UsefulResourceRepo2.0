@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+# vim: syntax=ruby:expandtab:shiftwidth=2:softtabstop=2:tabstop=2
+#
+# Copyright (c) 2016-present, Facebook, Inc.
+# All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -eu
+
+COLOR='--color'
+TEST=''
+
+if bundle exec rspec --version > /dev/null 2>&1; then
+  RSPEC='bundle exec rspec'
+elif [ -x /opt/chefdk/embedded/bin/rspec ]; then
+  RSPEC='/opt/chefdk/embedded/bin/rspec'
+elif [ -x /opt/chef/embedded/bin/rspec ]; then
+  RSPEC='/opt/chef/embedded/bin/rspec'
+else
+  echo 'Cannot find rspec!'
+  exit 1
+fi
+
+while getopts ":e:c" opt; do
+  case $opt in
+    e)
+      TEST="$OPTARG"
+      ;;
+    c)
+      COLOR='--no-color'
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+    *)
+      echo "Invalid option: $OPTARG." >&2
+      exit 1
+      ;;
+  esac
+done
+
+shift $((OPTIND-1))
+
+newarg=
+for arg in "$@"; do
+  newarg="$newarg $(realpath "$arg")"
+done
+
+# no arguments were passed in, run all specs
+if [ -z "$newarg" ]; then
+  newarg='cookbooks/*/spec/*_spec.rb'
+fi
+
+if [ -z "$TEST" ]; then
+  # shellcheck disable=SC2086
+  $RSPEC $COLOR --format=d $newarg
+else
+  # shellcheck disable=SC2086
+  $RSPEC -e "$TEST" $COLOR --format=d $newarg
+fi
+RET=$?
+
+exit $RET

@@ -1,0 +1,51 @@
+# This file managed by chef.
+# Local changes to this file will be overwritten.
+
+[Unit]
+Description=<%= @conf['description'] %>
+<% unless @conf['service_unit_options'].has_key?('After') %>
+After=network.target
+<% end %>
+<% @conf['service_unit_options'].each do |name, value|
+     if value.is_a?(Array)
+       value.each do |v|
+ %>
+<%=      name %>=<%= v %>
+<%     end
+     else %>
+<%=    name %>=<%= value %>
+<%   end
+   end %>
+
+[Service]
+Type=oneshot
+<% if @conf['envfile'] %>
+EnvironmentFile=<%= @conf['envfile'] %>
+<% end %>
+<% if node['fb_timers']['enable_named_slices'] %>
+Slice=system-timers-<%= @conf['name'] %>.slice
+<% end %>
+<% @conf['commands'].each do |command| %>
+ExecStart=<%= command %>
+<% end %>
+<% if @conf['timeout'] %>
+TimeoutStartSec=<%= @conf['timeout'] %>
+<% end %>
+TimeoutStopSec=<%= @conf['timeout_stop'] %>
+<% if @conf['syslog'] %>
+<% if node['packages']['systemd']['version'].split('.').map(&:to_i)[0] < 246 %>
+StandardOutput=syslog
+StandardError=syslog
+<% end %>
+SyslogIdentifier=<%= @conf['name'] %>
+<% end %>
+<% @conf['service_options'].each do |name, value|
+     if value.is_a?(Array)
+       value.each do |v|
+ %>
+<%=      name %>=<%= v %>
+<%     end
+     else %>
+<%=    name %>=<%= value %>
+<%   end
+   end %>
