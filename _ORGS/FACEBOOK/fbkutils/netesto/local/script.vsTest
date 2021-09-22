@@ -1,0 +1,59 @@
+#
+# Sample script for netesto
+#
+
+# Set default host suffix
+HOST_SUFFIX mynetwork.com
+
+# Set hosts for 1, 2, 3 or 4 client host experiments
+# replace with your own hostnames
+SET client1=kerneltest010
+SET client2=kerneltest011
+SET client3=kerneltest012
+
+SET clients1=$client1
+SET clients2=$client1,$client2
+SET clients3=$client1,$client2,$client3
+
+# Set hosts for 1 or 2 server host experiments
+# replace with own host names
+SET servers1=kerneltest014
+
+# Set congestion control variants to run
+SET ca1=dctcp
+SET ca2=cubic
+
+# Load library with macros
+SOURCE inlib
+SOURCE inlib.vsTest
+
+SET instances=1                 # how many flow instances per host
+SET dur=60                      # duration of each run in seconds
+
+# specify descripiton of experiments
+DESC VS_dctcp:cubic
+
+# set default reply size of RPCs
+SET reply=1                     # use RPC reply size of 1 byte
+
+
+#
+# Define commands to run before each test
+# 
+# On Server(s)
+#
+BEGIN preServer
+# set large receive buffers in server
+SET_SYSCTL host=$host net.ipv4.tcp_rmem=10000,262144,20971520
+END preServer
+#
+# On Client(s)
+#
+BEGIN preClient
+# set large send buffers in client
+SET_SYSCTL host=$host net.ipv4.tcp_wmem=10000,262144,20971520
+END preClient
+
+RUN ExpVs
+
+END

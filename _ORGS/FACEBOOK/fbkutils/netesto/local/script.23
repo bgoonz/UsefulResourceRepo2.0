@@ -1,0 +1,128 @@
+#
+# Script for testing TCP CAs
+#
+# Runs 1, 2 or 3 flows
+#
+# Uses inlib.caTest
+#
+
+# Set default host suffix
+HOST_SUFFIX mynetwork.net
+
+# replace with your own hostnames here or use script.hosts below
+SET client1router=server1
+SET client2router=server2
+SET client3router=server3
+
+SET server_no_router=server4
+SET server_with_router=server5
+
+# Set router for experiments using router to limit rate and set buffer
+SET router=server6
+
+# Uncomment following line if you have your server names in the
+# file script.hosts
+#SOURCE script.hosts
+
+SET clients1=$client1
+SET clients2=$client1,$client2
+SET clients3=$client1,$client2,$client3
+
+# Load library with macros
+DEBUG_DISABLE
+SOURCE inlib.caTest
+SOURCE inlib.rateTest
+DEBUG_RESTORE
+
+# set default reply size of RPCs
+SET reply=1						# use RPC reply size of 1 byte
+
+BEGIN QDISC
+FOR c IN $clients DO
+  SET_SYSCTL host=$c net.core.default_qdisc=$qdisc
+  SET_QDISC host=$c qdisc=pfifo action=replace
+  SET_QDISC host=$c qdisc=mq action=replace
+DONE
+END QDISC
+
+#
+# Define commands to run before each test
+# 
+# On Server(s)
+#
+BEGIN preServer
+# set large receive buffers in server
+SET_SYSCTL host=$host net.core.rmem_max=67108864
+SET_SYSCTL host=$host net.ipv4.tcp_rmem=10000,262144,33554432
+END preServer
+#
+# On Client(s)
+#
+BEGIN preClient
+# set large send buffers in client
+SET_SYSCTL host=$host net.core.wmem_max=67108864
+SET_SYSCTL host=$host net.ipv4.tcp_wmem=10000,262144,33554432
+SET_SYSCTL host=$c net.core.default_qdisc=$qdisc
+SET_QDISC host=$c qdisc=pfifo action=replace
+SET_QDISC host=$c qdisc=mq action=replace
+END preClient
+
+# Set current kernel to associate results with kernels
+SET kernel=4.14.0-rc5
+
+SET baselineCA=cubic    # Baseline CA
+SET testCA=reno,bbr     # CA to test (can be more than one separated
+                        # with commas, no spaces)
+SET dur=60              # Duration of individual tests in seconds
+SET delay=0             # Netem delay to use in milliseconds
+
+SET qdisc=fq_codel
+RUN QDISC clients=$clients3 qdisc=$qdisc
+
+# Enable all tcpCA23 tests
+SET tcpCA23_baseline=1
+SET tcpCA23_test=1
+SET tcpCA23_vs1=1
+SET tcpCA23_vs2=1
+
+# For collecting tcpdumps on all hots. The number represents the number of
+# packets to collect
+#SET tcpDump=10000
+
+# Use server not going through router
+SET server1=$server_no_router
+SET server=$server1
+SET reps=1
+
+# *** LAN 10G 2 & 3 flows
+#
+SET rate=10gbits
+SET limit=20000
+OTHER testType=tcpCA23,testNote=limit:20000,qdisc=$qdisc,netem=$delay,bw=$rate,buffers=$limit
+RUN tcpCA23,$reps
+
+# *** LAN 10G 2 & 3 flows with 10ms delay
+#
+SET delay=10
+SET rate=10gbits
+SET limit=20000
+OTHER testType=tcpCA23,testNote=limit:20000,qdisc=$qdisc,netem=$delay,bw=$rate,buffers=$limit
+RUN tcpCA23,$reps
+
+# *** LAN 10G 2 & 3 flows with 10ms delay and various losses
+# *** WARNING: not yet tested
+SET delay=10
+FOR n IN 1,2,3,4,5 DO
+FOR loss IN 0.01,0.1,1.0,2.0 DO
+DESC netemLoss:$loss
+SET netemLoss=$loss
+SET testCA=cubic,bbr,bic
+SET tcpCA23_baseline=1
+SET tcpCA23_test=1
+SET tcpCA23_vs1=0
+SET tcpCA23_vs2=0
+RUN tcpCA23,$reps
+DONE
+DONE
+
+END
