@@ -1,0 +1,804 @@
+version: 2.1
+
+aliases:
+  - &opam_env
+    TERM: dumb
+    OPAMYES: true
+
+  - &run_on_release_tags
+    filters:
+      tags:
+        only: /^v.*/
+      branches:
+        ignore: /.*/
+
+orbs:
+  win: circleci/windows@2.2.0
+
+  opam_windows:
+    commands:
+      install:
+        steps:
+          - run:
+              name: Install dependencies
+              command: .\scripts\windows\install_deps.ps1
+          - run:
+              name: Install opam
+              command: .\scripts\windows\install_opam.ps1
+      create_switch:
+        steps:
+          - run:
+              name: Create opam switch
+              shell: C:/tools/cygwin/bin/bash.exe -leo pipefail
+              environment:
+                PATH: /usr/local/bin:/usr/bin:/cygdrive/c/Windows/system32:/cygdrive/c/Windows:/cygdrive/c/Windows/System32/Wbem:/cygdrive/c/Windows/System32/WindowsPowerShell/v1.0
+              command: |
+                cd /cygdrive/c/Users/circleci/project
+                [ -d _opam ] || opam switch create . ocaml-variants.4.12.0+mingw64c --deps-only --yes
+
+executors:
+  linux-opam:
+    docker:
+      - image: flowtype/flow-ci:linux-x86_64
+        environment:
+          <<: *opam_env
+    working_directory: ~/flow
+  linux-arm64:
+    machine:
+      image: ubuntu-2004:202101-01
+    environment:
+      <<: *opam_env
+    resource_class: arm.medium
+    working_directory: ~/flow
+  linux-node:
+    docker:
+      - image: circleci/node:12
+    working_directory: ~/flow
+  mac:
+    macos:
+      xcode: "12.1.0"
+    environment:
+      <<: *opam_env
+      OPAM_VERSION: 2.0.5
+      MACOSX_DEPLOYMENT_TARGET: 10.13
+    working_directory: ~/flow
+  curl:
+    docker:
+      - image: appropriate/curl:latest
+    working_directory: /flow
+  flow-website:
+    docker:
+      - image: flowtype/flow-website:0.0.5
+    working_directory: ~/flow
+  awscli:
+    docker:
+      - image: xueshanf/awscli:latest
+    working_directory: ~/flow
+
+commands:
+  install-opam-mac:
+    steps:
+      - run:
+          name: Install opam
+          command: |
+            if ! [ -x "$(command -v opam)" ]; then
+              TMP=${TMPDIR:-/tmp}
+              curl -sL -o "$TMP/opam" "https://github.com/ocaml/opam/releases/download/$OPAM_VERSION/opam-$OPAM_VERSION-x86_64-macos"
+              install -m 755 "$TMP/opam" "/usr/local/bin/opam"
+              rm -f "$TMP/opam"
+            fi
+
+  make-opam-cachebreaker:
+    steps:
+      - run:
+          name: Create cache breaker
+          command: |
+            .circleci/make_opam_cachebreaker.sh 4.09.1 > .circleci/opamcachebreaker
+
+  restore-opam-cache:
+    steps:
+      - restore_cache:
+          keys:
+          - v1-opam-cache-{{ arch }}-{{ checksum ".circleci/opamcachebreaker" }}
+
+  save-opam-cache:
+    steps:
+      - run:
+          name: Preparing opam cache
+          command: touch ~/.opam/from_cache
+      - save_cache:
+          key: v1-opam-cache-{{ arch }}-{{ checksum ".circleci/opamcachebreaker" }}
+          paths:
+            - ~/.opam
+            - _opam
+
+  create-opam-switch:
+    steps:
+      - run:
+          name: Install deps from opam
+          command: make deps
+
+jobs:
+  checkout:
+    executor: linux-node
+    steps:
+      - checkout
+      - run:
+          # This job does a lot of setup to be able to access github, so
+          # fetch the list of git tags that Try Flow uses here, instead of
+          # hitting github again later.
+          name: List versions
+          command: .circleci/list_versions.sh
+      - persist_to_workspace:
+          root: .
+          paths: .
+
+  build_js:
+    executor: linux-opam
+    steps:
+      - attach_workspace:
+          at: ~/flow
+      - make-opam-cachebreaker
+      - restore-opam-cache
+      - run:
+          name: Init opam
+          command: .circleci/opam_init.sh
+      - create-opam-switch
+      - run:
+          name: Install extra deps from opam
+          command: opam install js_of_ocaml.3.9.0 | cat
+      - save-opam-cache
+      - run:
+          name: Build flow.js
+          command: opam exec -- make js
+      - run:
+          name: Build flow_parser.js
+          command: opam exec -- make -C src/parser js
+      - run:
+          name: Create artifacts
+          command: |
+            mkdir -p dist
+            cp src/parser/flow_parser.js dist/flow_parser.js
+      - persist_to_workspace:
+          root: .
+          paths:
+            - bin/flow.js
+            - dist/flow_parser.js
+      - store_artifacts:
+          path: bin/flow.js
+          destination: flow.js
+      - store_artifacts:
+          path: dist/flow_parser.js
+          destination: flow_parser.js
+
+  build_linux:
+    executor: linux-opam
+    steps:
+      - attach_workspace:
+          at: ~/flow
+      - make-opam-cachebreaker
+      - restore-opam-cache
+      - run:
+          name: Init opam
+          command: .circleci/opam_init.sh
+      - create-opam-switch
+      - run:
+          name: Install extra deps from opam
+          command: opam install js_of_ocaml.3.9.0 | cat
+      - save-opam-cache
+      - run:
+          name: Build flow
+          command: |
+            opam exec -- make bin/flow dist/flow.zip
+            mkdir -p bin/linux && cp bin/flow bin/linux/flow
+      - run:
+          name: Build libflowparser
+          command: opam exec -- make -C src/parser dist/libflowparser.zip
+      - run:
+          name: Create artifacts
+          command: |
+            cp dist/flow.zip dist/flow-linux64.zip
+            cp src/parser/dist/libflowparser.zip dist/libflowparser-linux64.zip
+      - persist_to_workspace:
+          root: .
+          paths:
+            - bin/linux/flow
+            - dist/flow-linux64.zip
+            - dist/libflowparser-linux64.zip
+      - store_artifacts:
+          path: dist/flow-linux64.zip
+          destination: flow-linux64.zip
+      - store_artifacts:
+          path: dist/libflowparser-linux64.zip
+          destination: libflowparser-linux64.zip
+
+  build_linux_arm64:
+    executor: linux-arm64
+    steps:
+      - attach_workspace:
+          at: ~/flow
+      - run:
+          name: Start Docker image
+          command: |
+            rm -rf /home/circleci/.opam && mkdir /home/circleci/.opam
+            container_id=$(\
+              docker run -it -d \
+                --mount type=bind,source=/home/circleci/.opam,target=/home/opam/.opam \
+                --mount type=bind,source=/home/circleci/flow,target=/home/opam/flow \
+                flowtype/flow-ci:linux-arm64 \
+                /bin/bash \
+            )
+            echo "export CONTAINER_ID=$container_id" >> $BASH_ENV
+      - run:
+          name: Create cache breaker
+          command: |
+            docker exec -it $CONTAINER_ID /bin/bash -c 'cd flow && .circleci/make_opam_cachebreaker.sh 4.09.1 > .circleci/opamcachebreaker'
+      - restore-opam-cache
+      - run:
+          name: Init opam
+          command: |
+            docker exec -it $CONTAINER_ID /bin/bash -c 'flow/.circleci/opam_init.sh'
+      - run:
+          name: Install opam deps
+          command: |
+            docker exec -it $CONTAINER_ID /bin/bash -c 'cd flow && make deps'
+      - save-opam-cache
+      - run:
+          name: Build flow
+          command: |
+            docker exec -it $CONTAINER_ID /bin/bash -c 'cd flow && opam exec -- make bin/flow dist/flow.zip'
+            mkdir -p bin/linux-arm64 && cp bin/flow bin/linux-arm64/flow
+      - run:
+          name: Build libflowparser
+          command: |
+            docker exec -it $CONTAINER_ID /bin/bash -c 'cd flow && opam exec -- make -C src/parser dist/libflowparser.zip'
+      - run:
+          name: Stop Docker container
+          command: docker stop $CONTAINER_ID
+      - run:
+          name: Create artifacts
+          command: |
+            cp dist/flow.zip dist/flow-linux-arm64.zip
+            cp src/parser/dist/libflowparser.zip dist/libflowparser-linux-arm64.zip
+      - persist_to_workspace:
+          root: .
+          paths:
+            - bin/linux-arm64/flow
+            - dist/flow-linux-arm64.zip
+            - dist/libflowparser-linux-arm64.zip
+      - store_artifacts:
+          path: dist/flow-linux-arm64.zip
+          destination: flow-linux-arm64.zip
+      - store_artifacts:
+          path: dist/libflowparser-linux-arm64.zip
+          destination: libflowparser-linux-arm64.zip
+
+  build_macos:
+    executor: mac
+    steps:
+      - attach_workspace:
+          at: ~/flow
+      - install-opam-mac
+      - make-opam-cachebreaker
+      - restore-opam-cache
+      - run:
+          name: Init opam
+          command: .circleci/opam_init.sh
+      - create-opam-switch
+      - save-opam-cache
+      - run:
+          name: Build flow
+          command: |
+            opam exec -- make bin/flow dist/flow.zip
+            mkdir -p bin/macos && cp bin/flow bin/macos/flow
+      - run:
+          name: Build libflowparser
+          command: opam exec -- make -C src/parser dist/libflowparser.zip
+      - run:
+          name: Create artifacts
+          command: |
+            cp dist/flow.zip dist/flow-osx.zip
+            cp src/parser/dist/libflowparser.zip dist/libflowparser-osx.zip
+      - persist_to_workspace:
+          root: .
+          paths:
+            - bin/macos/flow
+            - dist/flow-osx.zip
+            - dist/libflowparser-osx.zip
+      - store_artifacts:
+          path: dist/flow-osx.zip
+          destination: flow-osx.zip
+      - store_artifacts:
+          path: src/parser/dist/libflowparser.zip
+          destination: libflowparser-osx.zip
+
+  build_win:
+    executor: win/default
+    environment:
+      - FLOW_TMP_DIR: 'C:\tmp\flow'
+      - OPAMDOWNLOADJOBS: 1
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Set up workspace
+          command: |
+            New-Item -ItemType Directory $Env:FLOW_TMP_DIR
+      - opam_windows/install
+      - run:
+          name: Create cache breaker
+          shell: C:/tools/cygwin/bin/bash.exe -leo pipefail
+          command: |
+            cd /cygdrive/c/Users/circleci/project
+            /usr/local/bin/opam --version > /cygdrive/c/tmp/flow/opamcachebreaker
+            echo "ocaml-4.12.0" >> /cygdrive/c/tmp/flow/opamcachebreaker
+            /usr/bin/cat flowtype.opam >> /cygdrive/c/tmp/flow/opamcachebreaker
+            /usr/bin/cat flow_parser.opam >> /cygdrive/c/tmp/flow/opamcachebreaker
+            /usr/bin/cat .circleci/config.yml >> /cygdrive/c/tmp/flow/opamcachebreaker
+      - restore_cache:
+          keys:
+          - opam-cache-{{ arch }}-{{ checksum "C:/tmp/flow/opamcachebreaker" }}
+      - run:
+          name: Init opam
+          command: .\scripts\windows\init_opam.ps1
+      - opam_windows/create_switch
+      - save_cache:
+          key: opam-cache-{{ arch }}-{{ checksum "C:/tmp/flow/opamcachebreaker" }}
+          paths:
+            - C:/tools/cygwin/home/circleci/.opam
+            - _opam
+      - run:
+          name: Build flow.exe
+          shell: C:/tools/cygwin/bin/bash.exe -leo pipefail
+          environment:
+            PATH: /usr/local/bin:/usr/bin:/cygdrive/c/Windows/system32:/cygdrive/c/Windows:/cygdrive/c/Windows/System32/Wbem:/cygdrive/c/Windows/System32/WindowsPowerShell/v1.0
+          command: |
+             cd /cygdrive/c/Users/circleci/project
+             eval $(opam env)
+             make bin/flow.exe dist/flow.zip
+             mkdir -p bin/win64 && cp bin/flow.exe bin/win64/flow.exe
+             cp dist/flow.zip dist/flow-win64.zip
+      - run:
+          name: Build parser test runner
+          shell: C:/tools/cygwin/bin/bash.exe -leo pipefail
+          environment:
+            PATH: /usr/local/bin:/usr/bin:/cygdrive/c/Windows/system32:/cygdrive/c/Windows:/cygdrive/c/Windows/System32/Wbem:/cygdrive/c/Windows/System32/WindowsPowerShell/v1.0
+          command: |
+            cd /cygdrive/c/Users/circleci/project
+            eval $(opam env)
+            make -C src/parser/ ../../_build/src/parser/test/run_tests.native
+            cp _build/src/parser/test/run_tests.native bin/win64/run_parser_tests.exe
+      - persist_to_workspace:
+          root: .
+          paths:
+            - bin/win64/flow.exe
+            - dist/flow-win64.zip
+            - bin/win64/run_parser_tests.exe
+      - store_artifacts:
+          path: .\dist\flow-win64.zip
+          destination: flow-win64.zip
+
+  runtests_linux:
+    executor: linux-node
+    environment:
+      FLOW_RUNTESTS_PARALLELISM: 8
+    steps:
+      - attach_workspace:
+          at: ~/flow
+      - run:
+          name: Run tests
+          command: ./runtests.sh bin/linux/flow | cat
+
+  runtests_linux_arm64:
+    executor: linux-arm64
+    environment:
+      FLOW_RUNTESTS_PARALLELISM: 8
+    steps:
+      - attach_workspace:
+          at: ~/flow
+      - run:
+          name: Run tests
+          command: ./runtests.sh bin/linux-arm64/flow | cat
+
+  runtests_macos:
+    executor: mac
+    steps:
+      - attach_workspace:
+          at: ~/flow
+      - run:
+          name: Run tests
+          command: ./runtests.sh bin/macos/flow | cat
+
+  tool_test_linux:
+    executor: linux-node
+    steps:
+      - attach_workspace:
+          at: ~/flow
+      - run:
+          name: Install tool deps from yarn
+          command: (cd packages/flow-dev-tools && yarn install | cat) # Force no tty mode
+      - run:
+          name: Run tool tests
+          command: ./tool test -p 4 --bin bin/linux/flow | cat # Limit parallelism
+
+  tool_test_macos:
+    executor: mac
+    steps:
+      - attach_workspace:
+          at: ~/flow
+      - run:
+          name: Install tool deps from yarn
+          command: (cd packages/flow-dev-tools && yarn install | cat) # Force no tty mode
+      - run:
+          name: Run tool tests
+          command: ./tool test --bin bin/macos/flow | cat
+
+  tool_test_win:
+    executor: win/default
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install Yarn
+          command: choco install yarn
+      - run:
+          name: Install tool deps from yarn
+          command: |
+            cd packages/flow-dev-tools
+            yarn install --ignore-scripts --pure-lockfile
+      - run:
+          name: Run tool tests
+          shell: bash
+          command: ./tool test --bin bin/win64/flow.exe --parallelism 1
+
+  ounit_test_linux:
+    executor: linux-opam
+    steps:
+      - attach_workspace:
+          at: ~/flow
+      - make-opam-cachebreaker
+      - restore-opam-cache
+      - run:
+          name: Init opam
+          command: .circleci/opam_init.sh
+      - create-opam-switch
+      - run:
+          name: Install extra deps from opam
+          command: opam install ounit2.2.2.4 | cat
+      # let build-linux save the cache
+      # - save-opam-cache
+      - run:
+          name: Run ounit tests
+          command: opam exec -- make ounit-tests-ci
+      - store_test_results:
+          path: test-results/ounit/
+
+  ounit_test_macos:
+    executor: mac
+    steps:
+      - attach_workspace:
+          at: ~/flow
+      - install-opam-mac
+      - make-opam-cachebreaker
+      - restore-opam-cache
+      - run:
+          name: Init opam
+          command: .circleci/opam_init.sh
+      - create-opam-switch
+      - run:
+          name: Install extra deps from opam
+          command: opam install ounit2.2.2.4 | cat
+      # let build-mac save the cache
+      # - save-opam-cache
+      - run:
+          name: Run ounit tests
+          command: opam exec -- make ounit-tests-ci
+      - store_test_results:
+          path: test-results/ounit/
+
+  parser_test_win:
+    executor: win/default
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Test parser
+          command: |
+            .\bin\win64\run_parser_tests.exe .\src\parser\test\flow\
+            if ($LASTEXITCODE -gt 0) {
+              Throw "flow parser hardcoded ocaml tests exited with error code: $LASTEXITCODE"
+            }
+
+  npm_pack:
+    executor: linux-node
+    steps:
+      - attach_workspace:
+          at: ~/flow
+      - run:
+          name: Pack flow-parser
+          command: |
+            mkdir -p packages/flow-parser/dist/
+            cp dist/flow_parser.js packages/flow-parser/dist/flow_parser.js
+            make dist/npm-flow-parser.tgz
+      - run:
+          name: Pack flow-parser-bin
+          command: |
+            mkdir -p packages/flow-parser-bin/dist/release/
+            cp dist/libflowparser-linux64.zip packages/flow-parser-bin/dist/release/libflowparser-linux64.zip
+            cp dist/libflowparser-linux-arm64.zip packages/flow-parser-bin/dist/release/libflowparser-linux-arm64.zip
+            cp dist/libflowparser-osx.zip packages/flow-parser-bin/dist/release/libflowparser-osx.zip
+            make dist/npm-flow-parser-bin.tgz
+      - run:
+          name: Pack flow-remove-types and flow-node
+          command: |
+            rm -rf packages/flow-node
+            cp -r packages/flow-remove-types/ packages/flow-node/
+            sed -i '0,/flow-remove-types/s//flow-node/' packages/flow-node/package.json
+            make dist/npm-flow-remove-types.tgz
+            make dist/npm-flow-node.tgz
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist/npm-flow-parser.tgz
+            - dist/npm-flow-parser-bin.tgz
+            - dist/npm-flow-node.tgz
+            - dist/npm-flow-remove-types.tgz
+      - store_artifacts:
+          path: dist/npm-flow-parser.tgz
+          destination: npm-flow-parser.tgz
+      - store_artifacts:
+          path: dist/npm-flow-parser-bin.tgz
+          destination: npm-flow-parser-bin.tgz
+      - store_artifacts:
+          path: dist/npm-flow-node.tgz
+          destination: npm-flow-node.tgz
+      - store_artifacts:
+          path: dist/npm-flow-remove-types.tgz
+          destination: npm-flow-remove-types.tgz
+
+  npm_deploy:
+    executor: linux-node
+    steps:
+    - attach_workspace:
+        at: ~/flow
+    - run:
+        name: Deploy to npm
+        command: .circleci/deploy_npm.sh
+
+  github_linux:
+    executor: curl
+    steps:
+    - attach_workspace:
+        at: /flow
+    - run:
+        name: Upload Linux binary
+        command: .circleci/github_upload.sh dist/flow-linux64.zip "flow-linux64-$CIRCLE_TAG.zip"
+    - run:
+        name: Upload Linux libflowparser
+        command: .circleci/github_upload.sh dist/libflowparser-linux64.zip "libflowparser-linux64-$CIRCLE_TAG.zip"
+
+  github_linux_arm64:
+    executor: curl
+    steps:
+    - attach_workspace:
+        at: /flow
+    - run:
+        name: Upload Linux binary
+        command: .circleci/github_upload.sh dist/flow-linux-arm64.zip "flow-linux-arm64-$CIRCLE_TAG.zip"
+    - run:
+        name: Upload Linux libflowparser
+        command: .circleci/github_upload.sh dist/libflowparser-linux-arm64.zip "libflowparser-linux-arm64-$CIRCLE_TAG.zip"
+
+  github_macos:
+    executor: curl
+    steps:
+    - attach_workspace:
+        at: /flow
+    - run:
+        name: Upload Mac binary
+        command: .circleci/github_upload.sh dist/flow-osx.zip "flow-osx-$CIRCLE_TAG.zip"
+    - run:
+        name: Upload Mac libflowparser
+        command: .circleci/github_upload.sh dist/libflowparser-osx.zip "libflowparser-osx-$CIRCLE_TAG.zip"
+
+  github_win:
+    executor: curl
+    steps:
+    - attach_workspace:
+        at: /flow
+    - run:
+        name: Upload Windows binary
+        command: .circleci/github_upload.sh dist/flow-win64.zip "flow-win64-$CIRCLE_TAG.zip"
+
+  flow_bin_deploy:
+    executor: linux-node
+    steps:
+    - attach_workspace:
+        at: ~/flow
+    - run:
+        name: Deploy flow-bin
+        command: .circleci/deploy_flow_bin.sh
+
+  website_deploy:
+    executor: flow-website
+    steps:
+    - attach_workspace:
+        at: ~/flow
+    - restore_cache:
+        keys:
+          - v2-node-{{ arch }}-{{ .Branch }}-{{ checksum "/etc/os-release" }}-{{ checksum "website/yarn.lock" }}
+    - run:
+        name: Install yarn deps
+        command: cd website && yarn install
+    - save_cache:
+        key: v2-node-{{ arch }}-{{ .Branch }}-{{ checksum "/etc/os-release" }}-{{ checksum "website/yarn.lock" }}
+        paths:
+          - website/node_modules
+    - restore_cache:
+        keys:
+          - v2-gem-{{ arch }}-{{ .Branch }}-{{ checksum "/etc/os-release" }}-{{ checksum "website/Gemfile.lock" }}
+    - run:
+        name: Install gems
+        command: |
+          cd website
+          bundle config set path 'vendor/bundle'
+          bundle install
+          bundle exec s3_website install
+    - save_cache:
+        key: v2-gem-{{ arch }}-{{ .Branch }}-{{ checksum "/etc/os-release" }}-{{ checksum "website/Gemfile.lock" }}
+        paths:
+          - website/vendor/bundle
+    - run:
+        name: Build website
+        command: PATH=~/flow/bin/linux:$PATH .circleci/build_website.sh
+    - run:
+        name: Publish website
+        command: |
+          cd website
+          bundle exec s3_website push --site ~/flow/dist/flow.org
+
+  # deploys flow.js and the libdefs to Try Flow on release branches
+  try_flow_deploy:
+    executor: awscli
+    steps:
+    - attach_workspace:
+        at: ~/flow
+    - run:
+        name: Assemble files
+        command: |
+          rm -rf ~/try_flow
+          mkdir ~/try_flow
+          cp bin/flow.js ~/try_flow/flow.js
+          cp -r lib ~/try_flow/flowlib
+    - run:
+        name: Upload to AWS
+        command: aws s3 cp ~/try_flow s3://${S3_BUCKET}/static/${CIRCLE_TAG}/ --recursive
+
+workflows:
+  build_and_test:
+    jobs:
+      - checkout
+      - build_js:
+          requires:
+            - checkout
+      - build_linux:
+          requires:
+            - checkout
+      - build_linux_arm64:
+          requires:
+            - checkout
+      - build_macos:
+          requires:
+            - checkout
+      - build_win:
+          requires:
+            - checkout
+      - runtests_linux:
+          requires:
+            - build_linux
+      - runtests_linux_arm64:
+          requires:
+            - build_linux_arm64
+      - runtests_macos:
+          requires:
+            - build_macos
+      - tool_test_linux:
+          requires:
+            - build_linux
+      - tool_test_macos:
+          requires:
+            - build_macos
+      - tool_test_win:
+          requires:
+            - build_win
+      - ounit_test_linux:
+          requires:
+            - checkout
+      - ounit_test_macos:
+          requires:
+            - checkout
+      - parser_test_win:
+          requires:
+            - build_win
+      - npm_pack:
+          requires:
+            - build_js
+            - build_linux
+            - build_linux_arm64
+            - build_macos
+
+      # only deploy the website from the main branch, so that it can include
+      # docs/blog posts about an upcoming release, and so the release branch
+      # doesn't revert those changes.
+      - website_deploy:
+          requires:
+            - build_linux
+            - build_js
+          filters:
+            branches:
+              only:
+                - main
+                - master
+
+  build_and_deploy:
+    jobs:
+      - checkout:
+          <<: *run_on_release_tags
+      - build_js:
+          <<: *run_on_release_tags
+          requires:
+            - checkout
+      - build_linux:
+          <<: *run_on_release_tags
+          requires:
+            - checkout
+      - build_linux_arm64:
+          <<: *run_on_release_tags
+          requires:
+            - checkout
+      - build_macos:
+          <<: *run_on_release_tags
+          requires:
+            - checkout
+      - build_win:
+          <<: *run_on_release_tags
+          requires:
+            - checkout
+      - npm_pack:
+          <<: *run_on_release_tags
+          requires:
+            - build_js
+            - build_linux
+            - build_linux_arm64
+            - build_macos
+      - npm_deploy:
+          <<: *run_on_release_tags
+          requires:
+            - npm_pack
+      - github_linux:
+          <<: *run_on_release_tags
+          requires:
+            - build_linux
+      - github_linux_arm64:
+          <<: *run_on_release_tags
+          requires:
+            - build_linux_arm64
+      - github_macos:
+          <<: *run_on_release_tags
+          requires:
+            - build_macos
+      - github_win:
+          <<: *run_on_release_tags
+          requires:
+            - build_win
+      - flow_bin_deploy:
+          <<: *run_on_release_tags
+          requires:
+            - github_linux
+            - github_linux_arm64
+            - github_macos
+            - github_win
+      - try_flow_deploy:
+          <<: *run_on_release_tags
+          requires:
+            - build_js

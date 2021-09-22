@@ -1,0 +1,2240 @@
+/*
+ * @flow
+ * @format
+ */
+
+import type Suite from 'flow-dev-tools/src/test/Suite.js';
+import {suite, test} from 'flow-dev-tools/src/test/Tester';
+
+export default (suite(
+  ({
+    lspStartAndConnect,
+    lspStart,
+    lspRequest,
+    lspInitializeParams,
+    lspRequestAndWaitUntilResponse,
+    addFile,
+    lspIgnoreStatusAndCancellation,
+  }) => [
+    test('initialize with code actions support', [
+      lspStart({needsFlowServer: false}),
+      lspRequestAndWaitUntilResponse(
+        'initialize',
+        lspInitializeParams,
+      ).verifyAllLSPMessagesInStep(
+        [
+          [
+            'initialize',
+            '{"codeActionProvider":{"codeActionKinds":["refactor.extract","quickfix"]}}',
+          ],
+        ],
+        [...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test('initialize without quickfix support', [
+      lspStart({needsFlowServer: false}),
+      lspRequestAndWaitUntilResponse('initialize', {
+        ...lspInitializeParams,
+        capabilities: {
+          ...lspInitializeParams.capabilities,
+          textDocument: {
+            ...lspInitializeParams.capabilities.textDocument,
+            codeAction: {
+              codeActionLiteralSupport: {
+                codeActionKind: {
+                  valueSet: ['refactor.extract'],
+                },
+              },
+            },
+          },
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          [
+            'initialize',
+            '{"codeActionProvider":{"codeActionKinds":["refactor.extract"]}}',
+          ],
+        ],
+        [...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test('initialize without refactor.extract support', [
+      lspStart({needsFlowServer: false}),
+      lspRequestAndWaitUntilResponse('initialize', {
+        ...lspInitializeParams,
+        capabilities: {
+          ...lspInitializeParams.capabilities,
+          textDocument: {
+            ...lspInitializeParams.capabilities.textDocument,
+            codeAction: {
+              codeActionLiteralSupport: {
+                codeActionKind: {
+                  valueSet: ['quickfix'],
+                },
+              },
+            },
+          },
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          [
+            'initialize',
+            '{"codeActionProvider":{"codeActionKinds":["quickfix"]}}',
+          ],
+        ],
+        [...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test('initialize without any code actions support', [
+      lspStart({needsFlowServer: false}),
+      lspRequestAndWaitUntilResponse('initialize', {
+        ...lspInitializeParams,
+        capabilities: {
+          ...lspInitializeParams.capabilities,
+          textDocument: {
+            ...lspInitializeParams.capabilities.textDocument,
+            codeAction: {},
+          },
+        },
+      }).verifyAllLSPMessagesInStep(
+        [['initialize', '{"codeActionProvider":false}']],
+        [...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test('provide quickfix for adding optional chaining', [
+      addFile('add-optional-chaining.js.ignored', 'add-optional-chaining.js'),
+      lspStartAndConnect(),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/add-optional-chaining.js',
+        },
+        range: {
+          start: {
+            line: 3,
+            character: 4,
+          },
+          end: {
+            line: 3,
+            character: 7,
+          },
+        },
+        context: {
+          only: ['quickfix'],
+          diagnostics: [],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Add optional chaining for object that might be `null`',
+                kind: 'quickfix',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/add-optional-chaining.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 3,
+                            character: 0,
+                          },
+                          end: {
+                            line: 3,
+                            character: 7,
+                          },
+                        },
+                        newText: 'foo?.bar',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'add_optional_chaining',
+                    'Add optional chaining for object that might be `null`',
+                  ],
+                },
+              },
+              {
+                title:
+                  'Add optional chaining for object that might be `undefined`',
+                kind: 'quickfix',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/add-optional-chaining.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 3,
+                            character: 0,
+                          },
+                          end: {
+                            line: 3,
+                            character: 7,
+                          },
+                        },
+                        newText: 'foo?.bar',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'add_optional_chaining',
+                    'Add optional chaining for object that might be `undefined`',
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/add-optional-chaining.js',
+        },
+        range: {
+          start: {
+            line: 5,
+            character: 7,
+          },
+          end: {
+            line: 5,
+            character: 10,
+          },
+        },
+        context: {
+          only: ['quickfix'],
+          diagnostics: [],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Add optional chaining for object that might be `null`',
+                kind: 'quickfix',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/add-optional-chaining.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 5,
+                            character: 0,
+                          },
+                          end: {
+                            line: 5,
+                            character: 10,
+                          },
+                        },
+                        newText: '(nested?.foo)',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'add_optional_chaining',
+                    'Add optional chaining for object that might be `null`',
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test('provide quickfix for PropMissing errors with dot syntax', [
+      addFile('prop-missing.js.ignored', 'prop-missing.js'),
+      lspStartAndConnect(),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {uri: '<PLACEHOLDER_PROJECT_URL>/prop-missing.js'},
+        range: {
+          start: {
+            line: 3,
+            character: 2,
+          },
+          end: {
+            line: 3,
+            character: 9,
+          },
+        },
+        context: {
+          only: ['quickfix'],
+          diagnostics: [
+            {
+              range: {
+                start: {
+                  line: 3,
+                  character: 2,
+                },
+                end: {
+                  line: 3,
+                  character: 9,
+                },
+              },
+              message:
+                'Cannot get `x.faceboy` because property `faceboy` (did you mean `facebook`?) is missing in  object type [1].',
+              severity: 1,
+              code: 'InferError',
+              source: 'Flow',
+            },
+          ],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Replace `faceboy` with `facebook`',
+                kind: 'quickfix',
+                diagnostics: [
+                  {
+                    range: {
+                      start: {
+                        line: 3,
+                        character: 2,
+                      },
+                      end: {
+                        line: 3,
+                        character: 9,
+                      },
+                    },
+                    severity: 1,
+                    code: 'InferError',
+                    source: 'Flow',
+                    message:
+                      'Cannot get `x.faceboy` because property `faceboy` (did you mean `facebook`?) is missing in  object type [1].',
+                    relatedInformation: [],
+                    relatedLocations: [],
+                  },
+                ],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/prop-missing.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 3,
+                            character: 2,
+                          },
+                          end: {
+                            line: 3,
+                            character: 9,
+                          },
+                        },
+                        newText: 'facebook',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'replace_prop_typo_at_target',
+                    'Replace `faceboy` with `facebook`',
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test('provide quickfix for PropMissing errors with bracket syntax', [
+      addFile(
+        'prop-missing-bracket-syntax.js.ignored',
+        'prop-missing-bracket-syntax.js',
+      ),
+      lspStartAndConnect(),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/prop-missing-bracket-syntax.js',
+        },
+        range: {
+          start: {
+            line: 3,
+            character: 2,
+          },
+          end: {
+            line: 3,
+            character: 11,
+          },
+        },
+        context: {
+          only: ['quickfix'],
+          diagnostics: [
+            {
+              range: {
+                start: {
+                  line: 3,
+                  character: 2,
+                },
+                end: {
+                  line: 3,
+                  character: 11,
+                },
+              },
+              message:
+                'Cannot get `x.faceboy` because property `faceboy` (did you mean `facebook`?) is missing in  object type [1].',
+              severity: 1,
+              code: 'InferError',
+              source: 'Flow',
+            },
+          ],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Replace `faceboy` with `facebook`',
+                kind: 'quickfix',
+                diagnostics: [
+                  {
+                    range: {
+                      start: {
+                        line: 3,
+                        character: 2,
+                      },
+                      end: {
+                        line: 3,
+                        character: 11,
+                      },
+                    },
+                    severity: 1,
+                    code: 'InferError',
+                    source: 'Flow',
+                    message:
+                      'Cannot get `x.faceboy` because property `faceboy` (did you mean `facebook`?) is missing in  object type [1].',
+                    relatedInformation: [],
+                    relatedLocations: [],
+                  },
+                ],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/prop-missing-bracket-syntax.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 3,
+                            character: 2,
+                          },
+                          end: {
+                            line: 3,
+                            character: 11,
+                          },
+                        },
+                        newText: '"facebook"',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'replace_prop_typo_at_target',
+                    'Replace `faceboy` with `facebook`',
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test('provide quickfix for invalid enum member access errors', [
+      addFile(
+        'invalid-enum-member-access.js.ignored',
+        'invalid-enum-member-access.js',
+      ),
+      lspStartAndConnect(),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/invalid-enum-member-access.js',
+        },
+        range: {
+          start: {
+            line: 6,
+            character: 2,
+          },
+          end: {
+            line: 6,
+            character: 8,
+          },
+        },
+        context: {
+          only: ['quickfix'],
+          diagnostics: [
+            {
+              range: {
+                start: {
+                  line: 6,
+                  character: 2,
+                },
+                end: {
+                  line: 6,
+                  character: 8,
+                },
+              },
+              message:
+                'Cannot access property `Foobat` because `Foobat` is not a member of `enum E`. Did you meanthe member `Foobar`?',
+              severity: 1,
+              code: 'InferError',
+              source: 'Flow',
+            },
+          ],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Replace `Foobat` with `Foobar`',
+                kind: 'quickfix',
+                diagnostics: [
+                  {
+                    range: {
+                      start: {
+                        line: 6,
+                        character: 2,
+                      },
+                      end: {
+                        line: 6,
+                        character: 8,
+                      },
+                    },
+                    severity: 1,
+                    code: 'InferError',
+                    source: 'Flow',
+                    message:
+                      'Cannot access property `Foobat` because `Foobat` is not a member of `enum E`. Did you meanthe member `Foobar`?',
+                    relatedInformation: [],
+                    relatedLocations: [],
+                  },
+                ],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/invalid-enum-member-access.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 6,
+                            character: 2,
+                          },
+                          end: {
+                            line: 6,
+                            character: 8,
+                          },
+                        },
+                        newText: 'Foobar',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'replace_enum_prop_typo_at_target',
+                    'Replace `Foobat` with `Foobar`',
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test("don't provide quickfixes for object subtyping errors", [
+      addFile('object-cast.js.ignored', 'object-cast.js'),
+      lspStartAndConnect(),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {uri: '<PLACEHOLDER_PROJECT_URL>/object-cast.js'},
+        range: {
+          start: {
+            line: 3,
+            character: 1,
+          },
+          end: {
+            line: 3,
+            character: 14,
+          },
+        },
+        context: {
+          only: ['quickfix'],
+          diagnostics: [
+            {
+              range: {
+                start: {
+                  line: 3,
+                  character: 1,
+                },
+                end: {
+                  line: 3,
+                  character: 14,
+                },
+              },
+              message:
+                'Cannot cast object literal to `T` because property `floo` (did you mean `foo`?) is missing in  `T` [1] but exists in  object literal [2].',
+              severity: 1,
+              code: 'InferError',
+              source: 'Flow',
+            },
+            {
+              range: {
+                start: {
+                  line: 3,
+                  character: 1,
+                },
+                end: {
+                  line: 3,
+                  character: 14,
+                },
+              },
+              message:
+                'Cannot cast object literal to `T` because property `foo` (did you mean `floo`?) is missing in  object literal [1] but exists in  `T` [2].',
+              severity: 1,
+              code: 'InferError',
+              source: 'Flow',
+            },
+          ],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test('provide quickfix for parse error', [
+      addFile('parse-error.js.ignored', 'parse-error.js'),
+      lspStartAndConnect(),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {uri: '<PLACEHOLDER_PROJECT_URL>/parse-error.js'},
+        range: {
+          start: {
+            line: 4,
+            character: 6,
+          },
+          end: {
+            line: 4,
+            character: 6,
+          },
+        },
+        context: {
+          only: ['quickfix'],
+          diagnostics: [
+            {
+              range: {
+                start: {
+                  line: 4,
+                  character: 6,
+                },
+                end: {
+                  line: 4,
+                  character: 7,
+                },
+              },
+              message: "Unexpected token `>`. Did you mean `{'>'}`?",
+              severity: 1,
+              code: 'ParseError',
+              relatedInformation: [],
+              source: 'Flow',
+            },
+          ],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: "Replace `>` with `{'>'}`",
+                kind: 'quickfix',
+                diagnostics: [
+                  {
+                    range: {
+                      start: {
+                        line: 4,
+                        character: 6,
+                      },
+                      end: {
+                        line: 4,
+                        character: 7,
+                      },
+                    },
+                    severity: 1,
+                    code: 'ParseError',
+                    source: 'Flow',
+                    message: "Unexpected token `>`. Did you mean `{'>'}`?",
+                    relatedInformation: [],
+                    relatedLocations: [],
+                  },
+                ],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/parse-error.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 4,
+                            character: 6,
+                          },
+                          end: {
+                            line: 4,
+                            character: 7,
+                          },
+                        },
+                        newText: "{'>'}",
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'fix_parse_error',
+                    "Replace `>` with `{'>'}`",
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test('provide quickfix for ClassObject errors', [
+      addFile('class-object-subtype.js.ignored', 'class-object-subtype.js'),
+      lspStartAndConnect(),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/class-object-subtype.js',
+        },
+        range: {
+          start: {
+            line: 8,
+            character: 4,
+          },
+          end: {
+            line: 8,
+            character: 11,
+          },
+        },
+        context: {
+          only: ['quickfix'],
+          diagnostics: [
+            {
+              range: {
+                start: {
+                  line: 8,
+                  character: 4,
+                },
+                end: {
+                  line: 8,
+                  character: 11,
+                },
+              },
+              message:
+                'Cannot call foo with new A() bound to x because cannot subtype class A [1] with object type [2]. Please use an interface instead.',
+              severity: 1,
+              code: 'InferError',
+              source: 'Flow',
+            },
+          ],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Rewrite object type as an interface',
+                kind: 'quickfix',
+                diagnostics: [
+                  {
+                    range: {
+                      start: {
+                        line: 8,
+                        character: 4,
+                      },
+                      end: {
+                        line: 8,
+                        character: 11,
+                      },
+                    },
+                    severity: 1,
+                    code: 'InferError',
+                    source: 'Flow',
+                    message:
+                      'Cannot call foo with new A() bound to x because cannot subtype class A [1] with object type [2]. Please use an interface instead.',
+                    relatedInformation: [],
+                    relatedLocations: [],
+                  },
+                ],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/class-object-subtype.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 6,
+                            character: 17,
+                          },
+                          end: {
+                            line: 6,
+                            character: 35,
+                          },
+                        },
+                        newText: 'interface { x: number }',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'replace_obj_with_interface',
+                    'Rewrite object type as an interface',
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        [
+          'textDocument/publishDiagnostics',
+          'window/showStatus',
+          '$/cancelRequest',
+        ],
+      ),
+    ]),
+    test('provide quickfix for nested ClassObject errors', [
+      addFile('class-object-subtype.js.ignored', 'class-object-subtype.js'),
+      lspStartAndConnect(),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/class-object-subtype.js',
+        },
+        range: {
+          start: {
+            line: 12,
+            character: 9,
+          },
+          end: {
+            line: 12,
+            character: 16,
+          },
+        },
+        context: {
+          only: ['quickfix'],
+          diagnostics: [
+            {
+              range: {
+                start: {
+                  line: 12,
+                  character: 9,
+                },
+                end: {
+                  line: 12,
+                  character: 16,
+                },
+              },
+              message:
+                'Cannot call `bar` with object literal bound to `_` because cannot subtype class  `A` [1] with  object type [2]. Please use an interface instead in property `i`.',
+              severity: 1,
+              code: 'InferError',
+              source: 'Flow',
+            },
+          ],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Rewrite object type as an interface',
+                kind: 'quickfix',
+                diagnostics: [
+                  {
+                    range: {
+                      start: {
+                        line: 12,
+                        character: 9,
+                      },
+                      end: {
+                        line: 12,
+                        character: 16,
+                      },
+                    },
+                    severity: 1,
+                    code: 'InferError',
+                    source: 'Flow',
+                    message:
+                      'Cannot call `bar` with object literal bound to `_` because cannot subtype class  `A` [1] with  object type [2]. Please use an interface instead in property `i`.',
+                    relatedInformation: [],
+                    relatedLocations: [],
+                  },
+                ],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/class-object-subtype.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 10,
+                            character: 23,
+                          },
+                          end: {
+                            line: 10,
+                            character: 39,
+                          },
+                        },
+                        newText: 'interface { x: number }',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'replace_obj_with_interface',
+                    'Rewrite object type as an interface',
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        [
+          'textDocument/publishDiagnostics',
+          'window/showStatus',
+          '$/cancelRequest',
+        ],
+      ),
+    ]),
+    test('provide quickfix for aliased ClassObject errors', [
+      addFile('class-object-subtype.js.ignored', 'class-object-subtype.js'),
+      lspStartAndConnect(),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/class-object-subtype.js',
+        },
+        range: {
+          start: {
+            line: 18,
+            character: 4,
+          },
+          end: {
+            line: 18,
+            character: 11,
+          },
+        },
+        context: {
+          only: ['quickfix'],
+          diagnostics: [
+            {
+              range: {
+                start: {
+                  line: 18,
+                  character: 4,
+                },
+                end: {
+                  line: 18,
+                  character: 4,
+                },
+              },
+              message:
+                'Cannot call `baz` with object literal bound to `_` because cannot subtype class  `A` [1] with  object type [2]. Please use an interface instead in property `i`.',
+              severity: 1,
+              code: 'InferError',
+              source: 'Flow',
+            },
+          ],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Rewrite `T` as an interface',
+                kind: 'quickfix',
+                diagnostics: [
+                  {
+                    range: {
+                      start: {
+                        line: 18,
+                        character: 4,
+                      },
+                      end: {
+                        line: 18,
+                        character: 4,
+                      },
+                    },
+                    severity: 1,
+                    code: 'InferError',
+                    source: 'Flow',
+                    message:
+                      'Cannot call `baz` with object literal bound to `_` because cannot subtype class  `A` [1] with  object type [2]. Please use an interface instead in property `i`.',
+                    relatedInformation: [],
+                    relatedLocations: [],
+                  },
+                ],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/class-object-subtype.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 14,
+                            character: 9,
+                          },
+                          end: {
+                            line: 14,
+                            character: 27,
+                          },
+                        },
+                        newText: 'interface { x: number }',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'replace_obj_with_interface',
+                    'Rewrite `T` as an interface',
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        [
+          'textDocument/publishDiagnostics',
+          'window/showStatus',
+          '$/cancelRequest',
+        ],
+      ),
+    ]),
+    test('provide codeAction for cross-file ClassObject errors', [
+      addFile('class-object-subtype.js.ignored', 'class-object-subtype.js'),
+      addFile('lib.js.ignored', 'lib.js'),
+      lspStartAndConnect(),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/class-object-subtype.js',
+        },
+        range: {
+          start: {
+            line: 22,
+            character: 4,
+          },
+          end: {
+            line: 22,
+            character: 11,
+          },
+        },
+        context: {
+          only: ['quickfix'],
+          diagnostics: [
+            {
+              range: {
+                start: {
+                  line: 22,
+                  character: 4,
+                },
+                end: {
+                  line: 22,
+                  character: 11,
+                },
+              },
+              message:
+                'Cannot call `qux` with object literal bound to `_` because cannot subtype class  `A` [1] with  object type [2]. Please use an interface instead in property `i`.',
+              severity: 1,
+              code: 'InferError',
+              source: 'Flow',
+            },
+          ],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Rewrite object type as an interface',
+                kind: 'quickfix',
+                diagnostics: [
+                  {
+                    range: {
+                      start: {
+                        line: 22,
+                        character: 4,
+                      },
+                      end: {
+                        line: 22,
+                        character: 11,
+                      },
+                    },
+                    severity: 1,
+                    code: 'InferError',
+                    source: 'Flow',
+                    message:
+                      'Cannot call `qux` with object literal bound to `_` because cannot subtype class  `A` [1] with  object type [2]. Please use an interface instead in property `i`.',
+                    relatedInformation: [],
+                    relatedLocations: [],
+                  },
+                ],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/lib.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 2,
+                            character: 24,
+                          },
+                          end: {
+                            line: 2,
+                            character: 42,
+                          },
+                        },
+                        newText: 'interface { x: number }',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'replace_obj_with_interface',
+                    'Rewrite object type as an interface',
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        [
+          'textDocument/publishDiagnostics',
+          'window/showStatus',
+          '$/cancelRequest',
+        ],
+      ),
+    ]),
+    test('provide codeAction for MethodUnbinding errors', [
+      addFile('method-unbinding.js.ignored', 'method-unbinding.js'),
+      lspStartAndConnect(),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/method-unbinding.js',
+        },
+        range: {
+          start: {
+            line: 6,
+            character: 8,
+          },
+          end: {
+            line: 6,
+            character: 9,
+          },
+        },
+        context: {
+          only: ['quickfix'],
+          diagnostics: [
+            {
+              range: {
+                start: {
+                  line: 6,
+                  character: 8,
+                },
+                end: {
+                  line: 6,
+                  character: 9,
+                },
+              },
+              message:
+                'Cannot get `(new A).f` because  property `f` [1] cannot be unbound from the  context [2] where it was defined.',
+              severity: 1,
+              code: 'InferError',
+              source: 'Flow',
+            },
+          ],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          [
+            'textDocument/codeAction',
+            JSON.stringify([
+              {
+                title: 'Rewrite function as an arrow function',
+                kind: 'quickfix',
+                diagnostics: [
+                  {
+                    range: {
+                      start: {line: 6, character: 8},
+                      end: {line: 6, character: 9},
+                    },
+                    severity: 1,
+                    code: 'InferError',
+                    source: 'Flow',
+                    message:
+                      'Cannot get `(new A).f` because  property `f` [1] cannot be unbound from the  context [2] where it was defined.',
+                    relatedInformation: [],
+                    relatedLocations: [],
+                  },
+                ],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/method-unbinding.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 2,
+                            character: 0,
+                          },
+                          end: {
+                            line: 4,
+                            character: 1,
+                          },
+                        },
+                        newText:
+                          'class A {\n  f = (x: number): number => {\n    return x;\n  };\n}',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'replace_method_with_arrow',
+                    'Rewrite function as an arrow function',
+                  ],
+                },
+              },
+            ]),
+          ],
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test('ignore method unbinding when super is used', [
+      addFile('method-unbinding.js.ignored', 'method-unbinding.js'),
+      lspStartAndConnect(),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/method-unbinding.js',
+        },
+        range: {
+          start: {
+            line: 6,
+            character: 8,
+          },
+          end: {
+            line: 6,
+            character: 9,
+          },
+        },
+        context: {
+          diagnostics: [
+            {
+              range: {
+                start: {
+                  line: 12,
+                  character: 8,
+                },
+                end: {
+                  line: 12,
+                  character: 9,
+                },
+              },
+              message:
+                'Cannot get `(new B).f` because  property `f` [1] cannot be unbound from the  context [2] where it was defined.',
+              severity: 1,
+              code: 'InferError',
+              source: 'Flow',
+            },
+          ],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [['textDocument/codeAction', '[]']],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test('provide codeAction for basic extract function', [
+      addFile(
+        'refactor-extract-function-basic.js.ignored',
+        'refactor-extract-function-basic.js',
+      ),
+      lspStartAndConnect(),
+      // Partial selection is not allowed and gives no results.
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/refactor-extract-function-basic.js',
+        },
+        range: {
+          start: {
+            line: 4,
+            character: 2,
+          },
+          end: {
+            line: 5,
+            character: 15,
+          },
+        },
+        context: {
+          only: ['refactor'],
+          diagnostics: [],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+      // Full selection is allowed and gives one result.
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/refactor-extract-function-basic.js',
+        },
+        range: {
+          start: {
+            line: 4,
+            character: 2,
+          },
+          end: {
+            line: 5,
+            character: 21,
+          },
+        },
+        context: {
+          only: ['refactor'],
+          diagnostics: [],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Extract to function in module scope',
+                kind: 'refactor.extract',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/refactor-extract-function-basic.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 4,
+                            character: 2,
+                          },
+                          end: {
+                            line: 5,
+                            character: 21,
+                          },
+                        },
+                        newText: 'newFunction();',
+                      },
+                      {
+                        range: {
+                          start: {
+                            line: 7,
+                            character: 1,
+                          },
+                          end: {
+                            line: 7,
+                            character: 1,
+                          },
+                        },
+                        newText:
+                          '\nfunction newFunction(): void {\n  console.log("foo");\n  console.log("bar");\n}',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'refactor_extract',
+                    'Extract to function in module scope',
+                  ],
+                },
+              },
+              {
+                title: "Extract to inner function in function 'fooBar'",
+                kind: 'refactor.extract',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/refactor-extract-function-basic.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 4,
+                            character: 2,
+                          },
+                          end: {
+                            line: 5,
+                            character: 21,
+                          },
+                        },
+                        newText: 'newFunction();',
+                      },
+                      {
+                        range: {
+                          start: {
+                            line: 6,
+                            character: 25,
+                          },
+                          end: {
+                            line: 6,
+                            character: 25,
+                          },
+                        },
+                        newText:
+                          'function newFunction(): void {\n    console.log("foo");\n    console.log("bar");\n  }',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'refactor_extract',
+                    "Extract to inner function in function 'fooBar'",
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test('provide codeAction for statements with comments', [
+      addFile(
+        'refactor-extract-with-comments.js.ignored',
+        'refactor-extract-with-comments.js',
+      ),
+      lspStartAndConnect(),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/refactor-extract-with-comments.js',
+        },
+        range: {
+          start: {
+            line: 3,
+            character: 2,
+          },
+          end: {
+            line: 6,
+            character: 26,
+          },
+        },
+        context: {
+          only: ['refactor'],
+          diagnostics: [],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Extract to function in module scope',
+                kind: 'refactor.extract',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/refactor-extract-with-comments.js': [
+                      {
+                        range: {
+                          start: {line: 3, character: 2},
+                          end: {line: 6, character: 26},
+                        },
+                        newText: 'let {a, barr, fooo} = newFunction();',
+                      },
+                      {
+                        range: {
+                          start: {line: 9, character: 1},
+                          end: {
+                            line: 9,
+                            character: 1,
+                          },
+                        },
+                        newText:
+                          '\nfunction newFunction(): {| a: number, barr: number, fooo: number |} {\n  // comment before\n  let fooo = 3; // selected\n  let barr = 4; // selected\n  const a = 3; // selected\n  return { a, barr, fooo };\n}',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'refactor_extract',
+                    'Extract to function in module scope',
+                  ],
+                },
+              },
+              {
+                title: "Extract to inner function in function 'i_am_a_test'",
+                kind: 'refactor.extract',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/refactor-extract-with-comments.js': [
+                      {
+                        range: {
+                          start: {line: 3, character: 2},
+                          end: {line: 6, character: 26},
+                        },
+                        newText: 'let {a, barr, fooo} = newFunction();',
+                      },
+                      {
+                        range: {
+                          start: {line: 8, character: 15},
+                          end: {line: 8, character: 15},
+                        },
+                        newText:
+                          'function newFunction(): {| a: number, barr: number, fooo: number |} {\n    // comment before\n    let fooo = 3; // selected\n    let barr = 4; // selected\n    const a = 3; // selected\n    return { a, barr, fooo };\n  }',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'refactor_extract',
+                    "Extract to inner function in function 'i_am_a_test'",
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test('provide codeAction for extract function with type imports', [
+      addFile(
+        'refactor-extract-function-type-provider.js.ignored',
+        'refactor-extract-function-type-provider.js',
+      ),
+      addFile(
+        'refactor-extract-function-import-type.js.ignored',
+        'refactor-extract-function-import-type.js',
+      ),
+      lspStartAndConnect(),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri:
+            '<PLACEHOLDER_PROJECT_URL>/refactor-extract-function-import-type.js',
+        },
+        range: {start: {line: 7, character: 2}, end: {line: 7, character: 19}},
+        context: {
+          only: ['refactor'],
+          diagnostics: [],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Extract to function in module scope',
+                kind: 'refactor.extract',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/refactor-extract-function-import-type.js': [
+                      {
+                        range: {
+                          start: {line: 2, character: 0},
+                          end: {line: 2, character: 0},
+                        },
+                        newText:
+                          'import type { Foo } from "./refactor-extract-function-type-provider";\n\n',
+                      },
+                      {
+                        range: {
+                          start: {line: 7, character: 2},
+                          end: {line: 7, character: 13},
+                        },
+                        newText: '(newFunction)',
+                      },
+                      {
+                        range: {
+                          start: {line: 8, character: 1},
+                          end: {line: 8, character: 1},
+                        },
+                        newText:
+                          '\nfunction newFunction(foo: Foo): void {\n  console.log(foo);\n}',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'refactor_extract',
+                    'Extract to function in module scope',
+                  ],
+                },
+              },
+              {
+                title: "Extract to inner function in function 'test'",
+                kind: 'refactor.extract',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/refactor-extract-function-import-type.js': [
+                      {
+                        range: {
+                          start: {line: 7, character: 2},
+                          end: {line: 7, character: 18},
+                        },
+                        newText: 'newFunction()',
+                      },
+                      {
+                        range: {
+                          start: {line: 7, character: 19},
+                          end: {line: 7, character: 19},
+                        },
+                        newText:
+                          '\nfunction newFunction(): void {\n    console.log(foo);\n  }',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'refactor_extract',
+                    "Extract to inner function in function 'test'",
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri:
+            '<PLACEHOLDER_PROJECT_URL>/refactor-extract-function-import-type.js',
+        },
+        range: {start: {line: 6, character: 2}, end: {line: 6, character: 24}},
+        context: {
+          only: ['refactor'],
+          diagnostics: [],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Extract to function in module scope',
+                kind: 'refactor.extract',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/refactor-extract-function-import-type.js': [
+                      {
+                        range: {
+                          start: {line: 2, character: 0},
+                          end: {line: 2, character: 0},
+                        },
+                        newText:
+                          'import type { Foo } from "./refactor-extract-function-type-provider";\n\n',
+                      },
+                      {
+                        range: {
+                          start: {line: 6, character: 14},
+                          end: {line: 6, character: 23},
+                        },
+                        newText: 'newFunction(getFoo2)',
+                      },
+                      {
+                        range: {
+                          start: {line: 8, character: 1},
+                          end: {line: 8, character: 1},
+                        },
+                        newText:
+                          '\nfunction newFunction(getFoo2: () => Foo): Foo {\n  const foo = getFoo2();\n  return foo;\n}',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'refactor_extract',
+                    'Extract to function in module scope',
+                  ],
+                },
+              },
+              {
+                title: "Extract to inner function in function 'test'",
+                kind: 'refactor.extract',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/refactor-extract-function-import-type.js': [
+                      {
+                        range: {
+                          start: {line: 2, character: 0},
+                          end: {line: 2, character: 0},
+                        },
+                        newText:
+                          'import type { Foo } from "./refactor-extract-function-type-provider";\n\n',
+                      },
+                      {
+                        range: {
+                          start: {line: 6, character: 14},
+                          end: {line: 6, character: 21},
+                        },
+                        newText: 'newFunction',
+                      },
+                      {
+                        range: {
+                          start: {line: 7, character: 19},
+                          end: {line: 7, character: 19},
+                        },
+                        newText:
+                          'function newFunction(): Foo {\n    const foo = getFoo2();\n    return foo;\n  }',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'refactor_extract',
+                    "Extract to inner function in function 'test'",
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test(
+      'provide codeAction for basic extract method, constant, class fields.',
+      [
+        addFile(
+          'refactor-extract-method.js.ignored',
+          'refactor-extract-method.js',
+        ),
+        lspStartAndConnect(),
+        // Partial selection is not allowed and gives no results.
+        lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+          textDocument: {
+            uri: '<PLACEHOLDER_PROJECT_URL>/refactor-extract-method.js',
+          },
+          range: {
+            start: {line: 4, character: 4},
+            end: {line: 4, character: 16},
+          },
+          context: {
+            only: ['refactor'],
+            diagnostics: [],
+          },
+        }).verifyAllLSPMessagesInStep(
+          [
+            {
+              method: 'textDocument/codeAction',
+              result: [
+                {
+                  title: "Extract to method in class 'Test'",
+                  kind: 'refactor.extract',
+                  diagnostics: [],
+                  edit: {
+                    changes: {
+                      '<PLACEHOLDER_PROJECT_URL>/refactor-extract-method.js': [
+                        {
+                          range: {
+                            start: {line: 2, character: 0},
+                            end: {line: 6, character: 1},
+                          },
+                          newText:
+                            'class Test {\n  test(): void {\n    this.newMethod();\n  }\n  newMethod(): void {\n    this.test();\n  }\n}',
+                        },
+                      ],
+                    },
+                  },
+                  command: {
+                    title: '',
+                    command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                    arguments: [
+                      'textDocument/codeAction',
+                      'refactor_extract',
+                      "Extract to method in class 'Test'",
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+          [
+            'textDocument/publishDiagnostics',
+            ...lspIgnoreStatusAndCancellation,
+          ],
+        ),
+        lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+          textDocument: {
+            uri: '<PLACEHOLDER_PROJECT_URL>/refactor-extract-method.js',
+          },
+          range: {
+            start: {line: 4, character: 4},
+            end: {line: 4, character: 15},
+          },
+          context: {
+            only: ['refactor'],
+            diagnostics: [],
+          },
+        }).verifyAllLSPMessagesInStep(
+          [
+            {
+              method: 'textDocument/codeAction',
+              result: [
+                {
+                  title: "Extract to field in class 'Test'",
+                  kind: 'refactor.extract',
+                  diagnostics: [],
+                  edit: {
+                    changes: {
+                      '<PLACEHOLDER_PROJECT_URL>/refactor-extract-method.js': [
+                        {
+                          range: {
+                            start: {line: 2, character: 0},
+                            end: {line: 6, character: 1},
+                          },
+                          newText:
+                            'class Test {\n  newProperty = this.test();\n  \n  test(): void {\n    this.newProperty;\n  }\n}',
+                        },
+                      ],
+                    },
+                  },
+                  command: {
+                    title: '',
+                    command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                    arguments: [
+                      'textDocument/codeAction',
+                      'refactor_extract',
+                      "Extract to field in class 'Test'",
+                    ],
+                  },
+                },
+                {
+                  title: "Extract to constant in method 'test'",
+                  kind: 'refactor.extract',
+                  diagnostics: [],
+                  edit: {
+                    changes: {
+                      '<PLACEHOLDER_PROJECT_URL>/refactor-extract-method.js': [
+                        {
+                          range: {
+                            start: {line: 4, character: 4},
+                            end: {line: 4, character: 16},
+                          },
+                          newText:
+                            'const newLocal = this.test();\n    \n    newLocal;',
+                        },
+                      ],
+                    },
+                  },
+                  command: {
+                    title: '',
+                    command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                    arguments: [
+                      'textDocument/codeAction',
+                      'refactor_extract',
+                      "Extract to constant in method 'test'",
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+          [
+            'textDocument/publishDiagnostics',
+            ...lspIgnoreStatusAndCancellation,
+          ],
+        ),
+      ],
+    ),
+    test('provide codeAction for basic extract type alias', [
+      addFile(
+        'refactor-extract-type-alias.js.ignored',
+        'refactor-extract-type-alias.js',
+      ),
+      lspStartAndConnect(),
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/refactor-extract-type-alias.js',
+        },
+        range: {
+          start: {line: 3, character: 11},
+          end: {line: 3, character: 17},
+        },
+        context: {
+          only: ['refactor'],
+          diagnostics: [],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Extract to type alias',
+                kind: 'refactor.extract',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/refactor-extract-type-alias.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 3,
+                            character: 2,
+                          },
+                          end: {
+                            line: 3,
+                            character: 22,
+                          },
+                        },
+                        newText:
+                          'type NewType = number;\n  \n  const a: NewType = 3;',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'refactor_extract',
+                    'Extract to type alias',
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+    test('obey context.only', [
+      addFile('only-filter.js.ignored', 'only-filter.js'),
+      lspStartAndConnect(),
+      // no context.only gets back a quickfix and refactor
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/only-filter.js',
+        },
+        range: {
+          start: {
+            line: 3,
+            character: 0,
+          },
+          end: {
+            line: 3,
+            character: 7,
+          },
+        },
+        context: {
+          diagnostics: [],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Organize imports',
+                kind: 'source.organizeImports.flow',
+                diagnostics: [],
+                command: {
+                  title: '',
+                  command:
+                    'source.organizeImports:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    {
+                      uri: '<PLACEHOLDER_PROJECT_URL>/only-filter.js',
+                    },
+                  ],
+                },
+              },
+              {
+                title: 'Extract to constant in module scope',
+                kind: 'refactor.extract',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/only-filter.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 3,
+                            character: 0,
+                          },
+                          end: {
+                            line: 3,
+                            character: 8,
+                          },
+                        },
+                        newText: 'const newLocal = foo.bar;\n\nnewLocal;',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'refactor_extract',
+                    'Extract to constant in module scope',
+                  ],
+                },
+              },
+              {
+                title:
+                  'Add optional chaining for object that might be `undefined`',
+                kind: 'quickfix',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/only-filter.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 3,
+                            character: 0,
+                          },
+                          end: {
+                            line: 3,
+                            character: 7,
+                          },
+                        },
+                        newText: 'foo?.bar',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'add_optional_chaining',
+                    'Add optional chaining for object that might be `undefined`',
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+      // context.only: ["refactor"] only gets the refactor
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/only-filter.js',
+        },
+        range: {
+          start: {
+            line: 3,
+            character: 0,
+          },
+          end: {
+            line: 3,
+            character: 7,
+          },
+        },
+        context: {
+          diagnostics: [],
+          only: ['refactor'],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title: 'Extract to constant in module scope',
+                kind: 'refactor.extract',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/only-filter.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 3,
+                            character: 0,
+                          },
+                          end: {
+                            line: 3,
+                            character: 8,
+                          },
+                        },
+                        newText: 'const newLocal = foo.bar;\n\nnewLocal;',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'refactor_extract',
+                    'Extract to constant in module scope',
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+      // context.only: ["quickfix"] only gets the quickfix
+      lspRequestAndWaitUntilResponse('textDocument/codeAction', {
+        textDocument: {
+          uri: '<PLACEHOLDER_PROJECT_URL>/only-filter.js',
+        },
+        range: {
+          start: {
+            line: 3,
+            character: 0,
+          },
+          end: {
+            line: 3,
+            character: 7,
+          },
+        },
+        context: {
+          diagnostics: [],
+          only: ['quickfix'],
+        },
+      }).verifyAllLSPMessagesInStep(
+        [
+          {
+            method: 'textDocument/codeAction',
+            result: [
+              {
+                title:
+                  'Add optional chaining for object that might be `undefined`',
+                kind: 'quickfix',
+                diagnostics: [],
+                edit: {
+                  changes: {
+                    '<PLACEHOLDER_PROJECT_URL>/only-filter.js': [
+                      {
+                        range: {
+                          start: {
+                            line: 3,
+                            character: 0,
+                          },
+                          end: {
+                            line: 3,
+                            character: 7,
+                          },
+                        },
+                        newText: 'foo?.bar',
+                      },
+                    ],
+                  },
+                },
+                command: {
+                  title: '',
+                  command: 'log:org.flow:<PLACEHOLDER_PROJECT_URL>',
+                  arguments: [
+                    'textDocument/codeAction',
+                    'add_optional_chaining',
+                    'Add optional chaining for object that might be `undefined`',
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+        ['textDocument/publishDiagnostics', ...lspIgnoreStatusAndCancellation],
+      ),
+    ]),
+  ],
+): Suite);
