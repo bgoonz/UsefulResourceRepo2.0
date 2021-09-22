@@ -1,0 +1,48 @@
+{{ define "title" -}}
+  {{ .Title }} | {{ .Site.Title }}
+{{- end }}
+{{ define "header" }}
+  {{ partial "masthead.html" . }}
+{{ end }}
+{{ define "main" }}
+  <header>
+    <h1>{{ .Title }}</h1>
+  </header>
+  <noscript>
+    Aw-shucks! Search requires use of JavaScript to function properly.
+  </noscript>
+  <div id="search-app">
+    <div v-cloak>
+      <section>
+        <form v-on:submit.prevent role="search" class="form" action="{{ "search" | absURL }}">
+          <fieldset class="form-group">
+            <input v-model="query" id="query" name="s" type="search" class="form-control" maxlength="32" autocomplete="off"{{ with .Params.form.input.placeholder }} placeholder="{{ . }}"{{ end }}{{ if eq .Params.form.input.disabled true }} disabled{{ end }}>
+            {{ with .Params.form.helpblock }}
+              <div class="help-block">{{ . | safeHTML }}</div>
+            {{ end }}
+          </fieldset>
+        </form>
+      </section>
+      <section v-if="results.length">
+        <p><i>Showing results for “{ resultsForSearch }”.</i></p>
+        <div id="search-results">
+          <article v-for="result in results" itemscope itemtype="https://schema.org/CreativeWork">
+            <header itemprop="name">
+              <h2 itemprop="name"><a :href="result.item.url"><span v-html="result.item.title"></span></a></h2>
+            </header>
+            <div v-html=result.item.summary itemprop="description"></div>
+            <nav class="readmore"><p><a itemprop="url" :href="result.item.url">Read More&nbsp;&raquo;</a></p></nav>
+          </article>
+        </div>
+      </section>
+    </div>
+  </div>
+{{ end }}
+{{ define "footer" }}
+  {{ partial "powered-by.html" . }}
+  {{ partial "cookie-disclaimer.html" . }}
+  {{ $script := resources.Get "/js/search.js" | resources.ExecuteAsTemplate "search.js" . }}
+  <script integrity="{{ printf "%s" ($script | resources.Fingerprint "sha512").Data.Integrity | safeHTML }}">
+    {{- $script.Content | safeJS -}}
+  </script>
+{{ end }}
