@@ -1,0 +1,265 @@
+<h1 id="handling-events">Handling Events</h1>
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<!-- code_chunk_output -->
+<ul>
+<li><a href="#adding-event-listeners">Adding event listeners</a></li>
+<li><a href="#preventing-default-behavior">Preventing default behavior</a></li>
+<li><a href="#using-this-in-event-handlers">Using <code>this</code> in event handlers</a>
+<ul>
+<li><a href="#reviewing-class-methods-and-the-this-keyword">Reviewing class methods and the <code>this</code> keyword</a></li>
+<li><a href="#understanding-the-class-property-arrow-function-pattern">Understanding the class property + arrow function pattern</a></li>
+<li><a href="#pick-an-approach-and-be-consistent">Pick an approach and be consistent</a></li>
+</ul></li>
+<li><a href="#the-syntheticevent-object">The <code>SyntheticEvent</code> object</a></li>
+<li><a href="#what-you-learned">What you learned</a></li>
+</ul>
+<!-- /code_chunk_output -->
+<hr />
+<p>Event handling is a key part of any dynamic application; without it, you wouldn’t be able to respond to user actions. As with most things in React, how you add event listeners and handle events is different from how you’d do it in vanilla JavaScript, it also manages to feel familiar.</p>
+<p>In an earlier article, you saw an example of handling button click events. In this article you’ll deepen your understanding how to handle events in React components.</p>
+<p>When you finish this article, you should be able to:</p>
+<ul>
+<li>Add event listeners to elements;</li>
+<li>Prevent event default behavior;</li>
+<li>Safely use the <code>this</code> keyword within event handlers; and</li>
+<li>Describe what the React <code>SyntheticEvent</code> object is and the role it plays in handling events.</li>
+</ul>
+<h2 id="adding-event-listeners">Adding event listeners</h2>
+<p>To add an event listener to an element, define a method to handle the event and associate that method with the element event you want to listen for:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="co">// ./src/AlertButton.js</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-4" title="4"></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="kw">class</span> AlertButton <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-6" title="6">  showAlert <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-7" title="7">    <span class="va">window</span>.<span class="at">alert</span>(<span class="st">&#39;Button clicked!&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-8" title="8">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-9" title="9"></a>
+<a class="sourceLine" id="cb1-10" title="10">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-11" title="11">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb1-12" title="12">      <span class="op">&lt;</span>button type<span class="op">=</span><span class="st">&#39;button&#39;</span> onClick<span class="op">={</span><span class="kw">this</span>.<span class="at">showAlert</span><span class="op">}&gt;</span>Click Me&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-13" title="13">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-14" title="14">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-15" title="15"><span class="op">}</span></a>
+<a class="sourceLine" id="cb1-16" title="16"></a>
+<a class="sourceLine" id="cb1-17" title="17"><span class="im">export</span> <span class="im">default</span> AlertButton<span class="op">;</span></a></code></pre></div>
+<p>In the above example, the <code>showAlert</code> method is the event handler, which simply calls the <code>window.alert</code> method to display the text “Button clicked!” within a browser alert dialog. The <code>showAlert</code> event handler is added as a listener for the <code>&lt;button&gt;</code> element’s click event using the <code>onClick</code> attribute (i.e. <code>onClick={this.showAlert}</code>).</p>
+<p>When adding event listeners, be sure to camelCase the event name (i.e. <code>onClick</code> instead of <code>onclick</code>) and pass a reference to the event handler method instead of calling it (i.e. <code>this.showAlert</code> instead of <code>this.showAlert()</code>).</p>
+<p>Also notice the slightly odd looking class property syntax (i.e. <code>showAlert = () =&gt; { ... }</code>) that’s used to define the <code>showAlert</code> method. Using this experimental syntax for defining a class property in combination with an arrow function ensures that you can reliably use the <code>this</code> keyword within the event handler method. We’ll exam this issue in more detail in just a bit.</p>
+<blockquote>
+<p>See the official React documentation for a <a href="https://reactjs.org/docs/events.html#supported-events">list of the supported events</a>.</p>
+</blockquote>
+<h2 id="preventing-default-behavior">Preventing default behavior</h2>
+<p>Within the browser, HTML element events often have default behavior associated with them. For example, clicking an <code>&lt;a&gt;</code> element will navigate to the resource indicated by the anchor element’s <code>href</code> attribute or clicking a <code>&lt;button&gt;</code> element that’s contained with a form will submit the form.</p>
+<p>When handling button clicks in the previous example, nothing special had to be done to prevent the event’s default behavior from interfering with our intended action because a <code>&lt;button&gt;</code> element of type <code>button</code> doesn’t have any default behavior associated with it.</p>
+<p>Consider the following example though:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// ./src/NoDefaultSubmitForm.js</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="kw">class</span> NoDefaultSubmitForm <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-6" title="6">  submitForm <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-7" title="7">    <span class="va">window</span>.<span class="at">alert</span>(<span class="st">&#39;Handling form submission...&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-8" title="8">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-9" title="9"></a>
+<a class="sourceLine" id="cb2-10" title="10">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-11" title="11">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb2-12" title="12">      <span class="op">&lt;</span>form onSubmit<span class="op">={</span><span class="kw">this</span>.<span class="at">submitForm</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb2-13" title="13">        <span class="op">&lt;</span>button<span class="op">&gt;</span>Submit&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-14" title="14">      &lt;/form<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-15" title="15">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-16" title="16">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-17" title="17"><span class="op">}</span></a>
+<a class="sourceLine" id="cb2-18" title="18"></a>
+<a class="sourceLine" id="cb2-19" title="19"><span class="im">export</span> <span class="im">default</span> NoDefaultSubmitForm<span class="op">;</span></a></code></pre></div>
+<p>In this example, a <code>&lt;button&gt;</code> element without a <code>type</code> attribute is rendered within a <code>&lt;form&gt;</code> element. By default, this button will submit the form when clicked. This has the unintended consequence of reloading the page when the button is clicked, instead of allowing the <code>this.submitForm</code> event handler method to handle the form submission.</p>
+<blockquote>
+<p>In an actual React application, the <code>this.submitForm</code> event handler method would likely use the browser’s Fetch API to send a <code>POST</code> or <code>PUT</code> request to a REST API when the form is submitted. To keep this example as simple as possible, the <code>window.alert</code> method is used to display the text “Handling form submission…”.</p>
+</blockquote>
+<p>To keep the default form submission from occurring, the event handler method can be updated to this:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1">submitForm <span class="op">=</span> (e) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="va">e</span>.<span class="at">preventDefault</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="va">window</span>.<span class="at">alert</span>(<span class="st">&#39;Handling form submission...&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="op">}</span></a></code></pre></div>
+<p>Notice that a parameter named <code>e</code> has been added to the anonymous method definition. The <code>e</code> parameter references an event object that’s the form submission event being handled. The <code>e</code> event object provides a method named <code>preventDefault</code> that when called, prevents the event’s default action.</p>
+<blockquote>
+<p>The <code>e</code> parameter is a <code>SyntheticEvent</code> object type. You’ll learn more about this object type in just a bit.</p>
+</blockquote>
+<h2 id="using-this-in-event-handlers">Using <code>this</code> in event handlers</h2>
+<p>Earlier, it was mentioned that the class property syntax (i.e. <code>showAlert = () =&gt; { ... }</code>) was being used in combination with an arrow function so that the <code>this</code> keyword could be reliably used within an event handler method. To understand why this coding pattern is needed, let’s stray from the “happy path” and make things break.</p>
+<p>Here’s the example of a button click event handler again that correctly defines the <code>showAlert</code> event handler method:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="co">// ./src/AlertButton.js</span></a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" title="4"></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="kw">class</span> AlertButton <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-6" title="6">  showAlert <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-7" title="7">    <span class="va">window</span>.<span class="at">alert</span>(<span class="st">&#39;Button clicked!&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-8" title="8">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-9" title="9"></a>
+<a class="sourceLine" id="cb4-10" title="10">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-11" title="11">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb4-12" title="12">      <span class="op">&lt;</span>button type<span class="op">=</span><span class="st">&#39;button&#39;</span> onClick<span class="op">={</span><span class="kw">this</span>.<span class="at">showAlert</span><span class="op">}&gt;</span>Click Me&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb4-13" title="13">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-14" title="14">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-15" title="15"><span class="op">}</span></a>
+<a class="sourceLine" id="cb4-16" title="16"></a>
+<a class="sourceLine" id="cb4-17" title="17"><span class="im">export</span> <span class="im">default</span> AlertButton<span class="op">;</span></a></code></pre></div>
+<p>To see what <code>this</code> references in the <code>showAlert</code> event handler method, you can replace the call to the <code>window.alert</code> method with a call to the <code>console.log</code> method to print <code>this</code> to the console:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1">showAlert <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="kw">this</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="op">}</span></a></code></pre></div>
+<p>Now when the button is clicked, you’ll see the <code>AlertButton</code> component printed to the console:</p>
+<figure>
+<img src="https://appacademy-open-assets.s3-us-west-1.amazonaws.com/Modular-Curriculum/content/react-redux/topics/react-class-components/assets/event-handling-console-alert-button.png" alt="console alert button" /><figcaption>console alert button</figcaption>
+</figure>
+<p>To break the <code>this</code> keyword, you can rewrite the <code>showAlert</code> event handler method to be a regular class method:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="at">showAlert</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="kw">this</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="op">}</span></a></code></pre></div>
+<p>Now when the button is clicked, you’ll see <code>undefined</code> printed to the console:</p>
+<figure>
+<img src="images/event-handling-console-undefined.png" alt="console undefined" /><figcaption>console undefined</figcaption>
+</figure>
+<h3 id="reviewing-class-methods-and-the-this-keyword">Reviewing class methods and the <code>this</code> keyword</h3>
+<p>To understand why <code>this</code> is <code>undefined</code> when an event handler method is defined as a class method, take a look at the following example:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">class</span> Person <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-2" title="2">  <span class="at">constructor</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-3" title="3">    <span class="kw">this</span>.<span class="at">name</span> <span class="op">=</span> <span class="st">&#39;Jane Smith&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-5" title="5"></a>
+<a class="sourceLine" id="cb7-6" title="6">  <span class="at">displayName</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-7" title="7">    <span class="va">console</span>.<span class="at">log</span>(<span class="kw">this</span>.<span class="at">name</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-8" title="8">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-9" title="9"><span class="op">}</span></a>
+<a class="sourceLine" id="cb7-10" title="10"></a>
+<a class="sourceLine" id="cb7-11" title="11"><span class="kw">const</span> p <span class="op">=</span> <span class="kw">new</span> <span class="at">Person</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-12" title="12"></a>
+<a class="sourceLine" id="cb7-13" title="13"><span class="co">// Calling the method on the instance</span></a>
+<a class="sourceLine" id="cb7-14" title="14"><span class="co">// works as expected.</span></a>
+<a class="sourceLine" id="cb7-15" title="15"><span class="va">p</span>.<span class="at">displayName</span>()<span class="op">;</span> <span class="co">// Jane Smith</span></a>
+<a class="sourceLine" id="cb7-16" title="16"></a>
+<a class="sourceLine" id="cb7-17" title="17"><span class="co">// Storing a reference to the method in a variable</span></a>
+<a class="sourceLine" id="cb7-18" title="18"><span class="co">// and calling the method using the variable</span></a>
+<a class="sourceLine" id="cb7-19" title="19"><span class="co">// breaks the `this` keyword&#39;s implicit binding</span></a>
+<a class="sourceLine" id="cb7-20" title="20"><span class="co">// to the class instance.</span></a>
+<a class="sourceLine" id="cb7-21" title="21"><span class="kw">const</span> displayName <span class="op">=</span> <span class="va">p</span>.<span class="at">displayName</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-22" title="22"><span class="at">displayName</span>()<span class="op">;</span> <span class="co">// TypeError: Cannot read property &#39;name&#39; of undefined</span></a></code></pre></div>
+<p>The first time that the <code>displayName</code> method is called, it’s called directly on <code>p</code>, the instance of the <code>Person</code> class. “Jane Smith” is printed to the console because the <code>this</code> keyword is implicitly bound to the instance of the class allowing the <code>name</code> property on the instance to be found and passed to the <code>console.log</code> method.</p>
+<p>The second time that the <code>displayName</code> method is called, a reference to the class method is stored in a variable and the method is called using the variable. This breaks the <code>this</code> keyword’s implicit binding to the instance of the class (i.e. <code>p</code>) resulting in the <code>TypeError</code> because <code>this</code> is <code>undefined</code>.</p>
+<p>The <code>bind</code> method can be used to <em>explicitly</em> bind the <code>displayName</code> class method to the <code>p</code> class instance. The <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Function/bind"><code>bind</code> method</a> returns a function that’s bound to the passed in object. Now the <code>displayName</code> variable can be successfully called to display the person’s name in the console:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">const</span> displayName <span class="op">=</span> <span class="va">p</span>.<span class="va">displayName</span>.<span class="at">bind</span>(p)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="at">displayName</span>()<span class="op">;</span> <span class="co">// Jane Smith</span></a></code></pre></div>
+<p>Even though this is a simple, contrived example, it accurately models what is happening with the React component’s event handler method. When adding an event listener to a React element, you associate an event handler method with the element event you want to listen for by passing a reference to the event handler method:</p>
+<pre class="jsx"><code>&lt;button type=&#39;button&#39; onClick={this.showAlert}&gt;Click Me&lt;/button&gt;</code></pre>
+<p>Passing the reference to the <code>this.showAlert</code> class method to the <code>onClick</code> attribute breaks the <code>this</code> keyword’s implicit binding to the instance of the class (i.e. the instance of the <code>AlertButton</code> component).</p>
+<p>The <code>bind</code> method, just like was done with the above <code>Person</code> class example, can be used in a React component <code>constructor</code> method to explicitly bind event handler methods to the component instance:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb10-2" title="2"></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="kw">class</span> AlertButton <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-4" title="4">  <span class="at">constructor</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-5" title="5">    <span class="kw">super</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-6" title="6"></a>
+<a class="sourceLine" id="cb10-7" title="7">    <span class="kw">this</span>.<span class="at">showAlert</span> <span class="op">=</span> <span class="kw">this</span>.<span class="va">showAlert</span>.<span class="at">bind</span>(<span class="kw">this</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-8" title="8">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb10-9" title="9"></a>
+<a class="sourceLine" id="cb10-10" title="10">  <span class="at">showAlert</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-11" title="11">    <span class="va">console</span>.<span class="at">log</span>(<span class="kw">this</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-12" title="12">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb10-13" title="13"></a>
+<a class="sourceLine" id="cb10-14" title="14">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-15" title="15">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb10-16" title="16">      <span class="op">&lt;</span>button type<span class="op">=</span><span class="st">&#39;button&#39;</span> onClick<span class="op">={</span><span class="kw">this</span>.<span class="at">showAlert</span><span class="op">}&gt;</span>Click Me&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb10-17" title="17">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb10-18" title="18">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb10-19" title="19"><span class="op">}</span></a>
+<a class="sourceLine" id="cb10-20" title="20"></a>
+<a class="sourceLine" id="cb10-21" title="21"><span class="im">export</span> <span class="im">default</span> AlertButton<span class="op">;</span></a></code></pre></div>
+<h3 id="understanding-the-class-property-arrow-function-pattern">Understanding the class property + arrow function pattern</h3>
+<p>To review, the pattern of defining an event handler method using a class property in combination with an arrow function looks like this:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" title="1">showAlert <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb11-2" title="2">  <span class="va">console</span>.<span class="at">log</span>(<span class="kw">this</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb11-3" title="3"><span class="op">}</span></a></code></pre></div>
+<p>What’s not apparent from this example is that the class property syntax, which allows you to define class properties (or fields as they’re sometimes called) <em>outside</em> of the <code>constructor</code> method, is an experimental syntax. Experimental JavaScript syntax is syntax that’s been proposed to add to <a href="https://en.wikipedia.org/wiki/ECMAScript">ECMAScript</a> (the scripting-language specification for JavaScript) but hasn’t officially been added to the language specification yet.</p>
+<p>While some browsers support class property syntax, other browsers don’t. To reliably use class property syntax, your JavaScript code needs to be converted, or <em>transpiled</em>, into syntax that’s broadly supported by browsers.</p>
+<p>When using Create React App to create a React application, Babel is configured on your behalf to transpile your JavaScript code (including JSX) into a version of JavaScript that’s broadly supported. When you run the application using <code>npm start</code>, the <code>AlertButton</code> component is transpiled by Babel into the following code:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">class</span> AlertButton <span class="kw">extends</span> <span class="va">react__WEBPACK_IMPORTED_MODULE_0___default</span>.<span class="va">a</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-2" title="2">  <span class="at">constructor</span>(...<span class="at">args</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-3" title="3">    <span class="kw">super</span>(...<span class="at">args</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-4" title="4"></a>
+<a class="sourceLine" id="cb12-5" title="5">    <span class="kw">this</span>.<span class="at">showAlert</span> <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-6" title="6">      <span class="va">console</span>.<span class="at">log</span>(<span class="kw">this</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-7" title="7">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb12-8" title="8">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb12-9" title="9"></a>
+<a class="sourceLine" id="cb12-10" title="10">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-11" title="11">    <span class="cf">return</span> <span class="co">/*#__PURE__*/</span><span class="va">react__WEBPACK_IMPORTED_MODULE_0___default</span>.<span class="va">a</span>.<span class="at">createElement</span>(<span class="st">&quot;button&quot;</span><span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-12" title="12">      <span class="dt">type</span><span class="op">:</span> <span class="st">&quot;button&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb12-13" title="13">      <span class="dt">onClick</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">showAlert</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb12-14" title="14">      <span class="dt">__self</span><span class="op">:</span> <span class="kw">this</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb12-15" title="15">      <span class="dt">__source</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-16" title="16">        <span class="dt">fileName</span><span class="op">:</span> _jsxFileName<span class="op">,</span></a>
+<a class="sourceLine" id="cb12-17" title="17">        <span class="dt">lineNumber</span><span class="op">:</span> <span class="dv">24</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb12-18" title="18">        <span class="dt">columnNumber</span><span class="op">:</span> <span class="dv">7</span></a>
+<a class="sourceLine" id="cb12-19" title="19">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb12-20" title="20">    <span class="op">},</span> <span class="st">&quot;Click Me&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-21" title="21">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb12-22" title="22"><span class="op">}</span></a></code></pre></div>
+<p>Notice how the <code>showAlert</code> class property definition has been moved into the <code>constructor</code> method? The value of the <code>showAlert</code> property is set to the arrow function that defines the event handler method. Since arrow functions don’t have their own context, the event handler method inherits the surrounding lexical context, which is the <code>constructor</code> method’s context. That results in the <code>this</code> keyword within the arrow function referring to the instance of the component that’s being initialized by the <code>constructor</code> method.</p>
+<p>An arrow function’s inherited context can’t be lost or changed. When the event handler method is called later on, when the button is clicked, the <code>this</code> keyword remains correctly bound to the instance of the component.</p>
+<blockquote>
+<p>You’ll learn more about transpilation and Babel in a future lesson. To read more about Babel and its support for the proposed class property syntax, see <a href="https://babeljs.io/docs/en/next/babel-plugin-proposal-class-properties.html">this page</a>.</p>
+</blockquote>
+<h3 id="pick-an-approach-and-be-consistent">Pick an approach and be consistent</h3>
+<p>Feel free to use either approach, class properties and arrow functions or the <code>bind</code> method, to ensure that the <code>this</code> keyword can be reliably used in your event handler methods. Just be sure that whatever approach you or your team has decided to use, that you follow it consistently. Doing so will make it easier to read and maintain your code.</p>
+<h2 id="the-syntheticevent-object">The <code>SyntheticEvent</code> object</h2>
+<p>Earlier, an example was shown on how to prevent the default form submission from occurring when handling the <code>onSubmit</code> form event:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" title="1"><span class="co">// ./src/NoDefaultSubmitForm.js</span></a>
+<a class="sourceLine" id="cb13-2" title="2"></a>
+<a class="sourceLine" id="cb13-3" title="3"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb13-4" title="4"></a>
+<a class="sourceLine" id="cb13-5" title="5"><span class="kw">class</span> NoDefaultSubmitForm <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-6" title="6">  submitForm <span class="op">=</span> (e) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-7" title="7">    <span class="va">e</span>.<span class="at">preventDefault</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-8" title="8">    <span class="va">window</span>.<span class="at">alert</span>(<span class="st">&#39;Handling form submission...&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-9" title="9">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb13-10" title="10"></a>
+<a class="sourceLine" id="cb13-11" title="11">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-12" title="12">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb13-13" title="13">      <span class="op">&lt;</span>form onSubmit<span class="op">={</span><span class="kw">this</span>.<span class="at">submitForm</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb13-14" title="14">        <span class="op">&lt;</span>button<span class="op">&gt;</span>Submit&lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb13-15" title="15">      &lt;/form<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb13-16" title="16">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-17" title="17">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb13-18" title="18"><span class="op">}</span></a>
+<a class="sourceLine" id="cb13-19" title="19"></a>
+<a class="sourceLine" id="cb13-20" title="20"><span class="im">export</span> <span class="im">default</span> NoDefaultSubmitForm<span class="op">;</span></a></code></pre></div>
+<p>Notice that the <code>submitForm</code> event handler method defines a parameter named <code>e</code> which references an event object that’s the form submission event being handled.</p>
+<p>In a React application, event objects are not the native browser event object types that you’d normally interact with when handling events using JavaScript in the browser. Instead, they’re instances of the <a href="https://reactjs.org/docs/events.html">React <code>SyntheticEvent</code> object type</a>.</p>
+<p>An instance of the React <code>SyntheticEvent</code> object type wraps the native browser event object to normalize events across browser vendors. The <code>SyntheticEvent</code> object type follows the <a href="https://www.w3.org/TR/2019/WD-uievents-20190530/">W3C spec for UI events</a>, so you can use synthetic event objects just like you would if they were the native browser event objects. This gives you, the developer, a consistent, predictable experience working with events without having to worry about which browser your application is running within.</p>
+<p>For your reference, the <code>SyntheticEvent</code> object type has the following attributes:</p>
+<pre><code>boolean bubbles
+boolean cancelable
+DOMEventTarget currentTarget
+boolean defaultPrevented
+number eventPhase
+boolean isTrusted
+DOMEvent nativeEvent
+void preventDefault()
+boolean isDefaultPrevented()
+void stopPropagation()
+boolean isPropagationStopped()
+void persist()
+DOMEventTarget target
+number timeStamp
+string type</code></pre>
+<p>Notice that a synthetic event object defines a property named <code>nativeEvent</code>. This property gives you access to the underlying native browser event, though you’ll rarely (if ever) need to access it.</p>
+<h2 id="what-you-learned">What you learned</h2>
+<p>In this article, you learned how to:</p>
+<ul>
+<li>Add event listeners to elements;</li>
+<li>Prevent event default behavior;</li>
+<li>Safely use the <code>this</code> keyword within event handlers; and</li>
+<li>Describe what the React <code>SyntheticEvent</code> object is and the role it plays in handling events.</li>
+</ul>

@@ -1,0 +1,313 @@
+<h1 id="jsx-walk-through-pet-details-part-2">JSX Walk-Through: Pet Details, Part 2</h1>
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<!-- code_chunk_output -->
+<ul>
+<li><a href="#stub-out-the-owners-list-component">Stub out the owners list component</a></li>
+<li><a href="#dealing-with-the-list">Dealing with the list</a></li>
+<li><a href="#the-owner-link-component">The owner link component</a></li>
+<li><a href="#what-youve-done-here">What you’ve done, here</a></li>
+<li><a href="#what-youve-done-overall">What you’ve done, overall</a></li>
+<li><a href="#stub-out-the-owners-list-component-1">Stub out the owners list component</a></li>
+<li><a href="#dealing-with-the-list-1">Dealing with the list</a></li>
+<li><a href="#the-owner-link-component-1">The owner link component</a></li>
+<li><a href="#what-youve-done-here-1">What you’ve done, here</a></li>
+<li><a href="#what-youve-done-overall-1">What you’ve done, overall</a></li>
+</ul>
+<!-- /code_chunk_output -->
+<hr />
+<p>All you have left is to create a list of owners with links.</p>
+<ul>
+<li><code>PetDetailPage</code>: Done</li>
+<li><code>Navigation</code>: Done</li>
+<li><code>PetDetails</code>: Modified in this step</li>
+<li><code>PetDetailList</code>: Done</li>
+<li><code>PetInformationItem</code>: Done</li>
+<li><code>OwnersList</code>: Created in this step</li>
+<li><code>OwnerLink</code>Created in this step</li>
+</ul>
+<figure>
+<img src="images/pettrack-pet-detail-all-components-with-details-list.png" alt="Petrack component analysis" /><figcaption>Petrack component analysis</figcaption>
+</figure>
+<p>You’re almost done. Now, you get to handle a collection of data from the owners.</p>
+<h2 id="stub-out-the-owners-list-component">Stub out the owners list component</h2>
+<p>You’ve done this four other times, so it’s pretty straight forward.</p>
+<ul>
+<li>Create the <strong>src/OwnersList.js</strong> file. In it,
+<ul>
+<li>Import the React object</li>
+<li>Create the function-based component named <code>OwnersList</code> with a <code>props</code> argument that uses a <code>React.Fragment</code> as its element</li>
+<li>Add a child that is an ‘h2’ with the content “Owners”</li>
+<li>Using <code>defaultProps</code>, add a default property value for “owners” and set it to an empty array because this component will expect an array of owner data</li>
+<li>Export the <code>OwnersList</code> as the default export</li>
+</ul></li>
+<li>In the <strong>PetDetails.js</strong> file,
+<ul>
+<li>Import the <code>OwnersList</code> component</li>
+<li>Add it as another child element of the <code>PetDetailPage</code> component after the <code>PetDetailList</code></li>
+<li>Wrap both the <code>PetDetailList</code> and <code>OwnersList</code> in a <code>Fragment</code>.</li>
+<li>Pass in the owners to the <code>OwnersList</code> component in a property named “owners” like this <code>{props.pet.Owners}</code> which will pass in the array of owners for the pet</li>
+<li>Fix the error with a default value for the “pet” property</li>
+</ul></li>
+</ul>
+<pre class="jsx"><code>// src/PetDetails.js
+import React from &#39;react&#39;;
+
+import OwnersList from &#39;./OwnersList&#39;;
+import PetDetailList from &#39;./PetDetailList&#39;;
+
+const PetDetails = props =&gt;
+  &lt;&gt;
+    &lt;PetDetailList pet={props.pet} /&gt;
+    &lt;OwnersList owners={props.pet.Owners} /&gt;
+  &lt;/&gt;
+;
+
+PetDetails.defaultProps = {
+  pet: {
+    PetType: {},
+  },
+};
+
+export default PetDetails;</code></pre>
+<p>Refresh the page and make sure everything still works.</p>
+<figure>
+<img src="images/react-pet-detail-with-owners-headline.png" alt="Petrack with owners headline" /><figcaption>Petrack with owners headline</figcaption>
+</figure>
+<h2 id="dealing-with-the-list">Dealing with the list</h2>
+<p><strong>Note</strong>: This section introduces an error that you will fix. It is a common error about how to create React elements from lists. You may see it often. This way, you will know how to fix it, too.</p>
+<p>Back in <strong>OwnersList.js</strong>, you want a <code>ul</code> to follow the <code>h2</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">const</span> OwnersList <span class="op">=</span> props <span class="kw">=&gt;</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="op">&lt;&gt;</span></a>
+<a class="sourceLine" id="cb2-3" title="3">    <span class="op">&lt;</span>h2<span class="op">&gt;</span>Owners&lt;/h2<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-4" title="4">    <span class="op">&lt;</span>ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-5" title="5">      <span class="op">{</span><span class="co">/* Create li elements here */</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb2-6" title="6">    &lt;/ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-7" title="7">  &lt;/<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="op">;</span></a></code></pre></div>
+<p>Here’s the thing. You have an array of owners. You want to turn them into some list items. For each owner, you want to <em>map</em> that to a list item. And, therein lies the hint. Since the value in <code>props.owners</code> is an array, you can use the <code>map</code> function to generate another array of React elements and plop them in there! Give it a go with this code. Replace the comment about where list items go above with this line of code.</p>
+<pre class="jsx"><code>{ props.owners.map(owner =&gt;
+  &lt;li&gt;{owner.firstName}&lt;/li&gt;
+)}</code></pre>
+<p>Refresh the page. What happens? You should now see “Human” for each of the list items. That’s great! In the console, there’s an error. That’s sad!</p>
+<figure>
+<img src="images/react-pet-detail-owners-list-with-key-error.png" alt="Petrack with owners list and key error" /><figcaption>Petrack with owners list and key error</figcaption>
+</figure>
+<p>In this last step, you’ve changed the way you’re passing children into the <code>React.createElement</code>. Up until now, you’ve had discrete single elements as children, like in <strong>PetDetailList.js</strong> where you have this code.</p>
+<pre class="jsx"><code>const PetDetailList = props =&gt;
+  &lt;&gt;
+    &lt;h2&gt;Details&lt;/h2&gt;
+    &lt;dl&gt;
+      &lt;PetInformationItem name=&quot;Name&quot; value={props.pet.name}/&gt;
+      &lt;PetInformationItem name=&quot;Age&quot; value={props.pet.age}/&gt;
+      &lt;PetInformationItem name=&quot;Type&quot; value={props.pet.PetType.type}/&gt;
+    &lt;/dl&gt;
+  &lt;/&gt;
+;</code></pre>
+<p>Each of <code>PetInformationItem</code> elements is a different, discrete, and separate child for the <code>dl</code> element.</p>
+<p>The code in <strong>OwnersList.js</strong>, this code,</p>
+<pre class="jsx"><code>const OwnersList = props =&gt;
+  &lt;&gt;
+    &lt;h2&gt;Owners&lt;/h2&gt;
+    &lt;ul&gt;
+      {props.owners.map(owner =&gt;
+        &lt;li&gt;{owner.firstName}&lt;/li&gt;
+      )}
+    &lt;/ul&gt;
+  &lt;/&gt;
+;</code></pre>
+<p>in that, you have created an <em>array</em> of objects. Recall that when you call the <code>map</code> function on an array, it returns <em>another array</em>. React doesn’t care about this, but it would like a little help in tracking each of those entries in the virtual DOM that it builds. That’s what the error message is about, giving React a little help by providing a “key” property for each of the elements that you’re creating in the array. The value of the “key” property must be unique and stable, that is, for a given object (like an owner named “Human One” with an id of 7), the value returned must always be the same. Luckily, because you have the id of the owner, you can use that because that id value is tied to a primary key, somewhere, and should never change for this object. The name can change, of course. But, the id will likely never change.</p>
+<p>Add a “key” property to the <code>li</code> element and set it equal to the id of the owner object, like this.</p>
+<pre class="jsx"><code>&lt;li key={owner.id}&gt;{owner.firstName}&lt;/li&gt;</code></pre>
+<p>Now, the error in the console goes away.</p>
+<p>Back to the <code>OwnersList</code> component, look at the formatting, the indentation that you see in the code.</p>
+<pre class="jsx"><code>const OwnersList = props =&gt;
+  &lt;&gt;
+    &lt;h2&gt;Owners&lt;/h2&gt;
+    &lt;ul&gt;
+      {props.owners.map(owner =&gt;
+        &lt;li key={owner.id}&gt;
+          {owner.firstName}
+        &lt;/li&gt;
+      )}
+    &lt;/ul&gt;
+  &lt;/&gt;
+;</code></pre>
+<p>That, too, is idiomatic React, the <em>React</em> way of doing things. You’ll see that kind of code all over the React world.</p>
+<h2 id="the-owner-link-component">The owner link component</h2>
+<p>While it’s nice, and all, to see the owner’s first name in the list, the actual page has a link to the owner page with the format “last name, first name”. Time to create the (last!) component of this walk-through.</p>
+<p>Create a new file named <strong>src/OwnerLink.js</strong>. In it, do the following:</p>
+<ul>
+<li>Import the React object</li>
+<li>Create a new function-based component named <code>OwnerLink</code> that accepts data that has
+<ul>
+<li><code>a</code> as its element</li>
+<li>An object literal with the property name “href” and the value of the “href” property passed in through the <code>props</code></li>
+<li>A string as its child which contains the last name and the first name</li>
+</ul></li>
+<li>Export the component as the default export</li>
+</ul>
+<p>Once you have that, import the <code>OwnerLink</code> component into the <strong>src/OwnersList.js</strong> file. Now, replace this line in <code>OwnersList</code></p>
+<pre class="jsx"><code>{owner.firstName}</code></pre>
+<p>with an <code>OwnerLink</code> component with <em>three</em> attributes: “href”, “firstName”, and “lastName”. Those are the three properties expected inside the component. Use the curly brace syntax to pass in the appropriate values of the <code>owner</code>. This is something you haven’t done, yet. Try to think through the problem of how to pass in <em>multiple</em> property values. If you get stuck and can’t get it after about ten minutes, ask for help!</p>
+<p>Refresh the page. If everything works, you’re done!</p>
+<h2 id="what-youve-done-here">What you’ve done, here</h2>
+<p>In this part of the walk-through, you used a collection to render a collection of React elements. You found out that using a collection like that requires you to provide a “key” property that has a stable, unique value. Once you had that, React would gladly manage that collection of objects in its virtual DOM.</p>
+<h2 id="what-youve-done-overall">What you’ve done, overall</h2>
+<p>You have used JSX to do some amazing things, here.</p>
+<ul>
+<li>You reinforced the best practice of putting one React component in its own file (module) and exporting it as the default value of the module</li>
+<li>You learned that JSX compiles to <code>React.createElement</code></li>
+<li>You learned that <code>&lt;&gt;</code> and <code>&lt;/&gt;</code> are shorthand literal for the often-used <code>React.Fragment</code> element</li>
+<li>You used <code>defaultProps</code> to make sure that components always had some valid values to work with</li>
+<li>You used <em>pure functional components</em> all the way through this, which means that none of the components used any other data than what was given to it</li>
+<li>You are intimately familiar with how React creates its elements, now, which means there will be no magical thinking about JSX when you use it</li>
+</ul>
+<hr />
+<p>All you have left is to create a list of owners with links.</p>
+<ul>
+<li><code>PetDetailPage</code>: Done</li>
+<li><code>Navigation</code>: Done</li>
+<li><code>PetDetails</code>: Modified in this step</li>
+<li><code>PetDetailList</code>: Done</li>
+<li><code>PetInformationItem</code>: Done</li>
+<li><code>OwnersList</code>: Created in this step</li>
+<li><code>OwnerLink</code>Created in this step</li>
+</ul>
+<figure>
+<img src="images/pettrack-pet-detail-all-components-with-details-list.png" alt="Petrack component analysis" /><figcaption>Petrack component analysis</figcaption>
+</figure>
+<p>You’re almost done. Now, you get to handle a collection of data from the owners.</p>
+<h2 id="stub-out-the-owners-list-component-1">Stub out the owners list component</h2>
+<p>You’ve done this four other times, so it’s pretty straight forward.</p>
+<ul>
+<li>Create the <strong>src/OwnersList.js</strong> file. In it,
+<ul>
+<li>Import the React object</li>
+<li>Create the function-based component named <code>OwnersList</code> with a <code>props</code> argument that uses a <code>React.Fragment</code> as its element</li>
+<li>Add a child that is an ‘h2’ with the content “Owners”</li>
+<li>Using <code>defaultProps</code>, add a default property value for “owners” and set it to an empty array because this component will expect an array of owner data</li>
+<li>Export the <code>OwnersList</code> as the default export</li>
+</ul></li>
+<li>In the <strong>PetDetails.js</strong> file,
+<ul>
+<li>Import the <code>OwnersList</code> component</li>
+<li>Add it as another child element of the <code>PetDetailPage</code> component after the <code>PetDetailList</code></li>
+<li>Wrap both the <code>PetDetailList</code> and <code>OwnersList</code> in a <code>Fragment</code>.</li>
+<li>Pass in the owners to the <code>OwnersList</code> component in a property named “owners” like this <code>{props.pet.Owners}</code> which will pass in the array of owners for the pet</li>
+<li>Fix the error with a default value for the “pet” property</li>
+</ul></li>
+</ul>
+<pre class="jsx"><code>// src/PetDetails.js
+import React from &#39;react&#39;;
+
+import OwnersList from &#39;./OwnersList&#39;;
+import PetDetailList from &#39;./PetDetailList&#39;;
+
+const PetDetails = props =&gt;
+  &lt;&gt;
+    &lt;PetDetailList pet={props.pet} /&gt;
+    &lt;OwnersList owners={props.pet.Owners} /&gt;
+  &lt;/&gt;
+;
+
+PetDetails.defaultProps = {
+  pet: {
+    PetType: {},
+  },
+};
+
+export default PetDetails;</code></pre>
+<p>Refresh the page and make sure everything still works.</p>
+<figure>
+<img src="images/react-pet-detail-with-owners-headline.png" alt="Petrack with owners headline" /><figcaption>Petrack with owners headline</figcaption>
+</figure>
+<h2 id="dealing-with-the-list-1">Dealing with the list</h2>
+<p><strong>Note</strong>: This section introduces an error that you will fix. It is a common error about how to create React elements from lists. You may see it often. This way, you will know how to fix it, too.</p>
+<p>Back in <strong>OwnersList.js</strong>, you want a <code>ul</code> to follow the <code>h2</code>.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">const</span> OwnersList <span class="op">=</span> props <span class="kw">=&gt;</span></a>
+<a class="sourceLine" id="cb10-2" title="2">  <span class="op">&lt;&gt;</span></a>
+<a class="sourceLine" id="cb10-3" title="3">    <span class="op">&lt;</span>h2<span class="op">&gt;</span>Owners&lt;/h2<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb10-4" title="4">    <span class="op">&lt;</span>ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb10-5" title="5">      <span class="op">{</span><span class="co">/* Create li elements here */</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb10-6" title="6">    &lt;/ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb10-7" title="7">  &lt;/<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb10-8" title="8"><span class="op">;</span></a></code></pre></div>
+<p>Here’s the thing. You have an array of owners. You want to turn them into some list items. For each owner, you want to <em>map</em> that to a list item. And, therein lies the hint. Since the value in <code>props.owners</code> is an array, you can use the <code>map</code> function to generate another array of React elements and plop them in there! Give it a go with this code. Replace the comment about where list items go above with this line of code.</p>
+<pre class="jsx"><code>{ props.owners.map(owner =&gt;
+  &lt;li&gt;{owner.firstName}&lt;/li&gt;
+)}</code></pre>
+<p>Refresh the page. What happens? You should now see “Human” for each of the list items. That’s great! In the console, there’s an error. That’s sad!</p>
+<figure>
+<img src="images/react-pet-detail-owners-list-with-key-error.png" alt="Petrack with owners list and key error" /><figcaption>Petrack with owners list and key error</figcaption>
+</figure>
+<p>In this last step, you’ve changed the way you’re passing children into the <code>React.createElement</code>. Up until now, you’ve had discrete single elements as children, like in <strong>PetDetailList.js</strong> where you have this code.</p>
+<pre class="jsx"><code>const PetDetailList = props =&gt;
+  &lt;&gt;
+    &lt;h2&gt;Details&lt;/h2&gt;
+    &lt;dl&gt;
+      &lt;PetInformationItem name=&quot;Name&quot; value={props.pet.name}/&gt;
+      &lt;PetInformationItem name=&quot;Age&quot; value={props.pet.age}/&gt;
+      &lt;PetInformationItem name=&quot;Type&quot; value={props.pet.PetType.type}/&gt;
+    &lt;/dl&gt;
+  &lt;/&gt;
+;</code></pre>
+<p>Each of <code>PetInformationItem</code> elements is a different, discrete, and separate child for the <code>dl</code> element.</p>
+<p>The code in <strong>OwnersList.js</strong>, this code,</p>
+<pre class="jsx"><code>const OwnersList = props =&gt;
+  &lt;&gt;
+    &lt;h2&gt;Owners&lt;/h2&gt;
+    &lt;ul&gt;
+      {props.owners.map(owner =&gt;
+        &lt;li&gt;{owner.firstName}&lt;/li&gt;
+      )}
+    &lt;/ul&gt;
+  &lt;/&gt;
+;</code></pre>
+<p>in that, you have created an <em>array</em> of objects. Recall that when you call the <code>map</code> function on an array, it returns <em>another array</em>. React doesn’t care about this, but it would like a little help in tracking each of those entries in the virtual DOM that it builds. That’s what the error message is about, giving React a little help by providing a “key” property for each of the elements that you’re creating in the array. The value of the “key” property must be unique and stable, that is, for a given object (like an owner named “Human One” with an id of 7), the value returned must always be the same. Luckily, because you have the id of the owner, you can use that because that id value is tied to a primary key, somewhere, and should never change for this object. The name can change, of course. But, the id will likely never change.</p>
+<p>Add a “key” property to the <code>li</code> element and set it equal to the id of the owner object, like this.</p>
+<pre class="jsx"><code>&lt;li key={owner.id}&gt;{owner.firstName}&lt;/li&gt;</code></pre>
+<p>Now, the error in the console goes away.</p>
+<p>Back to the <code>OwnersList</code> component, look at the formatting, the indentation that you see in the code.</p>
+<pre class="jsx"><code>const OwnersList = props =&gt;
+  &lt;&gt;
+    &lt;h2&gt;Owners&lt;/h2&gt;
+    &lt;ul&gt;
+      {props.owners.map(owner =&gt;
+        &lt;li key={owner.id}&gt;
+          {owner.firstName}
+        &lt;/li&gt;
+      )}
+    &lt;/ul&gt;
+  &lt;/&gt;
+;</code></pre>
+<p>That, too, is idiomatic React, the <em>React</em> way of doing things. You’ll see that kind of code all over the React world.</p>
+<h2 id="the-owner-link-component-1">The owner link component</h2>
+<p>While it’s nice, and all, to see the owner’s first name in the list, the actual page has a link to the owner page with the format “last name, first name”. Time to create the (last!) component of this walk-through.</p>
+<p>Create a new file named <strong>src/OwnerLink.js</strong>. In it, do the following:</p>
+<ul>
+<li>Import the React object</li>
+<li>Create a new function-based component named <code>OwnerLink</code> that accepts data that has
+<ul>
+<li><code>a</code> as its element</li>
+<li>An object literal with the property name “href” and the value of the “href” property passed in through the <code>props</code></li>
+<li>A string as its child which contains the last name and the first name</li>
+</ul></li>
+<li>Export the component as the default export</li>
+</ul>
+<p>Once you have that, import the <code>OwnerLink</code> component into the <strong>src/OwnersList.js</strong> file. Now, replace this line in <code>OwnersList</code></p>
+<pre class="jsx"><code>{owner.firstName}</code></pre>
+<p>with an <code>OwnerLink</code> component with <em>three</em> attributes: “href”, “firstName”, and “lastName”. Those are the three properties expected inside the component. Use the curly brace syntax to pass in the appropriate values of the <code>owner</code>. This is something you haven’t done, yet. Try to think through the problem of how to pass in <em>multiple</em> property values. If you get stuck and can’t get it after about ten minutes, ask for help!</p>
+<p>Refresh the page. If everything works, you’re done!</p>
+<h2 id="what-youve-done-here-1">What you’ve done, here</h2>
+<p>In this part of the walk-through, you used a collection to render a collection of React elements. You found out that using a collection like that requires you to provide a “key” property that has a stable, unique value. Once you had that, React would gladly manage that collection of objects in its virtual DOM.</p>
+<h2 id="what-youve-done-overall-1">What you’ve done, overall</h2>
+<p>You have used JSX to do some amazing things, here.</p>
+<ul>
+<li>You reinforced the best practice of putting one React component in its own file (module) and exporting it as the default value of the module</li>
+<li>You learned that JSX compiles to <code>React.createElement</code></li>
+<li>You learned that <code>&lt;&gt;</code> and <code>&lt;/&gt;</code> are shorthand literal for the often-used <code>React.Fragment</code> element</li>
+<li>You used <code>defaultProps</code> to make sure that components always had some valid values to work with</li>
+<li>You used <em>pure functional components</em> all the way through this, which means that none of the components used any other data than what was given to it</li>
+<li>You are intimately familiar with how React creates its elements, now, which means there will be no magical thinking about JSX when you use it</li>
+</ul>

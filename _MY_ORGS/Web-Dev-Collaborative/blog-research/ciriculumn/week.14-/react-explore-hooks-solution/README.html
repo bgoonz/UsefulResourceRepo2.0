@@ -1,0 +1,135 @@
+<h1 id="explore-react-hooks">Explore React Hooks</h1>
+<p>Another developer started a product list page and has requested your help to complete it.</p>
+<p>Here are the incomplete features.</p>
+<ul>
+<li>Click button below each item to see its details in the side panel</li>
+<li>Show highlight on item itself (so user can see the current selection)</li>
+<li>Allow user to open/close the side panel</li>
+<li>Automatically open the side panel if it’s closed when an item is clicked</li>
+<li>Automatically clear the selection when the side panel is closed</li>
+</ul>
+<p>All the changes you need to make will be in <em>src/components/ProductView/ProductView.js</em>.</p>
+<h2 id="prepare">Prepare</h2>
+<p>Before starting to change code on a new-to-you project, it is helpful to become familiar with what’s already been done. In this case, the original developer used create-react-app as the starting point, then added a few of components to display a product list. They determined that the product data will come into the view through a prop named <code>products</code>. (It does not matter where that data comes from as that will be managed outside the component.) Additionally, they finished the layouts in the UI with a box, image and button for each product as well as a panel on the right side.</p>
+<p>When you run the application (<code>npm install</code> followed by <code>npm start</code>), you’ll see these UI elements display, but clicking does not do anything. That’s where you come in!</p>
+<p>When you look at the code in <code>ProductView</code>, you’ll find <code>console.log</code> statements in the <code>onClick</code> event handlers. That’s a clue some work is needed there. Additionally, you’ll find a comment that starts with “TODO”. While that might not be the only work required, these will be elements you need to modify.</p>
+<p>An astute developer may also notice there are some props on other components that aren’t in use yet. The extra effort to find them while you’re coming up to speed may save you some time later since you may be able to leverage them to accomplish your tasks.</p>
+<p>Next, you need to pick somewhere to start. The panel toggle seems good since it has a <code>TODO</code> comment.</p>
+<h2 id="phase-1-toggle-side-panel">Phase 1: Toggle side panel</h2>
+<p>To replace a constant with a state variable, you’ll want to employ the <code>useState</code> hook. Perhaps, something like this</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">const</span> [sideOpen<span class="op">,</span> setSideOpen] <span class="op">=</span> <span class="at">useState</span>(<span class="kw">true</span>)<span class="op">;</span></a></code></pre></div>
+<p>Remember add its import at the top. It will come from the <code>react</code> library.</p>
+<p>The application should still run after this change, although VS Code and/or the JavaScript console will probably warn you that <code>setSideOpen</code> is defined but not used.</p>
+<p>Go ahead and use it to replace the <code>console.log</code> associated with the toggle UI on the side panel. Remember</p>
+<ul>
+<li>State variables, like constants, are accessible within the JSX.</li>
+<li>Likewise, the setting function for any state variable can be called from JSX.</li>
+<li>Setting a boolean value that’s <code>true</code> to <code>false</code> (or <code>false</code> to <code>true</code>) is the purpose of the NOT operator (<code>!</code>).</li>
+</ul>
+<p>All this means you could choose to toggle the value with a function call like <code>setSideOpen(!sideOpen)</code>.</p>
+<p>After replacing the <code>console.log</code> you will likely have code that looks something like this.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="op">&lt;</span>div className<span class="op">=</span><span class="st">&quot;product-side-panel-toggle&quot;</span></a>
+<a class="sourceLine" id="cb2-2" title="2">     onClick<span class="op">={</span>() <span class="kw">=&gt;</span> <span class="at">setSideOpen</span>(<span class="op">!</span>sideOpen)<span class="op">}&gt;</span></a></code></pre></div>
+<p>If all the changes are correct, you will be able to click the “&gt;” tab on the side panel to close it. Study the code and see if you can find where it switches to “&lt;”. It is common practice in <strong>React</strong> to use a state variable in multiple UI updates.</p>
+<h2 id="phase-2-track-selected-item">Phase 2: Track selected item</h2>
+<p>Now, you will add a second state variable on your own. This one will track the <code>selectedProduct</code>.</p>
+<blockquote>
+<p>Hint: The previous developer left a <code>console.log</code> in the handler for <code>onClick</code> of each <code>ProductListItem</code> to show you the data that is needs to be stored in state for the selected item.</p>
+</blockquote>
+<p>In order for the info to show in the side panel, the new state variable will need to be passed through a prop to the ProductDetails component. Go ahead and add that as well.</p>
+<blockquote>
+<p>Hint: The <code>visible</code> prop is already receiving the value of the <code>showOpen</code> state variable. If you look at the ProductDetails component, you will find the other prop that the previous developer already coded.</p>
+</blockquote>
+<p>When all is connected correctly, you can run the application, click each button below the images, and see associated details in the right side panel.</p>
+<p>What would help the user experience is to also highlight the box in the list for the item whose details are showing. Again, the previous developer thought of this and created a prop to change the style, <code>isSelected</code>.</p>
+<p>Think about the condition for showing the selection and put that into the JSX.</p>
+<blockquote>
+<p>HINT: Both <code>item</code> and <code>selectedProduct</code> are objects that have “id” attributes.</p>
+</blockquote>
+<p>Finally, you can run the application again to see both the highlight on list and the side panel both update.</p>
+<h2 id="phase-3-enhance-the-user-experience">Phase 3: Enhance the user experience</h2>
+<p>Congratulations getting two state variables working. You’ll notice as you click around the application, these variables are completely independent. This can leave the user with a disconnnect where they see a highlight in the list without also seeing the details.</p>
+<p>For example, if you close the side panel then click the buttons, you will not be able to see the details immediately. You have to take an extra step to open the side panel. A nicer user experience would be to automatically open the side panel when the details show.</p>
+<p>Likewise, if you close the side panel while looking at an item’s details, the highlight still shows in the list. Users may appreciate it more if the selection automatically clears when the side panel is closed.</p>
+<p>Fortunately, <strong>React</strong> hooks can help in both situations. Specifically, the <code>useEffect</code> hook. This hook works by calling a function when one or more variables change. These variables can be either passed in through props or managed with state. In this component, you have two state variables to work with.</p>
+<h3 id="auto-open-side-panel">Auto-open side panel</h3>
+<p>First, consider which variable change will trigger the effect (<code>selectedProduct</code>), and which setter function will need to be called (<code>setSideOpen(true)</code>).</p>
+<p>Second, code the framework of the <code>useEffect</code> hook. Each time you utilize <code>useEffect</code>, it can start this same way.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="op">},</span> [])<span class="op">;</span></a></code></pre></div>
+<p>Finally, put the trigger into the array, and the call to the setter in the function body. Consider any conditionals you might need (or there may be none).</p>
+<p>You probably ended up with something like this</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">    <span class="at">setSideOpen</span>(<span class="kw">true</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="op">},</span> [selectedProduct])<span class="op">;</span></a></code></pre></div>
+<p>Try it out in the browser by refreshing, closing the side panel, clicking one of the buttons in the list. If all is well, the side panel will open while showing that item’s details.</p>
+<h2 id="clear-the-selection-when-the-panel-closes">Clear the selection when the panel closes</h2>
+<p>Again, consider which variable change will trigger the effect (<code>sideOpen</code>), and which setter function will need to be called (<code>setSelection</code>).</p>
+<p>Second, put in the framework for <code>useEffect</code>. (You can find it above, if you’d like to look at it again.)</p>
+<p>Finally, put the trigger into the array, and the call to the setter in the function body. Again, consider what conditionals are needed, if any.</p>
+<p>You probably wrote something like this.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2">    <span class="at">setSelectedProduct</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="op">},</span> [sideOpen])<span class="op">;</span></a></code></pre></div>
+<p>Refresh your browser, try to close the side panel. One of three things will happen</p>
+<ol type="1">
+<li>If all worked as expected, congratulations! You are ready to continue with the next phase.</li>
+<li>If the highlight in the list disappears, and the side panel resets to “Our Products…” while remaining open, that’s okay. Continue to the next phase to do some debugging, and you can solve this bug in the process.</li>
+<li>If the list did not clear or other errors occurred, please check your code. You can take a peek at the next phase to see if debugging state change will solve your issues. Good developers know when to reach out for help, if necessary, before continuing.</li>
+</ol>
+<h2 id="phase-4-debug-re-rendering">Phase 4: Debug re-rendering</h2>
+<p>The first step is understanding when the values of state variables have changed. This means combining <code>console.log</code> with <code>useEffect</code>.</p>
+<p>The next step is to look at the components themselves - both the one with <code>useState</code> hooks, as well as its children.</p>
+<h3 id="debugging-state-change">Debugging state change</h3>
+<p>Begin by added <code>console.log</code> to both <code>useEffect</code> functions, so you can see when they are being triggered. Many developers like to start with the logging as the first statement, before any conditionals they might have.</p>
+<p>For example, if had the bug with side panel resetting but not closing, you now have <code>useEffect</code> hooks that look something like this.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1">    <span class="co">// Open side panel</span></a>
+<a class="sourceLine" id="cb6-2" title="2">    <span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-3" title="3">        <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`selectedProduct CHANGED TO`</span><span class="op">,</span> selectedProduct)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-4" title="4">        <span class="at">setSideOpen</span>(<span class="kw">true</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-5" title="5">    <span class="op">},</span> [selectedProduct])<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-6" title="6"></a>
+<a class="sourceLine" id="cb6-7" title="7">    <span class="co">// Deselect product</span></a>
+<a class="sourceLine" id="cb6-8" title="8">    <span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-9" title="9">        <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`sideOpen CHANGED TO`</span><span class="op">,</span> sideOpen)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-10" title="10">        <span class="at">setSelectedProduct</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-11" title="11">    <span class="op">},</span> [sideOpen])<span class="op">;</span></a></code></pre></div>
+<p>When you watch the console in the browser, you’ll see output like this.</p>
+<pre class="plaintext"><code>// After refresh
+selectedProduct CHANGED TO undefined
+sideOpen CHANGED TO true
+
+// Select first item (abbreviated output)
+selectedProduct CHANGED TO {id: 1, code: &quot;abc&quot;, name: &quot;Bistro Table ...
+
+// Close side panel
+sideOpen CHANGED TO false
+ProductView.js:20 selectedProduct CHANGED TO undefined
+ProductView.js:27 sideOpen CHANGED TO true</code></pre>
+<p>The reason for the side panel getting stuck open is evident in the last 3 statements. First, notice the side panel was closed (<code>sideOpen CHANGED false</code>), which the <code>useEffect</code> noticed to write out the log followed by setting <code>selectedProduct</code> to <code>undefined</code>. That means the other <code>useEffect</code> picked up the change, wrote out the log statement, then updated <code>sideOpen</code> again (back to <code>true</code>).</p>
+<p>The fix is to include conditionals so that the setters are called only as necessary.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1">    <span class="co">// Open side panel when product is selected</span></a>
+<a class="sourceLine" id="cb8-2" title="2">    <span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-3" title="3">        <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`selectedProduct CHANGED TO`</span><span class="op">,</span> selectedProduct)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-4" title="4">        <span class="cf">if</span> (selectedProduct)</a>
+<a class="sourceLine" id="cb8-5" title="5">            <span class="at">setSideOpen</span>(<span class="kw">true</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-6" title="6">    <span class="op">},</span> [selectedProduct])<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-7" title="7"></a>
+<a class="sourceLine" id="cb8-8" title="8">    <span class="co">// Deselect product when side panel is closed</span></a>
+<a class="sourceLine" id="cb8-9" title="9">    <span class="at">useEffect</span>(() <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-10" title="10">        <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`sideOpen CHANGED TO`</span><span class="op">,</span> sideOpen)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-11" title="11">        <span class="cf">if</span> (<span class="op">!</span>sideOpen)</a>
+<a class="sourceLine" id="cb8-12" title="12">            <span class="at">setSelectedProduct</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-13" title="13">    <span class="op">},</span> [sideOpen])<span class="op">;</span></a></code></pre></div>
+<p>Congratulations on getting the bugs worked out of your implementation! A key skill for developers is trying each path a user can take to ensure the experiences are both correct and pleasing.</p>
+<h3 id="re-rendering-in-components">Re-rendering in components</h3>
+<p>Add a <code>console.log</code> before the return statement in <code>ProductView</code>. Refresh the application in the browser and click through several scenarios for opening and closing the panel and selecting items in the list. Notice how often the output displays in the console.</p>
+<p>Add a <code>console.log</code> before the return statement in <code>ProductListItem</code> and/or <code>ProductDetails</code>. Refresh the application in the browser and click through several scenarios for opening and closing the panel and selecting items in the list. Notice how often the output displays in the console.</p>
+<h2 id="bonus-phase-remember-state-using-local-storage">Bonus Phase: Remember state using local storage</h2>
+<p>There are times when it would benefit your users if the application remembered some of the settings on refresh or between sessions. The <code>useEffect</code> hook is one way (probably the best way) to put the value of a state variable into <code>localStorage</code>. Likewise, the <code>useState</code> definition is often the best time to get the value back out.</p>
+<p>Remember that there will be no value in <code>localStorage</code> the first time a user visits your application, so you’ll need to check for that and provide an appropriate default.</p>
+<p>In this bonus phase, store the state of the side panel (whether opened or closed) in local storage. You can view (and edit or delete) local storage in the JavaScript tools in your browser by going to the “Application” tab and looking for “Local Storage” under “Storage” on the left.</p>
+<blockquote>
+<p>HINT: If you get stuck trying to figure out how to determine if the boolean <code>false</code> has been put into <code>localStorage</code>, consider storing it as a string because any non-empty string (including “false”) is considered <strong>truthy</strong>.</p>
+</blockquote>

@@ -1,0 +1,50 @@
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<hr />
+<h1 id="debugging-arrow-functions">Debugging Arrow Functions</h1>
+<p>Arrow functions are ubiquitous in React and Redux. Understanding how to use <code>debugger</code> statements with arrow functions is necessary to be able to effectively debug the Redux cycle.</p>
+<p>When you finish this article, you should be able to:</p>
+<ul>
+<li>Describe why <code>debugger</code> statements can’t be used with arrow functions that have an implicit return value</li>
+<li>Rewrite an arrow function with an implicit return value to use an explicit return statement so that a <code>debugger</code> statement can be added</li>
+</ul>
+<h2 id="understanding-the-limitations-of-implicit-return-values">Understanding the limitations of implicit return values</h2>
+<p>Here’s an example of a Redux action creator that’s defined using an arrow function with an implicit return value:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">const</span> addFruit <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  fruit<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>While using an arrow function with an implicit return value allows you to concisely define <code>addFruit</code>, it’s difficult to debug. Suppose you want to use a <code>debugger</code> statement to stop execution within <code>addFruit</code> to inspect the value of the <code>fruit</code> parameter. You <strong>can’t</strong> do this:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">const</span> addFruit <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="cf">debugger</span></a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  fruit<span class="op">,</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p><code>{ type: 'ADD_FRUIT', fruit }</code> is an object, and you can’t put a <code>debugger</code> statement inside of an object. But you also <strong>can’t</strong> do this:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">const</span> addFruit <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="cf">debugger</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-4" title="4">    <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-5" title="5">    fruit<span class="op">,</span></a>
+<a class="sourceLine" id="cb3-6" title="6">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-7" title="7">)<span class="op">;</span></a></code></pre></div>
+<p>The parentheses after the fat arrow (<code>=&gt;</code>) are used to indicate that the object <code>{ type: 'ADD_FRUIT', fruit }</code> should be implicitly returned. As a result, the above won’t work, because we can’t put a debugger inside of a return statement.</p>
+<h2 id="rewriting-an-arrow-function-to-use-an-explicit-return-statement">Rewriting an arrow function to use an explicit return statement</h2>
+<p>To put a <code>debugger</code> statement inside of the <code>addFruit</code> action creator function, you first need to convert it into an arrow function with an explicit return statement:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">const</span> addFruit <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-3" title="3">    <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-4" title="4">    fruit<span class="op">,</span></a>
+<a class="sourceLine" id="cb4-5" title="5">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="op">};</span></a></code></pre></div>
+<p>Now, finally, you can put the <code>debugger</code> statement before the <code>return</code> statement:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">const</span> addFruit <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="cf">debugger</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-3" title="3">  <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-4" title="4">    <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb5-5" title="5">    fruit<span class="op">,</span></a>
+<a class="sourceLine" id="cb5-6" title="6">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="op">};</span></a></code></pre></div>
+<p>If you want to avoid having to do this over and over again as you’re debugging your arrow functions, you can make it a habit to write all of your arrow functions with explicit return statements. Do be aware, however, that writing arrow functions with implicit return values is a common convention in Redux and you will see it often out in the wild.</p>
+<h2 id="what-you-learned">What you learned</h2>
+<p>In this article, you learned why <code>debugger</code> statements can’t be used with arrow functions that have an implicit return value. You also learned how to rewrite an arrow function with an implicit return value to use an explicit return statement so that a <code>debugger</code> statement can be added.</p>

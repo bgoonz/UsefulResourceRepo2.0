@@ -1,0 +1,134 @@
+<h1 id="deploying-your-project-to-heroku">Deploying your project to Heroku</h1>
+<h3 id="projected-time">Projected Time</h3>
+<p>About 3-4.5 hours</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li>Node.js and npm must be installed.</li>
+<li>An existing Node.js app</li>
+<li><a href="../javascript">JS I - VI</a></li>
+<li><a href="../node-js/node-js.md">Node</a></li>
+<li><a href="../express-js/express.md">Express</a></li>
+<li><a href="../databases/installing-postgresql.md">PostgreSQL</a></li>
+</ul>
+<h3 id="motivation">Motivation</h3>
+<p>Deployment is a fancy term for getting your website on the web. After building out your app, you might want to share it with others and to do that you need to deploy your app to the web where others can access it. In this lesson, we’ll learn more about deployment and learn one way to deploy an app.</p>
+<h3 id="objectives">Objectives</h3>
+<p><strong>Apprentices will be able to:</strong></p>
+<ul>
+<li>Deploy their website to a third-party hosting service such as Heroku.</li>
+</ul>
+<h3 id="specific-things-to-learn">Specific Things to Learn</h3>
+<ul>
+<li>What is deployment?</li>
+<li>Heroku - a cloud-based server</li>
+</ul>
+<h3 id="materials">Materials</h3>
+<ul>
+<li><a href="https://youtu.be/r5ZUQvl9BtE">Video - What is Heroku (4 mins watch)</a></li>
+<li><a href="https://docs.google.com/presentation/d/1Enwhd9hl1fn1-afMXJ6xvkJm5SDJpHjfQoA7s2znHpw/edit?usp=sharing">Techtonica Slides: Deploying</a></li>
+<li><a href="https://youtu.be/AZNFox2CvBk">Deploy Node.JS Apps to Heroku (10 mins Video)</a></li>
+</ul>
+<h3 id="lesson">Lesson</h3>
+<ul>
+<li>Heroku is a cloud-based service you can use to put your site on the internet for people to interact with.</li>
+<li>Learn about deployment by going through the <a href="https://docs.google.com/presentation/d/1Enwhd9hl1fn1-afMXJ6xvkJm5SDJpHjfQoA7s2znHpw/edit?usp=sharing">Techtonica Slides on Deploying</a></li>
+<li>Learn a little about Heroku by watching: <a href="https://youtu.be/r5ZUQvl9BtE">Video - What is Heroku (4 mins watch)</a></li>
+<li>Watch <a href="https://youtu.be/AZNFox2CvBk">Deploy Node.JS Apps to Heroku (10 min Video)</a></li>
+</ul>
+<h4 id="deploying">Deploying</h4>
+<p>Now we’ll work on deploying your app to Heroku.</p>
+<p>We’ll be combining your front-end (create-react-app) with your back-end (express) and deploying it to Heroku. Your front-end contains “static” JavaScript files – when you deploy to Heroku, it turns your whole React app into a couple of static files that it will serve to the browser. No matter what data you have in the database, these files will always be the same.</p>
+<p>Your backend, on the other hand, is dynamic – when you make an API request, the backend runs javascript code to do things like reading and writing to a database. Unlike the React app, which always serves the same files to the browser, the backend will serve different information to the browser depending on what’s in the database. We’re going to combine your dynamic code (express), with your static code (create-react-app).</p>
+<ol type="1">
+<li>cd into the React app and create 2 new directories <code>client</code> and <code>server</code>, then move <em>everything</em> into the directory <code>client</code>:</li>
+</ol>
+<pre><code>cd &lt;my react app&gt;
+mkdir client
+mv * client</code></pre>
+<ol start="2" type="1">
+<li>Create a server directory. You will copy all the files from your Express API folder (1-3 JS files + package.json) into the <code>server</code> folder you’re about to create inside your React app. <em><strong>This is where your API code will live from now on – don’t modify or use the old directory or repo</strong></em></li>
+</ol>
+<pre><code>mkdir server
+cp my-express-server/* server
+# We need to keep package.json and node_modules at the top level.
+mv server/package.json .
+mv server/package-lock.json .
+mv server/node_modules .</code></pre>
+<p>At this point, you should have the following directory structure:</p>
+<pre><code>./eventonica-app
+./eventonica-app/client/* # The code for your React App
+./eventonica-app/server/* # Your express API (app.js etc.)
+./eventonica-app/package.json # Toplevel package.json used by Heroku to run your app
+./eventonica-app/package-lock.json # Toplevel package-lock.json used by Heroku to run your app</code></pre>
+<ol start="3" type="1">
+<li>Test out your new server locally:</li>
+</ol>
+<pre><code># Make sure you use the filename you used when you created your Express API
+node server/app.js</code></pre>
+<ol start="4" type="1">
+<li>Modify your gitignore to ensure you don’t commit <code>build</code> or <code>node_modules</code>, even though they aren’t at the root. Add these lines:</li>
+</ol>
+<pre><code>**/node_modules/
+**/build/</code></pre>
+<ol start="5" type="1">
+<li>Change the port your server is listening on to be <code>process.env.PORT || 3000</code> (Replace 3000 by a different number if your Express app was configured to run on a different port)</li>
+</ol>
+<p>When we deploy to Heroku, Heroku will choose what port our server runs on.</p>
+<ol start="6" type="1">
+<li>Modify your express server to serve static files by adding this block to your express server AFTER all your other defined routes:</li>
+</ol>
+<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="co">// Add this below all your other routes</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="cf">if</span> (<span class="va">process</span>.<span class="va">env</span>.<span class="at">NODE_ENV</span> <span class="op">===</span> <span class="st">&#39;production&#39;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-3" title="3">  <span class="co">// Serve any static files</span></a>
+<a class="sourceLine" id="cb6-4" title="4">  <span class="va">app</span>.<span class="at">use</span>(<span class="va">express</span>.<span class="at">static</span>(<span class="va">path</span>.<span class="at">join</span>(__dirname<span class="op">,</span> <span class="st">&#39;../client/build&#39;</span>)))<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-5" title="5">  <span class="co">// Handle React routing, return all requests to React app</span></a>
+<a class="sourceLine" id="cb6-6" title="6">  <span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;*&#39;</span><span class="op">,</span> <span class="kw">function</span>(req<span class="op">,</span> res) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-7" title="7">    <span class="va">res</span>.<span class="at">sendFile</span>(<span class="va">path</span>.<span class="at">join</span>(__dirname<span class="op">,</span> <span class="st">&#39;../client/build&#39;</span><span class="op">,</span> <span class="st">&#39;index.html&#39;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-8" title="8">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-9" title="9"><span class="op">}</span></a></code></pre></div>
+<p>This block of code only runs in production. When it runs, it will serve your JavaScript files if the URL doesn’t match an existing API.</p>
+<ol start="6" type="1">
+<li>Configure the top-level <code>package.json</code> to work with Heroku by adding the following two lines to the <code>scripts</code> section:</li>
+</ol>
+<div class="sourceCode" id="cb7"><pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb7-1" title="1">    <span class="er">&quot;start&quot;:</span> <span class="er">&quot;node</span> <span class="er">server/server.js&quot;,</span></a>
+<a class="sourceLine" id="cb7-2" title="2">    <span class="er">&quot;heroku-postbuild&quot;:</span> <span class="er">&quot;npm</span> <span class="er">install</span> <span class="er">--only=dev</span> <span class="er">--no-shrinkwrap</span> <span class="er">&amp;&amp;</span> <span class="er">npm</span> <span class="er">run</span> <span class="er">build&quot;</span></a></code></pre></div>
+<p>You can replace <code>node server/server.js</code> with whatever you named your API code file.</p>
+<ol start="7" type="1">
+<li><p>Create a free Heroku account at https://signup.heroku.com/dc.<br />
+Through the Heroku web UI, create a new Application. Once you create the app, add the Postgres add-on by going to the Resources tab and searching in the “Add-ons” search box for Postgres. Click the “Heroku Postgres” option. Finally, select the free version and click “Provision”. Or you can create a new Application from the CLI. To create an application with name, install the Heroku CLI and run the following command <code>heroku create app_name</code> This command will only be used on an initialized git repository. In that case, the command creates the application as well as a git remote, that you can use to push your code to Heroku: ```mkdir example cd example git init heroku apps:create app_name</p></li>
+<li><p>Install the Heroku CLI: <code>brew tap heroku/brew &amp;&amp; brew install heroku</code> then use <code>heroku login</code></p></li>
+<li><p>Attach your Heroku app to your code by running <code>heroku git:remote -a YOUR-APP-NAME</code> inside the terminal at the root of your project directory.</p></li>
+<li><p>Configure your database. Heroku will specify environment variables you can use to connect to the DB:</p></li>
+</ol>
+<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">new</span> <span class="at">Pool</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb8-2" title="2">  <span class="co">// Make sure you swap out &lt;user&gt; and &lt;password&gt;</span></a>
+<a class="sourceLine" id="cb8-3" title="3">  <span class="dt">connectionString</span><span class="op">:</span> <span class="va">process</span>.<span class="va">env</span>.<span class="at">DATABASE_URL</span> <span class="op">||</span> <span class="st">&#39;postgres://localhost:5432/&lt;database_name&gt;&#39;</span></a>
+<a class="sourceLine" id="cb8-4" title="4">  <span class="co">// Use SSL but only in production</span></a>
+<a class="sourceLine" id="cb8-5" title="5">  <span class="dt">ssl</span><span class="op">:</span> <span class="va">process</span>.<span class="va">env</span>.<span class="at">NODE_ENV</span> <span class="op">===</span> <span class="st">&#39;production&#39;</span></a>
+<a class="sourceLine" id="cb8-6" title="6"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Fill in your local database name in the Postgres URL. This is the default database URL when your app is running locally.</p>
+<ol start="11" type="1">
+<li><p>Use Heroku to create the database tables you need: <code>heroku pg:psql</code> You should use the same commands you ran to create your database locally <code>create table events (.....)</code> If you’ve forgotten, <code>psql</code> into your local database and check your table schema with <code>\d events</code>. Copy that schema into your new Heroku database.</p></li>
+<li><p>Commit everything!</p></li>
+</ol>
+<pre><code>git add -a
+git commit -m &quot;Heroku setup\!&quot;</code></pre>
+<p>Ensure you don’t have any missing files: <code>git status</code> and commit them if you need to.</p>
+<ol start="13" type="1">
+<li>Deploy your app! <code>git push heroku main</code> This takes a long time. This will print the URL your app was deployed to. Try going to it! If something goes wrong, use <code>heroku logs --tail</code> to debug.</li>
+</ol>
+<h3 id="wrapping-up">Wrapping Up</h3>
+<p>Lastly, we’ll configure your create-react-app client to work seamlessly with your express backend locally, even though they’re running on two different ports. You can do this by adding the following line to <code>client/package.json</code>:</p>
+<pre><code>&quot;proxy&quot;: &quot;http://localhost:3000/&quot;</code></pre>
+<h3 id="gotchas">Gotchas</h3>
+<ul>
+<li>Ensure you don’t accidentally commit <code>node_modules</code></li>
+<li>Don’t forget to configure <code>port</code> to come from <code>process.env</code></li>
+<li>Use <code>heroku logs --tail</code> to see what’s wrong</li>
+</ul>
+<p>All done! Small differences in the way you’ve set up your site may make bits of this process not work as expected, so there may be some debugging required. Here is a sample repository you can refer to https://github.com/esausilva/example-create-react-app-express</p>
+<h3 id="supplemental-resources">Supplemental Resources</h3>
+<ul>
+<li><a href="https://devcenter.heroku.com/articles/deploying-nodejs">Tutorial - Heroku Dev Center Deployment</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/deployment">Overview of Deployment Options - MDN Express &amp; Node Deployment</a></li>
+</ul>

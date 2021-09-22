@@ -1,0 +1,90 @@
+<h1 id="optimizing-your-reactnodejs-project">Optimizing your React/NodeJS Project</h1>
+<h3 id="projected-time">Projected Time</h3>
+<p>About 1.5 hours</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>Here are links to lessons that should be completed before this lesson:</p>
+<ul>
+<li><a href="/electives/optimization/optimization.md">Intro to Optimization</a></li>
+<li><a href="/react-js">React Lessons</a></li>
+<li><a href="/node-js/node-js.md">NodeJS</a></li>
+<li><a href="/express-js/express.md">ExpressJS</a></li>
+</ul>
+<h3 id="motivation">Motivation</h3>
+<p>We learned about <strong>minification</strong> in our previous lesson. Turns out the <strong>create-react-app</strong> tooling is able to do this for us via it’s <code>build</code> process and we’ll take a brief look at that.</p>
+<p>As you may have seen already with your Eventonica app, remote API requests can be slow! We’re going to apply the caching optimization technique we learned in the previous lesson to help speed things up. We will do this in a couple of different ways based depending on specific use cases and constraints.</p>
+<p>While React is pretty fast even if we use it naively, it’s important to be aware of some of the details of how React works in order for your UI to stay snappy and responsive even when it becomes deeply nested and complex. We will learn a few techniques to optimize our components and measure the difference using react specific dev tools.</p>
+<h3 id="objectives">Objectives</h3>
+<p><strong>Participants will be able to:</strong></p>
+<ul>
+<li>Have a useful understanding of what <strong>create-react-app</strong> provides in terms of minification.</li>
+<li>Measure application latency and using browser dev tools.</li>
+<li>Select appropriate caching strategies based on different user workflows and infrastructure constraints.</li>
+<li>Use react dev tools to inspect react component state and performance.</li>
+<li>Optimize how often React components are rendered.</li>
+</ul>
+<h3 id="specific-things-to-learn">Specific Things to Learn</h3>
+<ul>
+<li>What happens when you run <code>npm build</code> in a <strong>create-react-app</strong> project.</li>
+<li>How to measure AJAX request latencies with browser dev tools.</li>
+<li>Caching can happen in different layers (e.g. on the browser or on the backend)</li>
+<li>How to install and use React dev tools.</li>
+<li>The <code>shouldComponentUpdate</code> lifecycle method and <code>PureComponent</code> class</li>
+<li>The React rendering reconciliation process.</li>
+</ul>
+<h3 id="materials">Materials</h3>
+<p>Review these materials:</p>
+<ul>
+<li><a href="https://facebook.github.io/create-react-app/docs/production-build">Building with create-react-app</a> (10 min read)</li>
+<li><a href="https://reactjs.org/blog/2018/09/10/introducing-the-react-profiler.html">Using the react dev tools profiler</a> (10 min read)</li>
+<li><a href="https://reactjs.org/docs/optimizing-performance.html#avoid-reconciliation">Avoiding unnecessary re-renders in React</a> (just the ‘Avoid Reconciliation’ section - 5 min read)</li>
+<li><a href="https://reactjs.org/docs/reconciliation.html">React Reconciliation</a> (15 min read)</li>
+</ul>
+<h3 id="lesson">Lesson</h3>
+<p><em>Building (includes minification)</em></p>
+<p>You’ve already configured building for heroku deployment. Let’s run a build on our local machine, check out what gets generated, and then use our Node.js backend to serve up a “production” build locally.</p>
+<ol type="1">
+<li>Run the <code>npm run build</code> command from somewhere in your repository.</li>
+<li>Take a look at the contents of the newly created <code>build</code> directory in the repository root directory, specifically what’s inside the <code>static</code> and <code>static/js</code> directories. You can read more about these files in the linked page in the <a href="#materials">Materials</a> section.</li>
+<li>You can modify your backend to serve up these built assets by adding these two lines:</li>
+</ol>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1">  <span class="co">// Serve any static files</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="va">app</span>.<span class="at">use</span>(<span class="va">express</span>.<span class="at">static</span>(<span class="va">path</span>.<span class="at">join</span>(__dirname<span class="op">,</span> <span class="st">&quot;rel/path/to/build-dir&quot;</span>)))<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="co">// Handle React routing, return all requests to React app</span></a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="va">app</span>.<span class="at">get</span>(<span class="st">&quot;*&quot;</span><span class="op">,</span> (req<span class="op">,</span> res) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="va">res</span>.<span class="at">sendFile</span>(<span class="va">path</span>.<span class="at">join</span>(__dirname<span class="op">,</span> <span class="st">&quot;rel/path/to/build-dir&quot;</span><span class="op">,</span> <span class="st">&quot;index.html&quot;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-6" title="6">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-7" title="7">}</a></code></pre></div>
+<p>Keep in mind that you need to modify the <code>rel/path/to/build-dir</code> to the actual relative path to your build directory–something like: <code>../client/build</code>.</p>
+<ol start="4" type="1">
+<li>Once you’ve configured your express server to serve up your built assets, go ahead and open up your browser to <code>http://localhost:5000</code> (or whatever port your express app is using), and make sure that it works just like you expect.</li>
+</ol>
+<p><em>Adding Eventful Search Caching to Your App</em></p>
+<p>We’re going to be adding a component to your app, along with a separate server-side search API app that allows us to search the Eventful API. The code for both can be found in this <a href="https://gist.github.com/mhess/2a9213d209c4ea464ab305f7bec56300">gist</a>. Click the “Download ZIP” button on the gist page, unzip the contents, and then place the <strong>EventfulSearch.js</strong> next to all your other component files, and the <strong>eventful-api-server.js</strong> in your API repository folder. You should be able to run it with the following command:</p>
+<pre class="shell"><code>$ EVENTFUL_API_KEY=&lt;YOUR_KEY_HERE&gt; node eventful-api-server.js</code></pre>
+<p>Import and place the <code>&lt;EventfulSearch /&gt;</code> somewhere in one of your app components that makes sense. You should now be able to see that component in your app. Don’t worry about styling for now. You can add that later :)</p>
+<p>Reload your Eventonica React app with the browser dev tools open. Notice the delay when searching for events, and use the network tab to see how long the AJAX requests are actually taking. Would be nice if we could cache results so that repeat searches are fast…</p>
+<p>Let’s optimize this for two different use cases:</p>
+<ol type="1">
+<li><p>We have very limited server-side resources, and so we don’t want to cache the search results there. Could we cache the results on the browser? If so, how could we make sure that this doesn’t consume too much of the browser user’s memory? In what ways is this better than caching on the backend server? In what ways is this worse?</p></li>
+<li><p>We have plenty of server-side resources, and we can cache results there. Let’s use a server-side cache implementation that looks very similar to part 1 and just store our cache in the node application’s memory. In the real world with an app that’s serving millions of users, this wouldn’t be a good strategy since we’ll probably have multiple node processes (“web dynos” in Heroku) serving our app, and it would be wasteful for each process to have a separate copy of the cache. Instead, we would use a separate memory store service (like <a href="https://www.memcached.org/">memcached</a> or <a href="https://redis.io/">redis</a>) that each of the processes would have access to.</p></li>
+</ol>
+<p><em>Optimizing React</em></p>
+<p>By default a React component will re-render whenever it receives new <strong>props</strong> or if <strong>setState</strong> method is called with any argument. This is usually what you want, but if your component always renders the same thing with the same <strong>props</strong> and <strong>state</strong> (and it probably should) then that means that whenever its parent component re-renders, then the child will re-render too, even if its <strong>props</strong> and <strong>state</strong> are the same.</p>
+<p>There’s a component lifecyle method called <code>shouldComponentUpdate(nextProps, nextState)</code> that decides if a component will re-render. Its default implementation always returns <code>true</code>. We could implement this method ourselves, and make it so that it checks whether the <code>nextProps</code> and <code>nextState</code> are the same as the originals, and returns <code>false</code> if that’s the case; however, React provides a component class <code>PureComponent</code> that does this automatically for us. This means that we can just replace the <code>Component</code> part of our component class definitions with <code>PureComponent</code>, and we get all the benefits of <strong>props</strong> and <strong>state</strong> checking!</p>
+<p>However, we must take into account that the <code>shouldComponent</code> update method of <code>PureComponent</code> does only <em>shallow</em> object comparison. This means that we need to be sure that we never mutate objects that we’re using in our <strong>state</strong> or <strong>props</strong> because otherwise the changed objects will be considered to be the same, and our component won’t re-render when it’s supposed to. Instead, we need to create new objects whenever we call <strong>setState</strong> or pass new <strong>props</strong>. The React documentation has a great explanation of this <a href="https://reactjs.org/docs/optimizing-performance.html#the-power-of-not-mutating-data">here</a>.</p>
+<p>The other technique you may have already used when optimizing React rendering performance is the use of the <code>key</code> attribute when generating a collection of sibling elements based on an array of data:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="op">&lt;</span>ul<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="op">{</span><span class="va">widgets</span>.<span class="at">map</span>((w) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb3-3" title="3">    <span class="op">&lt;</span>li key<span class="op">={</span><span class="va">w</span>.<span class="at">id</span><span class="op">}&gt;{</span><span class="va">w</span>.<span class="at">name</span><span class="op">}</span>&lt;/li<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb3-4" title="4">  ))<span class="op">}</span></a>
+<a class="sourceLine" id="cb3-5" title="5">&lt;/ul<span class="op">&gt;</span></a></code></pre></div>
+<p>React uses the <code>key</code> attribute to keep track of which sibling elements stay the same, so that it doesn’t have to destroy and re-insert all the DOM nodes that haven’t changed. When creating a series of React elements, be sure to use a <code>key</code> that stays stable between re-orders, insertions, or deletions from the list. A good candidate for this is a unique ID that is associated with each of objects that are being used to generate the elements. A thorough discussion of this subject can be found in the React documentation link referenced in the <a href="#materials">Materials</a> section.</p>
+<p>Now let’s put these React optimization techniques into practice!</p>
+<ol type="1">
+<li>Install <a href="https://github.com/facebook/react-devtools">React Dev Tools</a> in your browser.</li>
+<li>Reload your app with the tools installed, open the normal dev tools, and go to the “React” tab (all the way to the right).</li>
+<li>Once the “React” tab is open, select the a “Profiler” tab within that.</li>
+<li>Click the gray circular record button on the left, and this will begin profiling the render actions in your app.</li>
+<li>Perform a single action like creating, editing or deleting one of your events, and then click the orange “stop” button in the dev tools. A flamegraph will appear with all the component renders and their associated time cost.</li>
+<li>With a delete, create, or update of an event, only one <code>&lt;Event /&gt;</code> element is really getting changed, the rest should stay the same. Compare that to how many (re-)renders are you seeing in your flame graph. Use the techniques we learned above to try and make it so that your app only renders the modified/deteled/created element.</li>
+</ol>

@@ -1,0 +1,122 @@
+<h1 id="thunk">Thunk</h1>
+<p>One of the most common uses of middleware is to solve asynchronicity.</p>
+<p>We can install the <code>thunk</code> middleware using:</p>
+<ul>
+<li><code>npm install redux-thunk</code></li>
+</ul>
+<p>However, we will write a <code>thunk action creator</code> to make an asynchronous request to an API and <code>dispatch</code> an <code>action</code> when the response is received.</p>
+<p>Ex:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="co">// ./src/index.js</span></a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="im">import</span> ReactDOM <span class="im">from</span> <span class="st">&#39;react-dom&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-6" title="6">  <span class="im">import</span> <span class="op">{</span> Provider <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react-redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-7" title="7"></a>
+<a class="sourceLine" id="cb1-8" title="8">  <span class="im">import</span> <span class="st">&#39;./index.css&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-9" title="9">  <span class="im">import</span> App <span class="im">from</span> <span class="st">&#39;./App&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-10" title="10">  <span class="im">import</span> configureStore <span class="im">from</span> <span class="st">&#39;./store&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-11" title="11">  <span class="im">import</span> <span class="op">{</span> fetchFruits <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;./actions/fruitActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-12" title="12"></a>
+<a class="sourceLine" id="cb1-13" title="13">  <span class="kw">const</span> store <span class="op">=</span> <span class="at">configureStore</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-14" title="14">  <span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">fetchFruits</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-15" title="15"></a>
+<a class="sourceLine" id="cb1-16" title="16">  <span class="va">ReactDOM</span>.<span class="at">render</span>(</a>
+<a class="sourceLine" id="cb1-17" title="17">    <span class="op">&lt;</span><span class="va">React</span>.<span class="at">StrictMode</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-18" title="18">      <span class="op">&lt;</span>Provider store<span class="op">={</span>store<span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb1-19" title="19">        <span class="op">&lt;</span>App /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-20" title="20">      &lt;/Provider<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb1-21" title="21">    &lt;/<span class="va">React</span>.<span class="at">StrictMode</span><span class="op">&gt;,</span></a>
+<a class="sourceLine" id="cb1-22" title="22">    <span class="va">document</span>.<span class="at">getElementById</span>(<span class="st">&#39;root&#39;</span>)</a>
+<a class="sourceLine" id="cb1-23" title="23">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-24" title="24"></a>
+<a class="sourceLine" id="cb1-25" title="25"></a>
+<a class="sourceLine" id="cb1-26" title="26"></a>
+<a class="sourceLine" id="cb1-27" title="27"><span class="op">-------------------------------------------------------------------</span></a>
+<a class="sourceLine" id="cb1-28" title="28"></a>
+<a class="sourceLine" id="cb1-29" title="29"></a>
+<a class="sourceLine" id="cb1-30" title="30"></a>
+<a class="sourceLine" id="cb1-31" title="31">  <span class="co">// ./store/configureStore.js</span></a>
+<a class="sourceLine" id="cb1-32" title="32"></a>
+<a class="sourceLine" id="cb1-33" title="33">  <span class="im">import</span> <span class="op">{</span> createStore<span class="op">,</span> applyMiddleware <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-34" title="34">  <span class="im">import</span> logger <span class="im">from</span> <span class="st">&#39;redux-logger&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-35" title="35"></a>
+<a class="sourceLine" id="cb1-36" title="36">  <span class="im">import</span> rootReducer <span class="im">from</span> <span class="st">&#39;./reducers/rootReducer&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-37" title="37">  <span class="im">import</span> thunk <span class="im">from</span> <span class="st">&#39;./middleware/thunkMiddleware&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-38" title="38"></a>
+<a class="sourceLine" id="cb1-39" title="39">  <span class="kw">const</span> configureStore <span class="op">=</span> (preloadedState <span class="op">=</span> <span class="op">{}</span>) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-40" title="40">    <span class="cf">return</span> <span class="at">createStore</span>(</a>
+<a class="sourceLine" id="cb1-41" title="41">      rootReducer<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-42" title="42">      preloadedState<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-43" title="43">      <span class="at">applyMiddleware</span>(thunk<span class="op">,</span> logger)<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-44" title="44">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-45" title="45">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb1-46" title="46"></a>
+<a class="sourceLine" id="cb1-47" title="47">  <span class="im">export</span> <span class="im">default</span> configureStore<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-48" title="48"></a>
+<a class="sourceLine" id="cb1-49" title="49"></a>
+<a class="sourceLine" id="cb1-50" title="50"></a>
+<a class="sourceLine" id="cb1-51" title="51"></a>
+<a class="sourceLine" id="cb1-52" title="52">  <span class="op">---------------------------------------</span></a>
+<a class="sourceLine" id="cb1-53" title="53"></a>
+<a class="sourceLine" id="cb1-54" title="54"></a>
+<a class="sourceLine" id="cb1-55" title="55"></a>
+<a class="sourceLine" id="cb1-56" title="56"></a>
+<a class="sourceLine" id="cb1-57" title="57">  <span class="co">// ./store/middleware/thunkMiddleware.js</span></a>
+<a class="sourceLine" id="cb1-58" title="58"></a>
+<a class="sourceLine" id="cb1-59" title="59">  <span class="kw">const</span> thunk <span class="op">=</span> (<span class="op">{</span> dispatch<span class="op">,</span> getState <span class="op">}</span>) <span class="kw">=&gt;</span> next <span class="kw">=&gt;</span> action <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-60" title="60">    <span class="cf">if</span> (<span class="kw">typeof</span> action <span class="op">===</span> <span class="st">&#39;function&#39;</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-61" title="61">      <span class="cf">return</span> <span class="at">action</span>(dispatch<span class="op">,</span> getState)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-62" title="62">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-63" title="63">    <span class="cf">return</span> <span class="at">next</span>(action)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-64" title="64">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb1-65" title="65"></a>
+<a class="sourceLine" id="cb1-66" title="66">  <span class="im">export</span> <span class="im">default</span> thunk<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-67" title="67"></a>
+<a class="sourceLine" id="cb1-68" title="68">  <span class="op">----------------------------------------</span></a>
+<a class="sourceLine" id="cb1-69" title="69"></a>
+<a class="sourceLine" id="cb1-70" title="70">  <span class="co">// ./store/actions/fruitActions.js</span></a>
+<a class="sourceLine" id="cb1-71" title="71"></a>
+<a class="sourceLine" id="cb1-72" title="72">  <span class="im">export</span> <span class="kw">const</span> RECEIVE_TWEETS <span class="op">=</span> <span class="st">&#39;RECEIVE_TWEETS&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-73" title="73"></a>
+<a class="sourceLine" id="cb1-74" title="74">  <span class="co">// the below is a thunk action creator</span></a>
+<a class="sourceLine" id="cb1-75" title="75">  <span class="im">export</span> <span class="kw">const</span> fetchTweets <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-76" title="76">    <span class="cf">return</span> <span class="kw">async</span> dispatch <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-77" title="77">      <span class="kw">const</span> res <span class="op">=</span> <span class="cf">await</span> <span class="at">fetch</span>(<span class="vs">`/tweets`</span>)<span class="op">;</span> <span class="co">// Using proxy in our package.json, </span></a>
+<a class="sourceLine" id="cb1-78" title="78">               <span class="co">// we&#39;re able to set the path to simply &#39;/tweets&#39;</span></a>
+<a class="sourceLine" id="cb1-79" title="79">      <span class="kw">const</span> data <span class="op">=</span> <span class="cf">await</span> <span class="va">res</span>.<span class="at">json</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-80" title="80">      <span class="at">dispatch</span>(<span class="at">receiveTweets</span>(<span class="va">data</span>.<span class="at">tweets</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-81" title="81">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-82" title="82">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb1-83" title="83"></a>
+<a class="sourceLine" id="cb1-84" title="84">  <span class="co">// the below is an action creator</span></a>
+<a class="sourceLine" id="cb1-85" title="85">  <span class="kw">const</span> receiveTweets <span class="op">=</span> (tweets) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-86" title="86">    <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-87" title="87">      <span class="dt">type</span><span class="op">:</span> RECEIVE_TWEETS<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-88" title="88">      tweets<span class="op">,</span></a>
+<a class="sourceLine" id="cb1-89" title="89">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb1-90" title="90">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb1-91" title="91"></a>
+<a class="sourceLine" id="cb1-92" title="92"></a>
+<a class="sourceLine" id="cb1-93" title="93"></a>
+<a class="sourceLine" id="cb1-94" title="94"></a>
+<a class="sourceLine" id="cb1-95" title="95"></a>
+<a class="sourceLine" id="cb1-96" title="96">  <span class="op">-------------------------------------------</span></a>
+<a class="sourceLine" id="cb1-97" title="97"></a>
+<a class="sourceLine" id="cb1-98" title="98"></a>
+<a class="sourceLine" id="cb1-99" title="99"></a>
+<a class="sourceLine" id="cb1-100" title="100">  <span class="co">// ./store/reducers/fruitReducer.js</span></a>
+<a class="sourceLine" id="cb1-101" title="101"></a>
+<a class="sourceLine" id="cb1-102" title="102">  <span class="im">import</span> <span class="op">{</span> RECEIVE_FRUITS <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;../actions/fruitActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-103" title="103"></a>
+<a class="sourceLine" id="cb1-104" title="104">  <span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-105" title="105">    <span class="va">Object</span>.<span class="at">freeze</span>(state)<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-106" title="106">    <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-107" title="107">      <span class="cf">case</span> <span class="dt">RECEIVE_FRUITS</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb1-108" title="108">        <span class="cf">return</span> <span class="va">action</span>.<span class="at">fruits</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb1-109" title="109">      <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb1-110" title="110">        <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-111" title="111">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-112" title="112">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb1-113" title="113"></a>
+<a class="sourceLine" id="cb1-114" title="114">  <span class="im">export</span> <span class="im">default</span> fruitReducer<span class="op">;</span></a></code></pre></div>

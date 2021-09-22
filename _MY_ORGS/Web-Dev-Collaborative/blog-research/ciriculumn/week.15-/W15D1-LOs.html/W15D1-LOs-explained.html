@@ -1,0 +1,245 @@
+<h2 id="redux-w15d1---learning-objectives">Redux (W15D1) - Learning Objectives</h2>
+<h3 id="redux">Redux</h3>
+<ol type="1">
+<li>Describe the Redux data cycle</li>
+</ol>
+<ul>
+<li>Redux is a node package that facilitates a particular implementation of Flux, which itself is simply a pattern to follow to implement a unidirectional flow of data in our front-end applications.</li>
+<li>The Redux adaptation of Flux can be seen in the following gif: <img src="./redux.gif" alt="redux-cycle" /></li>
+<li>If we start at the view, ie what the user sees and interacts with, we can describe the cycle as follows.</li>
+<li>An event is fired, such as a component mounting, or a user clicking on a button.</li>
+<li>There are two major scenarios that result from this event.
+<ol type="1">
+<li>If our application knows everything that it needs to reflect the change in our store, we can create an action and dispatch it. An example would be a change to the UI, such as showing a form. We don’t need any outside information, we are simply updating our store to indicate that a form should now be displayed.</li>
+<li>If our application needs to perform additional outside functions, such as posting or fetching information to/from a database, we dispatch a function, which will be intercepted and invoked before it hits our reducers. The function will ultimately get its data and then dispatch its own action with any additional data that it needed.</li>
+</ol></li>
+<li>An action is dispatched to the reducers. An action is a POJO that at a minimum has a <code>type</code> key, but can also have additional data associated with it that is necessary to invoke a specific desired change in our store.
+<ul>
+<li>For example, logging out a user may not need any additional information, since we are simply removing information from our store that we already know the location of.</li>
+<li>Adding a new pokemon in a pokedex application, however, would require us to have the information about the pokemon in the action object so that we can add this data to our store.</li>
+</ul></li>
+<li>The action is sent to our reducers. The reducers look at the <code>type</code> key and see if they need to respond to this particular action. If they do, they return a new object that represents their updated state. It’s possible that only one reducer responds to a particular action <code>type</code> or that several reducers will need to respond to it, updating their ‘slice’ of state. This difference does not matter to us because every action will hit every reducer, with reducers that are not impacted by the action simply returning their previous state.</li>
+<li>Redux is a separate tool from React. As you’ve seen from lectures and projects, we do not need to implement React in order to take advantage of a Redux store. With that in mind, Redux does play very nicely with React. After the action has hit all of our reducers and our state has been updated, the new state is passed along to each connected component, as we will see in future lessons. If the slice of state that that component was concerned with has changed, the props being passed in to the component will change. As we know from basic React, a change in props will result in a rerendering of the component, which will ultimately reflect any changes that our initial event triggered.</li>
+</ul>
+<ol start="2" type="1">
+<li>Describe the role of the store in the Redux architecture</li>
+</ol>
+<ul>
+<li>The store holds the global state of an application.</li>
+<li>It provides a central location where data can be accessed.</li>
+<li>We interact with the store by dispatching actions, which are processed by our reducer to update the state of our store (see next LOs for details).</li>
+<li>We can subscribe functions to be invoked whenever an action is dispatched.</li>
+<li>We can view the content of our store’s current state with a call to <code>getState</code>.</li>
+</ul>
+<ol start="3" type="1">
+<li>Explain what a reducer is</li>
+</ol>
+<ul>
+<li>A reducer is a function that is called each time an action is dispatched. The reducer receives an action and the current state as arguments and returns an updated state.</li>
+<li>Redux reducers are required to be pure functions of the dispatched action and the current state. This makes their behavior very predictable and allows their effects to potentially be reversed.</li>
+<li>A typical reducer has a switch statement with a case for each action <code>type</code> that will modify its slice of state, as well as a default case. For cases that modify, the reducer returns a new object that reflects the result of the action, it does not mutate the original object. For actions that the reducer is not concerned with, the default case simply returns the previous state.</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="co">// The `state` parameter is assigned a default value of [] in this case.</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="co">// We will often assign a default value of [], {}, or some value such as { currentUser: null } that will be modified by actions dispatched to us.</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="cf">case</span> <span class="st">&quot;ADD_FRUIT&quot;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb1-6" title="6">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> <span class="va">action</span>.<span class="at">fruit</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-7" title="7">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb1-8" title="8">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb1-9" title="9">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-10" title="10"><span class="op">};</span></a>
+<a class="sourceLine" id="cb1-11" title="11"></a>
+<a class="sourceLine" id="cb1-12" title="12"><span class="im">export</span> <span class="im">default</span> fruitReducer<span class="op">;</span></a></code></pre></div>
+<ol start="4" type="1">
+<li>Use the <code>createStore</code> method to create an instance of a Redux store</li>
+</ol>
+<ul>
+<li>The <code>createStore</code> function is imported from the <code>redux</code> library.</li>
+<li>It must take in a reducer as its first argument, with optional arguments for a preloaded state and enhancers.</li>
+<li>The preloaded state argument can set a default value for our store to be created with (we’ll see this can be helpful when restoring data from a session on reload, for example)</li>
+<li>Enhancers are middleware functions that we’d like to run with each dispatched action. These are separate from subscribed functions. Where subscribed functions are only invoked after an action has been dispatched and the store has been interacted with, enhancers can interact with the action and store both before and after the store is updated. We often see enhancers used for functionality such as logging the action that was dispatched and how the store was impacted before and after. Another use case would be for middleware that we want to be able to interact with or mutate an action before it hits our reducers, such as thunk middleware.</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="im">import</span> <span class="op">{</span> createStore <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;redux&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="co">// </span><span class="al">TODO</span><span class="co"> implement reducer</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="op">}</span></a>
+<a class="sourceLine" id="cb2-6" title="6"></a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="kw">const</span> store <span class="op">=</span> <span class="at">createStore</span>(fruitReducer)<span class="op">;</span></a></code></pre></div>
+<ol start="5" type="1">
+<li>Use the <code>store.dispatch</code> method to dispatch an action to trigger a state update</li>
+</ol>
+<ul>
+<li>Dispatching an action means we are going to be sending an object to our reducer in order to impact our store in some way.</li>
+<li>The action that we dispatch should have a <code>type</code> key so that our reducer’s switch statement can determine if/how it needs to interact with the object.</li>
+<li>Our action can have optional additional key/value pairs, often referred to as the “payload”, so that our reducer can use this data to impact our store. We often include data that we are trying to add, objects that we are trying to modify, keys to items we are trying to remove, etc.</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1"><span class="co">// The action that we&#39;ll dispatch:</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="kw">const</span> addOrange <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-4" title="4">  <span class="dt">fruit</span><span class="op">:</span> <span class="st">&#39;orange&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="op">};</span></a>
+<a class="sourceLine" id="cb3-6" title="6"></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="co">// The reducer that we&#39;ll be impacting</span></a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="co">// Notice that this reducer has a case that matches our action&#39;s type</span></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="co">// If we didn&#39;t have this case, we would hit our default and return the original state</span></a>
+<a class="sourceLine" id="cb3-10" title="10"><span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-11" title="11">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-12" title="12">    <span class="cf">case</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb3-13" title="13">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> <span class="va">action</span>.<span class="at">fruit</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-14" title="14">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb3-15" title="15">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-16" title="16">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-17" title="17"><span class="op">};</span></a>
+<a class="sourceLine" id="cb3-18" title="18"></a>
+<a class="sourceLine" id="cb3-19" title="19"><span class="co">// Invoking our dispatch function:</span></a>
+<a class="sourceLine" id="cb3-20" title="20"><span class="va">console</span>.<span class="at">log</span>(<span class="va">store</span>.<span class="at">getState</span>())<span class="op">;</span> <span class="co">// []</span></a>
+<a class="sourceLine" id="cb3-21" title="21"><span class="va">store</span>.<span class="at">dispatch</span>(addOrange)<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-22" title="22"><span class="va">console</span>.<span class="at">log</span>(<span class="va">store</span>.<span class="at">getState</span>())<span class="op">;</span> <span class="co">// [ &#39;orange&#39; ]</span></a></code></pre></div>
+<ol start="6" type="1">
+<li>Use the <code>store.subscribe</code> method to listen for state updates</li>
+</ol>
+<ul>
+<li>If we want a function to be invoked every time an action has been dispatched, we can pass the function to <code>store.subscribe</code>.</li>
+<li>The return value of <code>store.subscribe</code> is a function that can be invoked in order to remove the original function’s subscription so that it will no longer be invoked with each action.</li>
+<li>It’s important to note that the functions that we pass to <code>store.subscribe</code> are going to be invoked <em>after</em> the action has been dispatched and the store has been updated.</li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="co">// Assuming the same reducer and action as the above code block:</span></a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="co">// This function is going to be subscribed, meaning it will be invoked after each action is dispatched.</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="co">// getState will be the state after the action has already impacted the store</span></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="kw">const</span> display <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-6" title="6">  <span class="va">console</span>.<span class="at">log</span>(<span class="va">store</span>.<span class="at">getState</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="op">};</span></a>
+<a class="sourceLine" id="cb4-8" title="8"></a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="co">// Invoking this function later on will remove the display function from the store&#39;s subscriptions, no longer executing the logging functionality</span></a>
+<a class="sourceLine" id="cb4-10" title="10"><span class="kw">const</span> unsubscribeDisplay <span class="op">=</span> <span class="va">store</span>.<span class="at">subscribe</span>(display)<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-11" title="11"></a>
+<a class="sourceLine" id="cb4-12" title="12"><span class="va">store</span>.<span class="at">dispatch</span>(addOrange)<span class="op">;</span> <span class="co">// [ &#39;orange&#39;, &#39;orange&#39; ]</span></a>
+<a class="sourceLine" id="cb4-13" title="13"></a>
+<a class="sourceLine" id="cb4-14" title="14"><span class="co">// display will no longer be invoked after store.dispatch()</span></a>
+<a class="sourceLine" id="cb4-15" title="15"><span class="at">unsubscribeDisplay</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-16" title="16"></a>
+<a class="sourceLine" id="cb4-17" title="17"><span class="va">store</span>.<span class="at">dispatch</span>(addOrange)<span class="op">;</span> <span class="co">// no output</span></a></code></pre></div>
+<ol start="7" type="1">
+<li>Use the <code>store.getState</code> method to get the current state</li>
+</ol>
+<ul>
+<li>We can view the current structure and contents of the store by invoking the <code>store.getState()</code> function.</li>
+<li>The return value is a snapshot of the current store; its current contents.</li>
+<li>We’ve seen examples in the previous code block, where we invoke <code>getState</code> and then log the results. We did this in a “display” function that we subscribed to the store so that any action being dispatched results in us getting the current state of the store and logging it to the console.</li>
+</ul>
+<ol start="8" type="1">
+<li>Use a <code>switch</code> statement within a reducer function to handle multiple action types</li>
+</ol>
+<ul>
+<li>Our reducers are able to effectively interact with different actions by incorporating a switch statement.</li>
+<li>The reducer switches over the action’s <code>type</code> key, the only required key on an action object.</li>
+<li>By including a case for each action type that this reducer wants to impact the store for, we can interact with each action appropriately and return the resulting version of the store’s state.</li>
+<li>In the example below, we have cases for <code>ADD_FRUIT</code>, <code>ADD_FRUITS</code>, <code>SELL_FRUIT</code>, and <code>SELL_OUT</code>. Each of these action types interact with our store slightly differently.</li>
+<li>We also include a <code>default</code> case. If an action’s type doesn’t match any of our cases, we want to return our previous state. By returning our previous state, we are maintaining the content of our store without making any changes.</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-3" title="3">    <span class="cf">case</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-4" title="4">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> <span class="va">action</span>.<span class="at">fruit</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-5" title="5">    <span class="cf">case</span> <span class="st">&#39;ADD_FRUITS&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-6" title="6">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> ...<span class="va">action</span>.<span class="at">fruits</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-7" title="7">    <span class="cf">case</span> <span class="st">&#39;SELL_FRUIT&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-8" title="8">      <span class="kw">const</span> index <span class="op">=</span> <span class="va">state</span>.<span class="at">indexOf</span>(<span class="va">action</span>.<span class="at">fruit</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-9" title="9">      <span class="cf">if</span> (index <span class="op">!==</span> <span class="dv">-1</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-10" title="10">        <span class="co">// remove first instance of action.fruit</span></a>
+<a class="sourceLine" id="cb5-11" title="11">        <span class="cf">return</span> [...<span class="va">state</span>.<span class="at">slice</span>(<span class="dv">0</span><span class="op">,</span> index)<span class="op">,</span> ...<span class="va">state</span>.<span class="at">slice</span>(index <span class="op">+</span> <span class="dv">1</span>)]<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-12" title="12">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-13" title="13">      <span class="cf">return</span> state<span class="op">;</span> <span class="co">// if action.fruit is not in state, return previous state</span></a>
+<a class="sourceLine" id="cb5-14" title="14">    <span class="cf">case</span> <span class="st">&#39;SELL_OUT&#39;</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-15" title="15">      <span class="cf">return</span> []<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-16" title="16">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb5-17" title="17">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-18" title="18">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb5-19" title="19"><span class="op">};</span></a></code></pre></div>
+<ol start="9" type="1">
+<li>Describe why it’s important for a reducer to avoid mutating the current state when creating the next state</li>
+</ol>
+<ul>
+<li>It’s important for us to return a new object in our reducers instead of mutating our state.</li>
+<li>We want our reducers to be pure functions, taking in arguments and returning a value in a predictable way without making any kind of outside impact.</li>
+<li>The fact that we are returning new objects becomes very important for future applications, as well. In addition to making sure we aren’t inadvertantly changing other aspects of our state, the ability to compare our previous store’s state to the new state that we are returning will be beneficial in determining exactly which slices of state have changed due to our action.</li>
+<li>This is especially useful when we connect to React later on, allowing us to easily see which components need to receive this new data.</li>
+<li>We return a new object when an action modifies our slice of state so that <code>react-redux</code> knows a change has occurred and can trigger a new mapping of the store’s state to props that are concerned with it. If we were to modify the state object itself, it would assume since the new slice of state has the same object id as the old slice of state that no changes have occurred and will not remap and rerender. This ensuring that state is immutable is part of the optimization that makes the diffing algorithms so fast.</li>
+</ul>
+<ol start="10" type="1">
+<li>Write an action creator function to facilitate in the creation of action objects</li>
+</ol>
+<ul>
+<li>We can create functions that will return objects in a format that will be able to be dispatched to our store.</li>
+<li>The reason we would want to make a function for this is to make our code dry and more dynamic.</li>
+<li>If we want to be able to add “apple”, “banana”, or “orange” into our store, instead of having to make an action for each, we can make a function that takes in the fruit that we want to add and then returns the action POJO appropriate for that fruit:</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">const</span> addFruit <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-3" title="3">    <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-4" title="4">    fruit<span class="op">,</span></a>
+<a class="sourceLine" id="cb6-5" title="5">  <span class="op">};</span></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="op">};</span></a></code></pre></div>
+<ul>
+<li>Now that we have this function, we can dispatch the function invoked with our specific fruit that we want to add at that time.</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">addFruit</span>(<span class="st">&quot;apple&quot;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">addFruit</span>(<span class="st">&quot;banana&quot;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">addFruit</span>(<span class="st">&quot;apple&quot;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">addFruit</span>(<span class="st">&quot;apple&quot;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="va">store</span>.<span class="at">dispatch</span>(<span class="at">addFruit</span>(<span class="st">&quot;orange&quot;</span>))<span class="op">;</span></a></code></pre></div>
+<ol start="11" type="1">
+<li>Use constants to define action types to prevent simple typos in action type string literals</li>
+</ol>
+<ul>
+<li>Using constants instead of typing out our strings for an action’s <code>type</code> can be helpful in preventing typos.</li>
+<li>This is particularly useful based on the structure of our reducers. If we have a typo in our action’s <code>type</code> we won’t receive an error. Our string simply won’t match any of our cases and we’ll hit the switch’s <code>default</code>, resulting in no change in our store when we dispatch the action; a tricky bug to track down.</li>
+<li>If we only define the string in one location as a constant and import it wherever it is used, we will not be hitting that default case. Having a typo in our variable name will result in an error (referencing a variable that was not declared).</li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">const</span> ADD_FRUIT <span class="op">=</span> <span class="st">&#39;ADD_FRUIT&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="kw">const</span> ADD_FRUITS <span class="op">=</span> <span class="st">&#39;ADD_FRUITS&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="kw">const</span> SELL_FRUIT <span class="op">=</span> <span class="st">&#39;SELL_FRUIT&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="kw">const</span> SELL_OUT <span class="op">=</span> <span class="st">&#39;SELL_OUT&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb8-5" title="5"></a>
+<a class="sourceLine" id="cb8-6" title="6"><span class="kw">const</span> addFruit <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb8-7" title="7">  <span class="dt">type</span><span class="op">:</span> ADD_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-8" title="8">  fruit<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-9" title="9"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-10" title="10"></a>
+<a class="sourceLine" id="cb8-11" title="11"><span class="kw">const</span> addFruits <span class="op">=</span> (fruits) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb8-12" title="12">  <span class="dt">type</span><span class="op">:</span> ADD_FRUITS<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-13" title="13">  fruits<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-14" title="14"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-15" title="15"></a>
+<a class="sourceLine" id="cb8-16" title="16"><span class="kw">const</span> sellFruit <span class="op">=</span> (fruit) <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb8-17" title="17">  <span class="dt">type</span><span class="op">:</span> SELL_FRUIT<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-18" title="18">  fruit<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-19" title="19"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-20" title="20"></a>
+<a class="sourceLine" id="cb8-21" title="21"><span class="kw">const</span> sellOut <span class="op">=</span> () <span class="kw">=&gt;</span> (<span class="op">{</span></a>
+<a class="sourceLine" id="cb8-22" title="22">  <span class="dt">type</span><span class="op">:</span> SELL_OUT<span class="op">,</span></a>
+<a class="sourceLine" id="cb8-23" title="23"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" title="1"><span class="im">import</span> <span class="op">{</span> ADD_FRUIT<span class="op">,</span> ADD_FRUITS<span class="op">,</span> SELL_FRUIT<span class="op">,</span> SELL_OUT <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;./FruitActions&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb9-2" title="2"></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="kw">const</span> fruitReducer <span class="op">=</span> (state <span class="op">=</span> []<span class="op">,</span> action) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-4" title="4">  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-5" title="5">    <span class="cf">case</span> <span class="dt">ADD_FRUIT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb9-6" title="6">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> <span class="va">action</span>.<span class="at">fruit</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-7" title="7">    <span class="cf">case</span> <span class="dt">ADD_FRUITS</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb9-8" title="8">      <span class="cf">return</span> [...<span class="at">state</span><span class="op">,</span> ...<span class="va">action</span>.<span class="at">fruits</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-9" title="9">    <span class="cf">case</span> <span class="dt">SELL_FRUIT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb9-10" title="10">      <span class="kw">const</span> index <span class="op">=</span> <span class="va">state</span>.<span class="at">indexOf</span>(<span class="va">action</span>.<span class="at">fruit</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-11" title="11">      <span class="cf">if</span> (index <span class="op">!==</span> <span class="dv">-1</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-12" title="12">        <span class="co">// remove first instance of action.fruit</span></a>
+<a class="sourceLine" id="cb9-13" title="13">        <span class="cf">return</span> [...<span class="va">state</span>.<span class="at">slice</span>(<span class="dv">0</span><span class="op">,</span> index)<span class="op">,</span> ...<span class="va">state</span>.<span class="at">slice</span>(index <span class="op">+</span> <span class="dv">1</span>)]<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-14" title="14">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb9-15" title="15">      <span class="cf">return</span> state<span class="op">;</span> <span class="co">// if action.fruit is not in state, return previous state</span></a>
+<a class="sourceLine" id="cb9-16" title="16">    <span class="cf">case</span> <span class="dt">SELL_OUT</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb9-17" title="17">      <span class="cf">return</span> []<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-18" title="18">    <span class="cf">default</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb9-19" title="19">      <span class="cf">return</span> state<span class="op">;</span></a>
+<a class="sourceLine" id="cb9-20" title="20">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb9-21" title="21"><span class="op">};</span></a></code></pre></div>

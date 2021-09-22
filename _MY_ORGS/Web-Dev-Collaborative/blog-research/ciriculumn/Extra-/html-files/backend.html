@@ -1,0 +1,129 @@
+<h1 id="backend-take-home-exercise">Backend take home exercise</h1>
+<p>We’re building a tool to help protect electricians from experiencing or creating fire hazards during their work in San Francisco.</p>
+<p>You can help by building an API to provide some of the data we need to display in our mobile app. You don’t need to build any UI but please give curl commands or some example our mobile app developers can use to try using your API.</p>
+<p>Use whatever language and frameworks you are most comfortable with. Please include a readme with instructions on how to run your API or a location where we can interact with a running instance to test your work. If there are tests you’ve written let us know how to run them and if there are other tools you find helpful when working with your API let us know about those as well.</p>
+<p>You have 3 hours to complete this challenge and email your repo URL to your Program Manager.</p>
+<h2 id="api">API</h2>
+<h3 id="contractors-report">Contractor’s report</h3>
+<p>We want to show contracts a list of the properties they have worked on which have had fire violations so that they can look out for these or similar hazards on their jobs. Build an API endpoint which accepts the company name of a business and returns a JSON data structure listing the addresses where they have worked with known fire hazards.</p>
+<ul>
+<li>A contractor is assumed to have worked at an address if that contractor has a permit (identified by <code>Permit Number</code>) at the same <code>Location</code> as a reported fire hazard.</li>
+</ul>
+<p>How exactly you structure the response is up to you. We’re curious to see what information you think would be useful to a client developer and how you document what is available or otherwise make it easy for the client developer to use.</p>
+<h4 id="bonus-features">Bonus features</h4>
+<ul>
+<li>We don’t need to warn electricians about violations at properties they didn’t actually work on. Exclude <code>withdrawn</code> and <code>cancelled</code> permits from the report.</li>
+<li>We don’t need to tell electricians about problems which we know were fixed before they started work. Exclude fire violations with a <code>Close Date</code> before the <code>Filed Date</code> of the contactor’s permit.</li>
+<li>For large businesses this could be a very long list of results. Give the client some way to request a limited “page” of results at a time.</li>
+</ul>
+<h3 id="city-report">City report</h3>
+<p>When a city inspector finds a new fire violation they want to know which contractors are working nearby and need to be warned about a potential danger. Build an API endpoint which accepts a <code>Block</code> identifier and a date and returns a JSON structure containing contact information for the businesses which have permits on that block.</p>
+<h4 id="bonus-features-1">Bonus features</h4>
+<ul>
+<li>To help the inspector get a quick estimate of how much work has been done nearby also return the total of the <code>Permit Valuation</code>s of all permits issued for that block.</li>
+<li>Inspectors don’t care about work done after they spot a problem. Exclude permits with an <code>Issued Date</code> after the input date.</li>
+<li>Inspectors don’t care about work that has been finished. Exclude permits which are <code>withdrawn</code>, <code>cancelled</code>, or which have a <code>Completed Date</code> before the input date.</li>
+<li>Duplicate results confuse inspectors. If a company have multiple permits in the same block group them together so you only list that company once.</li>
+</ul>
+<h2 id="data">Data</h2>
+<p>The raw data for this problem can be downloaded as CSV files from https://datasf.org:</p>
+<ul>
+<li>https://data.sfgov.org/Housing-and-Buildings/Electrical-Permits/ftty-kx6y</li>
+<li>https://data.sfgov.org/Housing-and-Buildings/Electrical-Permits-Contacts/fdm7-jqqf</li>
+<li>https://data.sfgov.org/Housing-and-Buildings/Fire-Violations/4zuq-2cbe</li>
+</ul>
+<p>You can build a Postgres database containing the data set by running the commands below. You’re free to modify the database schema however you like or use a different database if you prefer.</p>
+<h3 id="setup">Setup</h3>
+<p>In bash or another shell download the data as csv files:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="ex">curl</span> <span class="st">&quot;https://data.sfgov.org/api/views/ftty-kx6y/rows.csv?accessType=DOWNLOAD&quot;</span> <span class="op">&gt;</span> Electrical_Permits.csv</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="ex">curl</span> <span class="st">&quot;https://data.sfgov.org/api/views/fdm7-jqqf/rows.csv?accessType=DOWNLOAD&quot;</span> <span class="op">&gt;</span> Electrical_Permits_Contacts.csv</a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="ex">curl</span> <span class="st">&quot;https://data.sfgov.org/api/views/4zuq-2cbe/rows.csv?accessType=DOWNLOAD&quot;</span> <span class="op">&gt;</span> Fire_Violations.csv</a></code></pre></div>
+<p>Run Postgres:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">psql</span></a></code></pre></div>
+<p>Within Postgres:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sql"><code class="sourceCode sql"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">CREATE</span> <span class="kw">TABLE</span> permits(</a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="ot">&quot;Permit Number&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="ot">&quot;Application Creation Date&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-4" title="4">  <span class="ot">&quot;Block&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-5" title="5">  <span class="ot">&quot;Lot&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-6" title="6">  <span class="ot">&quot;Street Number&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-7" title="7">  <span class="ot">&quot;Street Number Suffix&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-8" title="8">  <span class="ot">&quot;Street Name&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-9" title="9">  <span class="ot">&quot;Street Suffix&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-10" title="10">  <span class="ot">&quot;Unit&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-11" title="11">  <span class="ot">&quot;Unit Suffix&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-12" title="12">  <span class="ot">&quot;Description&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-13" title="13">  <span class="ot">&quot;Status&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-14" title="14">  <span class="ot">&quot;Filed Date&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-15" title="15">  <span class="ot">&quot;Issued Date&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-16" title="16">  <span class="ot">&quot;Completed Date&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-17" title="17">  <span class="ot">&quot;Permit Valuation&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-18" title="18">  <span class="ot">&quot;Neighborhoods - Analysis Boundaries&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-19" title="19">  <span class="ot">&quot;Supervisor District&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-20" title="20">  <span class="ot">&quot;Zipcode&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-21" title="21">  <span class="ot">&quot;Location&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-22" title="22">  <span class="ot">&quot;SF Find Neighborhoods&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-23" title="23">  <span class="ot">&quot;Current Police Districts&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-24" title="24">  <span class="ot">&quot;Current Supervisor Districts&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-25" title="25">  <span class="ot">&quot;Analysis Neighborhoods&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-26" title="26">  <span class="ot">&quot;Current Police Districts (2)&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-27" title="27">  <span class="ot">&quot;Zip Codes&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-28" title="28">  <span class="ot">&quot;Fire Prevention Districts&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-29" title="29">  <span class="ot">&quot;Supervisor Districts (1)&quot;</span> TEXT</a>
+<a class="sourceLine" id="cb3-30" title="30">);</a>
+<a class="sourceLine" id="cb3-31" title="31"></a>
+<a class="sourceLine" id="cb3-32" title="32"><span class="kw">CREATE</span> <span class="kw">TABLE</span> contacts(</a>
+<a class="sourceLine" id="cb3-33" title="33">  <span class="ot">&quot;Permit Number&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-34" title="34">  <span class="ot">&quot;Contact Type&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-35" title="35">  <span class="ot">&quot;Company Name&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-36" title="36">  <span class="ot">&quot;Street Number&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-37" title="37">  <span class="ot">&quot;Street&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-38" title="38">  <span class="ot">&quot;Street Suffix&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-39" title="39">  <span class="ot">&quot;State&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-40" title="40">  <span class="ot">&quot;Zipcode&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-41" title="41">  <span class="ot">&quot;Phone&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-42" title="42">  <span class="ot">&quot;Phone2&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-43" title="43">  <span class="ot">&quot;License Number&quot;</span> TEXT</a>
+<a class="sourceLine" id="cb3-44" title="44">);</a>
+<a class="sourceLine" id="cb3-45" title="45"></a>
+<a class="sourceLine" id="cb3-46" title="46"><span class="kw">CREATE</span> <span class="kw">TABLE</span> fire_violations(</a>
+<a class="sourceLine" id="cb3-47" title="47">  <span class="ot">&quot;Inspection Number&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-48" title="48">  <span class="ot">&quot;Violation Id&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-49" title="49">  <span class="ot">&quot;Address&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-50" title="50">  <span class="ot">&quot;Battalion&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-51" title="51">  <span class="ot">&quot;Station Area&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-52" title="52">  <span class="ot">&quot;Fire Prevention District&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-53" title="53">  <span class="ot">&quot;Citation Number&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-54" title="54">  <span class="ot">&quot;Close Date&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-55" title="55">  <span class="ot">&quot;Corrective Action&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-56" title="56">  <span class="ot">&quot;Status&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-57" title="57">  <span class="ot">&quot;Violation Item Description&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-58" title="58">  <span class="ot">&quot;Violation Date&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-59" title="59">  <span class="ot">&quot;Violation Number&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-60" title="60">  <span class="ot">&quot;Violation Item&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-61" title="61">  <span class="ot">&quot;Primary&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-62" title="62">  <span class="ot">&quot;Zipcode&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-63" title="63">  <span class="ot">&quot;Neighborhood District&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-64" title="64">  <span class="ot">&quot;Supervisor District&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-65" title="65">  <span class="ot">&quot;Location&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-66" title="66">  <span class="ot">&quot;Neighborhoods 2&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-67" title="67">  <span class="ot">&quot;Supervisor Districts 2&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-68" title="68">  <span class="ot">&quot;Fire Prevention Districts 2&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-69" title="69">  <span class="ot">&quot;Current Police Districts 2&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-70" title="70">  <span class="ot">&quot;Neighborhoods - Analysis Boundaries 2&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-71" title="71">  <span class="ot">&quot;Zip Codes 2&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-72" title="72">  <span class="ot">&quot;Neighborhoods (old) 2&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-73" title="73">  <span class="ot">&quot;Police Districts 2&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-74" title="74">  <span class="ot">&quot;Central Market/Tenderloin Boundary 2&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-75" title="75">  <span class="ot">&quot;Central Market/Tenderloin Boundary Polygon - Updated 2&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-76" title="76">  <span class="ot">&quot;Neighborhoods&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-77" title="77">  <span class="ot">&quot;SF Find Neighborhoods&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-78" title="78">  <span class="ot">&quot;Current Police Districts 3&quot;</span> TEXT,</a>
+<a class="sourceLine" id="cb3-79" title="79">  <span class="ot">&quot;Current Supervisor Districts&quot;</span> TEXT</a>
+<a class="sourceLine" id="cb3-80" title="80">);</a></code></pre></div>
+<p>Import csv:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sql"><code class="sourceCode sql"><a class="sourceLine" id="cb4-1" title="1">\<span class="kw">COPY</span> permits <span class="kw">FROM</span> <span class="st">&#39;./Electrical_Permits.csv&#39;</span> (FORMAT CSV, <span class="kw">HEADER</span>)</a>
+<a class="sourceLine" id="cb4-2" title="2">\<span class="kw">COPY</span> contacts <span class="kw">FROM</span> <span class="st">&#39;./Electrical_Permits_Contacts.csv&#39;</span> (FORMAT CSV, <span class="kw">HEADER</span>)</a>
+<a class="sourceLine" id="cb4-3" title="3">\<span class="kw">COPY</span> fire_violations <span class="kw">FROM</span> <span class="st">&#39;./Fire_Violations.csv&#39;</span> (FORMAT CSV, <span class="kw">HEADER</span>)</a>
+<a class="sourceLine" id="cb4-4" title="4"></a>
+<a class="sourceLine" id="cb4-5" title="5">quit</a></code></pre></div>

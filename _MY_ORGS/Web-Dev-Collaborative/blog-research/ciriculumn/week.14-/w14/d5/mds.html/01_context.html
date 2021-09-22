@@ -1,0 +1,296 @@
+<h1 id="react-context">React Context</h1>
+<hr />
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
+<!-- code_chunk_output -->
+<ul>
+<li><a href="#using-context">Using Context</a>
+<ul>
+<li><a href="#creating-a-context">Creating a Context</a></li>
+<li><a href="#adding-a-provider-to-the-app-component">Adding a Provider to the App component</a></li>
+<li><a href="#adding-a-consumer-to-a-nested-component">Adding a Consumer to a nested component</a></li>
+</ul></li>
+<li><a href="#updating-the-context-from-a-nested-component">Updating the Context from a nested component</a></li>
+<li><a href="#what-you-learned">What you learned</a></li>
+</ul>
+<!-- /code_chunk_output -->
+<hr />
+<p>At this point, you know how to manage a component’s state and pass information down an application’s component tree by threading props from parent components to child components. Think of how tedious it could be to pass down information, like current user data or a UI theme, to every component in an application. Instead of threading the information as props from a parent component to its children and grandchildren, you can share information with any of your application’s components by using React Context!</p>
+<p><a href="https://reactjs.org/docs/context.html">React Context</a> gives you a way to pass data through the component tree without having to manually thread props. Context gives developers a convenient way to share and update “global” data across a React application. Now it’s time to dive into application-wide data management!</p>
+<p>When you finish this article, you should be able to:</p>
+<ul>
+<li>Use React Context to pass down global information</li>
+<li>Create a Provider wrapper component to set a default context</li>
+<li>Create a Consumer wrapper component to allow child components to subscribe to a global context</li>
+<li>Use the <code>static contextType</code> property to access the global context</li>
+<li>Update the global context from a nested component</li>
+</ul>
+<blockquote>
+<p>In a future lesson, you’ll learn about Redux, a common approach for managing global state in React applications. The React Context can be thought of as a lightweight alternative to using Redux.</p>
+</blockquote>
+<h2 id="using-context">Using Context</h2>
+<p>In this demo, you’ll create a simple React app that uses Context to allow users to choose what images/images/images/images/puppy picture to render.</p>
+<p>Begin by cloning this starter React app with a folder of <code>pups</code> photos!</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">git</span> clone https://github.com/appacademy-starters/react-context-pups-starter.git</a></code></pre></div>
+<p>Now let’s import the pup photos into your <code>App.js</code> file and render the <code>speedy</code> pup:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// App.js</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="im">import</span> speedy <span class="im">from</span> <span class="st">&#39;./pups/speedy-pup.jpg&#39;</span></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="im">import</span> banana <span class="im">from</span> <span class="st">&#39;./pups/banana-pup.jpg&#39;</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="im">import</span> sleepy <span class="im">from</span> <span class="st">&#39;./pups/sleepy-pup.jpg&#39;</span></a>
+<a class="sourceLine" id="cb2-6" title="6"></a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="kw">const</span> App <span class="op">=</span> () <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb2-8" title="8">  <span class="op">&lt;</span>div id<span class="op">=</span><span class="st">&quot;app&quot;</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-9" title="9">    <span class="op">&lt;</span>img src<span class="op">={</span>speedy<span class="op">}</span> alt<span class="op">=</span><span class="st">&quot;pup&quot;</span> /&gt;</a>
+<a class="sourceLine" id="cb2-10" title="10">  &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb2-11" title="11">)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-12" title="12"></a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="im">export</span> <span class="im">default</span> App<span class="op">;</span></a></code></pre></div>
+<p>Start your application is you’ll see a huge and super happy pup that’s running! Take a moment to update your <code>index.css</code> file so that your pup photo isn’t so large:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode css"><code class="sourceCode css"><a class="sourceLine" id="cb3-1" title="1"><span class="co">/* index.css */</span></a>
+<a class="sourceLine" id="cb3-2" title="2">body {</a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="kw">padding</span>: <span class="dv">50</span><span class="dt">px</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-4" title="4">}</a>
+<a class="sourceLine" id="cb3-5" title="5"></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="pp">#app</span> {</a>
+<a class="sourceLine" id="cb3-7" title="7">  <span class="kw">display</span>: flex<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-8" title="8">  <span class="kw">flex-direction</span>: column<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-9" title="9">  <span class="kw">width</span>: <span class="dv">500</span><span class="dt">px</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-10" title="10">}</a>
+<a class="sourceLine" id="cb3-11" title="11"></a>
+<a class="sourceLine" id="cb3-12" title="12">img {</a>
+<a class="sourceLine" id="cb3-13" title="13">  <span class="kw">width</span>: <span class="dv">500</span><span class="dt">px</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb3-14" title="14">}</a></code></pre></div>
+<p>Being able to render a pup photo is great, but what about giving your users the chance to select a pup photo to render? Let’s allow your users to select a pup photo through a form by passing information through Context!</p>
+<h3 id="creating-a-context">Creating a Context</h3>
+<p>You can use the <a href="https://reactjs.org/docs/context.html#reactcreatecontext">React.createContext</a> method to create a <code>PupContext</code>. In order to create a context, you can simply import the <code>createContext()</code> function from <code>react</code>, invoke the function to create a Context object, and export the Context!</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="co">// PupContext.js</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="im">import</span> <span class="op">{</span> createContext <span class="op">}</span> <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-3" title="3"></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="kw">const</span> PupContext <span class="op">=</span> <span class="at">createContext</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-5" title="5"></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="im">export</span> <span class="im">default</span> PupContext<span class="op">;</span></a></code></pre></div>
+<p>Note that if you invoke the <code>createContext</code> method with arguments, those arguments will be set as the default context. In the next step, you’ll set up a component’s state to use as the default context.</p>
+<h3 id="adding-a-provider-to-the-app-component">Adding a Provider to the App component</h3>
+<p>The <em>Provider</em> component expects <code>value</code> prop to set the context information passed throughout your application. You need to wrap your child components with provider component tags to give them access to the context. The context <code>value</code> will include information to pass to child components by using context <em>Consumer</em> components. As a reminder, Consumer components must always be nested under Provider components because the Provider must render first (parent components always render before children components).</p>
+<pre class="jsx"><code>&lt;MyContext.Provider value={/* some value */}&gt;
+  &lt;ChildComponent /&gt;
+&lt;/MyContext.Provider&gt;</code></pre>
+<p>Now you’ll use <a href="https://reactjs.org/docs/context.html#contextprovider">Context.Provider</a> to create a wrapper component to set the <code>value</code> of your <code>PupContext</code>! Let’s go into your <code>App.js</code> file to create an <code>AppWithContext</code> wrapper component that will pass a <code>puppyType</code> prop to determine what image your <code>App</code> component renders.</p>
+<p>Your wrapper component should set up a default <code>puppyType</code> state in its constructor. Choose one of your imported pup photos (<code>banana</code>, <code>sleepy</code>, or <code>speedy</code>) to set as the default state.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">this</span>.<span class="at">state</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="dt">puppyType</span><span class="op">:</span> speedy<span class="op">,</span></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="op">};</span></a></code></pre></div>
+<p>Note that you should set the <code>puppyType</code> as <code>speedy</code> instead of <code>"speedy"</code> (without quotations), or else you’d be setting a string to be the default state, instead of a default pup photo to be rendered.</p>
+<p>Now let’s visit the <code>AppWithContext</code> component’s <code>render()</code> method! You’ll want to render the <code>App</code> component wrapped with <code>&lt;PupContext.Provider&gt;</code> tags to give <code>App</code> and all of its children components access to the <code>PupContext</code>:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-2" title="2">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb7-3" title="3">    <span class="op">&lt;</span><span class="va">PupContext</span>.<span class="at">Provider</span> value<span class="op">={}&gt;</span></a>
+<a class="sourceLine" id="cb7-4" title="4">      <span class="op">&lt;</span>App /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-5" title="5">    &lt;/<span class="va">PupContext</span>.<span class="at">Provider</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb7-6" title="6">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-7" title="7"><span class="op">}</span></a></code></pre></div>
+<p>Remember that provider components expect to receive a <code>value</code> prop. The <code>value</code> prop will hold the context information that will be passed throughout the application. Set the provider component’s <code>value</code> prop to be the <code>state</code> of your <code>AppWithContext</code> component. As you know, a component re-renders when its state is updated. This is how you’ll update an application’s context from nested components. Your <code>AppWithContext</code> component’s <code>render()</code> method should look something like this:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" title="1"><span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-2" title="2">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb8-3" title="3">    <span class="op">&lt;</span><span class="va">PupContext</span>.<span class="at">Provider</span> value<span class="op">={</span><span class="kw">this</span>.<span class="at">state</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb8-4" title="4">      <span class="op">&lt;</span>App /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-5" title="5">    &lt;/<span class="va">PupContext</span>.<span class="at">Provider</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb8-6" title="6">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb8-7" title="7"><span class="op">}</span></a></code></pre></div>
+<p>Since you are rendering the pup image from <code>App</code>, you can pass in the wrapper component’s <code>puppyType</code> state as a prop:</p>
+<pre class="jsx"><code>&lt;App puppyType={this.state.puppyType} /&gt;</code></pre>
+<p>Now you can refactor your <code>App</code> component to use its <code>puppyType</code> prop to render a specific pup photo!</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">const</span> App <span class="op">=</span> (<span class="op">{</span> puppyType <span class="op">}</span>) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb10-2" title="2">  <span class="op">&lt;</span>div id<span class="op">=</span><span class="st">&quot;app&quot;</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb10-3" title="3">    <span class="op">&lt;</span>PupForm /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb10-4" title="4">    <span class="op">&lt;</span>img src<span class="op">={</span>puppyType<span class="op">}</span> alt<span class="op">=</span><span class="st">&quot;pup&quot;</span> /&gt;</a>
+<a class="sourceLine" id="cb10-5" title="5">  &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb10-6" title="6">)<span class="op">;</span></a></code></pre></div>
+<p>Don’t forget to update the <code>export</code> statement at the bottom of your <code>App.js</code> file. You’ll want to export the <code>AppWithContext</code> component instead of the <code>App</code> component. Don’t worry about changing the <code>App</code> import statement in your <code>index.js</code> file. Since you are using <code>export default</code>, only the component explicitly specified in your file’s export statement will be exported from the file. At this point, your full <code>App.js</code> file should look something like this:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" title="1"><span class="co">// App.js</span></a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb11-3" title="3"><span class="im">import</span> PupContext <span class="im">from</span> <span class="st">&#39;./PupContext&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="im">import</span> banana <span class="im">from</span> <span class="st">&#39;./pups/banana-pup.jpg&#39;</span></a>
+<a class="sourceLine" id="cb11-5" title="5"><span class="im">import</span> sleepy <span class="im">from</span> <span class="st">&#39;./pups/sleepy-pup.jpg&#39;</span></a>
+<a class="sourceLine" id="cb11-6" title="6"><span class="im">import</span> speedy <span class="im">from</span> <span class="st">&#39;./pups/speedy-pup.jpg&#39;</span></a>
+<a class="sourceLine" id="cb11-7" title="7"></a>
+<a class="sourceLine" id="cb11-8" title="8"><span class="kw">const</span> App <span class="op">=</span> (<span class="op">{</span> puppyType <span class="op">}</span>) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb11-9" title="9">  <span class="op">&lt;</span>div id<span class="op">=</span><span class="st">&quot;app&quot;</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb11-10" title="10">    <span class="op">&lt;</span>img src<span class="op">={</span>puppyType<span class="op">}</span> alt<span class="op">=</span><span class="st">&quot;pup&quot;</span> /&gt;</a>
+<a class="sourceLine" id="cb11-11" title="11">  &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb11-12" title="12">)<span class="op">;</span></a>
+<a class="sourceLine" id="cb11-13" title="13"></a>
+<a class="sourceLine" id="cb11-14" title="14"><span class="kw">class</span> AppWithContext <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb11-15" title="15">  <span class="at">constructor</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb11-16" title="16">    <span class="kw">super</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb11-17" title="17">    <span class="kw">this</span>.<span class="at">state</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb11-18" title="18">      <span class="dt">puppyType</span><span class="op">:</span> speedy<span class="op">,</span></a>
+<a class="sourceLine" id="cb11-19" title="19">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb11-20" title="20">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb11-21" title="21"></a>
+<a class="sourceLine" id="cb11-22" title="22">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb11-23" title="23">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb11-24" title="24">      <span class="op">&lt;</span><span class="va">PupContext</span>.<span class="at">Provider</span> value<span class="op">={</span><span class="kw">this</span>.<span class="at">state</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb11-25" title="25">        <span class="op">&lt;</span>App puppyType<span class="op">={</span><span class="kw">this</span>.<span class="va">state</span>.<span class="at">puppyType</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb11-26" title="26">      &lt;/<span class="va">PupContext</span>.<span class="at">Provider</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb11-27" title="27">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb11-28" title="28">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb11-29" title="29"><span class="op">}</span></a>
+<a class="sourceLine" id="cb11-30" title="30"></a>
+<a class="sourceLine" id="cb11-31" title="31"><span class="im">export</span> <span class="im">default</span> AppWithContext<span class="op">;</span></a></code></pre></div>
+<p>Now start your server and make sure that your cute pup photo is rendering!</p>
+<h3 id="adding-a-consumer-to-a-nested-component">Adding a Consumer to a nested component</h3>
+<p>Before setting up a consumer, let’s create a nested child component that will consume your <code>PupContext</code>! Create a <code>PupForm</code> component that will be be rendered as a child of your <code>App</code> component. Begin by rendering a dropdown menu for users to choose which pup photo to render in the app. Feel free to use the <code>PupForm</code> component defined below:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" title="1"><span class="co">// PupForm.js</span></a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="im">import</span> React <span class="im">from</span> <span class="st">&#39;react&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="im">import</span> banana <span class="im">from</span> <span class="st">&#39;./pups/banana-pup.jpg&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb12-4" title="4"><span class="im">import</span> sleepy <span class="im">from</span> <span class="st">&#39;./pups/sleepy-pup.jpg&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb12-5" title="5"><span class="im">import</span> speedy <span class="im">from</span> <span class="st">&#39;./pups/speedy-pup.jpg&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb12-6" title="6"></a>
+<a class="sourceLine" id="cb12-7" title="7"><span class="kw">class</span> PupForm <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-8" title="8">  <span class="at">constructor</span>(props) <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-9" title="9">    <span class="kw">super</span>(props)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-10" title="10">    <span class="kw">this</span>.<span class="at">state</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-11" title="11">      <span class="dt">selectedPup</span><span class="op">:</span> <span class="st">&#39;select&#39;</span><span class="op">,</span> <span class="co">// Set the default select option</span></a>
+<a class="sourceLine" id="cb12-12" title="12">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb12-13" title="13">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb12-14" title="14"></a>
+<a class="sourceLine" id="cb12-15" title="15">  <span class="co">// Update state with the user&#39;s dropdown selection</span></a>
+<a class="sourceLine" id="cb12-16" title="16">  updateSelection <span class="op">=</span> (e) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-17" title="17">    <span class="kw">this</span>.<span class="at">setState</span>(<span class="op">{</span> <span class="dt">selectedPup</span><span class="op">:</span> <span class="va">e</span>.<span class="va">target</span>.<span class="at">value</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-18" title="18">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb12-19" title="19"></a>
+<a class="sourceLine" id="cb12-20" title="20">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-21" title="21">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb12-22" title="22">      <span class="op">&lt;</span>form<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb12-23" title="23">        <span class="op">&lt;</span>select</a>
+<a class="sourceLine" id="cb12-24" title="24">          name<span class="op">=</span><span class="st">&quot;pup&quot;</span></a>
+<a class="sourceLine" id="cb12-25" title="25">          onChange<span class="op">={</span><span class="kw">this</span>.<span class="at">updateSelection</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb12-26" title="26">          value<span class="op">={</span><span class="kw">this</span>.<span class="va">state</span>.<span class="at">selectedPup</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb12-27" title="27"></a>
+<a class="sourceLine" id="cb12-28" title="28">          <span class="op">&lt;</span>option value<span class="op">=</span><span class="st">&quot;select&quot;</span><span class="op">&gt;</span>Select a pup<span class="op">!</span>&lt;/option<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb12-29" title="29">          <span class="op">&lt;</span>option value<span class="op">={</span>speedy<span class="op">}&gt;</span>Speedy Pup&lt;/option<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb12-30" title="30">          <span class="op">&lt;</span>option value<span class="op">={</span>banana<span class="op">}&gt;</span>Banana Pup&lt;/option<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb12-31" title="31">          <span class="op">&lt;</span>option value<span class="op">={</span>sleepy<span class="op">}&gt;</span>Sleepy Pup&lt;/option<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb12-32" title="32">        &lt;/select<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb12-33" title="33">        <span class="op">&lt;</span>button onClick<span class="op">={</span><span class="co">/* </span><span class="al">TODO</span><span class="co">: Set up the click handler */</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb12-34" title="34">          Submit</a>
+<a class="sourceLine" id="cb12-35" title="35">        &lt;/button<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb12-36" title="36">      &lt;/form<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb12-37" title="37">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-38" title="38">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb12-39" title="39"><span class="op">}</span></a></code></pre></div>
+<p>As you can see, the <code>PupForm</code> has a default <code>selectedPup</code> state that will set the default select option to be “Select a pup!”. There is also an <code>updateSelection</code> method that listens for change events in the dropdown menu to update the <code>selectedPup</code> slice of state. Now that you have a basic dropdown menu set up, it’s time to create a consumer wrapper so that the <code>PupForm</code> component can have access to the <code>PupContext</code>!</p>
+<p>You’ll want to use a <a href="https://reactjs.org/docs/context.html#contextconsumer">Context.Consumer</a> component to wrap your <code>PupForm</code> component, this way the wrapped component can subscribe to context changes. Note that the <code>Context.Consumer</code> component expects a function as a child:</p>
+<pre class="jsx"><code>&lt;MyContext.Consumer&gt;
+  {(value) =&gt; &lt;Component value={value} /&gt;}
+&lt;/MyContext.Consumer&gt;</code></pre>
+<p>The function has access to the <code>value</code> prop passed into the <code>Context.Provider</code>. The <code>value</code> prop can then be passed as a render prop into the wrapped component.</p>
+<p>Import your <code>PupContext</code> into your <code>PupForm.js</code> file and use the <code>Context.Consumer</code> component to create a wrapper for your <code>PupForm</code> component like so:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">const</span> PupFormWithContext <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-2" title="2">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb14-3" title="3">    <span class="op">&lt;</span><span class="va">PupContext</span>.<span class="at">Consumer</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb14-4" title="4">      <span class="op">{</span>(value) <span class="kw">=&gt;</span> <span class="op">&lt;</span>PupForm value<span class="op">={</span>value<span class="op">}</span> /&gt;<span class="op">}</span></a>
+<a class="sourceLine" id="cb14-5" title="5">    &lt;/<span class="va">PupContext</span>.<span class="at">Consumer</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb14-6" title="6">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-7" title="7"><span class="op">};</span></a></code></pre></div>
+<p>Just as you did with your <code>AppWithContext</code> component, you’ll want to export the <code>PupFormWithContext</code> wrapper component in your <code>PupForm.js</code> file.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb15-1" title="1"><span class="im">export</span> <span class="im">default</span> PupFormWithContext<span class="op">;</span></a></code></pre></div>
+<p>Now update your <code>App</code> component to render the <code>PupFormWithContext</code> component:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">const</span> App <span class="op">=</span> (<span class="op">{</span> puppyType <span class="op">}</span>) <span class="kw">=&gt;</span> (</a>
+<a class="sourceLine" id="cb16-2" title="2">  <span class="op">&lt;</span>div id<span class="op">=</span><span class="st">&quot;app&quot;</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb16-3" title="3">    <span class="op">&lt;</span>PupFormWithContext /<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb16-4" title="4">    <span class="op">&lt;</span>img src<span class="op">={</span>puppyType<span class="op">}</span> alt<span class="op">=</span><span class="st">&quot;pup&quot;</span> /&gt;</a>
+<a class="sourceLine" id="cb16-5" title="5">  &lt;/div<span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb16-6" title="6">)<span class="op">;</span></a></code></pre></div>
+<p>Take a moment to create a <code>handleClick</code> function for your submit button’s <code>onClick</code> listener. For now, simply prevent the default re-render of the submitted form and console log your component’s props so that you can examine the <code>value</code> prop passed into the <code>PupForm</code> component:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb17-1" title="1">handleClick <span class="op">=</span> (e) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb17-2" title="2">  <span class="va">e</span>.<span class="at">preventDefault</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb17-3" title="3">  <span class="va">console</span>.<span class="at">log</span>(<span class="kw">this</span>.<span class="at">props</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb17-4" title="4"><span class="op">}</span></a></code></pre></div>
+<p>Open up your developer tools and click the submit button! You should see the context <code>value</code> prop logged in your console:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb18-1" title="1">{<span class="ex">value</span>: <span class="dt">{...}</span>}</a></code></pre></div>
+<p>If you expand the prop, you’ll then see the <code>puppyType</code>, which is the default context set by your <code>AppWithContext</code> component’s state!</p>
+<p>Note that you can also use the <code>static contextType</code> property to access context value in class components. Take a moment to set the <code>contextType</code> property to your <code>PupContext</code> in the <code>PupForm</code> class component:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb19-1" title="1"><span class="co">// Rest of file not shown</span></a>
+<a class="sourceLine" id="cb19-2" title="2"><span class="kw">class</span> PupForm <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb19-3" title="3">  <span class="at">constructor</span>(props) <span class="op">{</span></a>
+<a class="sourceLine" id="cb19-4" title="4">    <span class="kw">super</span>(props)<span class="op">;</span></a>
+<a class="sourceLine" id="cb19-5" title="5">    <span class="kw">this</span>.<span class="at">state</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb19-6" title="6">      <span class="dt">selectedPup</span><span class="op">:</span> <span class="st">&#39;select&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb19-7" title="7">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb19-8" title="8">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb19-9" title="9"></a>
+<a class="sourceLine" id="cb19-10" title="10">  <span class="kw">static</span> contextType <span class="op">=</span> PupContext<span class="op">;</span></a>
+<a class="sourceLine" id="cb19-11" title="11"><span class="co">// Rest of file not shown</span></a></code></pre></div>
+<p>Now update your <code>handleClick</code> method to console log <code>this.context</code> instead of <code>this.props</code>:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb20-1" title="1">handleClick <span class="op">=</span> (e) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-2" title="2">  <span class="va">e</span>.<span class="at">preventDefault</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-3" title="3">  <span class="va">console</span>.<span class="at">log</span>(<span class="kw">this</span>.<span class="at">context</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-4" title="4"><span class="op">}</span></a></code></pre></div>
+<p>Click the submit button to fire your <code>handleClick</code> method and you should see the context <code>value</code> object logged in your console:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb21-1" title="1">{<span class="ex">puppyType</span>: <span class="st">&quot;/static/media/speedy-pup.d706601f.jpg&quot;</span>}</a></code></pre></div>
+<p>Note that the <code>static contextType</code> property only works for class components. Because of this, you’ll focus on using <code>Context.Consumer</code> components to manually pass render props.</p>
+<h2 id="updating-the-context-from-a-nested-component">Updating the Context from a nested component</h2>
+<p>Now you can access the context value, but what about updating the context value? It’s a common need to update the global context from a child consumer component. For example, if your Context is providing the UI theme or language, you might have a child component that consumes the context and allows a user to select their preferred theme or language.</p>
+<p>Once a user makes a selection, your application will need a way to update the context value. From the context update fired from the child component, your application will re-render all of the nested components that depend on that data.</p>
+<p>Let’s define an <code>updateContext</code> method in your <code>AppWithContext</code> component! This method will take care of updating the <code>puppyType</code> slice of state:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb22-1" title="1">updateContext <span class="op">=</span> (puppyType) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb22-2" title="2">  <span class="kw">this</span>.<span class="at">setState</span>(<span class="op">{</span> puppyType <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb22-3" title="3"><span class="op">}</span></a></code></pre></div>
+<p>You’ll then set a reference to the method in the state so that a nested component (with access to context) can invoke the <code>updateContext</code> method to update the <code>AppWithContext</code> state (and therefore the global context)!</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb23-1" title="1"><span class="kw">this</span>.<span class="at">state</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb23-2" title="2">  <span class="dt">puppyType</span><span class="op">:</span> speedy<span class="op">,</span></a>
+<a class="sourceLine" id="cb23-3" title="3">  <span class="dt">updateContext</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">updateContext</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb23-4" title="4"><span class="op">};</span></a></code></pre></div>
+<p>At this point, your complete <code>AppWithContext</code> component should look something like this:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb24-1" title="1"><span class="kw">class</span> AppWithContext <span class="kw">extends</span> <span class="va">React</span>.<span class="at">Component</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb24-2" title="2">  <span class="at">constructor</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb24-3" title="3">    <span class="kw">super</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb24-4" title="4">    <span class="kw">this</span>.<span class="at">state</span> <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb24-5" title="5">      <span class="dt">puppyType</span><span class="op">:</span> speedy<span class="op">,</span></a>
+<a class="sourceLine" id="cb24-6" title="6">      <span class="dt">updateContext</span><span class="op">:</span> <span class="kw">this</span>.<span class="at">updateContext</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb24-7" title="7">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb24-8" title="8">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb24-9" title="9"></a>
+<a class="sourceLine" id="cb24-10" title="10">  updateContext <span class="op">=</span> (puppyType) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb24-11" title="11">    <span class="kw">this</span>.<span class="at">setState</span>(<span class="op">{</span> puppyType <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb24-12" title="12">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb24-13" title="13"></a>
+<a class="sourceLine" id="cb24-14" title="14">  <span class="at">render</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb24-15" title="15">    <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb24-16" title="16">      <span class="op">&lt;</span><span class="va">PupContext</span>.<span class="at">Provider</span> value<span class="op">={</span><span class="kw">this</span>.<span class="at">state</span><span class="op">}&gt;</span></a>
+<a class="sourceLine" id="cb24-17" title="17">        <span class="op">&lt;</span>App puppyType<span class="op">={</span><span class="kw">this</span>.<span class="va">state</span>.<span class="at">puppyType</span><span class="op">}</span> /&gt;</a>
+<a class="sourceLine" id="cb24-18" title="18">      &lt;/<span class="va">PupContext</span>.<span class="at">Provider</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb24-19" title="19">    )<span class="op">;</span></a>
+<a class="sourceLine" id="cb24-20" title="20">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb24-21" title="21"><span class="op">}</span></a></code></pre></div>
+<p>Since your <code>value</code> prop is taking in the component’s <code>state</code>, this means that your <code>updateContext</code> method is also available to any components with access to context. Let’s revisit the <code>PupFormWithContext</code> component! Update the wrapper component to pass the <code>updateContext</code> method as a render prop to the <code>PupForm</code>:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">const</span> PupFormWithContext <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb25-2" title="2">  <span class="cf">return</span> (</a>
+<a class="sourceLine" id="cb25-3" title="3">    <span class="op">&lt;</span><span class="va">PupContext</span>.<span class="at">Consumer</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb25-4" title="4">      <span class="op">{</span>(value) <span class="kw">=&gt;</span> <span class="op">&lt;</span>PupForm updateContext<span class="op">={</span><span class="va">value</span>.<span class="at">updateContext</span><span class="op">}</span> /&gt;<span class="op">}</span></a>
+<a class="sourceLine" id="cb25-5" title="5">    &lt;/<span class="va">PupContext</span>.<span class="at">Consumer</span><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb25-6" title="6">  )<span class="op">;</span></a>
+<a class="sourceLine" id="cb25-7" title="7"><span class="op">};</span></a></code></pre></div>
+<p>Now if you update your <code>handleClick</code> method to console log both <code>this.props</code> and <code>this.context</code>, you’ll see the <code>updateContext</code> method you just created and passed down!</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb26-1" title="1">handleClick <span class="op">=</span> (e) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb26-2" title="2">  <span class="va">e</span>.<span class="at">preventDefault</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb26-3" title="3">  <span class="va">console</span>.<span class="at">log</span>(<span class="kw">this</span>.<span class="at">props</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb26-4" title="4">  <span class="va">console</span>.<span class="at">log</span>(<span class="kw">this</span>.<span class="at">context</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb26-5" title="5"><span class="op">}</span></a></code></pre></div>
+<p>This means that you can invoke either <code>this.props.value.updateContext</code> or <code>this.context.updateContext</code> to update the global context. Take a moment to refactor your <code>handleClick</code> method to invoke the <code>updateContext</code> method by passing in the <code>selectedPup</code> from the <code>PupForm</code> state:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb27-1" title="1">handleClick <span class="op">=</span> (e) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb27-2" title="2">  <span class="va">e</span>.<span class="at">preventDefault</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb27-3" title="3">  <span class="kw">this</span>.<span class="va">props</span>.<span class="va">value</span>.<span class="at">updateContext</span>(<span class="kw">this</span>.<span class="va">state</span>.<span class="at">selectedPup</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb27-4" title="4"><span class="op">}</span></a></code></pre></div>
+<p>Now you should be able to use the dropdown menu to select a pup photo to render! Congratulations, you now know how to use React Context to share and update global information across your application!</p>
+<h2 id="what-you-learned">What you learned</h2>
+<p>In this article, you learned how to:</p>
+<ul>
+<li>Create a Context to share global information with an application; and</li>
+<li>Use the <code>Context.Provider</code> to create a wrapper and set the default context; and</li>
+<li>Use the <code>Context.Consumer</code> to create a wrapper that shares the global context through render props; and</li>
+<li>Access the global context through the <code>contextType</code> property; and</li>
+<li>Pass a method to a nested component to update the global context.</li>
+</ul>

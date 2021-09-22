@@ -1,0 +1,302 @@
+<h1 id="note">Note</h1>
+<p>This lesson is too long and has significant issues. See its <a href="https://github.com/Techtonica/curriculum/issues/1216">#1216</a></p>
+<h1 id="adding-tests-to-your-nodejs-project">Adding Tests to your NodeJS project</h1>
+<h3 id="projected-time">Projected Time</h3>
+<p>About 2 hours</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>Here are links to lessons that should be completed before this lesson:</p>
+<ul>
+<li><a href="/testing-and-tdd/testing-and-tdd.md">Intro to Testing and TDD</a></li>
+<li><a href="jasmine-testing.md">Jasmine Testing</a></li>
+<li><a href="./mocking-and-abstraction.md">Mocking and abstraction</a></li>
+</ul>
+<h3 id="motivation">Motivation</h3>
+<p>Up to now we’ve been talking about <em>unit testing</em>. Unit testing is about making sure a function behaves as expected independent of other parts of the software system.</p>
+<p>In most code bases functions are called not just by other functions within the code base. They are also called by <em>user interfaces</em> and sometimes even other programs!</p>
+<p>When one program calls a function from within another program, that’s an <em>API</em>! APIs, or “Application Programming Interfaces” are everywhere! Most APIs are distributed either as a library, that you add to your package.json and start using right away, or are exposed over the web via HTTP.</p>
+<p>Unit testing is a powerful core skill for building maintainble software, and the skills you’re learning with jasmine or mocha or other testing frameworks can be built upon to do <em>integration testing!</em></p>
+<p>Integration testing differes from unit testing in that it’s about checking how our code works when it’s calling or being called by other programs.</p>
+<p>Integration testing is <em>hard</em>, but <em>worth it</em>. As you develop your skills at integration testing, you’ll learn how to overcome the challenges posed by writing testable code that talks to other systems.</p>
+<p>As a bonus, the skills and techniques we learn, not only help make our code easier to test but also aid readability and long term maintainability of projects.</p>
+<p>This lesson discusses new tools and code patterns that help us to meet those challenges.</p>
+<h3 id="objectives">Objectives</h3>
+<p><strong>Participants will be able to:</strong></p>
+<ul>
+<li>Understand the basics of testing, APIs and backend (<a href="#1-Introduction-to-testing-and-backend">Section 1</a>)</li>
+<li>Use Postman (a testing tool) for testing your API/HTTP requests. (<a href="#3-New-Tool-Postman">Section 3</a>)</li>
+<li>Write code to test GET, PUT, POST and DELETE requests in your project (<a href="#Guided-Practice">Guided Practice</a>)</li>
+<li>Make a basic TODO app with unit testing to test database and other external services (<a href="#Guided-Practice">Guided Practice</a>)</li>
+</ul>
+<h3 id="specific-things-to-learn">Specific Things to Learn</h3>
+<p><strong>Note</strong>: We’ve included links to guides on each of these when available for easy reference later. These are also included when applicable during the lesson.</p>
+<p>We do not expect you to do the tutorials linked in this “Specific Things to Learn” section today.</p>
+<ul>
+<li>General testing tools
+<ul>
+<li><a href="https://mochajs.org/">Mocha</a> (<a href="jasmine-testing.md">Intro To Testing</a>)</li>
+<li><a href="https://www.chaijs.com/">Chai</a> (<a href="jasmine-testing.md">Intro To Testing</a>)</li>
+<li><a href="https://www.getpostman.com/">Postman</a> (guides to: <a href="https://www.toolsqa.com/postman/postman-navigation/">Navigating Postman</a>, <a href="https://www.toolsqa.com/postman/response-in-postman/">Making GET requests</a>, <a href="https://www.toolsqa.com/postman/post-request-in-postman/">Making POST requests</a>)</li>
+</ul></li>
+<li>Testing HTTP requests to your project
+<ul>
+<li><a href="https://www.npmjs.com/package/supertest">Supertest</a> (<a href="https://codeforgeek.com/2015/07/unit-testing-nodejs-application-using-mocha/">intro tutorial</a>)</li>
+</ul></li>
+<li>Testing your own database</li>
+</ul>
+<h3 id="materials">Materials</h3>
+<p>In additional to the linked material above associated with specific technologies that we’ll be using there is some more general reading that will help provide depth to your understanding of API testing.</p>
+<ul>
+<li><a href="https://docs.google.com/presentation/d/1no4BY2e74QoHJlkO7LIOV-qlcqQ2viQbyJlEDyptmeY/edit?usp=sharing">Backend Testing Slides</a></li>
+<li><a href="https://assertible.com/blog/7-http-methods-every-web-developer-should-know-and-how-to-test-them">7 HTTP methods every web developer should know and how to test them</a></li>
+</ul>
+<h4 id="code-samples-provided">Code samples provided</h4>
+<p>We will get to these code samples during Guided Practice.</p>
+<ul>
+<li><a href="https://repl.it/@techtonica/BackendTesting-I">Step 1</a> — a snapshot of the TODO app that is works but is neither tested nor built to facilitate testing</li>
+<li><a href="https://glitch.com/edit/#!/zee-techtonica-backend-testing-ii?path=index.js:37:0">Step 2</a> — the TODO app has gotten a basic set of unit tests that protect against functional regressions and demonstrates how to test an external service dependency</li>
+<li><a href="https://repl.it/@techtonica/BackendTesting-III">Step 3</a> — with one final structural change our sample app enables (and adds) testing for the code that interacts with our database</li>
+</ul>
+<h2 id="lesson">Lesson</h2>
+<h3 id="introduction-to-testing-and-backend">1. Introduction to testing and backend</h3>
+<h4 id="establishing-some-terminology">1.1 Establishing some terminology</h4>
+<p>Before we get started let’s set some ground rules about how we use terminology. This module is called “backend testing”; but without establishing what <code>backend</code> means, that can easily get confusing.</p>
+<p>Within the context of this lesson a <code>backend</code> is an API that supports some collection of features. It often, but not always, exposes its interface through HTTP requests and returns JSON objects as a response.</p>
+<p>A <code>backend</code> can be the service you’re writing but it can also be something that you depend on:</p>
+<ul>
+<li>a database may be a backend to your service</li>
+<li>your service could be the backend to your users</li>
+<li>the GitHub API may be a backend you depend upon</li>
+</ul>
+<p>For this reason, it’s important to provide sufficient context when talking about using or testing a backend service.</p>
+<p>With that in mind…</p>
+<p>This lesson discusses backend testing in all of these frames: we will test your service’s interaction with its backend (database &amp; external APIs) while also writing tests to ensure your service, when used as a backend, performs as expected. In the course of this write-up we’ll use the following terms to mean specific things:</p>
+<ul>
+<li>“your project”— this is your code; it’s written for node.js</li>
+<li>“API” / “API testing”— this is also your code; the node.js project exposes its features to the world through an HTTP API, this term captures the testing needed to ensure how you handle those requests is correct</li>
+<li>“backend” / “service”— this is an API that you call via HTTP; it’s called from your project</li>
+<li>“database”— this is a specific backend that your project uses to save data</li>
+</ul>
+<h4 id="getting-started-is-api-and-backenddatabase-testing-special">1.2 Getting Started: Is API and backend/database testing special?</h4>
+<p>We’ve already talked about testing and how it’s important to verify code quality over time / as you make changes. Why then is it worth discussing API / backend testing, isn’t that just more of the same?</p>
+<p>Well, kind of; but not really…</p>
+<p>These tests are important for the same reason: We need to ensure that our code works as expected and to protect correct behavior. So framed as “is testing important,” yes it can be pretty much thought of as just more of the same. However when you actually sit down to write these tests the interactions with external requests (to your project) and APIs introduce interesting new difficulties.</p>
+<h4 id="facing-new-challenges">1.3 Facing new challenges</h4>
+<p>So what are some of these new challenges and how to we address them?</p>
+<ol type="1">
+<li>We are often consumers of an external backend and don’t control its behavior;</li>
+<li>The services we use typically strive for uptime, given this how do we test our project’s behavior when those services fail;</li>
+<li>Making calls to external services or databases often require network access (or use of them is costly), both of which incentivize writing less comprehensive tests;</li>
+<li>Running an API means we need to test our processing of HTTP requests which is not necessarily technically obvious;</li>
+<li>When handling HTTP requests our API needs to map from user input via query string into some format that our code expects.</li>
+</ol>
+<p>There are other issues but learning how to address these is a great start and covers the foundational skills necessary to provide great test coverage for your project.</p>
+<h4 id="key-concepts-and-new-tools">1.4 Key Concepts and New Tools</h4>
+<p>The plan here is to first discuss some key concepts and tooling that you’ll use while writing unit tests for your project and then dig into concrete examples in a small node.js + express project and corresponding tests.</p>
+<p>How you consume this will depend your learning style. My suggestion is to skim over [<em>Mocking and Abstraction</em>][tt-mocking] lesson then work through the examples. It’s pretty normal for writing code with modularity and testing in mind so don’t fret if it takes more than a couple of passes for things to fall into place.</p>
+<h3 id="new-tool-postman">2. New Tool: Postman</h3>
+<p>At its core Postman is a UI that allows us to construct simple (or complex!) HTTP requests and inspect the results. You can think of it as a browser that enables you to customize every aspect of the HTTP calls that are made. ToolsQA has good collection of Postman covering basic and enterprise uses. For now you should skim the <a href="https://www.toolsqa.com/postman/postman-navigation/">navigation</a>, <a href="https://www.toolsqa.com/postman/response-in-postman/">GET request</a>, and <a href="https://www.toolsqa.com/postman/post-request-in-postman/">POST request</a> tutorials.</p>
+<p><strong>Why use Postman?</strong> When building an API it’s often <em>much</em> easier to wire up a test request in Postman than to build an HTML form (or similar) to fire off some test requests against your API. As an example: while verifying that the TODO post code used in this lesson worked I used Postman to quickly create POST requests to validate behavior of the project.</p>
+<p><strong>Why not just use Postman?</strong> If Postman makes it super easy to test why shouldn’t we just build all our API tests using it? Postman primarily makes it simple to do blackbox integration or end-to-end API testing. It’s important to test this but recall that <a href="https://testing.googleblog.com/2015/04/just-say-no-to-more-end-to-end-tests.html">there are good reasons</a> to not rely on end-to-end testing.</p>
+<h2 id="guided-practice">Guided Practice</h2>
+<p>In this practice we’re going to combine all the things we’ve talked about above to build a simple TODO app that allows you to read and create TODO items and is unit tested. We’ll also cover a few approaches to testing DB calls that we don’t provide sample code.</p>
+<p>We’ll be working with a database with the following schema:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sql"><code class="sourceCode sql"><a class="sourceLine" id="cb1-1" title="1"><span class="co">-- ElephantSQL.com uses PostgreSQL so this is a PostgreSQL CREATE call; it</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="co">-- varies slightly from the MySQL equivalent.</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw">CREATE</span> <span class="kw">TABLE</span> todo_items (</a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="co">-- If run against MySQL this would be `id INT(10) AUTO_INCREMENT`</span></a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="kw">id</span> SERIAL,</a>
+<a class="sourceLine" id="cb1-6" title="6">  <span class="kw">entry</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</a>
+<a class="sourceLine" id="cb1-7" title="7">  <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="kw">id</span>)</a>
+<a class="sourceLine" id="cb1-8" title="8">);</a></code></pre></div>
+<h4 id="gp-0-set-up-your-project">GP 0: Set up your project</h4>
+<ol start="0" type="1">
+<li>Create a new folder for your project by following these sub-steps:
+<ol type="1">
+<li><code>mkdir todo</code> or whatever you want to name this new folder (and project)</li>
+<li><code>cd todo</code></li>
+</ol></li>
+<li>Once you’re in your brand-new folder, use <code>npm init</code> to initialize a new node project.
+<ol type="1">
+<li>In your terminal, type <code>npm init</code> and press enter. This will start a new tiny command line program that helps you set up your new node project. (It will save your answers in package.json and set up some other config files for you.)</li>
+<li>The first thing it asks you is “what do you want the name to be?” (It asks for the package name because it’s assuming you’re making an npm package.) Notice that after the prompt, there is a <em>default value</em> in parentheses. Whenever you see a default value in parentheses, go ahead and press “enter” to simply use the default value.</li>
+<li>Next it asks for a version, and supplies the default value (1.0.0). Go ahead and just press enter again.</li>
+<li>Continue until you get to “description” which doesn’t have a default value. Write whatever short description you want, like <code>todo app with tests</code>. You can edit this later.</li>
+<li>Keep using the default value for prompts (like accept that the entry point will be <code>index.js</code>) until the tiny <code>npm init</code> program ends and you get back to your normal command line prompt.</li>
+</ol></li>
+<li>Back on your normal command line prompt, install your project’s dependencies: <code>npm install --save body-parser express pg</code></li>
+<li>Install your project’s test dependencies: <code>npm install --save-dev chai mocha nock supertest</code></li>
+<li>Set up your database and <code>todo_items</code> table by following these steps:
+<ol type="1">
+<li>Create a new free database on <a href="https://elephantsql.com/">ElephantSQL</a>; they have <a href="https://www.elephantsql.com/docs/index.html">a guide</a> for this process.</li>
+<li>Use <a href="https://www.elephantsql.com/docs/pgadmin.html">pgAdmin</a> or their “Browser” view to run the <code>CREATE TABLE</code> command (above) on your database</li>
+</ol></li>
+</ol>
+<h5 id="gp-0-set-up-your-project-a-quick-summary-of-accessing-a-db">GP 0: Set up your project / A quick summary of accessing a DB</h5>
+<p>Your connection to most relational databases can be described in a <em>connection string</em>. It bakes into it a lot of information: <code>&lt;dbtype&gt;://&lt;username&gt;:&lt;password&gt;@&lt;host&gt;/&lt;dbname&gt;</code>. This is then passed to the library you use to run queries (<code>SELECT</code>, <code>INSERT</code>, <code>DELETE</code>, etc). We accomplish this with the following:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">const</span> dbPool <span class="op">=</span> <span class="kw">new</span> <span class="va">pg</span>.<span class="at">Pool</span>(<span class="op">{</span> <span class="dt">connectionString</span><span class="op">:</span> dbConnString <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="va">dbPool</span>.<span class="at">on</span>(<span class="st">&#39;error&#39;</span><span class="op">,</span> (err<span class="op">,</span> client) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="va">console</span>.<span class="at">error</span>(<span class="st">&#39;Unexpected error on client&#39;</span><span class="op">,</span> err)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="va">process</span>.<span class="at">exit</span>(<span class="op">-</span><span class="dv">1</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>After this we can make queries to the database by using <code>dbPool.query(...)</code>. Its documentation is <a href="https://node-postgres.com/features/queries">here</a> but the short version is that it takes three arguments:</p>
+<ol type="1">
+<li>the query to be run, e.g., <code>SELECT * from todo_items</code></li>
+<li>(optional) any arguments that are passed into the query</li>
+<li>a callback that will be made once the query is completed</li>
+</ol>
+<p>This should be enough to get you running but if you want to read more about connecting to a database I suggest the <a href="https://node-postgres.com/features/connecting">connecting</a> and <a href="https://node-postgres.com/features/pooling">polling</a> docs.</p>
+<h4 id="gp-1-first-steps">GP 1: First steps</h4>
+<p>(GP 1 stands for “Guided Practice Step One” here.)</p>
+<p>You know how to build Express apps and much of the code for implementing the necessary paths (<code>GET /</code>, <code>GET /items</code>, and <code>POST /</code>) is available above in the <em>Abstraction</em> section. We also just talked about how to connect to a database.</p>
+<p>If you put those three things together it’s enough to get a simple project running that connects to your database and gets you started managing and viewing TODO items. Don’t worry about tests just yet, we’ll make some changes that make it easier.</p>
+<h5 id="gp-1-first-steps-challenge">GP 1: First steps / Challenge</h5>
+<p>Once you’ve got the three methods up and working look at how we refactored the read methods to make DB accesses easier to read and maintain with <code>getTodo</code>. Rewrite the <code>POST /</code> handler to use a similar approach so that the handler doesn’t have SQL directly inside it.</p>
+<h5 id="gp-1-first-steps-reference-implementation">GP 1: First steps / Reference implementation</h5>
+<p>Once you have it working there is a reference implementation on <a href="https://repl.it/@techtonica/BackendTesting-I">repl.it</a> if you want to see what some other potential solutions look like.</p>
+<h4 id="interlude-testing-apis-with-supertest">Interlude: Testing APIs with <code>supertest</code></h4>
+<p>Read through <a href="https://codeforgeek.com/2015/07/unit-testing-nodejs-application-using-mocha/">Testing Node.js with supertest</a>. Much of this will be familiar but it introduces a new library called <code>supertest</code>. At its core this allows you to easily do in your unit tests what Postman was letting you do to experiment.</p>
+<h4 id="gp-2-refactoring-for-api-tests">GP 2: Refactoring for API Tests</h4>
+<p>Now that we’ve got the core features solid Let’s start with adding tests to our API endpoints so that if anything breaks in the future we’ll catch it.</p>
+<p>The first thing we’ll need to do is get the fixed reference to <code>getTodo</code> out of the route handlers. We need to do this because it’s much easier when testing to only worry about ensuring that our code does the right thing with the data it gets back from the Database.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1">app <span class="op">=</span> <span class="at">express</span>()</a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> (req<span class="op">,</span> res) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="at">getTodo</span>(...<span class="op">,</span> (err<span class="op">,</span> todoResult) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-4" title="4">    <span class="co">/* some handler using getTodo */</span></a>
+<a class="sourceLine" id="cb3-5" title="5">  <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="op">}</span>)</a></code></pre></div>
+<p>What we want to accomplish is rewriting our handlers so that they don’t use a fixed implementation of <code>getTodo</code>. If we wanted to do the same thing in another context we would wrap the behavior in a function and pass the desired implementation in as a parameter. Further, registering a route is nothing more than a function call on <code>app</code>.</p>
+<blockquote>
+<p>Example (not part of our Todo app):</p>
+<p>So, if you start with:</p>
+</blockquote>
+<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">const</span> name <span class="op">=</span> <span class="st">&#39;Techtonica&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="co">// We initially start out with a fixed way to modify the name</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="kw">function</span> <span class="at">capitalize</span>(s) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-5" title="5">  <span class="cf">return</span> <span class="va">s</span>.<span class="at">toUpperCase</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="op">}</span></a>
+<a class="sourceLine" id="cb4-7" title="7"></a>
+<a class="sourceLine" id="cb4-8" title="8"><span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> (req<span class="op">,</span> res) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-9" title="9">  <span class="va">res</span>.<span class="at">send</span>(<span class="st">&#39;Hello, &#39;</span> <span class="op">+</span> <span class="at">capitalize</span>(name))<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-10" title="10"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<blockquote>
+<p>then you can drop the whole thing into a parameterized function:</p>
+</blockquote>
+<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">const</span> name <span class="op">=</span> <span class="st">&#39;Techtonica&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="kw">function</span> <span class="at">capitalize</span>(s) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="cf">return</span> <span class="va">s</span>.<span class="at">toUpperCase</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="kw">function</span> <span class="at">lowercase</span>(s) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-7" title="7">  <span class="cf">return</span> <span class="va">s</span>.<span class="at">toLowerCase</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="kw">function</span> <span class="at">excited</span>(s) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-10" title="10">  <span class="cf">return</span> s <span class="op">+</span> <span class="st">&#39;!&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb5-11" title="11"><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-12" title="12"></a>
+<a class="sourceLine" id="cb5-13" title="13"><span class="kw">function</span> <span class="at">registerRoute</span>(nomeFn) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-14" title="14">  <span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> (req<span class="op">,</span> res) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-15" title="15">    <span class="va">res</span>.<span class="at">send</span>(<span class="st">&#39;Hello, &#39;</span> <span class="op">+</span> <span class="at">nameFn</span>(name))<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-16" title="16">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-17" title="17"><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-18" title="18"></a>
+<a class="sourceLine" id="cb5-19" title="19"><span class="co">// now you can register the route with any function to be applied to the name:</span></a>
+<a class="sourceLine" id="cb5-20" title="20"><span class="at">registerRoute</span>(capitalize)<span class="op">;</span> <span class="co">// or...</span></a>
+<a class="sourceLine" id="cb5-21" title="21"><span class="at">registerRoute</span>(lowercase)<span class="op">;</span> <span class="co">// or...</span></a>
+<a class="sourceLine" id="cb5-22" title="22"><span class="at">registerRoute</span>(excited)<span class="op">;</span> <span class="co">// etc</span></a></code></pre></div>
+<blockquote>
+
+</blockquote>
+<h5 id="back-to-our-todo-app-now">Back to our TODO app now</h5>
+<p>Using this same principle you can rewrite the TODO project handlers to not rely on the global <code>getTodo</code> function as well. Give it a shot, I’ve included a version below:</p>
+<details>
+<p><summary>Code Sample (click to expand)</summary></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">function</span> <span class="at">constructRoutes</span>(app<span class="op">,</span> getTodo) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/items&#39;</span><span class="op">,</span> (req<span class="op">,</span> res) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-3" title="3">    <span class="at">getTodo</span>((err<span class="op">,</span> todoResult) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-4" title="4">      <span class="co">/* HTML </span><span class="al">TODO</span><span class="co"> list implementation */</span></a>
+<a class="sourceLine" id="cb6-5" title="5">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-6" title="6">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-7" title="7"></a>
+<a class="sourceLine" id="cb6-8" title="8">  <span class="va">app</span>.<span class="at">get</span>(<span class="st">&#39;/&#39;</span><span class="op">,</span> (req<span class="op">,</span> res) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-9" title="9">    <span class="at">getTodo</span>((err<span class="op">,</span> todoResult) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-10" title="10">      <span class="co">/* JSON </span><span class="al">TODO</span><span class="co"> list implementation */</span></a>
+<a class="sourceLine" id="cb6-11" title="11">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-12" title="12">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-13" title="13"><span class="op">}</span></a>
+<a class="sourceLine" id="cb6-14" title="14"></a>
+<a class="sourceLine" id="cb6-15" title="15"><span class="kw">function</span> <span class="at">getTodoDB</span>(callbackFn) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-16" title="16">  <span class="cf">return</span> <span class="va">dbPool</span>.<span class="at">query</span>(<span class="st">&#39;SELECT id, entry FROM todo_items&#39;</span><span class="op">,</span> callbackFn)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-17" title="17"><span class="op">}</span></a>
+<a class="sourceLine" id="cb6-18" title="18"></a>
+<a class="sourceLine" id="cb6-19" title="19"><span class="kw">const</span> app <span class="op">=</span> <span class="at">express</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-20" title="20"><span class="at">constructRoutes</span>(app<span class="op">,</span> getTodoDB)<span class="op">;</span></a></code></pre></div>
+</details>
+<p>Now that you have the ability to construct routes with a custom implementation of your database calls, it’s time to use <strong>mocked-out versions of those calls</strong> to write simple unit tests of your request handlers. This means you can focus just on how you process the requset and not worry about the implementation of how we get or save TODO items.</p>
+<p>A simple test for <code>GET /</code> might look like:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" title="1"><span class="at">describe</span>(<span class="st">&#39;GET /&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-2" title="2">  <span class="at">it</span>(<span class="st">&#39;should return todo items as JSON on success&#39;</span><span class="op">,</span> (done) <span class="kw">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-3" title="3">    app <span class="op">=</span> <span class="at">express</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-4" title="4"></a>
+<a class="sourceLine" id="cb7-5" title="5">    <span class="kw">const</span> todoContents <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb7-6" title="6">      <span class="op">{</span> <span class="dt">id</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">entry</span><span class="op">:</span> <span class="st">&#39;Learn supertest&#39;</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb7-7" title="7">      <span class="op">{</span> <span class="dt">id</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">entry</span><span class="op">:</span> <span class="st">&#39;Learn abstraction patterns&#39;</span> <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-8" title="8">    ]<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-9" title="9">    expectedResults <span class="op">=</span> <span class="va">JSON</span>.<span class="at">stringify</span>(<span class="op">{</span> <span class="dt">error</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">todo</span><span class="op">:</span> todoContents <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-10" title="10"></a>
+<a class="sourceLine" id="cb7-11" title="11">    <span class="kw">const</span> mockGetTodo <span class="op">=</span> <span class="kw">function</span>(todoCallback) <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-12" title="12">      <span class="at">todoCallback</span>(<span class="kw">false</span><span class="op">,</span> <span class="op">{</span> <span class="dt">rows</span><span class="op">:</span> todoContents <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-13" title="13">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb7-14" title="14"></a>
+<a class="sourceLine" id="cb7-15" title="15">    <span class="co">// this builds the routes using our &quot;database&quot; function and attaches them</span></a>
+<a class="sourceLine" id="cb7-16" title="16">    <span class="co">// to the app</span></a>
+<a class="sourceLine" id="cb7-17" title="17">    <span class="va">setup</span>.<span class="at">constructRoutes</span>(app<span class="op">,</span> mockGetTodo)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-18" title="18"></a>
+<a class="sourceLine" id="cb7-19" title="19">    <span class="co">// use supertest to make an HTTP GET request to /</span></a>
+<a class="sourceLine" id="cb7-20" title="20">    <span class="at">request</span>(app)</a>
+<a class="sourceLine" id="cb7-21" title="21">      .<span class="at">get</span>(<span class="st">&#39;/&#39;</span>)</a>
+<a class="sourceLine" id="cb7-22" title="22">      <span class="co">// and then verify the results are as we expect</span></a>
+<a class="sourceLine" id="cb7-23" title="23">      .<span class="at">expect</span>(<span class="dv">200</span><span class="op">,</span> expectedResults<span class="op">,</span> done)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-24" title="24">  <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-25" title="25"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h5 id="gp-2-refactoring-for-api-tests-challenge">GP 2: Refactoring for API Tests / Challenge</h5>
+<p>Take some time to get a feeling of how this works. Once there try to take the concepts in it and write unit tests for the case where the database calls fail. Now write the <code>POST /</code> test.</p>
+<p>What about things that aren’t databases? How would you use the same principles to build testable code that utilizes external services?</p>
+<h5 id="gp-2-refactoring-for-api-tests-reference-implementation">GP 2: Refactoring for API Tests / Reference Implementation</h5>
+<p>One possible way of doing this is up on <a href="https://glitch.com/edit/#!/zee-techtonica-backend-testing-ii?path=index.js:37:0">glitch</a>. (Open the console and enter ‘mocha’ to run tests.)</p>
+<h2 id="independent-practice">Independent Practice</h2>
+<ul>
+<li>Deploy your own version of the sample TODO project to heroku, netlify, or similar</li>
+<li>Experiment with Postman to create new TODO item</li>
+<li>Add a test for <code>/items</code> to make sure that the HTML version displays as we expect; don’t forget to include the case where your DB call fails</li>
+</ul>
+<h4 id="challenge">Challenge</h4>
+<p>Try to expand the sample TODO app that we’ve written:</p>
+<ul>
+<li>Enable requests that get specific TODO items</li>
+<li>Support deleting a TODO item</li>
+<li>Add TODO lists that are specific to different users of the system</li>
+<li>Add an endpoint to implement marking an item as completed (and update the database schema, too)</li>
+</ul>
+<p>And, of course, write unit tests for each of your new features!</p>
+<h2 id="check-for-understanding">Check for Understanding</h2>
+<ul>
+<li>Pair up with another apprentice and do a Q&amp;A on backend testing; some example topics:
+<ul>
+<li>How API / backend testing is different from unit tests you’ve previously written</li>
+<li>What are the benefits of not testing against live external services</li>
+</ul></li>
+<li>Trade code with another apprentice and review their solution to find how they used the principles we discussed; are there any improvements you can find for better readability or maintainability?</li>
+</ul>
+<h2 id="supplemental-materials">Supplemental Materials</h2>
+<ul>
+<li><a href="https://dev.to/achowba/build-a-simple-app-using-node-js-and-mysql-19me">MySQL and Node tutorial</a> — A tutorial that walks through setting up a Node app that connects to MySQL database. While this isn’t a PostgreSQL app, this step-by-step tutorial can provide different insight into building an app with a database.</li>
+</ul>
+<p>Optional reading that was useful while writing this lesson:</p>
+<ul>
+<li><a href="https://www.xaprb.com/blog/2008/08/19/how-to-unit-test-code-that-interacts-with-a-database/">Testing a Database</a> — this discusses an alternate approach to DB testing than we’ll take at a very high level.</li>
+<li><a href="https://node-postgres.com/guides/project-structure"><code>node-postgres</code> structure suggestion</a></li>
+<li><a href="https://expressjs.com/en/4x/api.html">The Express API</a></li>
+<li><a href="https://visionmedia.github.io/superagent/">superagent api</a> — this is the API underlying <code>supertest</code></li>
+<li><a href="https://linuxhint.com/postgresql-nodejs-tutorial/">Using PostgreSQL with Node.js</a> — A simple example of using PostgreSQL within the context of a Node.js project (<em>not</em> Express which does have some impact)</li>
+</ul>
