@@ -1,0 +1,257 @@
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.facebook.buck.android;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import com.android.bundle.Config.BundleConfig;
+import com.android.bundle.Config.Compression;
+import com.android.bundle.Config.Optimizations;
+import com.android.bundle.Config.SplitDimension;
+import com.android.bundle.Config.SplitsConfig;
+import com.android.bundle.Files.Assets;
+import com.android.bundle.Files.NativeLibraries;
+import com.android.bundle.Files.TargetedNativeDirectory;
+import com.facebook.buck.core.model.BuildTargetFactory;
+import com.facebook.buck.core.model.impl.BuildTargetPaths;
+import com.facebook.buck.io.filesystem.ProjectFilesystem;
+import com.facebook.buck.jvm.java.testutil.AbiCompilationModeTest;
+import com.facebook.buck.testutil.ProcessResult;
+import com.facebook.buck.testutil.TemporaryPaths;
+import com.facebook.buck.testutil.integration.ProjectWorkspace;
+import com.facebook.buck.testutil.integration.TestDataHelper;
+import com.facebook.buck.testutil.integration.ZipInspector;
+import com.facebook.buck.util.MoreStringsForTests;
+import com.facebook.buck.util.zip.ZipConstants;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Date;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import org.apache.commons.compress.archivers.zip.ZipUtil;
+import org.hamcrest.Matchers;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
+public class AndroidAppBundleIntegrationTest extends AbiCompilationModeTest {
+
+  private ProjectWorkspace workspace;
+  @Rule public TemporaryPaths tmpFolder = new TemporaryPaths();
+  private ProjectFilesystem filesystem;
+
+  @Before
+  public void setUp() throws IOException {
+    workspace =
+        TestDataHelper.createProjectWorkspaceForScenario(this, "android_project", tmpFolder);
+    workspace.setUp();
+    workspace.addTemplateToWorkspace(Paths.get("test/com/facebook/buck/toolchains/kotlin"));
+    setWorkspaceCompilationMode(workspace);
+
+    AssumeAndroidPlatform.get(workspace).assumeSdkIsAvailable();
+    AssumeAndroidPlatform.get(workspace).assumeNdkIsAvailable();
+    AssumeAndroidPlatform.get(workspace).assumeBundleBuildIsSupported();
+
+    setWorkspaceCompilationMode(workspace);
+    filesystem = workspace.getProjectFileSystem();
+  }
+
+  @Test
+  public void testAppBundleHaveDeterministicTimestamps() throws IOException {
+    // TODO(bduff): a lot of this tests the operation of bundletool. We probably don't need to.
+    String target = "//apps/sample:app_bundle_1";
+    ProcessResult result = workspace.runBuckCommand("build", target);
+    result.assertSuccess();
+
+    // Iterate over each of the entries, expecting to see all zeros in the time fields.
+    Path aab =
+        workspace.getPath(
+            BuildTargetPaths.getGenPath(
+                filesystem, BuildTargetFactory.newInstance(target), "%s.signed.aab"));
+    Date dosEpoch = new Date(ZipUtil.dosToJavaTime(ZipConstants.DOS_FAKE_TIME));
+    try (ZipInputStream is = new ZipInputStream(Files.newInputStream(aab))) {
+      for (ZipEntry entry = is.getNextEntry(); entry != null; entry = is.getNextEntry()) {
+        assertThat(entry.getName(), new Date(entry.getTime()), Matchers.equalTo(dosEpoch));
+      }
+    }
+
+    ZipInspector zipInspector = new ZipInspector(aab);
+    zipInspector.assertFileExists("BundleConfig.pb");
+    zipInspector.assertFileExists("base/dex/classes.dex");
+    zipInspector.assertFileExists("base/assets.pb");
+    zipInspector.assertFileExists("base/resources.pb");
+    zipInspector.assertFileExists("base/manifest/AndroidManifest.xml");
+    zipInspector.assertFileExists("base/assets/asset_file.txt");
+    zipInspector.assertFileExists("base/res/drawable/tiny_black.png");
+    zipInspector.assertFileExists("base/native.pb");
+    zipInspector.assertFileExists("base/lib/armeabi-v7a/libnative_cxx_lib.so");
+    zipInspector.assertFileExists("base/assets/secondary-program-dex-jars/secondary-1.dex.jar");
+    NativeLibraries nativeLibraries =
+        NativeLibraries.parseFrom(zipInspector.getFileContents("base/native.pb"));
+
+    // Two abis under lib that have at least 1 file (armeabi-v7a, x86)
+    assertEquals(2, nativeLibraries.getDirectoryList().size());
+    for (TargetedNativeDirectory targetedNativeDirectory : nativeLibraries.getDirectoryList()) {
+      assertTrue(targetedNativeDirectory.getTargeting().hasAbi());
+    }
+
+    Assets assets = Assets.parseFrom(zipInspector.getFileContents("base/assets.pb"));
+    assertEquals(2, assets.getDirectoryList().size());
+
+    BundleConfig bundleConfig =
+        BundleConfig.parseFrom(zipInspector.getFileContents("BundleConfig.pb"));
+
+    System.err.println(bundleConfig);
+
+    assertTrue(bundleConfig.hasBundletool());
+
+    assertTrue(bundleConfig.hasOptimizations());
+    assertOptimizations(bundleConfig.getOptimizations());
+
+    assertTrue(bundleConfig.hasCompression());
+    assertCompression(bundleConfig.getCompression());
+  }
+
+  public void assertSplitDimension(SplitDimension splitdimension, int index) {
+    assertEquals(index + 1, splitdimension.getValueValue());
+    assertEquals(index != 0, splitdimension.getNegate());
+  }
+
+  public void assertSplitsConfig(SplitsConfig splitsconfig) {
+    assertEquals(3, splitsconfig.getSplitDimensionCount());
+    for (int i = 0; i < 3; i++) {
+      assertSplitDimension(splitsconfig.getSplitDimension(i), i);
+    }
+  }
+
+  public void assertOptimizations(Optimizations optimizations) {
+    assertTrue(optimizations.hasSplitsConfig());
+    assertSplitsConfig(optimizations.getSplitsConfig());
+  }
+
+  public void assertCompression(Compression compression) {
+    assertEquals(0, compression.getUncompressedGlobCount());
+  }
+
+  @Test
+  public void testAppBundleHaveCorrectAaptMode() {
+    String target = "//apps/sample:app_bundle_wrong_aapt_mode";
+    ProcessResult result = workspace.runBuckBuild(target).assertFailure();
+    assertThat(
+        result.getStderr(),
+        containsString(
+            "Android App Bundle can only be built with aapt2, but " + target + " is using aapt1."));
+  }
+
+  @Test
+  public void testAppBundleWithMultipleModules() throws IOException {
+    String target = "//apps/sample:app_modular_debug";
+    ProcessResult result = workspace.runBuckCommand("build", target);
+    result.assertSuccess();
+
+    Path aab =
+        workspace.getPath(
+            BuildTargetPaths.getGenPath(
+                filesystem, BuildTargetFactory.newInstance(target), "%s.signed.aab"));
+
+    ZipInspector zipInspector = new ZipInspector(aab);
+    zipInspector.assertFileExists("small_with_no_resource_deps/assets.pb");
+    zipInspector.assertFileExists(
+        "small_with_no_resource_deps/assets/small_with_no_resource_deps/metadata.txt");
+    zipInspector.assertFileExists(
+        "small_with_no_resource_deps/assets/small_with_no_resource_deps/libs.xzs");
+    zipInspector.assertFileExists("small_with_no_resource_deps/dex/classes.dex");
+    zipInspector.assertFileExists("base/dex/classes.dex");
+    zipInspector.assertFileExists("base/dex/classes2.dex");
+    zipInspector.assertFileExists("small_with_no_resource_deps/manifest/AndroidManifest.xml");
+    zipInspector.assertFileExists("small_with_no_resource_deps/resources.pb");
+  }
+
+  @Test
+  public void testAppBundleWithDynamicFeatures() throws IOException {
+    String target = "//apps/dynamic_features:app_dynamic_features";
+    ProcessResult result = workspace.runBuckCommand("build", target);
+    result.assertSuccess();
+
+    Path aab =
+      workspace.getPath(
+        BuildTargetPaths.getGenPath(
+          filesystem, BuildTargetFactory.newInstance(target), "%s.signed.aab"));
+
+    ZipInspector zipInspector = new ZipInspector(aab);
+
+    // Verify dex are built for specific module
+    zipInspector.assertFileExists("base/dex/classes.dex");
+    zipInspector.assertFileExists("native/dex/classes.dex");
+    zipInspector.assertFileExists("java/dex/classes.dex");
+    zipInspector.assertFileExists("kotlin/dex/classes.dex");
+    zipInspector.assertFileExists("initialInstall/dex/classes.dex");
+
+    // Verify native libs are present only in native module
+    zipInspector.assertFileExists("native/lib/x86/libprebuilt.so");
+    zipInspector.assertFileDoesNotExist("base/lib/x86/libprebuilt.so");
+
+    // Verify only x86 libs are present in the generated bundle file
+    zipInspector.assertFileExists("native/lib/x86/libprebuilt.so");
+    zipInspector.assertFileDoesNotExist("base/lib/arm64-v8a/libprebuilt.so");
+
+    // Verify manifest properties and delivery modes of respective modules
+    zipInspector.assertFileExists("base/manifest/AndroidManifest.xml");
+    zipInspector.assertFileExists("native/manifest/AndroidManifest.xml");
+    zipInspector.assertFileExists("java/manifest/AndroidManifest.xml");
+    zipInspector.assertFileExists("kotlin/manifest/AndroidManifest.xml");
+    zipInspector.assertFileExists("initialInstall/manifest/AndroidManifest.xml");
+
+    String nativeManifestContent = new String(
+      zipInspector.getFileContents("native/manifest/AndroidManifest.xml"));
+    assertTrue(Pattern.compile(".*(split[\\u0000-\\u007F]+native).*").matcher(
+      MoreStringsForTests.containsIgnoringPlatformNewlines(nativeManifestContent).toString()).matches());
+    assertTrue(nativeManifestContent.contains("on-demand"));
+
+    String javaManifestContent = new String(
+      zipInspector.getFileContents("java/manifest/AndroidManifest.xml"));
+    assertTrue(Pattern.compile(".*(split[\\u0000-\\u007F]+java).*").matcher(
+      MoreStringsForTests.containsIgnoringPlatformNewlines(javaManifestContent).toString()).matches());
+    assertTrue(javaManifestContent.contains("install-time"));
+    assertTrue(javaManifestContent.contains("conditions"));
+
+    String kotlinManifestContent = new String(
+      zipInspector.getFileContents("kotlin/manifest/AndroidManifest.xml"));
+    assertTrue(Pattern.compile(".*(split[\\u0000-\\u007F]+kotlin).*").matcher(
+      MoreStringsForTests.containsIgnoringPlatformNewlines(kotlinManifestContent).toString()).matches());
+    assertTrue(kotlinManifestContent.contains("on-demand"));
+
+    String initialInstallManifestContent = new String(
+      zipInspector.getFileContents("initialInstall/manifest/AndroidManifest.xml"));
+    assertTrue(Pattern.compile(".*(split[\\u0000-\\u007F]+initialInstall).*").matcher(
+      MoreStringsForTests.containsIgnoringPlatformNewlines(initialInstallManifestContent).toString()).matches());
+    assertTrue(initialInstallManifestContent.contains("install-time"));
+
+    // Verify base manifest should include details of all feature Manifest files
+    String baseManifestContent = new String(zipInspector.getFileContents("base/manifest/AndroidManifest.xml"));
+    assertTrue(baseManifestContent.contains("OnDemandNativeFeatureActivity"));
+    assertTrue(baseManifestContent.contains("ConditionalJavaFeatureActivity"));
+    assertTrue(baseManifestContent.contains("OnDemandKotlinFeatureActivity"));
+    assertTrue(baseManifestContent.contains("AtInstallFeatureActivity"));
+  }
+}

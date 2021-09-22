@@ -1,0 +1,691 @@
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.facebook.buck.cli;
+
+import com.facebook.buck.core.build.execution.context.ExecutionContext;
+import com.facebook.buck.core.cell.Cell;
+import com.facebook.buck.core.cell.CellConfig;
+import com.facebook.buck.core.cell.CellName;
+import com.facebook.buck.core.config.BuckConfig;
+import com.facebook.buck.core.exceptions.HumanReadableException;
+import com.facebook.buck.core.filesystems.AbsPath;
+import com.facebook.buck.core.model.BuildTarget;
+import com.facebook.buck.core.model.BuildTargetWithOutputs;
+import com.facebook.buck.core.model.OutputLabel;
+import com.facebook.buck.core.model.UnconfiguredBuildTarget;
+import com.facebook.buck.core.model.UnconfiguredTargetConfiguration;
+import com.facebook.buck.core.model.targetgraph.TargetGraphCreationResult;
+import com.facebook.buck.core.parser.buildtargetparser.UnconfiguredBuildTargetViewFactory;
+import com.facebook.buck.core.resources.ResourcesConfig;
+import com.facebook.buck.core.rulekey.RuleKey;
+import com.facebook.buck.core.rulekey.config.RuleKeyConfig;
+import com.facebook.buck.core.util.log.Logger;
+import com.facebook.buck.event.BuckEventListener;
+import com.facebook.buck.event.ConsoleEvent;
+import com.facebook.buck.log.LogConfigSetup;
+import com.facebook.buck.parser.ParsingContext;
+import com.facebook.buck.parser.config.ParserConfig;
+import com.facebook.buck.parser.spec.BuildTargetMatcherTargetNodeParser;
+import com.facebook.buck.parser.spec.BuildTargetSpec;
+import com.facebook.buck.parser.spec.TargetNodeSpec;
+import com.facebook.buck.rules.keys.DefaultRuleKeyCache;
+import com.facebook.buck.rules.keys.EventPostingRuleKeyCacheScope;
+import com.facebook.buck.rules.keys.RuleKeyCacheRecycler;
+import com.facebook.buck.rules.keys.RuleKeyCacheScope;
+import com.facebook.buck.rules.keys.TrackedRuleKeyCache;
+import com.facebook.buck.support.cli.args.BuckCellArg;
+import com.facebook.buck.support.cli.args.GlobalCliOptions;
+import com.facebook.buck.support.cli.config.CliConfig;
+import com.facebook.buck.test.config.TestBuckConfig;
+import com.facebook.buck.util.DefaultProcessExecutor;
+import com.facebook.buck.util.ExitCode;
+import com.facebook.buck.util.cache.InstrumentingCacheStatsTracker;
+import com.facebook.buck.util.concurrent.ConcurrencyLimit;
+import com.facebook.buck.util.concurrent.ExecutorPool;
+import com.facebook.buck.util.config.Configs;
+import com.facebook.buck.util.types.Pair;
+import com.facebook.buck.versions.VersionException;
+import com.google.common.base.Splitter;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.devtools.build.lib.clock.Clock;
+import com.google.devtools.build.lib.clock.JavaClock;
+import com.google.devtools.build.lib.profiler.Profiler;
+import com.google.devtools.build.lib.profiler.Profiler.Format;
+import com.google.devtools.build.lib.profiler.ProfilerTask;
+import java.io.BufferedOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ScheduledExecutorService;
+import javax.annotation.Nullable;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
+
+public abstract class AbstractCommand extends CommandWithPluginManager {
+  private static final Logger LOG = Logger.get(Configs.class);
+  List<Object> configOverrides = new ArrayList<>();
+  /**
+   * This value should never be read. {@link VerbosityParser} should be used instead. args4j
+   * requires that all options that could be passed in are listed as fields, so we include this
+   * field so that {@code --verbose} is universally available to all commands.
+   */
+  @Option(
+      name = GlobalCliOptions.VERBOSE_LONG_ARG,
+      aliases = {GlobalCliOptions.VERBOSE_SHORT_ARG},
+      usage = "Specify a number between 0 and 8. '-v 1' is default, '-v 8' is most verbose.")
+  @SuppressWarnings("PMD.UnusedPrivateField")
+  private int verbosityLevel = -1;
+
+  private volatile ExecutionContext executionContext;
+
+  @Option(
+      name = GlobalCliOptions.NUM_THREADS_LONG_ARG,
+      aliases = "-j",
+      usage = "Default is 1.25 * num processors.")
+  @Nullable
+  private Integer numThreads = null;
+
+  @Option(
+      name = GlobalCliOptions.CONFIG_LONG_ARG,
+      aliases = {"-c"},
+      usage = "Override .buckconfig option",
+      metaVar = "section.option=value")
+  void addConfigOverride(String configOverride) {
+    saveConfigOptionInOverrides(configOverride);
+  }
+
+  @Option(
+      name = GlobalCliOptions.CONFIG_FILE_LONG_ARG,
+      usage = "Override options in .buckconfig using a file parameter",
+      metaVar = "PATH")
+  void addConfigFile(String filePath) {
+    configOverrides.add(filePath);
+  }
+
+  @Option(
+      name = GlobalCliOptions.SKYLARK_PROFILE_LONG_ARG,
+      usage =
+          "Experimental. Path to a file where Skylark profile information should be written into."
+              + " The output is in Chrome Tracing format and can be viewed in chrome://tracing tab",
+      metaVar = "PATH")
+  @Nullable
+  private String skylarkProfile;
+
+  @Option(name = GlobalCliOptions.TARGET_PLATFORMS_LONG_ARG, usage = "Target platforms.")
+  private List<String> targetPlatforms = new ArrayList<>();
+
+  @Nullable
+  @Option(name = GlobalCliOptions.HOST_PLATFORM_LONG_ARG, usage = "Host platform.")
+  private String hostPlatform = null;
+
+  @Override
+  public LogConfigSetup getLogConfig() {
+    return LogConfigSetup.DEFAULT_SETUP;
+  }
+
+  @Option(
+      name = GlobalCliOptions.NO_CACHE_LONG_ARG,
+      usage = "Whether to ignore the remote & local cache declared in .buckconfig.")
+  private boolean noCache = false;
+
+  @Nullable
+  @Option(
+      name = GlobalCliOptions.OUTPUT_TEST_EVENTS_TO_FILE_LONG_ARG,
+      aliases = {"--output-events-to-file"},
+      usage =
+          "Serialize test-related event-bus events to the given file "
+              + "as line-oriented JSON objects.")
+  private String eventsOutputPath = null;
+
+  @Option(
+      name = GlobalCliOptions.PROFILE_PARSER_LONG_ARG,
+      usage =
+          "Enable profiling of buck.py internals (not the target being compiled) in the debug"
+              + "log and trace.")
+  private boolean enableParserProfiling = false;
+
+  @Option(
+      name = GlobalCliOptions.EXCLUDE_INCOMPATIBLE_TARGETS_LONG_ARG,
+      usage = "This option is ignored")
+  private boolean excludeIncompatibleTargets = false;
+
+  @Option(name = GlobalCliOptions.HELP_LONG_ARG, usage = "Prints the available options and exits.")
+  private boolean help = false;
+
+  @Option(
+      name = GlobalCliOptions.REUSE_CURRENT_CONFIG_ARG,
+      usage = "Whether to re-use configuration of the currently running Buck daemon process.",
+      forbids = {GlobalCliOptions.CONFIG_LONG_ARG, GlobalCliOptions.CONFIG_FILE_LONG_ARG})
+  private boolean reuseCurrentConfig = false;
+
+  @Nullable
+  @Option(
+      name = GlobalCliOptions.COMMAND_ARGS_FILE_LONG_ARG,
+      usage = GlobalCliOptions.COMMAND_ARGS_FILE_HELP,
+      hidden = true)
+  protected String commandArgsFile;
+
+  /** @return {code true} if the {@code [cache]} in {@code .buckconfig} should be ignored. */
+  public boolean isNoCache() {
+    return noCache;
+  }
+
+  public boolean isReuseCurrentConfig() {
+    return reuseCurrentConfig;
+  }
+
+  @Nullable
+  public String getCommandArgsFile() {
+    return commandArgsFile;
+  }
+
+  public Optional<Path> getEventsOutputPath() {
+    if (eventsOutputPath == null) {
+      return Optional.empty();
+    } else {
+      return Optional.of(Paths.get(eventsOutputPath));
+    }
+  }
+
+  /** Handle CmdLineException when calling parseArguments() */
+  public void handleException(CmdLineException e) throws CmdLineException {
+    throw e;
+  }
+
+  /** Print error message when there are unknown options */
+  protected void handleException(CmdLineException e, String printedErrorMessage)
+      throws CmdLineException {
+    String message = e.getMessage();
+    if (message != null && message.endsWith("is not a valid option")) {
+      throw new CmdLineException(
+          e.getParser(), String.format("%s\n%s", message, printedErrorMessage), e.getCause());
+    } else {
+      throw e;
+    }
+  }
+
+  @Override
+  public void printUsage(PrintStream stream) {
+    CommandHelper.printShortDescription(this, stream);
+    CmdLineParser parser = new AdditionalOptionsCmdLineParser(getPluginManager(), this);
+
+    stream.println("Global options:");
+    parser.printUsage(new OutputStreamWriter(stream), null, GlobalCliOptions::isGlobalOption);
+    stream.println();
+
+    stream.println("Options:");
+    parser.printUsage(
+        new OutputStreamWriter(stream),
+        null,
+        optionHandler -> !GlobalCliOptions.isGlobalOption(optionHandler));
+    stream.println();
+  }
+
+  @Override
+  public Optional<ExitCode> runHelp(PrintStream stream) {
+    if (help) {
+      printUsage(stream);
+      return Optional.of(ExitCode.SUCCESS);
+    }
+    return Optional.empty();
+  }
+
+  @Override
+  public final ExitCode run(CommandRunnerParams params) throws Exception {
+    if (help) {
+      printUsage(params.getConsole().getStdOut());
+      return ExitCode.SUCCESS;
+    }
+    if (params.getConsole().getAnsi().isAnsiTerminal()) {
+      ImmutableList<String> motd =
+          params.getBuckConfig().getView(CliConfig.class).getMessageOfTheDay();
+      if (!motd.isEmpty()) {
+        for (String line : motd) {
+          params.getBuckEventBus().post(ConsoleEvent.info(line));
+        }
+      }
+    }
+    try (Closeable closeable = prepareExecutionContext(params);
+        Closeable bazelProfiler = prepareBazelProfiler()) {
+      return runWithoutHelp(params);
+    }
+  }
+
+  private Closeable prepareBazelProfiler() {
+    if (skylarkProfile != null) {
+      Clock clock = new JavaClock();
+      try {
+        OutputStream outputStream =
+            new BufferedOutputStream(Files.newOutputStream(Paths.get(skylarkProfile)));
+        Profiler.instance()
+            .start(
+                ImmutableSet.copyOf(ProfilerTask.values()),
+                outputStream,
+                Format.JSON_TRACE_FILE_FORMAT,
+                "Buck profile for " + skylarkProfile + " at " + LocalDate.now(),
+                "buck",
+                UUID.nameUUIDFromBytes(new byte[0]),
+                false,
+                clock,
+                clock.nanoTime(),
+                false,
+                false,
+                false);
+      } catch (IOException e) {
+        throw new HumanReadableException(
+            "Cannot initialize Skylark profiler for " + skylarkProfile, e);
+      }
+    }
+    return () -> Profiler.instance().stop();
+  }
+
+  protected Closeable prepareExecutionContext(CommandRunnerParams params) {
+    executionContext = createExecutionContext(params);
+    return () -> {
+      ExecutionContext context = executionContext;
+      executionContext = null;
+      context.close();
+    };
+  }
+
+  /** Helper for printing warnings to the console. */
+  protected void printWarning(CommandRunnerParams params, String format, Object... args) {
+    printWarning(params, String.format(format, args));
+  }
+
+  /** Helper for printing warnings to the console. */
+  protected void printWarning(CommandRunnerParams params, String s) {
+    params.getBuckEventBus().post(ConsoleEvent.warning(s));
+  }
+
+  public abstract ExitCode runWithoutHelp(CommandRunnerParams params) throws Exception;
+
+  protected CommandLineBuildTargetNormalizer getCommandLineBuildTargetNormalizer(
+      Cell rootCell, Path clientWorkingDirectory, BuckConfig buckConfig) {
+    return new CommandLineBuildTargetNormalizer(rootCell, clientWorkingDirectory, buckConfig);
+  }
+
+  public boolean getEnableParserProfiling() {
+    return enableParserProfiling;
+  }
+
+  ImmutableList<TargetNodeSpec> parseArgumentsAsTargetNodeSpecs(
+      Cell owningCell,
+      Path absoluteClientWorkingDir,
+      Iterable<String> targetsAsArgs,
+      BuckConfig config) {
+    ImmutableList.Builder<TargetNodeSpec> specs = ImmutableList.builder();
+    CommandLineTargetNodeSpecParser parser =
+        new CommandLineTargetNodeSpecParser(
+            owningCell, absoluteClientWorkingDir, config, new BuildTargetMatcherTargetNodeParser());
+    for (String arg : targetsAsArgs) {
+      specs.addAll(parser.parse(owningCell, arg));
+    }
+    return specs.build();
+  }
+
+  /**
+   * Returns a set of {@link BuildTargetWithOutputs} instances by matching the given {@link
+   * BuildTarget} instances with the given {@link TargetNodeSpec} instances, and applying any {@link
+   * OutputLabel} instances to the matching {@link BuildTarget} instances. Applies the default label
+   * if a given build target cannot find a matching spec.
+   */
+  protected ImmutableSet<BuildTargetWithOutputs> matchBuildTargetsWithLabelsFromSpecs(
+      ImmutableList<TargetNodeSpec> specs, Set<BuildTarget> buildTargets) {
+    HashMultimap<UnconfiguredBuildTarget, OutputLabel> buildTargetViewToOutputLabel =
+        HashMultimap.create(specs.size(), 1);
+
+    specs.stream()
+        .filter(BuildTargetSpec.class::isInstance)
+        .map(BuildTargetSpec.class::cast)
+        .forEach(
+            buildTargetSpec -> {
+              buildTargetViewToOutputLabel.put(
+                  buildTargetSpec.getUnconfiguredBuildTarget(),
+                  buildTargetSpec.getUnconfiguredBuildTargetViewWithOutputs().getOutputLabel());
+            });
+
+    ImmutableSet.Builder<BuildTargetWithOutputs> builder =
+        ImmutableSet.builderWithExpectedSize(buildTargets.size());
+    for (BuildTarget target : buildTargets) {
+      boolean mappedTarget = false;
+
+      UnconfiguredBuildTarget targetView = target.getUnconfiguredBuildTarget();
+      // HashMultimap creates an empty collection on 'get()' if key is missing, rather than
+      // returning null
+      if (buildTargetViewToOutputLabel.containsKey(targetView)) {
+        buildTargetViewToOutputLabel
+            .get(targetView)
+            .forEach(outputLabel -> builder.add(BuildTargetWithOutputs.of(target, outputLabel)));
+        mappedTarget = true;
+      }
+
+      // A target may not map to an output label if the build command wasn't invoked with a build
+      // pattern that specifies a specific target
+      if (!mappedTarget) {
+        builder.add(BuildTargetWithOutputs.of(target, OutputLabel.defaultLabel()));
+      }
+    }
+    return builder.build();
+  }
+
+  protected ExecutionContext getExecutionContext() {
+    return executionContext;
+  }
+
+  private ExecutionContext createExecutionContext(CommandRunnerParams params) {
+    return getExecutionContextBuilder(params).build();
+  }
+
+  protected ExecutionContext.Builder getExecutionContextBuilder(CommandRunnerParams params) {
+    BuckConfig buckConfig = params.getBuckConfig();
+    TestBuckConfig testBuckConfig = buckConfig.getView(TestBuckConfig.class);
+    CliConfig cliConfig = buckConfig.getView(CliConfig.class);
+
+    ExecutionContext.Builder builder =
+        ExecutionContext.builder()
+            .setConsole(params.getConsole())
+            .setBuckEventBus(params.getBuckEventBus())
+            .setPlatform(params.getPlatform())
+            .setEnvironment(params.getEnvironment())
+            .setJavaPackageFinder(params.getJavaPackageFinder())
+            .setExecutors(params.getExecutors())
+            .setCellPathResolver(params.getCells().getRootCell().getCellPathResolver())
+            .setBuildCellRootPath(params.getCells().getRootCell().getRoot().getPath())
+            .setCells(params.getCells())
+            .setProcessExecutor(new DefaultProcessExecutor(params.getConsole()))
+            .setDefaultTestTimeoutMillis(testBuckConfig.getDefaultTestTimeoutMillis())
+            .setInclNoLocationClassesEnabled(testBuckConfig.isInclNoLocationClassesEnabled())
+            .setRuleKeyDiagnosticsMode(
+                buckConfig.getView(RuleKeyConfig.class).getRuleKeyDiagnosticsMode())
+            .setConcurrencyLimit(getConcurrencyLimit(params.getBuckConfig()))
+            .setPersistentWorkerPools(params.getPersistentWorkerPools())
+            .setProjectFilesystemFactory(params.getProjectFilesystemFactory())
+            .setTruncateFailingCommandEnabled(cliConfig.getEnableFailingCommandTruncation());
+    return builder;
+  }
+
+  public ConcurrencyLimit getConcurrencyLimit(BuckConfig buckConfig) {
+    return buckConfig.getView(ResourcesConfig.class).getConcurrencyLimit();
+  }
+
+  @Override
+  public boolean isSourceControlStatsGatheringEnabled() {
+    return false;
+  }
+
+  TargetGraphCreationResult toVersionedTargetGraph(
+      CommandRunnerParams params, TargetGraphCreationResult targetGraphCreationResult)
+      throws VersionException, InterruptedException {
+    return params
+        .getVersionedTargetGraphCache()
+        .toVersionedTargetGraph(
+            params.getDepsAwareExecutorSupplier().get(),
+            params.getBuckConfig(),
+            params.getTypeCoercerFactory(),
+            params.getUnconfiguredBuildTargetFactory(),
+            targetGraphCreationResult,
+            params.getTargetConfiguration(),
+            params.getBuckEventBus(),
+            params.getCells());
+  }
+
+  @Override
+  public Iterable<BuckEventListener> getEventListeners(
+      Map<ExecutorPool, ListeningExecutorService> executorPool,
+      ScheduledExecutorService scheduledExecutorService) {
+    return ImmutableList.of();
+  }
+
+  RuleKeyCacheScope<RuleKey> getDefaultRuleKeyCacheScope(
+      CommandRunnerParams params, RuleKeyCacheRecycler.SettingsAffectingCache settings) {
+    return params
+        .getDefaultRuleKeyFactoryCacheRecycler()
+        // First try to get the cache from the recycler.
+        .map(recycler -> recycler.withRecycledCache(params.getBuckEventBus(), settings))
+        // Otherwise, create a new one.
+        .orElseGet(
+            () ->
+                new EventPostingRuleKeyCacheScope<>(
+                    params.getBuckEventBus(),
+                    new TrackedRuleKeyCache<>(
+                        new DefaultRuleKeyCache<>(), new InstrumentingCacheStatsTracker())));
+  }
+
+  @Override
+  public boolean performsBuild() {
+    return false;
+  }
+
+  @Override
+  public ImmutableList<String> getTargetPlatforms() {
+    return ImmutableList.copyOf(targetPlatforms);
+  }
+
+  @Override
+  public Optional<String> getHostPlatform() {
+    return hostPlatform != null && !hostPlatform.isEmpty()
+        ? Optional.of(hostPlatform)
+        : Optional.empty();
+  }
+
+  public boolean getExcludeIncompatibleTargets() {
+    // Exclude platform-incompatible target because
+    // this is generally what Buck users want.
+    // But keep the function virtual because
+    // `uquery` command (and probably others in the future)
+    // do not need target filtering by design.
+    return true;
+  }
+
+  /**
+   * Converts target arguments to fully qualified form (including resolving aliases, resolving the
+   * implicit package target, etc).
+   */
+  protected ImmutableSet<BuildTarget> convertArgumentsToBuildTargets(
+      CommandRunnerParams params, List<String> arguments) {
+    UnconfiguredBuildTargetViewFactory unconfiguredBuildTargetFactory =
+        params.getUnconfiguredBuildTargetFactory();
+    return getCommandLineBuildTargetNormalizer(
+            params.getCells().getRootCell(), params.getClientWorkingDir(), params.getBuckConfig())
+        .normalizeAll(arguments).stream()
+        .map(
+            input ->
+                unconfiguredBuildTargetFactory.create(
+                    input, params.getCells().getRootCell().getCellNameResolver()))
+        .map(
+            unconfiguredBuildTarget ->
+                // TODO(nga): ignores default_target_platform and configuration detectors
+                unconfiguredBuildTarget.configure(
+                    params
+                        .getTargetConfiguration()
+                        .orElse(UnconfiguredTargetConfiguration.INSTANCE)))
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  private void parseConfigOption(CellConfig.Builder builder, Pair<String, String> config) {
+    // Parse command-line config overrides.
+    List<String> key = Splitter.on("//").limit(2).splitToList(config.getFirst());
+    CellName cellName = CellName.ALL_CELLS_SPECIAL_NAME;
+    String configKey = key.get(0);
+    if (key.size() == 2) {
+      // Here we explicitly take the whole string as the cell name. We don't support transitive
+      // path overrides for cells.
+      if (key.get(0).length() == 0) {
+        cellName = CellName.ROOT_CELL_NAME;
+      } else {
+        cellName = CellName.of(key.get(0));
+      }
+      configKey = key.get(1);
+    }
+    int separatorIndex = configKey.lastIndexOf('.');
+    if (separatorIndex < 0 || separatorIndex == configKey.length() - 1) {
+      throw new HumanReadableException(
+          "Invalid config override \"%s=%s\" Expected <section>.<field>=<value>.",
+          configKey, config.getSecond());
+    }
+    // Overrides for locations of transitive children of cells are weird as the order of overrides
+    // can affect the result (for example `-c a/b/c.k=v -c a/b//repositories.c=foo` causes an
+    // interesting problem as the a/b/c cell gets created as a side-effect of the first override,
+    // but the second override wants to change its identity).
+    // It's generally a better idea to use the .buckconfig.local mechanism when overriding
+    // repositories anyway, so here we simply disallow them.
+    String section = configKey.substring(0, separatorIndex);
+    if (section.equals("repositories")) {
+      throw new HumanReadableException(
+          "Overriding repository locations from the command line "
+              + "is not supported. Please place a .buckconfig.local in the appropriate location and "
+              + "use that instead.");
+    }
+    String value = config.getSecond();
+    String field = configKey.substring(separatorIndex + 1);
+    builder.put(cellName, section, field, value);
+  }
+
+  private void parseConfigFileOption(
+      ImmutableMap<CellName, AbsPath> cellMapping, CellConfig.Builder builder, String filename) {
+    // See if the filename argument specifies the cell.
+    String[] matches = filename.split("=", 2);
+
+    // By default, this config file applies to all cells.
+    CellName configCellName = CellName.ALL_CELLS_SPECIAL_NAME;
+
+    if (matches.length == 2) {
+      // Filename argument specified the cell to which this config applies.
+      filename = matches[1];
+      if (matches[0].equals("//")) {
+        // Config applies only to the current cell .
+        configCellName = CellName.ROOT_CELL_NAME;
+      } else if (!matches[0].equals("*")) { // '*' is the default.
+        CellName cellName = CellName.of(matches[0]);
+        if (!cellMapping.containsKey(cellName)) {
+          throw new HumanReadableException("Unknown cell: %s", matches[0]);
+        }
+        configCellName = cellName;
+      }
+    }
+
+    // Filename may also contain the cell name, so resolve the path to the file.
+    BuckCellArg filenameArg = BuckCellArg.of(filename);
+    filename = BuckCellArg.of(filename).getArg();
+    AbsPath projectRoot =
+        cellMapping.get(
+            filenameArg.getCellName().isPresent()
+                ? CellName.of(filenameArg.getCellName().get())
+                : CellName.ROOT_CELL_NAME);
+
+    AbsPath path = projectRoot.resolve(filename);
+    ImmutableMap<String, ImmutableMap<String, String>> sectionsToEntries;
+
+    try {
+      sectionsToEntries = Configs.parseConfigFile(path.getPath());
+    } catch (IOException e) {
+      throw new HumanReadableException(e, "File could not be read: %s", filename);
+    }
+
+    for (Map.Entry<String, ImmutableMap<String, String>> entry : sectionsToEntries.entrySet()) {
+      String section = entry.getKey();
+      for (Map.Entry<String, String> sectionEntry : entry.getValue().entrySet()) {
+        String field = sectionEntry.getKey();
+        String value = sectionEntry.getValue();
+        builder.put(configCellName, section, field, value);
+      }
+    }
+    LOG.debug("Loaded a configuration file %s, %s", filename, sectionsToEntries.toString());
+  }
+
+  void saveConfigOptionInOverrides(String configOverride) {
+    if (configOverride.indexOf('=') == -1) {
+      throw new HumanReadableException(
+          "Invalid config configOverride \"%s\" Expected <section>.<field>=<value>.",
+          configOverride);
+    }
+
+    final String key;
+    Optional<String> maybeValue;
+
+    // Splitting off the key from the value
+    int index = configOverride.indexOf('=');
+    key = configOverride.substring(0, index);
+    maybeValue = Optional.of(configOverride.substring(index + 1));
+
+    if (key.length() == 0)
+      throw new HumanReadableException(
+          "Invalid config configOverride \"%s\" Expected <section>.<field>=<value>.",
+          configOverride);
+
+    maybeValue.ifPresent(value -> configOverrides.add(new Pair<String, String>(key, value)));
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public CellConfig getConfigOverrides(ImmutableMap<CellName, AbsPath> cellMapping) {
+    CellConfig.Builder builder = CellConfig.builder();
+
+    for (Object option : configOverrides) {
+      if (option instanceof String) {
+        parseConfigFileOption(cellMapping, builder, (String) option);
+      } else {
+        parseConfigOption(builder, (Pair<String, String>) option);
+      }
+    }
+    if (numThreads != null) {
+      builder.put(CellName.ALL_CELLS_SPECIAL_NAME, "build", "threads", String.valueOf(numThreads));
+    }
+    if (noCache) {
+      builder.put(CellName.ALL_CELLS_SPECIAL_NAME, "cache", "mode", "");
+    }
+
+    addCommandSpecificConfigOverrides(builder);
+
+    return builder.build();
+  }
+
+  /**
+   * Injection point for commands to add config overrides. Adding anything here will likely
+   * invalidate the @{link BuckGlobalState} and so it should be used extremely sparingly.
+   */
+  @SuppressWarnings("unused")
+  protected void addCommandSpecificConfigOverrides(CellConfig.Builder builder) {}
+
+  @Override
+  public ParsingContext createParsingContext(Cell cell, ListeningExecutorService executor) {
+    return ParsingContext.builder(cell, executor)
+        .setProfilingEnabled(getEnableParserProfiling())
+        .setExcludeUnsupportedTargets(getExcludeIncompatibleTargets())
+        .setEnableTargetCompatibilityChecks(
+            cell.getBuckConfig().getView(ParserConfig.class).getEnableTargetCompatibilityChecks())
+        .build();
+  }
+}

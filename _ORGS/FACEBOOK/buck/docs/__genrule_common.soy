@@ -1,0 +1,304 @@
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+{namespace genrule_common}
+
+/***/
+{template .srcs_arg}
+{call buck.arg}
+  {param name: 'srcs' /}
+  {param default: '[]' /}
+  {param desc}
+  Either a list or a map of the source files which Buck makes available to the shell
+  command at the path in the <code>SRCDIR</code> environment variable.
+  If you specify a list, the source files are the names in the list.
+  If you specify a map, the source files are made available as the names in
+  the keys of the map, where the values of the map are the original source
+  file names.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .abs_path_note}
+  <p>
+    Note that the paths returned by these macros are <em>absolute</em>{sp}
+    paths. You should convert these paths to be relative paths before
+    embedding them in, for example, a shell script or batch file. Using
+    relative paths ensures that your builds are <em>hermetic</em>, that 
+    is, they are reproducible across different machine environments.
+  </p>
+
+  <p>
+  Additionally, if you embed these paths in a shell script, you should
+  execute that script using the {call buck.sh_binary /} rule and include
+  the targets for these paths in the <code>resources</code> argument of
+  that <code>sh_binary</code> rule. These are the same targets that you 
+  pass to the string parameter macros.
+  </p>
+{/template}
+
+
+/***/
+{template .cmd_arg}
+{call buck.arg}
+  {param name: 'cmd' /}
+  {param default: 'None' /}
+  {param desc}
+
+    <p>
+      The shell command to run to generate the output file.  It is the
+      fallback for <code>bash</code>{sp} and <code>cmd_exe</code>{sp}
+      arguments.  The following environment variables are populated by
+      Buck and available to the shell command. They are accessed using
+      the syntax: 
+    </p>
+
+    <pre>$&#x7B;&lt;variable&gt;&#x7D;</pre>
+
+    <p>
+    Example:
+    </p>
+
+    <pre>$&#x7B;SRCS&#x7D;</pre>
+    </p>
+
+    <dl>
+      <dt><code>$&#x7b;SRCS&#x7D;</code><dt>
+      <dd>
+        <p>
+          A string expansion of the <code>srcs</code> argument delimited
+          by the <code>environment_expansion_separator</code> argument
+          where each element of <code>srcs</code> will be translated
+          into an absolute path.
+        </p>
+      </dd>
+
+      <dt><code>$&#x7b;SRCDIR&#x7D;</code><dt>
+      <dd>
+        <p>
+          The absolute path to a directory to which sources are copied
+          prior to running the command.
+        </p>
+      </dd>
+
+      <dt><code>$&#x7b;OUT&#x7D;</code></dt>
+      <dd>
+        <p>
+          The output file or directory for the <code>genrule()</code>.
+          This variable will have whatever value is specified by 
+          the <code>out</code> argument.  The value should be a valid
+          filepath.  The semantics of the shell command determine
+          whether this filepath is treated as a file or a directory.  If
+          the filepath is a directory, then the shell command needs to
+          create it.
+        </p>
+
+        <p>
+          The file or directory specified by this variable must always
+          be written by this command.  If not, the execution of this
+          rule will be considered a failure, halting the build process.
+        </p>
+      </dd>
+
+      <dt><code>$&#x7b;TMP&#x7D;</code></dt>
+      <dd>
+        <p>
+          A temporary directory which can be used for intermediate
+          results and will not be bundled into the output.
+        </p>
+      </dd>
+    </dl>
+
+    <h5>String parameter macros</h5>
+    <p>
+    It is also possible to expand references to other rules within the
+    {sp}<code>cmd</code>, using builtin {call buck.string_parameter_macros /}.  
+    All build rules expanded in the command are automatically considered
+    to be dependencies of the <code>genrule()</code>.
+    </p>
+
+   {call genrule_common.abs_path_note /}
+
+    <dl>
+      <dt><code>$(classpath /&#x2F;path/to:target)</code></dt>
+      <dd>
+        <p>
+          Expands to the transitive classpath of the specified build
+          rule, provided that the rule has a Java classpath. If the rule
+          does not have (or contribute to) a classpath, then an 
+          exception is thrown and the build breaks.
+        </p>
+      </dd>
+
+      <dt><code>$(exe /&#x2F;path/to:target)</code></dt>
+      <dd>
+        <p>
+          Expands a build rule that results in an executable to the
+          commands necessary to run that executable. For example, 
+          a <code>java_binary() </code> might expand to a call 
+          to <code>java -jar path/to/target.jar </code>. Files that are 
+          executable (perhaps generated by a <code>genrule()</code>) 
+          are also expanded. If the build rule does not generate an 
+          executable output, then an exception is thrown and the build 
+          breaks.
+        </p>
+      </dd>
+
+      <dt><code>$(location /&#x2F;path/to:target)</code></dt>
+      <dd>
+        <p>
+          Expands to the location of the output of the specified build
+          rule. This means that you can refer to the output without
+          needing to be aware of how Buck is storing data on the disk
+          mid-build.
+        </p>
+      </dd>
+
+      {let $maven_coords}
+        <groupId>:<artifactId>[:<extension>[:<classifier>]]:<version>
+      {/let}
+
+      <dt><code>$(maven_coords /&#x2F;path/to:target)</code></dt>
+      <dd>
+        <p>
+          Expands to the Maven coordinates for the specified build rule.
+          This allows you to access the Maven coordinates for
+          Maven-aware build rules. The format of the expansion is:
+
+<p>
+<pre class="prettyprint lang-js">
+<code>{$maven_coords}</code>
+</pre>
+</p>
+
+        </p>
+      </dd>
+    </dl>
+
+  {/param}
+{/call}
+{/template}
+
+
+/***/
+{template .bash_arg}
+{call buck.arg}
+  {param name: 'bash' /}
+  {param default: 'None' /}
+  {param desc}
+  A platform-specific version of the shell command parameter <code>cmd</code>.
+  It runs on Linux and UNIX systems&mdash;including OSX&mdash;on which <code>bash</code> is installed. 
+  It has a higher priority than {sp}<code>cmd</code>. The <code>bash</code> argument is run with <code>/bin/bash -c</code>.
+  It has access to the same set of macros and variables as the <code>cmd</code> argument.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .cmd_exe_arg}
+{call buck.arg}
+  {param name: 'cmd_exe' /}
+  {param default: 'None' /}
+  {param desc}
+  A platform-specific version of the shell command parameter <code>cmd</code>. It runs on Windows and has a higher
+  {sp}priority than <code>cmd</code>. The <code>cmd_exe</code> argument is run with <code>cmd.exe /c</code>.
+  It has access to the same set of macros and variables as the <code>cmd</code> argument.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .out_arg}
+{call buck.arg}
+  {param name: 'out' /}
+  {param desc}
+   The name of the output file or directory. The complete path to this
+   argument is provided to the shell command through 
+   the <code>OUT</code> environment variable.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .type_arg}
+{call buck.arg}
+  {param name: 'type' /}
+  {param default: 'None' /}
+  {param desc}
+  <p>
+  Specifies the <em>type</em> of this genrule. This is used for logging
+  and is particularly useful for grouping genrules that share an
+  underlying logical "type".
+  </p>
+
+  <p>
+  For example, if you have the following <code>cxx_genrule</code> defined 
+  in the root directory of your Buck project
+  </p>
+
+<p>
+<pre>
+{literal}
+cxx_genrule(
+  name = 'cxx_gen',
+  type = 'epilog',
+  cmd  = 'touch finish.txt; cp finish.txt $OUT',
+  out  = 'finish.txt'
+)
+{/literal}
+</pre>
+</p>
+
+  <p>
+  then the following <code>buck query</code> command 
+  </p>
+
+<p>
+<pre>
+{literal}
+buck query "attrfilter( type, 'epilog', '//...' )"
+{/literal}
+</pre>
+</p>
+
+  <p>
+  returns
+  </p>
+
+<p>
+<pre>
+{literal}
+//:cxx_gen
+{/literal}
+</pre>
+</p>
+
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .environment_expansion_separator}
+{call buck.arg}
+  {param name: 'environment_expansion_separator' /}
+  {param default: '" "' /}
+  {param desc}
+   The delimiter between paths in environment variables, such as SRCS, that can contain multiple paths. 
+   It can be useful to specify this parameter if the paths could contain spaces.
+  {/param}
+{/call}
+{/template}

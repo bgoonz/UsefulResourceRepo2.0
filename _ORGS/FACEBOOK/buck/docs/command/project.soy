@@ -1,0 +1,207 @@
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+{namespace buck.project}
+
+/***/
+{template .soyweb}
+  {call buck.page}
+    {param title: 'buck project' /}
+    {param navid: 'command_project' /}
+    {param description}
+      A command that generates the configuration files for an IDE to work with the project.
+    {/param}
+    {param content}
+
+
+{call buck.command}
+{param overview}
+<p>
+  This command generates the configuration files for an IDE to work with the project.  This command
+  creates files in-place in the repository, which is unlike other Buck commands whose output is
+  removed by {call buck.cmd_clean /}.  As a result, it is a good idea to add these generated files
+  to the list of ignored files by your choice of source control.  IDE-specific details are discussed
+  in each section below.
+</p>
+
+<p>
+  You can use this command by itself to generate a project for the entire repository.
+</p>
+
+{literal}<pre>buck project</pre>{/literal}
+
+<p>
+  You can also use this command to build a project slice (a project that represents a subset of the
+  repository).  You can pass any number of {call buck.build_target /}s or
+  {sp}{call buck.build_target_pattern /}s to the command.  The constructed project slice will
+  contain the specified targets and their dependencies.  This is useful for large repositories.
+</p>
+
+{literal}<pre>buck project //java/...</pre>{/literal}
+
+<h2>Common Parameters</h2>
+
+<ul class="{css arglist}">
+{call buck.param}
+  {param name: 'ide' /}
+  {param desc}
+    Specifies which IDE to create the project for.  When using a project slice, Buck tries to
+    determine what type of IDE to use automatically based on the {call buck.build_target /}s
+    provided. Sometimes it is not possible to determine the type of IDE.
+    You can specify the default ide in the <code>[project]</code> section of your <code>.buckconfig</code> file.
+  {/param}
+{/call}
+
+{call buck.param}
+  {param name: 'without-tests' /}
+  {param desc}
+    Indicates that Buck should build a project slice without tests (the default is to include
+    {sp}<code>tests</code> on <code>*_library</code> and <code>*_binary</code> rules).
+  {/param}
+{/call}
+
+{call buck.param}
+  {param name: 'without-dependencies-tests' /}
+  {param desc}
+    Indicates that Buck should build a project slice with the tests of the specified targets only.
+  {/param}
+{/call}
+
+{call buck.param}
+  {param name: 'exclude-artifacts  ' /}
+  {param desc}
+    Don't include references to the artifacts created by compiling a target in the
+    module representing that target. This can improve indexing times, but will mean generated code
+    does not show up in the ide. For example R files for Android.
+  {/param}
+{/call}
+
+{call buck.param}
+  {param name: 'remove-unused-ij-libraries ' /}
+  {param desc}
+    After generating an IntelliJ project remove all IntelliJ libraries that are not used in the
+    project.
+  {/param}
+{/call}
+</ul>
+
+<h2>Supported IDEs</h2>
+
+<ul>
+  <li><a href="#intellij">IntelliJ</a></li>
+  <li><a href="#xcode">Xcode</a></li>
+  <li><a hred="#gobuild">gobuild (Go IDEs such as Visual Sudio Code, GoLand)</a></li>
+</ul>
+
+<h3 id="intellij">IntelliJ</h3>
+
+<p>
+  This command processes all of the
+  {sp}{call buck.build_file /}s whose targets were specified and uses them to generate the
+  configuration files for an IDE.  The generated files include:
+</p>
+
+<ul>
+  <li>
+    <code>.idea/libraries&#x2F;*.xml</code>, each of which defines a library in IntelliJ.  A library
+    always corresponds to a {call buck.prebuilt_jar /}.
+  </li>
+  <li>
+    <code>.iml</code> files, each of which defines a module in IntelliJ.
+    A module can depend on other modules, as well as libraries.
+    It should be noted that although Buck allows multiple build targets per build file, IntelliJ's
+    modules are only defined at the directory level.  This means that you may find IntelliJ flagging
+    compilation errors because of missing dependencies of classes outside of your project slice, but
+    which happen to be in the same directory as classes within the slice.
+  </li>
+  <li>
+    <code>.idea/modules.xml</code>, which lists all of the IntelliJ modules in the project.
+  </li>
+</ul>
+
+<h3 id="xcode">Xcode</h3>
+
+<p>
+  This command processes each {call buck.apple_binary /}, {call buck.apple_bundle /}, and
+  {sp}{call buck.apple_library /} specified, and uses them to generate
+  the files and directories that Xcode needs.  The generated folders include:
+</p>
+
+<ul>
+  <li>
+    For each {call buck.build_target /}, an <code>*.xcworkspace</code> directory that represents the
+    {sp}<a href="https://developer.apple.com/library/ios/featuredarticles/XcodeConcepts/Concept-Workspace.html">
+    workspace</a> and contains one or more
+    {sp}<a href="https://developer.apple.com/library/ios/featuredarticles/XcodeConcepts/Concept-Schemes.html">
+    schemes</a>.
+  </li>
+  <li>
+    For each {call buck.build_target /} and its dependencies, an <code>*.xcodeproj</code> directory
+    that represents the
+    {sp}<a href="https://developer.apple.com/library/ios/featuredarticles/XcodeConcepts/Concept-Projects.html">
+    project</a>.  These generated projects are only buildable within the generated workspace.
+  </li>
+</ul>
+
+<h4>Parameters</h4>
+
+<ul class="{css arglist}">
+{call buck.param}
+  {param name: 'combined-project' /}
+  {param desc}
+    Indicates that Buck should build a single monoproject for all {call buck.build_target /}s
+    specified.
+  {/param}
+{/call}
+
+{call buck.param}
+  {param name: 'project-schemes' /}
+  {param desc}
+    Enables the generation of separate schemes for all projects included in the generated workspace.
+    Each project's scheme is constrained to the set of build and test targets that are members or
+    deps of the associated project.
+    You can specify the default value using by adding <code>project_schemes = true</code> to the
+    <code>[project]</code> section of your <code>.buckconfig</code> file.
+  {/param}
+{/call}
+</ul>
+
+<h3 id="gobuild">Go IDEs</h3>
+<p>
+Go IDEs, such as Visual Studio Code and GoLand, use the <code>go build</code> command to build Go code. This command requires a proper layout of source code
+under <code>GOPATH</code>. However, Buck puts generated code in <code>buck-out</code>, which <code>go build</code> does not understand.
+The <code>project</code> command copies generated Go packages from <code>buck-out</code> and arranges them in the same layout as their import
+ paths.
+</p>
+
+<h4>Parameters</h4>
+<ul class="{css arglist}">
+{call buck.param}
+  {param name: 'project_path' /}
+  {param desc}
+    The directory to copy the generated code to. If not specified, the <code>project</code> command copies it to <code>\/\/vendor</code>,
+    or <code>\/\/src/vendor</code> if it exists.
+  {/param}
+{/call}
+</ul>
+
+{/param}
+
+{/call}
+
+    {/param}  // content
+  {/call} // buck.page
+{/template}

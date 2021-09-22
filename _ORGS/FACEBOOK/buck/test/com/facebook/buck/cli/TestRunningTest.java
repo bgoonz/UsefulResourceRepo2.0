@@ -1,0 +1,740 @@
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.facebook.buck.cli;
+
+import static com.facebook.buck.core.build.engine.BuildRuleSuccessType.BUILT_LOCALLY;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import com.facebook.buck.artifact_cache.CacheResult;
+import com.facebook.buck.core.build.context.FakeBuildContext;
+import com.facebook.buck.core.build.engine.BuildResult;
+import com.facebook.buck.core.build.engine.impl.FakeBuildEngine;
+import com.facebook.buck.core.build.execution.context.ExecutionContext;
+import com.facebook.buck.core.config.FakeBuckConfig;
+import com.facebook.buck.core.filesystems.AbsPath;
+import com.facebook.buck.core.model.BuildTarget;
+import com.facebook.buck.core.model.BuildTargetFactory;
+import com.facebook.buck.core.model.targetgraph.TargetGraph;
+import com.facebook.buck.core.model.targetgraph.TargetGraphFactory;
+import com.facebook.buck.core.model.targetgraph.TargetNode;
+import com.facebook.buck.core.rules.ActionGraphBuilder;
+import com.facebook.buck.core.rules.SourcePathRuleFinder;
+import com.facebook.buck.core.rules.TestBuildRuleParams;
+import com.facebook.buck.core.rules.impl.FakeTestRule;
+import com.facebook.buck.core.rules.resolver.impl.TestActionGraphBuilder;
+import com.facebook.buck.core.util.log.Logger;
+import com.facebook.buck.io.filesystem.impl.FakeProjectFilesystem;
+import com.facebook.buck.jvm.core.JavaLibrary;
+import com.facebook.buck.jvm.java.DefaultJavaPackageFinder;
+import com.facebook.buck.jvm.java.JavaBuckConfig;
+import com.facebook.buck.jvm.java.JavaLibraryBuilder;
+import com.facebook.buck.jvm.java.JavaLibraryDescriptionArg;
+import com.facebook.buck.shell.GenruleBuilder;
+import com.facebook.buck.shell.GenruleDescriptionArg;
+import com.facebook.buck.step.ExecutionOrderAwareFakeStep;
+import com.facebook.buck.step.TestExecutionContext;
+import com.facebook.buck.test.FakeTestResults;
+import com.facebook.buck.test.TestCaseSummary;
+import com.facebook.buck.test.TestResultSummary;
+import com.facebook.buck.test.TestResults;
+import com.facebook.buck.test.TestRunningOptions;
+import com.facebook.buck.test.result.type.ResultType;
+import com.facebook.buck.util.ExitCode;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.hamcrest.Matchers;
+import org.junit.Before;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+public class TestRunningTest {
+
+  private ImmutableSortedSet<String> pathsFromRoot;
+  private ImmutableSet<String> pathElements;
+
+  private static final TestRunningOptions DEFAULT_OPTIONS = TestRunningOptions.builder().build();
+  private static final Logger LOG = Logger.get(TestRunningTest.class);
+
+  @Before
+  public void setUp() {
+    pathsFromRoot = ImmutableSortedSet.of("java/");
+    pathElements = ImmutableSet.of("src", "src-gen");
+  }
+
+  /**
+   * If the source paths specified are all generated files, then our path to source tmp should be
+   * absent.
+   */
+  @Test
+  public void testGeneratedSourceFile() {
+    BuildTarget genSrcTarget = BuildTargetFactory.newInstance("//:gensrc");
+
+    TargetNode<GenruleDescriptionArg> sourceGenerator =
+        GenruleBuilder.newGenruleBuilder(genSrcTarget)
+            .setOut("com/facebook/GeneratedFile.java")
+            .build();
+
+    BuildTarget javaLibraryTarget = BuildTargetFactory.newInstance("//:lib");
+    TargetNode<JavaLibraryDescriptionArg> javaLibraryNode =
+        JavaLibraryBuilder.createBuilder(javaLibraryTarget).addSrcTarget(genSrcTarget).build();
+
+    TargetGraph targetGraph = TargetGraphFactory.newInstance(sourceGenerator, javaLibraryNode);
+
+    ActionGraphBuilder graphBuilder = new TestActionGraphBuilder(targetGraph);
+    JavaLibrary javaLibrary = (JavaLibrary) graphBuilder.requireRule(javaLibraryTarget);
+
+    DefaultJavaPackageFinder defaultJavaPackageFinder =
+        FakeBuckConfig.builder()
+            .build()
+            .getView(JavaBuckConfig.class)
+            .createDefaultJavaPackageFinder();
+
+    ImmutableSet<String> result =
+        TestRunning.getPathToSourceFolders(javaLibrary, graphBuilder, defaultJavaPackageFinder);
+
+    assertThat(
+        "No path should be returned if the library contains only generated files.",
+        result,
+        Matchers.empty());
+  }
+
+  /**
+   * If the source paths specified are all for non-generated files then we should return the correct
+   * source tmp corresponding to a non-generated source path.
+   */
+  @Test
+  public void testNonGeneratedSourceFile() {
+    Path pathToNonGenFile = Paths.get("package/src/SourceFile1.java");
+
+    BuildTarget javaLibraryTarget = BuildTargetFactory.newInstance("//foo:bar");
+    TargetNode<JavaLibraryDescriptionArg> javaLibraryNode =
+        JavaLibraryBuilder.createBuilder(javaLibraryTarget).addSrc(pathToNonGenFile).build();
+
+    TargetGraph targetGraph = TargetGraphFactory.newInstance(javaLibraryNode);
+
+    ActionGraphBuilder graphBuilder = new TestActionGraphBuilder(targetGraph);
+    JavaLibrary javaLibrary = (JavaLibrary) graphBuilder.requireRule(javaLibraryTarget);
+
+    DefaultJavaPackageFinder defaultJavaPackageFinder =
+        new DefaultJavaPackageFinder(javaLibraryNode.getFilesystem(), pathsFromRoot, pathElements);
+
+    ImmutableSet<String> result =
+        TestRunning.getPathToSourceFolders(javaLibrary, graphBuilder, defaultJavaPackageFinder);
+
+    String expected = javaLibrary.getProjectFilesystem().getRootPath().resolve("package/src") + "/";
+    assertEquals(
+        "All non-generated source files are under one source tmp.",
+        ImmutableSet.of(expected),
+        result);
+  }
+
+  @Test
+  public void testNonGeneratedSourceFileWithoutPathElements() {
+    Path pathToNonGenFile = Paths.get("package/src/SourceFile1.java");
+
+    BuildTarget javaLibraryTarget = BuildTargetFactory.newInstance("//foo:bar");
+    TargetNode<JavaLibraryDescriptionArg> javaLibraryNode =
+        JavaLibraryBuilder.createBuilder(javaLibraryTarget).addSrc(pathToNonGenFile).build();
+
+    TargetGraph targetGraph = TargetGraphFactory.newInstance(javaLibraryNode);
+
+    ActionGraphBuilder graphBuilder = new TestActionGraphBuilder(targetGraph);
+    JavaLibrary javaLibrary = (JavaLibrary) graphBuilder.requireRule(javaLibraryTarget);
+
+    DefaultJavaPackageFinder defaultJavaPackageFinder =
+        new DefaultJavaPackageFinder(
+            javaLibraryNode.getFilesystem(), pathsFromRoot, ImmutableSet.of("/"));
+
+    TestRunning.getPathToSourceFolders(javaLibrary, graphBuilder, defaultJavaPackageFinder);
+  }
+  /**
+   * If the source paths specified are from the new unified source tmp then we should return the
+   * correct source tmp corresponding to the unified source path.
+   */
+  @Test
+  public void testUnifiedSourceFile() {
+    Path pathToNonGenFile = Paths.get("java/package/src/SourceFile1.java");
+
+    BuildTarget javaLibraryTarget = BuildTargetFactory.newInstance("//foo:bar");
+    TargetNode<JavaLibraryDescriptionArg> javaLibraryNode =
+        JavaLibraryBuilder.createBuilder(javaLibraryTarget).addSrc(pathToNonGenFile).build();
+
+    TargetGraph targetGraph = TargetGraphFactory.newInstance(javaLibraryNode);
+
+    ActionGraphBuilder graphBuilder = new TestActionGraphBuilder(targetGraph);
+    JavaLibrary javaLibrary = (JavaLibrary) graphBuilder.requireRule(javaLibraryTarget);
+
+    DefaultJavaPackageFinder defaultJavaPackageFinder =
+        new DefaultJavaPackageFinder(javaLibraryNode.getFilesystem(), pathsFromRoot, pathElements);
+
+    ImmutableSet<String> result =
+        TestRunning.getPathToSourceFolders(javaLibrary, graphBuilder, defaultJavaPackageFinder);
+
+    assertEquals(
+        "All non-generated source files are under one source tmp.",
+        ImmutableSet.of("java/"),
+        result);
+  }
+
+  /**
+   * If the source paths specified contains one source path to a non-generated file then we should
+   * return the correct source tmp corresponding to that non-generated source path. Especially when
+   * the generated file comes first in the ordered set.
+   */
+  @Test
+  public void testMixedSourceFile() {
+    BuildTarget genSrcTarget = BuildTargetFactory.newInstance("//:gensrc");
+
+    TargetNode<GenruleDescriptionArg> sourceGenerator =
+        GenruleBuilder.newGenruleBuilder(genSrcTarget)
+            .setOut("com/facebook/GeneratedFile.java")
+            .build();
+
+    Path pathToNonGenFile1 = Paths.get("package/src/SourceFile1.java");
+    Path pathToNonGenFile2 = Paths.get("package/src-gen/SourceFile2.java");
+
+    BuildTarget javaLibraryTarget = BuildTargetFactory.newInstance("//foo:bar");
+    TargetNode<JavaLibraryDescriptionArg> javaLibraryNode =
+        JavaLibraryBuilder.createBuilder(javaLibraryTarget)
+            .addSrc(pathToNonGenFile1)
+            .addSrc(pathToNonGenFile2)
+            .addSrcTarget(genSrcTarget)
+            .build();
+
+    TargetGraph targetGraph = TargetGraphFactory.newInstance(sourceGenerator, javaLibraryNode);
+
+    ActionGraphBuilder graphBuilder = new TestActionGraphBuilder(targetGraph);
+    JavaLibrary javaLibrary = (JavaLibrary) graphBuilder.requireRule(javaLibraryTarget);
+
+    DefaultJavaPackageFinder defaultJavaPackageFinder =
+        new DefaultJavaPackageFinder(javaLibraryNode.getFilesystem(), pathsFromRoot, pathElements);
+
+    ImmutableSet<String> result =
+        TestRunning.getPathToSourceFolders(javaLibrary, graphBuilder, defaultJavaPackageFinder);
+
+    AbsPath rootPath = javaLibrary.getProjectFilesystem().getRootPath();
+    ImmutableSet<String> expected =
+        ImmutableSet.of(
+            rootPath.resolve("package/src-gen") + "/", rootPath.resolve("package/src") + "/");
+
+    assertEquals(
+        "The non-generated source files are under two different source folders.", expected, result);
+  }
+
+  /** Tests the --xml flag, ensuring that test result data is correctly formatted. */
+  @Test
+  public void testXmlGeneration() throws Exception {
+    // Set up sample test data.
+    TestResultSummary result1 =
+        new TestResultSummary(
+            /* testCaseName */ "TestCase",
+            /* testName */ "passTest",
+            /* type */ ResultType.SUCCESS,
+            /* time */ 5000,
+            /* message */ null,
+            /* stacktrace */ null,
+            /* stdOut */ null,
+            /* stdErr */ null);
+    TestResultSummary result2 =
+        new TestResultSummary(
+            /* testCaseName */ "TestCase",
+            /* testName */ "failWithMsg",
+            /* type */ ResultType.FAILURE,
+            /* time */ 7000,
+            /* message */ "Index out of bounds!",
+            /* stacktrace */ "Stacktrace",
+            /* stdOut */ null,
+            /* stdErr */ null);
+    TestResultSummary result3 =
+        new TestResultSummary(
+            /* testCaseName */ "TestCase",
+            /* testName */ "failNoMsg",
+            /* isSuccess */
+            /* type */ ResultType.SUCCESS,
+            /* time */ 4000,
+            /* message */ null,
+            /* stacktrace */ null,
+            /* stdOut */ null,
+            /* stdErr */ null);
+    List<TestResultSummary> resultList = ImmutableList.of(result1, result2, result3);
+
+    TestCaseSummary testCase = new TestCaseSummary("TestCase", resultList);
+    List<TestCaseSummary> testCases = ImmutableList.of(testCase);
+
+    TestResults testResults = FakeTestResults.of(testCases);
+    List<TestResults> testResultsList = ImmutableList.of(testResults);
+
+    // Call the XML generation method with our test data.
+    StringWriter writer = new StringWriter();
+    TestRunning.writeXmlOutput(testResultsList, writer);
+    ByteArrayInputStream resultStream = new ByteArrayInputStream(writer.toString().getBytes());
+
+    // Convert the raw XML data into a DOM object, which we will check.
+    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    DocumentBuilder docBuilder = dbf.newDocumentBuilder();
+    Document doc = docBuilder.parse(resultStream);
+
+    // Check for exactly one <tests> tag.
+    NodeList testsList = doc.getElementsByTagName("tests");
+    assertEquals(1, testsList.getLength());
+
+    // Check for exactly one <test> tag.
+    Element testsEl = (Element) testsList.item(0);
+    NodeList testList = testsEl.getElementsByTagName("test");
+    assertEquals(1, testList.getLength());
+
+    // Check the target has been set
+    Element testEl = (Element) testList.item(0);
+    assertEquals("//foo/bar:baz", testEl.getAttribute("target"));
+
+    assertEquals("TestCase", testEl.getAttribute("name"));
+
+    // Check for exactly three <testresult> tags.
+    // There should be two failures and one success.
+    NodeList resultsList = testEl.getElementsByTagName("testresult");
+    assertEquals(3, resultsList.getLength());
+
+    // Verify the text elements of the first <testresult> tag.
+    Element passResultEl = (Element) resultsList.item(0);
+    assertEquals("passTest", passResultEl.getAttribute("name"));
+    assertEquals("5000", passResultEl.getAttribute("time"));
+    assertEquals("PASS", passResultEl.getAttribute("status"));
+    checkXmlTextContents(passResultEl, "message", "");
+    checkXmlTextContents(passResultEl, "stacktrace", "");
+
+    // Verify the text elements of the second <testresult> tag.
+    Element failResultEl1 = (Element) resultsList.item(1);
+    assertEquals("failWithMsg", failResultEl1.getAttribute("name"));
+    assertEquals("7000", failResultEl1.getAttribute("time"));
+    assertEquals("FAIL", failResultEl1.getAttribute("status"));
+    checkXmlTextContents(failResultEl1, "message", "Index out of bounds!");
+    checkXmlTextContents(failResultEl1, "stacktrace", "Stacktrace");
+
+    // Verify the text elements of the third <testresult> tag.
+    Element failResultEl2 = (Element) resultsList.item(2);
+    assertEquals("failNoMsg", failResultEl2.getAttribute("name"));
+    assertEquals("4000", failResultEl2.getAttribute("time"));
+    assertEquals("PASS", failResultEl2.getAttribute("status"));
+    checkXmlTextContents(failResultEl2, "message", "");
+    checkXmlTextContents(failResultEl2, "stacktrace", "");
+  }
+
+  /** Helper method for testXMLGeneration(). Used to verify the message and stacktrace fields */
+  private void checkXmlTextContents(
+      Element testResult, String attributeName, String expectedValue) {
+    // Check for exactly one text element.
+    NodeList fieldMatchList = testResult.getElementsByTagName(attributeName);
+    assertEquals(fieldMatchList.getLength(), 1);
+    Element fieldEl = (Element) fieldMatchList.item(0);
+
+    // Check that the value within the text element is as expected.
+    Node firstChild = fieldEl.getFirstChild();
+    String expectedStr = Strings.nullToEmpty(expectedValue);
+    assertTrue(
+        ((firstChild == null) && (expectedStr.equals("")))
+            || ((firstChild != null) && expectedStr.equals(firstChild.getNodeValue())));
+  }
+
+  @Test
+  public void whenAllTestsAreSeparateTestsRunInOrder() throws Exception {
+    CommandRunnerParams commandRunnerParams = CommandRunnerParamsForTesting.builder().build();
+
+    AtomicInteger atomicExecutionOrder = new AtomicInteger(0);
+    ExecutionOrderAwareFakeStep separateTestStep1 =
+        new ExecutionOrderAwareFakeStep("teststep1", "teststep1", 0, atomicExecutionOrder);
+    TestResults fakeTestResults =
+        FakeTestResults.of(
+            ImmutableList.of(
+                new TestCaseSummary(
+                    "TestCase",
+                    ImmutableList.of(
+                        new TestResultSummary(
+                            "TestCaseResult",
+                            "passTest",
+                            ResultType.SUCCESS,
+                            5000,
+                            null,
+                            null,
+                            null,
+                            null)))));
+    BuildTarget separateTest1Target = BuildTargetFactory.newInstance("//:test1");
+    FakeTestRule separateTest1 =
+        new FakeTestRule(
+            separateTest1Target,
+            new FakeProjectFilesystem(),
+            TestBuildRuleParams.create(),
+            ImmutableSet.of(),
+            Optional.of(Paths.get("separateTestStep1OutputDir")),
+            true, // runTestSeparately
+            ImmutableList.of(separateTestStep1),
+            () -> fakeTestResults);
+
+    ExecutionOrderAwareFakeStep separateTestStep2 =
+        new ExecutionOrderAwareFakeStep("teststep2", "teststep2", 0, atomicExecutionOrder);
+    BuildTarget separateTest2Target = BuildTargetFactory.newInstance("//:test2");
+    FakeTestRule separateTest2 =
+        new FakeTestRule(
+            separateTest2Target,
+            new FakeProjectFilesystem(),
+            TestBuildRuleParams.create(),
+            ImmutableSet.of(),
+            Optional.of(Paths.get("separateTestStep2OutputDir")),
+            true, // runTestSeparately
+            ImmutableList.of(separateTestStep2),
+            () -> fakeTestResults);
+
+    ExecutionOrderAwareFakeStep separateTestStep3 =
+        new ExecutionOrderAwareFakeStep("teststep3", "teststep3", 0, atomicExecutionOrder);
+    BuildTarget separateTest3Target = BuildTargetFactory.newInstance("//:test3");
+    FakeTestRule separateTest3 =
+        new FakeTestRule(
+            separateTest3Target,
+            new FakeProjectFilesystem(),
+            TestBuildRuleParams.create(),
+            ImmutableSet.of(),
+            Optional.of(Paths.get("separateTestStep3OutputDir")),
+            true, // runTestSeparately
+            ImmutableList.of(separateTestStep3),
+            () -> fakeTestResults);
+
+    // We explicitly use an actual thread pool here; the logic should ensure the
+    // separate tests are run in the correct order.
+    ListeningExecutorService service =
+        MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(3));
+    FakeBuildEngine fakeBuildEngine =
+        new FakeBuildEngine(
+            ImmutableMap.of(
+                separateTest1Target,
+                BuildResult.success(separateTest1, BUILT_LOCALLY, CacheResult.miss()),
+                separateTest2Target,
+                BuildResult.success(separateTest2, BUILT_LOCALLY, CacheResult.miss()),
+                separateTest3Target,
+                BuildResult.success(separateTest3, BUILT_LOCALLY, CacheResult.miss())));
+    ExecutionContext fakeExecutionContext = TestExecutionContext.newInstance();
+    SourcePathRuleFinder ruleFinder = new TestActionGraphBuilder();
+    int ret =
+        TestRunning.runTests(
+            commandRunnerParams,
+            new TestActionGraphBuilder(),
+            ImmutableList.of(separateTest1, separateTest2, separateTest3),
+            fakeExecutionContext,
+            DEFAULT_OPTIONS,
+            service,
+            fakeBuildEngine,
+            FakeBuildContext.withSourcePathResolver(ruleFinder.getSourcePathResolver()),
+            ruleFinder);
+
+    assertThat(ret, equalTo(0));
+    assertThat(separateTestStep1.getExecutionBeginOrder(), equalTo(OptionalInt.of(0)));
+    assertThat(separateTestStep1.getExecutionEndOrder(), equalTo(OptionalInt.of(1)));
+    assertThat(separateTestStep2.getExecutionBeginOrder(), equalTo(OptionalInt.of(2)));
+    assertThat(separateTestStep2.getExecutionEndOrder(), equalTo(OptionalInt.of(3)));
+    assertThat(separateTestStep3.getExecutionBeginOrder(), equalTo(OptionalInt.of(4)));
+    assertThat(separateTestStep3.getExecutionEndOrder(), equalTo(OptionalInt.of(5)));
+  }
+
+  @Test
+  public void whenSomeTestsAreSeparateThenSeparateTestsRunAtEnd() throws Exception {
+    CommandRunnerParams commandRunnerParams = CommandRunnerParamsForTesting.builder().build();
+
+    AtomicInteger atomicExecutionOrder = new AtomicInteger(0);
+    ExecutionOrderAwareFakeStep separateTestStep1 =
+        new ExecutionOrderAwareFakeStep("teststep1", "teststep1", 0, atomicExecutionOrder);
+    TestResults fakeTestResults =
+        FakeTestResults.of(
+            ImmutableList.of(
+                new TestCaseSummary(
+                    "TestCase",
+                    ImmutableList.of(
+                        new TestResultSummary(
+                            "TestCaseResult",
+                            "passTest",
+                            ResultType.SUCCESS,
+                            5000,
+                            null,
+                            null,
+                            null,
+                            null)))));
+
+    BuildTarget separateTest1Target = BuildTargetFactory.newInstance("//:test1");
+    FakeTestRule separateTest1 =
+        new FakeTestRule(
+            separateTest1Target,
+            new FakeProjectFilesystem(),
+            TestBuildRuleParams.create(),
+            ImmutableSet.of(),
+            Optional.of(Paths.get("separateTestStep1OutputDir")),
+            true, // runTestSeparately
+            ImmutableList.of(separateTestStep1),
+            () -> fakeTestResults);
+
+    ExecutionOrderAwareFakeStep separateTestStep2 =
+        new ExecutionOrderAwareFakeStep("teststep2", "teststep2", 0, atomicExecutionOrder);
+    BuildTarget separateTest2Target = BuildTargetFactory.newInstance("//:test2");
+    FakeTestRule separateTest2 =
+        new FakeTestRule(
+            separateTest2Target,
+            new FakeProjectFilesystem(),
+            TestBuildRuleParams.create(),
+            ImmutableSet.of(),
+            Optional.of(Paths.get("separateTestStep2OutputDir")),
+            true, // runTestSeparately
+            ImmutableList.of(separateTestStep2),
+            () -> fakeTestResults);
+
+    ExecutionOrderAwareFakeStep separateTestStep3 =
+        new ExecutionOrderAwareFakeStep("teststep3", "teststep3", 0, atomicExecutionOrder);
+    BuildTarget separateTest3Target = BuildTargetFactory.newInstance("//:test3");
+    FakeTestRule separateTest3 =
+        new FakeTestRule(
+            separateTest3Target,
+            new FakeProjectFilesystem(),
+            TestBuildRuleParams.create(),
+            ImmutableSet.of(),
+            Optional.of(Paths.get("separateTestStep3OutputDir")),
+            true, // runTestSeparately
+            ImmutableList.of(separateTestStep3),
+            () -> fakeTestResults);
+
+    ExecutionOrderAwareFakeStep parallelTestStep1 =
+        new ExecutionOrderAwareFakeStep(
+            "parallelteststep1", "parallelteststep1", 0, atomicExecutionOrder);
+    BuildTarget parallelTest1Target = BuildTargetFactory.newInstance("//:paralleltest1");
+    FakeTestRule parallelTest1 =
+        new FakeTestRule(
+            parallelTest1Target,
+            new FakeProjectFilesystem(),
+            TestBuildRuleParams.create(),
+            ImmutableSet.of(),
+            Optional.of(Paths.get("parallelTestStep1OutputDir")),
+            false, // runTestSeparately
+            ImmutableList.of(parallelTestStep1),
+            () -> fakeTestResults);
+
+    ExecutionOrderAwareFakeStep parallelTestStep2 =
+        new ExecutionOrderAwareFakeStep(
+            "parallelteststep2", "parallelteststep2", 0, atomicExecutionOrder);
+    BuildTarget parallelTest2Target = BuildTargetFactory.newInstance("//:paralleltest2");
+    FakeTestRule parallelTest2 =
+        new FakeTestRule(
+            parallelTest2Target,
+            new FakeProjectFilesystem(),
+            TestBuildRuleParams.create(),
+            ImmutableSet.of(),
+            Optional.of(Paths.get("parallelTestStep2OutputDir")),
+            false, // runTestSeparately
+            ImmutableList.of(parallelTestStep2),
+            () -> fakeTestResults);
+
+    ExecutionOrderAwareFakeStep parallelTestStep3 =
+        new ExecutionOrderAwareFakeStep(
+            "parallelteststep3", "parallelteststep3", 0, atomicExecutionOrder);
+    BuildTarget parallelTest3Target = BuildTargetFactory.newInstance("//:paralleltest3");
+    FakeTestRule parallelTest3 =
+        new FakeTestRule(
+            parallelTest3Target,
+            new FakeProjectFilesystem(),
+            TestBuildRuleParams.create(),
+            ImmutableSet.of(),
+            Optional.of(Paths.get("parallelTestStep3OutputDir")),
+            false, // runTestSeparately
+            ImmutableList.of(parallelTestStep3),
+            () -> fakeTestResults);
+
+    // We explicitly use an actual thread pool here; the logic should ensure the
+    // separate tests are run in the correct order.
+    ListeningExecutorService service =
+        MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(3));
+    FakeBuildEngine fakeBuildEngine =
+        new FakeBuildEngine(
+            ImmutableMap.<BuildTarget, BuildResult>builder()
+                .put(
+                    separateTest1Target,
+                    BuildResult.success(separateTest1, BUILT_LOCALLY, CacheResult.miss()))
+                .put(
+                    separateTest2Target,
+                    BuildResult.success(separateTest2, BUILT_LOCALLY, CacheResult.miss()))
+                .put(
+                    separateTest3Target,
+                    BuildResult.success(separateTest3, BUILT_LOCALLY, CacheResult.miss()))
+                .put(
+                    parallelTest1Target,
+                    BuildResult.success(parallelTest1, BUILT_LOCALLY, CacheResult.miss()))
+                .put(
+                    parallelTest2Target,
+                    BuildResult.success(parallelTest2, BUILT_LOCALLY, CacheResult.miss()))
+                .put(
+                    parallelTest3Target,
+                    BuildResult.success(parallelTest3, BUILT_LOCALLY, CacheResult.miss()))
+                .build());
+    ExecutionContext fakeExecutionContext = TestExecutionContext.newInstance();
+    SourcePathRuleFinder ruleFinder = new TestActionGraphBuilder();
+    int ret =
+        TestRunning.runTests(
+            commandRunnerParams,
+            new TestActionGraphBuilder(),
+            ImmutableList.of(
+                separateTest1,
+                parallelTest1,
+                separateTest2,
+                parallelTest2,
+                separateTest3,
+                parallelTest3),
+            fakeExecutionContext,
+            DEFAULT_OPTIONS,
+            service,
+            fakeBuildEngine,
+            FakeBuildContext.withSourcePathResolver(ruleFinder.getSourcePathResolver()),
+            ruleFinder);
+
+    assertThat(ret, equalTo(0));
+
+    // The tests not marked as separate could run in any order -- but they must run
+    // before the separate test steps.
+    ImmutableSet<OptionalInt> expectedParallelStepExecutionOrderSet =
+        ImmutableSet.<OptionalInt>builder()
+            .add(OptionalInt.of(0))
+            .add(OptionalInt.of(1))
+            .add(OptionalInt.of(2))
+            .add(OptionalInt.of(3))
+            .add(OptionalInt.of(4))
+            .add(OptionalInt.of(5))
+            .build();
+
+    ImmutableSet<OptionalInt> actualParallelStepExecutionOrderSet =
+        ImmutableSet.<OptionalInt>builder()
+            .add(parallelTestStep1.getExecutionBeginOrder())
+            .add(parallelTestStep1.getExecutionEndOrder())
+            .add(parallelTestStep2.getExecutionBeginOrder())
+            .add(parallelTestStep2.getExecutionEndOrder())
+            .add(parallelTestStep3.getExecutionBeginOrder())
+            .add(parallelTestStep3.getExecutionEndOrder())
+            .build();
+
+    LOG.debug(
+        "Expected parallel execution order: %s Actual parallel execution order: %s",
+        expectedParallelStepExecutionOrderSet, actualParallelStepExecutionOrderSet);
+
+    // We allow the parallel steps to begin and end in any order (note the thread
+    // pool of size 3 above), so we use a set.
+    assertThat(actualParallelStepExecutionOrderSet, equalTo(expectedParallelStepExecutionOrderSet));
+
+    // The separate test steps must begin and end in a specific order, so we use a list.
+    ImmutableList<OptionalInt> expectedSeparateStepExecutionOrderList =
+        ImmutableList.<OptionalInt>builder()
+            .add(OptionalInt.of(6))
+            .add(OptionalInt.of(7))
+            .add(OptionalInt.of(8))
+            .add(OptionalInt.of(9))
+            .add(OptionalInt.of(10))
+            .add(OptionalInt.of(11))
+            .build();
+
+    ImmutableList<OptionalInt> actualSeparateStepExecutionOrderList =
+        ImmutableList.<OptionalInt>builder()
+            .add(separateTestStep1.getExecutionBeginOrder())
+            .add(separateTestStep1.getExecutionEndOrder())
+            .add(separateTestStep2.getExecutionBeginOrder())
+            .add(separateTestStep2.getExecutionEndOrder())
+            .add(separateTestStep3.getExecutionBeginOrder())
+            .add(separateTestStep3.getExecutionEndOrder())
+            .build();
+
+    LOG.debug(
+        "Expected separate execution order: %s Actual separate execution order: %s",
+        expectedSeparateStepExecutionOrderList, actualSeparateStepExecutionOrderList);
+
+    assertThat(
+        actualSeparateStepExecutionOrderList, equalTo(expectedSeparateStepExecutionOrderList));
+  }
+
+  @Test
+  public void whenSeparateTestFailsThenBuildFails() throws Exception {
+    CommandRunnerParams commandRunnerParams = CommandRunnerParamsForTesting.builder().build();
+    TestResults failingTestResults =
+        FakeTestResults.of(
+            ImmutableList.of(
+                new TestCaseSummary(
+                    "TestCase",
+                    ImmutableList.of(
+                        new TestResultSummary(
+                            "TestCaseResult",
+                            "failTest",
+                            ResultType.FAILURE,
+                            5000,
+                            null,
+                            null,
+                            null,
+                            null)))));
+    BuildTarget failingTestTarget = BuildTargetFactory.newInstance("//:failingtest");
+    SourcePathRuleFinder ruleFinder = new TestActionGraphBuilder();
+    FakeTestRule failingTest =
+        new FakeTestRule(
+            failingTestTarget,
+            new FakeProjectFilesystem(),
+            TestBuildRuleParams.create(),
+            ImmutableSet.of(),
+            Optional.of(Paths.get("failingTestStep1OutputDir")),
+            true, // runTestSeparately
+            ImmutableList.of(),
+            () -> failingTestResults);
+
+    ListeningExecutorService service =
+        MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(3));
+    FakeBuildEngine fakeBuildEngine =
+        new FakeBuildEngine(
+            ImmutableMap.of(
+                failingTestTarget,
+                BuildResult.success(failingTest, BUILT_LOCALLY, CacheResult.miss())));
+    ExecutionContext fakeExecutionContext = TestExecutionContext.newInstance();
+    int ret =
+        TestRunning.runTests(
+            commandRunnerParams,
+            new TestActionGraphBuilder(),
+            ImmutableList.of(failingTest),
+            fakeExecutionContext,
+            DEFAULT_OPTIONS,
+            service,
+            fakeBuildEngine,
+            FakeBuildContext.withSourcePathResolver(ruleFinder.getSourcePathResolver()),
+            ruleFinder);
+
+    assertThat(ret, equalTo(ExitCode.TEST_ERROR.getCode()));
+  }
+}

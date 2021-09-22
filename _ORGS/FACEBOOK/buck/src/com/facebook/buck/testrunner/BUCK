@@ -1,0 +1,126 @@
+java_library(
+    name = "base",
+    srcs = [
+        "BaseRunner.java",
+        "CheckDependency.java",
+        "TestResult.java",
+        "TestXmlEscaper.java",
+    ],
+    source = "8",
+    target = "8",
+    tests = [
+        "//test/com/facebook/buck/testrunner:testrunner",
+    ],
+    visibility = [
+        "//test/com/facebook/buck/testrunner:testrunner",
+    ],
+    deps = [
+        "//src/com/facebook/buck/test/result/type:type",
+        "//src/com/facebook/buck/test/selectors:selectors",
+        "//src/com/facebook/buck/util/environment:platform",
+    ],
+)
+
+java_library(
+    name = "junit",
+    srcs = [
+        "BuckBlockJUnit4ClassRunner.java",
+        "DelegateRunNotifier.java",
+        "DelegateRunnerWithTimeout.java",
+        "JUnitMain.java",
+        "JUnitRunner.java",
+        "JulLogFormatter.java",
+        "SameThreadFailOnTimeout.java",
+    ],
+    source = "8",
+    target = "8",
+    tests = [
+        "//test/com/facebook/buck/testrunner:testrunner",
+    ],
+    visibility = [
+        "//test/com/facebook/buck/testrunner:testrunner",
+    ],
+    # IMPORTANT! This library limits itself to types that are available in both the JDK and Android
+    # Java API. The objective is to limit the set of files added to the ClassLoader that runs the
+    # test, as not to interfere with the results of the test.
+    deps = [
+        ":base",
+        # This is loaded by reflection. Joy.
+        "//src/com/facebook/buck/jvm/java/runner:runner",
+        "//src/com/facebook/buck/core/util/log/appendablelogrecord:appendablelogrecord",
+        "//src/com/facebook/buck/test/result/type:type",
+        "//src/com/facebook/buck/test/selectors:selectors",
+        "//src/com/facebook/buck/util/concurrent:concurrent_for_junit_runner",
+        "//third-party/java/junit:junit",
+    ],
+)
+
+java_library(
+    name = "instrumentation",
+    srcs = [
+        "BuckXmlTestRunListener.java",
+        "InstrumentationMain.java",
+        "InstrumentationTestRunner.java",
+    ],
+    required_for_source_only_abi = True,
+    source = "8",
+    target = "8",
+    tests = [
+        "//test/com/facebook/buck/testrunner:testrunner",
+    ],
+    visibility = [
+        "//test/com/facebook/buck/testrunner:testrunner",
+    ],
+    deps = ["//third-party/java/android:ddmlib"],
+)
+
+java_library(
+    name = "testng",
+    srcs = [
+        "TestNGMain.java",
+        "TestNGRunner.java",
+    ],
+    source = "8",
+    target = "8",
+    visibility = [
+        "//test/com/facebook/buck/rules/modern:subclass_exclusion",
+    ],
+    deps = [
+        ":base",
+        "//src/com/facebook/buck/test/result/type:type",
+        "//src/com/facebook/buck/test/selectors:selectors",
+        "//third-party/java/guice:guice",
+        "//third-party/java/jsr:jsr305",
+        "//third-party/java/testng:testng",
+    ],
+)
+
+java_binary(
+    name = "testrunner-bin",
+    visibility = [
+        "PUBLIC",
+    ],
+    deps = [
+        ":instrumentation",
+        ":junit",
+        ":testng",
+        "//src/com/facebook/buck/test/result/type:type",
+        "//src/com/facebook/buck/test/selectors:selectors",
+    ],
+)
+
+# Strip out classes we don't want automatically added to the classpath for
+# tests, leaving just the extra buck classes.
+zip_file(
+    name = "testrunner-bin-fixed",
+    out = "testrunner-bin-fixed.jar",
+    entries_to_exclude = [
+        "^(?!com/facebook/buck/).*",
+    ],
+    visibility = [
+        "PUBLIC",
+    ],
+    zip_srcs = [
+        ":testrunner-bin",
+    ],
+)

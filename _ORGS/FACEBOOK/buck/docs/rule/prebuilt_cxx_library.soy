@@ -1,0 +1,216 @@
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+{namespace prebuilt_cxx_library}
+
+/***/
+{template .soyweb}
+  {call buck.page}
+    {param title: 'prebuilt_cxx_library()' /}
+    {param navid: 'rule_prebuilt_cxx_library' /}
+    {param prettify: true /}
+    {param description}
+      A prebuilt_cxx_library() rule represents a set of native libraies and C/C++ header files.
+    {/param}
+    {param content}
+
+{call buck.rule}
+{param status: 'UNFROZEN' /}
+{param overview}
+A <code>prebuilt_cxx_library()</code> rule represents a set of native libraries and C/C++ header
+files and provides various flags to control how they are linked and exported.
+{/param}
+
+{param args}
+
+{call buck.name_arg /}
+
+{call buck.arg}
+  {param name: 'header_only' /}
+  {param default: 'False' /}
+  {param desc}
+    Indicates if this library only consists of headers or not.  If this is set to
+    {sp}<code>True</code>, Buck will not link this library into any library that depends on it.
+  {/param}
+{/call}
+
+{call buck.arg}
+  {param name: 'header_dirs' /}
+  {param default: '[]' /}
+  {param desc}
+    A directory that headers can be included from.  These directories are added
+    to the include path using <code>-isystem</code>.
+  {/param}
+{/call}
+
+{call buck.arg}
+  {param name: 'platform_header_dirs' /}
+  {param default: '[]' /}
+  {param desc}
+    Platform specific header directories. These should be specified as a list of pairs where the first
+    element is an un-anchored regex (in java.util.regex.Pattern syntax) against which the platform
+    name is matched, and the second element is either a list of header directories.
+    See <code>header_dirs</code> for more information.
+  {/param}
+{/call}
+
+{call buck.arg}
+  {param name: 'static_lib' /}
+  {param default: '[]' /}
+  {param desc}
+    The path to the library to use when performing static linking.
+  {/param}
+{/call}
+
+{call buck.arg}
+  {param name: 'platform_static_lib' /}
+  {param default: '[]' /}
+  {param desc}
+    Platform specific static library. These should be specified as a list of pairs where the first
+    element is an un-anchored regex (in java.util.regex.Pattern syntax) against which the platform
+    name is matched, and the second element the path to the library.
+    See <code>static_lib</code> for more information.
+  {/param}
+{/call}
+
+{call buck.arg}
+  {param name: 'static_pic_lib' /}
+  {param default: '[]' /}
+  {param desc}
+    The path to the library to use when performing static PIC linking.
+  {/param}
+{/call}
+
+{call buck.arg}
+  {param name: 'platform_static_pic_lib' /}
+  {param default: '[]' /}
+  {param desc}
+    Platform specific static PIC library. These should be specified as a list of pairs where the first
+    element is an un-anchored regex (in java.util.regex.Pattern syntax) against which the platform
+    name is matched, and the second element the path to the library.
+    See <code>static_pic_lib</code> for more information.
+  {/param}
+{/call}
+
+{call buck.arg}
+  {param name: 'shared_lib' /}
+  {param default: '[]' /}
+  {param desc}
+    The path to the library to use when performing shared linking.
+  {/param}
+{/call}
+
+{call buck.arg}
+  {param name: 'platform_shared_lib' /}
+  {param default: '[]' /}
+  {param desc}
+    Platform specific shared library. These should be specified as a list of pairs where the first
+    element is an un-anchored regex (in java.util.regex.Pattern syntax) against which the platform
+    name is matched, and the second element the path to the library.
+    See <code>shared_lib</code> for more information.
+  {/param}
+{/call}
+
+{call cxx_common.supported_platforms_regex_arg /}
+
+{call cxx_common.exported_headers_arg /}
+
+{call cxx_common.exported_platform_headers_arg /}
+
+{call cxx_common.header_namespace_arg /}
+
+{call cxx_common.exported_preprocessor_flags_arg /}
+
+{call cxx_common.exported_platform_preprocessor_flags_arg /}
+
+{call cxx_common.exported_linker_flags_arg /}
+
+{call cxx_common.force_static /}
+
+{call native_common.preferred_linkage /}
+
+{call cxx_common.exported_deps_arg /}
+
+{call cxx_common.exported_platform_deps_arg /}
+
+{call cxx_common.supports_merged_linking /}
+
+{/param} // close args
+
+{param examples}
+
+<p>
+  A prebuilt library containing only headers that other libraries may need.
+</p>
+
+{literal}<pre class="prettyprint lang-py">
+prebuilt_cxx_library(
+  name = 'stdutil',
+  header_only = True,
+  header_dirs = [
+    'include',
+  ],
+)
+</pre>{/literal}
+
+<p>
+  A prebuilt library with static and shared libs.
+</p>
+
+{literal}<pre class="prettyprint lang-py">
+prebuilt_cxx_library(
+  name = 'mylib',
+  soname = 'libmylib.so',
+  static_lib = 'libmylib.a',
+  static_pic_lib = 'libmylib_pic.a',
+  shared_lib = 'libmylib.so',
+  exported_headers = [
+    'mylib.h',
+  ],
+)
+</pre>{/literal}
+
+<p>
+  A prebuilt library with multiple builds for multiple platforms.
+</p>
+
+{literal}<pre class="prettyprint lang-py">
+prebuilt_cxx_library(
+  name = 'mylib',
+  soname = 'libmylib.so',
+  platform_shared_lib = [
+    ('android-arm', 'android-arm/libmylib.so'),
+    ('android-x86', 'android-x86/libmylib.so'),
+    ('iphonesimulator-x86_64', 'iphonesimulator-x86_64/libmylib.so'),
+  ],
+  platform_static_lib = [
+    ('android-arm', 'android-arm/libmylib.a'),
+    ('android-x86', 'android-x86/libmylib.a'),
+    ('iphonesimulator-x86_64', 'iphonesimulator-x86_64/libmylib.a'),
+  ],
+  exported_headers = [
+    'mylib.h',
+  ],
+)
+</pre>{/literal}
+
+{/param}
+
+{/call} // close buck.rule
+
+    {/param}
+  {/call}
+{/template}

@@ -1,0 +1,624 @@
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+{namespace cxx_common}
+
+/**
+ * @param? sample_file_name File name to use in samples. If null, defaults to 'foo/bar.c'.
+ */
+{template .srcs_arg}
+{call buck.arg}
+  {param name : 'srcs' /}
+  {param default : '[]' /}
+  {param desc}
+  The set of C, C++, Objective-C, Objective-C++, or assembly source files
+  to be preprocessed, compiled, and assembled by this
+  rule.  We determine which stages to run on each input source based on its file extension. See the
+  {sp}<a href="https://gcc.gnu.org/onlinedocs/gcc/Overall-Options.html">GCC documentation</a>{sp}
+  for more detail on how file extensions are interpreted. Each element can be either a string
+  specifying a source file (e.g. <code>'{$sample_file_name ?: 'foo/bar.c'}'</code>) or a tuple of
+  a string specifying a source file and a list of compilation flags
+  (e.g. <code>('{$sample_file_name ?: 'foo/bar.c'}', ['-Wall', '-Werror'])
+  </code>). In the latter case the specified flags will be used in addition to the rule's other
+  flags when preprocessing and compiling that file (if applicable).
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .platform_srcs_arg}
+{call buck.arg}
+  {param name : 'platform_srcs' /}
+  {param default : '[]' /}
+  {param desc}
+  Platform specific source files. These should be specified as a list of pairs where the first
+  element is an un-anchored regex (in java.util.regex.Pattern syntax) against which the platform
+  name is matched, and the second element is either a list of source files or a list of tuples of
+  source files and a list of compilation flags to be preprocessed, compiled and assembled if the
+  platform matches the regex. See <code>srcs</code> for more information.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .supported_platforms_regex_arg}
+{call buck.arg}
+  {param name : 'supported_platforms_regex' /}
+  {param default : 'None' /}
+  {param desc}
+  If present, an un-anchored regex (in java.util.regex.Pattern syntax) that matches all platforms
+  that this library supports. It will not be built for other platforms.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .headers_arg}
+{call buck.arg}
+  {param name : 'headers' /}
+  {param default : '[]' /}
+  {param desc}
+  The set of header files that are made available for inclusion to the source files in this
+  target. These should be specified as either a list
+  of header files or a dictionary of header names to header files. The header name can contain
+  forward slashes (<code>/</code>).  The headers can be included with <code>#include
+  "$HEADER_NAMESPACE/$HEADER_NAME"</code> or <code>#include &lt;$HEADER_NAMESPACE/$HEADER_NAME&gt;
+  </code>, where <code>$HEADER_NAMESPACE</code> is the value of the target's <code>header_namespace
+  </code> attribute, and <code>$HEADER_NAME</code> is the header name if specified, and the filename
+  of the header file otherwise. See <code>header_namespace</code> for more information.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .platform_headers_arg}
+{call buck.arg}
+  {param name : 'platform_headers' /}
+  {param default : '[]' /}
+  {param desc}
+  Platform specific header files. These should be specified as a list of pairs where the first
+  element is an un-anchored regex (in java.util.regex.Pattern syntax) against which the platform
+  name is matched, and the second element is either a list of header files or a dictionary of
+  header names to header files that will be made available for inclusion to the source files in the
+  target if the platform matches the regex. See <code>headers</code> for more information.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .exported_headers_arg}
+{call buck.arg}
+  {param name : 'exported_headers' /}
+  {param default : '[]' /}
+  {param desc}
+  The set of header files that are made available for inclusion to the source files in the
+  target and all targets that transitively depend on it. These should be specified as either a list
+  of header files or a dictionary of header names to header files. The headers can be included
+  with <code>#include "$HEADER_NAMESPACE/$HEADER_NAME"</code> or <code>#include
+  &lt;$HEADER_NAMESPACE/$HEADER_NAME&gt;</code>, where <code>$HEADER_NAMESPACE</code> is the value
+  of the target's <code>header_namespace</code> attribute, and <code>$HEADER_NAME</code> is the
+  header name if specified, and the filename of the header file otherwise. Note that the header name
+  can contain forward slashes (<code>/</code>). See <code>header_namespace</code> for more
+  information.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .exported_header_style_arg}
+{call buck.arg}
+  {param name : 'exported_header_style' /}
+  {param default : 'local' /}
+  {param desc}
+  How dependents should include exported headers from this rule.  Can be either <code>local</code>
+  (e.g. <code>-I</code>) or <code>system</code> (e.g. <code>-isystem</code>).
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .exported_platform_headers_arg}
+{call buck.arg}
+  {param name : 'exported_platform_headers' /}
+  {param default : '[]' /}
+  {param desc}
+  Platform specific header files. These should be specified as a list of pairs where the first
+  element is an un-anchored regex (in java.util.regex.Pattern syntax) against which the platform
+  name is matched, and the second element is either a list of header files or a dictionary of
+  header names to header files that will be made available for inclusion to the source files in the
+  target and all targets that transitively depend on it if the platform matches the regex.
+  See <code>headers</code> for more information.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .header_namespace_arg}
+{call buck.arg}
+  {param name : 'header_namespace' /}
+  {param default : 'name' /}
+  {param desc}
+  A path prefix when including headers of this target. Defaults to the path from the root of the
+  repository to the directory where this target is defined. Can
+  contain forward slashes (<code>/</code>), but cannot start with one. See <code>headers</code> for
+  more information.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .preprocessor_flags_arg}
+{call buck.arg}
+  {param name : 'preprocessor_flags' /}
+  {param default : '[]' /}
+  {param desc}
+  Flags to use when preprocessing any of the above sources (which require preprocessing).
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .lang_preprocessor_flags_arg}
+{call buck.arg}
+  {param name : 'lang_preprocessor_flags' /}
+  {{param default : '{}' /}}
+  {param desc}
+  Language-specific preprocessor flags. These should be specified as a map of C-family language short
+  names to lists of flags and is used to target flags to sources files for a specific language in the
+  C-family (C, C++, assembler, etc.).  The keys in the map can be:
+  <ul>
+    <li>
+      <code>c</code> for C
+    </li>
+    <li>
+      <code>c++</code> for C++
+    </li>
+    <li>
+      <code>objective-c</code> for Objective-C
+    </li>
+    <li>
+      <code>objective-c++</code> for Objective-C++
+    </li>
+    <li>
+      <code>cuda</code> for Cuda
+    </li>
+    <li>
+      <code>assembler-with-cpp</code> for Assembly
+    </li>
+    <li>
+      <code>asm-with-cpp</code> for ASM
+    </li>
+  </ul>
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .exported_lang_preprocessor_flags_arg}
+{call buck.arg}
+  {param name : 'exported_lang_preprocessor_flags' /}
+  {{param default : '{}' /}}
+  {param desc}
+  Just as <code>lang_preprocessor_flags</code>, but these flags also apply to
+  rules that transitively depend on this rule.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .lang_platform_preprocessor_flags_arg}
+{call buck.arg}
+  {param name : 'lang_platform_preprocessor_flags' /}
+  {{param default : '{}' /}}
+  {param desc}
+  Language- and platform-specific preprocessor flags. These should be specified as a map of C-family language short
+  names, as described in <code>lang_preprocessor_flags</code>, to lists of pairs, as described in <code>platform_preprocessor_flags</code>.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .exported_lang_platform_preprocessor_flags_arg}
+{call buck.arg}
+  {param name : 'exported_lang_platform_preprocessor_flags' /}
+  {{param default : '{}' /}}
+  {param desc}
+  Just as <code>lang_platform_preprocessor_flags</code>, but these flags also apply to
+  rules that transitively depend on this rule.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .platform_preprocessor_flags_arg}
+{call buck.arg}
+  {param name : 'platform_preprocessor_flags' /}
+  {param default : '[]' /}
+  {param desc}
+  Platform specific preprocessor flags. These should be specified as a list of pairs where the first
+  element is an un-anchored regex (in java.util.regex.Pattern syntax) against which the platform
+  name is matched, and the second element is a list of flags to use when preprocessing the target's
+  sources. See <code>preprocessor_flags</code> for more information.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .exported_preprocessor_flags_arg}
+{call buck.arg}
+  {param name : 'exported_preprocessor_flags' /}
+  {param default : '[]' /}
+  {param desc}
+  Just as <code>preprocessor_flags</code>, flags to use when preprocessing any of the above sources
+  (which require preprocessing). However, unlike <code>preprocessor_flags</code>, these preprocessor
+  flags are also used by rules that transitively depend on this rule when preprocessing their own
+  sources.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .exported_platform_preprocessor_flags_arg}
+{call buck.arg}
+  {param name : 'exported_platform_preprocessor_flags' /}
+  {param default : '[]' /}
+  {param desc}
+  Platform specific exported preprocessor flags. These should be specified as a list of pairs where
+  the first element is an un-anchored regex (in java.util.regex.Pattern syntax) against which the
+  platform name is matched, and the second element is a list of flags to use when preprocessing the
+  source files in the target and all targets that transitively depend on it if the platform matches
+  the regex. See <code>exported_preprocessor_flags</code> for more information.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .compiler_flags_arg}
+{call buck.arg}
+  {param name : 'compiler_flags' /}
+  {param default : '[]' /}
+  {param desc}
+  Flags to use when compiling any of the above sources (which require compilation).
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .platform_compiler_flags_arg}
+{call buck.arg}
+  {param name : 'platform_compiler_flags' /}
+  {param default : '[]' /}
+  {param desc}
+  Platform specific compiler flags. These should be specified as a list of pairs where the first
+  element is an un-anchored regex (in java.util.regex.Pattern syntax) against which the platform
+  name is matched, and the second element is a list of flags to use when compiling the target's
+  sources. See <code>compiler_flags</code> for more information.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .lang_compiler_flags_arg}
+{call buck.arg}
+  {param name : 'lang_compiler_flags' /}
+  {{param default : '{}' /}}
+  {param desc}
+  Language-specific compiler flags. These should be specified as a map of C-family language short
+  names to lists of flags and is used to target flags to sources files for a specific language in the
+  C-family (C, C++, assembler, etc.).  The keys in the map can be:
+  <ul>
+    <li>
+      <code>cpp-output</code> for C
+    </li>
+    <li>
+      <code>c++-cpp-output</code> for C++
+    </li>
+    <li>
+      <code>objective-c-cpp-output</code> for Objective-C
+    </li>
+    <li>
+      <code>objective-c++-cpp-output</code> for Objective-C++
+    </li>
+    <li>
+      <code>cuda-cpp-output</code> for Cuda
+    </li>
+    <li>
+      <code>assembler</code> for Assembly
+    </li>
+    <li>
+      <code>asm</code> for ASM
+    </li>
+  </ul>
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .lang_platform_compiler_flags_arg}
+{call buck.arg}
+  {param name : 'lang_platform_compiler_flags' /}
+  {{param default : '{}' /}}
+  {param desc}
+  Language- and platform-specific compiler flags. These should be specified as a map of C-family language short
+  names, as described in <code>lang_compiler_flags</code>, to lists of pairs, as described in <code>platform_compiler_flags</code>.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .linker_extra_outputs_arg}
+{call buck.arg}
+  {param name : 'linker_extra_outputs' /}
+  {param default : '[]' /}
+  {param desc}
+  Declares extra outputs that the linker emits. These identifiers can be used in
+  {sp}<code>$(output ...)</code> macros in <code>linker_flags</code> to interpolate the output path
+  into the linker command line. Useful for custom linkers that emit extra output files.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .linker_flags_arg}
+{call buck.arg}
+  {param name : 'linker_flags' /}
+  {param default : '[]' /}
+  {param desc}
+  Flags to add to the linker command line whenever the output from this
+  rule is used in a link operation, such as linked into an executable
+  or a shared library.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .platform_linker_flags_arg}
+{call buck.arg}
+  {param name : 'platform_linker_flags' /}
+  {param default : '[]' /}
+  {param desc}
+  Platform-specific linker flags. This argument is specified as a list of pairs where the first
+  element in each pair is an un-anchored regex against which the platform name is matched.
+  The regex should use <code>java.util.regex.Pattern</code> syntax.
+  The second element in each pair is a list of linker flags. If the regex matches the
+  platform, these flags are added to the linker command line when the
+  output from this rule is used in a link operation.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .exported_linker_flags_arg}
+{call buck.arg}
+  {param name : 'exported_linker_flags' /}
+  {param default : '[]' /}
+  {param desc}
+  Flags to add to the linker command line when the output from this
+  rule, or the output from any rule that transitively depends on this
+  rule, is used in a link operation.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .exported_post_linker_flags_arg}
+{call buck.arg}
+  {param name : 'exported_post_linker_flags' /}
+  {param default : '[]' /}
+  {param desc}
+  Flags to add to the linker command line when the output from this
+  rule, or the output from any rule that transitively depends on this
+  rule, is used in a link operation&mdash;with the additional feature
+  that these flags are guaranteed to be placed <em>after</em> the compiled
+  object (<code>.o</code>) files on the linker command line.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .exported_platform_linker_flags_arg}
+{call buck.arg}
+  {param name : 'exported_platform_linker_flags' /}
+  {param default : '[]' /}
+  {param desc}
+  Platform-specific linker flags for this rule and for all rules that
+  transitively depend on this rule. This argument is specified
+  as a list of pairs where the first element in each pair is an un-anchored regex
+  against which the platform name is matched.
+  The regex should use <code>java.util.regex.Pattern</code> syntax.
+  The second element in each pair is a list of linker flags. If the regex matches the
+  platform, these flags are added to the linker command line when the output from
+  this rule, or the output from any rule that transitively depends on
+  this rule, is used in a link operation.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .exported_post_platform_linker_flags_arg}
+{call buck.arg}
+  {param name : 'exported_post_platform_linker_flags' /}
+  {param default : '[]' /}
+  {param desc}
+  Platform-specific linker flags for this rule and for all
+  rules that transitively depend on this rule&mdash;and that
+  are guaranteed to be placed <em>after</em> the compiled object
+  (<code>.o</code>) files on the linker command line. In other respects,
+  the syntax and semantics of this argument are the same as
+  for the <code>exported_platform_linker_flags</code> argument.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .precompiled_header_arg}
+{call buck.arg}
+  {param name : 'precompiled_header' /}
+  {param default : 'None' /}
+  {param desc}
+  Path to a{sp}
+  <a href="{ROOT}rule/cxx_precompiled_header.html"><code>cxx_precompiled_header</code></a>{sp}
+  to use when compiling this rule's sources.  The precompiled header (PCH) is built on-demand, using
+  compiler flags matching those used in this rule's compile jobs.  This is to ensure
+  compatibility between this rule and the PCH.  Also, this rule will inherit additional
+  {sp}<code>deps</code>{sp} from the PCH rule, and as a result, additional include paths as well
+  (e.g. <code>-I</code>, <code>-isystem</code>, <code>-iquote</code> path lists,
+  and framework paths specified with <code>-F</code>).
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .force_static}
+{call buck.arg}
+  {param name : 'force_static' /}
+  {param default: 'False' /}
+  {param desc}
+  DEPRECATED: <code>See preferred_linkage</code>.
+
+  If <code>true</code>, the library will always be linked statically, even if the target that
+  depends on it specifies <code>link_style</code> to be something other than <code>static</code>.
+  Note that this may still cause the library to be linked into its own shared library, if it happens
+  to be the root of the linkable dependency tree (e.g. if a Python library directly depends on the
+  library with <code>force_static=True</code>).
+  Also note this will cause duplicate symbols if multiple targets that depend on the library are linked
+  together.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .reexport_all_header_dependencies_arg}
+{call buck.arg}
+  {param name : 'reexport_all_header_dependencies' /}
+  {param default: 'True' /}
+  {param desc}
+  Whether to automatically re-export the exported headers of all dependencies.
+  <p>
+  When this is set to false, only exported headers from
+   {sp}<code>exported_deps</code> are re-exported.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .exported_deps_arg}
+{call buck.arg}
+  {param name : 'exported_deps' /}
+  {param default: '[]' /}
+  {param desc}
+  Dependencies that will also appear to belong to any rules that depend on this
+  one. This has two effects:
+  <ul>
+    <li>
+      Exported dependencies will also be included in the link line of
+      dependents of this rules, but normal dependencies will not.
+    </li>
+    <li>
+      When <code>reexport_all_header_dependencies = False</code>, only exported
+      headers of the rules specified here are re-exported.
+    </li>
+  </ul>
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .exported_platform_deps_arg}
+{call buck.arg}
+  {param name : 'exported_platform_deps' /}
+  {param default: '[]' /}
+  {param desc}
+  Platform specific dependencies that will also appear to belong to any rules
+  that depend on this one.
+  These should be specified as a list of pairs where the first element is an
+  un-anchored regex (in java.util.regex.Pattern syntax) against which the
+  platform name is matched, and the second element is a list of external
+  dependencies (same format as <code>exported_deps</code>) that are exported
+  if the platform matches the regex.
+  See <code>exported_deps</code> for more information.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .supports_merged_linking}
+{call buck.arg}
+  {param name : 'supports_merged_linking' /}
+  {param default : 'True' /}
+  {param desc}
+  Whether this rule supports building with the merged linking strategy when building for non-native
+  binaries (e.g. when using {call buckconfig.python_native_link_strategy /}s <code>merged</code> setting).
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .raw_headers_arg}
+{call buck.arg}
+  {param name : 'raw_headers' /}
+  {param default : '[]' /}
+  {param desc}
+  The set of header files that can be used for inclusion to the source files in the target and all
+  targets that transitively depend on it. Buck doesn't add raw headers to the search path of a
+  compiler/preprocessor automatically.
+  <code>include_directories</code> and <code>public_include_directories</code> are the recommended
+  way to add raw headers to the search path (they will be added via <code>-I</code>).
+  <code>compiler_flags</code>, <code>preprocessor_flags</code> and <code>exported_preprocessor_flags</code>
+  can also be used to add such raw headers to the search path if inclusion via <code>-isystem</code> or
+  <code>-iquote</code> is needed.
+  <code>raw_headers</code> cannot be used together with <code>headers</code> or <code>exported_headers</code> in the same target.
+  {/param}
+{/call}
+{/template}
+
+/***/
+{template .include_directories_arg}
+  {call buck.arg}
+    {param name : 'include_directories' /}
+    {param default : '[]' /}
+    {param desc}
+      A list of include directories (with <code>raw_headers</code>) to be added to the compile command for compiling this target
+      (via <code>-I</code>).
+      An include directory is relative to the current package.
+    {/param}
+  {/call}
+{/template}
+
+/***/
+{template .public_include_directories_arg}
+  {call buck.arg}
+    {param name : 'public_include_directories' /}
+    {param default : '[]' /}
+    {param desc}
+      A list of include directories (with <code>raw_headers</code>) to be added to the compile command for compiling this target
+      and every target that depends on it (via <code>-I</code>). An include directory is relative to the current package.
+    {/param}
+  {/call}
+{/template}
+
+/***/
+{template .public_system_include_directories_arg}
+  {call buck.arg}
+    {param name : 'public_system_include_directories' /}
+    {param default : '[]' /}
+    {param desc}
+      A list of include directories (with <code>raw_headers</code>) to be added to the compile command for compiling this target
+      and every target that depends on it (via <code>-isystem</code> if the compiler supports it of via <code>-I</code> otherwise).
+      An include directory is relative to the current package.
+    {/param}
+  {/call}
+{/template}

@@ -1,0 +1,194 @@
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+{namespace buck.apple_bundle}
+
+/***/
+{template .soyweb}
+  {call buck.page}
+    {param title: 'apple_bundle()' /}
+    {param navid: 'rule_apple_bundle' /}
+    {param prettify: true /}
+    {param description}
+      A rule that generates an Apple bundle.
+    {/param}
+    {param content}
+
+{call buck.rule}
+{param status: 'UNFROZEN' /}
+{param overview}
+<p>
+An <code>apple_bundle()</code> rule takes an Apple binary and all of the resources and asset
+catalogs in the rule's transitive dependencies and generates a bundle containing all of those files.
+Optionally the generated bundle can also be signed using specified provisioning profiles.
+</p>
+<p>
+Code signing will embed entitlements pointed to by the <code>entitlements_file</code> arg in
+the bundle's <code>apple_binary</code>.  This is the preferred way to specify entitlements
+when building with Buck.
+</p>
+<p>If the entitlements file is not present, it falls back to the <code>CODE_SIGN_ENTITLEMENTS</code> entry in
+   <code>info_plist_substitutions</code>.
+</p>
+<p>
+If after these checks, an entitlements file is still not specified, it will be derived based
+on the entitlements of the selected provisioning profile. Provisioning profiles will be selected
+from profiles pointed to by <code>apple.provisioning_profile_search_path</code>, based on a
+non-expired profile that matches the bundle id and entitlements.
+</p>
+
+<p>
+Code signing will embed entitlements pointed to by the <code>CODE_SIGN_ENTITLEMENTS</code> entry in
+<code>info_plist_substitutions</code>. If an entitlements file is omitted, it will be derived based
+on the entitlements of the selected provisioning profile. Provisioning profiles will be selected
+from profiles pointed to by <code>apple.provisioning_profile_search_path</code>, based on a
+non-expired profile that matches the bundle id and entitlements.
+</p>
+
+{/param}
+
+{param args}
+
+{call buck.name_arg /}
+
+{call buck.arg}
+  {param name : 'deps' /}
+  {param default : '[]' /}
+  {param desc}
+  A list of dependencies of this bundle as build targets. You can embed application
+  extensions by specifying the extension's bundle target.  To include a WatchKit app, append the
+  flavor <code>#watch</code> to the target specification.  Buck will automatically substitute the appropriate
+  platform flavor (either <code>watchsimulator</code> or <code>watchos</code>) based on the parent.
+  {/param}
+{/call}
+
+{call buck.arg}
+  {param name: 'product_name' /}
+  {param desc}
+  The name of the resulting bundle and binary. The setting behaves like PRODUCT_NAME Xcode build setting.
+  For example, if your rule is named "MyApp" and extension is "app", by default buck will generate MyApp.app bundle.
+  But if you will set product name to "SuperApp", bundle will get "SuperApp.app" name.
+  {/param}
+{/call}
+
+{call buck.arg}
+  {param name: 'extension' /}
+  {param desc}
+  The extension of the generated bundle. For example <code>'app'</code> for an application bundle
+  or <code>'appex'</code> for an application extension bundle.
+  {/param}
+{/call}
+
+{call buck.arg}
+  {param name: 'binary' /}
+  {param desc}
+  A <a href="{ROOT}concept/build_target.html">build target</a> identifying
+  an <a href="{ROOT}rule/apple_binary.html"><code>apple_binary()</code> rule</a> or
+  an <a href="{ROOT}rule/apple_library.html"><code>apple_library()</code> rule</a> whose output will
+  be used as the main executable binary of the generated bundle. The required rule type depends
+  on the value in the <code>extension</code> attribute. For example, application bundles expect
+  a binary (e.g. <code>'//Apps/MyApp:MyApp'</code>), application extension bundles expect a shared
+  library (e.g. <code>'//Libraries/MyLibrary:MyLibrary#shared'</code>).
+  {/param}
+{/call}
+
+{call apple_common.info_plist_arg /}
+
+{call apple_common.info_plist_substitutions_arg /}
+
+{call buck.tests_apple_arg /}
+
+{call buck.arg}
+  {param name: 'asset_catalogs_compilation_options' /}
+  {param desc}
+  A dict holding parameters for asset catalogs compiler (actool). Its options include:
+  <ul>
+    <li><code>notices</code> (defaults to <code>True</code>)</li>
+    <li><code>warnings</code> (defaults to <code>True</code>)</li>
+    <li><code>errors</code> (defaults to <code>True</code>)</li>
+    <li><code>compress_pngs</code> (defaults to <code>True</code>)</li>
+    <li><code>optimization</code> (defaults to <code>'space'</code>)</li>
+    <li><code>output_format</code> (defaults to <code>'human-readable-text'</code>)</li>
+    <li><code>extra_flags</code> (defaults to <code>[]</code>)</li>
+  </ul>
+  {/param}
+{/call}
+
+{call buck.arg}
+  {param name: 'ibtool_flags' /}
+  {param default : '[]' /}
+  {param desc}
+  List of flags to be passed to ibtool during interface builder file compilation.
+  {/param}
+{/call}
+
+{/param} // args
+
+{param examples}
+{literal}<pre class="prettyprint lang-py">
+apple_bundle(
+  name = 'AppBundle',
+  binary = ':MyBinary',
+  extension = 'app',
+  info_plist = 'Info.plist',
+)
+</pre>{/literal}
+
+{literal}<pre class="prettyprint lang-py">
+# iOS app with embedded WatchOS 2.0 app/extension
+apple_bundle(
+  name = 'DemoWatchAppExtension',
+  binary = ':DemoWatchAppExtensionBinary',
+  extension = 'appex',
+  info_plist = 'WatchExtension/Resources/Info.plist',
+)
+
+apple_bundle(
+  name = 'DemoWatchApp',
+  binary = ':DemoWatchAppBinary',
+  deps = [':DemoWatchAppResources', ':DemoWatchAppExtension'],
+  extension = 'app',
+  info_plist = 'WatchApplication/Info.plist',
+)
+
+apple_bundle(
+  name = 'DemoApp',
+  binary = ':DemoAppBinary',
+  deps = [':DemoWatchApp#watch'],
+  extension = 'app',
+  info_plist = 'Info.plist',
+)
+</pre>{/literal}
+
+{literal}<pre class="prettyprint lang-py">
+# iOS app using safeAreaInsets delivering to iOS 9.x
+apple_bundle(
+  name = 'DemoIBApp',
+  binary = ':DemoIBAppBinary',
+  deps = [':DemoIBAppResources'],
+  extension = 'app',
+  ibtool_flags = ["--minimum-deployment-target", "9.0"],
+  info_plist = 'Info.plist',
+)
+</pre>{/literal}
+
+
+{/param} // examples
+{/call} // buck.rule
+
+    {/param}
+  {/call}
+{/template}

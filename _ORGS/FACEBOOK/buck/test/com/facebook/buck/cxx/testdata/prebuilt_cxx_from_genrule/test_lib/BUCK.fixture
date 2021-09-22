@@ -1,0 +1,38 @@
+cxx_library(
+    name = "bar",
+    srcs = [
+        "bar.cpp",
+    ],
+    deps = [
+        ":lib",
+    ],
+)
+
+cxx_library(
+    name = "lib",
+    srcs = ["lib.cpp"],
+    exported_headers = ["lib.h"],
+    preferred_linkage = "static",
+)
+
+genrule(
+    name = "gen_prebuilt_foo",
+    out = "gen_prebuilt_bar",
+    bash = "cp $(location :bar#static,default) $OUT",
+)
+
+genrule(
+    name = "gen_prebuilt_foo_headers",
+    out = "gen_prebuilt_foo_headers",
+    bash = "mkdir -p $OUT/foo && echo \"int bar();\" >> $OUT/foo/foo.h",
+)
+
+prebuilt_cxx_library(
+    name = "foo",
+    header_dirs = [":gen_prebuilt_foo_headers"],
+    static_lib = ":gen_prebuilt_foo",
+    visibility = ["PUBLIC"],
+    deps = [
+        ":lib",
+    ],
+)

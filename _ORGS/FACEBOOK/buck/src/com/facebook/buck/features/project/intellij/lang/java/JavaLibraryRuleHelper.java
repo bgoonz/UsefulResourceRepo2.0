@@ -1,0 +1,77 @@
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.facebook.buck.features.project.intellij.lang.java;
+
+import com.facebook.buck.core.model.targetgraph.TargetNode;
+import com.facebook.buck.core.sourcepath.BuildTargetSourcePath;
+import com.facebook.buck.core.sourcepath.PathSourcePath;
+import com.facebook.buck.core.sourcepath.SourcePath;
+import com.facebook.buck.features.project.intellij.JavaLanguageLevelHelper;
+import com.facebook.buck.features.project.intellij.ModuleBuildContext;
+import com.facebook.buck.features.project.intellij.aggregation.AggregationContext;
+import com.facebook.buck.features.project.intellij.aggregation.AggregationKeys;
+import com.facebook.buck.features.project.intellij.model.IjProjectConfig;
+import com.facebook.buck.jvm.java.JavaLibraryDescription;
+import java.util.Collection;
+import java.util.Optional;
+
+public class JavaLibraryRuleHelper {
+  /**
+   * @param paths paths to check
+   * @return whether any of the paths pointed to something not in the source tree.
+   */
+  private static boolean containsNonSourcePath(Collection<SourcePath> paths) {
+    return paths.stream().anyMatch(path -> !(path instanceof PathSourcePath));
+  }
+
+  public static <T extends JavaLibraryDescription.CoreArg> void addCompiledShadowIfNeeded(
+      IjProjectConfig projectConfig, TargetNode<T> targetNode, ModuleBuildContext context) {
+    if (projectConfig.isExcludeArtifactsEnabled()) {
+      return;
+    }
+
+    T arg = targetNode.getConstructorArg();
+    // TODO(mkosiba): investigate supporting annotation processors without resorting to this.
+    boolean hasAnnotationProcessors = !arg.getAnnotationProcessors().isEmpty();
+    if (containsNonSourcePath(arg.getSrcs()) || hasAnnotationProcessors) {
+      context.addCompileShadowDep(targetNode.getBuildTarget());
+    }
+  }
+
+  public static <T extends JavaLibraryDescription.CoreArg> void addNonSourceBuildTargets(
+      TargetNode<T> targetNode, ModuleBuildContext context) {
+    T arg = targetNode.getConstructorArg();
+    if (arg.getSrcs().stream().anyMatch(src -> src instanceof BuildTargetSourcePath)) {
+      context.addNonSourceBuildTarget(targetNode.getBuildTarget());
+    }
+  }
+
+  /**
+   * Helper method to add aggregation key of JAVA_LANGUAGE_LEVEL if the target specifies a language
+   * level
+   */
+  public static <T extends JavaLibraryDescription.CoreArg> void addLanguageAggregationKeyIfNeeded(
+      IjProjectConfig projectConfig, TargetNode<T> target, AggregationContext context) {
+    Optional<String> languageLevel =
+        JavaLanguageLevelHelper.getLanguageLevel(projectConfig, target);
+    if (languageLevel.isPresent()) {
+      context.addAggregationKey(AggregationKeys.JAVA_LANGUAGE_LEVEL, languageLevel);
+    }
+  }
+
+  private JavaLibraryRuleHelper() {}
+}

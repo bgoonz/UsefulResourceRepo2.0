@@ -1,0 +1,81 @@
+apple_bundle(
+    name = "DemoApp",
+    binary = ":DemoAppBinary",
+    extension = "app",
+    info_plist = "Info.plist",
+)
+
+apple_binary(
+    name = "DemoAppBinary",
+    srcs = glob([
+        "*.m",
+    ]),
+    frameworks = [
+        "$SDKROOT/System/Library/Frameworks/Foundation.framework",
+        "$SDKROOT/System/Library/Frameworks/UIKit.framework",
+    ],
+    headers = glob([
+        "*.h",
+    ]),
+    libraries = [
+        "$SDKROOT/usr/lib/libobjc.dylib",
+    ],
+    preprocessor_flags = ["-fobjc-arc"],
+)
+
+apple_library(
+    name = "DemoFrameworkLib",
+    srcs = ["framework.c"],
+)
+
+apple_bundle(
+    name = "DemoFramework",
+    binary = ":DemoFrameworkLib#shared,strip-non-global",
+    extension = "framework",
+    info_plist = "FrameworkInfo.plist",
+)
+
+apple_bundle(
+    name = "DemoAppWithFramework",
+    binary = ":DemoAppBinary",
+    extension = "app",
+    info_plist = "Info.plist",
+    deps = [":DemoFramework"],
+)
+
+apple_bundle(
+    name = "DemoAppWithAppleResource",
+    binary = ":DemoAppBinary",
+    extension = "app",
+    info_plist = "Info.plist",
+    deps = [
+        ":ResourceWithCodesigning",
+        ":ResourceWithoutCodesigning",
+    ],
+)
+
+# Just make a copy of the binary to get something which can be code signed
+export_file(
+    name = "BinaryToBeCodesigned",
+    src = ":DemoAppBinary",
+)
+
+export_file(
+    name = "OtherBinary",
+    src = ":DemoAppBinary",
+)
+
+apple_resource(
+    name = "ResourceWithCodesigning",
+    codesign_on_copy = True,
+    dirs = [],
+    files = [":BinaryToBeCodesigned"],
+    visibility = ["PUBLIC"],
+)
+
+apple_resource(
+    name = "ResourceWithoutCodesigning",
+    dirs = [],
+    files = [":OtherBinary"],
+    visibility = ["PUBLIC"],
+)

@@ -1,0 +1,31 @@
+genrule(
+    name = "resource",
+    srcs = [
+        "LameGenfile.java",
+        "resource.base.txt",
+    ],
+    out = "LameGenfile.java",
+    bash = ("TEXT=`cat resource.base.txt`;" +
+            "sed \"s/REPLACEME/$TEXT/g\" LameGenfile.java > $OUT"),
+    cmd_exe = "powershell.exe -Command " +
+              "Out-File -Encoding ASCII $env:OUT -InputObject " +
+              "((Get-Content LameGenfile.java)  -replace 'REPLACEME', (Get-Content resource.base.txt))",
+)
+
+java_library(
+    name = "library",
+    srcs = [
+        ":resource",
+    ],
+)
+
+java_test(
+    name = "test",
+    srcs = [
+        "LameTest.java",
+    ],
+    deps = [
+        "buck//third-party/java/junit:junit",
+        ":library",
+    ],
+)

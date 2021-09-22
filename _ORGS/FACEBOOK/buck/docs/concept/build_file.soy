@@ -1,0 +1,124 @@
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+{namespace buck.build_file}
+
+/***/
+{template .soyweb}
+  {call buck.page}
+    {param title: 'Build File' /}
+    {param navid: 'concept_build_file' /}
+    {param prettify: true /}
+    {param description}
+      Any file, typically named BUCK, that defines one or more build rules.
+    {/param}
+    {param content}
+
+<p>
+A <em>build file</em> is a file, typically named <code>BUCK</code>, that
+defines one or more {call buck.build_rule /}s. 
+</p>
+
+<p>
+Note that you can change the name that Buck uses for the build file in
+the <code>buildfile</code> section of {call buck.buckconfig_link /}.
+</p>
+
+<p>
+A source file in your project can only be referenced by rules in its "nearest"
+build file, where "nearest" means its closest direct ancestor in your
+project's file tree. (If a source file has a build file as a sibling, then that
+is its nearest ancestor.)
+For example, if your project had the following <code>BUCK</code> files:
+</p>
+
+{literal}<pre>
+java/com/facebook/base/BUCK
+java/com/facebook/common/BUCK
+java/com/facebook/common/collect/BUCK
+</pre>{/literal}
+
+<p>
+Then your build rules would have the following constraints:
+</p>
+
+<ul>
+  <li>Rules in <code>java/com/facebook/base/BUCK</code> can
+      reference any file under <code>java/com/facebook/base/</code>.
+
+  <li>Rules in <code>java/com/facebook/common/</code> can reference any files
+      under that directory, except for those under
+      {sp}<code>java/com/facebook/common/collect/</code>,
+      as those "belong" to the <code>BUCK</code> file in the
+      {sp}<code>collect</code> directory.
+</ul>
+
+<p>
+The set of source files accessible to a build file is also known as
+its <em>build package</em>.
+</p>
+
+<p>
+The way to refer to code across build packages is to create build rules
+and use <code>deps</code> to refer to that code. Going back to the previous
+example, suppose code in <code>java/com/facebook/common/concurrent/</code> wants
+to depend on code in <code>java/com/facebook/common/collect/</code>. Presumably
+{sp}<code>java/com/facebook/common/collect/BUCK</code> has a build rule like:
+</p>
+
+{literal}<pre class="prettyprint lang-py">
+java_library(
+  name = 'collect',
+  srcs = glob(['*.java']),
+  deps = [
+    '//java/com/facebook/base:base',
+  ],
+)
+</pre>{/literal}
+
+<p>
+Then <code>java/com/facebook/common/BUCK</code> could have a rule like:
+</p>
+
+{literal}<pre class="prettyprint lang-py">
+java_library(
+  name = 'concurrent',
+  srcs = glob(['concurrent&#x2F*.java']),
+  deps = [
+    '//java/com/facebook/base:base',
+    '//java/com/facebook/common/collect:collect',
+  ],
+)
+</pre>{/literal}
+
+whereas the following <strong>would be invalid</strong> because
+{sp}<code>java/com/facebook/common/collect/</code> has its own build file,
+so <code>//java/com/facebook/common/collect:concurrent</code> cannot list
+{sp}<code>java/com/facebook/common/collect&#x2F*.java</code> in its <code>srcs</code>.
+
+{literal}<pre class="prettyprint lang-py">
+java_library(
+  name = 'concurrent',
+  srcs = glob(['collect&#x2F*.java', 'concurrent&#x2F*.java']),
+  deps = [
+    '//java/com/facebook/base:base',
+  ],
+)
+</pre>{/literal}
+
+    {/param}
+  {/call}
+{/template}

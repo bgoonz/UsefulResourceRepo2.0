@@ -1,0 +1,207 @@
+android_build_config(
+    name = "build_config",
+    package = "exotest",
+    values = [],
+)
+
+android_binary(
+    name = "exotest",
+    application_module_configs = {
+        "mod": [
+            ":module-lib",
+        ],
+    },
+    exopackage_modes = [
+        "native_library",
+        "secondary_dex",
+        "resources",
+        "modules",
+    ],
+    keystore = ":debug_keystore",
+    manifest = "AndroidManifest.xml",
+    primary_dex_patterns = [
+        "^exotest/AppShell^",
+        "^exotest/BuildConfig^",
+        "^com/facebook/buck/android/support/exopackage/",
+    ],
+    use_split_dex = True,
+    deps = [
+        ":app-lib",
+        ":main-lib",
+        ":module-lib",
+    ],
+)
+
+android_binary(
+    name = "exotest-noexo",
+    keystore = ":debug_keystore",
+    manifest = "AndroidManifest.xml",
+    deps = [
+        ":app-lib",
+        ":main-lib",
+        ":module-lib",
+    ],
+)
+
+android_binary(
+    name = "instrumentation_test-apk",
+    application_module_configs = {
+        "mod": [
+            ":module-lib",
+        ],
+    },
+    exopackage_modes = [
+        "secondary_dex",
+    ],
+    keystore = ":debug_keystore",
+    manifest = "TestAndroidManifest.xml",
+    primary_dex_patterns = [
+        "^exotest/AppShell^",
+        "^exotest/BuildConfig^",
+        "^exotest/ThisIsATest^",
+        "^com/facebook/buck/android/support/exopackage/",
+    ],
+    use_split_dex = True,
+    deps = [
+        ":app-lib",
+        ":main-lib",
+        ":module-lib",
+        ":test-lib",
+    ],
+)
+
+android_instrumentation_test(
+    name = "instrumentation_test",
+    apk = ":instrumentation_test-apk",
+)
+
+android_library(
+    name = "app-lib",
+    srcs = ["AppShell.java"],
+    deps = [
+        ":buck-android-support",
+        ":build_config",
+        ":res-real-name",
+    ],
+)
+
+android_library(
+    name = "test-lib",
+    srcs = ["ThisIsATest.java"],
+    deps = [
+        ":junit",
+    ],
+)
+
+android_library(
+    name = "main-lib",
+    srcs = [
+        "LogActivity.java",
+        "//:value",
+    ],
+    deps = [
+        ":buck-android-support",
+        ":extra_asset",
+        ":res",
+        "//jni/one:one",
+        "//jni/two:two",
+    ],
+)
+
+android_library(
+    name = "module-lib",
+    srcs = [
+        "//:module",
+    ],
+)
+
+genrule(
+    name = "value",
+    srcs = [
+        "value.txt",
+        "Value.java.template",
+    ],
+    out = "Value.java",
+    cmd = "VALUE=`cat value.txt` ; sed s/HERE/$VALUE/ < Value.java.template > $OUT",
+)
+
+genrule(
+    name = "module",
+    srcs = [
+        "module_value.txt",
+        "Module.java.template",
+    ],
+    out = "Module.java",
+    cmd = "VALUE=`cat module_value.txt` ; sed s/HERE/$VALUE/ < Module.java.template > $OUT",
+)
+
+android_resource(
+    name = "res-real-name",
+    package = "buck.exotest",
+    res = subdir_glob([("res-real-name", "**")]),
+    deps = [
+        ":res",
+    ],
+)
+
+android_resource(
+    name = "res",
+    assets = subdir_glob([("assets", "**")]),
+    package = "buck.exotest",
+    res = subdir_glob([("res", "**")]),
+    deps = [
+        ":res-name-and-icon",
+    ],
+)
+
+android_resource(
+    name = "res-name-and-icon",
+    package = "buck.exotest",
+    res = subdir_glob([("res-name-and-icon", "**")]),
+    deps = [
+        ":res-other",
+    ],
+)
+
+android_resource(
+    name = "res-other",
+    package = "buck.exotest",
+    res = subdir_glob([("res-other", "**")]),
+)
+
+android_resource(
+    name = "extra_asset",
+    assets = subdir_glob([("assets2", "**")]),
+    package = "buck.exotest",
+)
+
+prebuilt_jar(
+    name = "buck-android-support",
+    binary_jar = "buck-android-support.jar",
+)
+
+prebuilt_jar(
+    name = "junit",
+    binary_jar = "test_libs/junit-4.12.jar",
+    deps = [
+        ":hamcrest",
+        ":java-hamcrest",
+    ],
+)
+
+prebuilt_jar(
+    name = "hamcrest",
+    binary_jar = "test_libs/hamcrest-junit-2.0.0.0.jar",
+)
+
+prebuilt_jar(
+    name = "java-hamcrest",
+    binary_jar = "test_libs/java-hamcrest-2.0.0.0.jar",
+)
+
+keystore(
+    name = "debug_keystore",
+    properties = "debug.keystore.properties",
+    store = "debug.keystore",
+    visibility = ["PUBLIC"],
+)
