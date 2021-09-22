@@ -1,9 +1,30 @@
-
-CNTX={organizations}; NAME={Web-Dev-Collaborative}; PAGE=1
-curl "https://api.github.com/$CNTX/$NAME/repos?page=$PAGE&per_page=200"?branch=master |
-  grep -e 'git_url*' |
-  cut -d \" -f 4 |
-  xargs -L1 git clone
-
-
-  
+git clone https://github.com/Web-Dev-Collaborative/Css-Practice-and-AJAX.git
+git clone https://github.com/Web-Dev-Collaborative/Resource-Hub-Mark_II.git
+git clone https://github.com/Web-Dev-Collaborative/all-python-files.git
+git clone https://github.com/Web-Dev-Collaborative/spider-web-links-2-html-directory.git
+git clone https://github.com/Web-Dev-Collaborative/blog-research.git
+git clone https://github.com/Web-Dev-Collaborative/react-notes-express-framework.git
+git clone https://github.com/Web-Dev-Collaborative/Cumulative-Resource-List.git
+git clone https://github.com/Web-Dev-Collaborative/file-system.git
+git clone https://github.com/Web-Dev-Collaborative/archivy.git
+git clone https://github.com/Web-Dev-Collaborative/Cheat-Sheets.git
+git clone https://github.com/Web-Dev-Collaborative/DS-n-Algos-Mega-Archive.git
+git clone https://github.com/Web-Dev-Collaborative/norwex-react.git
+git clone https://github.com/Web-Dev-Collaborative/Web-Dev-Hub.git
+git clone https://github.com/Web-Dev-Collaborative/exploring-python.git
+git clone https://github.com/Web-Dev-Collaborative/DS-ALGO-OFFICIAL.git
+git clone https://github.com/Web-Dev-Collaborative/ecommerce-react.git
+git clone https://github.com/Web-Dev-Collaborative/webdev4242.git
+git clone https://github.com/Web-Dev-Collaborative/Random-Single-File-Utils-Compilation.git
+git clone https://github.com/Web-Dev-Collaborative/learn-anything.git
+git clone https://github.com/Web-Dev-Collaborative/knowledge.git
+git clone https://github.com/Web-Dev-Collaborative/React-Notes-And-Examples.git
+git clone https://github.com/Web-Dev-Collaborative/node-fs-extra.git
+git clone https://github.com/Web-Dev-Collaborative/Medium_Articles.git
+git clone https://github.com/Web-Dev-Collaborative/react-blog.git
+git clone https://github.com/Web-Dev-Collaborative/Medium-Clone-FullStack-React.git
+git clone https://github.com/Web-Dev-Collaborative/web-dev-history-backup.git
+git clone https://github.com/Web-Dev-Collaborative/site_demo.git
+git clone https://github.com/Web-Dev-Collaborative/lambda-prep.git
+git clone https://github.com/Web-Dev-Collaborative/google-firebase-exploration.git
+git clone https://github.com/Web-Dev-Collaborative/wtf_wikipedia.git
