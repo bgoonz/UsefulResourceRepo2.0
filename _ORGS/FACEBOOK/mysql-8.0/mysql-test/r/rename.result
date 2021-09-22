@@ -1,0 +1,102 @@
+drop table if exists t0,t1,t2,t3,t4;
+drop table if exists t0,t5,t6,t7,t8,t9,t1_1,t1_2,t9_1,t9_2;
+create table t0 SELECT 1,"table 1";
+create table t2 SELECT 2,"table 2";
+create table t3 SELECT 3,"table 3";
+rename table t0 to t1;
+rename table t3 to t4, t2 to t3, t1 to t2, t4 to t1;
+select * from t1;
+3	table 3
+3	table 3
+rename table t3 to t4, t2 to t3, t1 to t2, t4 to t1;
+rename table t3 to t4, t2 to t3, t1 to t2, t4 to t1;
+select * from t1;
+1	table 1
+1	table 1
+rename table t1 to t2;
+Got one of the listed errors
+rename table t1 to t1;
+Got one of the listed errors
+rename table t3 to t4, t2 to t3, t1 to t2, t4 to t2;
+Got one of the listed errors
+show tables like "t_";
+Tables_in_test (t_)
+t1
+t2
+t3
+rename table t3 to t1, t2 to t3, t1 to t2, t4 to t1;
+Got one of the listed errors
+rename table t3 to t4, t5 to t3, t1 to t2, t4 to t1;
+Got one of the listed errors
+select * from t1;
+1	table 1
+1	table 1
+select * from t2;
+2	table 2
+2	table 2
+select * from t3;
+3	table 3
+3	table 3
+drop table if exists t1,t2,t3,t4;
+Warnings:
+Note	1051	Unknown table 'test.t4'
+CREATE TABLE t1 (a int);
+CREATE TABLE t3 (a int);
+FLUSH TABLES WITH READ LOCK;
+RENAME TABLE t1 TO t2, t3 to t4;
+show tables;
+Tables_in_test
+t1
+t3
+UNLOCK TABLES;
+show tables;
+Tables_in_test
+t2
+t4
+drop table t2, t4;
+End of 4.1 tests
+#
+# Bug#14959: "ALTER TABLE isn't able to rename a view"
+# Bug#53976: "ALTER TABLE RENAME is allowed on views
+#             (not documented, broken)"
+#
+create table t1(f1 int);
+create view v1 as select * from t1;
+alter table v1 rename to v2;
+ERROR HY000: 'test.v1' is not BASE TABLE
+drop view v1;
+drop table t1;
+End of 5.0 tests
+#
+# Bug#20197870: sql_table.cc: bool mysql_rename_table ...
+#               assertion `error==0\' failed.
+# The test crashes server without the fix.
+#
+SET @orig_innodb_file_per_table= @@innodb_file_per_table;
+SET GLOBAL innodb_file_per_table = 0;
+create table t1(f1 int) engine=innodb;
+rename table test.t1 to nonexistingdb.t2;
+ERROR 42000: Unknown database 'nonexistingdb'
+drop table t1;
+SET GLOBAL innodb_file_per_table = @orig_innodb_file_per_table;
+#
+# Bug#24807594 SDI FILE LOSTS AFTER ALTERING DATABASE
+# Verify that .sdi files are cleaned up correctly
+#
+CREATE TABLE t1(i INT) ENGINE MYISAM;
+RENAME TABLE t1 TO tt1;
+# Should only see tt1_XXX.sdi
+tt1_XXX.sdi
+RENAME TABLE tt1 TO tt1tt1;
+# Should only see tt1tt1_XXX.sdi
+tt1tt1_XXX.sdi
+RENAME TABLE tt1tt1 TO ttt1ttt1ttt1ttt1_xyz;
+# Should only see ttt1ttt1ttt1ttt1_XXX.sdi
+ttt1ttt1ttt1ttt1_XXX.sdi
+RENAME TABLE ttt1ttt1ttt1ttt1_xyz TO tttttttttttttttt1_abc;
+# Should only see tttttttttttttttt_XXX.sdi
+tttttttttttttttt_XXX.sdi
+RENAME TABLE tttttttttttttttt1_abc TO t1;
+# Should only see t1_XXX.sdi
+t1_XXX.sdi
+DROP TABLE t1;

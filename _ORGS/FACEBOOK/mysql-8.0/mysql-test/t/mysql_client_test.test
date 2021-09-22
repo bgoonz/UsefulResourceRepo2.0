@@ -1,0 +1,58 @@
+# The include statement below is a temp one for tests that are yet to
+#be ported to run with InnoDB,
+#but needs to be kept for tests that would need MyISAM in future.
+
+--source include/no_valgrind_without_big.inc
+
+# need to have the dynamic loading turned on for the client plugin tests
+--source include/have_plugin_auth.inc
+
+SET @old_general_log= @@global.general_log;
+SET @old_slow_query_log= @@global.slow_query_log;
+
+#
+# If this test fails with "command "$MYSQL_CLIENT_TEST" failed",
+# you should either run mysql_client_test separartely against a running
+# server or run mysql-test-run --debug mysql_client_test and check
+# var/log/mysql_client_test.trace
+
+--exec echo "$MYSQL_CLIENT_TEST" > $MYSQLTEST_VARDIR/log/mysql_client_test.out.log 2>&1
+--exec $MYSQL_CLIENT_TEST --getopt-ll-test=25600M $PLUGIN_AUTH_CLIENT_OPT >> $MYSQLTEST_VARDIR/log/mysql_client_test.out.log 2>&1
+
+# End of 4.1 tests
+echo ok;
+
+--echo
+--echo # cat MYSQL_TMP_DIR/test_wl4435.out.log
+--echo # ------------------------------------
+--cat_file $MYSQL_TMP_DIR/test_wl4435.out.log
+--echo # ------------------------------------
+--echo
+
+SET @@global.general_log= @old_general_log;
+SET @@global.slow_query_log= @old_slow_query_log;
+
+--echo #
+--echo # Bug#24963580 INFORMATION_SCHEMA:MDL_REQUEST::
+--echo # INIT_WITH_SOURCE(MDL_KEY::ENUM_MDL_NAMESPACE
+--echo #
+
+--echo # Restart server with --lower-case-table-names=1
+--exec echo "wait" > $MYSQLTEST_VARDIR/tmp/mysqld.1.expect
+--shutdown_server
+--source include/wait_until_disconnected.inc
+--exec echo "restart: --lower-case-table-names=1 " > $MYSQLTEST_VARDIR/tmp/mysqld.1.expect
+--enable_reconnect
+--source include/wait_until_connected_again.inc
+
+--echo # Run the single test.
+--echo # Following command would crash if run without fix.
+--exec $MYSQL_CLIENT_TEST test_bug24963580 >> $MYSQLTEST_VARDIR/log/mysql_client_test.out.log 2>&1
+
+--echo # Restart server without --lower-case-table-names
+--exec echo "wait" > $MYSQLTEST_VARDIR/tmp/mysqld.1.expect
+--shutdown_server
+--source include/wait_until_disconnected.inc
+--exec echo "restart: " > $MYSQLTEST_VARDIR/tmp/mysqld.1.expect
+--enable_reconnect
+--source include/wait_until_connected_again.inc

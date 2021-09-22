@@ -1,0 +1,91 @@
+# Test case for BUG#4680 -- if there are extra files in the db directory
+# dropping the db on the master causes replication problems
+
+-- source include/not_group_replication_plugin.inc
+-- source include/master-slave.inc
+
+--disable_warnings
+DROP DATABASE IF EXISTS test1;
+DROP DATABASE IF EXISTS test2;
+--enable_warnings
+CREATE DATABASE test1;
+CREATE DATABASE test2;
+
+CREATE TABLE test1.t1 (n INT);
+INSERT INTO test1.t1 VALUES(1);
+# Create an extra file in database directory
+SELECT * FROM test1.t1 INTO OUTFILE 'test1/f1.txt';
+
+CREATE TABLE test1.t2 (n INT);
+CREATE TABLE test1.t3 (n INT);
+
+--replace_result \\ /
+--error ER_DB_DROP_RMDIR
+DROP DATABASE test1;
+
+# No tables should be dropped after WL#7743.
+--let assert_text= Tables in test1 database are not dropped
+--let assert_cond="[SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA="test1"]"=3
+--source include/assert.inc
+
+# Now adjusted test case which mimics situation before WL#7743.
+# First, remove the "extra" file created above
+let $MYSQLD_DATADIR= `select @@datadir`;
+remove_file $MYSQLD_DATADIR/test1/f1.txt;
+
+CREATE TABLE test1.t4 (pk INT PRIMARY KEY);
+--echo  Wait until test1.t4 is created on slave
+--source include/sync_slave_sql_with_master.inc
+
+--source include/rpl_connection_master.inc
+CREATE TABLE test2.t2 (fk INT, FOREIGN KEY (fk) REFERENCES test1.t4(pk));
+
+--error ER_ROW_IS_REFERENCED
+DROP DATABASE test1;
+# Some tables can be dropped.
+USE test1;
+--let assert_text= Table t4 is not dropped
+--let assert_cond="[SHOW TABLES LIKE "t4"]"="t4"
+--source include/assert.inc
+
+# Test the branch of the code that deals with the query buffer overflow
+--disable_query_log
+let $1=50;
+while ($1)
+{
+  eval CREATE TABLE test1.db_test1_long_table_name$1 (n INT);
+  dec $1;
+}
+--enable_query_log
+
+--error ER_ROW_IS_REFERENCED
+DROP DATABASE test1;
+
+SHOW TABLES;
+--let assert_text= db_test1_long_table_name$i tables are dropped
+--let assert_cond="[SHOW TABLES LIKE "db_test1_long_table_name%"]"=""
+--source include/assert.inc
+
+--let assert_text= Table t4 is not dropped
+--let assert_cond="[SHOW TABLES LIKE "t4"]"="t4"
+--source include/assert.inc
+
+# Ensuring that replication is successful
+USE test2;
+CREATE TABLE t1 (n INT);
+INSERT INTO t1 VALUES (1234);
+
+# Cleanup
+DROP TABLE t1;
+DROP TABLE t2;
+
+--echo Wait until test2.t2 is deleted on slave
+--source include/sync_slave_sql_with_master.inc
+
+#cleanup
+--source include/rpl_connection_master.inc
+
+DROP DATABASE test1;
+DROP DATABASE test2;
+
+--source include/rpl_end.inc

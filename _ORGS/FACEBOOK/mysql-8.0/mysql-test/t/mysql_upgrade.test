@@ -1,0 +1,66 @@
+-- source include/no_valgrind_without_big.inc
+-- source include/mysql_upgrade_preparation.inc
+
+#
+# Basic test that we can run mysql_upgrde and that it finds the
+# expected binaries it uses.
+#
+--echo Run mysql_upgrade once
+# Filter out ndb_binlog_index to mask differences due to running with or
+# without ndb.
+--replace_regex /mysql.ndb_binlog_index.*$//
+--exec $MYSQL_UPGRADE --skip-verbose --force 2>&1
+
+# It should have created a file in the MySQL Servers datadir
+let $MYSQLD_DATADIR= `select @@datadir`;
+file_exists $MYSQLD_DATADIR/mysql_upgrade_info;
+
+--echo Run it again - should say already completed
+--replace_result $MYSQL_SERVER_VERSION VERSION
+--error 2
+--exec $MYSQL_UPGRADE --skip-verbose 2>&1
+
+# It should have created a file in the MySQL Servers datadir
+file_exists $MYSQLD_DATADIR/mysql_upgrade_info;
+
+--echo Force should run it regardless of wether it's been run before
+# Filter out ndb_binlog_index to mask differences due to running with or
+# without ndb.
+--replace_regex /mysql.ndb_binlog_index.*$//
+--exec $MYSQL_UPGRADE --skip-verbose --force 2>&1
+
+# It should have created a file in the MySQL Servers datadir
+file_exists $MYSQLD_DATADIR/mysql_upgrade_info;
+
+
+#
+# Bug #26639 mysql_upgrade exits successfully even if external command failed
+#
+
+--echo Run mysql_upgrade with a non existing server socket
+--replace_result $MYSQLTEST_VARDIR var
+--replace_regex /.*mysqlcheck.*: Got/mysqlcheck: Got/ /\([0-9]*\)/(errno)/
+--error 11
+# NC: Added --skip-version-check, as the version check would fail when
+# mysql_upgrade tries to get the server version.
+--exec $MYSQL_UPGRADE --skip-verbose --force --host=not_existing_host --skip-version-check 2>&1
+
+#
+# Bug #28401 mysql_upgrade Failed with STRICT_ALL_TABLES, ANSI_QUOTES and NO_ZERO_DATE
+#
+
+# The SQL commands used by mysql_upgrade are written to be run
+# with sql_mode set to '' - thus the scripts should change sql_mode
+# for the session to make sure the SQL is legal.
+
+# Test by setting sql_mode before running mysql_upgrade
+# Filter out ndb_binlog_index to mask differences due to running with or
+# without ndb.
+--replace_regex /mysql.ndb_binlog_index.*$//
+--exec $MYSQL_UPGRADE --skip-verbose --force 2>&1
+
+
+--source include/mysql_upgrade_cleanup.inc
+
+--echo
+--echo End of tests

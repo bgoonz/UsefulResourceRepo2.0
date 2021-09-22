@@ -1,0 +1,242 @@
+drop database if exists mysqltest1;
+create schema foo;
+show create schema foo;
+Database	Create Database
+foo	CREATE DATABASE `foo` /*!40100 DEFAULT CHARACTER SET utf8mb4 */
+show schemas like 'foo';
+Database (foo)
+foo
+drop schema foo;
+#
+# Bug #48940 MDL deadlocks against mysql_rm_db
+#
+DROP SCHEMA IF EXISTS schema1;
+# Connection default
+CREATE SCHEMA schema1;
+CREATE TABLE schema1.t1 (a INT);
+SET autocommit= FALSE;
+INSERT INTO schema1.t1 VALUES (1);
+# Connection 2
+DROP SCHEMA schema1;
+# Connection default
+ALTER SCHEMA schema1 DEFAULT CHARACTER SET utf8;
+ERROR 42Y07: Database 'schema1' doesn't exist
+SET autocommit= TRUE;
+# Connection 2
+# Connection default
+#
+# Bug #49988 MDL deadlocks with mysql_create_db, reload_acl_and_cache
+#
+DROP SCHEMA IF EXISTS schema1;
+# Connection default
+CREATE SCHEMA schema1;
+CREATE TABLE schema1.t1 (id INT);
+LOCK TABLE schema1.t1 WRITE;
+# Connection con2
+DROP SCHEMA schema1;
+# Connection default
+# CREATE SCHEMA used to give a deadlock.
+# Now we prohibit CREATE SCHEMA in LOCK TABLES mode.
+CREATE SCHEMA IF NOT EXISTS schema1;
+ERROR HY000: Can't execute the given command because you have active locked tables or an active transaction
+# UNLOCK TABLES so DROP SCHEMA can continue.
+UNLOCK TABLES;
+# Connection con2
+# Connection default
+#
+# Bug#54360 Deadlock DROP/ALTER/CREATE DATABASE with open HANDLER
+#
+CREATE DATABASE db1;
+CREATE TABLE db1.t1 (a INT);
+INSERT INTO db1.t1 VALUES (1), (2);
+# Connection con1
+HANDLER db1.t1 OPEN;
+# Connection default
+# Sending:
+DROP DATABASE db1;
+# Connection con2
+# Connection con1
+CREATE DATABASE db2;
+ALTER DATABASE db2 DEFAULT CHARACTER SET utf8;
+DROP DATABASE db2;
+HANDLER t1 CLOSE;
+# Connection default
+# Reaping: DROP DATABASE db1
+#
+# Tests for increased CREATE/ALTER/DROP DATABASE concurrency with
+# database name locks.
+# 
+DROP DATABASE IF EXISTS db1;
+DROP DATABASE IF EXISTS db2;
+# Connection default
+CREATE DATABASE db1;
+CREATE TABLE db1.t1 (id INT);
+START TRANSACTION;
+INSERT INTO db1.t1 VALUES (1);
+# Connection 2
+# DROP DATABASE should block due to the active transaction
+# Sending:
+DROP DATABASE db1;
+# Connection 3
+# But it should still be possible to CREATE/ALTER/DROP other databases.
+CREATE DATABASE db2;
+ALTER DATABASE db2 DEFAULT CHARACTER SET utf8;
+DROP DATABASE db2;
+# Connection default
+# End the transaction so DROP DATABASE db1 can continue
+COMMIT;
+# Connection 2
+# Reaping: DROP DATABASE db1
+# Connection default;
+#
+# Bug#21305766: DML ON A NON EXISTING TABLE DOES NOT ACQUIRE MDL ON THE SCHEMA NAME
+#
+# Set lock_wait_timeout, create a schema and a connection con1.
+SET @start_session_value= @@session.lock_wait_timeout;
+SET @@session.lock_wait_timeout= 1;
+CREATE SCHEMA testdb;
+connect con1, localhost, root;
+# Access a non-existing table in the created schema, and park it after
+# acquiring the schema while acquiring the dd::Table object.
+SET DEBUG_SYNC= 'acquired_schema_while_acquiring_table SIGNAL acquired WAIT_FOR cont';
+SELECT * from testdb.no_such_table;
+connection default;
+# From the default connection, drop the schema, then resume
+# con1. Without the patch in the server code, DROP SCHEMA
+# will fail with an assert due to the schema object being
+# acquired by more than one thread. With the patch, we get
+# a lock wait timeout for DROP since the other thread has an
+# IX-lock on the schema name.
+SET DEBUG_SYNC= 'now WAIT_FOR acquired';
+DROP SCHEMA testdb;
+ERROR HY000: Lock wait timeout exceeded; try restarting transaction
+SET DEBUG_SYNC= 'now SIGNAL cont';
+connection con1;
+# Reaping SELECT * from testdb.no_such_table
+ERROR 42S02: Table 'testdb.no_such_table' doesn't exist
+disconnect con1;
+connection default;
+# Drop testdb and reset
+DROP SCHEMA testdb;
+SET @@session.lock_wait_timeout= @start_session_value;
+SET DEBUG_SYNC= 'RESET';
+#
+# Bug #21837759: SYNCHRONIZE USAGE OF SCHEMA DD OBJECTS BY MDL ACQUISITION
+#
+# Do a 'USE <schema>' and park it after retrieving the schema for
+# finding the default db collation. Then, from a different
+# connection, drop the same schema. Without the bugfix, this
+# will fail due to improper concurrent usage of the DD cache
+# elements. With the bugfix, the DROP will fail with a lock
+# wait timeout due to the operations now being properly synchronized
+# by meta data locking.
+#
+# Create the schema to be used in the test.
+SET @start_session_value= @@session.lock_wait_timeout;
+SET @@session.lock_wait_timeout= 1;
+CREATE SCHEMA testdb;
+#
+# Create a new connection, change schema, and stop after
+# retrieving the schema object for finding the default
+# collation.
+connect  con1, localhost, root;
+SET DEBUG_SYNC= 'acquired_schema_while_getting_collation SIGNAL acquired WAIT_FOR cont';
+USE testdb;
+#
+# On the default connection, do a DROP schema while the
+# other connection is holding the same schema object.
+# This will fail with a lock wait timeout when the operations
+# are properly synched by MDL. Without the synchronization,
+# this will trigger an assert in the shared DD cache.
+connection default;
+SET DEBUG_SYNC= 'now WAIT_FOR acquired';
+DROP SCHEMA testdb;
+ERROR HY000: Lock wait timeout exceeded; try restarting transaction
+SET DEBUG_SYNC= 'now SIGNAL cont';
+#
+# Reap, reset, and delete connection.
+connection con1;
+disconnect con1;
+connection default;
+SET DEBUG_SYNC= 'RESET';
+DROP SCHEMA testdb;
+SET @@session.lock_wait_timeout= @start_session_value;
+CREATE SCHEMA s;
+SHOW CREATE SCHEMA s;
+Database	Create Database
+s	CREATE DATABASE `s` /*!40100 DEFAULT CHARACTER SET utf8mb4 */
+USE s;
+ALTER SCHEMA s DEFAULT COLLATE= utf8_general_ci;
+SHOW CREATE SCHEMA s;
+Database	Create Database
+s	CREATE DATABASE `s` /*!40100 DEFAULT CHARACTER SET utf8 */
+DROP SCHEMA s;
+ERROR HY000: Can't drop database 's'; database doesn't exist
+DROP SCHEMA s;
+CREATE SCHEMA s;
+CREATE VIEW s.v AS SELECT * FROM mysql.time_zone;
+DROP SCHEMA s;
+CREATE SCHEMA s;
+CREATE TABLE s.t (pk INTEGER PRIMARY KEY) ENGINE= MyISAM;
+Got one of the listed errors
+CREATE TABLE s.t (pk INTEGER PRIMARY KEY) ENGINE= InnoDB;
+t.ibd
+DROP SCHEMA s;
+CREATE SCHEMA s;
+CREATE TABLE s.t_myisam (pk INTEGER PRIMARY KEY) ENGINE= MyISAM;
+CREATE TABLE s.t_innodb (pk INTEGER PRIMARY KEY) ENGINE= InnoDB;
+ALTER TABLE s.t_myisam ADD COLUMN c INTEGER;
+ERROR HY000: Can't find file: 't_myisam' (errno: 2 - No such file or directory)
+ALTER TABLE s.t_innodb ADD COLUMN c INTEGER;
+Got one of the listed errors
+DROP SCHEMA s;
+CREATE SCHEMA s;
+CREATE TABLE s.t_myisam (pk INTEGER PRIMARY KEY) ENGINE= MyISAM;
+CREATE TABLE s.t_innodb (pk INTEGER PRIMARY KEY) ENGINE= InnoDB;
+SHOW CREATE TABLE s.t_myisam;
+ERROR HY000: Can't find file: 't_myisam' (errno: 2 - No such file or directory)
+DROP SCHEMA s;
+CREATE SCHEMA s;
+CREATE TABLE s.t_myisam (pk INTEGER PRIMARY KEY) ENGINE= MyISAM;
+CREATE TABLE s.t_innodb (pk INTEGER PRIMARY KEY) ENGINE= InnoDB;
+DROP TABLE s.t_myisam;
+ERROR HY000: Storage engine can't drop table 's.t_myisam' because it is missing. Use DROP TABLE IF EXISTS to remove it from data-dictionary.
+DROP TABLE s.t_innodb;
+DROP SCHEMA s;
+#
+# Bug#24732194: "USE DB_NAME" AND "SELECT SCHEMA()"
+#               WORK FOR NON-EXISTING DATABASES
+#
+USE s;
+ERROR 42000: Unknown database 's'
+#
+# WL#7743 "New data dictionary: changes to DDL-related parts of SE API"
+#
+# Additional test coverage for changes in DROP DATABASE implementation.
+# Check what happens when we fail to remove database directory during
+# the last step of DROP DATABASE, when statement is already committed.
+CREATE DATABASE db1;
+CREATE FUNCTION db1.f1() RETURNS INT RETURN 0;
+connect  con1, localhost, root,,;
+# Acquire S lock on db1.f1(), so upcoming DROP DATABASE will get
+# blocked.
+BEGIN;
+SELECT db1.f1();
+db1.f1()
+0
+connection default;
+# Send:
+DROP DATABASE db1;
+connection con1;
+# Wait until the above DROP DATABASE is blocked because of S lock.
+# Replace database directory with an empty file.
+# Unblock DROP DATABASE by releasing S lock.
+COMMIT;
+disconnect con1;
+connection default;
+# Reap DROP DATABASE. Statement should succeed, but send warnings
+# about problems with removing database directory to user ...
+Warnings:
+Warning	3607	Problem while dropping database. Can't remove database directory (Error dropping database (can't rmdir './db1', errno: ## - ...). Please remove it manually.
+# ... and error log too. Let's check that.
+# Clean-up.
