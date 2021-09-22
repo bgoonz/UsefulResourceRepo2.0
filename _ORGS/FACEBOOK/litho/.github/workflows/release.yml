@@ -1,0 +1,145 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+name: Publish on release commits
+
+# This workflow detects commits where the message starts with "Release version X.Y.Z".
+# It runs tests in parallel before publishing and uploading it.
+# When the upload is complete the revision is tagged as a release
+# and a script checks whether the artifacts are available.
+#
+# If the workflow fails any commit with the same version message marker
+# will trigger the workflow again.
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  check-release-job:
+    name: Check for release marker
+    runs-on: ubuntu-latest
+    outputs:
+      is-release: ${{ steps.check_version.outcome == 'success' }}
+      release-version-info: ${{ steps.version_info.outputs.VERSION_INFO }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Extract version info
+      id: version_info
+      run: echo ::set-output name=VERSION_INFO::`git log --format=%B -n 1 . | egrep '^[rR]elease version' | egrep -o '([[:digit:]]+\.){2}[[:digit:]]+' | xargs -0 printf v%s`
+    - name: Check version
+      id: check_version
+      if: ${{ steps.version_info.outputs.VERSION_INFO != 'v' }}
+      env:
+        VERSION_INFO: ${{ steps.version_info.outputs.VERSION_INFO }}
+      run: echo $VERSION_INFO
+  start-release-job:
+    name: Skip all if not a release
+    needs: [check-release-job]
+    if: ${{ needs.check-release-job.outputs.is-release == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check step
+      run: echo "Starting a release"
+  test-job:
+    name: Run all tests
+    needs: [start-release-job]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Fetch buck
+      run: |
+        wget https://jitpack.io/com/github/facebook/buck/master/buck-master.pex && \
+        chmod +x buck-master.pex && \
+        mv buck-master.pex buck && \
+        ls -l buck
+    - uses: nick-invision/retry@v1
+      with:
+        timeout_minutes: 30
+        max_attempts: 5
+        command: BUCK_PATH=`realpath buck` ./gradlew test --stacktrace
+  sample-java-job:
+    name: Assemble sample app
+    needs: [start-release-job]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Fetch buck
+      run: |
+        wget https://jitpack.io/com/github/facebook/buck/master/buck-master.pex && \
+        chmod +x buck-master.pex && \
+        mv buck-master.pex buck && \
+        ls -l buck
+    - name: Assemble sample app
+      run: BUCK_PATH=`realpath buck` ./gradlew :sample:assembleRelease --stacktrace
+  sample-kotlin-job:
+    name: Assemble kotlin app
+    needs: [start-release-job]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Fetch buck
+      run: |
+        wget https://jitpack.io/com/github/facebook/buck/master/buck-master.pex && \
+        chmod +x buck-master.pex && \
+        mv buck-master.pex buck && \
+        ls -l buck
+    - name: Assemble kotlin sample
+      run: BUCK_PATH=`realpath buck` ./gradlew :sample-kotlin:assembleRelease --stacktrace
+  publish-job:
+    name: Maven Publish
+    runs-on: ubuntu-latest
+    needs: [test-job, sample-java-job, sample-kotlin-job]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Write GPG Sec Ring
+      run: echo '${{ secrets.GPG_KEY_CONTENTS }}' | base64 -d > /tmp/secring.gpg
+    - name: Update gradle.properties
+      run: echo -e "signing.secretKeyRingFile=/tmp/secring.gpg\nsigning.keyId=${{ secrets.SIGNING_KEY_ID }}\nsigning.password=${{ secrets.SIGNING_PASSWORD }}\nmavenCentralPassword=${{ secrets.SONATYPE_NEXUS_PASSWORD }}\nmavenCentralUsername=${{ secrets.SONATYPE_NEXUS_USERNAME }}" >> gradle.properties
+    - name: Upload Android Archives
+      run: ./gradlew publish --no-daemon --no-parallel --info --stacktrace
+    - name: Release and close
+      run: ./gradlew closeAndReleaseRepository
+    - name: Clean secrets
+      if: always()
+      run: rm /tmp/secring.gpg
+  push-tags-job:
+    name: Push tags if release succeeded
+    runs-on: ubuntu-latest
+    needs: [check-release-job, publish-job]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set Git tag
+      uses: tvdias/github-tagger@v0.0.1
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        tag: ${{ needs.check-release-job.outputs.release-version-info }}
+  validate-job:
+    name: Validate uploads
+    runs-on: ubuntu-latest
+    needs: [check-release-job, publish-job]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get tag info
+      id: tag_info
+      env:
+        VERSION_INFO:  ${{ needs.check-release-job.outputs.release-version-info }}
+      run: echo ::set-output name=TAG_INFO::`echo $VERSION_INFO | cut -d v -f2`
+    - name: Run validation script
+      env:
+        TAG: ${{ steps.tag_info.outputs.TAG_INFO }}
+      run: |
+        scripts/verify-bintray-upload.hs $TAG
