@@ -1,0 +1,98 @@
+<div class="booking">
+  <!-- TODO: rental.dailyPrice -->
+  <h3 class="booking-price">
+    ${{ rental.dailyPrice }} <span class="booking-per-night">per night</span>
+  </h3>
+  <hr />
+  <!-- TODO: if is authenticated -->
+  <ng-container *ngIf="isAuth">
+    <form>
+      <label>Dates</label>
+      <input
+        type="text"
+        ngxDaterangepickerMd
+        name="daterange"
+        [isInvalidDate]="checkIfDateIsInvalid"
+        [locale]="locale"
+        [(ngModel)]="calendar"
+        (datesUpdated)="updateBookingDates($event)"
+        class="form-control"
+      />
+      <div class="form-group">
+        <label for="guests">Guests</label>
+        <!-- TODO: bind to newBooking.guests -->
+        <input
+          [(ngModel)]="newBooking.guests"
+          min="1"
+          type="number"
+          class="form-control"
+          id="guests"
+          name="guests"
+        />
+      </div>
+    </form>
+    <button
+      (click)="openConfirmationModal()"
+      [disabled]="!canOpenConfirmation"
+      class="btn btn-danger btn-confirm btn-block"
+    >
+      Reserve place now
+    </button>
+    <hr />
+  </ng-container>
+  <!-- TODO: if is NOT authenticated -->
+  <div *ngIf="!isAuth" class="should-login">
+    <a class="btn bwm-btn-main" routerLink="/login"
+      >Login and book this place today</a
+    >
+  </div>
+  <p class="booking-note-title">People are interested into this house</p>
+  <p class="booking-note-text">
+    More than 500 people checked this rental in last month.
+  </p>
+</div>
+
+<ngx-smart-modal #confirmationModal identifier="confirmationModal">
+  <div class="modal-header">
+    <h4 class="modal-title">
+      Confirm Booking
+      <p>
+        {{ timeService.format(newBooking.startAt) }} to
+        {{ timeService.format(newBooking.endAt) }}
+      </p>
+    </h4>
+    <button
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="confirmationModal.close()"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <em>{{ newBooking.nights }}</em> nights /
+    <!-- Nightly Price -->
+    <em>${{ rental.dailyPrice }}</em> per Night
+    <!-- Guests -->
+    <p>
+      Guests: <em>{{ newBooking.guests }}</em>
+    </p>
+    <!-- Total Price -->
+    <p>
+      Price: <em>${{ newBooking.price }}</em>
+    </p>
+    <p>Do you confirm booking for selected days?</p>
+  </div>
+  <div *ngIf="errors.length > 0" class="alert alert-danger modal-error">
+    <p *ngFor="let error of errors">
+      {{ error.detail }}
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button (click)="reservePlace()" type="button" class="btn bwm-btn-main">
+      Confirm
+    </button>
+    <button type="button" class="btn" (click)="confirmationModal.close()">
+      Close
+    </button>
+  </div>
+</ngx-smart-modal>
