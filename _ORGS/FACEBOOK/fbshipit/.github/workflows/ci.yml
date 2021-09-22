@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ci:
+    strategy:
+      # Do not cancel other versions if one version fails
+      fail-fast: false
+      # Test multiple HHVM versions
+      matrix:
+        hhvm: [latest]
+    runs-on: ubuntu-latest
+    container:
+      image: hhvm/hhvm:${{ matrix.hhvm }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup
+        run: bash .github/workflows/setup.sh
+      - name: Typecheck
+        run: hh_server --check .
+      - name: Run tests
+        run: vendor/bin/hacktest tests/
+      - name: Run ShipIt Demo
+        run: hhvm demo/run_shipit.php --create-new-repo --skip-destination-init --skip-destination-clean --skip-destination-pull

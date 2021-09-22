@@ -1,0 +1,178 @@
+<?hh // strict
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * This file was moved from fbsource to www. View old history in diffusion:
+ * https://fburl.com/p70heoox
+ */
+namespace Facebook\ShipIt;
+
+use namespace HH\Lib\{Str, C}; // @oss-enable
+
+type ShipItPreviewInput = shape(
+  'arcanistProject' => string,
+  'changeset' => ShipItChangesetData,
+  'internalBranch' => string,
+  // TODO(yrahbar) make this field non-optional after upgrading the client
+  ?'patch' => ?string,
+);
+
+type ShipItPreviewOutput = shape(
+  'changeset' => ShipItChangesetData,
+  'githubOrg' => string,
+  'githubProject' => string,
+  'commitMessage' => string,
+  'externalBranch' => string,
+  'patch' => ?string,
+  'error' => ?string,
+);
+
+
+final class FBShipItPreview {
+
+  // TODO consider using a streaming json parser
+  const string OBJECT_TERMINATOR = '===END===';
+
+  private vec<FBShipItConfig> $allConfigClasses;
+
+  public function __construct(): void {
+    $this->allConfigClasses = FBShipItConfigRegistry::getAllConfigs();
+  }
+
+  public static function hasModifiedPathsForSourceRoots(
+    Traversable<string> $modified_paths,
+    keyset<string> $source_roots,
+  ): bool {
+    return C\any(
+      $modified_paths,
+      $modified_file ==> {
+        if (C\is_empty($source_roots)) {
+          // All paths are relevant.
+          return true;
+        }
+        return C\any(
+          $source_roots,
+          $internal_path ==> {
+            return Str\starts_with(
+              $modified_file,
+              Str\strip_prefix($internal_path, '/'),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  final public async function genHandleChangeset(
+    string $arcanist_project,
+    string $internal_branch,
+    ShipItChangeset $changeset,
+    ?string $patch = null,
+  ): Awaitable<vec<ShipItPreviewOutput>> {
+    try {
+      $internal_repo = FBShipItGlobalConfig::at()
+        ->getInternalRepoForArcanistProject($arcanist_project);
+    // @oss-disable: } catch (\InvariantViolationException $_e) {
+      } catch (InvariantException $e) { // @oss-enable
+      // If we don't recognize the arcanist project,
+      // assume it will ship no commits.
+      return vec[];
+    }
+    // If a patch was provided as input, override the diffs portion of the
+    // changeset object.
+    $error = null;
+    // FIXME undo this hack when the preview UI supports error messages
+    $hack_patch_override = null;
+    if ($patch !== null) {
+      // Assume phabricator patch was exported in git format
+      $diffs = ShipItRepoGIT::getDiffsFromPatch($patch);
+      $no_renames = $diffs
+        |> Vec\filter(
+          $$,
+          $diff ==> \Regex::isMatch('/^(rename|copy) from /', $diff['body']),
+        )
+        |> C\is_empty($$);
+      if ($no_renames) {
+        $changeset = $changeset->withDiffs($diffs);
+      } else {
+        $error = 'This patch contains renamed files, which cannot be accurately
+rendered in ShipIt Previews. Please export this diff to a GitHub
+pull request in order to preview the full patch.';
+        $hack_patch_override = $error;
+      }
+    }
+
+    return await Vec\map_async(
+      $this->allConfigClasses,
+      async $config_object ==> {
+        $repo_config = $config_object->getStaticConfig();
+        // Does the repo match this open source project?
+        if ($internal_repo['name'] !== $repo_config['internalRepo']['name']) {
+          return null;
+        }
+        $branch_configs = Vec\filter(
+          await $config_object->genBranchConfigs(),
+          $branch_config ==>
+            $branch_config->getInternalBranch() === $internal_branch,
+        );
+        return await Vec\map_async(
+          $branch_configs,
+          async $branch_config ==> {
+            $source_roots =
+              $config_object->getManifest($branch_config)->getSourceRoots();
+            $changeset_paths = Vec\map(
+              $changeset->getDiffs(),
+              ($diff) ==> $diff['path'],
+            );
+            if (
+              !self::hasModifiedPathsForSourceRoots(
+                $changeset_paths,
+                $source_roots,
+              )
+            ) {
+              return null;
+            }
+            $transformed_changeset = await $config_object->genFilterChangeset(
+              $changeset,
+              $branch_config,
+            );
+            // Does the changeset create any diffs on the open source project?
+            if (C\is_empty($transformed_changeset->getDiffs())) {
+              return null;
+            }
+            $commit_message = ShipItRepoGIT::getCommitMessage(
+              $transformed_changeset,
+            );
+            if ($patch !== null) {
+              $transformed_patch = ShipItRepoGIT::renderPatch(
+                $transformed_changeset,
+              );
+            } else {
+              $transformed_patch = null;
+            }
+            if ($hack_patch_override !== null) {
+              $transformed_patch = $hack_patch_override;
+            }
+            return shape(
+              'changeset' => $transformed_changeset->toData(),
+              'githubOrg' => $repo_config['githubOrg'],
+              'githubProject' => $repo_config['githubProject'],
+              'commitMessage' => $commit_message,
+              'externalBranch' => $branch_config->getExternalBranch(),
+              'patch' => $transformed_patch,
+              'error' => $error,
+            );
+          },
+        )
+          |> Vec\filter_nulls($$);
+      },
+    )
+      |> Vec\filter_nulls($$)
+      |> Vec\flatten($$);
+  }
+}

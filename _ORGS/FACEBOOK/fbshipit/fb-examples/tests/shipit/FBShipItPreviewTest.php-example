@@ -1,0 +1,110 @@
+<?hh // strict
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * This file was moved from fbsource to www. View old history in diffusion:
+ * https://fburl.com/rylz5y0y
+ */
+namespace Facebook\ShipIt;
+
+use namespace HH\Lib\C; // @oss-enable
+
+
+<<\Oncalls('open_source')>>
+final class FBShipItPreviewTest extends FBBaseTest {
+
+  private static function makeChangeset(): ShipItChangeset {
+    return (new ShipItChangeset())
+      ->withID('deadbeef')
+      ->withTimestamp(12345)
+      ->withAuthor('yrahbar')
+      ->withSubject('Test Commit')
+      ->withMessage("Summary:\n Stuff")
+      ->withDiffs(vec[
+        shape(
+          'path' => 'public/example.php',
+          'body' => 'Testing events from GitHub author date\n',
+        ),
+        shape(
+          'path' => 'facebook/filtered.txt',
+          'body' => 'Testing events from GitHub author date\n',
+        ),
+      ]);
+  }
+
+  public async function testHandleChangeset(): Awaitable<void> {
+    $changeset = self::makeChangeset();
+    $result = await (new FBShipItPreview())
+      ->genHandleChangeset('phabtest1_git', 'side_branch', $changeset, null);
+    \expect(1)->toBePHPEqual(C\count($result));
+    \expect(
+      shape(
+        'id' => 'deadbeef',
+        'timestamp' => 12345,
+        'author' => 'yrahbar',
+        'subject' => 'Test Commit',
+        'message' => 'Summary: Stuff',
+        'diffs' => vec[
+          shape(
+            'path' => 'public/example.php',
+            'body' => 'Testing events from GitHub author date\\n',
+          ),
+        ],
+      ),
+    )->toBePHPEqual($result[0]['changeset']);
+    \expect('facebook')->toBePHPEqual($result[0]['githubOrg']);
+    \expect('phabtest1_git')->toBePHPEqual($result[0]['githubProject']);
+    \expect("Test Commit\n\nSummary: Stuff")
+      ->toBePHPEqual($result[0]['commitMessage']);
+    \expect(null)->toBePHPEqual($result[0]['patch']);
+  }
+
+  public async function testHandleFullPatch(): Awaitable<void> {
+    $changeset = self::makeChangeset();
+    // Actual Phabricator git-style raw patch of an fbsource diff
+    $patch = \file_get_contents(__DIR__.'/example_www_git_diff.patch');
+    $result = await (new FBShipItPreview())
+      ->genHandleChangeset('facebook-www', 'master', $changeset, $patch);
+    \expect($result[0]['patch'])
+      ->toBePHPEqual(
+        \file_get_contents(__DIR__.'/example_fbshipit_git_diff.patch'),
+      );
+    $diffs = $result[0]['changeset']['diffs'];
+    \expect(C\count($diffs))->toBePHPEqual(2);
+    \expect($diffs[0]['path'])
+      ->toBePHPEqual(
+        'fb-examples/tests/shipit/FBCommonFiltersTest.php-example',
+      );
+    \expect($diffs[1]['path'])
+      ->toBePHPEqual('fb-examples/lib/shipit/FBCommonFilters.php-example');
+    \expect(null)->toBePHPEqual($result[0]['error']);
+  }
+
+  public async function testHandleRenames(): Awaitable<void> {
+    $changeset = self::makeChangeset()->withDiffs(vec[
+      shape(
+        'path' =>
+          'from flib/intern/opensource/shipit/src/shipit/fb-private/file.php',
+        'body' => '_',
+      ),
+      shape(
+        'path' => 'flib/intern/opensource/shipit/src/shipit/file.php',
+        'body' => '_',
+      ),
+    ]);
+    $patch = \file_get_contents(__DIR__.'/example_rename_git_diff.patch');
+    $result = await (new FBShipItPreview())
+      ->genHandleChangeset('facebook-www', 'master', $changeset, $patch);
+    $error = $result[0]['error'];
+    invariant($error !== null, 'Expected error');
+    \expect($error)->toContainSubstring('This patch contains renamed');
+    $diffs = $result[0]['changeset']['diffs'];
+    \expect(C\count($diffs))->toBePHPEqual(1);
+    \expect('src/shipit/file.php')->toBePHPEqual($diffs[0]['path']);
+  }
+}

@@ -1,0 +1,45 @@
+# User Lovro Puzar <lovro@fb.com>
+# Date 1490012408.025200
+# Node ID f46a27de6734d992f951a5b2453b08826ce28545
+-~-~-~
+[logdevice] Make server read stream settings changeable at runtime
+
+Summary: I had to rewrite ResourceBudget to make the limit modifyable after construction.
+
+Test Plan:
+  buck test logdevice-dev
+
+With this hack:
+
+```diff --git a/fbcode/logdevice/common/AllServerReadStreams.cpp b/fbcode/logdevice/common/AllServerReadStreams.cpp
+--- a/fbcode/logdevice/common/AllServerReadStreams.cpp
++++ b/fbcode/logdevice/common/AllServerReadStreams.cpp
+@@ -571,4 +571,5 @@
+ bool AllServerReadStreams::tryAcquireMemoryForTask(
+     std::unique_ptr<ReadStorageTask> &task) {
++  ld_info("// mem available = %ld", memory_budget_.available());
+diff --git a/fbcode/logdevice/common/CatchupQueue.h b/fbcode/logdevice/common/CatchupQueue.h
+--- a/fbcode/logdevice/common/CatchupQueue.h
++++ b/fbcode/logdevice/common/CatchupQueue.h
+@@ -277,5 +277,5 @@
+   // If true, try a non-blocking read on the worker thread before involving a
+   // storage thread.  This is only disabled in tests.
+-  bool try_non_blocking_read_ = true;
++  bool try_non_blocking_read_ = false;```
+
+Run cluster, a writer and a reader.  Send admin commands to tweak the limit:
+
+  tail -f /dev/shm/tmp/cluster/N0:1/log | grep //
+  echo set read-storage-tasks-max-mem-bytes 55555555 | nc -U /dev/shm/tmp/cluster/N0:1/socket_command
+
+See changes to the limit reflected in the "mem available" log line.
+
+Reviewers: andrejs, adri
+
+Reviewed By: adri
+
+Subscribers: logdevice-diffs@fb.com, mcm
+
+Differential Revision: https://phabricator.intern.facebook.com/D4605822
+
+Signature: t1:4605822:1488192174:4ccd72ddf9e7a41a76b2c5278ebaa54c0f176525

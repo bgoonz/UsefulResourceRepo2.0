@@ -1,0 +1,220 @@
+<?hh // strict
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * This file was moved from fbsource to www. View old history in diffusion:
+ * https://fburl.com/fzvewrqn
+ */
+namespace Facebook\ShipIt;
+
+
+<<\Oncalls('open_source')>>
+final class FBShipItFilterSubmoduleChangesetsTest extends ShellTest {
+
+  private static function getSubmodulesChangeset(
+    ?vec<ShipItDiff> $diffs = null,
+  ): ShipItChangeset {
+    if ($diffs === null) {
+      $diffs = vec[
+        shape('path' => 'dep_a.txt', 'body' => '0'),
+        shape('path' => 'dep_b.txt', 'body' => '0'),
+      ];
+    }
+    return (new ShipItChangeset())
+      ->withAuthor(FBShipItConfig::UPDATE_SUBMODULE_AUTHOR)
+      ->withSubject(FBShipItConfig::UPDATE_SUBMODULE_SUBJECT)
+      ->withMessage(
+        'Updating submodules
+Summary:
+GitHub commits:
+'.
+        (
+          Vec\map(
+            $diffs,
+            $diff ==> Str\format('https://github.com/%s', $diff['path']),
+          )
+          |> Str\join($$, "\n")
+        ).
+        '
+Test Plan: n/a
+Reviewed By: nobody',
+      )
+      ->withDiffs($diffs);
+  }
+
+  public function testMergeSubmoduleChangesets(): void {
+    $changesets = vec[
+      // Two Updating Submodules commits in a row
+      self::getSubmodulesChangeset(
+        vec[
+          shape('path' => 'dep_a.txt', 'body' => '0'),
+          shape('path' => 'dep_b.txt', 'body' => '0'),
+        ],
+      ),
+      self::getSubmodulesChangeset(
+        vec[
+          shape('path' => 'dep_b.txt', 'body' => '1'),
+          shape('path' => 'dep_c.txt', 'body' => '1'),
+        ],
+      ),
+      // Missing required subject -- not considered
+      self::getSubmodulesChangeset(
+        vec[
+          shape('path' => 'dep_a.txt', 'body' => '9'),
+          shape('path' => 'dep_b.txt', 'body' => '9'),
+        ],
+      )->withSubject(''),
+      // Missing required author -- not considered
+      self::getSubmodulesChangeset(
+        vec[
+          shape('path' => 'dep_a.txt', 'body' => '9'),
+          shape('path' => 'dep_b.txt', 'body' => '9'),
+        ],
+      )->withAuthor(''),
+      // One more Updating Submodules commit
+      self::getSubmodulesChangeset(
+        vec[
+          shape('path' => 'dep_b.txt', 'body' => '2'),
+          shape('path' => 'dep_c.txt', 'body' => '2'),
+        ],
+      ),
+    ];
+    $config_object = static::getConfigObject();
+    // The first two commits get merged together.
+    $merged_changesets = $config_object->mergeSubmoduleChangesets($changesets);
+    \expect(C\count($merged_changesets))->toBePHPEqual(4);
+    \expect($merged_changesets[0]->getAuthor())->toBePHPEqual(
+      FBShipItConfig::UPDATE_SUBMODULE_AUTHOR,
+    );
+    \expect($merged_changesets[0]->getSubject())->toBePHPEqual(
+      FBShipItConfig::UPDATE_SUBMODULE_SUBJECT,
+    );
+    \expect($merged_changesets[0]->getDiffs())->toBePHPEqual(
+      vec[
+        shape('path' => 'dep_a.txt', 'body' => '0'),
+        shape('path' => 'dep_b.txt', 'body' => '01'),
+        shape('path' => 'dep_c.txt', 'body' => '1'),
+      ],
+    );
+    \expect($merged_changesets[0]->getMessage())->toContainSubstring(
+      'GitHub commits:
+
+https://github.com/dep_a.txt
+https://github.com/dep_b.txt
+https://github.com/dep_c.txt
+
+Test Plan:',
+    );
+    \expect($merged_changesets[1])->toBePHPEqual($changesets[2]);
+    \expect($merged_changesets[2])->toBePHPEqual($changesets[3]);
+    \expect($merged_changesets[3]->getAuthor())->toBePHPEqual(
+      FBShipItConfig::UPDATE_SUBMODULE_AUTHOR,
+    );
+    \expect($merged_changesets[3]->getSubject())->toBePHPEqual(
+      FBShipItConfig::UPDATE_SUBMODULE_SUBJECT,
+    );
+    \expect($merged_changesets[3]->getDiffs())->toBePHPEqual(
+      vec[
+        shape('path' => 'dep_b.txt', 'body' => '2'),
+        shape('path' => 'dep_c.txt', 'body' => '2'),
+      ],
+    );
+  }
+
+  public function testMergeSubmoduleChangesetsNoMerge(): void {
+    $changesets = vec[
+      (new ShipItChangeset())
+        ->withAuthor(FBShipItConfig::UPDATE_SUBMODULE_AUTHOR)
+        ->withDiffs(vec[
+          shape('path' => 'dep_a.txt', 'body' => '9'),
+          shape('path' => 'dep_b.txt', 'body' => '9'),
+        ]),
+      (new ShipItChangeset())
+        ->withSubject(FBShipItConfig::UPDATE_SUBMODULE_SUBJECT)
+        ->withDiffs(vec[
+          shape('path' => 'dep_a.txt', 'body' => '9'),
+          shape('path' => 'dep_b.txt', 'body' => '9'),
+        ]),
+    ];
+    $config_object = static::getConfigObject();
+    $merged_changesets = $config_object->mergeSubmoduleChangesets($changesets);
+    \expect($merged_changesets)->toBePHPEqual($changesets);
+  }
+
+  public async function testShouldSkipUpdateSubmodules(): Awaitable<void> {
+    $dest_head = self::getSubmodulesChangeset()
+      ->withTimestamp(\volatile_time());
+    $repo = new FakeShipItRepo($dest_head);
+    $changesets = vec[self::getSubmodulesChangeset()];
+    $config_object = static::getConfigObject();
+    \expect(
+      await $config_object->genShouldSkipUpdateSubmodules($changesets, $repo),
+    )
+      ->toBeTrue();
+  }
+
+  public async function testShouldSkipUpdateSubmodulesNothingToSkip(
+  ): Awaitable<void> {
+    $dest_head = self::getSubmodulesChangeset()
+      ->withTimestamp(\volatile_time());
+    $repo = new FakeShipItRepo($dest_head);
+    // intern has a non-submodule commit
+    $changesets = vec[
+      self::getSubmodulesChangeset(),
+      self::getSubmodulesChangeset()->withAuthor(''),
+    ];
+    $config_object = static::getConfigObject();
+    \expect(
+      await $config_object->genShouldSkipUpdateSubmodules($changesets, $repo),
+    )
+      ->toBeFalse();
+  }
+
+  public async function testShouldSkipUpdateSubmodulesNoDoubleCommit(
+  ): Awaitable<void> {
+    $dest_head = self::getSubmodulesChangeset()
+      ->withTimestamp(\volatile_time())
+      // destination head is not a submodule update
+      ->withAuthor('');
+    $repo = new FakeShipItRepo($dest_head);
+    $changesets = vec[self::getSubmodulesChangeset()];
+    $config_object = static::getConfigObject();
+    \expect(
+      await $config_object->genShouldSkipUpdateSubmodules($changesets, $repo),
+    )
+      ->toBeFalse();
+  }
+
+  public async function testShouldSkipUpdateSubmodulesRateLimit(
+  ): Awaitable<void> {
+    $dest_head = self::getSubmodulesChangeset()
+      // no submodule commits shipped in the last week
+      ->withTimestamp(\volatile_time() - \Time::SEC_IN_WEEK);
+    $repo = new FakeShipItRepo($dest_head);
+    $changesets = vec[self::getSubmodulesChangeset()];
+    $config_object = static::getConfigObject();
+    \expect(
+      await $config_object->genShouldSkipUpdateSubmodules($changesets, $repo),
+    )
+      ->toBeFalse();
+  }
+
+  public async function testPostFilterChangesets(): Awaitable<void> {
+    $dest_head = self::getSubmodulesChangeset()
+      ->withTimestamp(\volatile_time());
+    $repo = new FakeShipItRepo($dest_head);
+    $changesets = vec[self::getSubmodulesChangeset()];
+    $config_object = static::getConfigObject();
+    \expect(await $config_object->genPostFilterChangesets($changesets, $repo))
+      ->toBePHPEqual(vec[]);
+  }
+
+  private static function getConfigObject(): FBShipItConfig {
+    return \Facebook\ShipIt\FBShipItConfigRegistry::getInstanceForTesting();
+  }
+}

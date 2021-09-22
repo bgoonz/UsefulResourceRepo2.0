@@ -1,0 +1,65 @@
+<?hh // strict
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * This file was moved from fbsource to www. View old history in diffusion:
+ * https://fburl.com/0e15lqye
+ */
+namespace Facebook\ShipIt;
+
+use namespace HH\Lib\Str; // @oss-enable
+
+final class FBCodeBuilder {
+  const string SRC_FBCODE_BUILDER = 'fbcode/opensource/fbcode_builder/';
+  const string DEST_FBCODE_BUILDER = 'build/fbcode_builder/';
+
+  // The github hashes change frequently. We keep them under build/ so that
+  // `git log projectname/` stays relatively un-spammy.  Then, nest under
+  // `facebook` for a future-proof pattern of `<github user>/<github repo>`.
+  const string SRC_GITHUB_HASHES = 'fbcode/opensource/project_hashes/';
+  const string DEST_GITHUB_HASHES = 'build/deps/github_hashes/';
+
+  public static function getPathMappings(
+    ?string $travis_config = null,
+  ): dict<string, string> {
+    if ($travis_config === null) {
+      $travis_config = FBCodeBuilder::SRC_FBCODE_BUILDER.'travis.yml';
+    }
+    return dict[
+      $travis_config => '.travis.yml',
+      FBCodeBuilder::SRC_FBCODE_BUILDER => FBCodeBuilder::DEST_FBCODE_BUILDER,
+      FBCodeBuilder::SRC_GITHUB_HASHES => FBCodeBuilder::DEST_GITHUB_HASHES,
+    ];
+  }
+  public static function getDestStrippedFiles(): vec<string> {
+    return vec[
+      // Don't bother Github users with code only relevant internally.
+      '@^build/facebook_.*@',
+      '@^'.FBCodeBuilder::DEST_GITHUB_HASHES.'@',
+      '@^'.FBCodeBuilder::DEST_FBCODE_BUILDER.'facebook_@',
+      '@^'.FBCodeBuilder::DEST_FBCODE_BUILDER.'README.facebook$@',
+      '@^'.FBCodeBuilder::DEST_FBCODE_BUILDER.'TARGETS@',
+    ];
+  }
+  public static function getDestStrippedFileExceptions(
+    keyset<string> $dependencies,
+  ): vec<string> {
+    return vec[
+      '@^'.FBCodeBuilder::DEST_GITHUB_HASHES.'$@',
+      '@^'.
+      FBCodeBuilder::DEST_GITHUB_HASHES.
+      '('.
+      Str\join(Keyset\map($dependencies, $d ==> PHP\preg_quote($d, '@')), '|').
+      ')-rev.txt$@',
+      // This is just to appease ShipItAssertValidFilterPhase
+      '@^'.FBCodeBuilder::DEST_GITHUB_HASHES.'shipit_test_file.txt$@',
+    ];
+  }
+}
+
+interface ISupportsFBCodeBuilder {}

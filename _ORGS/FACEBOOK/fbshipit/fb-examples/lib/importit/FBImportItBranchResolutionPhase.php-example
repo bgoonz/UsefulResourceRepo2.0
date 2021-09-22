@@ -1,0 +1,48 @@
+<?hh // strict
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * This file was moved from fbsource to www. View old history in diffusion:
+ * https://fburl.com/3far4w87
+ */
+namespace Facebook\ImportIt;
+
+use type Facebook\ShipIt\{
+  FBShipItBranchResolutionPhase,
+  FBShipItConfig,
+  ShipItPhaseRunner,
+  FBSourceBranchConfig,
+  IShipItArgumentParser,
+};
+
+final class FBImportItBranchResolutionPhase
+  extends FBShipItBranchResolutionPhase {
+
+  <<__Override>>
+  public async function genBranchConfigs(): Awaitable<vec<FBSourceBranchConfig>> {
+    invariant(
+      $this->externalBranch !== null,
+      'ImportIt must always run on a single external branch',
+    );
+    return await parent::genBranchConfigs();
+  }
+
+  <<__Override>>
+  public static function getRunner(
+    FBShipItConfig $config_object,
+    FBSourceBranchConfig $branch_config,
+    ?IShipItArgumentParser $argument_parser = null,
+  ): ShipItPhaseRunner {
+    return new ShipItPhaseRunner(
+      $config_object->getImportManifest($branch_config),
+      $config_object->getImportPhases($branch_config),
+      $argument_parser,
+    );
+  }
+
+}

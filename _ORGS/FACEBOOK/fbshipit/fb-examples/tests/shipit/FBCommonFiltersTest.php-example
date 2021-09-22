@@ -1,0 +1,547 @@
+<?hh // strict
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * This file was moved from fbsource to www. View old history in diffusion:
+ * https://fburl.com/tpyhlth1
+ */
+namespace Facebook\ShipIt;
+
+use namespace HH\Lib\Str; // @oss-enable
+
+
+<<\Oncalls('open_source')>>
+final class FBCommonFiltersTest extends FBBaseTest {
+  private static function getKeepSections(): keyset<string> {
+    return keyset(
+      Config\shipit_configs_CONSTANTS::DEFAULT_MESSAGE_SECTION_NAMES,
+    );
+  }
+
+  public async function testFBAuthorWithoutGitHubAuthor(): Awaitable<void> {
+    $in = (new ShipItChangeset())
+      ->withAuthor('Joel Marcey <joelm@fb.com>');
+    $out = await FBCommonFilters::genApplyAll(
+      $in,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    \expect($out->getAuthor())->toEqual($in->getAuthor());
+  }
+
+  public async function testFBAuthorWithGitHubAuthor(): Awaitable<void> {
+    $in = (new ShipItChangeset())
+      ->withAuthor('Joel Marcey <joelm@fb.com>')
+      ->withMessage('GitHub Author: Fred Emmott <fe@fb.com>');
+    $out = await FBCommonFilters::genApplyAll(
+      $in,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    \expect($out->getAuthor())->toEqual('Fred Emmott <fe@fb.com>');
+    \expect($out->getMessage())->toEqual("Pulled By: JoelMarcey");
+  }
+
+  public static function examplesForAuthorEmailCorrection(
+  ): vec<(string, string)> {
+    return vec[
+      tuple('Email change <fredemmott@fb.com>', 'Fred Emmott <fe@fb.com>'),
+      tuple(
+        'Ex Employee email change <sgolemon@fb.com>',
+        'Sara Golemon <saramg@fb.com>',
+      ),
+      tuple('Some Bot <svcscm@fb.com>', 'Some Bot <svcscm@fb.com>'),
+      tuple(
+        'Invalid User <thisuserdoesnotexist@fb.com>',
+        'Invalid User <thisuserdoesnotexist@fb.com>',
+      ),
+    ];
+  }
+
+  <<\DataProvider('examplesForAuthorEmailCorrection')>>
+  public async function testAuthorEmailCorrection(
+    string $in_author,
+    string $expected_author,
+  ): Awaitable<void> {
+    // fredemmott@ => fe@
+    $changeset = await (
+      (new ShipItChangeset())
+        ->withAuthor($in_author)
+      |> FBCommonFilters::genApplyAll(
+        $$,
+        shape('filterMessageSections/keepFields' => self::getKeepSections()),
+      )
+    );
+    \expect($changeset->getAuthor())->toEqual($expected_author);
+  }
+
+  public async function testSVNAuthor(): Awaitable<void> {
+    $fake_uuid = Str\repeat('a', 36);
+    $in = (new ShipItChangeset())
+      ->withAuthor('fredemmott@'.$fake_uuid);
+    $out = await ShipItUserFilters::genRewriteSVNAuthor(
+      $in,
+      FBToGitHubUserInfo::class,
+    );
+    \expect($out->getAuthor())->toEqual('Fred Emmott <fe@fb.com>');
+  }
+
+  public static function exampleFacebookDirectories(): vec<(string, bool)> {
+    return vec[
+      /* tuple(string $path, bool $private) */
+      tuple('facebook', true),
+      tuple('foo/facebook', true),
+      tuple('com/facebook', false),
+      tuple('foo/bar/facebook', true),
+      tuple('java/com/facebook', false),
+      tuple('facebook/com/facebook', true),
+      tuple('facebook/foo/com/facebook', true),
+      tuple('foo/facebook/com/facebook', true),
+      tuple('foo/java/com/facebook', false),
+      tuple('foo/bar/java/com/facebook', false),
+      tuple('src/java/com/facebook', false),
+      tuple('foo/com/facebook', false),
+      tuple('foo/bar/com/facebook', false),
+      tuple('foo/bar/baz/facebook', true),
+    ];
+  }
+
+  <<\DataProvider('exampleFacebookDirectories')>>
+  public async function testFacebookDirectories(
+    string $dir,
+    bool $private,
+  ): Awaitable<void> {
+    $file = $dir.'/foo';
+    $changeset = (new ShipItChangeset())->withDiffs(vec[
+      shape('path' => $file, 'body' => 'junk'),
+    ]);
+    $changeset = await FBCommonFilters::genApplyAll(
+      $changeset,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+
+    if ($private) {
+      $expected = vec[];
+    } else {
+      $expected = vec[$file];
+    }
+    $actual = Vec\map($changeset->getDiffs(), $diff ==> $diff['path']);
+    \expect($actual)->toBePHPEqual($expected);
+  }
+
+  public async function testPrivateFileInPublicFacebookDir(): Awaitable<void> {
+    $changeset = (new ShipItChangeset())->withDiffs(vec[
+      shape('path' => 'foo/com/facebook/TARGETS', 'body' => 'junk'),
+      shape('path' => 'foo/com/facebook/BUILD_MODE.bzl', 'body' => 'junk'),
+      shape('path' => 'foo/com/facebook/PLATFORM.bzl', 'body' => 'junk'),
+      shape('path' => 'foo/com/facebook/something', 'body' => 'junk'),
+    ]);
+    $changeset = await FBCommonFilters::genApplyAll(
+      $changeset,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    \expect(Vec\map($changeset->getDiffs(), $diff ==> $diff['path']))
+      ->toBePHPEqual(vec['foo/com/facebook/something']);
+  }
+
+  public async function testOverideUnitFailuresStripped(): Awaitable<void> {
+    $in = (new ShipItChangeset())
+      ->withMessage('Summary: @override-unit-failures');
+    $out = await FBCommonFilters::genApplyAll(
+      $in,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    \expect($out->getMessage())->toEqual('');
+  }
+
+  public async function testBuildDirectiveStripped(): Awaitable<void> {
+    $in = (new ShipItChangeset())
+      ->withMessage("Summary: Test diff\nblah @build[project1,project2]");
+    $out = await FBCommonFilters::genApplyAll(
+      $in,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    \expect($out->getMessage())->toEqual("Summary:\nTest diff\nblah");
+  }
+
+  public async function testAccept2ShipStripped(): Awaitable<void> {
+    $in = (new ShipItChangeset())
+      ->withMessage('Summary: #accept2ship');
+    $out = await FBCommonFilters::genApplyAll(
+      $in,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    \expect($out->getMessage())->toEqual('');
+
+    // testing multi-line strings
+    $in = (new ShipItChangeset())
+      ->withMessage(
+        'some_prefix
+    #accept2ship
+    some_suffix',
+      );
+    $out = FBCommonFilters::stripAccept2Ship($in);
+    \expect($out->getMessage())->toEqual(
+      'some_prefix
+        some_suffix',
+    );
+
+    $in = (new ShipItChangeset())
+      ->withMessage("some_prefix\n#accept2ship\nsome_suffix");
+    $out = FBCommonFilters::stripAccept2Ship($in);
+    \expect($out->getMessage())->toEqual("some_prefix\nsome_suffix");
+  }
+
+  public async function testSevRevertSummaryStripped(): Awaitable<void> {
+    // only 'This reverts commit'
+    $in = (new ShipItChangeset())
+      ->withMessage(
+        'Summary: This reverts commit abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd',
+      );
+    $out = await FBCommonFilters::genApplyAll(
+      $in,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    \expect($out->getMessage())->toEqual(
+      'Summary: This reverts commit abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd',
+    );
+
+    // only 'cause_a_sev_many_files'
+    $in = (new ShipItChangeset())
+      ->withMessage('Summary: cause_a_sev_many_files');
+    $out = await FBCommonFilters::genApplyAll(
+      $in,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    \expect($out->getMessage())->toEqual('Summary: cause_a_sev_many_files');
+
+    // both
+    $in = (new ShipItChangeset())
+      ->withMessage(
+        'Summary:This reverts commit abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd
+some_text
+cause_a_sev_many_files
+Differential Revision: D1234567',
+      );
+    $out = await FBCommonFilters::genApplyAll(
+      $in,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    \expect($out->getMessage())->toEqual("Differential Revision: D1234567");
+  }
+
+  public async function testTestPlanSectionStripped(): Awaitable<void> {
+    $changeset = (new ShipItChangeset())
+      ->withMessage("Summary: One line change\nTest plan: run all code paths");
+
+    \expect(
+      (
+        await FBCommonFilters::genApplyAll(
+          $changeset,
+          shape('filterMessageSections/keepFields' => self::getKeepSections()),
+        )
+      )->getMessage(),
+    )
+      ->toBePHPEqual('Summary: One line change');
+  }
+
+  public async function testMultipleSummarySections(): Awaitable<void> {
+    $changeset = (new ShipItChangeset())
+      ->withMessage(
+        "Summary:\nthe first\n".
+        "Summary:\nthe second\n".
+        "Closes https://github.com/facebook/fbshipit/pull/42\n".
+        "Github author: gh_author@fb.com\n".
+        "Test plan: run all code paths\n",
+      );
+
+    \expect(
+      (
+        await FBCommonFilters::genApplyAll(
+          $changeset,
+          shape('filterMessageSections/keepFields' => self::getKeepSections()),
+        )
+      )->getMessage(),
+    )
+      ->toBePHPEqual(
+        "Summary:\nthe first\nthe second\n".
+        "Closes https://github.com/facebook/fbshipit/pull/42\n\n".
+        "Test Plan: run all code paths",
+      );
+  }
+
+  public async function testTestPlanSectionRetainedForImportedPRs(
+  ): Awaitable<void> {
+    $changeset = (new ShipItChangeset())
+      ->withMessage(
+        "Summary: One line change\n".
+        "Closes https://github.com/facebook/fbshipit/pull/42\n".
+        "Github author: gh_author@fb.com\n".
+        "Test plan: run all code paths\n",
+      );
+
+    \expect(
+      (
+        await FBCommonFilters::genApplyAll(
+          $changeset,
+          shape('filterMessageSections/keepFields' => self::getKeepSections()),
+        )
+      )->getMessage(),
+    )
+      ->toBePHPEqual(
+        'Summary:
+One line change
+Closes https://github.com/facebook/fbshipit/pull/42
+
+Test Plan: run all code paths',
+      );
+  }
+
+  public function testFilterMessageSections(): void {
+    foreach (FBCommonFilters::getSupportedMessageSectionNames() as $section) {
+      $changeset = (new ShipItChangeset())
+        ->withMessage(Str\format("%s:\n some text", $section));
+      \expect(
+        FBCommonFilters::filterMessageSections($changeset, keyset[])
+          ->getMessage(),
+      )->toBePHPEqual('', "Strips section '".$section."'");
+      \expect(
+        FBCommonFilters::filterMessageSections($changeset, keyset[$section])
+          ->getMessage(),
+      )->toBePHPEqual(
+        Str\format("%s: some text", Str\capitalize_words($section)),
+        "Keeps section '".$section."'",
+      );
+    }
+  }
+
+  public async function testGetKeepSectionsAddsTestPlanSection(
+  ): Awaitable<void> {
+    $changeset = (new ShipItChangeset())
+      ->withMessage(
+        "Closes https://github.com/facebook/fbshipit/pull/42\n".
+        "Github author: gh_author@fb.com",
+      );
+
+    // use default section names
+    $keep = await FBCommonFilters::genKeepSections(
+      $changeset,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    \expect(C\count($keep))->toEqual(1 + C\count(self::getKeepSections()));
+    \expect(C\contains($keep, 'test plan'))->toBeTrue();
+
+    // use section names from configuration
+    $keep = await FBCommonFilters::genKeepSections(
+      $changeset,
+      shape('filterMessageSections/keepFields' => keyset[]),
+    );
+    \expect(C\count($keep))->toEqual(1);
+    \expect(C\contains($keep, 'test plan'))->toBeTrue();
+
+    // duplicates ignored
+    $keep = await FBCommonFilters::genKeepSections(
+      $changeset,
+      shape('filterMessageSections/keepFields' => keyset[]),
+    );
+    \expect(C\count($keep))->toEqual(1);
+    \expect(C\contains($keep, 'test plan'))->toBeTrue();
+  }
+
+  public async function testGetKeepSectionsDoesNotAddTestPlanSection(
+  ): Awaitable<void> {
+    $changeset = (new ShipItChangeset());
+
+    // use default section names
+    $keep = await FBCommonFilters::genKeepSections(
+      $changeset,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    \expect(C\count($keep))->toEqual(C\count(self::getKeepSections()));
+    \expect(C\contains($keep, 'test plan'))->toBeFalse();
+
+    // use section names from configuration
+    $keep = await FBCommonFilters::genKeepSections(
+      $changeset,
+      shape('filterMessageSections/keepFields' => keyset['facebook']),
+    );
+    \expect(C\count($keep))->toEqual(1);
+    \expect(C\contains($keep, 'facebook'))->toBeTrue();
+
+    // existing 'test plan' section not removed
+    $keep = await FBCommonFilters::genKeepSections(
+      $changeset,
+      shape('filterMessageSections/keepFields' => keyset['test plan']),
+    );
+    \expect(C\count($keep))->toEqual(1);
+    \expect(C\contains($keep, 'test plan'))->toBeTrue();
+  }
+
+  public function testClosingPullRequestReferencedInSubject(): void {
+    $changeset = (new ShipItChangeset())
+      ->withSubject('Original Subject')
+      ->withMessage('Closes https://github.com/facebook/fbshipit/pull/42');
+    \expect(
+      FBCommonFilters::referencePullRequestNumber($changeset)
+        ->getSubject(),
+    )->toBePHPEqual($changeset->getSubject().' (#42)');
+
+    $changeset = (new ShipItChangeset())
+      ->withSubject('Original Subject')
+      ->withMessage(
+        'Summary: Closes https://github.com/facebook/fbshipit/pull/42',
+      );
+    \expect(
+      FBCommonFilters::referencePullRequestNumber($changeset)
+        ->getSubject(),
+    )->toBePHPEqual($changeset->getSubject().' (#42)');
+
+    $changeset = (new ShipItChangeset())
+      ->withSubject('Original Subject')
+      ->withMessage(
+        'Pull Request resolved: https://github.com/facebook/fbshipit/pull/42',
+      );
+    \expect(
+      FBCommonFilters::referencePullRequestNumber($changeset)
+        ->getSubject(),
+    )->toBePHPEqual($changeset->getSubject().' (#42)');
+
+    $changeset = $changeset
+      ->withSubject('Update travis.yml to build only on nightly and latest')
+      ->withMessage(
+        'The Travis build has been failing for 1.5 months due to a breaking '.
+        'change with a new Hack language feature (<<__OptionalDestruct>>). '.
+        'Rather than trying to continue supporting the LTS Hack version '.
+        '(3.24), it\'s easier to just bump up the minimum supported version.
+Closes https://github.com/facebook/fbshipit/pull/50',
+      );
+    \expect(
+      FBCommonFilters::referencePullRequestNumber($changeset)
+        ->getSubject(),
+    )->toBePHPEqual($changeset->getSubject().' (#50)');
+
+    $changeset = $changeset
+      ->withMessage('Closes https://github.com/facebook/fbshipit/issues/42');
+    \expect(
+      FBCommonFilters::referencePullRequestNumber($changeset)
+        ->getSubject(),
+    )->toBePHPEqual($changeset->getSubject());
+  }
+
+  public async function testClosingPullRequestReferencedInSubjectWithAllFilters(
+  ): Awaitable<void> {
+    $original_subject = 'Original Subject';
+    $original_message = 'Summary:
+Pull Request resolved: https://github.com/facebook/fbshipit/pull/42
+
+This fixes a bug.';
+    $changeset = (new ShipItChangeset())
+      ->withSubject($original_subject)
+      ->withMessage($original_message);
+    $changeset = await FBCommonFilters::genApplyAll(
+      $changeset,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    \expect($changeset->getSubject())->toBePHPEqual($original_subject.' (#42)');
+    \expect($changeset->getMessage())->toBePHPEqual($original_message);
+
+    $original_message = 'Summary:
+Pull Request resolved: https://github.com/facebook/fbshipit/pull/42
+
+This reverts commit 123456
+cause_a_sev_many_files';
+    $changeset = (new ShipItChangeset())
+      ->withSubject($original_subject)
+      ->withMessage($original_message);
+    $changeset = await FBCommonFilters::genApplyAll(
+      $changeset,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    \expect($changeset->getSubject())->toBePHPEqual($original_subject.' (#42)');
+    \expect($changeset->getMessage())->toBePHPEqual('');
+  }
+
+  public async function testFilterFBMentions(): Awaitable<void> {
+    $original_message = 'Summary:
+This is a test of @[12341:Name] mentions.
+So is @[12345:This] but with a greedy test char: ] foo
+
+@bypass-lint
+
+@[3213:Name2]';
+    $changeset = (new ShipItChangeset())
+      ->withMessage($original_message);
+    $changeset = await FBCommonFilters::genApplyAll(
+      $changeset,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    $expected_message = 'Summary:
+This is a test of Name mentions.
+So is This but with a greedy test char: ] foo
+
+bypass-lint
+
+Name2';
+    \expect($changeset->getMessage())->toBePHPEqual($expected_message);
+  }
+
+  public async function testFilterAllowEmptyCommit(): Awaitable<void> {
+    $original_message = '@allow-empty-commit';
+    $changeset_1 = (new ShipItChangeset())
+      ->withMessage($original_message)
+      ->withDiffs(vec[
+        shape('path' => 'foo/com/facebook/TARGETS', 'body' => 'junk'),
+        shape('path' => 'foo/com/facebook/BUILD_MODE.bzl', 'body' => 'junk'),
+      ]);
+    \expect(async () ==> {
+      await FBCommonFilters::genApplyAll(
+        $changeset_1,
+        shape('filterMessageSections/keepFields' => self::getKeepSections()),
+      );
+    })
+      // @oss-disable: ->toThrow(\InvariantViolationException::class);
+    ->toThrow(InvariantException::class); // @oss-enable
+    $changeset_2 = (new ShipItChangeset())
+      ->withMessage($original_message);
+    $changeset_2 = await FBCommonFilters::genApplyAll(
+      $changeset_2,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    \expect($changeset_2->getMessage())->toBePHPEqual('');
+  }
+
+  public async function testStrippingCoAuthoredBy(): Awaitable<void> {
+    $in = (new ShipItChangeset())
+      ->withMessage(
+        "Blah blah summary here\nCo-authored-by: Jon Janzen <jonjanzen@fb.com>",
+      );
+    $out = await FBCommonFilters::genApplyAll(
+      $in,
+      shape('filterMessageSections/keepFields' => self::getKeepSections()),
+    );
+    \expect($out->getMessage())->toNotContainSubstring("Co-authored-by");
+  }
+
+  public async function testImportedFromPullRequest(): Awaitable<void> {
+    $changeset = (new ShipItChangeset())
+      ->withMessage(
+        "Closes https://github.com/facebook/fbshipit/pull/42\n".
+        "Github author: gh_author@fb.com",
+      );
+    \expect(await FBCommonFilters::genImportedFromPullRequest($changeset))
+      ->toBeTrue();
+
+    $changeset = (new ShipItChangeset())
+      ->withMessage('Closes https://github.com/facebook/fbshipit/pull/42\n');
+    \expect(await FBCommonFilters::genImportedFromPullRequest($changeset))
+      ->toBeFalse();
+
+    $changeset = (new ShipItChangeset())
+      ->withMessage('Github author: gh_author@fb.com');
+    \expect(await FBCommonFilters::genImportedFromPullRequest($changeset))
+      ->toBeFalse();
+  }
+}

@@ -1,0 +1,64 @@
+<?hh // strict
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * This file was moved from fbsource to www. View old history in diffusion:
+ * https://fburl.com/pdovatys
+ */
+namespace Facebook\ImportIt;
+
+abstract final class ImportItRustPathFilters {
+  private static vec<string> $ossConfigFiles = vec['rustfmt.toml'];
+
+  const RUST_OSS_CONFIGS = 'tools/rust/ossconfigs/';
+
+  /**
+   * A handy combinator-like function to easily combine different transformators
+   * to shipit_mapping in order to revers it for ImportIt
+   */
+  public static function invertShipItFold(
+    dict<string, string> $shipit_mapping,
+    (function(dict<string, string>): dict<string, string>) $inner_fold,
+  ): dict<string, string> {
+    $oss_configs_destination = $shipit_mapping[self::RUST_OSS_CONFIGS];
+    unset($shipit_mapping[self::RUST_OSS_CONFIGS]);
+
+    $mapping = ($inner_fold)($shipit_mapping);
+
+    // Now add mappings for $oss_configs back. The order is important here --
+    // these mappings must come first -- and we unfortunately can't insert to
+    // the beginning of a map in PHP/Hack, so create a new map.
+    $rust_mapping = dict[];
+    foreach (self::$ossConfigFiles as $filename) {
+      $rust_mapping[$oss_configs_destination.$filename] =
+        self::RUST_OSS_CONFIGS.$filename;
+    }
+    return Dict\merge($rust_mapping, $mapping);
+  }
+
+  /**
+   * A wrapper around ImportItPathFilters that makes sure the configs in
+   * $oss_configs map to RUST_OSS_CONFIGS.
+   */
+  public static function moveDirectories(
+    \Facebook\ShipIt\ShipItChangeset $changeset,
+    dict<string, string> $shipit_mapping,
+    vec<string> $skip_patterns = vec[],
+  ): \Facebook\ShipIt\ShipItChangeset {
+    $rust_mapping = self::invertShipItFold(
+      $shipit_mapping,
+      $x ==> ImportItPathFilters::invertShipIt($x),
+    );
+
+    return \Facebook\ShipIt\ShipItPathFilters::moveDirectories(
+      $changeset,
+      $rust_mapping,
+      $skip_patterns,
+    );
+  }
+}

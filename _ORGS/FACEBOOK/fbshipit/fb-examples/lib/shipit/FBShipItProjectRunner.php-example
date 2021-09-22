@@ -1,0 +1,241 @@
+<?hh // strict
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * This file was moved from fbsource to www. View old history in diffusion:
+ * https://fburl.com/ckijuxbi
+ */
+namespace Facebook\ShipIt;
+
+use namespace HH\Lib\{C, Str}; // @oss-enable
+use type Facebook\ImportIt\FBImportItBranchResolutionPhase;
+use type Facebook\ShipIt\{FBShipItConfigRegistry};
+
+enum FBShipItCLIAction: int {
+  SHIP_IT = 0;
+  IMPORT_IT = 1;
+}
+
+final class FBShipItProjectRunner extends ShipItPhaseRunner {
+
+  // Set this value to force configerator configs to be read directly from a
+  // folder on disk, this is primarily used for sandcastle jobs
+  private ?string $configeratorDir = null;
+
+  public function __construct(
+    private FBShipItCLIAction $action,
+    private ?FBShipItConfig $configObject = null,
+    private ?string $externalBranch = null,
+    ?IShipItArgumentParser $argumentParser = null,
+  ) {
+    $manifest = new ShipItManifest(
+      '/var/tmp/fbshipit',
+      'shipit',
+      'shipit',
+      keyset[],
+    );
+    if ($configObject !== null) {
+      parent::__construct(
+        $manifest,
+        self::getPhases(
+          $action,
+          $configObject,
+          $externalBranch,
+          $argumentParser,
+        ),
+        $argumentParser,
+      );
+    } else {
+      parent::__construct($manifest, vec[], $argumentParser);
+    }
+  }
+
+  <<__Override>>
+  public function getBasicCLIArguments(): vec<ShipItCLIArgument> {
+    return vec[
+      shape(
+        'short_name' => 'h',
+        'long_name' => 'help',
+        'description' => 'show this help message and exit',
+      ),
+      shape(
+        'short_name' => 'v',
+        'long_name' => 'verbose',
+        'description' => 'Give more verbose output',
+        'write' => $_ ==> {
+          $this->manifest = $this->manifest->withVerboseEnabled();
+          ShipItScopedFlock::$verbose = ShipItScopedFlock::DEBUG_EXCLUSIVE;
+          return true;
+        },
+      ),
+      shape(
+        'long_name' => 'configerator-dir::',
+        'description' =>
+          'Read configerator configs directly from the given folder',
+        'write' => $configerator_dir ==> {
+          ShipItLogger::out(
+            "--- Reading configerator configs from %s\n",
+            $configerator_dir,
+          );
+          $this->configeratorDir = $configerator_dir;
+          return true;
+        },
+      ),
+      shape(
+        'long_name' => 'project::',
+        'description' => "The project to run. For project-specific help, use ".
+          "--project=project --help.",
+        'write' => $x ==> {
+          $config_object = $this->lookupConfigClass($x);
+          $static_config = $config_object->getStaticConfig();
+          ShipItLogger::out(
+            "--- Running for %s/%s\n",
+            $static_config['githubOrg'],
+            $static_config['githubProject'],
+          );
+          $this->configObject = $config_object;
+          $this->phases = self::getPhases(
+            $this->action,
+            $config_object,
+            $this->externalBranch,
+            $this->argumentParser,
+          );
+          return true;
+        },
+      ),
+    ];
+  }
+
+  public static function getPhases(
+    FBShipItCLIAction $action,
+    FBShipItConfig $config_object,
+    ?string $external_branch,
+    ?IShipItArgumentParser $argument_parser,
+  ): vec<ShipItPhase> {
+    switch ($action) {
+      case FBShipItCLIAction::SHIP_IT:
+        return vec[
+          new FBShipItBranchResolutionPhase(
+            $config_object,
+            $external_branch,
+            null,
+            $argument_parser,
+          ),
+        ];
+      case FBShipItCLIAction::IMPORT_IT:
+        return vec[
+          new FBImportItBranchResolutionPhase(
+            $config_object,
+            $external_branch,
+            null,
+            $argument_parser,
+          ),
+        ];
+    }
+  }
+
+  public function lookupConfigClass(string $name): FBShipItConfig {
+    // owner/reponame
+    $split = Str\split($name, '/');
+    if (C\count($split) === 2) {
+      $configerator_config = FBShipItConfigRegistry::getConfig(
+        $split[0],
+        $split[1],
+        $this->configeratorDir,
+      );
+      if ($configerator_config !== null) {
+        return $configerator_config;
+      }
+
+      return \nullthrows(
+        \Facebook\ShipIt\FBShipItConfigRegistry::getConfig(
+          $split[0],
+          $split[1],
+        ),
+        "Could not find any config that matches %s. \n".
+        "  The config needs to be landed and / or canaried before it can ".
+        "be used.",
+        $name,
+      );
+    }
+    // reponame OR FacebookReponame
+    // Search for a unique match in repo name or class name
+    $config_objects = FBShipItConfigRegistry::getAllConfigs(
+      $this->configeratorDir,
+    );
+    $match = null;
+    foreach ($config_objects as $config_object) {
+      if ($config_object->getConfigeratorName() === $name) {
+        return $config_object;
+      }
+      if ($config_object->getStaticConfig()['githubProject'] === $name) {
+        invariant(
+          $match === null,
+          'Multiple projects found with the same repository name! '.
+          'Use the fully-clarified name (e.g. facebook/reponame)',
+        );
+        $match = $config_object;
+      }
+    }
+    invariant(
+      $match !== null,
+      "Could not find any project that matches %s. \n".
+      "  You may have to canary if your config hasn't landed yet.\n",
+      $name,
+    );
+    return $match;
+  }
+
+  <<__Override>>
+  protected async function genParseCLIArguments(): Awaitable<void> {
+    $config = $this->getCLIArguments();
+    $raw_opts = $this->argumentParser->parseArgs($config);
+    $this->parseOptions($config, $raw_opts);
+    $non_project_config_names = Keyset\map(
+      $config,
+      $cli_arg ==> $cli_arg['long_name'],
+    );
+    $project_config = Vec\filter(
+      $this->getCLIArguments(),
+      $cli_arg ==>
+        !C\contains($non_project_config_names, $cli_arg['long_name']),
+    );
+    if (!C\is_empty($project_config)) {
+      $this->parseOptions(
+        $project_config,
+        $this->argumentParser->parseArgs($project_config),
+      );
+    }
+    if (C\contains_key($raw_opts, 'h') || C\contains_key($raw_opts, 'help')) {
+      // hacky coupling with FBShipItBranchResolutionPhase
+      // render the project's help message
+      if ($this->configObject !== null) {
+        foreach ($this->phases as $phase) {
+          if ($phase is FBShipItBranchResolutionPhase) {
+            $config_object = $phase->getConfigObject();
+            $project_runner = $phase::getRunner(
+              $config_object,
+              // @lint-ignore AWAIT_IN_LOOP We want to execute this serially
+              (await $config_object->genBranchConfigs())[0],
+            );
+            self::printHelp($project_runner->getCLIArguments());
+            throw new ShipItExitException(0);
+          }
+        }
+      }
+      self::printHelp($config);
+      throw new ShipItExitException(0);
+    }
+    if ($this->configObject is null) {
+      ShipItLogger::err(
+        "You must pass --project=ORG/REPO (e.g. --project=facebook/relay)\n",
+      );
+      throw new ShipItExitException(1);
+    }
+  }
+}

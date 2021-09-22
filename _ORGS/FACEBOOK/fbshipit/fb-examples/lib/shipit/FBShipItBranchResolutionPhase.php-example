@@ -1,0 +1,142 @@
+<?hh // strict
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * This file was moved from fbsource to www. View old history in diffusion:
+ * https://fburl.com/y50573nt
+ */
+namespace Facebook\ShipIt;
+
+class FBShipItBranchResolutionPhase extends ShipItPhase {
+
+  const type TRepoMetadata = shape(
+    'land_branch' => ?string,
+    'branches' => vec<string>,
+    'internal_repo' => string,
+    'arcanist_project' => string,
+  );
+
+  public function __construct(
+    private FBShipItConfig $configObject,
+    protected ?string $externalBranch = null,
+    private ?string $repoMetadataFile = null,
+    private ?IShipItArgumentParser $argumentParser = null,
+  ) {}
+
+  <<__Override>>
+  public function getReadableName(): string {
+    return 'Determine branch configs';
+  }
+
+  <<__Override>>
+  public function getCLIArguments(): vec<ShipItCLIArgument> {
+    return vec[
+      shape(
+        'long_name' => 'external-branch::',
+        'description' => 'Only run the config for one external branch',
+        'write' => $x ==> {
+          $this->externalBranch = $x;
+          return $this->externalBranch;
+        },
+      ),
+      shape(
+        'long_name' => 'save-repo-metadata-to::',
+        'description' => "List metadata for the repository, and exit.",
+        'write' => $x ==> {
+          $this->repoMetadataFile = $x;
+          return $this->repoMetadataFile;
+        },
+      ),
+    ];
+  }
+
+  public function getConfigObject(): FBShipItConfig {
+    return $this->configObject;
+  }
+
+  public static function getRunner(
+    FBShipItConfig $config_object,
+    FBSourceBranchConfig $branch_config,
+    ?IShipItArgumentParser $argument_parser = null,
+  ): ShipItPhaseRunner {
+    return new ShipItPhaseRunner(
+      $config_object->getManifest($branch_config),
+      $config_object->getPhases($branch_config),
+      $argument_parser,
+    );
+  }
+
+  public async function genBranchConfigs(
+  ): Awaitable<vec<FBSourceBranchConfig>> {
+    $config_object = $this->configObject;
+    $branch_configs = await $config_object->genBranchConfigs();
+    if ($this->externalBranch !== null) {
+      $branch_configs = Vec\filter(
+        $branch_configs,
+        $branch_config ==>
+          $branch_config->getExternalBranch() === $this->externalBranch,
+      );
+      invariant(
+        !C\is_empty($branch_configs),
+        'No ShipIt configuration found for external branch: %s',
+        $this->externalBranch,
+      );
+      invariant(
+        C\count($branch_configs) === 1,
+        'Multiple internal configs found for external branch: %s',
+        $this->externalBranch,
+      );
+    }
+    return $branch_configs;
+  }
+
+  public async function genRepoMetadata(): Awaitable<self::TRepoMetadata> {
+    $config_object = $this->configObject;
+    $branch_configs = await $this->genBranchConfigs();
+    $internal_repo = $config_object->getStaticConfig()['internalRepo'];
+    $arcanist_project = $internal_repo['arcanistProject'];
+    return shape(
+      'land_branch' => await $config_object->genLandBranch(),
+      'branches' => Vec\map(
+        $branch_configs,
+        $branch_config ==> $branch_config->getExternalBranch(),
+      ),
+      'internal_repo' => $internal_repo['name'],
+      'arcanist_project' => $arcanist_project,
+    );
+  }
+
+  <<__Override>>
+  protected async function genRunImpl(
+    ShipItManifest $manifest,
+  ): Awaitable<void> {
+    $config_object = $this->configObject;
+    $branch_configs = await $this->genBranchConfigs();
+    if ($this->repoMetadataFile !== null) {
+      \Filesystem::writeFile(
+        $this->repoMetadataFile,
+        \json_encode(await $this->genRepoMetadata()),
+      );
+      throw new ShipItExitException(0);
+    }
+    foreach ($branch_configs as $branch_config) {
+      ShipItLogger::out(
+        "--- Running for branch: (%s, %s)\n",
+        $branch_config->getInternalBranch(),
+        $branch_config->getExternalBranch(),
+      );
+      $runner = static::getRunner(
+        $config_object,
+        $branch_config,
+        $this->argumentParser,
+      );
+      // @lint-ignore AWAIT_IN_LOOP need sync execution
+      await $runner->genRun();
+    }
+  }
+}

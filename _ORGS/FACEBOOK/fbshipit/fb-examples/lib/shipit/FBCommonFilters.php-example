@@ -1,0 +1,494 @@
+<?hh // strict
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * This file was moved from fbsource to www. View old history in diffusion:
+ * https://fburl.com/u9rx1a2h
+ */
+namespace Facebook\ShipIt;
+
+use namespace HH\Lib\{Str, C, Vec, Regex}; // @oss-enable
+
+final abstract class FBCommonFilters {
+
+  const NOT_A_TEST_PLAN = 'Imported from GitHub, without a `Test Plan:` line.';
+
+  public static async function genApplyAll(
+    ShipItChangeset $changeset,
+    shape(
+      ?'stripCommonFiles/exceptions' => vec<string>,
+      'filterMessageSections/keepFields' => keyset<string>,
+      ?'keepTags' => bool,
+      ?'referencePullRequestNumber' => bool,
+      ?'linkCommitsForProjectFullName' => string,
+    ) $config,
+  ): Awaitable<ShipItChangeset> {
+    $changeset = await (
+      self::allowEmptyCommit($changeset)
+      |> self::skipIfAlreadyOnGitHub($$)
+      |> self::stripCommonFiles(
+        $$,
+        $config['stripCommonFiles/exceptions'] ?? vec[],
+      )
+      |> self::stripSubjectMergePrefix($$)
+      |> self::genStripSubjectTags($$, $config['keepTags'] ?? false)
+    )
+      |> self::stripEmptyTestPlans($$)
+      |> self::stripCommands($$)
+      |> self::stripAccept2Ship($$);
+    $changeset = await FBDiffFilters::genAddCommitLinksToDiffNumbers(
+      $changeset,
+      Shapes::idx($config, 'linkCommitsForProjectFullName'),
+    );
+    if ($config['referencePullRequestNumber'] ?? true) {
+      $changeset = self::referencePullRequestNumber($changeset);
+    }
+    $changeset = await (
+      self::stripSevRevertSummary($changeset)
+      |> self::delinkifyDifferentialURLs($$)
+      |> ShipItUserFilters::genRewriteSVNAuthor($$, FBToGitHubUserInfo::class)
+    );
+    $changeset = await self::genRestoreGitHubAuthor($changeset);
+    $changeset = self::filterMessageSections(
+      $changeset,
+      await self::genKeepSections($changeset, $config),
+    );
+    $changeset = await self::genRewriteMentions($changeset);
+    $changeset = await self::genRewriteReviewers($changeset);
+    return await self::genRewriteAuthor($changeset)
+      |> self::stripCoAuthoredByLines($$);
+  }
+
+  public static async function genStripSummariesByDefault(
+    ShipItChangeset $changeset,
+  ): Awaitable<ShipItChangeset> {
+    $mentions = ShipItMentions::getMentions($changeset);
+    if (C\contains($mentions, '@public')) {
+      return await ShipItMentions::genRewriteMentions(
+        $changeset,
+        async $mention ==> $mention === '@public' ? '' : $mention,
+      );
+    }
+
+    if (C\contains($mentions, '@already-on-github')) {
+      return $changeset;
+    }
+
+    $sections = ShipItMessageSections::getSections(
+      $changeset,
+      self::getSupportedMessageSectionNames(),
+    );
+
+    if (C\contains_key($sections, 'github author')) {
+      return $changeset;
+    }
+
+    unset($sections['summary']);
+
+    return $changeset->withMessage(
+      ShipItMessageSections::buildMessage($sections),
+    );
+  }
+
+  ////////////////////////////////////////////
+  ///// most users can stop reading here /////
+  ////////////////////////////////////////////
+
+  public static async function genRewriteAuthor(
+    ShipItChangeset $changeset,
+  ): Awaitable<ShipItChangeset> {
+    return await ShipItUserFilters::genRewriteAuthorWithUserPattern(
+      $changeset,
+      FBToGitHubUserInfo::class,
+      re'/<(?<user>[^<]+)@fb.com>$/',
+    );
+  }
+
+  public static function skipIfAlreadyOnGitHub(
+    ShipItChangeset $changeset,
+  ): ShipItChangeset {
+    if (
+      ShipItMentions::containsMention($changeset, '@already-on-github') ||
+      // This is a typo that is fairly common for non-native English speakers
+      ShipItMentions::containsMention($changeset, '@already-in-github')
+    ) {
+      $changeset = $changeset
+        ->withDiffs(vec[])
+        ->withDebugMessage('SKIP COMMIT: @already-on-github');
+      invariant(!$changeset->isValid(), '@already-on-github diff still valid');
+    }
+    return $changeset;
+  }
+
+  public static function allowEmptyCommit(
+    ShipItChangeset $changeset,
+  ): ShipItChangeset {
+    if (ShipItMentions::containsMention($changeset, '@allow-empty-commit')) {
+      invariant(
+        $changeset->isEmptyChange(),
+        '@allow-empty-commit only apply to empty commit',
+      );
+      $changeset = $changeset->withIsTaggedEmptyCommit(true)
+        ->withDebugMessage('ALLOW EMPTY COMMIT: @allow-empty-commit');
+    }
+    return $changeset;
+  }
+
+  /**
+   * File patterns to strip from projects by default.
+   *
+   * WARNING: Changing this list may break synchronization for a large number
+   * of repositories! Make sure that you follow up to add/remove the relevant
+   * files on GitHub itself.
+   */
+  public static function stripCommonFiles(
+    ShipItChangeset $changeset,
+    vec<string> $exception_patterns = vec[],
+  ): ShipItChangeset {
+    $global_config = FBShipItGlobalConfig::at();
+    return ShipItPathFilters::stripPaths(
+      $changeset,
+      $global_config->getStripCommonFiles(),
+      Vec\concat(
+        $exception_patterns,
+        $global_config->getStripCommonFilesExceptions(),
+      ),
+    );
+  }
+
+  public static function referencePullRequestNumber(
+    ShipItChangeset $changeset,
+  ): ShipItChangeset {
+    $matches = Regex\first_match(
+      $changeset->getMessage(),
+      re"@^(?:Summary: )?(?:Closes|Pull Request resolved:) https://github.com/.+/.+/pull/([0-9]+)@im",
+    );
+    if ($matches === null) {
+      return $changeset;
+    }
+    return $changeset->withSubject(
+      $changeset->getSubject().Str\format(' (#%s)', $matches[1]),
+    );
+  }
+
+  public static function delinkifyDifferentialURLs(
+    ShipItChangeset $changeset,
+  ): ShipItChangeset {
+    return $changeset->withMessage(
+      Regex\replace(
+        $changeset->getMessage(),
+        re"@https?://phabricator\.[^/]+/@i",
+        '',
+      ),
+    );
+  }
+
+  /*
+   * Strip the auto-generated Test Plan by ImportIt
+   */
+  public static function stripEmptyTestPlans(
+    ShipItChangeset $changeset,
+  ): ShipItChangeset {
+
+    $sections = ShipItMessageSections::getSections(
+      $changeset,
+      self::getSupportedMessageSectionNames(),
+    );
+
+    // If No test plan, remove "test plan" from Summary
+    if (($sections['test plan'] ?? null) === self::NOT_A_TEST_PLAN) {
+      unset($sections['test plan']);
+    }
+
+    return $changeset->withMessage(
+      ShipItMessageSections::buildMessage($sections),
+    );
+  }
+
+  public static function stripSubjectMergePrefix(
+    ShipItChangeset $changeset,
+  ): ShipItChangeset {
+    // remove junk added when merging that looks like:
+    //
+    //   unixname merging SHA1 | unixname | ...
+    //
+    return $changeset->withSubject(
+      Regex\replace(
+        $changeset->getSubject(),
+        re"/^\w+ merging \w+ \| \w+ \| /",
+        '',
+      ),
+    );
+  }
+
+  public static async function genStripSubjectPRTag(
+    ShipItChangeset $changeset,
+  ): Awaitable<ShipItChangeset> {
+    if (await self::genImportedFromPullRequest($changeset)) {
+      return $changeset->withSubject(
+        Regex\replace(
+          $changeset->getSubject(),
+          re"/\[[^\]]+\]\s*\[PR\](.*)/",
+          '$1',
+        ),
+      );
+    }
+    return $changeset;
+  }
+
+  public static async function genStripSubjectTags(
+    ShipItChangeset $changeset,
+    bool $keep_tags,
+  ): Awaitable<ShipItChangeset> {
+    if ($keep_tags) {
+      // keep all tags except for the automated PR import tags
+      return await self::genStripSubjectPRTag($changeset);
+    } else {
+      // strip tags like [hack] from the front of the subject. historically,
+      // this happened automatically when ShipItRepoGIT called `git am` without
+      // `-b`, so this is just maintaining that behavior since they sometimes
+      // contain codenames.
+      return $changeset->withSubject(
+        Regex\replace(
+          $changeset->getSubject(),
+          re"/^(?:\[[^\]]+\]\s*)*(Back out \"|Revert \"|Revert D\d+: )?(?:\[[^\]]+\]\s*)+/i",
+          '$1',
+        ),
+      );
+    }
+  }
+
+  public static function stripCommands(
+    ShipItChangeset $changeset,
+  ): ShipItChangeset {
+    return $changeset->withMessage(
+      Regex\replace(
+        $changeset->getMessage(),
+        re"/(@override-unit-failures)|(@build\[.*\])/",
+        '',
+      ),
+    );
+  }
+
+  public static function stripAccept2Ship(
+    ShipItChangeset $changeset,
+  ): ShipItChangeset {
+    return $changeset->withMessage(
+      Regex\replace($changeset->getMessage(), re"/#accept2ship\n?/", ''),
+    );
+  }
+
+  public static function stripSevRevertSummary(
+    ShipItChangeset $changeset,
+  ): ShipItChangeset {
+    if (
+      !Regex\matches($changeset->getMessage(), re"/This reverts commit/") ||
+      !Regex\matches($changeset->getMessage(), re"/cause_a_sev_many_files/")
+    ) {
+      return $changeset;
+    }
+    $sections = ShipItMessageSections::getSections(
+      $changeset,
+      self::getSupportedMessageSectionNames(),
+    );
+    unset($sections['summary']);
+    return $changeset->withMessage(
+      ShipItMessageSections::buildMessage($sections),
+    );
+  }
+
+  public static function getSupportedMessageSectionNames(): keyset<string> {
+    return keyset[
+      'summary',
+      'facebook',
+      'github author',
+      'github pr sync',
+      'test plan',
+      'reviewers',
+      'reviewed by',
+      'differential revision',
+      'blame revision',
+      'tags',
+      'task id',
+      'tasks',
+      'subscribers',
+      'signature',
+      'committer',
+      'pulled by',
+    ];
+  }
+
+  public static async function genKeepSections(
+    ShipItChangeset $changeset,
+    shape(
+      'filterMessageSections/keepFields' => keyset<string>,
+      ...
+    ) $config,
+  ): Awaitable<keyset<string>> {
+    $keep = $config['filterMessageSections/keepFields'];
+    if (await self::genImportedFromPullRequest($changeset)) {
+      $keep[] = 'test plan';
+    }
+    return $keep;
+  }
+
+  public static function filterMessageSections(
+    ShipItChangeset $changeset,
+    keyset<string> $keep,
+  ): ShipItChangeset {
+    $sections = ShipItMessageSections::getSections(
+      $changeset,
+      self::getSupportedMessageSectionNames(),
+    )
+      |> Dict\filter_keys($$, ($k) ==> C\contains($keep, $k));
+    return $changeset->withMessage(
+      ShipItMessageSections::buildMessage($sections),
+    );
+  }
+
+  public static async function genRewriteMentions(
+    ShipItChangeset $changeset,
+  ): Awaitable<ShipItChangeset> {
+    $changeset = self::rewriteFBMentions($changeset);
+    $changeset = await ShipItUserFilters::genRewriteMentions(
+      $changeset,
+      FBToGitHubUserInfo::class,
+    );
+    $changeset = await ShipItMentions::genRewriteMentionsWithoutAt(
+      $changeset,
+      /* exceptions = */ keyset[
+        '@override-unit-failures',
+        '@already-on-github',
+        '@public',
+      ],
+    );
+    return $changeset;
+  }
+
+  public static function rewriteFBMentions(
+    ShipItChangeset $changeset,
+  ): ShipItChangeset {
+    $message = Regex\replace_with(
+      $changeset->getMessage(),
+      // @[123:Name]
+      re"/@\[(\d+):([^\]]+)\]/",
+      $matches ==> $matches[2],
+    );
+    return $changeset->withMessage($message);
+  }
+
+  private static function isBotUser(string $user): bool {
+    return C\contains(
+      keyset[
+        'androidtrunkagent',
+        'svcscm',
+      ],
+      $user,
+    );
+  }
+
+  public static async function genRestoreGitHubAuthor(
+    ShipItChangeset $changeset,
+  ): Awaitable<ShipItChangeset> {
+    if (!Regex\matches($changeset->getMessage(), re"/^Github author:/mi")) {
+      return $changeset;
+    }
+
+    $pulled_by_unixname = null;
+    $matches = Regex\first_match(
+      $changeset->getAuthor(),
+      re"/<(?<author>[^@]*)@fb\.com>/",
+    );
+    if ($matches !== null && !self::isBotUser($matches['author'])) {
+      $pulled_by_unixname = $matches['author'];
+    } else {
+      $sections = ShipItMessageSections::getSections(
+        $changeset,
+        self::getSupportedMessageSectionNames(),
+      );
+      if (C\contains_key($sections, 'reviewed by')) {
+        $names = Str\split($sections['reviewed by'], ', ');
+        if (C\count($names) === 1) {
+          $pulled_by_unixname = $names[0];
+        }
+      }
+    }
+
+    if ($pulled_by_unixname !== null) {
+      $pulled_by = await FBToGitHubUserInfo::genDestinationUserFromLocalUser(
+        $pulled_by_unixname,
+      );
+
+      $changeset = $changeset->withMessage(
+        $changeset->getMessage()."\n\nPulled By: ".(string)$pulled_by,
+      );
+    }
+
+    $changeset = ShipItUserFilters::rewriteAuthorFromGitHubAuthorLine(
+      $changeset,
+    );
+    if (!Regex\matches($changeset->getAuthor(), re"/.*<.*>/")) {
+      $changeset = $changeset->withAuthor(
+        Str\format('%s <>', $changeset->getAuthor()),
+      );
+    }
+    return $changeset;
+  }
+
+  public static async function genRewriteReviewers(
+    ShipItChangeset $changeset,
+  ): Awaitable<ShipItChangeset> {
+    $sections = ShipItMessageSections::getSections(
+      $changeset,
+      self::getSupportedMessageSectionNames(),
+    );
+    if (!C\contains_key($sections, 'reviewed by')) {
+      return $changeset;
+    }
+    $names = await (
+      Str\split($sections['reviewed by'], ', ')
+      // No project reviewers e.g., #WDT in D2407623
+      |> Vec\filter($$, $name ==> Str\slice(Str\trim($name), 0, 1) !== '#')
+      |> Vec\map_async(
+        $$,
+        async $name ==>
+          await FBToGitHubUserInfo::genDestinationUserFromLocalUser($name),
+      )
+    );
+    $names = Vec\filter($names, $x ==> Str\length($x ?? '') > 0);
+    $names = Vec\filter_nulls($names);
+    $sections['reviewed by'] = Str\join($names, ', ');
+    return $changeset->withMessage(
+      ShipItMessageSections::buildMessage($sections),
+    );
+  }
+
+  public static function stripCoAuthoredByLines(
+    ShipItChangeset $changeset,
+  ): ShipItChangeset {
+    $out_message = vec[];
+    $co_author_lines = "";
+    foreach (Str\split($changeset->getMessage(), "\n") as $line) {
+      if (Str\starts_with($line, "Co-authored-by:")) {
+        $co_author_lines .= $line."\n";
+      } else {
+        $out_message[] = $line;
+      }
+    }
+    return $changeset->withMessage(Str\join($out_message, "\n"))
+      ->withCoAuthorLines($co_author_lines);
+  }
+
+  public static async function genImportedFromPullRequest(
+    ShipItChangeset $changeset,
+  ): Awaitable<bool> {
+    $github_author_restored = await self::genRestoreGitHubAuthor($changeset);
+    return self::referencePullRequestNumber($changeset) !== $changeset &&
+      $github_author_restored !== $changeset;
+  }
+}
