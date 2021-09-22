@@ -1,0 +1,29 @@
+name: NPM publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.release.target_commitish }}
+      - name: Use Node.js 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
+      - run: npm install
+      - run: git config --global user.name "Ashish Patel"
+      - run: git config --global user.email "ashishsushilpatel@gmail.com"
+      - run: npm version ${{ github.event.release.tag_name }}
+      - run: npm run build
+      - run: npm run publish:dist --tag ${{ github.event.release.target_commitish }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: git push
+        env:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
