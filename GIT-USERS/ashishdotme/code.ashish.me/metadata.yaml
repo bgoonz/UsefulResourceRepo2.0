@@ -1,0 +1,47 @@
+title: code.ashish.me
+about: ashishdotme/code.ashish.me
+about_url: https://github.com/ashishdotme/code.ashish.me
+plugins:
+  datasette-atom:
+    allow_unsafe_html_in_canned_queries: true
+databases:
+  problems:
+    queries:
+      search: |
+        select
+          problems_fts.rank,
+          problems.*,
+          snippet(problems_fts, -1, 'b4de2a49c8', '8c94a2ed4b', '...', 60) as snippet
+        from
+          problems
+          join problems_fts on problems.rowid = problems_fts.rowid
+        where
+          problems_fts match case
+            :q
+            when '' then 'nomatchforthisterm'
+            else escape_fts(:q)
+          end
+        order by
+          problems_fts.rank limit 20
+      feed:
+        title: code.ashish.me
+        sql: |-
+          SELECT
+            'tag:code.ashish.me,2020-04-30:' || path as atom_id,
+            slug as atom_title,
+            'https://code.ashish.me/' || topic || '/' || slug as atom_link,
+            created_utc as atom_updated,
+            html as atom_content_html,
+            'Ashish Patel' as atom_author_name,
+            'https://code.ashish.me/' as atom_author_uri
+          FROM
+            problems
+          order by
+            created_utc desc
+          limit
+            15
+    tables:
+      problems:
+        sort_desc: updated_utc
+        facets:
+          - topic
